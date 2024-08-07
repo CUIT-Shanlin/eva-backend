@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    dynamic:
+      primary: master
+      strict: false
+      datasource:
+        master:
+          url: jdbc:mysql://localhost:3306/springboot_test?characterEncoding=utf8&serverTimezone=UTC
+          username: root
+          password: 123456
