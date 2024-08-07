@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="edu.cuit.infra.dal.mapper.course.SemesterMapper">
+
+    <resultMap id="BaseResultMap" type="edu.cuit.infra.dal.po.course.SemesterDO">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="start_year" column="start_year" jdbcType="VARCHAR"/>
+            <result property="period" column="period" jdbcType="TINYINT"/>
+            <result property="is_deleted" column="is_deleted" jdbcType="TINYINT"/>
+            <result property="end_year" column="end_year" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,start_year,period,
+        is_deleted,end_year
+    </sql>
+</mapper>
