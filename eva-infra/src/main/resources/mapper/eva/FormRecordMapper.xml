@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="edu.cuit.infra.dal.mapper.eva.FormRecordMapper">
+
+    <resultMap id="BaseResultMap" type="edu.cuit.infra.dal.po.eva.FormRecordDO">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="task_id" column="task_id" jdbcType="INTEGER"/>
+            <result property="template_id" column="template_id" jdbcType="INTEGER"/>
+            <result property="text_value" column="text_value" jdbcType="VARCHAR"/>
+            <result property="form_props_values" column="form_props_values" jdbcType="VARCHAR"/>
+            <result property="create_time" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="is_deleted" column="is_deleted" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,task_id,template_id,
+        text_value,form_props_values,create_time,
+        is_deleted
+    </sql>
+</mapper>
