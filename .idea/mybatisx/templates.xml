@@ -10,7 +10,7 @@
             <option name="basePath" value="src/main/java" />
             <option name="classNameStrategy" value="camel" />
             <option name="encoding" value="UTF-8" />
-            <option name="extraClassSuffix" value="" />
+            <option name="extraClassSuffix" value="DO" />
             <option name="ignoreFieldPrefix" value="" />
             <option name="ignoreFieldSuffix" value="" />
             <option name="ignoreTablePrefix" value="" />
@@ -28,7 +28,7 @@
                   <option name="fileName" value="${domain.fileName}Mapper" />
                   <option name="fileNameWithSuffix" value="${domain.fileName}Mapper.java" />
                   <option name="modulePath" value="$PROJECT_DIR$/eva-infra" />
-                  <option name="packageName" value="edu.cuit.infra.dal.mapper.user" />
+                  <option name="packageName" value="edu.cuit.infra.dal.mapper.log" />
                 </ModuleInfoGo>
                 <ModuleInfoGo>
                   <option name="basePath" value="src/main/resources" />
@@ -38,36 +38,23 @@
                   <option name="fileName" value="${domain.fileName}Mapper" />
                   <option name="fileNameWithSuffix" value="${domain.fileName}Mapper.xml" />
                   <option name="modulePath" value="$PROJECT_DIR$/eva-infra" />
-                  <option name="packageName" value="mapper.user" />
+                  <option name="packageName" value="mapper.log" />
                 </ModuleInfoGo>
               </list>
             </option>
-            <option name="needToStringHashcodeEquals" value="true" />
             <option name="needsComment" value="true" />
             <option name="needsModel" value="true" />
-            <option name="relativePackage" value="po.user" />
+            <option name="relativePackage" value="po.log" />
             <option name="superClass" value="" />
             <option name="tableUIInfoList">
               <list>
                 <TableUIInfo>
-                  <option name="className" value="SysRole" />
-                  <option name="tableName" value="sys_role" />
+                  <option name="className" value="SysLog" />
+                  <option name="tableName" value="sys_log" />
                 </TableUIInfo>
                 <TableUIInfo>
-                  <option name="className" value="SysRoleMenu" />
-                  <option name="tableName" value="sys_role_menu" />
-                </TableUIInfo>
-                <TableUIInfo>
-                  <option name="className" value="SysUser" />
-                  <option name="tableName" value="sys_user" />
-                </TableUIInfo>
-                <TableUIInfo>
-                  <option name="className" value="SysUserRole" />
-                  <option name="tableName" value="sys_user_role" />
-                </TableUIInfo>
-                <TableUIInfo>
-                  <option name="className" value="SysMenu" />
-                  <option name="tableName" value="sys_menu" />
+                  <option name="className" value="SysLogModule" />
+                  <option name="tableName" value="sys_log_module" />
                 </TableUIInfo>
               </list>
             </option>
