@@ -6,3 +6,8 @@ spring:
     name: Evaluation-Backend
   profiles:
     active: dev
+  datasource:
+    druid:
+      initialSize: 5
+      minIdle: 5
+      maxPoolPreparedStatementPerConnectionSize: 20
