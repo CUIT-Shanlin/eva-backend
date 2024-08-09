@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="edu.cuit.infra.dal.mapper.course.SemesterMapper">
+<mapper namespace="edu.cuit.infra.dal.database.mapper.course.SemesterMapper">
 
-    <resultMap id="BaseResultMap" type="edu.cuit.infra.dal.po.course.SemesterDO">
+    <resultMap id="BaseResultMap" type="edu.cuit.infra.dal.database.dataobject.course.SemesterDO">
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="start_year" column="start_year" jdbcType="VARCHAR"/>
             <result property="period" column="period" jdbcType="TINYINT"/>

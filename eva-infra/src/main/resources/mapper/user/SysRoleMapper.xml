@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="edu.cuit.infra.dal.mapper.user.SysRoleMapper">
+<mapper namespace="edu.cuit.infra.dal.database.mapper.user.SysRoleMapper">
 
-    <resultMap id="BaseResultMap" type="edu.cuit.infra.dal.po.user.SysRoleDO">
+    <resultMap id="BaseResultMap" type="edu.cuit.infra.dal.database.dataobject.user.SysRoleDO">
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="role_name" column="role_name" jdbcType="VARCHAR"/>
             <result property="description" column="description" jdbcType="VARCHAR"/>

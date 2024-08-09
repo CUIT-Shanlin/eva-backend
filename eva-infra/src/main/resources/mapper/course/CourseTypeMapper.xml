@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="edu.cuit.infra.dal.mapper.course.CourseTypeMapper">
+<mapper namespace="edu.cuit.infra.dal.database.mapper.course.CourseTypeMapper">
 
-    <resultMap id="BaseResultMap" type="edu.cuit.infra.dal.po.course.CourseTypeDO">
+    <resultMap id="BaseResultMap" type="edu.cuit.infra.dal.database.dataobject.course.CourseTypeDO">
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="name" column="name" jdbcType="VARCHAR"/>
             <result property="description" column="description" jdbcType="VARCHAR"/>

@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="edu.cuit.infra.dal.mapper.log.SysLogModuleMapper">
+<mapper namespace="edu.cuit.infra.dal.database.mapper.log.SysLogModuleMapper">
 
-    <resultMap id="BaseResultMap" type="edu.cuit.infra.dal.po.log.SysLogModuleDO">
+    <resultMap id="BaseResultMap" type="edu.cuit.infra.dal.database.dataobject.log.SysLogModuleDO">
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="name" column="name" jdbcType="VARCHAR"/>
     </resultMap>

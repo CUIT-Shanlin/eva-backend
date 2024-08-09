@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="edu.cuit.infra.dal.mapper.user.SysMenuMapper">
+<mapper namespace="edu.cuit.infra.dal.database.mapper.user.SysMenuMapper">
 
-    <resultMap id="BaseResultMap" type="edu.cuit.infra.dal.po.user.SysMenuDO">
+    <resultMap id="BaseResultMap" type="edu.cuit.infra.dal.database.dataobject.user.SysMenuDO">
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="parent_id" column="parent_id" jdbcType="INTEGER"/>
             <result property="name" column="name" jdbcType="VARCHAR"/>

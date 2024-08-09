@@ -1,0 +1,20 @@
+package edu.cuit.infra.dal.database.mapper.course;
+
+import com.github.yulichang.base.MPJBaseMapper;
+import edu.cuit.infra.dal.database.dataobject.course.SemesterDO;
+import org.apache.ibatis.annotations.Mapper;
+
+/**
+* @author XiaoMo
+* @description 针对表【semester(学期表)】的数据库操作Mapper
+* @createDate 2024-08-07 16:48:58
+* @Entity edu.cuit.infra.dal.po.course.SemesterDO
+*/
+@Mapper
+public interface SemesterMapper extends MPJBaseMapper<SemesterDO> {
+
+}
+
+
+
+

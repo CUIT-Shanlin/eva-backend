@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="edu.cuit.infra.dal.mapper.eva.EvaTaskMapper">
+<mapper namespace="edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper">
 
-    <resultMap id="BaseResultMap" type="edu.cuit.infra.dal.po.eva.EvaTaskDO">
+    <resultMap id="BaseResultMap" type="edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO">
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="teachar_id" column="teachar_id" jdbcType="INTEGER"/>
             <result property="cour_inf_id" column="cour_inf_id" jdbcType="INTEGER"/>
