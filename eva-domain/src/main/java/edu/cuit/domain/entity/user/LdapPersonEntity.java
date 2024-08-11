@@ -50,6 +50,11 @@ public class LdapPersonEntity {
      */
     private String school;
 
+    /**
+     * 是否为管理员
+     */
+    private Boolean isAdmin;
+
     private final Optional<LdapPersonGateway> ldapPersonGateway;
 
 }

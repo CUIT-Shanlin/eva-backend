@@ -19,10 +19,12 @@ public class TestLdap {
 
     @Test
     public void testAuthenticate() {
-        System.out.println(ldapPersonGateway.authenticate("2", "456123"));
-        Optional<LdapPersonEntity> byUsername = ldapPersonGateway.findByUsername("2");
-        System.out.println(byUsername.get().getName());
-        System.out.println(byUsername.get().getEmail());
+        System.out.println(ldapPersonGateway.authenticate("1", "456123"));
+        Optional<LdapPersonEntity> byUsername = ldapPersonGateway.findByUsername("1");
+        LdapPersonEntity ldapPersonEntity = byUsername.get();
+        System.out.println(ldapPersonEntity.getName());
+        System.out.println(ldapPersonEntity.getEmail());
+        System.out.println(ldapPersonEntity.getIsAdmin());
     }
 
     @Test

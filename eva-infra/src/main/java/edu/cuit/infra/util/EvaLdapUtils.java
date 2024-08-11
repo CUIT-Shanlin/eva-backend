@@ -2,6 +2,7 @@ package edu.cuit.infra.util;
 
 import cn.hutool.extra.spring.SpringUtil;
 import edu.cuit.infra.enums.LdapConstant;
+import edu.cuit.infra.property.EvaLdapProperties;
 import org.springframework.boot.autoconfigure.ldap.LdapProperties;
 import org.springframework.ldap.support.LdapUtils;
 
@@ -13,13 +14,19 @@ import javax.naming.ldap.LdapName;
 public class EvaLdapUtils {
 
     private static final LdapProperties ldapProperties;
+    public static final EvaLdapProperties evaLdapProperties;
 
     static {
         ldapProperties = SpringUtil.getBean(LdapProperties.class);
+        evaLdapProperties = SpringUtil.getBean(EvaLdapProperties.class);
     }
 
     public static LdapName getUserLdapNameId(String uid) {
         return LdapUtils.newLdapName("uid=" + uid + "," + LdapConstant.USER_BASE_DN);
+    }
+
+    public static String getAdminGroupDn() {
+        return "cn=" + evaLdapProperties.getAdminGroupCn() + "," + LdapConstant.GROUP_BASE_DN;
     }
 
 }

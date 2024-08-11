@@ -4,7 +4,9 @@ import cn.hutool.core.util.IdUtil;
 import edu.cuit.domain.entity.user.LdapPersonEntity;
 import edu.cuit.domain.gateway.user.LdapPersonGateway;
 import edu.cuit.infra.convertor.user.UserConvertor;
+import edu.cuit.infra.dal.ldap.dataobject.LdapGroupDO;
 import edu.cuit.infra.dal.ldap.dataobject.LdapPersonDO;
+import edu.cuit.infra.dal.ldap.repo.LdapGroupRepo;
 import edu.cuit.infra.dal.ldap.repo.LdapPersonRepo;
 import edu.cuit.infra.enums.LdapConstant;
 import edu.cuit.infra.util.EvaLdapUtils;
@@ -13,6 +15,8 @@ import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -22,6 +26,7 @@ public class LdapPersonGatewayImpl implements LdapPersonGateway {
     private final LdapTemplate ldapTemplate;
     private final LdapPersonRepo ldapPersonRepo;
     private final UserConvertor userConvertor;
+    private final LdapGroupRepo ldapGroupRepo;
 
     @Override
     public boolean authenticate(String username, String password) {
@@ -31,8 +36,12 @@ public class LdapPersonGatewayImpl implements LdapPersonGateway {
 
     @Override
     public Optional<LdapPersonEntity> findByUsername(String username) {
-        Optional<LdapPersonDO> personDO = ldapPersonRepo.findByUsername(username);
-        return personDO.map(userConvertor::ldapPersonDoToLdapPersonEntity);
+        Optional<LdapPersonDO> personOpt = ldapPersonRepo.findByUsername(username);
+        Optional<LdapPersonEntity> personEntityOpt = personOpt.map(userConvertor::ldapPersonDoToLdapPersonEntity);
+        if (personEntityOpt.isEmpty()) return Optional.empty();
+        LdapPersonEntity personEntity = personEntityOpt.get();
+        personEntity.setIsAdmin(getAdminPersons().contains(personEntity.getUsername()));
+        return Optional.of(personEntity);
     }
 
     @Override
@@ -44,5 +53,12 @@ public class LdapPersonGatewayImpl implements LdapPersonGateway {
         personDO.setUidNumber(IdUtil.getSnowflakeNextIdStr());
         personDO.setHomeDirectory("/home/" + user.getUsername());
         ldapTemplate.create(personDO);
+    }
+
+    private List<String> getAdminPersons() {
+        Optional<LdapGroupDO> adminGroupOpt = ldapGroupRepo.findByCommonName(EvaLdapUtils.evaLdapProperties.getAdminGroupCn());
+        if (adminGroupOpt.isEmpty()) return new ArrayList<>();
+        LdapGroupDO adminGroup = adminGroupOpt.get();
+        return adminGroup.getMembers();
     }
 }

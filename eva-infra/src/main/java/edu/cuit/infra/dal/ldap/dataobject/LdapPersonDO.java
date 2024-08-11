@@ -1,5 +1,6 @@
 package edu.cuit.infra.dal.ldap.dataobject;
 
+import edu.cuit.infra.enums.LdapConstant;
 import lombok.Data;
 import net.minidev.json.annotate.JsonIgnore;
 import org.springframework.ldap.odm.annotations.Attribute;
