@@ -7,12 +7,10 @@ import edu.cuit.infra.convertor.user.UserConvertor;
 import edu.cuit.infra.dal.ldap.dataobject.LdapPersonDO;
 import edu.cuit.infra.dal.ldap.repo.LdapPersonRepo;
 import edu.cuit.infra.enums.LdapConstant;
-import edu.cuit.infra.util.LdapUtil;
+import edu.cuit.infra.util.EvaLdapUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.ldap.LdapProperties;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.filter.EqualsFilter;
-import org.springframework.ldap.support.LdapUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -41,7 +39,7 @@ public class LdapPersonGatewayImpl implements LdapPersonGateway {
     public void saveUser(LdapPersonEntity user,String password) {
         LdapPersonDO personDO = userConvertor.ldapPersonEntityToLdapPersonDO(user);
         personDO.setUserPassword(password);
-        personDO.setId(LdapUtil.getUserLdapNameId(personDO.getUsername()));
+        personDO.setId(EvaLdapUtils.getUserLdapNameId(personDO.getUsername()));
         personDO.setCommonName(personDO.getSurname() + personDO.getGivenName());
         personDO.setUidNumber(IdUtil.getSnowflakeNextIdStr());
         personDO.setHomeDirectory("/home/" + user.getUsername());

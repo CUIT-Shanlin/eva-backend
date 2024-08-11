@@ -10,7 +10,7 @@ import javax.naming.ldap.LdapName;
 /**
  * Ldap相关工具类
  */
-public class LdapUtil {
+public class EvaLdapUtils {
 
     private static final LdapProperties ldapProperties;
 
