@@ -26,6 +26,16 @@ public class LdapPersonEntity {
     private String name;
 
     /**
+     * 姓
+     */
+    private String surname;
+
+    /**
+     * 名
+     */
+    private String givenName;
+
+    /**
      * 邮箱
      */
     private String email;
@@ -41,9 +51,5 @@ public class LdapPersonEntity {
     private String school;
 
     private final Optional<LdapPersonGateway> ldapPersonGateway;
-
-    public void changePassword(String newPassword) {
-
-    }
 
 }

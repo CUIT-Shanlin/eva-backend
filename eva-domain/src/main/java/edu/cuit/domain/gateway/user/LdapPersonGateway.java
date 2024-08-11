@@ -28,6 +28,7 @@ public interface LdapPersonGateway {
     /**
      * 新增用户
      * @param user LdapPersonEntity
+     * @param password 未加密的密码
      */
-    void saveUser(LdapPersonEntity user);
+    void saveUser(LdapPersonEntity user,String password);
 }

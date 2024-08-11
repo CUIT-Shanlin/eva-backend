@@ -11,6 +11,10 @@ import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.stereotype.Component;
 
+import javax.naming.directory.Attribute;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import java.util.Optional;
 
 @Component
@@ -34,7 +38,12 @@ public class LdapPersonGatewayImpl implements LdapPersonGateway {
     }
 
     @Override
-    public void saveUser(LdapPersonEntity user) {
-
+    public void saveUser(LdapPersonEntity user,String password) {
+        LdapPersonDO personDO = userConvertor.ldapPersonEntityToLdapPersonDO(user);
+        ldapPersonRepo.save(personDO);
+        ModificationItem[] mods = new ModificationItem[1];
+        Attribute attribute = new BasicAttribute("userPassword",password);
+        mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE,attribute);
+        ldapTemplate.modifyAttributes("uid=" + user.getUsername() + "," + LdapConstant.USER_BASE_DN,mods);
     }
 }
