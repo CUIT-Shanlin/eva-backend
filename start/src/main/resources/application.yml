@@ -13,7 +13,7 @@ spring:
       maxPoolPreparedStatementPerConnectionSize: 20
 
   ldap:
-    urls: ldap://littlestrange.site:7088
+    urls: ldap://littlestrange.site:7086
     base: dc=cuit,dc=edu,dc=cn
     username: cn=eva_system,ou=system,ou=user,dc=cuit,dc=edu,dc=cn
     password: cuit
