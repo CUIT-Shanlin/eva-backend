@@ -1,20 +1,20 @@
 package edu.cuit.infra.gateway.impl;
 
+import cn.hutool.core.util.IdUtil;
 import edu.cuit.domain.entity.user.LdapPersonEntity;
 import edu.cuit.domain.gateway.user.LdapPersonGateway;
 import edu.cuit.infra.convertor.user.UserConvertor;
 import edu.cuit.infra.dal.ldap.dataobject.LdapPersonDO;
 import edu.cuit.infra.dal.ldap.repo.LdapPersonRepo;
 import edu.cuit.infra.enums.LdapConstant;
+import edu.cuit.infra.util.LdapUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.ldap.LdapProperties;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.filter.EqualsFilter;
+import org.springframework.ldap.support.LdapUtils;
 import org.springframework.stereotype.Component;
 
-import javax.naming.directory.Attribute;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 import java.util.Optional;
 
 @Component
@@ -40,10 +40,11 @@ public class LdapPersonGatewayImpl implements LdapPersonGateway {
     @Override
     public void saveUser(LdapPersonEntity user,String password) {
         LdapPersonDO personDO = userConvertor.ldapPersonEntityToLdapPersonDO(user);
-        ldapPersonRepo.save(personDO);
-        ModificationItem[] mods = new ModificationItem[1];
-        Attribute attribute = new BasicAttribute("userPassword",password);
-        mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE,attribute);
-        ldapTemplate.modifyAttributes("uid=" + user.getUsername() + "," + LdapConstant.USER_BASE_DN,mods);
+        personDO.setUserPassword(password);
+        personDO.setId(LdapUtil.getUserLdapNameId(personDO.getUsername()));
+        personDO.setCommonName(personDO.getSurname() + personDO.getGivenName());
+        personDO.setUidNumber(IdUtil.getSnowflakeNextIdStr());
+        personDO.setHomeDirectory("/home/" + user.getUsername());
+        ldapTemplate.create(personDO);
     }
 }

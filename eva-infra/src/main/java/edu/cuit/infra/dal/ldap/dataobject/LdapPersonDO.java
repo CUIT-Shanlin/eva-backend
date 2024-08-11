@@ -1,7 +1,9 @@
 package edu.cuit.infra.dal.ldap.dataobject;
 
 import lombok.Data;
+import net.minidev.json.annotate.JsonIgnore;
 import org.springframework.ldap.odm.annotations.Attribute;
+import org.springframework.ldap.odm.annotations.DnAttribute;
 import org.springframework.ldap.odm.annotations.Entry;
 import org.springframework.ldap.odm.annotations.Id;
 
@@ -55,6 +57,35 @@ public class LdapPersonDO {
      */
     @Attribute(name = "o")
     private String school;
+
+    /**
+     * posixAccount要求该属性
+     */
+    @Attribute(name="gidNumber")
+    private String gidNumber = "10000";
+
+    /**
+     * posixAccount要求该属性
+     */
+    @Attribute(name="uidNumber")
+    private String uidNumber;
+
+    /**
+     * posixAccount要求该属性
+     */
+    @Attribute(name="homeDirectory")
+    private String homeDirectory;
+
+    /**
+     * inetOrgPerson要求该属性
+     */
+    @Attribute(name = "cn")
+    private String commonName;
+
+    /**
+     * 密码，只用于新增用户
+     */
+    private String userPassword;
 
 
 }

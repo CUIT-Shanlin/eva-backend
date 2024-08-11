@@ -29,6 +29,8 @@ public interface LdapPersonGateway {
      * 新增用户
      * @param user LdapPersonEntity
      * @param password 未加密的密码
+     * @deprecated 不建议使用，建议直接在lam中添加用户
      */
+    @Deprecated
     void saveUser(LdapPersonEntity user,String password);
 }
