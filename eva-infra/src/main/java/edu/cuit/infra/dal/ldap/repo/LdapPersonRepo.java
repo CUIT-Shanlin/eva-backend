@@ -4,17 +4,19 @@ import edu.cuit.infra.dal.ldap.dataobject.LdapPersonDO;
 import org.springframework.data.ldap.repository.LdapRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 /**
  * Ldap用户操作接口
  */
 @Repository
-public interface PersonRepo extends LdapRepository<LdapPersonDO> {
+public interface LdapPersonRepo extends LdapRepository<LdapPersonDO> {
 
     /**
      * 根据用户名获取Ldap用户对象
      * @param username 用户名
      * @return LdapPersonDO
      */
-    LdapPersonDO findByUsername(String username);
+    Optional<LdapPersonDO> findByUsername(String username);
 
 }

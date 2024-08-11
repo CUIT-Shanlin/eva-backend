@@ -27,10 +27,16 @@ public class LdapPersonDO {
     private String username;
 
     /**
-     * 昵称
+     * 姓
      */
-    @Attribute(name = "cn")
-    private String name;
+    @Attribute(name = "sn")
+    private String surname;
+
+    /**
+     * 名
+     */
+    @Attribute(name = "givenName")
+    private String givenName;
 
     /**
      * 邮箱
