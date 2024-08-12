@@ -18,6 +18,14 @@ spring:
     username: cn=eva_system,ou=system,ou=user,dc=cuit,dc=edu,dc=cn
     password: cuit
 
+mybatis-plus:
+  global-config:
+    db-config:
+      logic-delete-field: isDeleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+      id-type: auto
+
 eva:
   ldap:
     user-base-dn: ou=member,ou=user
