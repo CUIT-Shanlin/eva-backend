@@ -2,9 +2,8 @@ package edu.cuit.infra.convertor.user;
 
 import edu.cuit.domain.entity.user.LdapPersonEntity;
 import edu.cuit.infra.dal.ldap.dataobject.LdapPersonDO;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
+import edu.cuit.infra.util.EvaLdapUtils;
+import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface UserConvertor {
@@ -13,6 +12,11 @@ public interface UserConvertor {
             @Mapping(target = "name",expression = "java(ldapPersonDO.getSurname()+ldapPersonDO.getGivenName())")
     )
     LdapPersonEntity ldapPersonDoToLdapPersonEntity(LdapPersonDO ldapPersonDO);
+
+    @AfterMapping
+    default void afterPersonDoToPersonEntity(LdapPersonDO personDO, @MappingTarget LdapPersonEntity personEntity) {
+        EvaLdapUtils.getAdminGroupDo().ifPresent(groupDo -> personEntity.setIsAdmin(groupDo.getMembers().contains(personDO.getUsername())));
+    }
 
     LdapPersonDO ldapPersonEntityToLdapPersonDO(LdapPersonEntity ldapPersonEntity);
 }

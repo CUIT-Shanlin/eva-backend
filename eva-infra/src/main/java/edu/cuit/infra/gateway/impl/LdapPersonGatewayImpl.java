@@ -40,11 +40,7 @@ public class LdapPersonGatewayImpl implements LdapPersonGateway {
     @Override
     public Optional<LdapPersonEntity> findByUsername(String username) {
         Optional<LdapPersonDO> personOpt = ldapPersonRepo.findByUsername(username);
-        Optional<LdapPersonEntity> personEntityOpt = personOpt.map(userConvertor::ldapPersonDoToLdapPersonEntity);
-        if (personEntityOpt.isEmpty()) return Optional.empty();
-        LdapPersonEntity personEntity = personEntityOpt.get();
-        personEntity.setIsAdmin(getAdminPersons().contains(personEntity.getUsername()));
-        return Optional.of(personEntity);
+        return personOpt.map(userConvertor::ldapPersonDoToLdapPersonEntity);
     }
 
     @Override
@@ -70,20 +66,5 @@ public class LdapPersonGatewayImpl implements LdapPersonGateway {
         ldapTemplate.create(personDO);
     }
 
-    /**
-     * 获取所有管理员的用户名
-     */
-    private List<String> getAdminPersons() {
-        Optional<LdapGroupDO> adminGroupOpt = ldapGroupRepo.findByCommonName(EvaLdapUtils.evaLdapProperties.getAdminGroupCn());
-        if (adminGroupOpt.isEmpty()) return new ArrayList<>();
-        LdapGroupDO adminGroup = adminGroupOpt.get();
-        return adminGroup.getMembers();
-    }
 
-    /**
-     * 获取管理员组do
-     */
-    private Optional<LdapGroupDO> getAdminGroupDo() {
-        return ldapGroupRepo.findByCommonName(EvaLdapUtils.evaLdapProperties.getAdminGroupCn());
-    }
 }
