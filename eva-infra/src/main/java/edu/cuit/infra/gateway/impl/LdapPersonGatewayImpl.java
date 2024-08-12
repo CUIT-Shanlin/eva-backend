@@ -1,6 +1,9 @@
 package edu.cuit.infra.gateway.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.util.IdUtil;
+import com.alibaba.cola.exception.BizException;
 import edu.cuit.domain.entity.user.LdapPersonEntity;
 import edu.cuit.domain.gateway.user.LdapPersonGateway;
 import edu.cuit.infra.convertor.user.UserConvertor;
@@ -45,7 +48,19 @@ public class LdapPersonGatewayImpl implements LdapPersonGateway {
     }
 
     @Override
-    public void saveUser(LdapPersonEntity user,String password) {
+    public List<LdapPersonEntity> findAll() {
+        return ldapPersonRepo.findAll().stream().map(userConvertor::ldapPersonDoToLdapPersonEntity).toList();
+    }
+
+    @Override
+    public void saveUser(LdapPersonEntity user) {
+        LdapPersonDO personDO = ldapPersonRepo.findByUsername(user.getUsername()).orElseThrow(() -> new BizException("该用户不存在"));
+        BeanUtil.copyProperties(user,personDO, CopyOptions.create().ignoreNullValue().setOverride(true));
+        ldapPersonRepo.save(personDO);
+    }
+
+    @Override
+    public void createUser(LdapPersonEntity user, String password) {
         LdapPersonDO personDO = userConvertor.ldapPersonEntityToLdapPersonDO(user);
         personDO.setUserPassword(password);
         personDO.setId(EvaLdapUtils.getUserLdapNameId(personDO.getUsername()));
@@ -55,10 +70,20 @@ public class LdapPersonGatewayImpl implements LdapPersonGateway {
         ldapTemplate.create(personDO);
     }
 
+    /**
+     * 获取所有管理员的用户名
+     */
     private List<String> getAdminPersons() {
         Optional<LdapGroupDO> adminGroupOpt = ldapGroupRepo.findByCommonName(EvaLdapUtils.evaLdapProperties.getAdminGroupCn());
         if (adminGroupOpt.isEmpty()) return new ArrayList<>();
         LdapGroupDO adminGroup = adminGroupOpt.get();
         return adminGroup.getMembers();
+    }
+
+    /**
+     * 获取管理员组do
+     */
+    private Optional<LdapGroupDO> getAdminGroupDo() {
+        return ldapGroupRepo.findByCommonName(EvaLdapUtils.evaLdapProperties.getAdminGroupCn());
     }
 }

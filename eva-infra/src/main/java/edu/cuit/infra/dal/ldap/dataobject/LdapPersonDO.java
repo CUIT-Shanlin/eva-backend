@@ -14,7 +14,7 @@ import javax.naming.Name;
  * Ldap用户信息
  */
 @Entry(
-        base = "ou=member,ou=user",
+        base = "ou=member,ou=user",//FIXME 动态设置
         objectClasses = {"inetOrgPerson","posixAccount","organizationalPerson","person"}
 )
 @Data
@@ -54,10 +54,16 @@ public class LdapPersonDO {
     private String phone;
 
     /**
-     * 学院
+     * 学院(系)
      */
     @Attribute(name = "o")
     private String school;
+
+    /**
+     * 职称
+     */
+    @Attribute(name = "title")
+    private String title;
 
     /**
      * posixAccount要求该属性

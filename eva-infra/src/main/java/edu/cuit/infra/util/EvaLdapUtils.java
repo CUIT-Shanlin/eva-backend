@@ -21,10 +21,18 @@ public class EvaLdapUtils {
         evaLdapProperties = SpringUtil.getBean(EvaLdapProperties.class);
     }
 
+    /**
+     * 获取用户Name(ldap id)
+     * @param uid 用户名
+     * @return LdapName
+     */
     public static LdapName getUserLdapNameId(String uid) {
         return LdapUtils.newLdapName("uid=" + uid + "," + LdapConstant.USER_BASE_DN);
     }
 
+    /**
+     * 获取管理员组DN
+     */
     public static String getAdminGroupDn() {
         return "cn=" + evaLdapProperties.getAdminGroupCn() + "," + LdapConstant.GROUP_BASE_DN;
     }

@@ -14,7 +14,7 @@ import java.util.List;
  * Ldap组信息
  */
 @Entry(
-        base = "ou=member,ou=group",
+        base = "ou=member,ou=group",//FIXME 动态设置
         objectClasses = {"posixGroup"}
 )
 @Data

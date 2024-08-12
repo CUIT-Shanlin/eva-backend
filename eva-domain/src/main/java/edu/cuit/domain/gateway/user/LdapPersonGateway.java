@@ -1,8 +1,8 @@
 package edu.cuit.domain.gateway.user;
 
 import edu.cuit.domain.entity.user.LdapPersonEntity;
-import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -26,11 +26,21 @@ public interface LdapPersonGateway {
     Optional<LdapPersonEntity> findByUsername(String username);
 
     /**
+     * 查询所有用户
+     * @return List<LdapPersonEntity>
+     */
+    List<LdapPersonEntity> findAll();
+
+    /**
+     * 修改用户信息（用户名为标识符）
+     * @param user LdapPersonEntity
+     */
+    void saveUser(LdapPersonEntity user);
+
+    /**
      * 新增用户
      * @param user LdapPersonEntity
      * @param password 未加密的密码
-     * @deprecated 不建议使用，建议直接在lam中添加用户
      */
-    @Deprecated
-    void saveUser(LdapPersonEntity user,String password);
+    void createUser(LdapPersonEntity user, String password);
 }

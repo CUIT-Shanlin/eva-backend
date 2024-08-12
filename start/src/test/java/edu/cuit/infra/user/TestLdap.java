@@ -1,7 +1,6 @@
 package edu.cuit.infra.user;
 
 import cn.hutool.extra.spring.SpringUtil;
-import com.alibaba.cola.domain.ApplicationContextHelper;
 import edu.cuit.Application;
 import edu.cuit.domain.entity.user.LdapPersonEntity;
 import edu.cuit.domain.gateway.user.LdapPersonGateway;
@@ -37,7 +36,7 @@ public class TestLdap {
         person.setSurname("杜");
         person.setGivenName("锟浩");
         person.setUsername("2");
-        ldapPersonGateway.saveUser(person,"456123");
+        ldapPersonGateway.createUser(person,"456123");
     }
 
 }

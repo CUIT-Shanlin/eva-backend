@@ -46,9 +46,14 @@ public class LdapPersonEntity {
     private String phone;
 
     /**
-     * 学院
+     * 学院(系)
      */
     private String school;
+
+    /**
+     * 职称
+     */
+    private String title;
 
     /**
      * 是否为管理员
