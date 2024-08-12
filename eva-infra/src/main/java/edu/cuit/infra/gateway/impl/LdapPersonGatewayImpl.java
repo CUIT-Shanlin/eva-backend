@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.util.IdUtil;
 import com.alibaba.cola.exception.BizException;
+import com.alibaba.cola.exception.SysException;
 import edu.cuit.domain.entity.user.LdapPersonEntity;
 import edu.cuit.domain.gateway.user.LdapPersonGateway;
 import edu.cuit.infra.convertor.user.UserConvertor;
@@ -28,8 +29,8 @@ public class LdapPersonGatewayImpl implements LdapPersonGateway {
 
     private final LdapTemplate ldapTemplate;
     private final LdapPersonRepo ldapPersonRepo;
-    private final UserConvertor userConvertor;
     private final LdapGroupRepo ldapGroupRepo;
+    private final UserConvertor userConvertor;
 
     @Override
     public boolean authenticate(String username, String password) {
@@ -66,5 +67,23 @@ public class LdapPersonGatewayImpl implements LdapPersonGateway {
         ldapTemplate.create(personDO);
     }
 
+    @Override
+    public void addAdmin(String username) {
+        Optional<LdapGroupDO> adminGroupDo = EvaLdapUtils.getAdminGroupDo();
+        adminGroupDo.orElseThrow(() -> new SysException("ldap获取不到管理员组"));
+        List<String> members = adminGroupDo.get().getMembers();
+        if (members.contains(username)) throw new BizException("该用户已经是管理员了");
+        members.add(username);
+        ldapGroupRepo.save(adminGroupDo.get());
+    }
 
+    @Override
+    public void removeAdmin(String username) {
+        Optional<LdapGroupDO> adminGroupDo = EvaLdapUtils.getAdminGroupDo();
+        adminGroupDo.orElseThrow(() -> new SysException("ldap获取不到管理员组"));
+        List<String> members = adminGroupDo.get().getMembers();
+        if (!members.contains(username)) throw new BizException("该用户本来就不是管理员");
+        members.remove(username);
+        ldapGroupRepo.save(adminGroupDo.get());
+    }
 }

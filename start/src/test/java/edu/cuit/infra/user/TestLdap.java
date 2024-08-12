@@ -39,4 +39,11 @@ public class TestLdap {
         ldapPersonGateway.createUser(person,"456123");
     }
 
+    @Test
+    public void testAddRemoveAdmin() {
+        ldapPersonGateway.findByUsername("2").ifPresent(ldapPersonEntity -> System.out.println(ldapPersonEntity.getIsAdmin()));
+        ldapPersonGateway.removeAdmin("2");
+        ldapPersonGateway.findByUsername("2").ifPresent(ldapPersonEntity -> System.out.println(ldapPersonEntity.getIsAdmin()));
+    }
+
 }

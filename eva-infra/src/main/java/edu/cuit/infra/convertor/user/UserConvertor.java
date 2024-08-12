@@ -15,7 +15,7 @@ public interface UserConvertor {
 
     @AfterMapping
     default void afterPersonDoToPersonEntity(LdapPersonDO personDO, @MappingTarget LdapPersonEntity personEntity) {
-        EvaLdapUtils.getAdminGroupDo().ifPresent(groupDo -> personEntity.setIsAdmin(groupDo.getMembers().contains(personDO.getUsername())));
+        EvaLdapUtils.getAdminGroupDo().ifPresentOrElse(groupDo -> personEntity.setIsAdmin(groupDo.getMembers().contains(personDO.getUsername())),() -> personEntity.setIsAdmin(false));
     }
 
     LdapPersonDO ldapPersonEntityToLdapPersonDO(LdapPersonEntity ldapPersonEntity);

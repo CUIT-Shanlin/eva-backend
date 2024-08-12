@@ -43,4 +43,16 @@ public interface LdapPersonGateway {
      * @param password 未加密的密码
      */
     void createUser(LdapPersonEntity user, String password);
+
+    /**
+     * 添加管理员
+     * @param username 用户名
+     */
+    void addAdmin(String username);
+
+    /**
+     * 删除管理员
+     * @param username 用户名
+     */
+    void removeAdmin(String username);
 }
