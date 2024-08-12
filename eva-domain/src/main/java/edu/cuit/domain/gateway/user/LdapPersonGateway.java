@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * 用户访问ldap 用户的接口
+ * 用户访问ldap 用户的数据门户接口
  */
 public interface LdapPersonGateway {
 

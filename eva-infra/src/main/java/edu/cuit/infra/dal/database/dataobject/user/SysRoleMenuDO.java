@@ -18,19 +18,19 @@ import lombok.Data;
 @Data
 public class SysRoleMenuDO implements Serializable {
     /**
-     * 
+     * Id
      */
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
     /**
-     * 
+     * 角色Id
      */
     @TableField(value = "role_id")
     private Integer role_id;
 
     /**
-     * 
+     * 菜单Id
      */
     @TableField(value = "menu_id")
     private Integer menu_id;

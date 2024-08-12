@@ -43,8 +43,10 @@ public class SysUserDO implements Serializable {
 
     /**
      * 性别
+     * @deprecated ldap无法存储该属性，弃用
      */
     @TableField(value = "sex")
+    @Deprecated
     private Integer sex;
 
     /**
