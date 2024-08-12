@@ -27,39 +27,39 @@ public class FormRecordDO implements Serializable {
      * 任务id
      */
     @TableField(value = "task_id")
-    private Integer task_id;
+    private Integer taskId;
 
     /**
      * 表单模板id
      */
     @TableField(value = "template_id")
-    private Integer template_id;
+    private Integer templateId;
 
     /**
      * 详细的文字评价
      */
     @TableField(value = "text_value")
-    private String text_value;
+    private String textValue;
 
     /**
      * 表单评教指标以及对应的分值，JSON字符串格式的对象数组
      */
     @TableField(value = "form_props_values")
-    private String form_props_values;
+    private String formPropsValues;
 
     /**
      * 创建时间
      */
     @TableField(value = "create_time")
-    private LocalDateTime create_time;
+    private LocalDateTime createTime;
 
     /**
      * 实现逻辑删除（0:不可用 1:可用）
      */
     @TableField(value = "is_deleted")
-    private Integer is_deleted;
+    private Integer isDeleted;
 
-    @Serial
     @TableField(exist = false)
+    @Serial
     private static final long serialVersionUID = 1L;
 }

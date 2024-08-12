@@ -39,11 +39,11 @@ public class SysUserDO implements Serializable {
      * 职称
      */
     @TableField(value = "prof_title")
-    private String prof_title;
+    private String profTitle;
 
     /**
      * 性别
-     * @deprecated ldap无法存储该属性，弃用
+     * @deprecated ldap存储不方便，且作用不大，弃用该属性
      */
     @TableField(value = "sex")
     @Deprecated
@@ -59,19 +59,19 @@ public class SysUserDO implements Serializable {
      * 创建时间
      */
     @TableField(value = "create_time")
-    private LocalDateTime create_time;
+    private LocalDateTime createTime;
 
     /**
      * 修改时间
      */
     @TableField(value = "update_time")
-    private LocalDateTime update_time;
+    private LocalDateTime updateTime;
 
     /**
      * 逻辑删除
      */
     @TableField(value = "is_deleted")
-    private Integer is_deleted;
+    private Integer isDeleted;
 
     /**
      * 邮箱
@@ -97,8 +97,7 @@ public class SysUserDO implements Serializable {
     @TableField(value = "avatar")
     private String avatar;
 
-    @Serial
     @TableField(exist = false)
+    @Serial
     private static final long serialVersionUID = 1L;
-
 }

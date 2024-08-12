@@ -27,13 +27,13 @@ public class EvaMsgTipDO implements Serializable {
      * 发起人的id(-1: 系统发起)
      */
     @TableField(value = "pro_id")
-    private Integer pro_id;
+    private Integer proId;
 
     /**
      * 评教任务的id
      */
     @TableField(value = "task_id")
-    private Integer task_id;
+    private Integer taskId;
 
     /**
      * 具体提醒内容
@@ -51,15 +51,15 @@ public class EvaMsgTipDO implements Serializable {
      * 创建时间
      */
     @TableField(value = "create_time")
-    private LocalDateTime create_time;
+    private LocalDateTime createTime;
 
     /**
      * 实现逻辑删除（0:不可用 1:可用）
      */
     @TableField(value = "is_deleted")
-    private Integer is_deleted;
+    private Integer isDeleted;
 
-    @Serial
     @TableField(exist = false)
+    @Serial
     private static final long serialVersionUID = 1L;
 }

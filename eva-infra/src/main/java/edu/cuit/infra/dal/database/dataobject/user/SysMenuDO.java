@@ -27,7 +27,7 @@ public class SysMenuDO implements Serializable {
      * 父菜单
      */
     @TableField(value = "parent_id")
-    private Integer parent_id;
+    private Integer parentId;
 
     /**
      * 名称
@@ -75,22 +75,21 @@ public class SysMenuDO implements Serializable {
      * 创建时间
      */
     @TableField(value = "create_time")
-    private LocalDateTime create_time;
+    private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
     @TableField(value = "update_time")
-    private LocalDateTime update_time;
+    private LocalDateTime updateTime;
 
     /**
      * 实现逻辑删除（0:不可用 1:可用）
      */
     @TableField(value = "is_deleted")
-    private Integer is_deleted;
+    private Integer isDeleted;
 
-    @Serial
     @TableField(exist = false)
+    @Serial
     private static final long serialVersionUID = 1L;
-
 }

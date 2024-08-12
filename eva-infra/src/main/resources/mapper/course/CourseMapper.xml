@@ -6,18 +6,18 @@
 
     <resultMap id="BaseResultMap" type="edu.cuit.infra.dal.database.dataobject.course.CourseDO">
             <id property="id" column="id" jdbcType="INTEGER"/>
-            <result property="subject_id" column="subject_id" jdbcType="INTEGER"/>
-            <result property="template_id" column="template_id" jdbcType="INTEGER"/>
-            <result property="teachar_id" column="teachar_id" jdbcType="INTEGER"/>
+            <result property="subjectId" column="subject_id" jdbcType="INTEGER"/>
+            <result property="templateId" column="template_id" jdbcType="INTEGER"/>
+            <result property="teacherId" column="teacher_id" jdbcType="INTEGER"/>
             <result property="classroom" column="classroom" jdbcType="VARCHAR"/>
-            <result property="create_time" column="create_time" jdbcType="TIMESTAMP"/>
-            <result property="update_time" column="update_time" jdbcType="TIMESTAMP"/>
-            <result property="is_deleted" column="is_deleted" jdbcType="TINYINT"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+            <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,subject_id,template_id,
-        teachar_id,classroom,create_time,
+        teacher_id,classroom,create_time,
         update_time,is_deleted
     </sql>
 </mapper>

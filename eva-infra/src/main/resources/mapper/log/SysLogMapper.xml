@@ -6,12 +6,12 @@
 
     <resultMap id="BaseResultMap" type="edu.cuit.infra.dal.database.dataobject.log.SysLogDO">
             <id property="id" column="id" jdbcType="INTEGER"/>
-            <result property="moduleId" column="moduleId" jdbcType="INTEGER"/>
+            <result property="moduleId" column="module_id" jdbcType="INTEGER"/>
             <result property="type" column="type" jdbcType="TINYINT"/>
-            <result property="userId" column="userId" jdbcType="INTEGER"/>
+            <result property="userId" column="user_id" jdbcType="INTEGER"/>
             <result property="ip" column="ip" jdbcType="VARCHAR"/>
             <result property="content" column="content" jdbcType="VARCHAR"/>
-            <result property="create_time" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">

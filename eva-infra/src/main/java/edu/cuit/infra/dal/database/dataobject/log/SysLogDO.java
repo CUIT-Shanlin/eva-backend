@@ -26,7 +26,7 @@ public class SysLogDO implements Serializable {
     /**
      * 模块ID
      */
-    @TableField(value = "moduleId")
+    @TableField(value = "module_id")
     private Integer moduleId;
 
     /**
@@ -38,7 +38,7 @@ public class SysLogDO implements Serializable {
     /**
      * 操作者ID
      */
-    @TableField(value = "userId")
+    @TableField(value = "user_id")
     private Integer userId;
 
     /**
@@ -57,9 +57,9 @@ public class SysLogDO implements Serializable {
      * 创建时间
      */
     @TableField(value = "create_time")
-    private LocalDateTime create_time;
+    private LocalDateTime createTime;
 
-    @Serial
     @TableField(exist = false)
+    @Serial
     private static final long serialVersionUID = 1L;
 }

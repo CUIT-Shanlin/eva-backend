@@ -18,43 +18,42 @@ import lombok.Data;
 @Data
 public class SysRoleMenuDO implements Serializable {
     /**
-     * Id
+     * 
      */
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
     /**
-     * 角色Id
+     * 
      */
     @TableField(value = "role_id")
-    private Integer role_id;
+    private Integer roleId;
 
     /**
-     * 菜单Id
+     * 
      */
     @TableField(value = "menu_id")
-    private Integer menu_id;
+    private Integer menuId;
 
     /**
      * 创建时间
      */
     @TableField(value = "create_time")
-    private LocalDateTime create_time;
+    private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
     @TableField(value = "update_time")
-    private LocalDateTime update_time;
+    private LocalDateTime updateTime;
 
     /**
      * 实现逻辑删除（0:不可用 1:可用）
      */
     @TableField(value = "is_deleted")
-    private Integer is_deleted;
+    private Integer isDeleted;
 
-    @Serial
     @TableField(exist = false)
+    @Serial
     private static final long serialVersionUID = 1L;
-
 }

@@ -26,7 +26,7 @@ public class SemesterDO implements Serializable {
      * 开始年份，如2023
      */
     @TableField(value = "start_year")
-    private String start_year;
+    private String startYear;
 
     /**
      * 上下学期，0为上，1为下
@@ -38,15 +38,15 @@ public class SemesterDO implements Serializable {
      * 逻辑删除
      */
     @TableField(value = "is_deleted")
-    private Integer is_deleted;
+    private Integer isDeleted;
 
     /**
      * 结束年份
      */
     @TableField(value = "end_year")
-    private String end_year;
+    private String endYear;
 
-    @Serial
     @TableField(exist = false)
+    @Serial
     private static final long serialVersionUID = 1L;
 }

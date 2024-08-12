@@ -28,7 +28,7 @@ public class SysLogModuleDO implements Serializable {
     @TableField(value = "name")
     private String name;
 
-    @Serial
     @TableField(exist = false)
+    @Serial
     private static final long serialVersionUID = 1L;
 }

@@ -6,12 +6,12 @@
 
     <resultMap id="BaseResultMap" type="edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO">
             <id property="id" column="id" jdbcType="INTEGER"/>
-            <result property="teachar_id" column="teachar_id" jdbcType="INTEGER"/>
-            <result property="cour_inf_id" column="cour_inf_id" jdbcType="INTEGER"/>
+            <result property="teacherId" column="teacher_id" jdbcType="INTEGER"/>
+            <result property="courInfId" column="cour_inf_id" jdbcType="INTEGER"/>
             <result property="status" column="status" jdbcType="TINYINT"/>
-            <result property="create_time" column="create_time" jdbcType="TIMESTAMP"/>
-            <result property="update_time" column="update_time" jdbcType="TIMESTAMP"/>
-            <result property="is_deleted" column="is_deleted" jdbcType="TINYINT"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+            <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">

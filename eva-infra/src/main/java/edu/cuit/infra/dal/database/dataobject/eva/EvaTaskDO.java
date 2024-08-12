@@ -26,14 +26,14 @@ public class EvaTaskDO implements Serializable {
     /**
      * 评教老师的id
      */
-    @TableField(value = "teachar_id")
-    private Integer teachar_id;
+    @TableField(value = "teacher_id")
+    private Integer teacherId;
 
     /**
      * 被评教的那节课的id
      */
     @TableField(value = "cour_inf_id")
-    private Integer cour_inf_id;
+    private Integer courInfId;
 
     /**
      * 任务状态（0：待执行，1：已执行）
@@ -45,21 +45,21 @@ public class EvaTaskDO implements Serializable {
      * 创建时间
      */
     @TableField(value = "create_time")
-    private LocalDateTime create_time;
+    private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
     @TableField(value = "update_time")
-    private LocalDateTime update_time;
+    private LocalDateTime updateTime;
 
     /**
      * 实现逻辑删除（0:不可用 1:可用）
      */
     @TableField(value = "is_deleted")
-    private Integer is_deleted;
+    private Integer isDeleted;
 
-    @Serial
     @TableField(exist = false)
+    @Serial
     private static final long serialVersionUID = 1L;
 }

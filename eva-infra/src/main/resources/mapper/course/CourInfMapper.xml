@@ -6,14 +6,14 @@
 
     <resultMap id="BaseResultMap" type="edu.cuit.infra.dal.database.dataobject.course.CourInfDO">
             <id property="id" column="id" jdbcType="INTEGER"/>
-            <result property="course_id" column="course_id" jdbcType="INTEGER"/>
+            <result property="courseId" column="course_id" jdbcType="INTEGER"/>
             <result property="week" column="week" jdbcType="TINYINT"/>
-            <result property="start_time" column="start_time" jdbcType="TINYINT"/>
-            <result property="end_time" column="end_time" jdbcType="TINYINT"/>
-            <result property="semester_id" column="semester_id" jdbcType="INTEGER"/>
-            <result property="create_time" column="create_time" jdbcType="TIMESTAMP"/>
-            <result property="update_time" column="update_time" jdbcType="TIMESTAMP"/>
-            <result property="is_deleted" column="is_deleted" jdbcType="TINYINT"/>
+            <result property="startTime" column="start_time" jdbcType="TINYINT"/>
+            <result property="endTime" column="end_time" jdbcType="TINYINT"/>
+            <result property="semesterId" column="semester_id" jdbcType="INTEGER"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+            <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
             <result property="location" column="location" jdbcType="VARCHAR"/>
             <result property="day" column="day" jdbcType="TINYINT"/>
     </resultMap>

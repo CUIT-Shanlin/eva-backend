@@ -27,7 +27,7 @@ public class CourInfDO implements Serializable {
      * 课程id
      */
     @TableField(value = "course_id")
-    private Integer course_id;
+    private Integer courseId;
 
     /**
      * 上课周时间
@@ -39,37 +39,37 @@ public class CourInfDO implements Serializable {
      * 开始时间（第几节开始）
      */
     @TableField(value = "start_time")
-    private Integer start_time;
+    private Integer startTime;
 
     /**
      * 结束时间（第几节结束）
      */
     @TableField(value = "end_time")
-    private Integer end_time;
+    private Integer endTime;
 
     /**
      * 学期id
      */
     @TableField(value = "semester_id")
-    private Integer semester_id;
+    private Integer semesterId;
 
     /**
      * 创建时间
      */
     @TableField(value = "create_time")
-    private LocalDateTime create_time;
+    private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
     @TableField(value = "update_time")
-    private LocalDateTime update_time;
+    private LocalDateTime updateTime;
 
     /**
      * 逻辑删除
      */
     @TableField(value = "is_deleted")
-    private Integer is_deleted;
+    private Integer isDeleted;
 
     /**
      * 地点信息
@@ -83,7 +83,7 @@ public class CourInfDO implements Serializable {
     @TableField(value = "day")
     private Integer day;
 
-    @Serial
     @TableField(exist = false)
+    @Serial
     private static final long serialVersionUID = 1L;
 }

@@ -6,12 +6,12 @@
 
     <resultMap id="BaseResultMap" type="edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO">
             <id property="id" column="id" jdbcType="INTEGER"/>
-            <result property="task_id" column="task_id" jdbcType="INTEGER"/>
-            <result property="template_id" column="template_id" jdbcType="INTEGER"/>
-            <result property="text_value" column="text_value" jdbcType="VARCHAR"/>
-            <result property="form_props_values" column="form_props_values" jdbcType="VARCHAR"/>
-            <result property="create_time" column="create_time" jdbcType="TIMESTAMP"/>
-            <result property="is_deleted" column="is_deleted" jdbcType="TINYINT"/>
+            <result property="taskId" column="task_id" jdbcType="INTEGER"/>
+            <result property="templateId" column="template_id" jdbcType="INTEGER"/>
+            <result property="textValue" column="text_value" jdbcType="VARCHAR"/>
+            <result property="formPropsValues" column="form_props_values" jdbcType="VARCHAR"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">

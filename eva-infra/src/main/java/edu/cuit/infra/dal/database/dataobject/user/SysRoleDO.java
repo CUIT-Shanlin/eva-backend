@@ -27,7 +27,7 @@ public class SysRoleDO implements Serializable {
      * 角色名称
      */
     @TableField(value = "role_name")
-    private String role_name;
+    private String roleName;
 
     /**
      * 描述
@@ -45,22 +45,21 @@ public class SysRoleDO implements Serializable {
      * 创建时间
      */
     @TableField(value = "create_time")
-    private LocalDateTime create_time;
+    private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
     @TableField(value = "update_time")
-    private LocalDateTime update_time;
+    private LocalDateTime updateTime;
 
     /**
      * 实现逻辑删除（0:不可用 1:可用）
      */
     @TableField(value = "is_deleted")
-    private Integer is_deleted;
+    private Integer isDeleted;
 
-    @Serial
     @TableField(exist = false)
+    @Serial
     private static final long serialVersionUID = 1L;
-
 }

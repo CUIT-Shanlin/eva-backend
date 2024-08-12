@@ -6,10 +6,10 @@
 
     <resultMap id="BaseResultMap" type="edu.cuit.infra.dal.database.dataobject.course.SemesterDO">
             <id property="id" column="id" jdbcType="INTEGER"/>
-            <result property="start_year" column="start_year" jdbcType="VARCHAR"/>
+            <result property="startYear" column="start_year" jdbcType="VARCHAR"/>
             <result property="period" column="period" jdbcType="TINYINT"/>
-            <result property="is_deleted" column="is_deleted" jdbcType="TINYINT"/>
-            <result property="end_year" column="end_year" jdbcType="VARCHAR"/>
+            <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
+            <result property="endYear" column="end_year" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">

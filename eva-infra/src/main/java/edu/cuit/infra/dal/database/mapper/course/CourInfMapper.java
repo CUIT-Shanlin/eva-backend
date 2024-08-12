@@ -7,8 +7,8 @@ import org.apache.ibatis.annotations.Mapper;
 /**
 * @author XiaoMo
 * @description 针对表【cour_inf(课程详情表)】的数据库操作Mapper
-* @createDate 2024-08-07 16:48:58
-* @Entity edu.cuit.infra.dal.po.course.CourInfDO
+* @createDate 2024-08-12 16:50:44
+* @Entity edu.cuit.infra.dal.database.dataobject.course.CourInfDO
 */
 @Mapper
 public interface CourInfMapper extends MPJBaseMapper<CourInfDO> {

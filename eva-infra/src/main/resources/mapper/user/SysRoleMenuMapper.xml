@@ -6,11 +6,11 @@
 
     <resultMap id="BaseResultMap" type="edu.cuit.infra.dal.database.dataobject.user.SysRoleMenuDO">
             <id property="id" column="id" jdbcType="INTEGER"/>
-            <result property="role_id" column="role_id" jdbcType="INTEGER"/>
-            <result property="menu_id" column="menu_id" jdbcType="INTEGER"/>
-            <result property="create_time" column="create_time" jdbcType="TIMESTAMP"/>
-            <result property="update_time" column="update_time" jdbcType="TIMESTAMP"/>
-            <result property="is_deleted" column="is_deleted" jdbcType="TINYINT"/>
+            <result property="roleId" column="role_id" jdbcType="INTEGER"/>
+            <result property="menuId" column="menu_id" jdbcType="INTEGER"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+            <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">
