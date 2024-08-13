@@ -19,9 +19,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>eva-app</artifactId>
-            <version>${revision}</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
         </dependency>
     </dependencies>
 
