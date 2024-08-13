@@ -6,7 +6,7 @@
         <option name="generateConfig">
           <GenerateConfig>
             <option name="annotationType" value="MYBATIS_PLUS3" />
-            <option name="basePackage" value="edu.cuit.infra.dal" />
+            <option name="basePackage" value="edu.cuit.infra.dal.database" />
             <option name="basePath" value="src/main/java" />
             <option name="classNameStrategy" value="camel" />
             <option name="encoding" value="UTF-8" />
@@ -28,7 +28,7 @@
                   <option name="fileName" value="${domain.fileName}Mapper" />
                   <option name="fileNameWithSuffix" value="${domain.fileName}Mapper.java" />
                   <option name="modulePath" value="$PROJECT_DIR$/eva-infra" />
-                  <option name="packageName" value="edu.cuit.infra.dal.mapper.log" />
+                  <option name="packageName" value="edu.cuit.infra.dal.database.mapper.user" />
                 </ModuleInfoGo>
                 <ModuleInfoGo>
                   <option name="basePath" value="src/main/resources" />
@@ -38,29 +38,40 @@
                   <option name="fileName" value="${domain.fileName}Mapper" />
                   <option name="fileNameWithSuffix" value="${domain.fileName}Mapper.xml" />
                   <option name="modulePath" value="$PROJECT_DIR$/eva-infra" />
-                  <option name="packageName" value="mapper.log" />
+                  <option name="packageName" value="mapper.user" />
                 </ModuleInfoGo>
               </list>
             </option>
             <option name="needsComment" value="true" />
             <option name="needsModel" value="true" />
-            <option name="relativePackage" value="po.log" />
+            <option name="relativePackage" value="dataobject.user" />
             <option name="superClass" value="" />
             <option name="tableUIInfoList">
               <list>
                 <TableUIInfo>
-                  <option name="className" value="SysLog" />
-                  <option name="tableName" value="sys_log" />
+                  <option name="className" value="SysMenu" />
+                  <option name="tableName" value="sys_menu" />
                 </TableUIInfo>
                 <TableUIInfo>
-                  <option name="className" value="SysLogModule" />
-                  <option name="tableName" value="sys_log_module" />
+                  <option name="className" value="SysRole" />
+                  <option name="tableName" value="sys_role" />
+                </TableUIInfo>
+                <TableUIInfo>
+                  <option name="className" value="SysRoleMenu" />
+                  <option name="tableName" value="sys_role_menu" />
+                </TableUIInfo>
+                <TableUIInfo>
+                  <option name="className" value="SysUser" />
+                  <option name="tableName" value="sys_user" />
+                </TableUIInfo>
+                <TableUIInfo>
+                  <option name="className" value="SysUserRole" />
+                  <option name="tableName" value="sys_user_role" />
                 </TableUIInfo>
               </list>
             </option>
             <option name="templatesName" value="mybatis-plus3" />
             <option name="useActualColumnAnnotationInject" value="true" />
-            <option name="useActualColumns" value="true" />
             <option name="useLombokPlugin" value="true" />
           </GenerateConfig>
         </option>
