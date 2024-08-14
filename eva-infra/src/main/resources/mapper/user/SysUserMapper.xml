@@ -17,14 +17,12 @@
             <result property="email" column="email" jdbcType="VARCHAR"/>
             <result property="phone" column="phone" jdbcType="VARCHAR"/>
             <result property="status" column="status" jdbcType="TINYINT"/>
-            <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,username,name,
         prof_title,sex,department,
         create_time,update_time,is_deleted,
-        email,phone,status,
-        avatar
+        email,phone,status
     </sql>
 </mapper>

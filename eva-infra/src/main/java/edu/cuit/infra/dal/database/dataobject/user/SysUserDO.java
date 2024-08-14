@@ -91,12 +91,6 @@ public class SysUserDO implements Serializable {
     @TableField(value = "status")
     private Integer status;
 
-    /**
-     * 头像
-     */
-    @TableField(value = "avatar")
-    private String avatar;
-
     @TableField(exist = false)
     @Serial
     private static final long serialVersionUID = 1L;
