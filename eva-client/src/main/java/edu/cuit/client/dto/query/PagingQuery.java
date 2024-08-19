@@ -4,7 +4,6 @@ import com.alibaba.cola.dto.Query;
 import edu.cuit.client.dto.query.condition.ConditionalQuery;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,7 +13,7 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class PagingQueryDTO extends Query {
+public class PagingQuery extends Query {
 
     /**
      * 页数
