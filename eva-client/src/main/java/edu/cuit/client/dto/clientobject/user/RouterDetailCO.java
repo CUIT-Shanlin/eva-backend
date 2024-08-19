@@ -1,4 +1,4 @@
-package edu.cuit.client.dto.query.user;
+package edu.cuit.client.dto.clientobject.user;
 
 import com.alibaba.cola.dto.ClientObject;
 import lombok.Data;
