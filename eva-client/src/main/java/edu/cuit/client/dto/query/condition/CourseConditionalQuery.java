@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class CourseConditionalQueryDTO extends ConditionalQueryDTO{
+public class CourseConditionalQuery extends GenericConditionalQuery {
 
     /**
      * 老师id

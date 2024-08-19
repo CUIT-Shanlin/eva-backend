@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class MenuConditionalQueryDTO extends ConditionalQuery{
+public class MenuConditionalQuery extends ConditionalQuery{
 
     /**
      * 状态

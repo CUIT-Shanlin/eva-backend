@@ -1,6 +1,5 @@
 package edu.cuit.client.dto.query.condition;
 
-import com.alibaba.cola.dto.Query;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -11,7 +10,7 @@ import java.time.LocalDateTime;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class ConditionalQueryDTO extends ConditionalQuery {
+public class GenericConditionalQuery extends ConditionalQuery {
 
     /**
      * 按照创建时间搜索的左边界
