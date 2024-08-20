@@ -4,6 +4,7 @@ import com.alibaba.cola.dto.Command;
 import edu.cuit.client.dto.clientobject.user.RoleDetailCO;
 import edu.cuit.client.dto.clientobject.user.UserDetailCO;
 import edu.cuit.common.enums.GenericPattern;
+import edu.cuit.common.validator.status.ValidStatus;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -65,8 +66,7 @@ public class UpdateUserCmd extends Command {
     /**
      * 状态，1为禁止，0为正常
      */
-    @Min(value = 0,message = "角色状态只能是0或1")
-    @Max(value = 1,message = "角色状态只能是0或1")
-    private Long status;
+    @ValidStatus(message = "用户状态只能是0或1")
+    private Integer status;
 
 }

@@ -1,6 +1,7 @@
 package edu.cuit.client.dto.cmd.user;
 
 import com.alibaba.cola.dto.Command;
+import edu.cuit.common.validator.status.ValidStatus;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -37,9 +38,8 @@ public class UpdateRoleCmd extends Command {
     /**
      * 状态(0:禁止,1:正常)
      */
-    @Min(value = 0,message = "角色状态只能是0或1")
-    @Max(value = 1,message = "角色状态只能是0或1")
-    private Long status;
+    @ValidStatus(message = "角色状态只能是0或1")
+    private Integer status;
 
     /**
      * 创建时间
