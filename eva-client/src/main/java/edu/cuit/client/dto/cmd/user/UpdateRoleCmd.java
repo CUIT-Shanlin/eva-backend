@@ -1,25 +1,27 @@
-package edu.cuit.client.dto.cmd;
+package edu.cuit.client.dto.cmd.user;
 
-import edu.cuit.client.dto.clientobject.user.RoleDetailCO;
-import lombok.AllArgsConstructor;
+import com.alibaba.cola.dto.Command;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
- *
- *
- * 新建/修改用户模型(新建/修改用户模型)
+ * 创建/修改角色模型
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class UpdateRoleCmd  {
+public class UpdateRoleCmd extends Command {
+
     /**
      * 角色id
      */
+    @NotNull(message = "角色ID不能为空")
     private Long id;
 
     /**
@@ -35,7 +37,10 @@ public class UpdateRoleCmd  {
     /**
      * 状态(0:禁止,1:正常)
      */
+    @Min(value = 0,message = "角色状态只能是0或1")
+    @Max(value = 1,message = "角色状态只能是0或1")
     private Long status;
+
     /**
      * 创建时间
      */
