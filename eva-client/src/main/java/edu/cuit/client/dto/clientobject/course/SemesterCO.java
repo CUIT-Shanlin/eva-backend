@@ -11,7 +11,7 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class Semester extends ClientObject {
+public class SemesterCO extends ClientObject {
     /**
      * 课程id
      */
