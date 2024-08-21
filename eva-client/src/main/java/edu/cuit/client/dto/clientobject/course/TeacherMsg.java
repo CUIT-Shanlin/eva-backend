@@ -1,32 +1,34 @@
 package edu.cuit.client.dto.clientobject.course;
 
+import com.alibaba.cola.dto.ClientObject;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
+
 /**
  * 教师基础信息
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class TeacharMsg {
+@Accessors(chain = true)
+public class TeacherMsg extends ClientObject {
+
     /**
      * 教师id
      */
-    @NotNull(message = "教室id不能为空")
     private Integer id;
 
     /**
      * 教师姓名
      */
-    @NotNull(message = "教室姓名不能为空")
     private String name;
 
     /**
      * 学院
      */
-    @NotNull(message = "教室所属院系不能为空")
     private String department;
 
 }

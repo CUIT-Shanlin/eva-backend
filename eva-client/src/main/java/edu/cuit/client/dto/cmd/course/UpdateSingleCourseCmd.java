@@ -1,7 +1,7 @@
 package edu.cuit.client.dto.cmd.course;
 
 import com.alibaba.cola.dto.ClientObject;
-import edu.cuit.client.dto.query.course.CourseTime;
+import edu.cuit.client.dto.data.course.CourseTime;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;

@@ -1,10 +1,19 @@
 package edu.cuit.client.dto.clientobject.eva;
 
+import com.alibaba.cola.dto.ClientObject;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
+
+import java.time.LocalDateTime;
+
 /**
  * 评教表单模版
  */
-
-public class EvaTemplate {
+@EqualsAndHashCode(callSuper = true)
+@Data
+@Accessors(chain = true)
+public class EvaTemplateCO extends ClientObject {
 
     /**
      * 模版id
@@ -34,12 +43,12 @@ public class EvaTemplate {
     /**
      *创建时间
      */
-    private String createTime;
+    private LocalDateTime createTime;
 
     /**
      *更新时间
      */
-    private String updateTime;
+    private LocalDateTime updateTime;
 
 
 

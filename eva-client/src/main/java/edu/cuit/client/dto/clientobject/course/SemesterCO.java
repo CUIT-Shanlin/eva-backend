@@ -12,6 +12,7 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class SemesterCO extends ClientObject {
+
     /**
      * 课程id
      */

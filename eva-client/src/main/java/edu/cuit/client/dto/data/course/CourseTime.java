@@ -1,9 +1,10 @@
-package edu.cuit.client.dto.query.course;
+package edu.cuit.client.dto.data.course;
 
 import com.alibaba.cola.dto.DTO;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 import org.hibernate.validator.constraints.Range;
 
 /**
@@ -11,6 +12,7 @@ import org.hibernate.validator.constraints.Range;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
+@Accessors(chain = true)
 public class CourseTime extends DTO {
 
     /**

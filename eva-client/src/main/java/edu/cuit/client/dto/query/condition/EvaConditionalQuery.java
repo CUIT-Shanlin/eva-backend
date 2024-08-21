@@ -1,6 +1,6 @@
 package edu.cuit.client.dto.query.condition;
 
-import edu.cuit.client.dto.query.course.CourseTime;
+import edu.cuit.client.dto.data.course.CourseTime;
 import jakarta.validation.Valid;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

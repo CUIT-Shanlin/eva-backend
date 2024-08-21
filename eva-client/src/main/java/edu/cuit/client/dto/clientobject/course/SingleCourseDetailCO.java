@@ -1,7 +1,7 @@
 package edu.cuit.client.dto.clientobject.course;
 
 import com.alibaba.cola.dto.ClientObject;
-import edu.cuit.client.dto.query.course.CourseTime;
+import edu.cuit.client.dto.data.course.CourseTime;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -9,8 +9,6 @@ import lombok.experimental.Accessors;
 import java.util.List;
 
 /**
- *
- *
  * 一节课的模型
  */
 @EqualsAndHashCode(callSuper = true)
@@ -35,7 +33,7 @@ public class SingleCourseDetailCO extends ClientObject {
     /**
      * 评教老师数组
      */
-    private List<Object> evaTeachers;
+    private List<TeacherInfo> evaTeachers;
 
     /**
      * 一节课的模型

@@ -2,18 +2,24 @@ package edu.cuit.client.dto.clientobject;
 
 import com.alibaba.cola.dto.ClientObject;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
 import java.util.List;
-import java.util.Objects;
 
+/**
+ * 分页数据响应模型
+ */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class PaginationQueryResultCO extends ClientObject {
+public class PaginationQueryResultCO<T extends Serializable> extends ClientObject {
+
     /**
      * 查询列表总记录
      */
-    private List<Object> records;
+    private List<T> records;
 
     /**
      * 查询总记录数

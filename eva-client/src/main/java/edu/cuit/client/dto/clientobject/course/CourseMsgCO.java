@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.time.LocalDateTime;
+
 /**
  * 一门科目(一门科目)
  */
@@ -30,10 +32,10 @@ public class CourseMsgCO extends ClientObject {
     /**
      * 课程创建时间
      */
-    private String createTime;
+    private LocalDateTime createTime;
 
     /**
      * 课程更新时间
      */
-    private String updateTime;
+    private LocalDateTime updateTime;
 }
