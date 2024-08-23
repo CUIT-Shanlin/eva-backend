@@ -15,5 +15,5 @@ public class EvaUserScoreCO {
     /**
      * 一门课程的评教分数，后端=》前端
      */
-    private List<EvaLogCO> userscore;
+    private List<EvaRecordCO> userscore;
 }

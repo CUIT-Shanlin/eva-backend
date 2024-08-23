@@ -16,5 +16,5 @@ public class EvaCourseScoreCO extends ClientObject {
     /**
      * 用户的各个课程的评分
      */
-    private List<EvaLogCO> coursescore;
+    private List<EvaRecordCO> coursescore;
 }

@@ -26,14 +26,9 @@ public class EvaTemplateCO extends ClientObject {
     private String name;
 
     /**
-     *表单评教
+     *表单评教（json数据）
      */
     private String props;
-
-    /**
-     *是否禁止被删除
-     */
-    private Boolean isPreventRemove;
 
     /**
      *描述
