@@ -36,6 +36,12 @@ public class EvaTaskDO implements Serializable {
     private Integer courInfId;
 
     /**
+     * 评教需要使用的快照模板的ID
+     */
+    @TableField(value = "eva_template_id")
+    private Integer evaTemplateId;
+
+    /**
      * 任务状态（0：待执行，1：已执行）
      */
     @TableField(value = "status")

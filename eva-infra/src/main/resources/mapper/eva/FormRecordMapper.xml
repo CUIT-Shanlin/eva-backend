@@ -7,7 +7,6 @@
     <resultMap id="BaseResultMap" type="edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO">
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="taskId" column="task_id" jdbcType="INTEGER"/>
-            <result property="templateId" column="template_id" jdbcType="INTEGER"/>
             <result property="textValue" column="text_value" jdbcType="VARCHAR"/>
             <result property="formPropsValues" column="form_props_values" jdbcType="VARCHAR"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
@@ -15,7 +14,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,task_id,template_id,
+        id,task_id,
         text_value,form_props_values,create_time,
         is_deleted
     </sql>

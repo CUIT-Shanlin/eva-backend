@@ -30,12 +30,6 @@ public class CourseDO implements Serializable {
     private Integer subjectId;
 
     /**
-     * 评教模板的id
-     */
-    @TableField(value = "template_id")
-    private Integer templateId;
-
-    /**
      * 教学老师id
      */
     @TableField(value = "teacher_id")
