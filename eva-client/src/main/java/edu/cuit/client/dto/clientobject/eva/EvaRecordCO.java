@@ -22,11 +22,6 @@ public class EvaRecordCO extends ClientObject {
     private Long id;
 
     /**
-     * 表单模板id
-     */
-    private Long templateId;
-
-    /**
      * 教学老师的姓名
      */
     private String teacherName;

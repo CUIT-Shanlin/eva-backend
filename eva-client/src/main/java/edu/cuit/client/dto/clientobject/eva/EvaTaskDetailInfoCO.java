@@ -7,29 +7,33 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 /**
- * 评教任务-最完整，获取自己的评教任务的详情信息，后端=》前端
+ * 评教任务-详细信息，获取自己的评教任务的详情信息，后端=》前端
  */
-
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class EvaTaskCO2 extends ClientObject {
+public class EvaTaskDetailInfoCO extends ClientObject {
+
     /**
      * 任务id
      */
-    private long id;
+    private Long id;
+
     /**
      * 课程名称
      */
     private String name;
+
     /**
      * 教学老师姓名
      */
     private String teacherName;
+
     /**
      * 教室
      */
     private String location;
+
     /**
      * 课程时间
      */

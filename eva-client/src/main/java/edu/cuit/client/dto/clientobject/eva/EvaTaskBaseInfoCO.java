@@ -7,37 +7,43 @@ import lombok.experimental.Accessors;
 import java.time.LocalDateTime;
 
 /**
- * 评教任务-完整，用于显示一个任务基础信息，后端=》前端
+ * 评教任务基础信息，用于显示一个任务基础信息，后端=》前端
  */
-
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class EvaTaskCO1 extends ClientObject {
+public class EvaTaskBaseInfoCO extends ClientObject {
+
     /**
      * id
      */
-    private long id;
+    private Long id;
+
     /**
      * 任务状态（0：待执行，1：已执行）
      */
-    private long status;
+    private Long status;
+
     /**
      * 发起评教任务的老师姓名
      */
-    private String evaTecharName;
+    private String evaTeacherName;
+
     /**
      * 教学老师姓名
      */
-    private String teacharName;
+    private String teacherName;
+
     /**
      * 课程名称
      */
     private String courseName;
+
     /**
      * 创建时间
      */
     private LocalDateTime createTime;
+
     /**
      * 更新时间
      */
