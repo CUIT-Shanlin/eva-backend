@@ -43,11 +43,7 @@ public class UserQueryController {
 
     //TODO 其余接口
 
-    /**
-     * 分页用户信息
-     * @param semId 学期id
-     * @param query 查询dto
-     */
+
     @GetMapping("/user/score/{userId}")
     public CommonResult<Object> getUserScore(
             @PathVariable("userId") Integer userId,
@@ -55,21 +51,13 @@ public class UserQueryController {
         return null;
     }
 
-    /**
-     * 分页用户信息
-     * @param semId 学期id
-     * @param query 查询dto
-     */
+
     @GetMapping("/users/all")
     public CommonResult<Object> allUserInfo(@RequestParam("semId") Integer semId){
         return null;
     }
 
-    /**
-     * 分页用户信息
-     * @param semId 学期id
-     * @param query 查询dto
-     */
+
     @GetMapping("/user/info")
     public CommonResult<Object> selfUserInfo(@RequestParam("semId") Integer semId){
         return null;

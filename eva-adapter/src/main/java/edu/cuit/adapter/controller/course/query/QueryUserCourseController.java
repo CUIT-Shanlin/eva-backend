@@ -1,0 +1,21 @@
+package edu.cuit.adapter.controller.course.query;
+
+import edu.cuit.client.dto.query.condition.CourseConditionalQuery;
+import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
+import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * 用户课程信息查询相关接口
+ */
+@RestController
+@RequiredArgsConstructor
+@Validated
+public class QueryUserCourseController {
+
+
+}
