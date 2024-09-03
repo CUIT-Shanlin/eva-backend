@@ -29,10 +29,6 @@
             <version>${revision}</version>
         </dependency>
         <dependency>
-            <groupId>edu.cuit.zhuyimeng</groupId>
-            <artifactId>zym-spring-boot-starter-common</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.alibaba.cola</groupId>
             <artifactId>cola-component-domain-starter</artifactId>
         </dependency>
