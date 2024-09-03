@@ -5,7 +5,7 @@ import edu.cuit.client.dto.clientobject.user.UserInfoCO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Conditional;
+
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,4 +42,43 @@ public class UserQueryController {
     }
 
     //TODO 其余接口
+
+    /**
+     * 分页用户信息
+     * @param semId 学期id
+     * @param query 查询dto
+     */
+    @GetMapping("/user/score/{userId}")
+    public CommonResult<Object> getUserScore(
+            @PathVariable("userId") Integer userId,
+            @RequestParam("semId") Integer semId) {
+        return null;
+    }
+
+    /**
+     * 分页用户信息
+     * @param semId 学期id
+     * @param query 查询dto
+     */
+    @GetMapping("/users/all")
+    public CommonResult<Object> allUserInfo(@RequestParam("semId") Integer semId){
+        return null;
+    }
+
+    /**
+     * 分页用户信息
+     * @param semId 学期id
+     * @param query 查询dto
+     */
+    @GetMapping("/user/info")
+    public CommonResult<Object> selfUserInfo(@RequestParam("semId") Integer semId){
+        return null;
+    }
+
+
+    @GetMapping("/user/avatar/{id}")
+    public CommonResult<Object> getUserAvatar(@PathVariable("id") Integer id){
+        return null;
+    }
+
 }
