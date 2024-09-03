@@ -32,6 +32,10 @@
             <groupId>edu.cuit.zhuyimeng</groupId>
             <artifactId>zym-spring-boot-starter-logging</artifactId>
         </dependency>
+        <dependency>
+            <groupId>edu.cuit.zhuyimeng</groupId>
+            <artifactId>zym-spring-boot-starter-security</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
