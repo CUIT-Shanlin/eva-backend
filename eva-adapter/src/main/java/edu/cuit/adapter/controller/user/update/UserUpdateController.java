@@ -7,12 +7,23 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * 用户相关更新操作接口
+ */
 @RestController
 @RequiredArgsConstructor
 @Validated
 public class UserUpdateController {
+
+    /**
+     * 删除用户
+     * @param userId 用户id
+     */
     @DeleteMapping("/user")
-    public CommonResult<Object> deleteUserById(@RequestParam("userId") Integer userId){
+    public CommonResult<Void> deleteUserById(@RequestParam("userId") Integer userId){
         return null;
     }
+
+    //TODO 其余接口
+
 }

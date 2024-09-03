@@ -1,13 +1,20 @@
 package edu.cuit.adapter.controller.user.query;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
+import edu.cuit.client.dto.clientobject.SimpleResultCO;
+import edu.cuit.client.dto.clientobject.eva.UserSingleCourseScoreCO;
 import edu.cuit.client.dto.clientobject.user.UserInfoCO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 用户信息查询相关接口
@@ -23,6 +30,7 @@ public class UserQueryController {
      * @param semId 学期id
      */
     @GetMapping("/user/{id}")
+    @SaCheckPermission("system.user.query")
     public CommonResult<UserInfoCO> oneUserInfo(
             @PathVariable("id") Integer id,
             @RequestParam("semId") Integer semId) {
@@ -35,49 +43,52 @@ public class UserQueryController {
      * @param query 查询dto
      */
     @PostMapping("/users")
+    @SaCheckPermission("system.user.query")
     public CommonResult<PaginationQueryResultCO<UserInfoCO>> pageUserInfo(
             @RequestParam("semId") Integer semId,
             @RequestBody PagingQuery query) {
         return null;
     }
 
-    //TODO 其余接口
-
     /**
-     * 分页用户信息
+     * 用户的各个课程的评分
+     * @param userId 用户id
      * @param semId 学期id
-     * @param query 查询dto
      */
     @GetMapping("/user/score/{userId}")
-    public CommonResult<Object> getUserScore(
+    @SaCheckPermission("system.user.score.query")
+    public CommonResult<List<UserSingleCourseScoreCO>> oneUserScore(
             @PathVariable("userId") Integer userId,
             @RequestParam("semId") Integer semId) {
         return null;
     }
 
     /**
-     * 分页用户信息
+     * 所有用户的信息
      * @param semId 学期id
-     * @param query 查询dto
      */
     @GetMapping("/users/all")
-    public CommonResult<Object> allUserInfo(@RequestParam("semId") Integer semId){
+    @SaCheckPermission("system.user.list")
+    public CommonResult<SimpleResultCO> allUserInfo(@RequestParam("semId") Integer semId){
         return null;
     }
 
     /**
-     * 分页用户信息
+     * 用户自己的信息
      * @param semId 学期id
-     * @param query 查询dto
      */
     @GetMapping("/user/info")
-    public CommonResult<Object> selfUserInfo(@RequestParam("semId") Integer semId){
+    @SaCheckLogin
+    public CommonResult<UserInfoCO> selfUserInfo(@RequestParam("semId") Integer semId){
         return null;
     }
 
-
+    /**
+     * 用户头像
+     * @param id 用户id
+     */
     @GetMapping("/user/avatar/{id}")
-    public CommonResult<Object> getUserAvatar(@PathVariable("id") Integer id){
+    public ResponseEntity<String> userAvatar(@PathVariable("id") Integer id){
         return null;
     }
 
