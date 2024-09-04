@@ -5,6 +5,7 @@ import edu.cuit.client.dto.clientobject.user.UserInfoCO;
 import edu.cuit.client.dto.cmd.user.AssignRoleCmd;
 import edu.cuit.client.dto.cmd.user.NewUserCmd;
 import edu.cuit.client.dto.cmd.user.UpdateUserCmd;
+import edu.cuit.common.validator.status.ValidStatus;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,9 +15,10 @@ import org.springframework.web.bind.annotation.*;
 /**
  * 用户相关更新操作接口
  */
-@RestController("/user")
+@RestController
 @RequiredArgsConstructor
 @Validated
+@RequestMapping("/user")
 public class UserUpdateController {
 
     /**
@@ -46,7 +48,8 @@ public class UserUpdateController {
      */
     @PutMapping("/status/{userId}/{status}")
     @SaCheckPermission("system.user.update")
-    public CommonResult<Void> updateStatus(@PathVariable("userId") Integer userId,@PathVariable("status") Integer status) {
+    public CommonResult<Void> updateStatus(@PathVariable("userId") Integer userId,
+                                           @PathVariable("status") @ValidStatus Integer status) {
         return null;
     }
 

@@ -41,15 +41,4 @@ public class UpdateRoleCmd extends Command {
     @ValidStatus(message = "角色状态只能是0或1")
     private Integer status;
 
-    /**
-     * 创建时间
-     */
-    private LocalDateTime createTime;
-
-    /**
-     * 更新时间
-     */
-    private LocalDateTime updateTime;
-
-
 }
