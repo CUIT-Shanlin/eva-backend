@@ -25,25 +25,13 @@ public class EvaTemplateCO extends ClientObject {
      */
     private String name;
 
-    /**
-     *表单评教（json数据）
-     */
-    private String props;
 
     /**
      *描述
      */
     private String description;
 
-    /**
-     *创建时间
-     */
-    private LocalDateTime createTime;
 
-    /**
-     *更新时间
-     */
-    private LocalDateTime updateTime;
 
 
 

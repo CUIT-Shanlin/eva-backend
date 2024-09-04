@@ -2,6 +2,7 @@ package edu.cuit.client.dto.clientobject.course;
 
 import com.alibaba.cola.dto.ClientObject;
 import edu.cuit.client.dto.data.course.CourseTime;
+import edu.cuit.client.dto.data.course.CourseType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -9,7 +10,7 @@ import lombok.experimental.Accessors;
 import java.util.List;
 
 /**
- * 一节课的模型
+ * 一节课的详情(一节课的详情)
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
