@@ -1,0 +1,59 @@
+package edu.cuit.adapter.controller.eva.update;
+
+import cn.dev33.satoken.annotation.SaCheckPermission;
+import edu.cuit.client.dto.clientobject.SimpleResultCO;
+import edu.cuit.client.dto.clientobject.eva.EvaInfoCO;
+import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
+import edu.cuit.client.dto.data.course.CourseTime;
+import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
+import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+/**
+ * 评教相关更新接口
+ */
+@RestController
+@RequiredArgsConstructor
+@Validated
+public class DeleteEvaController {
+    //删除
+    /**
+     *删除一条评教记录，删除之后，相当于用户没有进行过这次评教
+     * @param id 评教记录的 ID 编号
+     */
+    @DeleteMapping("/evaluate/record")
+    @SaCheckPermission("evaluate.record.delete")
+    public CommonResult<Void> deleteOneEvaLogById(
+            @RequestParam(value = "id",required = false) Integer id){
+        return null;
+    }
+    /**
+     * 批量删除评教记录，删除之后，相当于用户没有进行过这次评教，id集合放请求体
+     */
+    @DeleteMapping("/evaluate/records")
+    @SaCheckPermission("evaluate.record.delete")
+    public CommonResult<Void> deleteEvaLogsById(
+            @RequestBody SimpleResultCO array ){
+        return null;
+    }
+    /**
+     * 删除评教模板
+     * @param templateId 模板的 ID 编号
+     */
+    @DeleteMapping("/evaluate/template")
+    @SaCheckPermission("evaluate.template.delete")
+    public CommonResult<Void> deleteEvaTemplateById(
+            @RequestParam(value = "templateId",required = false) Integer templateId){
+        return null;
+    }
+    /**
+     * 批量删除模板，后端要再次检验是否可被删除
+     */
+    @DeleteMapping("/evaluate/templates")
+    public CommonResult<Void> deleteEvaTemplatesById(
+            @RequestBody SimpleResultCO array ){
+        return null;
+    }
+
+}
