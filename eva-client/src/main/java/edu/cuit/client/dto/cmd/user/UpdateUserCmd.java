@@ -1,16 +1,12 @@
 package edu.cuit.client.dto.cmd.user;
 
 import com.alibaba.cola.dto.Command;
-import edu.cuit.client.dto.clientobject.user.RoleDetailCO;
-import edu.cuit.client.dto.clientobject.user.UserDetailCO;
 import edu.cuit.common.enums.GenericPattern;
 import edu.cuit.common.validator.status.ValidStatus;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-
-import java.util.List;
 
 /**
  * 修改用户模型

@@ -14,7 +14,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class RoleDetailCO extends ClientObject {
+public class RoleInfoCO extends ClientObject {
 
     /**
      * 角色id

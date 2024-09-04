@@ -28,7 +28,7 @@ public class UserInfoCO extends ClientObject {
     /**
      * 角色列表
      */
-    private List<RoleDetailCO> roleList;
+    private List<RoleInfoCO> roleList;
 
     /**
      * 按钮列表
