@@ -1,7 +1,13 @@
 package edu.cuit.adapter.controller.course.query;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
+import edu.cuit.client.dto.clientobject.SimpleResultCO;
+import edu.cuit.client.dto.clientobject.course.CourseComonCO;
+import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
+import edu.cuit.client.dto.clientobject.course.SingleCourseDetailCO;
 import edu.cuit.client.dto.query.condition.CourseConditionalQuery;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -21,8 +27,9 @@ public class QueryUserCourseController {
      *
      * */
     @GetMapping("/courses")
-    public CommonResult<Object> getUserCourseInfo(@RequestParam("id") Integer id,
-                                                  @RequestParam("semId") Integer semId){
+    public CommonResult<CourseComonCO<SimpleResultCO>> getUserCourseInfo(
+            @RequestParam(value = "id",required = false) Integer id,
+            @RequestParam(value = "semId",required = false) Integer semId){
         return null;
     }
 
@@ -33,8 +40,9 @@ public class QueryUserCourseController {
      *
      * */
     @GetMapping("/courses/detail")
-    public CommonResult<Object> getUserCourseDetail(@RequestParam("id") Integer id,
-                                                    @RequestParam("semId") Integer semId){
+    public CommonResult<CourseComonCO<CourseDetailCO>> getUserCourseDetail(
+            @RequestParam(value = "id",required = false) Integer id,
+            @RequestParam(value = "semId",required = false) Integer semId){
         return null;
     }
 
@@ -43,18 +51,21 @@ public class QueryUserCourseController {
      * @param semId 学期id
      */
     @GetMapping("/courses/suggestion")
-    public CommonResult<Object> getSelfCourse(@RequestParam("semId") Integer semId){
+    public CommonResult<CourseComonCO<SingleCourseDetailCO>> getSelfCourse(
+            @RequestParam(value = "semId",required = false) Integer semId){
         return null;
     }
 
     /**
      *获取某个指定时间段的课程
      * @param semId 学期id
+     *
      * @param courseQuery 课程查询条件
      */
     @PostMapping("/courses/query")
-    public CommonResult<Object> getTimeCourse(@RequestParam("semId") Integer semId,
-                                              @RequestBody CourseConditionalQuery courseQuery){
+    public CommonResult<CourseComonCO<SingleCourseDetailCO>> getTimeCourse(
+            @RequestParam(value = "semId",required = false) Integer semId,
+            @Valid  @RequestBody CourseConditionalQuery courseQuery){
         return null;
     }
 }

@@ -1,13 +1,20 @@
 package edu.cuit.adapter.controller.course.query;
 
-import edu.cuit.client.dto.data.course.CourseTime;
+import cn.dev33.satoken.annotation.SaCheckPermission;
+import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
+import edu.cuit.client.dto.clientobject.SimpleResultCO;
+import edu.cuit.client.dto.clientobject.course.*;
+import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
+import edu.cuit.client.dto.data.course.CourseType;
+import edu.cuit.client.dto.query.CourseQuery;
 import edu.cuit.client.dto.query.condition.CourseConditionalQuery;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import java.util.ArrayList;
 
 
 /**
@@ -24,8 +31,10 @@ public class QueryCourseController {
      * @param courseQuery 课程查询参数
      */
     @PostMapping("/courses")
-    public CommonResult<Object> pageCoursesInfo(@RequestParam("semId") Integer semId,
-                                                @RequestBody CourseConditionalQuery courseQuery){
+    @SaCheckPermission("course.tabulation.query")
+    public CommonResult<PaginationQueryResultCO<CourseModuleCO>> pageCoursesInfo(
+            @RequestParam(value = "semId",required = false) Integer semId,
+            @Valid @RequestBody CourseConditionalQuery courseQuery){
         return null;
     }
 
@@ -36,8 +45,10 @@ public class QueryCourseController {
      * @param id ID编号
      */
     @GetMapping("/course")
-    public CommonResult<Object> courseinfo(@RequestParam("id") Integer id,
-                                           @RequestParam("semId") Integer semId){
+    @SaCheckPermission("course.tabulation.query")
+    public CommonResult<CourseDetailCO> courseinfo(
+            @RequestParam(value = "id",required = false) Integer id,
+            @RequestParam(value = "semId",required = false) Integer semId){
         return null;
     }
 
@@ -48,8 +59,10 @@ public class QueryCourseController {
      * @param id ID编号
      */
     @GetMapping("/course/eva")
-    public CommonResult<Object> evaResult(@RequestParam("id") Integer id,
-                                          @RequestParam("semId") Integer semId){
+    @SaCheckPermission("course.tabulation.eva.query")
+    public CommonResult<CourseScoreCO> evaResult(
+            @RequestParam(value = "id",required = false) Integer id,
+            @RequestParam(value = "semId",required = false) Integer semId){
         return null;
     }
 
@@ -60,7 +73,9 @@ public class QueryCourseController {
      *
      */
     @GetMapping("/courses/all")
-    public CommonResult<Object> allCourseInfo(@RequestParam("semId") Integer semId){
+    @SaCheckPermission("course.tabulation.list")
+    public CommonResult<SimpleResultCO> allCourseInfo(
+            @RequestParam(value = "semId",required = false) Integer semId){
         return null;
     }
 
@@ -71,22 +86,24 @@ public class QueryCourseController {
      *
      * */
     @GetMapping("/courses/table")
-    public CommonResult<Object> courseNum(@RequestParam("week") Integer week,
-                                          @RequestParam("semId") Integer semId){
+    @SaCheckPermission("course.table.amount")
+    public CommonResult<CourseComonCO<ArrayList<Integer>>> courseNum(
+            @RequestParam(value = "week",required = false) Integer week,
+            @RequestParam(value = "semId",required = false) Integer semId){
         return null;
     }
 
     /**
      * 获取一个课程时间段的课程信息
      *@param semId 学期id
-     *  @param body 含有课程时间课程时间（需要自己提取出来）
-     * Object param = body.get("想要获取的参数名称");
-     *返回类型与json中的保持一致
+     *  @param courseQuery 课程查询相关信息
      * */
     //TODO
     @PostMapping("/course/table")
-    public CommonResult<Object> courseTimeDetail(@RequestParam("semId") Integer semId,
-                                                 @RequestBody Map<String, Object> body){
+    @SaCheckPermission("course.table.query")
+    public CommonResult<CourseComonCO<SingleCourseCO>> courseTimeDetail(
+            @RequestParam(value = "semId",required = false) Integer semId,
+            @Valid @RequestBody CourseQuery courseQuery){
         return null;
     }
 
@@ -97,8 +114,10 @@ public class QueryCourseController {
      *
      * */
     @GetMapping("/course/table/one")
-    public CommonResult<Object> getCourseDetail(@RequestParam("id") Integer id,
-                                                @RequestParam("semId") Integer semId){
+    @SaCheckPermission("course.table.query")
+    public CommonResult<SingleCourseDetailCO> getCourseDetail(
+            @RequestParam(value = "id",required = false) Integer id,
+            @RequestParam(value = "semId",required = false) Integer semId){
         return null;
     }
 
@@ -108,7 +127,9 @@ public class QueryCourseController {
      *
      * */
     @PostMapping("/course/types")
-    public CommonResult<Object> pageCourseType(@RequestBody CourseConditionalQuery courseQuery){
+    @SaCheckPermission("course.type.query")
+    public CommonResult<PaginationQueryResultCO<CourseType>> pageCourseType(
+            @Valid @RequestBody CourseConditionalQuery courseQuery){
         return null;
     }
 
@@ -117,7 +138,8 @@ public class QueryCourseController {
      *
      * */
     @GetMapping("/courses/types/all")
-    public CommonResult<Object> allCourseType(){
+    @SaCheckPermission("course.type.query")
+    public CommonResult<CourseComonCO<CourseType>> allCourseType(){
         return null;
     }
 }

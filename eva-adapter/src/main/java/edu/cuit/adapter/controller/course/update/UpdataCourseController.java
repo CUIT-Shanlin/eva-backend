@@ -1,10 +1,12 @@
 package edu.cuit.adapter.controller.course.update;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import edu.cuit.client.dto.cmd.course.UpdateCourseCmd;
 import edu.cuit.client.dto.cmd.course.UpdateCoursesCmd;
 import edu.cuit.client.dto.cmd.course.UpdateSingleCourseCmd;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -27,8 +29,10 @@ public class UpdataCourseController {
      *
      * */
     @PutMapping("/course")
-    public CommonResult<Object> updateCourse(@RequestParam("semId") Integer semId,
-                                             @RequestBody UpdateCourseCmd updateCourseCmd){
+    @SaCheckPermission("course.tabulation.update")
+    public CommonResult<Void> updateCourse(
+            @RequestParam(value = "semId",required = false) Integer semId,
+            @Valid @RequestBody UpdateCourseCmd updateCourseCmd){
         return null;
     }
 
@@ -39,8 +43,10 @@ public class UpdataCourseController {
      *
      * */
     @PutMapping("/courses/template")
-    public CommonResult<Object> updateCourses(@RequestParam("semId") Integer semId,
-                                             @RequestBody UpdateCoursesCmd updateCoursesCmd){
+    @SaCheckPermission("course.template.update")
+    public CommonResult<Void> updateCourses(
+            @RequestParam(value = "semId",required = false) Integer semId,
+            @Valid @RequestBody UpdateCoursesCmd updateCoursesCmd){
         return null;
     }
 
@@ -51,8 +57,10 @@ public class UpdataCourseController {
      *
      * */
     @PutMapping("/course/one")
-    public CommonResult<Object> updateSingleCourse(@RequestParam("semId") Integer semId,
-                                              @RequestBody UpdateSingleCourseCmd updateSingleCourseCmd){
+    @SaCheckPermission("course.tabulation.update")
+    public CommonResult<Void> updateSingleCourse(
+            @RequestParam(value = "semId",required = false) Integer semId,
+            @Valid @RequestBody UpdateSingleCourseCmd updateSingleCourseCmd){
         return null;
     }
 
@@ -62,7 +70,9 @@ public class UpdataCourseController {
      *
      * */
     @PutMapping("/course/type")
-    public CommonResult<Object> updateCourseType(@RequestBody CourseType courseType){
+    @SaCheckPermission("course.type.update")
+    public CommonResult<Void> updateCourseType(
+            @Valid @RequestBody CourseType courseType){
         return null;
     }
 
