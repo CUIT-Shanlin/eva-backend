@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -33,12 +34,12 @@ public class UpdateCourseCmd extends ClientObject {
         /**
          * 创建时间
          */
-        private String createTime;
+        private LocalDateTime createTime;
 
         /**
          * 更新时间
          */
-        private  String updateTime;
+        private LocalDateTime updateTime;
 
         /**
          * 类型id数组

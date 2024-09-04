@@ -8,6 +8,7 @@ import edu.cuit.client.dto.clientobject.eva.UserSingleCourseScoreCO;
 import edu.cuit.client.dto.clientobject.user.UserInfoCO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
@@ -27,26 +28,21 @@ public class UserQueryController {
     /**
      * 一个用户信息
      * @param id 用户id
-     * @param semId 学期id
      */
     @GetMapping("/user/{id}")
     @SaCheckPermission("system.user.query")
-    public CommonResult<UserInfoCO> oneUserInfo(
-            @PathVariable("id") Integer id,
-            @RequestParam("semId") Integer semId) {
+    public CommonResult<UserInfoCO> oneUserInfo(@PathVariable("id") Integer id) {
         return null;
     }
 
     /**
      * 分页用户信息
-     * @param semId 学期id
      * @param query 查询dto
      */
     @PostMapping("/users")
     @SaCheckPermission("system.user.query")
     public CommonResult<PaginationQueryResultCO<UserInfoCO>> pageUserInfo(
-            @RequestParam("semId") Integer semId,
-            @RequestBody PagingQuery query) {
+            @RequestBody @Valid PagingQuery query) {
         return null;
     }
 
@@ -59,33 +55,32 @@ public class UserQueryController {
     @SaCheckPermission("system.user.score.query")
     public CommonResult<List<UserSingleCourseScoreCO>> oneUserScore(
             @PathVariable("userId") Integer userId,
-            @RequestParam("semId") Integer semId) {
+            @RequestParam(value = "semId",required = false) Integer semId) {
         return null;
     }
 
     /**
      * 所有用户的信息
-     * @param semId 学期id
      */
     @GetMapping("/users/all")
     @SaCheckPermission("system.user.list")
-    public CommonResult<SimpleResultCO> allUserInfo(@RequestParam("semId") Integer semId){
+    public CommonResult<SimpleResultCO> allUserInfo(){
         return null;
     }
 
     /**
      * 用户自己的信息
-     * @param semId 学期id
      */
     @GetMapping("/user/info")
     @SaCheckLogin
-    public CommonResult<UserInfoCO> selfUserInfo(@RequestParam("semId") Integer semId){
+    public CommonResult<UserInfoCO> selfUserInfo(){
         return null;
     }
 
     /**
      * 用户头像
      * @param id 用户id
+     * @return 响应对象，包含图片base64数据，响应体content-type为image/jpeg
      */
     @GetMapping("/user/avatar/{id}")
     public ResponseEntity<String> userAvatar(@PathVariable("id") Integer id){
