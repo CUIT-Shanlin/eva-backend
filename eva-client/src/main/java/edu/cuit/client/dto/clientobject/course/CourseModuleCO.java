@@ -28,14 +28,14 @@ public class CourseModuleCO extends ClientObject {
     private List<String> classroomList;
 
     /**
-     * 科目信息
+     * 课程名称
      */
-    private CourseMsgCO subjectMsg;
+    private String name;
 
     /**
      *评教模板信息
      */
-    private EvaTemplateCO template;
+    private EvaTemplateCO templateMsg;
 
     /**
      *教学老师信息信息

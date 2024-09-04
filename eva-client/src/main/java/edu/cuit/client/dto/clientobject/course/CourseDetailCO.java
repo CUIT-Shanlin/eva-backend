@@ -30,6 +30,6 @@ public class CourseDetailCO extends ClientObject {
     /**
      * 一门课程的模型
      */
-    private CourseModuleCO course;
+    private CourseModuleCO courseBaseMsg;
 
 }

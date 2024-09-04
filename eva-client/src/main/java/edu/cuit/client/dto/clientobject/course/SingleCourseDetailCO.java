@@ -10,7 +10,7 @@ import lombok.experimental.Accessors;
 import java.util.List;
 
 /**
- * 一节课的模型
+ * 一节课的详情(一节课的详情)
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
