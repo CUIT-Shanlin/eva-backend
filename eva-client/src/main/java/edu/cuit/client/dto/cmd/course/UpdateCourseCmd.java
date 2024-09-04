@@ -45,4 +45,9 @@ public class UpdateCourseCmd extends ClientObject {
          * 类型id数组
          */
         private List<Integer> typeIdList;
+
+        /**
+         * 是否要把该学科的以上内容进行一起修改
+         */
+        private Boolean isUpdate;
 }
