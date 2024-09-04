@@ -2,6 +2,7 @@ package edu.cuit.adapter.controller.user.query;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import cn.hutool.core.lang.Pair;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.eva.UserSingleCourseScoreCO;
@@ -84,6 +85,16 @@ public class UserQueryController {
      */
     @GetMapping("/user/avatar/{id}")
     public ResponseEntity<String> userAvatar(@PathVariable("id") Integer id){
+        return null;
+    }
+
+    /**
+     * 检查用户名是否存在
+     * @param username 用户名
+     */
+    @GetMapping("/username/exist")
+    @SaCheckPermission("system.user.isExist")
+    public CommonResult<Boolean> isExist(@RequestParam("username") String username) {
         return null;
     }
 
