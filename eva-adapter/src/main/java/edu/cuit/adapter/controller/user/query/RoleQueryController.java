@@ -50,4 +50,15 @@ public class RoleQueryController {
         return null;
     }
 
+    /**
+     * 获取角色所拥有的菜单id
+     * @param roleId 角色id
+     */
+    @GetMapping("/menu/idList/{roleId}")
+    @SaCheckPermission("system.menu.query")
+    public CommonResult<List<Integer>> menus(@PathVariable("roleId") Integer roleId) {
+        return null;
+    }
+
+
 }
