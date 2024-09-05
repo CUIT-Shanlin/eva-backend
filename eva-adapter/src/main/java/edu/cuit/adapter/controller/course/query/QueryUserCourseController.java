@@ -1,12 +1,8 @@
 package edu.cuit.adapter.controller.course.query;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
-import edu.cuit.client.dto.clientobject.course.CourseComonCO;
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.client.dto.clientobject.course.ModifySingleCourseDetailCO;
-import edu.cuit.client.dto.clientobject.course.SingleCourseDetailCO;
-import edu.cuit.client.dto.query.condition.CourseConditionalQuery;
 import edu.cuit.client.dto.query.condition.MobileCourseQuery;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import jakarta.validation.Valid;
