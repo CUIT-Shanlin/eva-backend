@@ -75,7 +75,7 @@ public class EvaQueryController {
     @SaCheckPermission("evaluate.score.query")
     public CommonResult<CourseScoreCO> evaScoreInfo(
             @RequestParam(value = "semId",required = false) Integer semId,
-            @RequestParam(value = "score",required = false) Integer score){
+            @RequestParam(value = "score") Integer score){
         return null;
     }
     /**
@@ -105,6 +105,13 @@ public class EvaQueryController {
     public CommonResult<EvaRecordCO> OneEvaingLogInfo(
             @RequestParam(value = "userId",required = false) Integer userId,
             @RequestParam(value = "courseId",required = false) Integer courseId){
+        return null;
+    }
+    /**
+     * 获取所有模板的基础信息，仅包含名称和id信息
+     */
+    @GetMapping("/evaluate/template/all")
+    public CommonResult<SimpleResultCO> evaAllTemplate (){
         return null;
     }
 }

@@ -25,7 +25,7 @@ public class DeleteEvaController {
     @DeleteMapping("/evaluate/record")
     @SaCheckPermission("evaluate.record.delete")
     public CommonResult<Void> deleteOneEvaLogById(
-            @RequestParam(value = "id",required = false) Integer id){
+            @RequestParam(value = "id") Integer id){
         return null;
     }
     /**
@@ -34,7 +34,7 @@ public class DeleteEvaController {
     @DeleteMapping("/evaluate/records")
     @SaCheckPermission("evaluate.record.delete")
     public CommonResult<Void> deleteEvaLogsById(
-            @RequestBody SimpleResultCO array ){
+            @RequestBody SimpleResultCO array){
         return null;
     }
     /**
@@ -44,7 +44,7 @@ public class DeleteEvaController {
     @DeleteMapping("/evaluate/template")
     @SaCheckPermission("evaluate.template.delete")
     public CommonResult<Void> deleteEvaTemplateById(
-            @RequestParam(value = "templateId",required = false) Integer templateId){
+            @RequestParam(value = "templateId") Integer templateId){
         return null;
     }
     /**
