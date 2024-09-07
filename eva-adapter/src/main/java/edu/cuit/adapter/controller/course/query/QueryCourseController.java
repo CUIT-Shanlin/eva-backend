@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -49,7 +48,7 @@ public class QueryCourseController {
      */
     @GetMapping("/course")
     @SaCheckPermission("course.tabulation.query")
-    public CommonResult<CourseDetailCO> courseinfo(
+    public CommonResult<CourseDetailCO> courseInfo(
             @RequestParam(value = "id",required = false) Integer id,
             @RequestParam(value = "semId",required = false) Integer semId){
         return null;

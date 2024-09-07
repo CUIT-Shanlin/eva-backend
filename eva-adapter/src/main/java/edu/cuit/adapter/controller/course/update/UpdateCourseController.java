@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @Validated
-public class UpdataCourseController {
+public class UpdateCourseController {
 
     /**
      * 修改一门课程
