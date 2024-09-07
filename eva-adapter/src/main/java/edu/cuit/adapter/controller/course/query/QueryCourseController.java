@@ -2,6 +2,7 @@ package edu.cuit.adapter.controller.course.query;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
+import edu.cuit.client.dto.clientobject.SimpleCourseResultCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.course.*;
 import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
@@ -16,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -49,8 +49,8 @@ public class QueryCourseController {
      */
     @GetMapping("/course")
     @SaCheckPermission("course.tabulation.query")
-    public CommonResult<CourseDetailCO> courseinfo(
-            @RequestParam(value = "id",required = false) Integer id,
+    public CommonResult<CourseDetailCO> courseInfo(
+            @RequestParam(value = "id",required = true) Integer id,
             @RequestParam(value = "semId",required = false) Integer semId){
         return null;
     }
@@ -64,7 +64,7 @@ public class QueryCourseController {
     @GetMapping("/course/eva")
     @SaCheckPermission("course.tabulation.eva.query")
     public CommonResult<List<CourseScoreCO>> evaResult(
-            @RequestParam(value = "id",required = false) Integer id,
+            @RequestParam(value = "id",required = true) Integer id,
             @RequestParam(value = "semId",required = false) Integer semId){
         return null;
     }
@@ -77,8 +77,19 @@ public class QueryCourseController {
      */
     @GetMapping("/courses/all")
     @SaCheckPermission("course.tabulation.list")
-    public CommonResult<List<SimpleResultCO>> allCourseInfo(
+    public CommonResult<List<SimpleCourseResultCO>> allCourseInfo(
             @RequestParam(value = "semId",required = false) Integer semId){
+        return null;
+    }
+
+    /**
+     * 获取所有的科目的基础信息
+     *
+     *
+     */
+    @GetMapping("/courses/subject/all")
+    @SaCheckPermission("course.tabulation.list")
+    public CommonResult<List<SimpleResultCO>> allSubjectInfo(){
         return null;
     }
 
@@ -91,7 +102,7 @@ public class QueryCourseController {
     @GetMapping("/courses/table")
     @SaCheckPermission("course.table.amount")
     public CommonResult<List<List<Integer>>> courseNum(
-            @RequestParam(value = "week",required = false) Integer week,
+            @RequestParam(value = "week",required = true) Integer week,
             @RequestParam(value = "semId",required = false) Integer semId){
         return null;
     }
@@ -101,7 +112,6 @@ public class QueryCourseController {
      *@param semId 学期id
      *  @param courseQuery 课程查询相关信息
      * */
-    //TODO
     @PostMapping("/course/table")
     @SaCheckPermission("course.table.query")
     public CommonResult<List<SingleCourseCO>> courseTimeDetail(
@@ -119,7 +129,7 @@ public class QueryCourseController {
     @GetMapping("/course/table/one")
     @SaCheckPermission("course.table.query")
     public CommonResult<SingleCourseDetailCO> getCourseDetail(
-            @RequestParam(value = "id",required = false) Integer id,
+            @RequestParam(value = "id",required = true) Integer id,
             @RequestParam(value = "semId",required = false) Integer semId){
         return null;
     }
