@@ -7,7 +7,9 @@ import edu.cuit.client.dto.clientobject.course.*;
 import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.client.dto.query.CourseQuery;
+import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.CourseConditionalQuery;
+import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -34,7 +37,7 @@ public class QueryCourseController {
     @SaCheckPermission("course.tabulation.query")
     public CommonResult<PaginationQueryResultCO<CourseModuleCO>> pageCoursesInfo(
             @RequestParam(value = "semId",required = false) Integer semId,
-            @Valid @RequestBody CourseConditionalQuery courseQuery){
+            @Valid @RequestBody PagingQuery<CourseConditionalQuery> courseQuery){
         return null;
     }
 
@@ -60,7 +63,7 @@ public class QueryCourseController {
      */
     @GetMapping("/course/eva")
     @SaCheckPermission("course.tabulation.eva.query")
-    public CommonResult<CourseScoreCO> evaResult(
+    public CommonResult<List<CourseScoreCO>> evaResult(
             @RequestParam(value = "id",required = false) Integer id,
             @RequestParam(value = "semId",required = false) Integer semId){
         return null;
@@ -74,7 +77,7 @@ public class QueryCourseController {
      */
     @GetMapping("/courses/all")
     @SaCheckPermission("course.tabulation.list")
-    public CommonResult<SimpleResultCO> allCourseInfo(
+    public CommonResult<List<SimpleResultCO>> allCourseInfo(
             @RequestParam(value = "semId",required = false) Integer semId){
         return null;
     }
@@ -87,7 +90,7 @@ public class QueryCourseController {
      * */
     @GetMapping("/courses/table")
     @SaCheckPermission("course.table.amount")
-    public CommonResult<CourseComonCO<ArrayList<Integer>>> courseNum(
+    public CommonResult<List<List<Integer>>> courseNum(
             @RequestParam(value = "week",required = false) Integer week,
             @RequestParam(value = "semId",required = false) Integer semId){
         return null;
@@ -101,7 +104,7 @@ public class QueryCourseController {
     //TODO
     @PostMapping("/course/table")
     @SaCheckPermission("course.table.query")
-    public CommonResult<CourseComonCO<SingleCourseCO>> courseTimeDetail(
+    public CommonResult<List<SingleCourseCO>> courseTimeDetail(
             @RequestParam(value = "semId",required = false) Integer semId,
             @Valid @RequestBody CourseQuery courseQuery){
         return null;
@@ -129,7 +132,7 @@ public class QueryCourseController {
     @PostMapping("/course/types")
     @SaCheckPermission("course.type.query")
     public CommonResult<PaginationQueryResultCO<CourseType>> pageCourseType(
-            @Valid @RequestBody CourseConditionalQuery courseQuery){
+            @Valid @RequestBody PagingQuery<GenericConditionalQuery> courseQuery){
         return null;
     }
 
@@ -139,7 +142,7 @@ public class QueryCourseController {
      * */
     @GetMapping("/courses/types/all")
     @SaCheckPermission("course.type.query")
-    public CommonResult<CourseComonCO<CourseType>> allCourseType(){
+    public CommonResult<List<CourseType>> allCourseType(){
         return null;
     }
 }
