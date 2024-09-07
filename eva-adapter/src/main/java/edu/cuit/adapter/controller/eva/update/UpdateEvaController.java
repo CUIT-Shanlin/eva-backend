@@ -6,6 +6,7 @@ import edu.cuit.client.dto.clientobject.eva.EvaInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
 import edu.cuit.client.dto.data.course.CourseTime;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,7 @@ public class UpdateEvaController {
     @PutMapping("/evaluate/template")
     @SaCheckPermission("evaluate.record.update")
     public CommonResult<Void> updateEvaTempalate(
-            @Validated @RequestBody EvaTemplateCO evaTemplateCO){
+            @Valid @RequestBody EvaTemplateCO evaTemplateCO){
         return null;
     }
 
@@ -37,8 +38,8 @@ public class UpdateEvaController {
      */
     @PutMapping("/evaluate/task")
     public CommonResult<Void> putEvaTempalate(
-            @Validated @RequestBody EvaTemplateCO evaTemplateCO,
-            @Validated @RequestBody CourseTime courseTime){
+            @Valid @RequestBody EvaTemplateCO evaTemplateCO,
+            @Valid @RequestBody CourseTime courseTime){
         return null;
     }
     /**
@@ -47,7 +48,7 @@ public class UpdateEvaController {
      */
     @PostMapping("/evaluate/task")
     public CommonResult<Void> postEvaTask(
-            @Validated @RequestBody EvaInfoCO evaInfoCO){
+            @Valid @RequestBody EvaInfoCO evaInfoCO){
         return null;
     }
     /**
@@ -56,7 +57,7 @@ public class UpdateEvaController {
      */
     @PostMapping("/evaluate/template")
     public CommonResult<Void> addEvaTempalate(
-            @Validated @RequestBody EvaTemplateCO evaTemplateCO){
+            @Valid @RequestBody EvaTemplateCO evaTemplateCO){
         return null;
     }
 }

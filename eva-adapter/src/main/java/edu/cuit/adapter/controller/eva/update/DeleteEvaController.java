@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * 评教相关更新接口
  */
@@ -30,11 +32,12 @@ public class DeleteEvaController {
     }
     /**
      * 批量删除评教记录，删除之后，相当于用户没有进行过这次评教，id集合放请求体
+     * @param ids 记录数组
      */
     @DeleteMapping("/evaluate/records")
     @SaCheckPermission("evaluate.record.delete")
     public CommonResult<Void> deleteEvaLogsById(
-            @RequestBody SimpleResultCO array){
+            @RequestBody List<Integer> ids){
         return null;
     }
     /**
@@ -49,10 +52,11 @@ public class DeleteEvaController {
     }
     /**
      * 批量删除模板，后端要再次检验是否可被删除
+     * @param ids 模板数组
      */
     @DeleteMapping("/evaluate/templates")
     public CommonResult<Void> deleteEvaTemplatesById(
-            @RequestBody SimpleResultCO array ){
+            @RequestBody List<Integer> ids ){
         return null;
     }
 

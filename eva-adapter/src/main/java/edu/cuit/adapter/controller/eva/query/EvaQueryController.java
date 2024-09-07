@@ -12,6 +12,8 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * 评教信息查询相关接口
  */
@@ -62,7 +64,7 @@ public class EvaQueryController {
      */
     @GetMapping("/evaluate/task/situation")
     @SaCheckPermission("evaluate.task.situation.query")
-    public CommonResult<SimpleResultCO> evaTaskSituation(
+    public CommonResult<EvaSituationCO> evaTaskSituation(
             @RequestParam(value = "semId",required = false) Integer semId){
         return null;
     }
@@ -73,7 +75,7 @@ public class EvaQueryController {
      */
     @GetMapping("/evaluate/score/situation")
     @SaCheckPermission("evaluate.score.query")
-    public CommonResult<CourseScoreCO> evaScoreInfo(
+    public CommonResult<EvaSituationCO> evaScoreInfo(
             @RequestParam(value = "semId",required = false) Integer semId,
             @RequestParam(value = "score") Integer score){
         return null;
@@ -111,7 +113,7 @@ public class EvaQueryController {
      * 获取所有模板的基础信息，仅包含名称和id信息
      */
     @GetMapping("/evaluate/template/all")
-    public CommonResult<SimpleResultCO> evaAllTemplate (){
+    public CommonResult<List<SimpleResultCO>> evaAllTemplate (){
         return null;
     }
 }
