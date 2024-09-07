@@ -50,7 +50,7 @@ public class QueryCourseController {
     @GetMapping("/course")
     @SaCheckPermission("course.tabulation.query")
     public CommonResult<CourseDetailCO> courseInfo(
-            @RequestParam(value = "id",required = false) Integer id,
+            @RequestParam(value = "id",required = true) Integer id,
             @RequestParam(value = "semId",required = false) Integer semId){
         return null;
     }
@@ -64,7 +64,7 @@ public class QueryCourseController {
     @GetMapping("/course/eva")
     @SaCheckPermission("course.tabulation.eva.query")
     public CommonResult<List<CourseScoreCO>> evaResult(
-            @RequestParam(value = "id",required = false) Integer id,
+            @RequestParam(value = "id",required = true) Integer id,
             @RequestParam(value = "semId",required = false) Integer semId){
         return null;
     }
@@ -85,13 +85,11 @@ public class QueryCourseController {
     /**
      * 获取所有的科目的基础信息
      *
-     * @param semId 学期id
      *
      */
     @GetMapping("/courses/subject/all")
     @SaCheckPermission("course.tabulation.list")
-    public CommonResult<List<SimpleResultCO>> allSubjectInfo(
-            @RequestParam(value = "semId",required = false) Integer semId){
+    public CommonResult<List<SimpleResultCO>> allSubjectInfo(){
         return null;
     }
 
@@ -104,7 +102,7 @@ public class QueryCourseController {
     @GetMapping("/courses/table")
     @SaCheckPermission("course.table.amount")
     public CommonResult<List<List<Integer>>> courseNum(
-            @RequestParam(value = "week",required = false) Integer week,
+            @RequestParam(value = "week",required = true) Integer week,
             @RequestParam(value = "semId",required = false) Integer semId){
         return null;
     }
@@ -131,7 +129,7 @@ public class QueryCourseController {
     @GetMapping("/course/table/one")
     @SaCheckPermission("course.table.query")
     public CommonResult<SingleCourseDetailCO> getCourseDetail(
-            @RequestParam(value = "id",required = false) Integer id,
+            @RequestParam(value = "id",required = true) Integer id,
             @RequestParam(value = "semId",required = false) Integer semId){
         return null;
     }

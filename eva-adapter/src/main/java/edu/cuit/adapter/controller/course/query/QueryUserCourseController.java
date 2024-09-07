@@ -28,7 +28,7 @@ public class QueryUserCourseController {
      * */
     @GetMapping("/courses")
     public CommonResult<List<SimpleResultCO>> getUserCourseInfo(
-            @RequestParam(value = "id",required = false) Integer id,
+            @RequestParam(value = "id",required = true) Integer id,
             @RequestParam(value = "semId",required = false) Integer semId){
         return null;
     }
@@ -41,7 +41,7 @@ public class QueryUserCourseController {
      * */
     @GetMapping("/courses/detail")
     public CommonResult<List<CourseDetailCO>> getUserCourseDetail(
-            @RequestParam(value = "id",required = false) Integer id,
+            @RequestParam(value = "id",required = true) Integer id,
             @RequestParam(value = "semId",required = false) Integer semId){
         return null;
     }
