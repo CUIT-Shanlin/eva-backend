@@ -123,8 +123,7 @@ public class QueryCourseController {
     /**
      * 获取一节课的详细信息
      *@param semId 学期id
-     *  @param id 课程详情id
-     *
+     *@param id 课程详情id
      * */
     @GetMapping("/course/table/one")
     @SaCheckPermission("course.table.query")
@@ -133,6 +132,35 @@ public class QueryCourseController {
             @RequestParam(value = "semId",required = false) Integer semId){
         return null;
     }
+
+    /**
+     * 获取一天的具体日期
+     *@param semId 学期id
+     *@param week 第几周
+     *@param day 星期几
+     * */
+    @GetMapping("/course/date")
+    @SaCheckPermission("course.table.query")
+    public CommonResult<String> getDate(
+            @RequestParam(value = "semId",required = false) Integer semId,
+            @RequestParam(value = "week",required = true) Integer week,
+            @RequestParam(value = "day",required = true) Integer day){
+        return null;
+    }
+
+    /**
+     * 获取某个指定时间段的课程
+     *@param semId 学期id
+     *@param id 课程详情id
+     * */
+    @PostMapping("/courses/query")
+    public CommonResult<SingleCourseDetailCO> getCourseDetailByTime(
+            @RequestParam(value = "id",required = true) Integer id,
+            @RequestParam(value = "semId",required = false) Integer semId){
+        return null;
+    }
+
+
 
     /**
      * 分页获取课程类型
