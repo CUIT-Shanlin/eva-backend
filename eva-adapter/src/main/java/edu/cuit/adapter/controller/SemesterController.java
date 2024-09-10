@@ -6,6 +6,7 @@ import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -16,12 +17,13 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @Validated
+@RequestMapping("/semester")
 public class SemesterController {
 
     /**
      * 获取所有已有的学期
      */
-    @GetMapping("/semester/all")
+    @GetMapping("/all")
     public CommonResult<List<SemesterCO>> all() {
         return null;
     }
