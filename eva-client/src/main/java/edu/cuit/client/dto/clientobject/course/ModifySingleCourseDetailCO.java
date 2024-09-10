@@ -1,7 +1,6 @@
 package edu.cuit.client.dto.clientobject.course;
 
 import com.alibaba.cola.dto.ClientObject;
-import edu.cuit.client.dto.clientobject.eva.EvaTeacherInfoCO;
 import edu.cuit.client.dto.data.course.CourseTime;
 import edu.cuit.client.dto.data.course.CourseType;
 import lombok.Data;
@@ -9,14 +8,13 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.util.List;
-
 /**
- * 一节课的详情(一节课的详情)
+ * 针对于“获取某个指定时间段的课程”接口的衍生类
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class SingleCourseDetailCO extends ClientObject {
+public class ModifySingleCourseDetailCO extends ClientObject {
     /**
      * 教室
      */
@@ -33,9 +31,9 @@ public class SingleCourseDetailCO extends ClientObject {
     private List<CourseType> typeList;
 
     /**
-     * 评教老师数组
+     * 评教老师数
      */
-    private List<EvaTeacherInfoCO> evaTeachers;
+    private Integer evaTeacherNum;
 
     /**
      * 一节课的模型
@@ -46,5 +44,4 @@ public class SingleCourseDetailCO extends ClientObject {
      *课程事件模型
      */
     private CourseTime time;
-
 }

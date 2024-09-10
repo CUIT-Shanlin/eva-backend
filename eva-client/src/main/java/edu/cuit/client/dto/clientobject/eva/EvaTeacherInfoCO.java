@@ -5,34 +5,22 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
-import java.time.LocalDateTime;
-
 /**
- * 评教表单模版
+ * 老师信息
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class EvaTemplateCO extends ClientObject {
+public class EvaTeacherInfoCO extends ClientObject {
 
     /**
-     * 模版id
+     * 老师ID
      */
     private Integer id;
 
     /**
-     *模板名称
+     * 老师名称
      */
     private String name;
-
-
-    /**
-     *描述
-     */
-    private String description;
-
-
-
-
 
 }

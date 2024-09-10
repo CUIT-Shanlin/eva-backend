@@ -1,4 +1,4 @@
-package edu.cuit.client.dto.clientobject.course;
+package edu.cuit.client.dto.data.course;
 
 import com.alibaba.cola.dto.ClientObject;
 import jakarta.validation.constraints.NotNull;

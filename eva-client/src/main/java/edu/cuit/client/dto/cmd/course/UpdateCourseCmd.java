@@ -1,7 +1,7 @@
 package edu.cuit.client.dto.cmd.course;
 
 import com.alibaba.cola.dto.ClientObject;
-import edu.cuit.client.dto.clientobject.course.CourseMsgCO;
+import edu.cuit.client.dto.clientobject.course.SubjectCO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -24,7 +24,7 @@ public class UpdateCourseCmd extends ClientObject {
         /**
          * 科目信息
          */
-        private CourseMsgCO subjectMsg;
+        private SubjectCO subjectMsg;
 
         /**
          * 评教模板id
@@ -45,4 +45,9 @@ public class UpdateCourseCmd extends ClientObject {
          * 类型id数组
          */
         private List<Integer> typeIdList;
+
+        /**
+         * 是否要把该学科的以上内容进行一起修改
+         */
+        private Boolean isUpdate;
 }

@@ -1,38 +1,31 @@
-package edu.cuit.client.dto.clientobject.eva;
+package edu.cuit.client.dto.clientobject;
 
 import com.alibaba.cola.dto.ClientObject;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
-import java.time.LocalDateTime;
 
 /**
- * 评教表单模版
+ * 极简响应模型-一门课程
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class EvaTemplateCO extends ClientObject {
+public class SimpleCourseResultCO extends ClientObject {
 
     /**
-     * 模版id
+     * id
      */
     private Integer id;
 
     /**
-     *模板名称
+     * 名称
      */
     private String name;
 
-
     /**
-     *描述
+     * 教学老师姓名
      */
-    private String description;
-
-
-
-
-
+    private String teacherName;
 }

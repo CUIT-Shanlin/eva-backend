@@ -1,38 +1,36 @@
-package edu.cuit.client.dto.clientobject.eva;
+package edu.cuit.client.dto.clientobject.user;
 
 import com.alibaba.cola.dto.ClientObject;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
-import java.time.LocalDateTime;
-
 /**
- * 评教表单模版
+ * 未达标用户模型
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class EvaTemplateCO extends ClientObject {
+public class UnqualifiedUserInfoCO extends ClientObject {
 
     /**
-     * 模版id
+     * 用户id
      */
     private Integer id;
 
     /**
-     *模板名称
+     * 用户姓名
      */
     private String name;
 
+    /**
+     * 学院名称
+     */
+    private String department;
 
     /**
-     *描述
+     * 已经完成的评教数目
      */
-    private String description;
-
-
-
-
+    private Integer num;
 
 }
