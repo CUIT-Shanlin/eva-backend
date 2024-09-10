@@ -1,7 +1,7 @@
 package edu.cuit.adapter.controller.course.update;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
-import edu.cuit.client.dto.cmd.course.CourseToListen;
+import edu.cuit.client.dto.cmd.course.AlignTeacherCmd;
 import edu.cuit.client.dto.cmd.course.UpdateCourseCmd;
 import edu.cuit.client.dto.cmd.course.UpdateCoursesCmd;
 import edu.cuit.client.dto.cmd.course.UpdateSingleCourseCmd;
@@ -90,14 +90,14 @@ public class UpdateCourseController {
     /**
      * 分配听课/评教老师
      *  @param semId 学期id
-     *  @param courseToListen 内涵课程id，以及听课老师集合
+     *  @param alignTeacherCmd 内涵课程id，以及听课老师集合
      *
      * */
     @PutMapping("/course/table/one/eva")
     @SaCheckPermission("course.table.assignEva")
     public CommonResult<Void> allocateTeacher(
             @RequestParam(value = "semId",required = false) Integer semId,
-            @Valid  @RequestBody CourseToListen courseToListen){
+            @Valid  @RequestBody AlignTeacherCmd alignTeacherCmd){
         return null;
     }
 
