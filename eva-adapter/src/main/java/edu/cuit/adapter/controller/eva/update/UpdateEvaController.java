@@ -6,7 +6,6 @@ import edu.cuit.client.dto.clientobject.eva.EvaInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
 import edu.cuit.client.dto.data.course.CourseTime;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +24,8 @@ public class UpdateEvaController {
      */
     @PutMapping("/evaluate/template")
     @SaCheckPermission("evaluate.record.update")
-    public CommonResult<Void> updateEvaTempalate(
-            @Valid @RequestBody EvaTemplateCO evaTemplateCO){
+    public CommonResult<Void> updateEvaTemplate(
+            @Validated @RequestBody EvaTemplateCO evaTemplateCO){
         return null;
     }
 
@@ -37,9 +36,9 @@ public class UpdateEvaController {
      * @param courseTime 课程时间
      */
     @PutMapping("/evaluate/task")
-    public CommonResult<Void> putEvaTempalate(
-            @Valid @RequestBody EvaTemplateCO evaTemplateCO,
-            @Valid @RequestBody CourseTime courseTime){
+    public CommonResult<Void> putEvaTemplate(
+            @Validated @RequestBody EvaTemplateCO evaTemplateCO,
+            @Validated @RequestBody CourseTime courseTime){
         return null;
     }
     /**
@@ -48,7 +47,7 @@ public class UpdateEvaController {
      */
     @PostMapping("/evaluate/task")
     public CommonResult<Void> postEvaTask(
-            @Valid @RequestBody EvaInfoCO evaInfoCO){
+            @Validated @RequestBody EvaInfoCO evaInfoCO){
         return null;
     }
     /**
@@ -56,8 +55,8 @@ public class UpdateEvaController {
      * @param evaTemplateCO 评教模板dto
      */
     @PostMapping("/evaluate/template")
-    public CommonResult<Void> addEvaTempalate(
-            @Valid @RequestBody EvaTemplateCO evaTemplateCO){
+    public CommonResult<Void> addEvaTemplate(
+            @Validated @RequestBody EvaTemplateCO evaTemplateCO){
         return null;
     }
 }
