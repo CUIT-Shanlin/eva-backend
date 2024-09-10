@@ -10,10 +10,11 @@
             <result property="period" column="period" jdbcType="TINYINT"/>
             <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
             <result property="endYear" column="end_year" jdbcType="VARCHAR"/>
+            <result property="startDate" column="start_date" jdbcType="DATE"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,start_year,period,
-        is_deleted,end_year
+        is_deleted,end_year,start_date
     </sql>
 </mapper>
