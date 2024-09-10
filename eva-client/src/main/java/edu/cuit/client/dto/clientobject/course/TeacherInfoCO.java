@@ -1,11 +1,8 @@
 package edu.cuit.client.dto.clientobject.course;
 
 import com.alibaba.cola.dto.ClientObject;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
@@ -14,7 +11,7 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class TeacherMsg extends ClientObject {
+public class TeacherInfoCO extends ClientObject {
 
     /**
      * 教师id

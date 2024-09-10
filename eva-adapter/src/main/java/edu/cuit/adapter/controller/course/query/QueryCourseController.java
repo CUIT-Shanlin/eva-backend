@@ -35,7 +35,7 @@ public class QueryCourseController {
      */
     @PostMapping("/courses")
     @SaCheckPermission("course.tabulation.query")
-    public CommonResult<PaginationQueryResultCO<CourseModuleCO>> pageCoursesInfo(
+    public CommonResult<PaginationQueryResultCO<CourseModelCO>> pageCoursesInfo(
             @RequestParam(value = "semId",required = false) Integer semId,
             @Valid @RequestBody PagingQuery<CourseConditionalQuery> courseQuery){
         return null;

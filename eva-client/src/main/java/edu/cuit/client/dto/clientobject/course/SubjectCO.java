@@ -13,29 +13,25 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class CourseMsgCO extends ClientObject {
-    /**
-     * 课程id
-     */
-    private Integer id;
+public class SubjectCO extends ClientObject {
 
     /**
-     * 课程名称
+     * 科目名称
      */
     private String name;
 
     /**
-     * 课程性质(0:理论课,1:实验课,3:其他)
+     * 科目性质(0:理论课,1:实验课,3:其他)
      */
     private Integer nature;
 
     /**
-     * 课程创建时间
+     * 科目创建时间
      */
     private LocalDateTime createTime;
 
     /**
-     * 课程更新时间
+     * 科目更新时间
      */
     private LocalDateTime updateTime;
 }

@@ -15,7 +15,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class CourseModuleCO extends ClientObject {
+public class CourseModelCO extends ClientObject {
 
     /**
      * 课程id
@@ -40,7 +40,7 @@ public class CourseModuleCO extends ClientObject {
     /**
      *教学老师信息信息
      */
-    private TeacherMsg teacherMsg;
+    private TeacherInfoCO teacherInfoCO;
 
     /**
      * 创建时间

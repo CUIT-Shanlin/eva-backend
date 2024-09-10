@@ -1,0 +1,45 @@
+package edu.cuit.client.dto.clientobject.eva;
+
+import com.alibaba.cola.dto.ClientObject;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
+import java.time.LocalDateTime;
+import java.util.List;
+
+/**
+ * 评教分数具体信息
+ */
+@EqualsAndHashCode
+@Data
+@Accessors(chain = true)
+public class EvaScoreInfoCO {
+    /**
+     * id
+     */
+    private Long id;
+    /**
+     * 低于 指定分数的数目
+     */
+    private Long lowerNum;
+    /**
+     * 总记录数
+     */
+    private Long totalNum;
+    /**
+     *高于指定分数的百分比
+     */
+    private String percent;
+    /**
+     *较昨日 lowerNum 多了多少
+     */
+    private Long moreNum;
+    /**
+     * 较昨日 percent 多了多少
+     */
+    private Long morePercent;
+    /**
+     * 7日内 percent 的值
+     */
+    private List<Integer> percentArr;
+}

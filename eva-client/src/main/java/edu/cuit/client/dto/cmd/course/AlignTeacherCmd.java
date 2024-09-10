@@ -1,4 +1,4 @@
-package edu.cuit.client.dto.clientobject.course;
+package edu.cuit.client.dto.cmd.course;
 
 import com.alibaba.cola.dto.ClientObject;
 import lombok.Data;
@@ -6,21 +6,20 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 /**
- * 老师信息
+ * 分配听课/评教老师模型
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class TeacherInfo extends ClientObject {
-
+public class AlignTeacherCmd extends ClientObject {
     /**
-     * 老师ID
+     * 课程详情id
      */
     private Integer id;
 
     /**
-     * 老师名称
+     * 评教老师的id集合
      */
-    private String name;
+    private Integer[] evaTeacherIdList;
 
 }

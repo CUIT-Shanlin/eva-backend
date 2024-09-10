@@ -24,7 +24,7 @@ public class UpdateEvaController {
      */
     @PutMapping("/evaluate/template")
     @SaCheckPermission("evaluate.record.update")
-    public CommonResult<Void> updateEvaTempalate(
+    public CommonResult<Void> updateEvaTemplate(
             @Validated @RequestBody EvaTemplateCO evaTemplateCO){
         return null;
     }
@@ -36,7 +36,7 @@ public class UpdateEvaController {
      * @param courseTime 课程时间
      */
     @PutMapping("/evaluate/task")
-    public CommonResult<Void> putEvaTempalate(
+    public CommonResult<Void> putEvaTemplate(
             @Validated @RequestBody EvaTemplateCO evaTemplateCO,
             @Validated @RequestBody CourseTime courseTime){
         return null;
@@ -55,7 +55,7 @@ public class UpdateEvaController {
      * @param evaTemplateCO 评教模板dto
      */
     @PostMapping("/evaluate/template")
-    public CommonResult<Void> addEvaTempalate(
+    public CommonResult<Void> addEvaTemplate(
             @Validated @RequestBody EvaTemplateCO evaTemplateCO){
         return null;
     }
