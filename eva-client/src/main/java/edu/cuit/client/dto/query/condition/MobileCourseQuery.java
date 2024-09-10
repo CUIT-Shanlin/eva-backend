@@ -34,7 +34,7 @@ public class MobileCourseQuery extends Query {
      * 排序方式0: 选过次数升序；1：时间升序；2：时间降序
      */
     @Min(value = 0,message = "排序方式sort最小为0")
-    @Max(value = 2,message = "排序方式sort最大为4")
+    @Max(value = 2,message = "排序方式sort最大为2")
     private Integer sort;
 
     /**
@@ -51,7 +51,7 @@ public class MobileCourseQuery extends Query {
      * 课程类型id
      */
     @Min(value = 0,message = "课程类型id最小为0")
-    @Max(value = 4,message = "课程类型id最大为4")
+    @Max(value = 20,message = "课程类型id最大为20")
     private Integer typeId;
 
 }
