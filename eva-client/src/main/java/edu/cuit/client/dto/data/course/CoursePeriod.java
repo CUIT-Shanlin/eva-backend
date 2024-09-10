@@ -1,6 +1,7 @@
 package edu.cuit.client.dto.data.course;
 
 import com.alibaba.cola.dto.ClientObject;
+import com.alibaba.cola.dto.DTO;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -14,7 +15,7 @@ import org.hibernate.validator.constraints.Range;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class CoursePeriod extends ClientObject {
+public class CoursePeriod extends DTO {
     /**
      * 从哪周开始
      */
