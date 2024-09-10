@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.util.List;
+
 /**
  * 分配听课/评教老师模型
  */
@@ -20,6 +22,6 @@ public class AlignTeacherCmd extends ClientObject {
     /**
      * 评教老师的id集合
      */
-    private Integer[] evaTeacherIdList;
+    private List<Integer> evaTeacherIdList;
 
 }
