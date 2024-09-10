@@ -56,16 +56,5 @@ public class QueryUserCourseController {
         return null;
     }
 
-    /**
-     *获取某个指定时间段的课程
-     * @param semId 学期id
-     *
-     * @param courseQuery 课程查询条件
-     */
-    @PostMapping("/courses/query")
-    public CommonResult<List<ModifySingleCourseDetailCO>> getTimeCourse(
-            @RequestParam(value = "semId",required = false) Integer semId,
-            @Valid  @RequestBody MobileCourseQuery courseQuery){
-        return null;
-    }
+
 }
