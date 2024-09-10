@@ -2,12 +2,15 @@ package edu.cuit.adapter.controller.user.query;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckPermission;
-import cn.hutool.core.lang.Pair;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.eva.UserSingleCourseScoreCO;
+import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
+import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
 import edu.cuit.client.dto.clientobject.user.UserInfoCO;
 import edu.cuit.client.dto.query.PagingQuery;
+import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
+import edu.cuit.client.dto.query.condition.UnqualifiedUserConditionalQuery;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +46,36 @@ public class UserQueryController {
     @PostMapping("/users")
     @SaCheckPermission("system.user.query")
     public CommonResult<PaginationQueryResultCO<UserInfoCO>> pageUserInfo(
-            @RequestBody @Valid PagingQuery query) {
+            @RequestBody @Valid PagingQuery<GenericConditionalQuery> query) {
+        return null;
+    }
+
+    /**
+     * 分页获取未达标用户
+     * @param type 0：获取评教未达标的用户、1：获取被评教次数未达标的用户
+     * @param target 评教或被评教的目标 数目，大于等于该数目则达标，小于则未达标
+     * @param query 查询对象
+     */
+    @PostMapping("/users/unqualified/{type}/{target}")
+    @SaCheckPermission("system.user.query")
+    public CommonResult<PaginationQueryResultCO<UnqualifiedUserInfoCO>> pageUnqualified(
+            @PathVariable("type") Integer type,
+            @PathVariable("target") Integer target,
+            @RequestBody @Valid PagingQuery<UnqualifiedUserConditionalQuery> query) {
+        return null;
+    }
+
+    /**
+     * 获取指定数目未达标的用户信息
+     * @param type 0：获取 评教 未达标的用户、1：获取 被评教 次数未达标的用户
+     * @param num 加载前几个用户数据
+     * @param target 评教或被评教的目标 数目，大于等于该数目则达标，小于则未达标
+     */
+    @GetMapping("/users/unqualified/{type}/{num}/{target}")
+    @SaCheckPermission("system.user.query")
+    public CommonResult<UnqualifiedUserResultCO> targetAmountUnqualified(@PathVariable("type") Integer type,
+                                                                         @PathVariable("num") Integer num,
+                                                                         @PathVariable("target") Integer target) {
         return null;
     }
 
