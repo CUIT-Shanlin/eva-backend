@@ -1,6 +1,7 @@
 package edu.cuit.client.dto.clientobject.course;
 
 import com.alibaba.cola.dto.ClientObject;
+import edu.cuit.client.dto.clientobject.eva.EvaTeacherInfoCO;
 import edu.cuit.client.dto.data.course.CourseTime;
 import edu.cuit.client.dto.data.course.CourseType;
 import lombok.Data;
@@ -34,7 +35,7 @@ public class SingleCourseDetailCO extends ClientObject {
     /**
      * 评教老师数组
      */
-    private List<TeacherInfo> evaTeachers;
+    private List<EvaTeacherInfoCO> evaTeachers;
 
     /**
      * 一节课的模型

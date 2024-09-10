@@ -31,4 +31,14 @@ public class SingleCourseCO extends ClientObject {
      * 评教老师数量（已经选了这节课的老师的数目）
      */
     private Integer evaNum;
+
+    /**
+     * 开始时间（节数）
+     */
+    private Integer startTime;
+
+    /**
+     * 结束时间（节数）
+     */
+    private Integer endTime;
 }
