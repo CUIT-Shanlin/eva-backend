@@ -70,11 +70,6 @@ public class UserEntity {
     private Integer status;
 
     /**
-     * 头像
-     */
-    private UserAvatarVO avatar;
-
-    /**
      * 用户账号是否被禁用
      */
     public Boolean isBanned() {
