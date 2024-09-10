@@ -1,11 +1,11 @@
 package edu.cuit.adapter.controller.eva.update;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
-import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.eva.EvaInfoCO;
+import edu.cuit.client.dto.clientobject.eva.EvaTaskFormCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
-import edu.cuit.client.dto.data.course.CourseTime;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -25,20 +25,18 @@ public class UpdateEvaController {
     @PutMapping("/evaluate/template")
     @SaCheckPermission("evaluate.record.update")
     public CommonResult<Void> updateEvaTemplate(
-            @Validated @RequestBody EvaTemplateCO evaTemplateCO){
+            @Valid @RequestBody EvaTemplateCO evaTemplateCO){
         return null;
     }
 
     //其他操做
     /**
      * 提交评教表单，完成评教任务
-     * @param evaTemplateCO 评教模板dto
-     * @param courseTime 课程时间
+     * @param evaTaskFormCO 评教表单评价分值dto//返回数据类型原来没有刚建的
      */
-    @PutMapping("/evaluate/task")
+    @PutMapping("/evaluate/task/form")
     public CommonResult<Void> putEvaTemplate(
-            @Validated @RequestBody EvaTemplateCO evaTemplateCO,
-            @Validated @RequestBody CourseTime courseTime){
+            @Valid @RequestBody EvaTaskFormCO evaTaskFormCO){
         return null;
     }
     /**
@@ -47,7 +45,7 @@ public class UpdateEvaController {
      */
     @PostMapping("/evaluate/task")
     public CommonResult<Void> postEvaTask(
-            @Validated @RequestBody EvaInfoCO evaInfoCO){
+            @Valid @RequestBody EvaInfoCO evaInfoCO){
         return null;
     }
     /**
@@ -56,7 +54,7 @@ public class UpdateEvaController {
      */
     @PostMapping("/evaluate/template")
     public CommonResult<Void> addEvaTemplate(
-            @Validated @RequestBody EvaTemplateCO evaTemplateCO){
+            @Valid @RequestBody EvaTemplateCO evaTemplateCO){
         return null;
     }
 }

@@ -4,13 +4,11 @@ import cn.dev33.satoken.annotation.SaCheckPermission;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.eva.*;
-import edu.cuit.client.dto.clientobject.user.UserInfoCO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.EvaConditionalQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -60,10 +58,10 @@ public class EvaQueryController {
             @RequestBody PagingQuery<GenericConditionalQuery> query){
         return null;
     }
-    /**
+    /*/**
      *获取评教任务完成情况
      * @param semId 学期id
-     */
+
     @GetMapping("/evaluate/task/situation")
     @SaCheckPermission("evaluate.task.situation.query")
     public CommonResult<EvaSituationCO> evaTaskSituation(
@@ -74,14 +72,14 @@ public class EvaQueryController {
      * 获取评教分数统计基础信息
      * @param score 指定分数
      * @param semId 学期id
-     */
+
     @GetMapping("/evaluate/score/situation")
     @SaCheckPermission("evaluate.score.query")
     public CommonResult<EvaSituationCO> evaScoreInfo(
             @RequestParam(value = "semId",required = false) Integer semId,
             @RequestParam(value = "score") Integer score){
         return null;
-    }
+    }*/
     /**
      * 获取单个用户的待办评教任务，主要用于移动端
      * @param id 用户 ID 编号

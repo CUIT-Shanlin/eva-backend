@@ -25,11 +25,25 @@ public class EvaTemplateCO extends ClientObject {
      */
     private String name;
 
-
     /**
      *描述
      */
     private String description;
+
+    /**
+     * 表单评教指标，JSON表示的字符串形式
+     */
+    private String props;
+
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createTime;
+
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updateTime;
 
 
 

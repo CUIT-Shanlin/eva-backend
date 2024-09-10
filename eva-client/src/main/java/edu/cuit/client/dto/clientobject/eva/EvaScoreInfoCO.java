@@ -1,19 +1,19 @@
 package edu.cuit.client.dto.clientobject.eva;
 
 import com.alibaba.cola.dto.ClientObject;
+import edu.cuit.client.dto.clientobject.SimplePercentCO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
  * 评教分数具体信息
  */
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @Data
 @Accessors(chain = true)
-public class EvaScoreInfoCO {
+public class EvaScoreInfoCO extends ClientObject{
     /**
      * id
      */
@@ -41,5 +41,5 @@ public class EvaScoreInfoCO {
     /**
      * 7日内 percent 的值
      */
-    private List<Integer> percentArr;
+    private List<SimplePercentCO> percentArr;
 }

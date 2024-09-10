@@ -1,10 +1,6 @@
 package edu.cuit.adapter.controller.eva.update;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
-import edu.cuit.client.dto.clientobject.SimpleResultCO;
-import edu.cuit.client.dto.clientobject.eva.EvaInfoCO;
-import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
-import edu.cuit.client.dto.data.course.CourseTime;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;

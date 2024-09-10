@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.time.LocalDateTime;
+
 /**
  * 评教任务-详细信息，获取自己的评教任务的详情信息，后端=》前端
  */
@@ -18,7 +20,10 @@ public class EvaTaskDetailInfoCO extends ClientObject {
      * 任务id
      */
     private Long id;
-
+    /**
+     * 发起评教任务的老师姓名
+     */
+    private String evaTeacherName;
     /**
      * 课程名称
      */
@@ -28,7 +33,14 @@ public class EvaTaskDetailInfoCO extends ClientObject {
      * 教学老师姓名
      */
     private String teacherName;
-
+    /**
+     * 开始时间
+     */
+    private LocalDateTime startTime;
+    /**
+     * 结束时间
+     */
+    private LocalDateTime endTime;
     /**
      * 教室
      */
