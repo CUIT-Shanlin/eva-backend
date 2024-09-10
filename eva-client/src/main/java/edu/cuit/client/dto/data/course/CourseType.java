@@ -1,6 +1,7 @@
 package edu.cuit.client.dto.data.course;
 
 import com.alibaba.cola.dto.ClientObject;
+import com.alibaba.cola.dto.DTO;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class CourseType extends ClientObject {
+public class CourseType extends DTO {
     /**
      * 课程id
      */

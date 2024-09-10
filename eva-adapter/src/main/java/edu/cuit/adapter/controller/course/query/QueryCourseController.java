@@ -11,6 +11,7 @@ import edu.cuit.client.dto.query.CourseQuery;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.CourseConditionalQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
+import edu.cuit.client.dto.query.condition.MobileCourseQuery;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -123,14 +124,40 @@ public class QueryCourseController {
     /**
      * 获取一节课的详细信息
      *@param semId 学期id
-     *  @param id 课程详情id
-     *
+     *@param id 课程详情id
      * */
     @GetMapping("/course/table/one")
     @SaCheckPermission("course.table.query")
     public CommonResult<SingleCourseDetailCO> getCourseDetail(
             @RequestParam(value = "id",required = true) Integer id,
             @RequestParam(value = "semId",required = false) Integer semId){
+        return null;
+    }
+
+    /**
+     * 获取一天的具体日期
+     *@param semId 学期id
+     *@param week 第几周
+     *@param day 星期几
+     * */
+    @GetMapping("/course/date")
+    public CommonResult<String> getDate(
+            @RequestParam(value = "semId",required = false) Integer semId,
+            @RequestParam(value = "week",required = true) Integer week,
+            @RequestParam(value = "day",required = true) Integer day){
+        return null;
+    }
+
+    /**
+     *获取某个指定时间段的课程
+     * @param semId 学期id
+     *
+     * @param courseQuery 课程查询条件
+     */
+    @PostMapping("/courses/query")
+    public CommonResult<List<ModifySingleCourseDetailCO>> getTimeCourse(
+            @RequestParam(value = "semId",required = false) Integer semId,
+            @Valid  @RequestBody MobileCourseQuery courseQuery){
         return null;
     }
 
