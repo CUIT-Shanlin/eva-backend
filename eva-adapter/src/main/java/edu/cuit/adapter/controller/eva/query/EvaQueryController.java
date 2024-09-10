@@ -6,6 +6,8 @@ import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.eva.*;
 import edu.cuit.client.dto.clientobject.user.UserInfoCO;
 import edu.cuit.client.dto.query.PagingQuery;
+import edu.cuit.client.dto.query.condition.EvaConditionalQuery;
+import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Conditional;
@@ -27,9 +29,9 @@ public class EvaQueryController {
      */
     @PostMapping("/evaluate/records")
     @SaCheckPermission("evaluate.record.query")
-    public CommonResult<PaginationQueryResultCO<EvaRecordCO>> paginEvaRecord(
+    public CommonResult<PaginationQueryResultCO<EvaRecordCO>> pageEvaRecord(
         @RequestParam(value = "semId",required = false) Integer semId,
-        @RequestBody PagingQuery query){
+        @RequestBody PagingQuery<EvaConditionalQuery> query){
         return null;
     }
     /**
@@ -39,9 +41,9 @@ public class EvaQueryController {
      */
     @PostMapping("/evaluate/tasks_unfinished")
     @SaCheckPermission("evaluate.task.unfinished.query")
-    public CommonResult<PaginationQueryResultCO<EvaTaskBaseInfoCO>> paignEvaUnfishTask(
+    public CommonResult<PaginationQueryResultCO<EvaTaskBaseInfoCO>> pageEvaUnfinishedTask(
             @RequestParam(value = "semId",required = false) Integer semId,
-            @RequestBody PagingQuery query){
+            @RequestBody PagingQuery<GenericConditionalQuery> query){
         return null;
     }
     /**
@@ -51,9 +53,9 @@ public class EvaQueryController {
      */
     @PostMapping("/evaluate/templates")
     @SaCheckPermission("evaluate.template.query")
-    public CommonResult<PaginationQueryResultCO<EvaTemplateCO>> paginEvaTempalte(
+    public CommonResult<PaginationQueryResultCO<EvaTemplateCO>> pageEvaTemplate(
             @RequestParam(value = "semId",required = false) Integer semId,
-            @RequestBody PagingQuery query){
+            @RequestBody PagingQuery<GenericConditionalQuery> query){
         return null;
     }
     /**
@@ -102,7 +104,7 @@ public class EvaQueryController {
      * @param courseId 筛选的该用户教学的课程的id
      */
     @GetMapping("/evaluate/records/opposite")
-    public CommonResult<EvaRecordCO> OneEvaingLogInfo(
+    public CommonResult<EvaRecordCO> OneEvaLogInfo(
             @RequestParam(value = "userId",required = false) Integer userId,
             @RequestParam(value = "courseId",required = false) Integer courseId){
         return null;
