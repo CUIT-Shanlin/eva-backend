@@ -27,6 +27,11 @@
             <artifactId>eva-base-common</artifactId>
             <version>${revision}</version>
         </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
 </project>
