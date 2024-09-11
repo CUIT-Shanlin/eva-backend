@@ -4,6 +4,8 @@ import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.client.dto.clientobject.course.ModifySingleCourseDetailCO;
 
+
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -30,5 +32,13 @@ public interface IUserCourseService {
      * @param semId 学期id
      */
     List<ModifySingleCourseDetailCO> getSelfCourse(Integer semId);
+
+    /**
+     * 导入课表文件
+     *
+     *  @param fileStream 课表文件
+     *
+     * */
+    void imporCourse(InputStream fileStream);
 
 }

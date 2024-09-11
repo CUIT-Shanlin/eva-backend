@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 /**
- * 一门课程的可修改信息(一门课程的可修改信息)
+ * 一节课的可修改信息
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
