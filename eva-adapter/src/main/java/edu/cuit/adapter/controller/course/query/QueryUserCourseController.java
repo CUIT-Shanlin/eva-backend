@@ -22,9 +22,8 @@ public class QueryUserCourseController {
 
     /**
      * 获取单个用户教学的课程基础信息
-     *@param semId 学期id
+     *  @param semId 学期id
      *  @param id 用户编号id
-     *
      * */
     @GetMapping("/courses")
     public CommonResult<List<SimpleResultCO>> getUserCourseInfo(
@@ -35,9 +34,8 @@ public class QueryUserCourseController {
 
     /**
      * 获取单个用户的教学课程的详细信息
-     *@param semId 学期id
+     *  @param semId 学期id
      *  @param id 用户编号id
-     *
      * */
     @GetMapping("/courses/detail")
     public CommonResult<List<CourseDetailCO>> getUserCourseDetail(
@@ -47,7 +45,7 @@ public class QueryUserCourseController {
     }
 
     /**
-     *获取自己的推荐选课
+     * 获取自己的推荐选课
      * @param semId 学期id
      */
     @GetMapping("/courses/suggestion")
