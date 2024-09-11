@@ -1,11 +1,11 @@
 package edu.cuit.adapter.controller.user;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
-import cn.hutool.core.lang.Pair;
 import edu.cuit.client.dto.cmd.user.UserLoginCmd;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
