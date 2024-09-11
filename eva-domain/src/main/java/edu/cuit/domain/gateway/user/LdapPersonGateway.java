@@ -1,6 +1,7 @@
 package edu.cuit.domain.gateway.user;
 
 import edu.cuit.domain.entity.user.LdapPersonEntity;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
@@ -8,6 +9,7 @@ import java.util.Optional;
 /**
  * 用户访问ldap 用户的数据门户接口
  */
+@Component
 public interface LdapPersonGateway {
 
     /**
