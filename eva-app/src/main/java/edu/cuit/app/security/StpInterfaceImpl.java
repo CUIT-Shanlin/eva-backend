@@ -16,9 +16,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class StpInterfaceImpl implements StpInterface {
 
-    private final UserGateway userGateway;
     private final LdapPersonGateway ldapPersonGateway;
-
 
     //TODO 实现权限接口
     @Override
