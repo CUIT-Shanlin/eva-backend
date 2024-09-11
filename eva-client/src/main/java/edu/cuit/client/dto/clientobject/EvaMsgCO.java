@@ -1,4 +1,4 @@
-package edu.cuit.client.dto.clientobject.eva;
+package edu.cuit.client.dto.clientobject;
 
 import com.alibaba.cola.dto.ClientObject;
 import lombok.Data;
@@ -8,32 +8,32 @@ import lombok.experimental.Accessors;
 import java.time.LocalDateTime;
 
 /**
- * 评教表单模版
+ * 用户评教消息
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class EvaTemplateCO extends ClientObject {
+public class EvaMsgCO extends ClientObject {
 
     /**
-     * 模版id
+     * id
      */
     private Integer id;
 
     /**
-     *模板名称
+     * 具体提醒内容
      */
-    private String name;
+    private String msg;
 
     /**
-     *描述
+     * 消息类型（0：待办，1：通知）
      */
-    private String description;
+    private Integer type;
 
     /**
-     * 表单评教指标，JSON表示的字符串形式
+     * 评教任务id
      */
-    private String props;
+    private  Integer taskId;
 
     /**
      * 创建时间
@@ -41,12 +41,8 @@ public class EvaTemplateCO extends ClientObject {
     private LocalDateTime createTime;
 
     /**
-     * 更新时间
+     * 发起人的名称
      */
-    private LocalDateTime updateTime;
-
-
-
-
+    private String proName;
 
 }

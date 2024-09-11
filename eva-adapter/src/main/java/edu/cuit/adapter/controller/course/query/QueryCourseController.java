@@ -85,8 +85,6 @@ public class QueryCourseController {
 
     /**
      * 获取所有的科目的基础信息
-     *
-     *
      */
     @GetMapping("/courses/subject/all")
     @SaCheckPermission("course.tabulation.list")
@@ -96,7 +94,7 @@ public class QueryCourseController {
 
     /**
      * 获取周课表的课程数量
-     *@param semId 学期id
+     *  @param semId 学期id
      *  @param week 哪一周?
      *
      * */
@@ -110,7 +108,7 @@ public class QueryCourseController {
 
     /**
      * 获取一个课程时间段的课程信息
-     *@param semId 学期id
+     *  @param semId 学期id
      *  @param courseQuery 课程查询相关信息
      * */
     @PostMapping("/course/table")
@@ -151,7 +149,6 @@ public class QueryCourseController {
     /**
      *获取某个指定时间段的课程
      * @param semId 学期id
-     *
      * @param courseQuery 课程查询条件
      */
     @PostMapping("/courses/query")
@@ -163,7 +160,7 @@ public class QueryCourseController {
 
     /**
      * 分页获取课程类型
-     *@param  courseQuery 课程查询参数
+     * @param  courseQuery 课程查询参数
      *
      * */
     @PostMapping("/course/types")
@@ -175,7 +172,6 @@ public class QueryCourseController {
 
     /**
      * 获取所有的课程类型的信息
-     *
      * */
     @GetMapping("/courses/types/all")
     @SaCheckPermission("course.type.query")

@@ -1,10 +1,12 @@
 package edu.cuit.domain.gateway.user;
 
 import edu.cuit.domain.entity.user.bizuser.UserEntity;
+import org.springframework.stereotype.Component;
 
 /**
  * 用户相关数据门户接口
  */
+@Component
 public interface UserGateway {
 
     /**

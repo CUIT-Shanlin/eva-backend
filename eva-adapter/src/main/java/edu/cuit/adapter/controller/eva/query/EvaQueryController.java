@@ -58,34 +58,13 @@ public class EvaQueryController {
             @RequestBody PagingQuery<GenericConditionalQuery> query){
         return null;
     }
-    /**
-     *获取评教任务完成情况
-     * @param semId 学期id
-     */
-    @GetMapping("/evaluate/task/situation")
-    @SaCheckPermission("evaluate.task.situation.query")
-    public CommonResult<EvaSituationCO> evaTaskSituation(
-            @RequestParam(value = "semId",required = false) Integer semId){
-        return null;
-    }
-    /**
-     * 获取评教分数统计基础信息
-     * @param score 指定分数
-     * @param semId 学期id
-     */
-    @GetMapping("/evaluate/score/situation")
-    @SaCheckPermission("evaluate.score.query")
-    public CommonResult<EvaSituationCO> evaScoreInfo(
-            @RequestParam(value = "semId",required = false) Integer semId,
-            @RequestParam(value = "score") Integer score){
-        return null;
-    }
+
     /**
      * 获取单个用户的待办评教任务，主要用于移动端
      * @param id 用户 ID 编号
      */
     @GetMapping("/evaluate/tasks")
-    public CommonResult<EvaTaskDetailInfoCO> evaUnfinishTaskInfo(
+    public CommonResult<EvaTaskDetailInfoCO> evaUnfinishedTaskInfo(
             @RequestParam(value = "id",required = false) Integer id){
         return null;
     }
@@ -94,7 +73,7 @@ public class EvaQueryController {
      * @param id 用户 ID 编号
      */
     @GetMapping("/evaluate/records")
-    public CommonResult<EvaRecordCO> OneEvaLogInfo(
+    public CommonResult<EvaRecordCO> oneEvaLogInfo(
             @RequestParam(value = "id",required = false) Integer id){
         return null;
     }
@@ -104,7 +83,7 @@ public class EvaQueryController {
      * @param courseId 筛选的该用户教学的课程的id
      */
     @GetMapping("/evaluate/records/opposite")
-    public CommonResult<EvaRecordCO> OneEvaLogInfo(
+    public CommonResult<EvaRecordCO> oneEvaLogInfo(
             @RequestParam(value = "userId",required = false) Integer userId,
             @RequestParam(value = "courseId",required = false) Integer courseId){
         return null;

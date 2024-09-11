@@ -8,36 +8,20 @@ import lombok.experimental.Accessors;
 
 import java.util.List;
 
-/**
- * 评教任务完成情况
- */
-
 @EqualsAndHashCode(callSuper = false)
 @Data
 @Accessors(chain = true)
-public class EvaSituationCO extends ClientObject{
+public class OneDayAddEvaDataCO extends ClientObject{
     /**
-     * id
-     */
-    private Long id;
-    /**
-     * evaNum 已评教个数
-     */
-    private Integer evaNum;
-    /**
-     * totalNum 总共需要评教的个数
-     */
-    private Integer totalNum;
-    /**
-     * moreNum 新增多少
+     * 新增数目
      */
     private Integer moreNum;
     /**
-     * moreEvaNum 新增多少待评教
+     * 新增百分比率
      */
-    private Integer moreEvaNum;
+    private Number morePercent;
     /**
-     * evaNumArr 7天内每日新增评教数目
+     *这一天内评教次数的统计数据
      */
     private List<TimeEvaNumCO> evaNumArr;
 }

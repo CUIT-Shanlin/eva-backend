@@ -1,12 +1,14 @@
-package edu.cuit.client.dto.clientobject.course;
+package edu.cuit.client.dto.clientobject;
 
 import com.alibaba.cola.dto.ClientObject;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.time.LocalDate;
+
 /**
- * 课程时间模型
+ * 学期模型
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -14,7 +16,7 @@ import lombok.experimental.Accessors;
 public class SemesterCO extends ClientObject {
 
     /**
-     * 课程id
+     * id
      */
     private Integer id;
 
@@ -32,4 +34,10 @@ public class SemesterCO extends ClientObject {
      * 结束年份
      */
     private String endYear;
+
+    /**
+     * 这学期开学第一天的日期
+     */
+    private LocalDate startDate;
+
 }
