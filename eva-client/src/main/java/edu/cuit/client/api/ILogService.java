@@ -13,6 +13,7 @@ import java.util.List;
  * 系统日志相关接口
  */
 public interface ILogService {
+
     /**
      * 分页获取日志
      * @param query 分页查询模型

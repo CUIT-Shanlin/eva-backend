@@ -11,18 +11,17 @@ import java.util.List;
  * 评教记录相关业务接口
  */
 public interface IEvaRecordService {
-    /**
-     * 查询
-     */
+    //查询
+
     /**
      *分页获取评教记录+条件查询，keyword模糊查询 教学课程
      * @param semId 学期id
      * @param query 查询dto
      */
     PaginationQueryResultCO<EvaRecordCO> pageEvaRecord(Integer semId, PagingQuery<EvaConditionalQuery> query);
-    /**
-     * 修改
-     */
+
+    //修改
+
     /**
      *删除一条评教记录，删除之后，相当于用户没有进行过这次评教
      * @param id 评教记录的 ID 编号

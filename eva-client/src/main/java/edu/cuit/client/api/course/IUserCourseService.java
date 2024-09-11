@@ -39,6 +39,6 @@ public interface IUserCourseService {
      *  @param fileStream 课表文件
      *
      * */
-    void imporCourse(InputStream fileStream);
+    void importCourse(InputStream fileStream);
 
 }

@@ -8,6 +8,7 @@ import java.util.List;
  * 学期相关业务接口
  */
 public interface ISemesterService {
+
     /**
      * 获取所有已有的学期
      */

@@ -60,7 +60,7 @@ public interface ICourseDetailService {
 
     /**
      * 修改一门课程
-     *@param semId 学期id
+     *  @param semId 学期id
      *  @param updateCourseCmd 修改课程信息
      *
      * */
