@@ -33,3 +33,6 @@ eva:
     user-base-dn: ou=member,ou=user
     group-base-dn: ou=member,ou=group
     admin-group-cn: admin
+
+sa-token:
+  jwt-secret-key: lagjaohanhlahjiraosujsjstoprjhows
