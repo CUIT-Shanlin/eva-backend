@@ -1,0 +1,74 @@
+package edu.cuit.adapter.controller.user.update;
+
+import cn.dev33.satoken.annotation.SaCheckPermission;
+import edu.cuit.client.dto.cmd.user.AssignRoleCmd;
+import edu.cuit.client.dto.cmd.user.NewUserCmd;
+import edu.cuit.client.dto.cmd.user.UpdateUserCmd;
+import edu.cuit.common.validator.status.ValidStatus;
+import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequiredArgsConstructor
+@Validated
+@RequestMapping("/user")
+public class UserUpdateController {
+
+    /**
+     * 修改用户信息
+     * @param isUpdatePwd 是否需要修改密码
+     * @param cmd 修改用户模型
+     */
+    @PutMapping("/{isUpdatePwd}")
+    @SaCheckPermission("system.user.update")
+    public CommonResult<Void> updateInfo(@PathVariable("isUpdatePwd") Boolean isUpdatePwd,
+                                     @RequestBody @Valid UpdateUserCmd cmd) {
+        return null;
+    }
+
+    /**
+     * 修改用户状态
+     * @param userId 用户id
+     * @param status 状态 1为禁止，0为正常
+     */
+    @PutMapping("/status/{userId}/{status}")
+    @SaCheckPermission("system.user.update")
+    public CommonResult<Void> updateStatus(@PathVariable("userId") Integer userId,
+                                           @PathVariable("status") @ValidStatus(message = "状态只能为0或1") Integer status) {
+        return null;
+    }
+
+    /**
+     * 删除用户
+     * @param userId 用户id
+     */
+    @DeleteMapping
+    @SaCheckPermission("system.user.delete")
+    public CommonResult<Void> delete(@RequestParam("userId") Integer userId) {
+        return null;
+    }
+
+    /**
+     * 分配角色
+     * @param cmd 分配角色模型
+     */
+    @PutMapping("/roles")
+    @SaCheckPermission("system.user.assignRole")
+    public CommonResult<Void> assignRole(@RequestBody @Valid AssignRoleCmd cmd) {
+        return null;
+    }
+
+    /**
+     * 新建用户
+     * @param cmd 新建用户模型
+     */
+    @PostMapping("/user")
+    @SaCheckPermission("system.user.add")
+    public CommonResult<Void> create(@RequestBody @Valid NewUserCmd cmd) {
+        return null;
+    }
+
+}

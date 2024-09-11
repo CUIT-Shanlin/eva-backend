@@ -5,6 +5,7 @@ import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.user.RoleInfoCO;
 import edu.cuit.client.dto.clientobject.user.SimpleRoleInfoCO;
 import edu.cuit.client.dto.query.PagingQuery;
+import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ public class RoleQueryController {
      */
     @PostMapping("/roles")
     @SaCheckPermission("system.role.query")
-    public CommonResult<PaginationQueryResultCO<RoleInfoCO>> page(@RequestBody @Valid PagingQuery pagingQuery) {
+    public CommonResult<PaginationQueryResultCO<RoleInfoCO>> page(@RequestBody @Valid PagingQuery<GenericConditionalQuery> pagingQuery) {
         return null;
     }
 

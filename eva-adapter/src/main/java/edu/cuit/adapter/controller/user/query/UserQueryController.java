@@ -58,7 +58,7 @@ public class UserQueryController {
      */
     @PostMapping("/users/unqualified/{type}/{target}")
     @SaCheckPermission("system.user.query")
-    public CommonResult<PaginationQueryResultCO<UnqualifiedUserInfoCO>> pageUnqualified(
+    public CommonResult<PaginationQueryResultCO<UnqualifiedUserInfoCO>> pageUnqualifiedUser(
             @PathVariable("type") Integer type,
             @PathVariable("target") Integer target,
             @RequestBody @Valid PagingQuery<UnqualifiedUserConditionalQuery> query) {
@@ -73,7 +73,7 @@ public class UserQueryController {
      */
     @GetMapping("/users/unqualified/{type}/{num}/{target}")
     @SaCheckPermission("system.user.query")
-    public CommonResult<UnqualifiedUserResultCO> targetAmountUnqualified(@PathVariable("type") Integer type,
+    public CommonResult<UnqualifiedUserResultCO> getTargetAmountUnqualifiedUser(@PathVariable("type") Integer type,
                                                                          @PathVariable("num") Integer num,
                                                                          @PathVariable("target") Integer target) {
         return null;

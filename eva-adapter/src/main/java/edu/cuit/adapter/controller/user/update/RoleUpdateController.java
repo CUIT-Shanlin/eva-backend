@@ -19,7 +19,6 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @Validated
-@RequestMapping
 public class RoleUpdateController {
 
     /**
