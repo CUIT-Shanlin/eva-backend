@@ -6,6 +6,8 @@ import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.client.dto.clientobject.course.CourseModelCO;
 import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
+import edu.cuit.client.dto.cmd.course.UpdateCourseCmd;
+import edu.cuit.client.dto.cmd.course.UpdateCoursesCmd;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.CourseConditionalQuery;
 import jakarta.validation.Valid;
@@ -55,4 +57,37 @@ public interface ICourseDetailService {
      *
      */
     List<SimpleResultCO> allSubjectInfo();
+
+    /**
+     * 修改一门课程
+     *  @param semId 学期id
+     *  @param updateCourseCmd 修改课程信息
+     *
+     * */
+    void updateCourse(Integer semId, UpdateCourseCmd updateCourseCmd);
+
+    /**
+     * 批量修改课程的模板
+     *@param semId 学期id
+     *  @param updateCoursesCmd 批量修改课程信息
+     *
+     * */
+    void updateCourses(Integer semId, UpdateCoursesCmd updateCoursesCmd);
+
+    /**
+     * 新建一门课程
+     *  @param semId 学期id
+     *
+     * */
+    void addCourse(Integer semId);
+
+    /**
+     * 连带删除一门课程
+     *  @param semId 学期id
+     *  @param id 对应课程编号
+     * */
+    void delete(Integer semId,Integer id);
+
+
+
 }

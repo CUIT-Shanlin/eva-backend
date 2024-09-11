@@ -8,7 +8,7 @@ import lombok.experimental.Accessors;
 import java.util.List;
 
 /**
- * 一门课程的可修改信息(一门课程的可修改信息)
+ * 批量修改课程对应模板的模型
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
