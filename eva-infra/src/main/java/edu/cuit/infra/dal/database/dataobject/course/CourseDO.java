@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import lombok.Data;
 
 /**
- * 课程表
+ * 课程表（一门课程）
  * @TableName course
  */
 @TableName(value ="course")
@@ -40,6 +40,12 @@ public class CourseDO implements Serializable {
      */
     @TableField(value = "classroom")
     private String classroom;
+
+    /**
+     * 学期id
+     */
+    @TableField(value = "semester_id")
+    private Integer semesterId;
 
     /**
      * 创建时间

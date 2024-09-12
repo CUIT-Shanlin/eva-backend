@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import lombok.Data;
 
 /**
- * 课程详情表
+ * 课程详情表（一节课程）
  * @TableName cour_inf
  */
 @TableName(value ="cour_inf")
@@ -46,12 +46,6 @@ public class CourInfDO implements Serializable {
      */
     @TableField(value = "end_time")
     private Integer endTime;
-
-    /**
-     * 学期id
-     */
-    @TableField(value = "semester_id")
-    private Integer semesterId;
 
     /**
      * 创建时间
