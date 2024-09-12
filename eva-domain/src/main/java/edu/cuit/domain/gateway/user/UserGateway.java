@@ -1,6 +1,6 @@
 package edu.cuit.domain.gateway.user;
 
-import edu.cuit.domain.entity.user.bizuser.UserEntity;
+import edu.cuit.domain.entity.user.biz.UserEntity;
 import org.springframework.stereotype.Component;
 
 /**

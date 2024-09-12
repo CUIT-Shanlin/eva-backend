@@ -1,8 +1,7 @@
-package edu.cuit.domain.entity.user.bizuser;
+package edu.cuit.domain.entity.user.biz;
 
 import com.alibaba.cola.domain.Entity;
 import lombok.*;
-
 import java.time.LocalDateTime;
 
 /**
@@ -77,7 +76,7 @@ public class UserEntity {
     }
 
     /**
-     * 用户是否已经被删除
+     * 逻辑删除
      */
     public Boolean isDeleted() {
         return isDeleted == 1;
