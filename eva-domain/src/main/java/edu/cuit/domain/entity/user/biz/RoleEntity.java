@@ -49,7 +49,6 @@ public class RoleEntity {
     /**
      * 实现逻辑删除（0:不可用 1:可用）
      */
-    @Getter(AccessLevel.NONE)
     private Integer isDeleted;
 
     /**

@@ -50,7 +50,6 @@ public class UserEntity {
     /**
      * 是否已被删除
      */
-    @Getter(AccessLevel.NONE)
     private Integer isDeleted;
 
     /**
@@ -73,13 +72,6 @@ public class UserEntity {
      */
     public Boolean isBanned() {
         return status == 1;
-    }
-
-    /**
-     * 逻辑删除
-     */
-    public Boolean isDeleted() {
-        return isDeleted == 1;
     }
 
 }
