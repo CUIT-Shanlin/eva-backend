@@ -3,6 +3,7 @@ package edu.cuit.domain.entity.user.biz;
 import com.alibaba.cola.domain.Entity;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 用户domain entity
@@ -66,6 +67,16 @@ public class UserEntity {
      * 状态，1为禁止，0为正常
      */
     private Integer status;
+
+    /**
+     * 权限菜单列表
+     */
+    private List<MenuEntity> menus;
+
+    /**
+     * 角色列表
+     */
+    private List<RoleEntity> roles;
 
     /**
      * 用户账号是否被禁用

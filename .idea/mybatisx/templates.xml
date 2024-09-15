@@ -49,8 +49,8 @@
             <option name="tableUIInfoList">
               <list>
                 <TableUIInfo>
-                  <option name="className" value="CourOneEvaTemplate" />
-                  <option name="tableName" value="cour_one_eva_template" />
+                  <option name="className" value="MsgTip" />
+                  <option name="tableName" value="msg_tip" />
                 </TableUIInfo>
               </list>
             </option>
