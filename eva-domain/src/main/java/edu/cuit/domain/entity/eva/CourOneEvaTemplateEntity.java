@@ -2,7 +2,7 @@ package edu.cuit.domain.entity.eva;
 
 import com.alibaba.cola.domain.Entity;
 import edu.cuit.domain.entity.course.CourseEntity;
-import edu.cuit.domain.entity.course.SemesterVO;
+import edu.cuit.domain.entity.course.SemesterEntity;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
@@ -22,7 +22,7 @@ public class CourOneEvaTemplateEntity {
     /**
      * 学期
      */
-    private SemesterVO semester;
+    private SemesterEntity semester;
 
     /**
      * 该门课

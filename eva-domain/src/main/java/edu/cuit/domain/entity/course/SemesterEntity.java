@@ -1,11 +1,18 @@
 package edu.cuit.domain.entity.course;
 
+import com.alibaba.cola.domain.Entity;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+
 import java.time.LocalDate;
 
 /**
- * 学期值对象
+ * 一学期domain entity
  */
-public class SemesterVO {
+@Entity
+@Data
+@RequiredArgsConstructor
+public class SemesterEntity {
 
     /**
      * id

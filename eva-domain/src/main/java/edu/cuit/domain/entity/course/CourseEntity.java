@@ -23,7 +23,7 @@ public class CourseEntity {
     /**
      * 科目
      */
-    private SubjectVO subject;
+    private SubjectEntity subject;
 
     /**
      * 教学老师
@@ -38,7 +38,7 @@ public class CourseEntity {
     /**
      * 学期
      */
-    private SemesterVO semester;
+    private SemesterEntity semester;
 
     /**
      * 创建时间

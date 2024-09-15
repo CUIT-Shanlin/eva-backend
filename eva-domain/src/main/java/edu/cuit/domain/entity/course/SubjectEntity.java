@@ -1,14 +1,18 @@
 package edu.cuit.domain.entity.course;
 
+import com.alibaba.cola.domain.Entity;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 
 /**
- * 科目值对象
+ * 科目domain entity
  */
+@Entity
 @Data
-public class SubjectVO {
+@RequiredArgsConstructor
+public class SubjectEntity {
 
     /**
      * 课程名称id
