@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="edu.cuit.infra.dal.database.mapper.eva.MsgTipMapper">
+
+    <resultMap id="BaseResultMap" type="edu.cuit.infra.dal.database.dataobject.eva.MsgTipDO">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="senderId" column="sender _id" jdbcType="INTEGER"/>
+            <result property="taskId" column="task_id" jdbcType="INTEGER"/>
+            <result property="msg" column="msg" jdbcType="VARCHAR"/>
+            <result property="type" column="type" jdbcType="TINYINT"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
+            <result property="recipientId" column="recipient_id" jdbcType="INTEGER"/>
+            <result property="mode" column="mode" jdbcType="TINYINT"/>
+            <result property="isShowName" column="is_show_name" jdbcType="TINYINT"/>
+            <result property="isRead" column="is_read" jdbcType="TINYINT"/>
+            <result property="isDisplayed" column="is_displayed" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,sender _id,task_id,
+        msg,type,create_time,
+        is_deleted,recipient_id,mode,
+        is_show_name,is_read,is_displayed
+    </sql>
+</mapper>
