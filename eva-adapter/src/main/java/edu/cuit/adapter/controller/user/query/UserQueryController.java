@@ -73,7 +73,7 @@ public class UserQueryController {
      */
     @GetMapping("/users/unqualified/{type}/{num}/{target}")
     @SaCheckPermission("system.user.query")
-    public CommonResult<UnqualifiedUserResultCO> getTargetAmountUnqualifiedUser(@PathVariable("type") Integer type,
+    public CommonResult<List<UnqualifiedUserResultCO>> getTargetAmountUnqualifiedUser(@PathVariable("type") Integer type,
                                                                          @PathVariable("num") Integer num,
                                                                          @PathVariable("target") Integer target) {
         return null;
@@ -116,7 +116,7 @@ public class UserQueryController {
      * @return 响应对象，包含图片base64数据，响应体content-type为image/jpeg
      */
     @GetMapping("/user/avatar/{id}")
-    public ResponseEntity<String> userAvatar(@PathVariable("id") Integer id){
+    public ResponseEntity<String> userAvatar(@PathVariable("id") Integer id) {
         return null;
     }
 
