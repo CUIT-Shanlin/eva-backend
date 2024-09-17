@@ -2,12 +2,10 @@ package edu.cuit.app.security;
 
 import cn.dev33.satoken.stp.StpInterface;
 import edu.cuit.domain.gateway.user.LdapPersonGateway;
-import edu.cuit.domain.gateway.user.UserGateway;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * 权限加载
