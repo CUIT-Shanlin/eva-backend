@@ -5,6 +5,7 @@ import edu.cuit.client.dto.cmd.course.AlignTeacherCmd;
 import edu.cuit.client.dto.cmd.course.UpdateCourseCmd;
 import edu.cuit.client.dto.cmd.course.UpdateCoursesCmd;
 import edu.cuit.client.dto.cmd.course.UpdateSingleCourseCmd;
+import edu.cuit.client.dto.data.Term;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import jakarta.validation.Valid;
@@ -125,5 +126,17 @@ public class UpdateCourseController {
         return null;
     }
 
+    /**
+     * 判断某学期是否已经导入过课表文件
+     *
+     *  @param type 用于确定是导入实验课表还是理论课表，0：理论课，1：实验课
+     *  @param term 课表文件
+     *
+     * */
+    @PostMapping("/course/table/isImported/{type}")
+    @SaCheckPermission("course.table.import")
+    public CommonResult<Boolean> isImport(@PathVariable(required = true) Integer type,@Valid @RequestBody Term term){
+        return null;
+    }
 
 }

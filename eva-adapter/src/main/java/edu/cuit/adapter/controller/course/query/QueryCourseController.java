@@ -58,7 +58,6 @@ public class QueryCourseController {
 
     /**
      * 一门课程的评教统计
-     *
      * @param semId 学期id
      * @param id ID编号
      */
