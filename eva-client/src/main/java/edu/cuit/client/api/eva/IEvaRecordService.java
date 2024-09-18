@@ -3,7 +3,7 @@ package edu.cuit.client.api.eva;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.eva.EvaRecordCO;
 import edu.cuit.client.dto.query.PagingQuery;
-import edu.cuit.client.dto.query.condition.EvaConditionalQuery;
+import edu.cuit.client.dto.query.condition.EvaLogConditionalQuery;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ public interface IEvaRecordService {
      * @param semId 学期id
      * @param query 查询dto
      */
-    PaginationQueryResultCO<EvaRecordCO> pageEvaRecord(Integer semId, PagingQuery<EvaConditionalQuery> query);
+    PaginationQueryResultCO<EvaRecordCO> pageEvaRecord(Integer semId, PagingQuery<EvaLogConditionalQuery> query);
     /**
      * 修改
      */
@@ -33,5 +33,4 @@ public interface IEvaRecordService {
      * @param ids 记录数组
      */
     Void deleteEvaLogsById(List<Integer> ids);
-
 }

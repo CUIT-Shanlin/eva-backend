@@ -12,7 +12,7 @@ import java.util.List;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class EvaConditionalQuery extends ConditionalQuery {
+public class EvaLogConditionalQuery extends ConditionalQuery {
 
     /**
      * 课程id数组，课程id数组
