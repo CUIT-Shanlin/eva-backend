@@ -12,6 +12,8 @@ import java.util.Optional;
 @Component
 public interface LdapPersonGateway {
 
+    //测试
+
     /**
      * 认证密码是否正确（采用bind dn的方式）
      * @param username 用户名
