@@ -65,6 +65,7 @@ public interface CourseQueryGateway {
      * 获取一个课程时间段的课程信息
      *  @param semId 学期id
      *  @param courseQuery 课程查询相关信息
+     * @return List<SingleCourseEntity>
      * */
     List<SingleCourseEntity> getPeriodInfo(Integer semId,CourseQuery courseQuery);
 
@@ -72,6 +73,7 @@ public interface CourseQueryGateway {
      * 获取一节课的详细信息
      *@param semId 学期id
      *@param id 课程详情id
+     * @return Optional<SingleCourseEntity>
      * */
     Optional<SingleCourseEntity> getSingleCourseDetail(Integer id,Integer semId);
 
