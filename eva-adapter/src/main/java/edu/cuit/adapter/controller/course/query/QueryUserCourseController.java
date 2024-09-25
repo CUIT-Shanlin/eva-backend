@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -61,7 +62,7 @@ public class QueryUserCourseController {
      *  @param courseTime 课程时间模型
      * */
     @PostMapping("/course/time")
-    public CommonResult<String> getCourseTime(
+    public CommonResult<LocalDateTime> getCourseTime(
             @RequestParam(value = "semId",required = false)Integer semId,
             @RequestBody(required = true)CourseTime courseTime){
         return null;

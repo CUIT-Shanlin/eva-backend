@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -138,7 +139,7 @@ public class QueryCourseController {
      *@param day 星期几
      * */
     @GetMapping("/course/date")
-    public CommonResult<String> getDate(
+    public CommonResult<LocalDateTime> getDate(
             @RequestParam(value = "semId",required = false) Integer semId,
             @RequestParam(value = "week",required = true) Integer week,
             @RequestParam(value = "day",required = true) Integer day){
