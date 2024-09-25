@@ -1,10 +1,13 @@
 package edu.cuit.domain.gateway.course;
 
+import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.client.dto.clientobject.course.SingleCourseCO;
 import edu.cuit.client.dto.clientobject.course.SingleCourseDetailCO;
 import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.client.dto.query.CourseQuery;
+import edu.cuit.client.dto.query.PagingQuery;
+import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.domain.entity.course.CourseEntity;
 import edu.cuit.domain.entity.course.CourseTypeEntity;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
@@ -12,6 +15,7 @@ import edu.cuit.domain.entity.course.SubjectEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 课程查询相关数据门户接口
@@ -19,12 +23,21 @@ import java.util.List;
 @Component
 public interface CourseQueryGateway {
     /**
-     * 分页获取课程列表
+     * 分页获取课程列表/获取所有的课程的基础信息
      *@param semId 学期id
      * @param courseQuery 课程查询参数
      * @return List<CourseEntity>
      */
     List<CourseEntity> page(CourseQuery courseQuery, Integer semId);
+
+    /**
+     * 获取一门课程的信息
+     *
+     * @param semId 学期id
+     * @param id ID编号
+     *@return  Optional<CourseDetailCO>
+     */
+    Optional<CourseDetailCO> getCourseInfo(Integer id, Integer semId);
 
     /**
      * 获取一门课程的评教统计
@@ -39,7 +52,6 @@ public interface CourseQueryGateway {
      * @return  List<SubjectEntity>
      */
     List<SubjectEntity> findSubjectInfo();
-
 
     /**
      * 获取周课表的课程数量
@@ -57,6 +69,13 @@ public interface CourseQueryGateway {
     List<SingleCourseEntity> getPeriodInfo(Integer semId,CourseQuery courseQuery);
 
     /**
+     * 获取一节课的详细信息
+     *@param semId 学期id
+     *@param id 课程详情id
+     * */
+    Optional<SingleCourseEntity> getSingleCourseDetail(Integer id,Integer semId);
+
+    /**
      *获取某个指定时间段的课程
      * @param semId 学期id
      * @param courseQuery 课程查询条件
@@ -69,7 +88,7 @@ public interface CourseQueryGateway {
      * @param  courseQuery 课程查询参数
      * @return List<CourseTypeEntity>
      * */
-    List<CourseTypeEntity> pageCourseType(CourseQuery courseQuery);
+    List<CourseTypeEntity> pageCourseType(PagingQuery<GenericConditionalQuery> courseQuery);
 
     /**
      * 获取单个用户的教学课程的详细信息/获取一节课的详细信息
