@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.lang.reflect.Array;
 import java.util.List;
+/**
+ * 课程删除相关接口
+ */
 
 @RestController
 @RequiredArgsConstructor
