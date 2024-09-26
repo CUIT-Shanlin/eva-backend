@@ -57,4 +57,15 @@ public class UpdateEvaController {
             @Valid @RequestBody EvaTemplateCO evaTemplateCO){
         return null;
     }
+    /**
+     * 任意取消一个评教任务
+     * @param id 课程id
+     */
+    @PutMapping("/evaluate/task/cancel/{id}")
+    @SaCheckPermission("evaluate.task.cancel")
+    public CommonResult<Void> cancelEvaTask(
+            @PathVariable ("id") Integer id){
+        return null;
+    }
+
 }

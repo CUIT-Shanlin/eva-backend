@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * 评教统计相关
  */
@@ -50,6 +52,7 @@ public class EvaStatisticsController {
      * @param semId 学期id
      */
     @GetMapping("/evaluate/moreCount/{day}/{num}")
+    @SaCheckPermission("evaluate.board.query")
     public CommonResult<OneDayAddEvaDataCO> evaOneDayInfo(
             @PathVariable ("day") Integer day,
             @PathVariable ("num") Integer num,
@@ -74,7 +77,7 @@ public class EvaStatisticsController {
      * @param semId 学期id
      */
     @GetMapping("/evaluate/month/count")
-    public CommonResult<Void> getMonthEvaNUmber(
+    public CommonResult<List<Integer>> getMonthEvaNUmber(
             @RequestParam(value = "semId",required = false) Integer semId){
         return null;
     }

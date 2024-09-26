@@ -64,7 +64,7 @@ public class EvaQueryController {
      * @param id 用户 ID 编号
      */
     @GetMapping("/evaluate/tasks")
-    public CommonResult<EvaTaskDetailInfoCO> evaUnfinishedTaskInfo(
+    public CommonResult<List<EvaTaskDetailInfoCO>> evaUnfinishedTaskInfo(
             @RequestParam(value = "id",required = false) Integer id){
         return null;
     }
@@ -73,7 +73,7 @@ public class EvaQueryController {
      * @param id 用户 ID 编号
      */
     @GetMapping("/evaluate/records")
-    public CommonResult<EvaRecordCO> oneEvaLogInfo(
+    public CommonResult<List<EvaRecordCO>> oneEvaLogInfo(
             @RequestParam(value = "id",required = false) Integer id){
         return null;
     }
@@ -83,7 +83,7 @@ public class EvaQueryController {
      * @param courseId 筛选的该用户教学的课程的id
      */
     @GetMapping("/evaluate/records/opposite")
-    public CommonResult<EvaRecordCO> oneEvaLogInfo(
+    public CommonResult<List<EvaRecordCO>> oneEvaLogInfo(
             @RequestParam(value = "userId",required = false) Integer userId,
             @RequestParam(value = "courseId",required = false) Integer courseId){
         return null;
@@ -93,6 +93,15 @@ public class EvaQueryController {
      */
     @GetMapping("/evaluate/template/all")
     public CommonResult<List<SimpleResultCO>> evaAllTemplate (){
+        return null;
+    }
+    /**
+     * 获取一个评教任务的详细信息
+     * @param id 任务id
+     */
+    @GetMapping("/evaluate/task/{id}")
+    public CommonResult<EvaTaskDetailInfoCO> oneEvaTaskInfo(
+            @PathVariable ("id") Integer id){
         return null;
     }
 }
