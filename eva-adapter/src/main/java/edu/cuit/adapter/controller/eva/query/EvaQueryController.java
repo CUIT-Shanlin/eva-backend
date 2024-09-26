@@ -5,7 +5,8 @@ import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.eva.*;
 import edu.cuit.client.dto.query.PagingQuery;
-import edu.cuit.client.dto.query.condition.EvaConditionalQuery;
+import edu.cuit.client.dto.query.condition.EvaLogConditionalQuery;
+import edu.cuit.client.dto.query.condition.EvaTaskConditionalQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import lombok.RequiredArgsConstructor;
@@ -31,19 +32,19 @@ public class EvaQueryController {
     @SaCheckPermission("evaluate.record.query")
     public CommonResult<PaginationQueryResultCO<EvaRecordCO>> pageEvaRecord(
         @RequestParam(value = "semId",required = false) Integer semId,
-        @RequestBody PagingQuery<EvaConditionalQuery> query){
+        @RequestBody PagingQuery<EvaLogConditionalQuery> query){
         return null;
     }
     /**
-     *分页获取未完成的评教任务+条件查询
+     *分页获取评教任务+条件查询 (keyword 模糊查询课程名称)
      * @param semId 学期id
      * @param query 查询dto
      */
-    @PostMapping("/evaluate/tasks_unfinished")
-    @SaCheckPermission("evaluate.task.unfinished.query")
+    @PostMapping("/evaluate/tasks")
+    @SaCheckPermission("evaluate.task.query")
     public CommonResult<PaginationQueryResultCO<EvaTaskBaseInfoCO>> pageEvaUnfinishedTask(
             @RequestParam(value = "semId",required = false) Integer semId,
-            @RequestBody PagingQuery<GenericConditionalQuery> query){
+            @RequestBody PagingQuery<EvaTaskConditionalQuery> query){
         return null;
     }
     /**
