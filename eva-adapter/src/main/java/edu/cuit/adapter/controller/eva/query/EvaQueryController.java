@@ -22,7 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Validated
 public class EvaQueryController {
-
+    //评教记录相关
     /**
      *分页获取评教记录+条件查询，keyword模糊查询 教学课程
      * @param semId 学期id
@@ -35,6 +35,7 @@ public class EvaQueryController {
         @RequestBody PagingQuery<EvaLogConditionalQuery> query){
         return null;
     }
+    //评教任务相关
     /**
      *分页获取评教任务+条件查询 (keyword 模糊查询课程名称)
      * @param semId 学期id
@@ -48,6 +49,27 @@ public class EvaQueryController {
         return null;
     }
     /**
+     * 获取自己的所有待办评教任务
+     * @param id 用户 ID 编号
+     * @param keyword 模糊查询课程名称或教学老师姓名
+     */
+    @GetMapping("/evaluate/tasks/{keyword}")
+    public CommonResult<List<EvaTaskDetailInfoCO>> evaSelfTaskInfo(
+            @RequestParam(value = "id",required = false) Integer id,
+            @PathVariable ("keyword") String keyword){
+        return null;
+    }
+    /**
+     * 获取一个评教任务的详细信息
+     * @param id 任务id
+     */
+    @GetMapping("/evaluate/task/{id}")
+    public CommonResult<EvaTaskDetailInfoCO> oneEvaTaskInfo(
+            @PathVariable ("id") Integer id){
+        return null;
+    }
+    //评教模板相关
+    /**
      *分页获取评教模板信息
      * @param semId 学期id
      * @param query 查询dto
@@ -59,36 +81,6 @@ public class EvaQueryController {
             @RequestBody PagingQuery<GenericConditionalQuery> query){
         return null;
     }
-
-    /**
-     * 获取单个用户的待办评教任务，主要用于移动端
-     * @param id 用户 ID 编号
-     */
-    @GetMapping("/evaluate/tasks")
-    public CommonResult<List<EvaTaskDetailInfoCO>> evaUnfinishedTaskInfo(
-            @RequestParam(value = "id",required = false) Integer id){
-        return null;
-    }
-    /**
-     * 获取单个用户的评教记录
-     * @param id 用户 ID 编号
-     */
-    @GetMapping("/evaluate/records")
-    public CommonResult<List<EvaRecordCO>> oneEvaLogInfo(
-            @RequestParam(value = "id",required = false) Integer id){
-        return null;
-    }
-    /**
-     * 获取对于单个用户进行的评教记录
-     * @param userId 用户 ID 编号
-     * @param courseId 筛选的该用户教学的课程的id
-     */
-    @GetMapping("/evaluate/records/opposite")
-    public CommonResult<List<EvaRecordCO>> oneEvaLogInfo(
-            @RequestParam(value = "userId",required = false) Integer userId,
-            @RequestParam(value = "courseId",required = false) Integer courseId){
-        return null;
-    }
     /**
      * 获取所有模板的基础信息，仅包含名称和id信息
      */
@@ -97,12 +89,33 @@ public class EvaQueryController {
         return null;
     }
     /**
-     * 获取一个评教任务的详细信息
-     * @param id 任务id
+     * 获取一个任务对应的评教模板
+     * @param taskId 任务id
+     * @param semId 学期id
      */
-    @GetMapping("/evaluate/task/{id}")
-    public CommonResult<EvaTaskDetailInfoCO> oneEvaTaskInfo(
-            @PathVariable ("id") Integer id){
+    @GetMapping("/evaluate/template/{taskId}")
+    public CommonResult<String> getTaskTemplate(
+            @PathVariable ("taskId") Integer taskId,
+            @RequestParam(value = "semId",required = false) Integer semId){
+        return null;
+    }
+    //用户评教相关
+    /**
+     * 获取自己的评教记录
+     * @param id 用户 ID 编号
+     */
+    @GetMapping("/evaluate/records")
+    public CommonResult<List<EvaRecordCO>> getEvaLogInfo(
+            @RequestParam(value = "id",required = false) Integer id){
+        return null;
+    }
+    /**
+     * 获取对于自己进行的评教的记录
+     * @param courseId 筛选的该用户教学的课程的id
+     */
+    @GetMapping("/evaluate/records/opposite")
+    public CommonResult<List<EvaRecordCO>> getEvaLoggingInfo(
+            @RequestParam(value = "courseId",required = false) Integer courseId){
         return null;
     }
 }

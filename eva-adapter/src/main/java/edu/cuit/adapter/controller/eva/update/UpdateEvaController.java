@@ -67,5 +67,14 @@ public class UpdateEvaController {
             @PathVariable ("id") Integer id){
         return null;
     }
+    /**
+     * 取消一个自己的评教任务，后端需要检测是不是自己的评教任务，
+     * @param id 任务id
+     */
+    @PutMapping("/evaluate/task/cancel/my/{id}")
+    public CommonResult<Void> cancelMyEvaTask(
+            @PathVariable ("id") Integer id){
+        return null;
+    }
 
 }

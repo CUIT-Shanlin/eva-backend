@@ -58,4 +58,10 @@ public interface IEvaTemplateService {
      * @param evaTaskFormCO 评教表单评价分值dto//返回数据类型原来没有刚建的
      */
     Void putEvaTemplate(EvaTaskFormCO evaTaskFormCO);
+    /**
+     * 获取一个任务对应的评教模板
+     * @param taskId 任务id
+     * @param semId 学期id
+     */
+    String getTaskTemplate(Integer taskId, Integer semId);
 }

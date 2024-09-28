@@ -1,7 +1,8 @@
 package edu.cuit.domain.gateway.eva;
 
 import edu.cuit.client.dto.clientobject.eva.*;
-import edu.cuit.client.dto.query.condition.EvaConditionalQuery;
+import edu.cuit.client.dto.query.condition.EvaLogConditionalQuery;
+import edu.cuit.client.dto.query.condition.EvaTaskConditionalQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.domain.entity.eva.EvaRecordEntity;
 import edu.cuit.domain.entity.eva.EvaTaskEntity;
@@ -20,17 +21,18 @@ public interface EvaQueryGateway {
     /**
      *分页获取评教记录+条件查询，keyword模糊查询 教学课程
      * @param semId 学期id
-     * @param evaConditionalQuery 查询参数
+     * @param evaLogConditionalQuery 查询参数
      * @return List<EvaRecordEntity>
      */
-    List<EvaRecordEntity> pageEvaRecord(Integer semId, EvaConditionalQuery evaConditionalQuery);
+    List<EvaRecordEntity> pageEvaRecord(Integer semId, EvaLogConditionalQuery evaLogConditionalQuery);
     /**
      *分页获取未完成的评教任务+条件查询
      * @param semId 学期id
-     * @param genericConditionalQuery 查询参数
+     * @param evaTaskConditionalQuery 查询参数
+     * @param evaTaskConditionalQuery 查询参数
      * @return List<EvaTaskEntity>
      */
-    List<EvaTaskEntity> pageEvaUnfinishedTask(Integer semId, GenericConditionalQuery genericConditionalQuery);
+    List<EvaTaskEntity> pageEvaUnfinishedTask(Integer semId, EvaTaskConditionalQuery evaTaskConditionalQuery);
     /**
      *分页获取评教模板信息
      * @param semId 学期id
