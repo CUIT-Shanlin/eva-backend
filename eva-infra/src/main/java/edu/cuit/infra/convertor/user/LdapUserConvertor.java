@@ -5,8 +5,11 @@ import edu.cuit.infra.dal.ldap.dataobject.LdapPersonDO;
 import edu.cuit.infra.util.EvaLdapUtils;
 import org.mapstruct.*;
 
+/**
+ * Ldap用户对象转换器
+ */
 @Mapper(componentModel = "spring")
-public interface UserConvertor {
+public interface LdapUserConvertor {
 
     @Mappings(
             @Mapping(target = "name",expression = "java(ldapPersonDO.getSurname()+ldapPersonDO.getGivenName())")
