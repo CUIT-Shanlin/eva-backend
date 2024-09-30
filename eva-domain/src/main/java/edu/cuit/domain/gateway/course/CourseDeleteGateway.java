@@ -28,7 +28,7 @@ public interface CourseDeleteGateway {
 
     /**
      * 删除一个课程类型/批量删除课程类型
-     *   @param ids 课程数组
+     *   @param ids 课程类型数组
      * */
     Void deleteCourseType(List<Integer> ids);
 }
