@@ -65,6 +65,12 @@ public class CourseDO implements Serializable {
     @TableField(value = "is_deleted")
     private Integer isDeleted;
 
+    /**
+     * 模板id，仅在有快照数据前生效
+     */
+    @TableField(value = "templateId")
+    private Integer templateId;
+
     @TableField(exist = false)
     @Serial
     private static final long serialVersionUID = 1L;
