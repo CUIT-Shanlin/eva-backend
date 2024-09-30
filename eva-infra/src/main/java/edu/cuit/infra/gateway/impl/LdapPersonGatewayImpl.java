@@ -7,7 +7,7 @@ import com.alibaba.cola.exception.BizException;
 import com.alibaba.cola.exception.SysException;
 import edu.cuit.domain.entity.user.LdapPersonEntity;
 import edu.cuit.domain.gateway.user.LdapPersonGateway;
-import edu.cuit.infra.convertor.user.UserConvertor;
+import edu.cuit.infra.convertor.user.LdapUserConvertor;
 import edu.cuit.infra.dal.ldap.dataobject.LdapGroupDO;
 import edu.cuit.infra.dal.ldap.dataobject.LdapPersonDO;
 import edu.cuit.infra.dal.ldap.repo.LdapGroupRepo;
@@ -19,7 +19,6 @@ import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +29,7 @@ public class LdapPersonGatewayImpl implements LdapPersonGateway {
     private final LdapTemplate ldapTemplate;
     private final LdapPersonRepo ldapPersonRepo;
     private final LdapGroupRepo ldapGroupRepo;
-    private final UserConvertor userConvertor;
+    private final LdapUserConvertor ldapUserConvertor;
 
     @Override
     public boolean authenticate(String username, String password) {
@@ -41,12 +40,12 @@ public class LdapPersonGatewayImpl implements LdapPersonGateway {
     @Override
     public Optional<LdapPersonEntity> findByUsername(String username) {
         Optional<LdapPersonDO> personOpt = ldapPersonRepo.findByUsername(username);
-        return personOpt.map(userConvertor::ldapPersonDoToLdapPersonEntity);
+        return personOpt.map(ldapUserConvertor::ldapPersonDoToLdapPersonEntity);
     }
 
     @Override
     public List<LdapPersonEntity> findAll() {
-        return ldapPersonRepo.findAll().stream().map(userConvertor::ldapPersonDoToLdapPersonEntity).toList();
+        return ldapPersonRepo.findAll().stream().map(ldapUserConvertor::ldapPersonDoToLdapPersonEntity).toList();
     }
 
     @Override
@@ -58,7 +57,7 @@ public class LdapPersonGatewayImpl implements LdapPersonGateway {
 
     @Override
     public void createUser(LdapPersonEntity user, String password) {
-        LdapPersonDO personDO = userConvertor.ldapPersonEntityToLdapPersonDO(user);
+        LdapPersonDO personDO = ldapUserConvertor.ldapPersonEntityToLdapPersonDO(user);
         personDO.setUserPassword(password);
         personDO.setId(EvaLdapUtils.getUserLdapNameId(personDO.getUsername()));
         personDO.setCommonName(personDO.getSurname() + personDO.getGivenName());
