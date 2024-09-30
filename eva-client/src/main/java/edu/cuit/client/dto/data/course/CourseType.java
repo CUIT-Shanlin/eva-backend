@@ -24,7 +24,7 @@ public class CourseType extends DTO {
     private Integer id;
 
     /**
-     * 课程名称
+     * 类型名称
      */
     private String name;
 
