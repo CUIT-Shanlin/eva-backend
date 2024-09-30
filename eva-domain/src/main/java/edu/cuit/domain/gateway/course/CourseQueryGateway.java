@@ -7,6 +7,7 @@ import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.client.dto.query.CourseQuery;
 import edu.cuit.client.dto.query.PagingQuery;
+import edu.cuit.client.dto.query.condition.CourseConditionalQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.domain.entity.course.CourseEntity;
 import edu.cuit.domain.entity.course.CourseTypeEntity;
@@ -28,7 +29,7 @@ public interface CourseQueryGateway {
      * @param courseQuery 课程查询参数
      * @return List<CourseEntity>
      */
-    List<CourseEntity> page(CourseQuery courseQuery, Integer semId);
+    List<CourseEntity> page(PagingQuery<CourseConditionalQuery> courseQuery, Integer semId);
 
     /**
      * 获取一门课程的信息
