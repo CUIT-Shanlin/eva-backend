@@ -1,13 +1,17 @@
 package edu.cuit.domain.gateway.user;
 
+import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
+import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
+import edu.cuit.client.dto.query.condition.UnqualifiedUserConditionalQuery;
 import edu.cuit.domain.entity.user.biz.UserEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 用户相关数据门户接口
@@ -20,14 +24,14 @@ public interface UserQueryGateway {
      * @param id 用户ID
      * @return UserEntity
      */
-    UserEntity findById(Integer id);
+    Optional<UserEntity> findById(Integer id);
 
     /**
      * 通过用户名查询用户
      * @param username 用户名
      * @return UserEntity
      */
-    UserEntity findByUsername(String username);
+    Optional<UserEntity> findByUsername(String username);
 
     /**
      * 分页获取用户信息
@@ -42,7 +46,16 @@ public interface UserQueryGateway {
      */
     List<SimpleResultCO> allUser();
 
+    /**
+     * 获取指定数量未达标用户信息
+     */
     UnqualifiedUserResultCO getTargetAmountUnqualifiedUser();
+
+    /**
+     * 分页获取未达标用户
+     * @param query 查询对象
+     */
+    PaginationQueryResultCO<UnqualifiedUserInfoCO> pageUnqualifiedUserInfo(PagingQuery<UnqualifiedUserConditionalQuery> query);
 
     /**
      * 判断用户名是否存在
