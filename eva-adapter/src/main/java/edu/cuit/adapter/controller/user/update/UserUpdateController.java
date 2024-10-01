@@ -1,8 +1,10 @@
 package edu.cuit.adapter.controller.user.update;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import edu.cuit.client.dto.cmd.user.AssignRoleCmd;
 import edu.cuit.client.dto.cmd.user.NewUserCmd;
+import edu.cuit.client.dto.cmd.user.UpdatePasswordCmd;
 import edu.cuit.client.dto.cmd.user.UpdateUserCmd;
 import edu.cuit.common.validator.status.ValidStatus;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
@@ -26,6 +28,17 @@ public class UserUpdateController {
     @SaCheckPermission("system.user.update")
     public CommonResult<Void> updateInfo(@PathVariable("isUpdatePwd") Boolean isUpdatePwd,
                                      @RequestBody @Valid UpdateUserCmd cmd) {
+        return null;
+    }
+
+    /**
+     * 修改用户自己的密码
+     * 如果传入的新密码和旧密码重复或者旧密码错误直接异常返回
+     * @param cmd 修改密码模型
+     */
+    @PutMapping("/user/password")
+    @SaCheckLogin
+    public CommonResult<Void> updatePassword(@RequestBody @Valid UpdatePasswordCmd cmd) {
         return null;
     }
 
