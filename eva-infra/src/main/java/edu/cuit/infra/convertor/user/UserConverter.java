@@ -1,5 +1,7 @@
 package edu.cuit.infra.convertor.user;
 
+import edu.cuit.client.dto.clientobject.SimpleResultCO;
+import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
 import edu.cuit.domain.entity.user.biz.MenuEntity;
 import edu.cuit.domain.entity.user.biz.RoleEntity;
 import edu.cuit.domain.entity.user.biz.UserEntity;
@@ -29,4 +31,10 @@ public interface UserConverter {
 
     MenuEntity toMenuEntity(SysMenuDO menuDO);
 
+    SimpleResultCO toUserSimpleResult(SysUserDO userDO);
+
+    @Mappings({
+            @Mapping(source = "finishedEvaNum", target = "num")
+    })
+    UnqualifiedUserInfoCO toUnqualifiedUserInfo(SysUserDO userDO,Integer finishedEvaNum);
 }
