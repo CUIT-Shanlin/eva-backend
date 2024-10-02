@@ -9,6 +9,7 @@ import edu.cuit.client.dto.query.CourseQuery;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.CourseConditionalQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
+import edu.cuit.client.dto.query.condition.MobileCourseQuery;
 import edu.cuit.domain.entity.course.CourseEntity;
 import edu.cuit.domain.entity.course.CourseTypeEntity;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
@@ -66,9 +67,9 @@ public interface CourseQueryGateway {
      * 获取一个课程时间段的课程信息
      *  @param semId 学期id
      *  @param courseQuery 课程查询相关信息
-     * @return List<SingleCourseEntity>
+     * @return List<SingleCourseCO>
      * */
-    List<SingleCourseEntity> getPeriodInfo(Integer semId,CourseQuery courseQuery);
+    List<SingleCourseCO> getPeriodInfo(Integer semId,CourseQuery courseQuery);
 
     /**
      * 获取一节课的详细信息
@@ -84,7 +85,7 @@ public interface CourseQueryGateway {
      * @param courseQuery 课程查询条件
      *@return List<CourseEntity>
      */
-    List<SingleCourseEntity> getPeriodCourse(Integer semId,CourseQuery courseQuery);
+    List<SingleCourseEntity> getPeriodCourse(Integer semId, MobileCourseQuery courseQuery);
 
     /**
      * 分页获取课程类型
