@@ -1,4 +1,4 @@
-package edu.cuit.common.validator.status;
+package edu.cuit.client.validator.status;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
