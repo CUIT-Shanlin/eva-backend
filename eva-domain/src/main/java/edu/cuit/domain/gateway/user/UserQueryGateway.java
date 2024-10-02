@@ -7,6 +7,7 @@ import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.client.dto.query.condition.UnqualifiedUserConditionalQuery;
+import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.user.biz.UserEntity;
 import org.springframework.stereotype.Component;
 
@@ -55,7 +56,7 @@ public interface UserQueryGateway {
      * 分页获取未达标用户
      * @param query 查询对象
      */
-    PaginationQueryResultCO<UnqualifiedUserInfoCO> pageUnqualifiedUserInfo(PagingQuery<UnqualifiedUserConditionalQuery> query);
+    PaginationResultEntity<UnqualifiedUserInfoCO> pageUnqualifiedUserInfo(PagingQuery<UnqualifiedUserConditionalQuery> query);
 
     /**
      * 判断用户名是否存在
