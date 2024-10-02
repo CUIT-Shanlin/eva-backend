@@ -28,6 +28,10 @@
     <lombok.version>1.18.30</lombok.version>
     <mapstruct.version>1.5.5.Final</mapstruct.version>
     <revision>1.0</revision>
+    <!-- Sonar设置 -->
+    <sonar.projectKey>eva-project-group_backend-group_eva-backend_1760f35f-1ba2-4839-82cd-ebea4f89f759</sonar.projectKey>
+    <sonar.projectName>eva-backend</sonar.projectName>
+    <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
   </properties>
 
   <dependencyManagement>
@@ -157,12 +161,6 @@
     </plugins>
 
   </build>
-
-  <properties>
-    <sonar.projectKey>eva-project-group_backend-group_eva-backend_1760f35f-1ba2-4839-82cd-ebea4f89f759</sonar.projectKey>
-    <sonar.projectName>eva-backend</sonar.projectName>
-    <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
-  </properties>
 
   <repositories>
     <repository>
