@@ -4,14 +4,14 @@ import cn.hutool.extra.spring.SpringUtil;
 import edu.cuit.client.dto.clientobject.user.MenuCO;
 import edu.cuit.infra.dal.database.dataobject.user.SysMenuDO;
 import edu.cuit.infra.dal.database.mapper.user.SysMenuMapper;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
+@AllArgsConstructor
+@NoArgsConstructor
 public class MenuConverterDecorator implements MenuConvertor{
 
-    private final MenuConvertor menuConvertor;
-
-    public MenuConverterDecorator(MenuConvertor menuConvertor) {
-        this.menuConvertor = menuConvertor;
-    }
+    private MenuConvertor menuConvertor;
 
     @Override
     public MenuCO toMenuCO(SysMenuDO menuDO) {

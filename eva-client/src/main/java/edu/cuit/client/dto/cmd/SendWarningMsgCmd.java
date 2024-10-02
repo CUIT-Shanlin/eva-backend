@@ -1,7 +1,6 @@
 package edu.cuit.client.dto.cmd;
 
 import com.alibaba.cola.dto.DTO;
-import edu.cuit.common.validator.status.ValidStatus;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

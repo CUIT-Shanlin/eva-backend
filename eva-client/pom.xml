@@ -22,6 +22,11 @@
             <groupId>com.alibaba.cola</groupId>
             <artifactId>cola-component-dto</artifactId>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>edu.cuit</groupId>-->
+<!--            <artifactId>eva-base</artifactId>-->
+<!--            <version>${revision}</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>edu.cuit</groupId>
             <artifactId>eva-base-common</artifactId>

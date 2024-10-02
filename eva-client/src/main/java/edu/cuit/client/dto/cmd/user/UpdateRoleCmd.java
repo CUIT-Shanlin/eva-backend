@@ -1,15 +1,11 @@
 package edu.cuit.client.dto.cmd.user;
 
 import com.alibaba.cola.dto.Command;
-import edu.cuit.common.validator.status.ValidStatus;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
+import edu.cuit.client.validator.status.ValidStatus;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-
-import java.time.LocalDateTime;
 
 /**
  * 创建/修改角色模型
