@@ -8,6 +8,7 @@ import edu.cuit.client.dto.data.course.CoursePeriod;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.domain.entity.course.*;
 import edu.cuit.domain.entity.user.biz.UserEntity;
+import edu.cuit.infra.convertor.EntityFactory;
 import edu.cuit.infra.dal.database.dataobject.course.*;
 import edu.cuit.infra.dal.database.dataobject.eva.CourOneEvaTemplateDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
@@ -18,7 +19,7 @@ import org.mapstruct.Mappings;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {EntityFactory.class})
 public interface CourseConvertor {
 
     @Mappings({
