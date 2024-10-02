@@ -13,7 +13,10 @@ cache:
 
 sonarqube-check:
   stage: sonarqube-check
-  
+  cache:
+    key: "${CI_JOB_NAME}"
+    paths:
+      - .sonar/cache
   script: 
     - $SONAR_MAVEN
   allow_failure: true
