@@ -158,6 +158,11 @@
 
   </build>
 
+  <properties>
+    <sonar.projectKey>eva-project-group_backend-group_eva-backend_1760f35f-1ba2-4839-82cd-ebea4f89f759</sonar.projectKey>
+    <sonar.projectName>eva-backend</sonar.projectName>
+    <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
+  </properties>
 
   <repositories>
     <repository>
