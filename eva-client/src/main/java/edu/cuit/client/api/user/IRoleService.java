@@ -8,8 +8,6 @@ import edu.cuit.client.dto.cmd.user.NewRoleCmd;
 import edu.cuit.client.dto.cmd.user.UpdateRoleCmd;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
-import edu.cuit.common.validator.status.ValidStatus;
-import jakarta.validation.Valid;
 
 import java.util.List;
 

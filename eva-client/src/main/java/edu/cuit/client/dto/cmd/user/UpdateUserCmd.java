@@ -2,7 +2,7 @@ package edu.cuit.client.dto.cmd.user;
 
 import com.alibaba.cola.dto.Command;
 import edu.cuit.common.enums.GenericPattern;
-import edu.cuit.common.validator.status.ValidStatus;
+import edu.cuit.client.validator.status.ValidStatus;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

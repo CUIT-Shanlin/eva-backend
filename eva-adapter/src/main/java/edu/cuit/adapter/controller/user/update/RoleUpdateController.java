@@ -4,7 +4,7 @@ import cn.dev33.satoken.annotation.SaCheckPermission;
 import edu.cuit.client.dto.cmd.user.AssignPermCmd;
 import edu.cuit.client.dto.cmd.user.NewRoleCmd;
 import edu.cuit.client.dto.cmd.user.UpdateRoleCmd;
-import edu.cuit.common.validator.status.ValidStatus;
+import edu.cuit.client.validator.status.ValidStatus;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
