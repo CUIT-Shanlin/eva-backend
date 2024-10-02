@@ -9,6 +9,9 @@ stages:
 
 sonarqube-check:
   stage: sonarqube-check
+  dependencies:
+    - get-binaries
+    - build
   cache:
     key: "${CI_PROJECT_ID}"
     paths:
