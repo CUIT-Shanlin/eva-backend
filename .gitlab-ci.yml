@@ -17,6 +17,7 @@ sonarqube-check:
     key: "${CI_JOB_NAME}"
     paths:
       - .sonar/cache
+      - .m2/repository
   script: 
     - $SONAR_MAVEN
   allow_failure: true
