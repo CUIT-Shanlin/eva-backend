@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,7 +30,7 @@ public class UnqualifiedUserResultCO extends ClientObject {
     private Integer total;
 
     public UnqualifiedUserResultCO(List<UnqualifiedUserInfoCO> data) {
-        this.dataArr = data;
+        this.dataArr = new ArrayList<>(data);
         total = data.size();
     }
 

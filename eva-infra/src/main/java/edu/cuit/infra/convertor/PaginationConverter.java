@@ -2,25 +2,23 @@ package edu.cuit.infra.convertor;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import edu.cuit.domain.entity.PaginationResultEntity;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
+import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * 分页对象转换器
  */
-@SuppressWarnings("rawtypes")
-@Mapper(componentModel = "spring",uses = EntityFactory.class)
-public interface PaginationConverter {
+@Component
+public class PaginationConverter {
 
-    @Mappings({
-            @Mapping(target = "records",source = "values"),
-            @Mapping(target = "total",source = "page.total"),
-            @Mapping(target = "size",source = "page.size"),
-            @Mapping(target = "current",source = "page.current")
-    })
-    PaginationResultEntity toPaginationEntity(Page<?> page, List values);
+    public <T> PaginationResultEntity<T> toPaginationEntity(Page<?> page, List<T> values) {
+        PaginationResultEntity<T> entity = new PaginationResultEntity<>();
+        return entity.setRecords(new ArrayList<>(values))
+                .setSize((int) page.getSize())
+                .setCurrent((int) page.getCurrent())
+                .setTotal((int) page.getTotal());
+    }
 
 }
