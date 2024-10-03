@@ -22,19 +22,16 @@ import java.util.List;
 public interface UserConverter {
 
     @Mappings({
-        @Mapping(source = "menus",target = "menus"),
-        @Mapping(source = "roles",target = "roles")
+        @Mapping(source = "menus",target = "menus")
     })
-    UserEntity toUserEntity(SysUserDO userDO, List<RoleEntity> roles, List<MenuEntity> menus);
+    UserEntity toUserEntity(SysUserDO userDO, List<RoleEntity> roles);
 
-    RoleEntity toRoleEntity(SysRoleDO roleDO);
-
-    MenuEntity toMenuEntity(SysMenuDO menuDO);
-
+    @Mapping(target = "extValues", ignore = true)
     SimpleResultCO toUserSimpleResult(SysUserDO userDO);
 
     @Mappings({
-            @Mapping(source = "finishedEvaNum", target = "num")
+            @Mapping(source = "finishedEvaNum", target = "num"),
+            @Mapping(target = "extValues", ignore = true)
     })
     UnqualifiedUserInfoCO toUnqualifiedUserInfo(SysUserDO userDO,Integer finishedEvaNum);
 }
