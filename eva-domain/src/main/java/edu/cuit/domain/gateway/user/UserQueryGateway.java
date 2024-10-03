@@ -48,6 +48,12 @@ public interface UserQueryGateway {
     List<SimpleResultCO> allUser();
 
     /**
+     * 获取用户角色列表
+     * @param userId 用户id
+     */
+    List<Integer> getUserRoles(Integer userId);
+
+    /**
      * 获取指定数量未达标用户信息
      */
     UnqualifiedUserResultCO getTargetAmountUnqualifiedUser();
