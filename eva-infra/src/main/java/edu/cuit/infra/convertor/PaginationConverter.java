@@ -11,6 +11,7 @@ import java.util.List;
 /**
  * 分页对象转换器
  */
+@SuppressWarnings("rawtypes")
 @Mapper(componentModel = "spring",uses = EntityFactory.class)
 public interface PaginationConverter {
 
@@ -20,6 +21,6 @@ public interface PaginationConverter {
             @Mapping(target = "size",source = "page.size"),
             @Mapping(target = "current",source = "page.current")
     })
-    <T> PaginationResultEntity<T> toPaginationEntity(Page<?> page, List<T> values);
+    PaginationResultEntity toPaginationEntity(Page<?> page, List values);
 
 }
