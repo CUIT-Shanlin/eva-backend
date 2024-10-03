@@ -22,7 +22,7 @@ import java.util.List;
 public interface UserConverter {
 
     @Mappings({
-        @Mapping(source = "menus",target = "menus")
+        @Mapping(source = "roles",target = "roles")
     })
     UserEntity toUserEntity(SysUserDO userDO, List<RoleEntity> roles);
 
