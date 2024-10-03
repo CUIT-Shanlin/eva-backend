@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 权限菜单domain entity
@@ -21,10 +22,7 @@ public class MenuEntity {
      */
     private Integer id;
 
-    /**
-     * 父菜单
-     */
-    private Integer parentId;
+    private List<MenuEntity> children;
 
     /**
      * 名称
