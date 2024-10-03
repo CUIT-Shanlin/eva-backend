@@ -1,12 +1,8 @@
 package edu.cuit.domain.gateway.user;
 
-import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
-import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
-import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
-import edu.cuit.client.dto.query.condition.UnqualifiedUserConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.user.biz.UserEntity;
 import org.springframework.stereotype.Component;
@@ -39,7 +35,7 @@ public interface UserQueryGateway {
      * @param query 查询对象
      * @return 数据
      */
-    List<UserEntity> page(PagingQuery<GenericConditionalQuery> query);
+    PaginationResultEntity<UserEntity> page(PagingQuery<GenericConditionalQuery> query);
 
     /**
      * 获取所有用户
@@ -51,18 +47,7 @@ public interface UserQueryGateway {
      * 获取用户角色列表
      * @param userId 用户id
      */
-    List<Integer> getUserRoles(Integer userId);
-
-    /**
-     * 获取指定数量未达标用户信息
-     */
-    UnqualifiedUserResultCO getTargetAmountUnqualifiedUser();
-
-    /**
-     * 分页获取未达标用户
-     * @param query 查询对象
-     */
-    PaginationResultEntity<UnqualifiedUserInfoCO> pageUnqualifiedUserInfo(PagingQuery<UnqualifiedUserConditionalQuery> query);
+    List<Integer> getUserRoleIds(Integer userId);
 
     /**
      * 判断用户名是否存在

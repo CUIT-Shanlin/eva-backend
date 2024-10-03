@@ -1,6 +1,5 @@
 package edu.cuit.infra.convertor.user;
 
-import edu.cuit.client.dto.clientobject.user.MenuCO;
 import edu.cuit.domain.entity.user.biz.MenuEntity;
 import edu.cuit.infra.convertor.EntityFactory;
 import edu.cuit.infra.dal.database.dataobject.user.SysMenuDO;

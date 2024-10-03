@@ -1,8 +1,10 @@
 package edu.cuit.client.dto.clientobject.user;
 
 import com.alibaba.cola.dto.ClientObject;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.util.List;
@@ -13,6 +15,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
+@NoArgsConstructor
 public class UnqualifiedUserResultCO extends ClientObject {
 
     /**
@@ -24,5 +27,10 @@ public class UnqualifiedUserResultCO extends ClientObject {
      * 总共多少未达标的人
      */
     private Integer total;
+
+    public UnqualifiedUserResultCO(List<UnqualifiedUserInfoCO> data) {
+        this.dataArr = data;
+        total = data.size();
+    }
 
 }
