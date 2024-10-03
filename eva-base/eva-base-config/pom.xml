@@ -23,6 +23,12 @@
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.18.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>edu.cuit.zhuyimeng</groupId>
             <artifactId>zym-spring-boot-starter-common</artifactId>
         </dependency>
