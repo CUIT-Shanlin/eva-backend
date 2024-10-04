@@ -16,7 +16,6 @@ import edu.cuit.domain.gateway.user.MenuQueryGateway;
 import edu.cuit.domain.gateway.user.RoleQueryGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.infra.convertor.PaginationConverter;
-import edu.cuit.infra.convertor.user.MenuConvertor;
 import edu.cuit.infra.convertor.user.RoleConverter;
 import edu.cuit.infra.convertor.user.UserConverter;
 import edu.cuit.infra.dal.database.dataobject.user.SysRoleDO;
@@ -35,17 +34,13 @@ import java.util.Optional;
 public class UserQueryGatewayImpl implements UserQueryGateway {
 
     private final SysUserMapper userMapper;
-    private final SysUserRoleMapper userRoleMapper;
     private final SysRoleMapper roleMapper;
-    private final SysRoleMenuMapper roleMenuMapper;
-    private final SysMenuMapper menuMapper;
 
     private RoleQueryGateway roleQueryGateway;
     private MenuQueryGateway menuQueryGateway;
 
     private final UserConverter userConverter;
     private final RoleConverter roleConverter;
-    private final MenuConvertor menuConvertor;
     private final PaginationConverter paginationConverter;
 
     @Override
