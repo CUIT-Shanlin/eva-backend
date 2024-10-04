@@ -1,6 +1,7 @@
 package edu.cuit.infra.convertor.user;
 
 import edu.cuit.domain.entity.user.LdapPersonEntity;
+import edu.cuit.infra.convertor.EntityFactory;
 import edu.cuit.infra.dal.ldap.dataobject.LdapPersonDO;
 import edu.cuit.infra.util.EvaLdapUtils;
 import org.mapstruct.*;
@@ -8,7 +9,7 @@ import org.mapstruct.*;
 /**
  * Ldap用户对象转换器
  */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring",uses = EntityFactory.class)
 public interface LdapUserConvertor {
 
     @Mappings(
