@@ -41,4 +41,11 @@ public interface IUserCourseService {
      * */
     void importCourse(InputStream fileStream);
 
+    /**
+     * 获取自己所有教学的课程的详细信息
+     * @param semId 学期id
+     * */
+    List<Void> selfCourseDetail(Integer semId);
+
+
 }
