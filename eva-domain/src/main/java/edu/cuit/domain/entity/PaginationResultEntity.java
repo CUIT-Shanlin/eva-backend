@@ -1,6 +1,5 @@
 package edu.cuit.domain.entity;
 
-import com.alibaba.cola.domain.Entity;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -8,7 +7,6 @@ import java.util.List;
 
 @Data
 @Accessors(chain = true)
-@Entity
 public class PaginationResultEntity<T> {
 
     /**

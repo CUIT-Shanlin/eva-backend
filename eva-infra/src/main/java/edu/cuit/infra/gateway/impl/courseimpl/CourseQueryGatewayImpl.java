@@ -29,6 +29,8 @@ import edu.cuit.domain.entity.user.biz.RoleEntity;
 import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.infra.convertor.course.CourseConvertor;
+import edu.cuit.infra.convertor.user.MenuConvertor;
+import edu.cuit.infra.convertor.user.RoleConverter;
 import edu.cuit.infra.convertor.user.UserConverter;
 import edu.cuit.infra.dal.database.dataobject.course.*;
 import edu.cuit.infra.dal.database.dataobject.eva.CourOneEvaTemplateDO;
@@ -56,6 +58,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CourseQueryGatewayImpl implements CourseQueryGateway {
     private final CourseConvertor courseConvertor;
+    private final RoleConverter roleConverter;
+    private final MenuConvertor menuConvertor;
     private final UserConverter userConverter;
     private final CourInfMapper courInfMapper;
     private final CourseMapper courseMapper;
@@ -468,14 +472,14 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         //根据userId找到角色id集合
         List<Integer> roleIds = userRoleMapper.selectList(new QueryWrapper<SysUserRoleDO>().eq("user_id", userId)).stream().map(SysUserRoleDO::getRoleId).toList();
         //根据角色id集合找到角色对象集合
-        List<RoleEntity> roleEntities = roleMapper.selectList(new QueryWrapper<SysRoleDO>().in("id", roleIds)).stream().map(roleDO -> userConverter.toRoleEntity(roleDO)).toList();
+        List<RoleEntity> roleEntities = roleMapper.selectList(new QueryWrapper<SysRoleDO>().in("id", roleIds)).stream().map(roleDO -> roleConverter.toRoleEntity(roleDO)).toList();
         //根据角色id集合找到角色菜单表中的菜单id集合
         List<Integer> menuIds = roleMenuMapper.selectList(new QueryWrapper<SysRoleMenuDO>().in("role_id", roleIds)).stream().map(SysRoleMenuDO::getMenuId).toList();
         //根据menuids找到菜单对象集合
-        List<MenuEntity> menuEntities = menuMapper.selectList(new QueryWrapper<SysMenuDO>().in("id", menuIds)).stream().map(menuDO -> userConverter.toMenuEntity(menuDO)).toList();
+//        List<MenuEntity> menuEntities = menuMapper.selectList(new QueryWrapper<SysMenuDO>().in("id", menuIds)).stream().map(menuDO -> menuConvertor.toMenuEntity(menuDO)).toList();
 
 
-        return userConverter.toUserEntity(userDO,roleEntities,menuEntities);
+        return userConverter.toUserEntity(userDO,roleEntities);
     }
     private LocalDateTime toLocalDateTime(String s){
 
