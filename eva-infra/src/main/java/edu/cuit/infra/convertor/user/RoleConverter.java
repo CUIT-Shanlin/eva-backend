@@ -17,10 +17,19 @@ import java.util.List;
 @Mapper(componentModel = "spring",uses = EntityFactory.class)
 public interface RoleConverter {
 
+    /**
+     * 不携带菜单列表
+     */
     @Mappings({
-            @Mapping(source = "menus",target = "menus")
+            @Mapping(target = "menus",ignore = true)
     })
-    RoleEntity toRoleEntity(SysRoleDO roleDO, List<MenuEntity> menus);
+    RoleEntity toRoleEntity(SysRoleDO roleDO);
+
+    @Mappings({
+            @Mapping(target = "menus",source = "menus")
+    })
+    RoleEntity toRoleEntity(SysRoleDO roleDO,List<MenuEntity> menus);
+
 
     @Mapping(target = "extValues", ignore = true)
     SimpleRoleInfoCO toSimpleRoleInfo(SysRoleDO roleDO);
