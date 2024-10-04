@@ -1,12 +1,11 @@
 package edu.cuit.domain.entity.user.biz;
 
 import com.alibaba.cola.domain.Entity;
-import lombok.AccessLevel;
 import lombok.Data;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 角色domain entity
@@ -30,6 +29,11 @@ public class RoleEntity {
      * 描述
      */
     private String description;
+
+    /**
+     * 角色权限菜单列表
+     */
+    private List<MenuEntity> menus;
 
     /**
      * 状态(0:禁止,1:正常)

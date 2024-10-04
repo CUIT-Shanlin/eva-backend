@@ -69,11 +69,6 @@ public class UserEntity {
     private Integer status;
 
     /**
-     * 权限菜单列表
-     */
-    private List<MenuEntity> menus;
-
-    /**
      * 角色列表
      */
     private List<RoleEntity> roles;
