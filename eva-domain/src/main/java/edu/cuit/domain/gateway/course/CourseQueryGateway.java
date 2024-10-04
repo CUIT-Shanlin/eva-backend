@@ -1,6 +1,8 @@
 package edu.cuit.domain.gateway.course;
 
+import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
+import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SingleCourseCO;
 import edu.cuit.client.dto.clientobject.course.SingleCourseDetailCO;
 import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
@@ -95,19 +97,27 @@ public interface CourseQueryGateway {
     List<CourseTypeEntity> pageCourseType(PagingQuery<GenericConditionalQuery> courseQuery);
 
     /**
-     * 获取单个用户的教学课程的详细信息/获取一节课的详细信息
+     * 获取单个用户的教学课程的详细信息
      *  @param semId 学期id
-     *  @param id 用户编号id/课程详情id
+     *  @param id 用户编号id
      * @return List<CourseEntity>
      * */
-    List<CourseEntity> getCourseDetail( Integer id,Integer semId);
+    List<SingleCourseEntity> getUserCourseDetail( Integer id,Integer semId);
+
+    /**
+     * 获取自己教学的课程基础信息/获取自己所有教学的课程的详细信息
+     *  @param semId 学期id
+     *  @param userName 用户名
+     * @return List<SimpleResultCO>
+     * */
+    List<SelfTeachCourseCO> getSelfCourseInfo(String userName, Integer semId);
 
     /**
      * 获取自己的推荐选课
      * @param semId 学期id
      * @return List<SingleCourseEntity>
      * */
-    List<SingleCourseEntity> getSelfCourse(Integer semId);
+    List<CourseEntity> getSelfCourse(Integer semId);
 
 
 }
