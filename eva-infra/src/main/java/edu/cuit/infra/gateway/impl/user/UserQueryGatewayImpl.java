@@ -1,5 +1,6 @@
 package edu.cuit.infra.gateway.impl.user;
 
+import com.alibaba.cola.exception.BizException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -24,6 +25,7 @@ import edu.cuit.infra.dal.database.dataobject.user.SysUserRoleDO;
 import edu.cuit.infra.dal.database.mapper.user.*;
 import edu.cuit.infra.util.QueryUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -31,6 +33,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class UserQueryGatewayImpl implements UserQueryGateway {
 
     private final SysUserMapper userMapper;
@@ -116,7 +119,12 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
                     //查询角色权限菜单
                     List<MenuEntity> menus = roleQueryGateway.getRoleMenuIds(roleDo.getId())
                             .stream()
-                            .map(menuQueryGateway::getOne).toList();
+                            .map(menuId -> menuQueryGateway.getOne(menuId).orElseThrow(() -> {
+                                BizException bizException = new BizException("菜单查询出错，请联系管理员");
+                                log.error("菜单查询出错",bizException);
+                                return bizException;
+                            }))
+                            .toList();
 
                     return roleConverter.toRoleEntity(roleDo,menus);
                 }).toList();
