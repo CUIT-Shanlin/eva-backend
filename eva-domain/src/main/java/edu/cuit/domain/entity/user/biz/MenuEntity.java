@@ -1,9 +1,7 @@
 package edu.cuit.domain.entity.user.biz;
 
 import com.alibaba.cola.domain.Entity;
-import lombok.AccessLevel;
 import lombok.Data;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;

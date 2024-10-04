@@ -11,14 +11,12 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring",uses = EntityFactory.class)
 public interface MenuConvertor {
 
+    /**
+     * 不包含子菜单
+     */
     @Mappings({
             @Mapping(target = "children", ignore = true)
     })
-    MenuEntity toMenuCO(SysMenuDO menuDO);
-
-    @AfterMapping
-    default void afterMenuDOtoMenuCO(SysMenuDO menuDO, @TargetType MenuEntity menuEntity) {
-        //TODO 处理子菜单
-    }
+    MenuEntity toMenuEntity(SysMenuDO menuDO);
 
 }

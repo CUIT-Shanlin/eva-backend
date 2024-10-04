@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.awt.*;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 权限菜单数据门面
@@ -24,6 +25,12 @@ public interface MenuQueryGateway {
      * 获取一个菜单信息
      * @param id 菜单id
      */
-    MenuEntity getOne(Integer id);
+    Optional<MenuEntity> getOne(Integer id);
+
+    /**
+     * 获取菜单的子菜单（包括子菜单的子菜单）
+     * @param parentMenuId 父菜单Id
+     */
+    List<MenuEntity> getChildrenMenus(Integer parentMenuId);
 
 }
