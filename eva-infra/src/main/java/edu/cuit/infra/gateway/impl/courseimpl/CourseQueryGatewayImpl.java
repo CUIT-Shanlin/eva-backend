@@ -8,7 +8,9 @@ import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.cuit.client.bo.EvaProp;
+import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
+import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SingleCourseCO;
 import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
@@ -39,8 +41,14 @@ import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
 import edu.cuit.infra.dal.database.mapper.user.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Component;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -67,24 +75,24 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     public List<CourseEntity> page(PagingQuery<CourseConditionalQuery> courseQuery, Integer semId) {
         //获取semesterEntity
         SemesterEntity semester = getSemester(semId);
-        // 根据courseQuery中的departmentName和is_delete为1以及courseQuery中的页数和一页显示数到userMapper中找对应数量的对应用户id，
+        // 根据courseQuery中的departmentName以及courseQuery中的页数和一页显示数到userMapper中找对应数量的对应用户id，
         List<Integer> userIds=null;
         if(courseQuery.getQueryObj().getDepartmentName()!=null){
             Page<SysUserDO> pageUser=new Page<>(courseQuery.getPage(),courseQuery.getSize());
             pageUser=userMapper.selectPage(pageUser,new QueryWrapper<SysUserDO>().like("department",courseQuery.getQueryObj().getDepartmentName()));
             userIds=pageUser.getRecords().stream().map(SysUserDO::getId).toList();
         }
-        //根据courseQuery中的create时间范围，和update时间范围查询is_delete为1且semester_id为semId的CourseDO
+        //根据courseQuery中的create时间范围，和update时间范围查询semester_id为semId的CourseDO
         Page<CourseDO> pageCourse=new Page<>(courseQuery.getPage(),courseQuery.getSize());
         QueryWrapper<CourseDO> courseWrapper=new QueryWrapper<>();
-        courseWrapper.in("create_time",courseQuery.getQueryObj().getStartCreateTime(),courseQuery.getQueryObj().getEndCreateTime());
-        courseWrapper.in("update_time",courseQuery.getQueryObj().getStartUpdateTime(),courseQuery.getQueryObj().getEndUpdateTime());
+        courseWrapper.between("create_time",courseQuery.getQueryObj().getStartCreateTime(),courseQuery.getQueryObj().getEndCreateTime());
+        courseWrapper.between("update_time",courseQuery.getQueryObj().getStartUpdateTime(),courseQuery.getQueryObj().getEndUpdateTime());
         if(semId!=null){
             courseWrapper.eq("semester_id",semId);
         }
-        if(userIds!=null){
+
             courseWrapper.in("teacher_id",userIds);
-        }
+
         pageCourse = courseMapper.selectPage(pageCourse,courseWrapper);
         //获取courseDOS中的subjectId集合
         List<Integer> subjectIds = pageCourse.getRecords().stream().map(CourseDO::getSubjectId).toList();
@@ -92,36 +100,21 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         List<SubjectEntity> subject = subjectMapper.selectList(new QueryWrapper<SubjectDO>().in("id", subjectIds))
                                                 .stream().map(subjectDO -> courseConvertor.toSubjectEntity(subjectDO)).toList();
 
-
-        //获取uerEntity
-        //TODO 此处需要完善，目前仅返回空Optional
-
-
         //获取List<CourseEntity>
         List<CourseEntity> courseEntityList=new ArrayList<>();
-        for(int i=0;i<pageCourse.getRecords().size();i++){
-            courseEntityList.add(courseConvertor.toCourseEntity(pageCourse.getRecords().get(i),subject.get(i),null,semester));
-        }
+        //获取uerEntity
 
-
-
-
-
-
-
-
-
-
-//        subjectMapper.
-
-
-        return null;
+                List<UserEntity> list = userIds.stream().map(id -> toUserEntity(id)).toList();
+                for(int i=0;i<pageCourse.getRecords().size();i++){
+                    courseEntityList.add(courseConvertor.toCourseEntity(pageCourse.getRecords().get(i),subject.get(i),list.get(i),semester));
+                }
+        return courseEntityList;
     }
 
     @Override
     public Optional<CourseDetailCO> getCourseInfo(Integer id, Integer semId) {
         //根据id和semId来查询课程信息
-        CourseDO courseDO = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", id));
+        CourseDO courseDO = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", id).eq("semester_id", semId));
         //根据id和semId来查询评教快照信息
         CourOneEvaTemplateDO courOneEvaTemplateDO = CoureOneEvaTemplateMapper.selectOne(new QueryWrapper<CourOneEvaTemplateDO>().eq("course_id", id).eq("semester_id", semId));
         //将courOneEvaTemplateDO中的formtemplate(json)字符串，转换为EvaTemplateCO
@@ -148,7 +141,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         //根据courseTypeIds查询课程类型表，得到课程类型的集合
         List<CourseTypeDO> courseTypes = courseTypeMapper.selectList(new QueryWrapper<CourseTypeDO>().in("id", courseTypeIds));
         //将courseTypeDO转化成CourseType
-        List<CourseType> courseTypeList = courseTypes.stream().map(courseTypeDO -> courseConvertor.toCourseType(courseTypeDO)).toList();
+        List<CourseType> courseTypeList = courseTypes.stream().map(courseTypeDO -> courseConvertor.toCourseType(id,courseTypeDO)).toList();
 
         //组装CourseDtailCO
         CourseDetailCO courseDetailCO = courseConvertor.toCourseDetailCO(courseTypeList
@@ -290,7 +283,24 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
 
     @Override
     public List<SingleCourseEntity> getPeriodCourse(Integer semId, MobileCourseQuery courseQuery) {
-        return null;
+        List<SingleCourseEntity> list=null;
+        //根据老师id和semId来找到对应课程Do
+        List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>()
+                .eq("teacher_id", courseQuery.getTeacherId()).eq("semester_id", semId));
+        //id和startTime和endTime,来找到courInfo集合
+        for (CourseDO courseDO : courseDOS) {
+            List<CourInfDO> courInfDOS = courInfMapper.selectList(new QueryWrapper<CourInfDO>()
+                    .eq("course_id", courseDO.getId())
+                    .between("create_time", toLocalDateTime(courseQuery.getStartDay()), toLocalDateTime(courseQuery.getEndDay())));
+            //得到课程Entity
+            CourseEntity courseEntity = toCourseEntity(courseDO.getId(), semId);
+            list.addAll(courInfDOS.stream()
+                    .map(courInfDO -> courseConvertor.toSingleCourseEntity(courseEntity, courInfDO))
+                    .toList());
+        }
+
+
+        return list;
     }
 
     @Override
@@ -310,16 +320,73 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     }
 
     @Override
-    public List<CourseEntity> getCourseDetail(Integer id, Integer semId) {
-        return null;
+    public List<SingleCourseEntity> getUserCourseDetail(Integer id, Integer semId) {
+        //id为用户id
+
+        //构造semester
+        SemesterEntity semesterEntity = getSemester(semId);
+        //构造courseDo
+        CourseDO courseDO = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("teacher_id", id).eq("semester_id", semId));
+        //构造subject
+        SubjectEntity subjectEntity = courseConvertor.toSubjectEntity(subjectMapper.selectById(courseDO.getSubjectId()));
+        //构造userEntity
+        UserEntity userEntity =toUserEntity(id);
+        //根据courseDo中的subjectid找出courInfoDo集合
+        List<CourInfDO> courInfDOS = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseDO.getId()));
+        List<SingleCourseEntity> list = courInfDOS.stream().map(courInfDO ->
+                courseConvertor.toSingleCourseEntity(courseConvertor.toCourseEntity(courseDO, subjectEntity, userEntity, semesterEntity), courInfDO))
+                .toList();
+
+
+        return list;
     }
+
 
     @Override
-    public List<SingleCourseEntity> getSelfCourse(Integer semId) {
-        return null;
+    public List<SelfTeachCourseCO> getSelfCourseInfo(String userName, Integer semId) {
+        //根据用户名来查出教师id
+        Integer teacherId = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("username", userName)).getId();
+
+        //根据学期来找到这学期所有课程
+        List<CourseDO> courseList = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId).eq("teacher_id", teacherId));
+        //
+        List<SelfTeachCourseCO> list = new ArrayList<>();
+        for (CourseDO courseDO : courseList) {
+            SelfTeachCourseCO selfTeachCourseCO = new SelfTeachCourseCO();
+            //先拿到subjectDO
+            SubjectDO subjectDO = subjectMapper.selectById(courseDO.getSubjectId());
+            //拿到课程类型id集合
+            List<Integer> courseTypeIds = courseTypeCourseMapper.selectList(new QueryWrapper<CourseTypeCourseDO>().eq("course_id", courseDO.getId())).stream().map(CourseTypeCourseDO::getTypeId).toList();
+            List<CourseTypeDO> typeList = courseTypeIds.stream().map(courseTypeId -> courseTypeMapper.selectById(courseTypeId)).toList();
+            List<CourseType> TPList = typeList.stream().map(courseTypeDO -> courseConvertor.toCourseType(courseDO.getId(),courseTypeDO)).toList();
+            //统计评教数
+            Long courInfId = evaTaskMapper.selectCount(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courseDO.getId()));
+            //添加到selfteachCourseCO中
+            selfTeachCourseCO.setId(courseDO.getId());
+            selfTeachCourseCO.setName(subjectDO.getName());
+            selfTeachCourseCO.setTypeList(TPList);
+            selfTeachCourseCO.setNature(subjectDO.getNature());
+            selfTeachCourseCO.setEvaNum(courInfId.intValue());
+            list.add(selfTeachCourseCO);
+
+        }
+        return list;
     }
 
-    public SemesterEntity getSemester(Integer semId){
+//TODO(有问题待修改)
+    @Override
+    public List<CourseEntity> getSelfCourse(Integer semId) {
+        //根据semId来找课程实体
+        List<CourseDO> semesterId = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId));
+        //得到CourseEntity集合
+        List<CourseEntity> courseEntities = semesterId.stream().map(courseDO -> toCourseEntity(courseDO.getId(), semId)).toList();
+
+
+
+        return courseEntities;
+    }
+
+    private SemesterEntity getSemester(Integer semId){
         SemesterDO semesterDO=null;
         if(semId!=null){
             semesterDO= semesterMapper.selectById(semId);
@@ -327,7 +394,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         }
         return null;
     }
-    public List<CoursePeriod> toGetCourseTime( Integer id){
+    private List<CoursePeriod> toGetCourseTime( Integer id){
         QueryWrapper<CourInfDO> queryWrapper = Wrappers.query();
         queryWrapper.eq("course_id", id);
         // 执行查询
@@ -367,7 +434,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         return finalResult;
 
     }
-    public CourInfDO getCourseInfo( CourseDO course){
+    private CourInfDO getCourseInfo( CourseDO course){
 
         return  courInfMapper.selectById(course.getId());
     }
@@ -397,5 +464,13 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
 
         return userConverter.toUserEntity(userDO,roleEntities,menuEntities);
     }
+    private LocalDateTime toLocalDateTime(String s){
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate localDate = LocalDate.parse(s, formatter);
+        LocalDateTime localDateTime = localDate.atStartOfDay();
+        return localDateTime;
+    }
+
 
 }
