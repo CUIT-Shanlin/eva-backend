@@ -27,13 +27,7 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
     private final SubjectMapper subjectMapper;
     private final EvaTaskMapper evaTaskMapper;
     private final FormRecordMapper formRecordMapper;
-    /**
-     * 批量删除某节课
-     *  @param semId 学期id
-     *  @param id 对应课程编号
-     *  @param startWeek 从哪一周开始删除
-     *  @param endWeek 从哪一周结束删除
-     * */
+
     @Override
     public Void deleteCourses(Integer semId, Integer id, Integer startWeek, Integer endWeek) {
         //先根据semId和id来找出课程数据
@@ -45,11 +39,7 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         return null;
     }
 
-    /**
-     * 连带删除一门课程
-     *  @param semId 学期id
-     *  @param id 对应课程编号
-     * */
+
     @Override
     public Void deleteCourse(Integer semId, Integer id) {
         //删除课程表
@@ -81,10 +71,7 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         return null;
     }
 
-    /**
-     * 删除一个课程类型/批量删除课程类型
-     *   @param ids 课程类型数组
-     * */
+
     @Override
     @Transactional
     public Void deleteCourseType(List<Integer> ids) {
