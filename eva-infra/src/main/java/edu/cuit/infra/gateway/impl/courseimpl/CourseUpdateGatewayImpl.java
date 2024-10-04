@@ -80,15 +80,20 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
 
     @Override
     public Void addCourseType(CourseType courseType) {
-        //新增一门课程类型
-        //TODO（重复解决没有实现）
-        courseTypeMapper.insert(courseConvertor.toCourseTypeDO(courseType));
+        // 根据课程类型名称查询数据库
+        CourseTypeDO existingCourseType = courseTypeMapper.selectOne(new QueryWrapper<CourseTypeDO>().eq("name", courseType.getName()));
+
+        if (existingCourseType == null) {
+            // 如果不存在相同名称的课程类型，则插入新记录
+            courseTypeMapper.insert(courseConvertor.toCourseTypeDO(courseType));
+        }
+        //不存在可以抛出异常
         return null;
     }
 
     @Override
     public Void addCourse(Integer semId) {
-        //TODO（接口待修改）
+        //TODO（接口已删除）
         return null;
     }
 
