@@ -66,9 +66,10 @@ public interface CourseConvertor {
     })
     CourseDetailCO toCourseDetailCO(List<CourseType> typeList, List<CoursePeriod> dateList, SubjectDO courInfo
                                     , CourseDO course, EvaTemplateCO template, SysUserDO user);
-
-
-    CourseType toCourseType(CourseTypeDO courseTypeDO);
+    @Mappings({
+            @Mapping(target = "id",source = "id"),
+    })
+    CourseType toCourseType(Integer id,CourseTypeDO courseTypeDO);
     SubjectDO toSubjectDO(SubjectCO subjectDO);
     @Mappings({
             @Mapping(target = "week",source = "time.week"),
