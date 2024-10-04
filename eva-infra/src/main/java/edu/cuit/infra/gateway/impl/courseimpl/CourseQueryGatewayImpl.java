@@ -386,6 +386,19 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         return courseEntities;
     }
 
+    @Override
+    public List<SingleCourseEntity> getSelfCourseTime(String userName, Integer id) {
+        //先根据课程id来查出课程实体
+        CourseDO courseDO = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", id));
+        //先得到CourseEntity
+        CourseEntity courseEntity = toCourseEntity(id,courseDO.getSemesterId());
+        //根据id来查出CourInfoDo集合
+        List<CourInfDO> courInfDOS = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", id));
+        //转化成SingleCourseEntity
+        List<SingleCourseEntity> list = courInfDOS.stream().map(courInfDO -> courseConvertor.toSingleCourseEntity(courseEntity, courInfDO)).toList();
+        return list;
+    }
+
     private SemesterEntity getSemester(Integer semId){
         SemesterDO semesterDO=null;
         if(semId!=null){

@@ -85,7 +85,7 @@ public interface CourseQueryGateway {
      *获取某个指定时间段的课程
      * @param semId 学期id
      * @param courseQuery 课程查询条件
-     *@return List<CourseEntity>
+     *@return List<SingleCourseEntity>
      */
     List<SingleCourseEntity> getPeriodCourse(Integer semId, MobileCourseQuery courseQuery);
 
@@ -100,7 +100,7 @@ public interface CourseQueryGateway {
      * 获取单个用户的教学课程的详细信息
      *  @param semId 学期id
      *  @param id 用户编号id
-     * @return List<CourseEntity>
+     * @return List<SingleCourseEntity>
      * */
     List<SingleCourseEntity> getUserCourseDetail( Integer id,Integer semId);
 
@@ -108,16 +108,24 @@ public interface CourseQueryGateway {
      * 获取自己教学的课程基础信息/获取自己所有教学的课程的详细信息
      *  @param semId 学期id
      *  @param userName 用户名
-     * @return List<SimpleResultCO>
+     * @return List<SelfTeachCourseCO>
      * */
     List<SelfTeachCourseCO> getSelfCourseInfo(String userName, Integer semId);
 
     /**
      * 获取自己的推荐选课
      * @param semId 学期id
-     * @return List<SingleCourseEntity>
+     * @return List<CourseEntity>
      * */
     List<CourseEntity> getSelfCourse(Integer semId);
+
+    /**
+     * 获取自己的推荐选课
+     * @param id 课程id
+     *  @param userName 用户名
+     * @return List<CourseEntity>
+     * */
+    List<SingleCourseEntity> getSelfCourseTime(String userName,Integer id);
 
 
 }

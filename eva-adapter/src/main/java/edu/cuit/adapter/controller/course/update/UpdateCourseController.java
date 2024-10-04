@@ -135,7 +135,9 @@ public class UpdateCourseController {
      * */
     @PostMapping("/course/table/isImported/{type}")
     @SaCheckPermission("course.table.import")
-    public CommonResult<Boolean> isImport(@PathVariable(required = true) Integer type,@Valid @RequestBody Term term){
+    public CommonResult<Boolean> isImport(
+            @PathVariable(value = "type",required = true) Integer type
+            ,@Valid @RequestBody Term term){
         return null;
     }
 

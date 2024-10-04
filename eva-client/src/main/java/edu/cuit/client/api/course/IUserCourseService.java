@@ -3,6 +3,7 @@ package edu.cuit.client.api.course;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.client.dto.clientobject.course.ModifySingleCourseDetailCO;
+import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
 
 
 import java.io.InputStream;
@@ -46,6 +47,12 @@ public interface IUserCourseService {
      * @param semId 学期id
      * */
     List<Void> selfCourseDetail(Integer semId);
+
+    /**
+     * 获取自己所有教学的课程的详细信息
+     * @param courseId 课程id
+     * */
+    List<SelfTeachCourseTimeCO> selfCourseTime(Integer courseId);
 
 
 }
