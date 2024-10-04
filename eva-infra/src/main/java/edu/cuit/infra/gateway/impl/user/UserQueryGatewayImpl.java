@@ -1,6 +1,6 @@
 package edu.cuit.infra.gateway.impl.user;
 
-import com.alibaba.cola.exception.BizException;
+import com.alibaba.cola.exception.SysException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -93,8 +93,8 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
         roleQuery
                 .select(SysRoleDO::getId)
                 .innerJoin(SysUserRoleDO.class,on -> on
-                        .eq(SysUserRoleDO::getUserId,userId)
-                        .eq(SysUserRoleDO::getRoleId,SysRoleDO::getId));
+                        .eq(SysUserRoleDO::getUserId,userId))
+                .eq(SysRoleDO::getId,SysUserRoleDO::getRoleId);
 
         return roleMapper.selectList(roleQuery).stream().map(SysRoleDO::getId).toList();
     }
@@ -120,9 +120,9 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
                     List<MenuEntity> menus = roleQueryGateway.getRoleMenuIds(roleDo.getId())
                             .stream()
                             .map(menuId -> menuQueryGateway.getOne(menuId).orElseThrow(() -> {
-                                BizException bizException = new BizException("菜单查询出错，请联系管理员");
-                                log.error("菜单查询出错",bizException);
-                                return bizException;
+                                SysException sysException = new SysException("菜单查询出错，请联系管理员");
+                                log.error("菜单查询出错",sysException);
+                                return sysException;
                             }))
                             .toList();
 
