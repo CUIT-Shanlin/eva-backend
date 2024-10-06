@@ -3,7 +3,9 @@ package edu.cuit.client.api.course;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.client.dto.clientobject.course.ModifySingleCourseDetailCO;
+import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
+import jakarta.validation.Valid;
 
 
 import java.io.InputStream;
@@ -53,6 +55,20 @@ public interface IUserCourseService {
      * @param courseId 课程id
      * */
     List<SelfTeachCourseTimeCO> selfCourseTime(Integer courseId);
+
+    /**
+     * 删除自己的一门课程
+     *  @param courseId 课程id
+     * */
+    Void deleteSelfCourse(Integer courseId);
+
+    /**
+     * 修改自己的一门课程信息及其课程时段
+     *@param selfTeachCourseCO 用于确定是导入实验课表还是理论课表，0：理论课，1：实验课
+     *  @param timeList 课表文件
+     * */
+   Void updateSelfCourse(SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeCO> timeList);
+
 
 
 }

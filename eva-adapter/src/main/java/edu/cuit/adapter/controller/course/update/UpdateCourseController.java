@@ -1,6 +1,8 @@
 package edu.cuit.adapter.controller.course.update;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
+import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
 import edu.cuit.client.dto.cmd.course.AlignTeacherCmd;
 import edu.cuit.client.dto.cmd.course.UpdateCourseCmd;
 import edu.cuit.client.dto.cmd.course.UpdateCoursesCmd;
@@ -13,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
  * 课程信息修改相关接口
@@ -138,6 +142,18 @@ public class UpdateCourseController {
     public CommonResult<Boolean> isImport(
             @PathVariable(value = "type",required = true) Integer type
             ,@Valid @RequestBody Term term){
+        return null;
+    }
+
+    /**
+    * 修改自己的一门课程信息及其课程时段
+     *@param selfTeachCourseCO 用于确定是导入实验课表还是理论课表，0：理论课，1：实验课
+     *  @param timeList 课表文件
+    * */
+    @PutMapping("/course/my/info/date")
+    public CommonResult<Void> updateSelfCourse(
+            @Valid @RequestBody SelfTeachCourseCO selfTeachCourseCO,
+            @Valid @RequestBody List<SelfTeachCourseTimeCO> timeList){
         return null;
     }
 

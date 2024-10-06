@@ -4,10 +4,7 @@ import cn.dev33.satoken.annotation.SaCheckPermission;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Array;
 import java.util.List;
@@ -68,6 +65,17 @@ public class DeleteCourseController {
     @SaCheckPermission("course.type.delete")
     public CommonResult<Void> deleteCoursesType(
             @RequestBody List<Integer> ids){
+
+        return null;
+    }
+
+    /**
+     * 删除自己的一门课程
+     *  @param courseId 课程id
+     * */
+    @DeleteMapping("/course/my/{courseId}")
+    public CommonResult<Void> deleteSelfCourse(
+           @PathVariable(value = "courseId") Integer courseId){
 
         return null;
     }

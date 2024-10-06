@@ -1,12 +1,19 @@
 package edu.cuit.domain.gateway.course;
 
+import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
+import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
 import edu.cuit.client.dto.cmd.course.AlignTeacherCmd;
 import edu.cuit.client.dto.cmd.course.UpdateCourseCmd;
 import edu.cuit.client.dto.cmd.course.UpdateSingleCourseCmd;
 import edu.cuit.client.dto.data.course.CourseType;
+import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * 课程更新相关数据门户接口
@@ -66,4 +73,11 @@ public interface CourseUpdateGateway {
      *
      * */
     Void importCourseFile(InputStream file);
+
+    /**
+     * 修改自己的一门课程信息及其课程时段
+     *@param selfTeachCourseCO 用于确定是导入实验课表还是理论课表，0：理论课，1：实验课
+     *  @param timeList 课表文件
+     * */
+    Void updateSelfCourse(String userName,SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeCO> timeList);
 }
