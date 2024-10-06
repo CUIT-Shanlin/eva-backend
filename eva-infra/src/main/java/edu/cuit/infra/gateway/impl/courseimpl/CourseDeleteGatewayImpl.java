@@ -7,9 +7,11 @@ import edu.cuit.domain.gateway.course.CourseDeleteGateway;
 import edu.cuit.infra.dal.database.dataobject.course.*;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO;
+import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.course.*;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
+import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,8 +29,11 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
     private final SubjectMapper subjectMapper;
     private final EvaTaskMapper evaTaskMapper;
     private final FormRecordMapper formRecordMapper;
+    private final SysUserMapper userMapper;
+
 
     @Override
+    @Transactional
     public Void deleteCourses(Integer semId, Integer id, Integer startWeek, Integer endWeek) {
         //先根据semId和id来找出课程数据
         QueryWrapper<CourInfDO> courseWrapper=new QueryWrapper<>();
@@ -41,6 +46,7 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
 
 
     @Override
+    @Transactional
     public Void deleteCourse(Integer semId, Integer id) {
         //删除课程表
         UpdateWrapper<CourseDO> courseWrapper=new UpdateWrapper<>();
@@ -60,11 +66,11 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         //删除评教任务数据
         QueryWrapper<EvaTaskDO> evaTaskWrapper=new QueryWrapper<>();
         evaTaskWrapper.eq("cour_inf_id",id);
+        List<Integer> taskIds = evaTaskMapper.selectList(evaTaskWrapper).stream().map(EvaTaskDO::getId).toList();
         evaTaskMapper.delete(evaTaskWrapper);
-        Integer taskId = evaTaskMapper.selectOne(evaTaskWrapper).getId();
         //根据任务Id删除评教表单记录
         UpdateWrapper<FormRecordDO> formRecordWrapper=new UpdateWrapper<>();
-        formRecordWrapper.eq("task_id",taskId);
+        formRecordWrapper.in("task_id",taskIds);
         formRecordMapper.delete(formRecordWrapper);
 
 
@@ -81,27 +87,34 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         courseTypeCourseMapper.delete(wrapper);
         List<CourseTypeCourseDO> courseTypeCourseDOS = courseTypeCourseMapper.selectList(wrapper);
 
-        //得到要删除的课程id集合
-        List<Integer> courseIds = courseTypeCourseDOS.stream().map(CourseTypeCourseDO::getCourseId).toList();
-        //通过课程id来找到对应科目的id集合
-        List<Integer> subjectIds = courseIds.stream().map(courseId -> courseMapper.selectById(courseId).getSubjectId()).toList();
         // 将对应课程类型的逻辑删除
         UpdateWrapper<CourseTypeDO> courseTypeWrapper=new UpdateWrapper<>();
         courseTypeWrapper.in("id",ids);
         courseTypeMapper.delete(courseTypeWrapper);
-        // 将课程表对应的课程逻辑删除
-        UpdateWrapper<CourseDO> courseWrapper=new UpdateWrapper<>();
-        courseWrapper.in("id",courseIds);
-        courseMapper.delete(courseWrapper);
-        //将课程对应的课程详情表也逻辑删除
-        UpdateWrapper<CourInfDO> courInfoWrapper=new UpdateWrapper<>();
-        courseWrapper.in("course_id",courseIds);
 
-        courInfMapper.delete(courInfoWrapper);
-        //将课程对应的科目表也逻辑删除
-        UpdateWrapper<SubjectDO> subjectWrapper=new UpdateWrapper<>();
-        courseWrapper.in("id",subjectIds);
-        subjectMapper.delete( subjectWrapper);
+        return null;
+    }
+
+    @Override
+    @Transactional
+    public Void deleteSelfCourse(String userName, Integer courseId) {
+        //先根据userName来找到用户id
+        Integer userId = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("username", userName)).getId();
+        //根据userId和courseId来删除课程表
+        CourseDO courseDO = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", courseId).eq("teacher_id", userId));
+        if(courseDO==null){
+            //课程不存在(抛出异常)
+            throw new RuntimeException("没有该用户对应课程");
+        }
+        courseMapper.delete(new UpdateWrapper<CourseDO>().eq("id", courseId).eq("teacher_id", userId));
+        subjectMapper.delete(new UpdateWrapper<SubjectDO>().eq("id", courseDO.getSubjectId()));
+        courInfMapper.delete(new UpdateWrapper<CourInfDO>().eq("course_id", courseId));
+        //删除评教相关数据
+        List<EvaTaskDO> taskIds = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courseId));
+        evaTaskMapper.delete(new UpdateWrapper<EvaTaskDO>().eq("cour_inf_id", courseId));
+        formRecordMapper.delete(new UpdateWrapper<FormRecordDO>().in("task_id", taskIds));
+
+
         return null;
     }
 }
