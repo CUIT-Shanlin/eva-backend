@@ -1,6 +1,7 @@
 package edu.cuit.infra.convertor.course;
 
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
+import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
 import edu.cuit.client.dto.clientobject.course.SubjectCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
 import edu.cuit.client.dto.cmd.course.UpdateSingleCourseCmd;
@@ -17,6 +18,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper(componentModel = "spring", uses = {EntityFactory.class})
@@ -61,7 +63,7 @@ public interface CourseConvertor {
             @Mapping(target = "courseBaseMsg.templateMsg",source = "template"),
             @Mapping(target = "courseBaseMsg.teacherInfoCO.id",source = "user.id"),
             @Mapping(target = "courseBaseMsg.teacherInfoCO.name",source = "user.username"),
-            @Mapping(target = "courseBaseMsg.teacherInfoCO.department",source = "user.department"),
+            @Mapping(target = "courseBaseMsg.teacherInfoCO.department",source = "user.department")
 
     })
     CourseDetailCO toCourseDetailCO(List<CourseType> typeList, List<CoursePeriod> dateList, SubjectDO courInfo
@@ -75,9 +77,21 @@ public interface CourseConvertor {
             @Mapping(target = "week",source = "time.week"),
             @Mapping(target = "day",source = "time.day"),
             @Mapping(target = "startTime",source = "time.startTime"),
-            @Mapping(target = "endTime",source = "time.endTime"),
+            @Mapping(target = "endTime",source = "time.endTime")
     })
     CourInfDO toCourInfDO(UpdateSingleCourseCmd singleCourse);
+
+    @Mappings({
+            @Mapping(target = "courseId",source = "courseId"),
+            @Mapping(target = "week",source = "week"),
+            @Mapping(target = "day",source = "selfTeachCourseTimeCO.day"),
+            @Mapping(target = "startTime",source = "selfTeachCourseTimeCO.startTime"),
+            @Mapping(target = "endTime",source = "selfTeachCourseTimeCO.endTime"),
+            @Mapping(target = "location",source = "selfTeachCourseTimeCO.location"),
+            @Mapping(target = "createTime",source = "time"),
+            @Mapping(target = "updateTime",source = "time")
+    })
+    CourInfDO toCourInfDO(SelfTeachCourseTimeCO selfTeachCourseTimeCO, Integer week, Integer courseId, LocalDateTime time);
     CourseTypeDO toCourseTypeDO(CourseType courseType);
 
 
