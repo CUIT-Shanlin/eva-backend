@@ -31,4 +31,11 @@ public interface CourseDeleteGateway {
      *   @param ids 课程类型数组
      * */
     Void deleteCourseType(List<Integer> ids);
+
+    /**
+     * 删除自己的一门课程
+     *  @param courseId 课程id
+     *  @param userName 用户名
+     * */
+    Void deleteSelfCourse(String userName,Integer courseId);
 }
