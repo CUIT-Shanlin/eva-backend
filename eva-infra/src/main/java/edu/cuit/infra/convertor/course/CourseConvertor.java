@@ -55,8 +55,8 @@ public interface CourseConvertor {
     @Mappings({
             @Mapping(target = "typeList",source = "typeList"),
             @Mapping(target = "dateList",source = "dateList"),
-            @Mapping(target = "courseBaseMsg.id",source = "courInfo.courseId"),
-            @Mapping(target = "courseBaseMsg.classroomList",source = "course.classRoom"),
+            @Mapping(target = "courseBaseMsg.id",source = "course.id"),
+            @Mapping(target = "courseBaseMsg.classroomList",source = "course.classroom"),
             @Mapping(target = "courseBaseMsg.name",source = "courInfo.name"),
             @Mapping(target = "courseBaseMsg.createTime",source = "courInfo.createTime"),
             @Mapping(target = "courseBaseMsg.updateTime",source = "courInfo.updateTime"),
@@ -87,7 +87,7 @@ public interface CourseConvertor {
             @Mapping(target = "day",source = "selfTeachCourseTimeCO.day"),
             @Mapping(target = "startTime",source = "selfTeachCourseTimeCO.startTime"),
             @Mapping(target = "endTime",source = "selfTeachCourseTimeCO.endTime"),
-            @Mapping(target = "location",source = "selfTeachCourseTimeCO.location"),
+            @Mapping(target = "location",source = "selfTeachCourseTimeCO.classroom"),
             @Mapping(target = "createTime",source = "time"),
             @Mapping(target = "updateTime",source = "time")
     })

@@ -28,6 +28,7 @@ import edu.cuit.domain.entity.user.biz.MenuEntity;
 import edu.cuit.domain.entity.user.biz.RoleEntity;
 import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
+import edu.cuit.infra.convertor.PaginationConverter;
 import edu.cuit.infra.convertor.course.CourseConvertor;
 import edu.cuit.infra.convertor.user.MenuConvertor;
 import edu.cuit.infra.convertor.user.RoleConverter;
@@ -76,6 +77,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     private final SysUserRoleMapper userRoleMapper;
     private final SysMenuMapper menuMapper;
     private final SysRoleMenuMapper roleMenuMapper;
+    private final PaginationConverter paginationConverter;
     @Override
     public List<CourseEntity> page(PagingQuery<CourseConditionalQuery> courseQuery, Integer semId) {
 
@@ -100,11 +102,13 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         }
 
         pageCourse = courseMapper.selectPage(pageCourse,courseWrapper);
-        List<CourseDO> records = pageCourse.getRecords();
-        List<CourseEntity> list = records.stream().map(courseDO -> toCourseEntity(courseDO.getId(), semId)).toList();
+        paginationConverter.toPaginationEntity(pageCourse,pageCourse.getRecords());
+        //TODO
+        /*List<CourseDO> records = pageCourse.getRecords();
+        List<CourseEntity> list = records.stream().map(courseDO -> toCourseEntity(courseDO.getId(), semId)).toList();*/
 
 
-        return list;
+        return null;
     }
 
     @Override
