@@ -12,6 +12,7 @@ import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.CourseConditionalQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.client.dto.query.condition.MobileCourseQuery;
+import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.course.CourseEntity;
 import edu.cuit.domain.entity.course.CourseTypeEntity;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
@@ -32,7 +33,7 @@ public interface CourseQueryGateway {
      * @param courseQuery 课程查询参数
      * @return List<CourseEntity>
      */
-    List<CourseEntity> page(PagingQuery<CourseConditionalQuery> courseQuery, Integer semId);
+    PaginationResultEntity<CourseEntity> page(PagingQuery<CourseConditionalQuery> courseQuery, Integer semId);
 
     /**
      * 获取一门课程的信息
@@ -94,7 +95,7 @@ public interface CourseQueryGateway {
      * @param  courseQuery 课程查询参数
      * @return List<CourseTypeEntity>
      * */
-    List<CourseTypeEntity> pageCourseType(PagingQuery<GenericConditionalQuery> courseQuery);
+    PaginationResultEntity<CourseTypeEntity> pageCourseType(PagingQuery<GenericConditionalQuery> courseQuery);
 
     /**
      * 获取单个用户的教学课程的详细信息

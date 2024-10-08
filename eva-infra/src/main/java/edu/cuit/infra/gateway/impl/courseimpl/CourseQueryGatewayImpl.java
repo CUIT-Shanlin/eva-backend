@@ -23,6 +23,7 @@ import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.CourseConditionalQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.client.dto.query.condition.MobileCourseQuery;
+import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.course.*;
 import edu.cuit.domain.entity.user.biz.MenuEntity;
 import edu.cuit.domain.entity.user.biz.RoleEntity;
@@ -79,13 +80,13 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     private final SysRoleMenuMapper roleMenuMapper;
     private final PaginationConverter paginationConverter;
     @Override
-    public List<CourseEntity> page(PagingQuery<CourseConditionalQuery> courseQuery, Integer semId) {
+    public PaginationResultEntity<CourseEntity> page(PagingQuery<CourseConditionalQuery> courseQuery, Integer semId) {
 
 
         // 根据courseQuery中的departmentName以及courseQuery中的页数和一页显示数到userMapper中找对应数量的对应用户id，
         List<Integer> userIds=null;
         if(courseQuery.getQueryObj().getDepartmentName()!=null){
-            Page<SysUserDO> pageUser=new Page<>(courseQuery.getPage(),courseQuery.getSize());
+            Page<SysUserDO> pageUser=new Page<>();
             pageUser=userMapper.selectPage(pageUser,new QueryWrapper<SysUserDO>().like("department",courseQuery.getQueryObj().getDepartmentName()));
             userIds=pageUser.getRecords().stream().map(SysUserDO::getId).toList();
         }
@@ -102,13 +103,13 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         }
 
         pageCourse = courseMapper.selectPage(pageCourse,courseWrapper);
-        paginationConverter.toPaginationEntity(pageCourse,pageCourse.getRecords());
-        //TODO
-        /*List<CourseDO> records = pageCourse.getRecords();
-        List<CourseEntity> list = records.stream().map(courseDO -> toCourseEntity(courseDO.getId(), semId)).toList();*/
+        //将paginationEntity中的records类型转化成CourseEntity
+        List<CourseDO> records = pageCourse.getRecords();
+        List<CourseEntity> list = records.stream().map(courseDO -> toCourseEntity(courseDO.getId(), semId)).toList();
+        PaginationResultEntity<CourseEntity> paginationEntity = paginationConverter.toPaginationEntity(pageCourse, list);
 
 
-        return null;
+        return paginationEntity;
     }
 
     @Override
@@ -348,7 +349,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     }
 
     @Override
-    public List<CourseTypeEntity> pageCourseType(PagingQuery<GenericConditionalQuery> courseQuery) {
+    public PaginationResultEntity<CourseTypeEntity> pageCourseType(PagingQuery<GenericConditionalQuery> courseQuery) {
         Page<CourseTypeDO> page =new Page<>(courseQuery.getPage(),courseQuery.getSize());
         QueryWrapper<CourseTypeDO> queryWrapper = new QueryWrapper<>();
             if(courseQuery.getQueryObj().getKeyword()!=null){
@@ -356,10 +357,9 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
             }
            QueryUtils.fileTimeQuery(queryWrapper,courseQuery.getQueryObj());
             Page<CourseTypeDO> courseTypeDOPage = courseTypeMapper.selectPage(page, queryWrapper);
-       return courseTypeDOPage.getRecords().stream().map(courseTypeDO -> courseConvertor.toCourseTypeEntity(courseTypeDO)).toList();
-
-
-
+            List<CourseTypeDO> records = courseTypeDOPage.getRecords();
+        List<CourseTypeEntity> list = records.stream().map(courseTypeDO -> courseConvertor.toCourseTypeEntity(courseTypeDO)).toList();
+        return paginationConverter.toPaginationEntity(courseTypeDOPage,list);
     }
 
     @Override
