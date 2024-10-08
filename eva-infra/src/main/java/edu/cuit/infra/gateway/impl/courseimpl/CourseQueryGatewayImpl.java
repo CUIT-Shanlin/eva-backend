@@ -4,11 +4,11 @@ package edu.cuit.infra.gateway.impl.courseimpl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.fasterxml.jackson.core.JacksonException;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.cuit.client.bo.EvaProp;
-import edu.cuit.client.dto.clientobject.SimpleResultCO;
+
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SingleCourseCO;
@@ -25,7 +25,7 @@ import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.client.dto.query.condition.MobileCourseQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.course.*;
-import edu.cuit.domain.entity.user.biz.MenuEntity;
+
 import edu.cuit.domain.entity.user.biz.RoleEntity;
 import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
@@ -46,11 +46,7 @@ import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
 import edu.cuit.infra.dal.database.mapper.user.*;
 import edu.cuit.infra.util.QueryUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Component;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -62,7 +58,6 @@ import java.util.stream.Collectors;
 public class CourseQueryGatewayImpl implements CourseQueryGateway {
     private final CourseConvertor courseConvertor;
     private final RoleConverter roleConverter;
-    private final MenuConvertor menuConvertor;
     private final UserConverter userConverter;
     private final CourInfMapper courInfMapper;
     private final CourseMapper courseMapper;
@@ -76,7 +71,6 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     private final FormRecordMapper formRecordMapper;
     private final SysRoleMapper roleMapper;
     private final SysUserRoleMapper userRoleMapper;
-    private final SysMenuMapper menuMapper;
     private final SysRoleMenuMapper roleMenuMapper;
     private final PaginationConverter paginationConverter;
     @Override

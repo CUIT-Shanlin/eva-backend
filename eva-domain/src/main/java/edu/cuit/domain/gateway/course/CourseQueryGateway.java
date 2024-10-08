@@ -1,12 +1,12 @@
 package edu.cuit.domain.gateway.course;
 
-import edu.cuit.client.dto.clientobject.SimpleResultCO;
+
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SingleCourseCO;
-import edu.cuit.client.dto.clientobject.course.SingleCourseDetailCO;
+
 import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
-import edu.cuit.client.dto.data.course.CourseType;
+
 import edu.cuit.client.dto.query.CourseQuery;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.CourseConditionalQuery;
