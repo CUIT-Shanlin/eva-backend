@@ -32,9 +32,10 @@ public interface CourseUpdateGateway {
      * 修改一门课程
      *@param semId 学期id
      *@param updateSingleCourseCmd 修改课程信息
+     *@param userName 用户名
      *
      * */
-    Void updateSingleCourse(Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd);
+    Void updateSingleCourse(String userName,Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd);
 
     /**
      * 修改一节课的类型
