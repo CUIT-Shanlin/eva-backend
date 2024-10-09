@@ -200,45 +200,32 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
 
     @Override
     public List<List<Integer>> getWeekCourses(Integer week, Integer semId) {
+        //根据学期semId来找到这学期所有的课程ids
+        List<Integer> courseIds = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId)).stream().map(CourseDO::getId).toList();
         //根据学期semId和周数week来查询课程表（CourInfDO）再根据day来分组
-        List<CourInfDO> list = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("semester_id", semId).eq("week", week));
+        List<CourInfDO> list = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", courseIds).eq("week", week));
         Map<Integer,List<CourInfDO>> map=new HashMap<>();
+        //初始化map集合
+        for (int i = 1; i <= 7; i++) {
+            map.put(i,new ArrayList<>());
+        }
+        //将courInfDO集合添加到map集合中
         for (CourInfDO  courInfo : list) {
-            if(map.containsKey(courInfo.getDay())){
                 map.get(courInfo.getDay()).add(courInfo);
-            }else{
-                List<CourInfDO> list1=new ArrayList<>();
-                list1.add(courInfo);
-                map.put(courInfo.getDay(),list1);
-            }
         }
         List<List<Integer>> result=new ArrayList<>();
-       Map<Integer,Integer> mapNum=new HashMap<>();
-        //根据day(星期几)来确定每个上课时间段，有多少节课
-        for (Map.Entry<Integer, List<CourInfDO>> integerListEntry : map.entrySet()) {
-            //存储每个上课时间段有多少节课
+        //每一天可能有6节大课，每一节大课开始时间一样
+        for (int i=1;i<=6;i++){
             List<Integer> newList=new ArrayList<>();
-            //遍历每一天总共的课程，并且将每个时间段对应的课程数，放入mapNum中
-            integerListEntry.getValue().stream().forEach(courInfDO -> {
-                if(mapNum.containsKey(courInfDO.getStartTime())){
-                    mapNum.put(courInfDO.getStartTime(),mapNum.get(courInfDO.getStartTime())+1);
-                }else{
-                   mapNum.put(courInfDO.getStartTime(),1);
-                }
-                });
-            //遍历mapNum，将每个时间段对应的课程数，放入newList中
-            mapNum.entrySet().stream().forEach(entry -> {
-                newList.add(entry.getValue());
-            });
+            int finalI = i;
+            for(int j=1;j<=7;j++){
+                int sum= (int) map.get(j).stream().filter(courInfDO -> courInfDO.getStartTime() == 2 * finalI - 1).count();
+                newList.add(sum);
+            }
             result.add(newList);
-            //清空mapNum和newList
-            mapNum.clear();
             newList.clear();
         }
-
-
-
-        return null;
+        return result;
     }
 
     @Override
