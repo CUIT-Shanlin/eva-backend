@@ -2,6 +2,8 @@ package edu.cuit.infra.convertor.user;
 
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
+import edu.cuit.client.dto.cmd.user.NewUserCmd;
+import edu.cuit.client.dto.cmd.user.UpdateUserCmd;
 import edu.cuit.domain.entity.user.biz.MenuEntity;
 import edu.cuit.domain.entity.user.biz.RoleEntity;
 import edu.cuit.domain.entity.user.biz.UserEntity;
@@ -34,4 +36,21 @@ public interface UserConverter {
             @Mapping(target = "extValues", ignore = true)
     })
     UnqualifiedUserInfoCO toUnqualifiedUserInfo(SysUserDO userDO,Integer finishedEvaNum);
+
+    @Mappings({
+            @Mapping(target = "sex",ignore = true),
+            @Mapping(target = "createTime",ignore = true),
+            @Mapping(target = "updateTime",ignore = true),
+            @Mapping(target = "isDeleted",ignore = true)
+    })
+    SysUserDO toUserDO(UpdateUserCmd cmd);
+
+    @Mappings({
+            @Mapping(target = "id", ignore = true),
+            @Mapping(target = "sex",ignore = true),
+            @Mapping(target = "createTime",ignore = true),
+            @Mapping(target = "updateTime",ignore = true),
+            @Mapping(target = "isDeleted",ignore = true)
+    })
+    SysUserDO toUserDO(NewUserCmd cmd);
 }
