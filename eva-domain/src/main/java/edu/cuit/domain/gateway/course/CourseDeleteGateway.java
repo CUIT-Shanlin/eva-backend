@@ -1,5 +1,6 @@
 package edu.cuit.domain.gateway.course;
 
+import edu.cuit.client.dto.data.course.CoursePeriod;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,10 +15,9 @@ public interface CourseDeleteGateway {
      * 批量删除某节课
      *  @param semId 学期id
      *  @param id 对应课程编号
-     *  @param startWeek 从哪一周开始删除
-     *  @param endWeek 从哪一周结束删除
+     *  @param coursePeriod 课程的一段时间模型
      * */
-    Void deleteCourses(Integer semId,Integer id,Integer startWeek,Integer endWeek);
+    Void deleteCourses(Integer semId, Integer id, CoursePeriod coursePeriod);
 
     /**
      * 连带删除一门课程
