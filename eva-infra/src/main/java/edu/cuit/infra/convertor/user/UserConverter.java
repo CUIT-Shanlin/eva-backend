@@ -14,13 +14,14 @@ import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
+import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
 
 /**
  * 用户对象转换器
  */
-@Mapper(componentModel = "spring",uses = EntityFactory.class)
+@Mapper(componentModel = "spring",uses = EntityFactory.class,unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserConverter {
 
     @Mappings({

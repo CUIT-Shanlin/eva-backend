@@ -10,13 +10,12 @@ import org.mapstruct.*;
 /**
  * Ldap用户对象转换器
  */
-@Mapper(componentModel = "spring",uses = EntityFactory.class)
+@Mapper(componentModel = "spring",uses = EntityFactory.class,unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface LdapUserConvertor {
 
     @Mappings({
             @Mapping(target = "name", expression = "java(ldapPersonDO.getSurname()+ldapPersonDO.getGivenName())"),
-            @Mapping(target = "isAdmin", ignore = true),
-            @Mapping(target = "ldapPersonGateway", ignore = true)
+            @Mapping(target = "isAdmin", ignore = true)
     })
     LdapPersonEntity ldapPersonDoToLdapPersonEntity(LdapPersonDO ldapPersonDO);
 
@@ -39,6 +38,11 @@ public interface LdapUserConvertor {
     })
     LdapPersonDO userDOToLdapPersonDO(SysUserDO userDO);
 
+    @AfterMapping
+    default void afterPersonDoToPersonEntity(SysUserDO userDO, @MappingTarget LdapPersonDO personDO) {
+        personDO.setId(EvaLdapUtils.getUserLdapNameId(userDO.getUsername()));
+    }
+
     @Mappings({
             @Mapping(target = "commonName", ignore = true),
             @Mapping(target = "gidNumber", ignore = true),
@@ -48,4 +52,9 @@ public interface LdapUserConvertor {
             @Mapping(target = "userPassword", ignore = true)
     })
     LdapPersonDO ldapPersonEntityToLdapPersonDO(LdapPersonEntity ldapPersonEntity);
+
+    @AfterMapping
+    default void afterPersonDoToPersonEntity(LdapPersonEntity personEntity, @MappingTarget LdapPersonDO personDO) {
+        personDO.setId(EvaLdapUtils.getUserLdapNameId(personEntity.getUsername()));
+    }
 }

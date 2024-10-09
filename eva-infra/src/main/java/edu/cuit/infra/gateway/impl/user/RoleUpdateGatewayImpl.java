@@ -3,9 +3,13 @@ package edu.cuit.infra.gateway.impl.user;
 import edu.cuit.client.dto.cmd.user.NewRoleCmd;
 import edu.cuit.client.dto.cmd.user.UpdateRoleCmd;
 import edu.cuit.domain.gateway.user.RoleUpdateGateway;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@RequiredArgsConstructor
+@Component
 public class RoleUpdateGatewayImpl implements RoleUpdateGateway {
 
     @Override
