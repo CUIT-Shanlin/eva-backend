@@ -7,6 +7,7 @@ import edu.cuit.client.dto.clientobject.course.SingleCourseCO;
 import edu.cuit.client.dto.clientobject.course.SingleCourseDetailCO;
 import edu.cuit.client.dto.cmd.course.AlignTeacherCmd;
 import edu.cuit.client.dto.cmd.course.UpdateSingleCourseCmd;
+import edu.cuit.client.dto.data.course.CoursePeriod;
 import edu.cuit.client.dto.query.CourseQuery;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.CourseConditionalQuery;
@@ -75,9 +76,8 @@ public interface ICourseService {
      * 批量删除某节课
      *  @param semId 学期id
      *  @param id 对应课程编号
-     *  @param startWeek 从哪一周开始删除
-     *  @param endWeek 从哪一周结束删除
+     *  @param coursePeriod 课程的一段时间模型
      * */
-    void deleteCourses(Integer semId,Integer id,Integer startWeek,Integer endWeek);
+    void deleteCourses(Integer semId, Integer id, CoursePeriod coursePeriod );
 
 }
