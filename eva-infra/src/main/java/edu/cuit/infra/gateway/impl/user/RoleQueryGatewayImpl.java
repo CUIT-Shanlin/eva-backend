@@ -44,7 +44,7 @@ public class RoleQueryGatewayImpl implements RoleQueryGateway {
     @Override
     public Optional<RoleEntity> getById(Integer roleId) {
         Optional<RoleEntity> roleEntity = Optional.ofNullable(roleConverter.toRoleEntity(roleMapper.selectById(roleId)));
-        roleEntity.ifPresent(this::fileRoleEntity);
+        roleEntity.ifPresent(this::fillRoleEntity);
         return roleEntity;
     }
 
@@ -79,9 +79,9 @@ public class RoleQueryGatewayImpl implements RoleQueryGateway {
     }
 
     /**
-     * 填充roleEntlty字段
+     * 填充roleEntity字段
      */
-    private void fileRoleEntity(RoleEntity roleEntity) {
+    private void fillRoleEntity(RoleEntity roleEntity) {
         roleEntity.setMenus(getRoleMenuIds(roleEntity.getId())
                 .stream().map(menuId -> menuQueryGateway.getOne(menuId).orElseThrow(() -> {
                     SysException sysException = new SysException("菜单查询异常，请联系管理员");
