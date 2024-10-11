@@ -1,13 +1,22 @@
 package edu.cuit.domain.gateway.eva;
 
 import edu.cuit.client.dto.clientobject.eva.*;
+import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
+import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
+import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.EvaLogConditionalQuery;
 import edu.cuit.client.dto.query.condition.EvaTaskConditionalQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
+import edu.cuit.client.dto.query.condition.UnqualifiedUserConditionalQuery;
+import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.eva.EvaRecordEntity;
 import edu.cuit.domain.entity.eva.EvaTaskEntity;
 import edu.cuit.domain.entity.eva.EvaTemplateEntity;
+import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,38 +30,37 @@ public interface EvaQueryGateway {
     /**
      *分页获取评教记录+条件查询，keyword模糊查询 教学课程
      * @param semId 学期id
-     * @param evaLogConditionalQuery 查询参数
+     * @param evaLogQuery 查询参数
      * @return List<EvaRecordEntity>
      */
-    List<EvaRecordEntity> pageEvaRecord(Integer semId, EvaLogConditionalQuery evaLogConditionalQuery);
+    List<EvaRecordEntity> pageEvaRecord(Integer semId, PagingQuery<EvaLogConditionalQuery> evaLogQuery);
     /**
      *分页获取未完成的评教任务+条件查询
      * @param semId 学期id
-     * @param evaTaskConditionalQuery 查询参数
-     * @param evaTaskConditionalQuery 查询参数
+     * @param taskQuery 查询参数
      * @return List<EvaTaskEntity>
      */
-    List<EvaTaskEntity> pageEvaUnfinishedTask(Integer semId, EvaTaskConditionalQuery evaTaskConditionalQuery);
+    List<EvaTaskEntity> pageEvaUnfinishedTask(Integer semId, PagingQuery<EvaTaskConditionalQuery> taskQuery);
     /**
      *分页获取评教模板信息
      * @param semId 学期id
-     * @param genericConditionalQuery 查询参数
+     * @param query 查询参数
      * @return List<EvaTemplateEntity>
      */
-    List<EvaTemplateEntity> pageEvaTemplate(Integer semId, GenericConditionalQuery genericConditionalQuery);
+    List<EvaTemplateEntity> pageEvaTemplate(Integer semId, PagingQuery<GenericConditionalQuery> query);
 
     /**
-     * 获取单个用户的待办评教任务，主要用于移动端
-     * @param id 用户 ID 编号
-     * @return List<EvaTaskEntity>
+     * 获取自己的所有待办评教任务
+     * @param id 学期ID 编号
+     * @param keyword 模糊查询课程名称或教学老师姓名
      */
-    List<EvaTaskEntity> evaUnfinishedTaskInfo(Integer id);
+    List<EvaTaskEntity> evaSelfTaskInfo(Integer id, String keyword);
     /**
-     * 获取单个用户的评教记录
-     * @param id 用户 ID 编号
-     * @return List<EvaRecordEntity>
+     * 获取自己的评教记录
+     * @param id 学期ID 编号
+     * @param keyword 模糊查询课程名称或教学老师姓名
      */
-    List<EvaRecordEntity> oneEvaLogInfo(Integer id);
+    List<EvaRecordEntity> getEvaLogInfo(Integer id,String keyword);
     /**
      * 获取一个评教任务的详细信息
      * @param id 任务id
@@ -84,4 +92,40 @@ public interface EvaQueryGateway {
      * @return PastTimeEvaDetailCO
      */
     Optional<PastTimeEvaDetailCO> getEvaData(Integer semId, Integer num, Integer target, Integer evaTarget);
+
+    /**
+     * 获取指定数量评教任务未达标用户信息
+     * @param query 查询对象
+     * @param num 前几个用户数据
+     * @param target 评教的目标 数目，大于等于该数目则达标，小于则未达标
+     */
+    Optional<UnqualifiedUserResultCO> getEvaTargetAmountUnqualifiedUser(UnqualifiedUserConditionalQuery query, Integer num, Integer target);
+
+    /**
+     * 获取指定数量被评教任务未达标用户信息
+     * @param query 查询对象
+     * @param num 前几个用户数据
+     * @param target 被评教的目标 数目，大于等于该数目则达标，小于则未达标
+     */
+    Optional<UnqualifiedUserResultCO> getBeEvaTargetAmountUnqualifiedUser(UnqualifiedUserConditionalQuery query,Integer num,Integer target);
+
+    /**
+     * 分页获取评教未达标用户
+     * @param query 查询对象
+     * @param target 评教的目标 数目，大于等于该数目则达标，小于则未达标
+     */
+    PaginationResultEntity<UnqualifiedUserInfoCO> pageEvaUnqualifiedUserInfo(PagingQuery<UnqualifiedUserConditionalQuery> query, Integer target);
+
+    /**
+     * 分页获取被评教未达标用户
+     * @param query 查询对象
+     * @param target 被评教的目标 数目，大于等于该数目则达标，小于则未达标
+     */
+    PaginationResultEntity<UnqualifiedUserInfoCO> pageBeEvaUnqualifiedUserInfo(PagingQuery<UnqualifiedUserConditionalQuery> query,Integer target);
+
+    /**
+     * 获取用户已评教数目
+     * @param id 用户id
+     */
+    Integer getEvaNumber(Long id);
 }

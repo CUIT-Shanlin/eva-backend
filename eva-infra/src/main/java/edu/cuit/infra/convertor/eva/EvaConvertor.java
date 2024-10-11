@@ -1,5 +1,7 @@
 package edu.cuit.infra.convertor.eva;
 
+import edu.cuit.client.dto.clientobject.eva.EvaTaskFormCO;
+import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
 import edu.cuit.domain.entity.course.CourseEntity;
 import edu.cuit.domain.entity.course.SemesterEntity;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
@@ -8,15 +10,17 @@ import edu.cuit.domain.entity.eva.EvaRecordEntity;
 import edu.cuit.domain.entity.eva.EvaTaskEntity;
 import edu.cuit.domain.entity.eva.EvaTemplateEntity;
 import edu.cuit.domain.entity.user.biz.UserEntity;
+import edu.cuit.infra.convertor.EntityFactory;
 import edu.cuit.infra.dal.database.dataobject.eva.CourOneEvaTemplateDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO;
+import edu.cuit.infra.dal.database.dataobject.eva.FormTemplateDO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 
-@Mapper(componentModel = "spring")
-public interface EvaConertor {
+@Mapper(componentModel = "spring",uses = EntityFactory.class)
+public interface EvaConvertor {
     @Mappings({
             @Mapping(target = "id",source = "courOneEvaTemplateDO.id"),
             @Mapping(target = "semester",source = "semester"),
@@ -29,13 +33,12 @@ public interface EvaConertor {
             @Mapping(target = "id",source = "evaTaskDO.id"),
             @Mapping(target = "teacher",source = "teacher"),
             @Mapping(target = "courInf",source = "courInf"),
-            @Mapping(target = "evaTemplate",source = "evaTemplate"),
             @Mapping(target = "status",source = "evaTaskDO.status"),
             @Mapping(target = "createTime",source = "evaTaskDO.createTime"),
             @Mapping(target = "updateTime",source = "evaTaskDO.updateTime"),
             @Mapping(target = "isDeleted",source = "evaTaskDO.isDeleted")
     })
-    EvaTaskEntity ToEvaTaskEntity(EvaTaskDO evaTaskDO,UserEntity teacher, SingleCourseEntity courInf, CourOneEvaTemplateEntity evaTemplate);
+    EvaTaskEntity ToEvaTaskEntity(EvaTaskDO evaTaskDO,UserEntity teacher, SingleCourseEntity courInf);
     @Mappings({
             @Mapping(target = "id",source = "formRecordDO.id"),
             @Mapping(target = "task",source = "task"),
@@ -45,5 +48,10 @@ public interface EvaConertor {
             @Mapping(target = "isDeleted",source = "formRecordDO.isDeleted")
     })
     EvaRecordEntity ToEvaRecordEntity(FormRecordDO formRecordDO, EvaTaskEntity task);
-    EvaTemplateEntity ToEvaTemplateEntity(FormRecordDO formRecordDO);
+    EvaTemplateEntity ToEvaTemplateEntity(FormTemplateDO formTemplateDO);
+
+    FormTemplateDO ToEvaTemplateDO(EvaTemplateCO evaTemplateCO);
+
+
+
 }

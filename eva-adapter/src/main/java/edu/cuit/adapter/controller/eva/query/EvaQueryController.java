@@ -103,10 +103,12 @@ public class EvaQueryController {
     /**
      * 获取自己的评教记录
      * @param id 用户 ID 编号
+     * @param keyword 模糊查询的关键字，模糊查询课程名称或教学老师姓名
      */
     @GetMapping("/evaluate/records")
     public CommonResult<List<EvaRecordCO>> getEvaLogInfo(
-            @RequestParam(value = "id",required = false) Integer id){
+            @RequestParam(value = "id",required = false) Integer id,
+            @PathVariable ("keyword") String keyword){
         return null;
     }
     /**

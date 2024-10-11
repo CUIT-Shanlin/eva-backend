@@ -2,7 +2,7 @@ package edu.cuit.infra.dal.database.mapper.eva;
 
 import com.github.yulichang.base.MPJBaseMapper;
 import edu.cuit.infra.dal.database.dataobject.eva.FormTemplateDO;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -13,7 +13,6 @@ import org.apache.ibatis.annotations.Mapper;
 */
 @Mapper
 public interface FormTemplateMapper extends MPJBaseMapper<FormTemplateDO> {
-
 }
 
 

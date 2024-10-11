@@ -3,6 +3,8 @@ package edu.cuit.domain.gateway.eva;
 import edu.cuit.client.dto.clientobject.eva.EvaInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskFormCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
+import edu.cuit.domain.entity.eva.EvaTaskEntity;
+import edu.cuit.domain.entity.eva.EvaTemplateEntity;
 import org.springframework.stereotype.Component;
 import java.util.List;
 
@@ -13,22 +15,22 @@ import java.util.List;
 public interface EvaUpdateGateway {
     /**
      * 修改评教模板
-     * @param evaTemplateCO 评教模板类型
+     * @param evaTemplateCO EvaTemplateCO
      */
     Void updateEvaTemplate(EvaTemplateCO evaTemplateCO);
     /**
      * 提交评教表单，完成评教任务
-     * @param evaTaskFormCO 评教表单评价分值dto
+     * @param evaTaskFormCO EvaTaskFormCO
      */
     Void putEvaTemplate(EvaTaskFormCO evaTaskFormCO);
     /**
      * 发起评教任务
-     *@param evaInfoCO 评教信息dto
+     *@param evaInfoCO EvaInfoCO
      */
     Void postEvaTask(EvaInfoCO evaInfoCO);
     /**
      * 新建评教模板
-     * @param evaTemplateCO 评教模板dto
+     * @param evaTemplateCO EvaTemplateCO
      */
     Void addEvaTemplate(EvaTemplateCO evaTemplateCO);
     /**
@@ -36,4 +38,5 @@ public interface EvaUpdateGateway {
      * @param id 任务id
      */
     Void cancelEvaTaskById(Integer id);
+
 }
