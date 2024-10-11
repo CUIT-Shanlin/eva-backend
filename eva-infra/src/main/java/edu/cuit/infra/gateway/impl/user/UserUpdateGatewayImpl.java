@@ -6,8 +6,6 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import edu.cuit.client.dto.cmd.user.NewUserCmd;
 import edu.cuit.client.dto.cmd.user.UpdateUserCmd;
-import edu.cuit.domain.entity.user.biz.UserEntity;
-import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.domain.gateway.user.UserUpdateGateway;
 import edu.cuit.infra.convertor.user.LdapUserConvertor;
 import edu.cuit.infra.convertor.user.UserConverter;
@@ -21,9 +19,7 @@ import edu.cuit.infra.util.EvaLdapUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Component
@@ -32,8 +28,6 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
     private final SysUserMapper userMapper;
     private final SysUserRoleMapper userRoleMapper;
     private final LdapPersonRepo ldapPersonRepo;
-
-    private final UserQueryGateway userQueryGateway;
 
     private final UserConverter userConverter;
     private final LdapUserConvertor ldapUserConvertor;
@@ -67,6 +61,7 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
         checkIdExistence(userId);
         userMapper.deleteById(userId);
         ldapPersonRepo.deleteById(EvaLdapUtils.getUserLdapNameId(getUsername(userId)));
+        userRoleMapper.delete(Wrappers.lambdaQuery(SysUserRoleDO.class).eq(SysUserRoleDO::getUserId,userId));
     }
 
     @Override
