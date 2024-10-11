@@ -121,10 +121,10 @@ public interface CourseQueryGateway {
     List<CourseEntity> getSelfCourse(Integer semId);
 
     /**
-     * 获取自己的推荐选课
+     * 获取自己教学的一门课程的课程时段
      * @param id 课程id
      *  @param userName 用户名
-     * @return List<CourseEntity>
+     * @return List<SingleCourseEntity>
      * */
     List<SingleCourseEntity> getSelfCourseTime(String userName,Integer id);
 

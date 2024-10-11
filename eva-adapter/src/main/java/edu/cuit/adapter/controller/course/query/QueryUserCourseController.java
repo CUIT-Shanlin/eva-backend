@@ -80,7 +80,7 @@ public class QueryUserCourseController {
     }
 
     /**
-     * 获取自己所有教学的课程的详细信息
+     * 获取自己教学的一门课程的课程时段
      * @param courseId 课程id
      * */
     @GetMapping("/course/my/date/{courseId}")
