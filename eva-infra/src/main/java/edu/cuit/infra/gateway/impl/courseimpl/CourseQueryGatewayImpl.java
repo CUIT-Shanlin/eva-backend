@@ -124,8 +124,8 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
        //根据courseDO中的teacherId来查询课程对应的教师信息
         SysUserDO sysUserDO = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("id", courseDO.getTeacherId()));
         //先根据课程ID来查询课程detail信息
-
-        List<CoursePeriod> courseTimeList = toGetCourseTime(id);
+        List<String> classRoomList = new ArrayList<>();
+        List<CoursePeriod> courseTimeList = toGetCourseTime(id,classRoomList);
         //根据id查询课程类型表，得到课程类型的id集合
         List<Integer> courseTypeIds = courseTypeCourseMapper.selectList(new QueryWrapper<CourseTypeCourseDO>().eq("course_id", id)).stream().map(CourseTypeCourseDO::getTypeId).toList();
         //根据courseTypeIds查询课程类型表，得到课程类型的集合
@@ -135,7 +135,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
 
         //组装CourseDtailCO
         CourseDetailCO courseDetailCO = courseConvertor.toCourseDetailCO(courseTypeList
-                , courseTimeList, subjectDO, courseDO, evaTemplateCO, sysUserDO);
+                , courseTimeList, subjectDO, evaTemplateCO, sysUserDO,classRoomList);
         return Optional.of(courseDetailCO);
 
     }
@@ -451,7 +451,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         }
         return null;
     }
-    private List<CoursePeriod> toGetCourseTime( Integer id){
+    private List<CoursePeriod> toGetCourseTime( Integer id,List<String> list){
         QueryWrapper<CourInfDO> queryWrapper = Wrappers.query();
         queryWrapper.eq("course_id", id);
         // 执行查询
@@ -484,6 +484,12 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
                 coursePeriod.setStartTime(minWeek.getStartTime());
                 coursePeriod.setEndTime(maxWeek.getEndTime());
                 finalResult.add(coursePeriod);
+                if(!list.contains(maxWeek.getLocation())){
+                    list.add(maxWeek.getLocation());
+                }
+                if(!list.contains(minWeek.getLocation())){
+                    list.add(minWeek.getLocation());
+                }
             }
 
 
