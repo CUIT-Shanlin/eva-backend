@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -257,5 +258,64 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         }
 
         return null;
+    }
+
+    @Override
+    @Transactional
+    public Void addExistCoursesDetails(Integer courseId, SelfTeachCourseTimeCO timeCO) {
+        for (Integer week : timeCO.getWeeks()) {
+            CourInfDO courInfDO=new CourInfDO();
+            courInfDO.setCourseId(courseId);
+            courInfDO.setWeek(week);
+            courInfDO.setDay(timeCO.getDay());
+            courInfDO.setStartTime(timeCO.getStartTime());
+            courInfDO.setEndTime(timeCO.getEndTime());
+            courInfDO.setLocation(timeCO.getClassroom());
+            courInfDO.setCreateTime(LocalDateTime.now());
+            courInfDO.setUpdateTime(LocalDateTime.now());
+            courInfMapper.insert(courInfDO);
+        }
+
+
+        return null;
+    }
+
+    @Override
+    @Transactional
+    public void addNotExistCoursesDetails(Integer semId, Integer teacherId, UpdateCourseCmd courseInfo, List<SelfTeachCourseTimeCO> dateArr) {
+        SubjectDO subjectDO = courseConvertor.toSubjectDO(courseInfo.getSubjectMsg());
+        //向subject表插入数据并返回主键ID
+        subjectMapper.insert(subjectDO);
+        Integer subjectId = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("name", subjectDO.getName())).getId();
+        //向course表中插入数据
+        CourseDO courseDO = courseConvertor.toCourseDO(courseInfo, subjectId, teacherId, semId);
+        courseMapper.insert(courseDO);
+        //再根据teacherId和subjectId又将他查出来
+       Integer courseDOId = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("subject_id", subjectId).eq("teacher_id", teacherId)).getId();
+        //插入课程类型
+        for (Integer i : courseInfo.getTypeIdList()) {
+            CourseTypeCourseDO courseTypeCourseDO = new CourseTypeCourseDO();
+            courseTypeCourseDO.setCourseId(courseDOId);
+            courseTypeCourseDO.setTypeId(i);
+            courseTypeCourseDO.setCreateTime(courseInfo.getCreateTime());
+            courseTypeCourseDO.setUpdateTime(courseInfo.getUpdateTime());
+            courseTypeCourseMapper.insert(courseTypeCourseDO);
+        }
+        //插入课程时间表
+        for (SelfTeachCourseTimeCO time : dateArr) {
+            for (Integer week : time.getWeeks()) {
+                CourInfDO courInfDO = new CourInfDO();
+                courInfDO.setCourseId(courseDOId);
+                courInfDO.setWeek(week);
+                courInfDO.setDay(time.getDay());
+                courInfDO.setStartTime(time.getStartTime());
+                courInfDO.setEndTime(time.getEndTime());
+                courInfDO.setLocation(time.getClassroom());
+                courInfDO.setCreateTime(courseInfo.getCreateTime());
+                courInfDO.setUpdateTime(courseInfo.getCreateTime());
+                courInfMapper.insert(courInfDO);
+            }
+        }
+
     }
 }

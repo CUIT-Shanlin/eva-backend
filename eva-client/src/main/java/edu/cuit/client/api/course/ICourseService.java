@@ -1,17 +1,16 @@
 package edu.cuit.client.api.course;
 
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
-import edu.cuit.client.dto.clientobject.course.CourseModelCO;
-import edu.cuit.client.dto.clientobject.course.ModifySingleCourseDetailCO;
-import edu.cuit.client.dto.clientobject.course.SingleCourseCO;
-import edu.cuit.client.dto.clientobject.course.SingleCourseDetailCO;
+import edu.cuit.client.dto.clientobject.course.*;
 import edu.cuit.client.dto.cmd.course.AlignTeacherCmd;
+import edu.cuit.client.dto.cmd.course.UpdateCourseCmd;
 import edu.cuit.client.dto.cmd.course.UpdateSingleCourseCmd;
 import edu.cuit.client.dto.data.course.CoursePeriod;
 import edu.cuit.client.dto.query.CourseQuery;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.CourseConditionalQuery;
 import edu.cuit.client.dto.query.condition.MobileCourseQuery;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -79,5 +78,23 @@ public interface ICourseService {
      *  @param coursePeriod 课程的一段时间模型
      * */
     void deleteCourses(Integer semId, Integer id, CoursePeriod coursePeriod );
+
+    /**
+     * 批量新建多节课(已有课程)
+     *
+     *  @param courseId 课程id
+     *  @param timeCO 课程对应授课时间
+     *
+     * */
+    void addExistCoursesDetails( Integer courseId, SelfTeachCourseTimeCO timeCO);
+
+    /**
+     * 批量新建多节课(新课程)
+     *  @param semId 学期ID
+     *  @param teacherId 教学老师ID
+     *  @param courseInfo 一门课程的可修改信息(一门课程的可修改信息)
+     *  @param dateArr 自己教学的一门课程的一个课程时段模型集合
+     * */
+   void addNotExistCoursesDetails(Integer semId,Integer teacherId, UpdateCourseCmd courseInfo,  List<SelfTeachCourseTimeCO> dateArr);
 
 }

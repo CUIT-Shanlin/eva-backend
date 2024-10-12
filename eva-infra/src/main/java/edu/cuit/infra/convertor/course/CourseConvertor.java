@@ -4,6 +4,7 @@ import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
 import edu.cuit.client.dto.clientobject.course.SubjectCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
+import edu.cuit.client.dto.cmd.course.UpdateCourseCmd;
 import edu.cuit.client.dto.cmd.course.UpdateSingleCourseCmd;
 import edu.cuit.client.dto.data.course.CoursePeriod;
 import edu.cuit.client.dto.data.course.CourseType;
@@ -94,7 +95,14 @@ public interface CourseConvertor {
     CourInfDO toCourInfDO(SelfTeachCourseTimeCO selfTeachCourseTimeCO, Integer week, Integer courseId, LocalDateTime time);
     CourseTypeDO toCourseTypeDO(CourseType courseType);
 
+    @Mappings({
+            @Mapping(target = "subjectId",source = "subjectId"),
+            @Mapping(target = "teacherId",source = "teacherId"),
+            @Mapping(target = "semesterId",source = "semId"),
+            @Mapping(target = "templateId",source = "courseInfo.templateId"),
+            @Mapping(target = "createTime",source = "courseInfo.createTime"),
+            @Mapping(target = "updateTime",source = "courseInfo.updateTime")
 
-
-
+    })
+    CourseDO toCourseDO(UpdateCourseCmd courseInfo, Integer subjectId, Integer teacherId, Integer semId);
 }

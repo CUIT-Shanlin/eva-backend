@@ -5,6 +5,7 @@ import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.client.dto.clientobject.course.ModifySingleCourseDetailCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
+import edu.cuit.client.dto.data.Term;
 import jakarta.validation.Valid;
 
 
@@ -38,11 +39,11 @@ public interface IUserCourseService {
 
     /**
      * 导入课表文件
-     *
      *  @param fileStream 课表文件
-     *
+     *  @param type 用于确定是导入实验课表还是理论课表，0：理论课，1：实验课
+     *  @param term 学期模型
      * */
-    void importCourse(InputStream fileStream);
+    void importCourse(InputStream fileStream, Integer type, Term term);
 
     /**
      * 获取自己所有教学的课程的详细信息

@@ -120,13 +120,16 @@ public class UpdateCourseController {
 
     /**
      * 导入课表文件
-     *
      *  @param file 课表文件
-     *
+     *  @param type 用于确定是导入实验课表还是理论课表，0：理论课，1：实验课
+     *  @param term 学期模型
      * */
-    @PutMapping("/course/import")
+    @PutMapping("/course/import/{type}")
     @SaCheckPermission("course.table.import")
-    public CommonResult<Void> imporCourse(MultipartFile file){
+    public CommonResult<Void> imporCourse(
+            MultipartFile file,
+            @PathVariable Integer type,
+            @RequestBody Term term ){
         return null;
     }
 
@@ -134,7 +137,7 @@ public class UpdateCourseController {
      * 判断某学期是否已经导入过课表文件
      *
      *  @param type 用于确定是导入实验课表还是理论课表，0：理论课，1：实验课
-     *  @param term 课表文件
+     *  @param term 课表时间
      *
      * */
     @PostMapping("/course/table/isImported/{type}")
@@ -154,6 +157,35 @@ public class UpdateCourseController {
     public CommonResult<Void> updateSelfCourse(
             @Valid @RequestBody SelfTeachCourseCO selfTeachCourseCO,
             @Valid @RequestBody List<SelfTeachCourseTimeCO> timeList){
+        return null;
+    }
+
+    /**
+     * 批量新建多节课(已有课程)
+     *  @param courseId 课程id
+     *  @param timeCO 课程对应授课时间
+     *
+     * */
+    @PostMapping("/course/batch/exist/{courseId}")
+    public CommonResult<Void> addExistCoursesDetails(
+             @PathVariable Integer courseId
+            ,@Valid @RequestBody SelfTeachCourseTimeCO timeCO){
+        return null;
+    }
+
+    /**
+     * 批量新建多节课(新课程)
+     *  @param semId 学期ID
+     *  @param teacherId 教学老师ID
+     *  @param courseInfo 一门课程的可修改信息(一门课程的可修改信息)
+     *  @param dateArr 自己教学的一门课程的一个课程时段模型集合
+     * */
+    @PostMapping("/course/batch/notExist")
+    public CommonResult<Void> addNotExistCoursesDetails(
+          @RequestParam(value = "semId",required = false) Integer semId,
+          @RequestParam(value = "teacherId",required = true) Integer teacherId,
+          @Valid @RequestBody UpdateCourseCmd courseInfo,
+          @Valid @RequestBody List<SelfTeachCourseTimeCO> dateArr){
         return null;
     }
 

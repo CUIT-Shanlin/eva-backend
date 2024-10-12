@@ -81,4 +81,21 @@ public interface CourseUpdateGateway {
      *  @param timeList 课表文件
      * */
     Void updateSelfCourse(String userName,SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeCO> timeList);
+
+    /**
+     * 批量新建多节课(已有课程)
+     *  @param courseId 课程id
+     *  @param timeCO 课程对应授课时间
+     * */
+    Void addExistCoursesDetails( Integer courseId, SelfTeachCourseTimeCO timeCO);
+
+    /**
+     * 批量新建多节课(新课程)
+     *  @param semId 学期ID
+     *  @param teacherId 教学老师ID
+     *  @param courseInfo 一门课程的可修改信息(一门课程的可修改信息)
+     *  @param dateArr 自己教学的一门课程的一个课程时段模型集合
+     * */
+    void addNotExistCoursesDetails(Integer semId,Integer teacherId, UpdateCourseCmd courseInfo,  List<SelfTeachCourseTimeCO> dateArr);
+
 }
