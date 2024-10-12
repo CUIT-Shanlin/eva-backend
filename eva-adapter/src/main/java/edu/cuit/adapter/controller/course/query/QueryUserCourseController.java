@@ -1,5 +1,6 @@
 package edu.cuit.adapter.controller.course.query;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.client.dto.clientobject.course.ModifySingleCourseDetailCO;
@@ -41,6 +42,7 @@ public class QueryUserCourseController {
      *  @param id 用户编号id
      * */
     @GetMapping("/courses/detail")
+    @SaCheckPermission("course.tabulation.query")
     public CommonResult<List<CourseDetailCO>> getUserCourseDetail(
             @RequestParam(value = "id",required = true) Integer id,
             @RequestParam(value = "semId",required = false) Integer semId){
