@@ -26,7 +26,7 @@ public class CourseModelCO extends ClientObject {
      * 教室数组
      * JSON形式存教室数组
      */
-    private String classroomList;
+    private List<String> classroomList;
 
     /**
      * 课程名称
