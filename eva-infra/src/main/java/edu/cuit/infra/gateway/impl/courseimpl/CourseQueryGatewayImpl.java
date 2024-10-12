@@ -135,7 +135,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
 
         //组装CourseDtailCO
         CourseDetailCO courseDetailCO = courseConvertor.toCourseDetailCO(courseTypeList
-                , courseTimeList, subjectDO, evaTemplateCO, sysUserDO,classRoomList);
+                , courseTimeList, subjectDO, courseDO, evaTemplateCO, sysUserDO,classRoomList);
         return Optional.of(courseDetailCO);
 
     }
