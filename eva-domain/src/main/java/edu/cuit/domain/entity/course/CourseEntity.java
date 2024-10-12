@@ -31,11 +31,6 @@ public class CourseEntity {
     private UserEntity teacher;
 
     /**
-     * JSON形式存教室数组
-     */
-    private String classroom;
-
-    /**
      * 学期
      */
     private SemesterEntity semester;
