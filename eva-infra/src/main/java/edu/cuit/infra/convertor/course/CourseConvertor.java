@@ -29,7 +29,6 @@ public interface CourseConvertor {
             @Mapping(target = "id",source = "courseDo.id"),
             @Mapping(target = "subject",source = "subject"),
             @Mapping(target = "teacher",source = "teacher"),
-            @Mapping(target = "classroom",source = "courseDo.classroom"),
             @Mapping(target = "semester",source = "semester"),
             @Mapping(target = "createTime",source = "courseDo.createTime"),
             @Mapping(target = "updateTime",source = "courseDo.updateTime"),
@@ -57,7 +56,7 @@ public interface CourseConvertor {
             @Mapping(target = "typeList",source = "typeList"),
             @Mapping(target = "dateList",source = "dateList"),
             @Mapping(target = "courseBaseMsg.id",source = "course.id"),
-            @Mapping(target = "courseBaseMsg.classroomList",source = "course.classroom"),
+            @Mapping(target = "courseBaseMsg.classroomList",source = "classRoomList"),
             @Mapping(target = "courseBaseMsg.name",source = "courInfo.name"),
             @Mapping(target = "courseBaseMsg.createTime",source = "courInfo.createTime"),
             @Mapping(target = "courseBaseMsg.updateTime",source = "courInfo.updateTime"),
@@ -68,7 +67,7 @@ public interface CourseConvertor {
 
     })
     CourseDetailCO toCourseDetailCO(List<CourseType> typeList, List<CoursePeriod> dateList, SubjectDO courInfo
-                                    , CourseDO course, EvaTemplateCO template, SysUserDO user);
+                                    ,  EvaTemplateCO template, SysUserDO user,List<String> classRoomList);
     @Mappings({
             @Mapping(target = "id",source = "id"),
     })
