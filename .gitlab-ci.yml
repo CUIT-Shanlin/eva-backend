@@ -18,7 +18,7 @@ sonarqube-check:
       - .sonar/cache
       - .m2/repository
   script: 
-    - $SONAR_MAVEN
+    - $SONAR_MAVEN -s ci_settings.xml
   allow_failure: true
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
