@@ -83,7 +83,7 @@ public class LdapPersonDO {
     private String homeDirectory;
 
     /**
-     * inetOrgPerson要求该属性
+     * 昵称
      */
     @Attribute(name = "cn")
     private String commonName;
