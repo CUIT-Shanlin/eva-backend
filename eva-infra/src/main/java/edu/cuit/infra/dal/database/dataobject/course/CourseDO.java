@@ -35,11 +35,6 @@ public class CourseDO implements Serializable {
     @TableField(value = "teacher_id")
     private Integer teacherId;
 
-    /**
-     * JSON形式存教室数组
-     */
-    @TableField(value = "classroom")
-    private String classroom;
 
     /**
      * 学期id
