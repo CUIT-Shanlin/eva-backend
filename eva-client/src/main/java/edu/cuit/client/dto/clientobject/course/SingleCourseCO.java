@@ -37,4 +37,9 @@ public class SingleCourseCO extends ClientObject {
      * 一节课的时间
      */
     private CourseTime time;
+
+    /**
+     * 上课位置
+     */
+    private String location;
 }
