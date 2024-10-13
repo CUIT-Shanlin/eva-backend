@@ -122,14 +122,14 @@ public class UpdateCourseController {
      * 导入课表文件
      *  @param file 课表文件
      *  @param type 用于确定是导入实验课表还是理论课表，0：理论课，1：实验课
-     *  @param term 学期模型
+     *  @param semester 学期模型
      * */
     @PutMapping("/course/import/{type}")
     @SaCheckPermission("course.table.import")
     public CommonResult<Void> imporCourse(
-            MultipartFile file,
+            @RequestParam(value = "file",required = true) MultipartFile file,
             @PathVariable Integer type,
-            @RequestBody Term term ){
+            @RequestParam(value = "semester",required = true) String semester ){
         return null;
     }
 
@@ -143,8 +143,8 @@ public class UpdateCourseController {
     @PostMapping("/course/table/isImported/{type}")
     @SaCheckPermission("course.table.import")
     public CommonResult<Boolean> isImport(
-            @PathVariable(value = "type",required = true) Integer type
-            ,@Valid @RequestBody Term term){
+            @PathVariable(value = "type",required = true) Integer type,
+            @Valid @RequestBody Term term){
         return null;
     }
 
