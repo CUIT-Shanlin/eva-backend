@@ -1,6 +1,7 @@
 package edu.cuit.client.dto.clientobject.course;
 
 import com.alibaba.cola.dto.ClientObject;
+import edu.cuit.client.dto.data.course.CourseTime;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -33,12 +34,7 @@ public class SingleCourseCO extends ClientObject {
     private Integer evaNum;
 
     /**
-     * 开始时间（节数）
+     * 课程时间模型
      */
-    private Integer startTime;
-
-    /**
-     * 结束时间（节数）
-     */
-    private Integer endTime;
+    private CourseTime time;
 }

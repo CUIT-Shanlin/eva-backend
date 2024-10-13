@@ -1,6 +1,7 @@
 package edu.cuit.domain.entity.user.biz;
 
 import com.alibaba.cola.domain.Entity;
+import edu.cuit.domain.gateway.user.UserUpdateGateway;
 import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -69,11 +70,6 @@ public class UserEntity {
     private Integer status;
 
     /**
-     * 权限菜单列表
-     */
-    private List<MenuEntity> menus;
-
-    /**
      * 角色列表
      */
     private List<RoleEntity> roles;
@@ -83,6 +79,17 @@ public class UserEntity {
      */
     public Boolean isBanned() {
         return status == 1;
+    }
+
+    private final UserUpdateGateway userUpdateGateway;
+
+    /**
+     * 更新用户状态
+     * @param status 状态（1为禁止，0为正常）
+     */
+    public void updateStatus(Integer status) {
+        userUpdateGateway.updateStatus(id,status);
+        //TODO 更新session状态
     }
 
 }

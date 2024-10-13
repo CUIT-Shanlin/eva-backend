@@ -39,7 +39,7 @@
       <dependency>
         <groupId>edu.cuit.zhuyimeng</groupId>
         <artifactId>dependency-manager</artifactId>
-        <version>1.5</version>
+        <version>1.7.1</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -148,19 +148,20 @@
 
   <repositories>
     <repository>
-      <id>gitea</id>
-      <url>https://git.littlestrange.site/api/packages/LittleStrange/maven</url>
+      <id>gitlab-maven</id>
+      <url>https://gitlab.littlestrange.site/api/v4/projects/4/packages/maven</url>
     </repository>
   </repositories>
+
   <distributionManagement>
     <repository>
-      <id>gitea</id>
-      <url>https://git.littlestrange.site/api/packages/LittleStrange/maven</url>
+      <id>gitlab-maven</id>
+      <url>https://gitlab.littlestrange.site/api/v4/projects/4/packages/maven</url>
     </repository>
 
     <snapshotRepository>
-      <id>gitea</id>
-      <url>https://git.littlestrange.site/api/packages/LittleStrange/maven</url>
+      <id>gitlab-maven</id>
+      <url>https://gitlab.littlestrange.site/api/v4/projects/4/packages/maven</url>
     </snapshotRepository>
   </distributionManagement>
 
