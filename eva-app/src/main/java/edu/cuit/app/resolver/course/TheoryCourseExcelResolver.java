@@ -4,14 +4,12 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.cola.exception.BizException;
 import edu.cuit.app.bo.CourseExcelBO;
 import edu.cuit.app.util.ExcelUtils;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -23,7 +21,7 @@ public class TheoryCourseExcelResolver extends CourseExcelResolverStrategy {
      * 节数段开始的行的集合
      * 上午1-2节从第4行开始
      */
-    private final List<Integer> startRows = List.of(3);
+    private final List<Integer> startRows = new ArrayList<>(List.of(5));
     private int endRow;
 
     // 星期开始列
@@ -33,13 +31,13 @@ public class TheoryCourseExcelResolver extends CourseExcelResolverStrategy {
 
     private final List<CourseExcelBO> results = new ArrayList<>();
 
-    protected TheoryCourseExcelResolver(File excelFile) {
-        this.excelFile = excelFile;
+    protected TheoryCourseExcelResolver(InputStream excelFile) {
+        this.excelFileStream = excelFile;
     }
 
     @Override
-    public List<CourseExcelBO> readData() throws IOException {
-        sheet = WorkbookFactory.create(excelFile).getSheetAt(0);
+    public List<CourseExcelBO> readData() throws IOException, InvalidFormatException {
+        sheet = WorkbookFactory.create(excelFileStream).getSheetAt(0);
         readStartRow();
         return read();
     }
@@ -52,15 +50,18 @@ public class TheoryCourseExcelResolver extends CourseExcelResolverStrategy {
             if (cra == null)
                 throw new BizException("理论课程表格格式有误");
             startRows.add(cra.getLastRow() + 1);
-            if (count == 4) endRow = cra.getLastRow();
         }
+        CellRangeAddress cra = ExcelUtils.getMergerCellRegionRow(sheet, startRows.get(5), 0);
+        if (cra == null)
+            throw new BizException("理论课程表格格式有误");
+        endRow = cra.getLastRow();
     }
 
     private List<CourseExcelBO> read() {
         Map<CourseExcelBO,CourseExcelBO> results = new HashMap<>();
-        int rowCount = 5;
+        int rowCount = startRows.get(0);
         for (int i = rowCount; i <= endRow; i++) {
-            List<CourseExcelBO> courseExcelBOS = readLine(rowCount, getTime(rowCount));
+            List<CourseExcelBO> courseExcelBOS = readLine(i, getTime(i));
 
             for (CourseExcelBO courseExcelBO : courseExcelBOS) {
                 CourseExcelBO existedCourse = results.get(courseExcelBO);
@@ -94,6 +95,7 @@ public class TheoryCourseExcelResolver extends CourseExcelResolverStrategy {
             String profTitle = row.getCell(startColumn + 3).getStringCellValue();
             String weeksStr = row.getCell(startColumn + 5).getStringCellValue();
             String classroom = row.getCell(startColumn + 6).getStringCellValue();
+            String courseClass = row.getCell(startColumn + 7).getStringCellValue();
 
             CourseExcelBO courseExcelBO = new CourseExcelBO();
             courseExcelBO
@@ -102,6 +104,7 @@ public class TheoryCourseExcelResolver extends CourseExcelResolverStrategy {
                     .setProfTitle(profTitle)
                     .setWeeks(ExcelUtils.resolveWeekString(weeksStr))
                     .setClassroom(classroom)
+                    .setCourseClass(courseClass)
                     .setDay(i + 1);
             courseExcelBO.setStartTime(startTime);
             if (startTime == 11) {
@@ -121,7 +124,7 @@ public class TheoryCourseExcelResolver extends CourseExcelResolverStrategy {
     private Integer getTime(int rowIndex) {
         for (int i = 0; i < startRows.size() - 1; i++) {
             if (startRows.get(i) <= rowIndex && startRows.get(i+1) > rowIndex) {
-                return i * 2 - 1;
+                return i * 2 + 1;
             }
         }
         return 11;

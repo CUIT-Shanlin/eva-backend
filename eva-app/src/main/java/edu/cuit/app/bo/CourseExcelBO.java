@@ -55,6 +55,11 @@ public class CourseExcelBO {
     private String classroom;
 
     /**
+     * 班级（只用来判断是否为同一节课）
+     */
+    private String courseClass;
+
+    /**
      * 判断与目标课程是否相邻
      * @param target 目标课程
      * @return 是否相邻
@@ -63,6 +68,7 @@ public class CourseExcelBO {
         return Objects.equals(courseName, target.courseName) &&
                 Objects.equals(day,target.day) &&
                 Objects.equals(weeks,target.weeks) &&
+                Objects.equals(courseClass,target.courseClass) &&
                 (startTime == target.endTime + 1 || endTime == target.startTime - 1);
     }
 
@@ -76,7 +82,8 @@ public class CourseExcelBO {
                 Objects.equals(profTitle, that.profTitle) &&
                 Objects.equals(day, that.day) &&
                 Objects.equals(weeks, that.weeks) &&
-                Objects.equals(classroom, that.classroom);
+                Objects.equals(classroom, that.classroom) &&
+                Objects.equals(courseClass,that.courseClass);
     }
 
     @Override

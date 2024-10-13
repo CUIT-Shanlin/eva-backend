@@ -3,6 +3,7 @@ package edu.cuit.app.resolver.course;
 import edu.cuit.app.bo.CourseExcelBO;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -10,8 +11,8 @@ import java.util.List;
  */
 public class ExperimentalCourseResolver extends CourseExcelResolverStrategy{
 
-    protected ExperimentalCourseResolver(File excelFile) {
-        this.excelFile = excelFile;
+    protected ExperimentalCourseResolver(InputStream excelFileStream) {
+        this.excelFileStream = excelFileStream;
     }
 
     @Override
