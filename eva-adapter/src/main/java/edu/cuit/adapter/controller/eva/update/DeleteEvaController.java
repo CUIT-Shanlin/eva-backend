@@ -51,6 +51,7 @@ public class DeleteEvaController {
      * @param ids 模板数组
      */
     @DeleteMapping("/evaluate/templates")
+    @SaCheckPermission("evaluate.template.delete")
     public CommonResult<Void> deleteEvaTemplatesById(
             @RequestBody List<Integer> ids ){
         return null;

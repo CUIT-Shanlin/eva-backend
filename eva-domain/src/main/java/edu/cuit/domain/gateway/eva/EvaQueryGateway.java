@@ -33,21 +33,21 @@ public interface EvaQueryGateway {
      * @param evaLogQuery 查询参数
      * @return List<EvaRecordEntity>
      */
-    List<EvaRecordEntity> pageEvaRecord(Integer semId, PagingQuery<EvaLogConditionalQuery> evaLogQuery);
+    PaginationResultEntity<EvaRecordEntity> pageEvaRecord(Integer semId, PagingQuery<EvaLogConditionalQuery> evaLogQuery);
     /**
      *分页获取未完成的评教任务+条件查询
      * @param semId 学期id
      * @param taskQuery 查询参数
      * @return List<EvaTaskEntity>
      */
-    List<EvaTaskEntity> pageEvaUnfinishedTask(Integer semId, PagingQuery<EvaTaskConditionalQuery> taskQuery);
+    PaginationResultEntity<EvaTaskEntity> pageEvaUnfinishedTask(Integer semId, PagingQuery<EvaTaskConditionalQuery> taskQuery);
     /**
      *分页获取评教模板信息
      * @param semId 学期id
      * @param query 查询参数
      * @return List<EvaTemplateEntity>
      */
-    List<EvaTemplateEntity> pageEvaTemplate(Integer semId, PagingQuery<GenericConditionalQuery> query);
+    PaginationResultEntity<EvaTemplateEntity> pageEvaTemplate(Integer semId, PagingQuery<GenericConditionalQuery> query);
 
     /**
      * 获取自己的所有待办评教任务

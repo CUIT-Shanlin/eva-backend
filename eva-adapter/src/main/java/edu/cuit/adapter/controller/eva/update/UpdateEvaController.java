@@ -23,7 +23,7 @@ public class UpdateEvaController {
      * @param evaTemplateCO 评教模板dto
      */
     @PutMapping("/evaluate/template")
-    @SaCheckPermission("evaluate.record.update")
+    @SaCheckPermission("evaluate.template.update")
     public CommonResult<Void> updateEvaTemplate(
             @Valid @RequestBody EvaTemplateCO evaTemplateCO){
         return null;

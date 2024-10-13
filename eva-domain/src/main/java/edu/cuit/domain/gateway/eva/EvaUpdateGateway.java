@@ -19,12 +19,14 @@ public interface EvaUpdateGateway {
      */
     Void updateEvaTemplate(EvaTemplateCO evaTemplateCO);
     /**
-     * 提交评教表单，完成评教任务
+     * 提交评教表单，完成评教任务记得完成评教任务之后，
+     * 要删除对应的两种消息 “该任务的待办评教消息” “该任务的系统逾期提醒消息”
      * @param evaTaskFormCO EvaTaskFormCO
      */
     Void putEvaTemplate(EvaTaskFormCO evaTaskFormCO);
     /**
      * 发起评教任务
+     * 要同时发送该任务的评教待办消息;
      *@param evaInfoCO EvaInfoCO
      */
     Void postEvaTask(EvaInfoCO evaInfoCO);

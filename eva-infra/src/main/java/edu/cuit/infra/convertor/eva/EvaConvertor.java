@@ -50,8 +50,8 @@ public interface EvaConvertor {
     EvaRecordEntity ToEvaRecordEntity(FormRecordDO formRecordDO, EvaTaskEntity task);
     EvaTemplateEntity ToEvaTemplateEntity(FormTemplateDO formTemplateDO);
 
-    FormTemplateDO ToEvaTemplateDO(EvaTemplateCO evaTemplateCO);
+    FormRecordDO ToFormRecordDO(EvaTaskFormCO evaTaskFormCO);
 
-
+    FormTemplateDO ToFormTemplateDO(EvaTemplateCO evaTemplateCO);
 
 }

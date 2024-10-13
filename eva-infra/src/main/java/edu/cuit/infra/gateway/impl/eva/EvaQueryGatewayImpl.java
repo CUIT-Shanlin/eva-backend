@@ -80,7 +80,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     private final FormRecordMapper formRecordMapper;
     private final FormTemplateMapper formTemplateMapper;
     @Override
-    public List<EvaRecordEntity> pageEvaRecord(Integer semId, PagingQuery<EvaLogConditionalQuery> evaLogQuery) {
+    public PaginationResultEntity<EvaRecordEntity> pageEvaRecord(Integer semId, PagingQuery<EvaLogConditionalQuery> evaLogQuery) {
         //先整老师
         List<Integer> userIds=null;
         if(sysUserMapper.selectList(new QueryWrapper<SysUserDO>().like("name",evaLogQuery.getQueryObj().getKeyword()))!=null) {
@@ -136,11 +136,12 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         List<EvaRecordEntity> list = records.stream().map(formRecordDO->evaConvertor.ToEvaRecordEntity(formRecordDO,
                 evaTaskEntities.stream().filter(evaTaskDO->evaTaskDO.getId()
                         .equals(formRecordDO.getTaskId())).findFirst().get())).toList();
-        return list;
+        PaginationResultEntity<EvaRecordEntity> paginationEntity=paginationConverter.toPaginationEntity(pageLog,list);
+        return paginationEntity;
     }
 
     @Override
-    public List<EvaTaskEntity> pageEvaUnfinishedTask(Integer semId, PagingQuery<EvaTaskConditionalQuery> taskQuery) {
+    public PaginationResultEntity<EvaTaskEntity> pageEvaUnfinishedTask(Integer semId, PagingQuery<EvaTaskConditionalQuery> taskQuery) {
         //先整老师
         List<Integer> userIds=null;
         if(sysUserMapper.selectList(new QueryWrapper<SysUserDO>().like("name",taskQuery.getQueryObj().getKeyword()))!=null) {
@@ -188,11 +189,12 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
 
         List<EvaTaskEntity> evaTaskEntities=getEvaTaskEntitys(records,userEntities,courseEntities);
 
-        return evaTaskEntities;
+        PaginationResultEntity<EvaTaskEntity> evaTaskEntityPaginationEntity=paginationConverter.toPaginationEntity(pageTask,evaTaskEntities);
+        return evaTaskEntityPaginationEntity;
     }
 
     @Override
-    public List<EvaTemplateEntity> pageEvaTemplate(Integer semId, PagingQuery<GenericConditionalQuery> query) {
+    public PaginationResultEntity<EvaTemplateEntity> pageEvaTemplate(Integer semId, PagingQuery<GenericConditionalQuery> query) {
 
         Page<FormTemplateDO> page =new Page<>(query.getPage(),query.getSize());
         QueryWrapper<FormTemplateDO> queryWrapper = new QueryWrapper<>();
@@ -201,7 +203,9 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         }
         QueryUtils.fileTimeQuery(queryWrapper,query.getQueryObj());
         Page<FormTemplateDO> formTemplateDOPage = formTemplateMapper.selectPage(page, queryWrapper);
-        return formTemplateDOPage.getRecords().stream().map(pageEvaTemplateDO -> evaConvertor.ToEvaTemplateEntity(pageEvaTemplateDO)).toList();
+        List<EvaTemplateEntity> evaTemplateEntities=formTemplateDOPage.getRecords().stream().map(pageEvaTemplateDO -> evaConvertor.ToEvaTemplateEntity(pageEvaTemplateDO)).toList();
+        PaginationResultEntity<EvaTemplateEntity> evaTemplateEntityPaginationEntity =paginationConverter.toPaginationEntity(page,evaTemplateEntities);
+        return evaTemplateEntityPaginationEntity;
     }
     //ok
     @Override
