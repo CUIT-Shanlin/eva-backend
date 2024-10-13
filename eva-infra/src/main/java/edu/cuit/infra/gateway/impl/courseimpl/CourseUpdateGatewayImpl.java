@@ -45,7 +45,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     @Override
     @Transactional
     public Void updateCourse(Integer semId, UpdateCourseCmd updateCourseCmd) {
-        List<Integer> courseIdList=null;
+        List<Integer> courseIdList=new ArrayList<>();
         if(updateCourseCmd.getIsUpdate()){
             //先查出课程表中的subjectId
             Integer subjectId = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", updateCourseCmd.getId())).getSubjectId();
@@ -114,7 +114,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                         .eq("day", updateSingleCourseCmd.getTime().getDay())
                         .eq("start_time", updateSingleCourseCmd.getTime().getStartTime()));
                 for (CourInfDO courInfDO : courInfDOList) {
-                    if(courseMapper.selectById(courInfDO.getCourseId()).getSemesterId()==semId){
+                    if(courseMapper.selectById(courInfDO.getCourseId()).getSemesterId().equals(semId)){
                         if(courInfDO.getLocation().equals(updateSingleCourseCmd.getLocation())){
                             throw new UpdateException("该时间段该地点已有课程");
                         }

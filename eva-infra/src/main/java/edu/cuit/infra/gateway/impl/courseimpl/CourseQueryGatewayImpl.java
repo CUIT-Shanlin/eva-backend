@@ -67,7 +67,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     private final SemesterMapper semesterMapper;
     private final SubjectMapper subjectMapper;
     private final SysUserMapper userMapper;
-    private final CourOneEvaTemplateMapper CoureOneEvaTemplateMapper;
+    private final CourOneEvaTemplateMapper CourOneEvaTemplateMapper;
     private final EvaTaskMapper evaTaskMapper;
     private final FormRecordMapper formRecordMapper;
     private final SysRoleMapper roleMapper;
@@ -109,7 +109,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         //根据id和semId来查询课程信息
         CourseDO courseDO = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", id).eq("semester_id", semId));
         //根据id和semId来查询评教快照信息
-        CourOneEvaTemplateDO courOneEvaTemplateDO = CoureOneEvaTemplateMapper.selectOne(new QueryWrapper<CourOneEvaTemplateDO>().eq("course_id", id).eq("semester_id", semId));
+        CourOneEvaTemplateDO courOneEvaTemplateDO = CourOneEvaTemplateMapper.selectOne(new QueryWrapper<CourOneEvaTemplateDO>().eq("course_id", id).eq("semester_id", semId));
         //将courOneEvaTemplateDO中的formtemplate(json)字符串，转换为EvaTemplateCO
         EvaTemplateCO evaTemplateCO=null;
       if(courOneEvaTemplateDO.getFormTemplate()!=null){
@@ -318,12 +318,14 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         Map<CourInfDO, CourseEntity> map=new HashMap<>();
        //先将courInfDOS1根据courseId分组
         Map<Integer, List<CourInfDO>> collect = courInfDOS1.stream().collect(Collectors.groupingBy(CourInfDO::getCourseId));
-        for (Integer courseId : collect.keySet()) {
-            CourseEntity courseEntity = toCourseEntity(courseId, semId);
-            for (CourInfDO courInfDO : collect.get(courseId)) {
+        for (Map.Entry<Integer, List<CourInfDO>> integerListEntry : collect.entrySet()) {
+            CourseEntity courseEntity = toCourseEntity(integerListEntry.getKey(), semId);
+            for(CourInfDO courInfDO : integerListEntry.getValue())
+            {
                 map.put(courInfDO, courseEntity);
             }
         }
+
 
         //得到SingleCourseEntity对象集合
 
@@ -375,14 +377,13 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
             map.put(courseDO, courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseDO.getId())));
            }
         List<SingleCourseEntity> list =new ArrayList<>();
-        for (CourseDO courseDO : map.keySet()) {
+        for (Map.Entry<CourseDO, List<CourInfDO>> courseDOListEntry : map.entrySet()) {
             //得到subjectEntity中ID等于courseDO.getSubjectId()的subjectEntity
-            SubjectEntity subjectEntity = subjectEntitys.stream().filter(subject -> subject.getId().equals(courseDO.getSubjectId())).findFirst().get();
-            for (CourInfDO courInfDO : map.get(courseDO)) {
-               list.add(courseConvertor.toSingleCourseEntity(courseConvertor.toCourseEntity(courseDO, subjectEntity,userEntity,semesterEntity), courInfDO));
+            SubjectEntity subjectEntity = subjectEntitys.stream().filter(subject -> subject.getId().equals(courseDOListEntry.getKey().getSubjectId())).findFirst().get();
+            for (CourInfDO courInfDO : courseDOListEntry.getValue()) {
+                list.add(courseConvertor.toSingleCourseEntity(courseConvertor.toCourseEntity(courseDOListEntry.getKey(), subjectEntity,userEntity,semesterEntity), courInfDO));
             }
         }
-
 
         return list;
     }
@@ -521,7 +522,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         //根据角色id集合找到角色对象集合
         List<RoleEntity> roleEntities = roleMapper.selectList(new QueryWrapper<SysRoleDO>().in("id", roleIds)).stream().map(roleDO -> roleConverter.toRoleEntity(roleDO)).toList();
         //根据角色id集合找到角色菜单表中的菜单id集合
-        List<Integer> menuIds = roleMenuMapper.selectList(new QueryWrapper<SysRoleMenuDO>().in("role_id", roleIds)).stream().map(SysRoleMenuDO::getMenuId).toList();
+//        List<Integer> menuIds = roleMenuMapper.selectList(new QueryWrapper<SysRoleMenuDO>().in("role_id", roleIds)).stream().map(SysRoleMenuDO::getMenuId).toList();
         //根据menuids找到菜单对象集合
 //        List<MenuEntity> menuEntities = menuMapper.selectList(new QueryWrapper<SysMenuDO>().in("id", menuIds)).stream().map(menuDO -> menuConvertor.toMenuEntity(menuDO)).toList();
 
