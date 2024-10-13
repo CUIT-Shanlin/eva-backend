@@ -1,0 +1,130 @@
+package edu.cuit.app.resolver.course;
+
+import cn.hutool.core.util.StrUtil;
+import com.alibaba.cola.exception.BizException;
+import edu.cuit.app.bo.CourseExcelBO;
+import edu.cuit.app.util.ExcelUtils;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.util.CellRangeAddress;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+
+/**
+ * 理论课excel读取实现
+ */
+public class TheoryCourseExcelResolver extends CourseExcelResolverStrategy {
+
+    /**
+     * 节数段开始的行的集合
+     * 上午1-2节从第4行开始
+     */
+    private final List<Integer> startRows = List.of(3);
+    private int endRow;
+
+    // 星期开始列
+    private final static Integer WEEK_START = 1;
+
+    private Sheet sheet;
+
+    private final List<CourseExcelBO> results = new ArrayList<>();
+
+    protected TheoryCourseExcelResolver(File excelFile) {
+        this.excelFile = excelFile;
+    }
+
+    @Override
+    public List<CourseExcelBO> readData() throws IOException {
+        sheet = WorkbookFactory.create(excelFile).getSheetAt(0);
+        readStartRow();
+        return read();
+    }
+
+    // 读取节数单元格开始的行数
+    private void readStartRow() {
+        int count;
+        for (count = 0;count < 5;count++) {
+            CellRangeAddress cra = ExcelUtils.getMergerCellRegionRow(sheet, startRows.get(count), 0);
+            if (cra == null)
+                throw new BizException("理论课程表格格式有误");
+            startRows.add(cra.getLastRow() + 1);
+            if (count == 4) endRow = cra.getLastRow();
+        }
+    }
+
+    private List<CourseExcelBO> read() {
+        Map<CourseExcelBO,CourseExcelBO> results = new HashMap<>();
+        int rowCount = 5;
+        for (int i = rowCount; i <= endRow; i++) {
+            List<CourseExcelBO> courseExcelBOS = readLine(rowCount, getTime(rowCount));
+
+            for (CourseExcelBO courseExcelBO : courseExcelBOS) {
+                CourseExcelBO existedCourse = results.get(courseExcelBO);
+                // 课程相同且相邻，合并为一节课
+                if (existedCourse != null && courseExcelBO.isAdjoin(existedCourse)) {
+                    if (courseExcelBO.getStartTime() > existedCourse.getEndTime()) {
+                        courseExcelBO.setStartTime(existedCourse.getStartTime());
+                    } else courseExcelBO.setEndTime(existedCourse.getEndTime());
+                }
+                results.put(courseExcelBO,courseExcelBO);
+            }
+
+        }
+        return new ArrayList<>(results.values());
+    }
+
+    /**
+     * 读取一行，返回该行星期一到星期五的课程
+     * @param rowIndex 行下标
+     * @param startTime 开始节数
+     * @return 键为星期数(从1开始)
+     */
+    private List<CourseExcelBO> readLine(int rowIndex,int startTime) {
+        Row row = sheet.getRow(rowIndex);
+        List<CourseExcelBO> results = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            int startColumn = i * 9 + 1;
+            String courseName = row.getCell(startColumn).getStringCellValue();
+            if (StrUtil.isBlank(courseName)) continue;
+            String teacherName = row.getCell(startColumn + 2).getStringCellValue();
+            String profTitle = row.getCell(startColumn + 3).getStringCellValue();
+            String weeksStr = row.getCell(startColumn + 5).getStringCellValue();
+            String classroom = row.getCell(startColumn + 6).getStringCellValue();
+
+            CourseExcelBO courseExcelBO = new CourseExcelBO();
+            courseExcelBO
+                    .setCourseName(courseName)
+                    .setTeacherName(teacherName)
+                    .setProfTitle(profTitle)
+                    .setWeeks(ExcelUtils.resolveWeekString(weeksStr))
+                    .setClassroom(classroom)
+                    .setDay(i + 1);
+            courseExcelBO.setStartTime(startTime);
+            if (startTime == 11) {
+                courseExcelBO.setEndTime(11);
+            } else courseExcelBO.setEndTime(startTime + 1);
+            results.add(courseExcelBO);
+        }
+        return results;
+    }
+
+    /**
+     * 读取某行数所在的节数
+     * @param rowIndex 行数下标
+     * @return 开始节数下标
+     * 1代表上午1-2节，3代表上午3-4节，5代表下午5-6节以此类推
+     */
+    private Integer getTime(int rowIndex) {
+        for (int i = 0; i < startRows.size() - 1; i++) {
+            if (startRows.get(i) <= rowIndex && startRows.get(i+1) > rowIndex) {
+                return i * 2 - 1;
+            }
+        }
+        return 11;
+    }
+
+}
