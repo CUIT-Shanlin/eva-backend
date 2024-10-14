@@ -28,12 +28,12 @@ public class EvaInfoCO extends ClientObject {
     /**
      * 评教老师的id
      */
-    private Long teacherId;
+    private Integer teacherId;
 
     /**
      * 被评教的那节课的id
      */
-    private Long courInfId;
+    private Integer courInfId;
 
     /**
      * 创建时间

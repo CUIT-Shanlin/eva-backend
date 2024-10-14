@@ -5,6 +5,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 @EqualsAndHashCode(callSuper = false)
 @Data
 @Accessors(chain = true)
@@ -17,4 +20,5 @@ public class SimplePercentCO extends ClientObject{
      * 7日内 percent 的值
      */
     private Number value;
+
 }

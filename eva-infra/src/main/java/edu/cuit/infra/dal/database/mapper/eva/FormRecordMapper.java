@@ -3,7 +3,10 @@ package edu.cuit.infra.dal.database.mapper.eva;
 import com.github.yulichang.base.MPJBaseMapper;
 import edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.io.Serializable;
 
 /**
 * @author XiaoMo
@@ -12,9 +15,7 @@ import org.apache.ibatis.annotations.Mapper;
 * @Entity edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO
 */
 @Mapper
-public interface FormRecordMapper extends MPJBaseMapper<FormRecordDO> {
-
-}
+public interface FormRecordMapper extends MPJBaseMapper<FormRecordDO> { }
 
 
 

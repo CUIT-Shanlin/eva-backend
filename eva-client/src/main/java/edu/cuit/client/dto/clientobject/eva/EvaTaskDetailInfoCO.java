@@ -21,26 +21,30 @@ public class EvaTaskDetailInfoCO extends ClientObject {
      */
     private Long id;
     /**
+     * 任务状态（0：待执行，1：已执行，2：已撤回）
+     */
+    private Integer status;
+    /**
      * 发起评教任务的老师姓名
      */
     private String evaTeacherName;
-    /**
-     * 课程名称
-     */
-    private String name;
-
     /**
      * 教学老师姓名
      */
     private String teacherName;
     /**
-     * 开始时间
+     * 课程名称
      */
-    private LocalDateTime startTime;
+    private String courseName;
+
     /**
-     * 结束时间
+     * 创始时间
      */
-    private LocalDateTime endTime;
+    private LocalDateTime createTime;
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updateTime;
     /**
      * 教室
      */

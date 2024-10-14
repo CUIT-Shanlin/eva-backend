@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import java.time.LocalDateTime;
 
 /**
- * 评教记录domain entity
+ * 评教模板domain entity
  */
 @Entity
 @Data
