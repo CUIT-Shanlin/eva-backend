@@ -2,10 +2,7 @@ package edu.cuit.adapter.controller.course.query;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
-import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
-import edu.cuit.client.dto.clientobject.course.ModifySingleCourseDetailCO;
-import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
-import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
+import edu.cuit.client.dto.clientobject.course.*;
 import edu.cuit.client.dto.data.course.CourseTime;
 import edu.cuit.client.dto.query.condition.MobileCourseQuery;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
@@ -54,7 +51,7 @@ public class QueryUserCourseController {
      * @param semId 学期id
      */
     @GetMapping("/courses/suggestion")
-    public CommonResult<List<ModifySingleCourseDetailCO>> getSelfCourse(
+    public CommonResult<List<RecommendCourseCO>> getSelfCourse(
             @RequestParam(value = "semId",required = false) Integer semId){
         return null;
     }

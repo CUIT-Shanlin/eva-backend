@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.cuit.client.bo.EvaProp;
 
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
+import edu.cuit.client.dto.clientobject.course.RecommendCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SingleCourseCO;
 import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
@@ -422,15 +423,11 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
 
 //TODO(有问题待修改)
     @Override
-    public List<CourseEntity> getSelfCourse(Integer semId) {
-        //根据semId来找课程实体
-        List<CourseDO> semesterId = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId));
-        //得到CourseEntity集合
-        List<CourseEntity> courseEntities = semesterId.stream().map(courseDO -> toCourseEntity(courseDO.getId(), semId)).toList();
+    public List<RecommendCourseCO> getSelfCourse(Integer semId, String userName) {
+       //TODO(待实现)
 
 
-
-        return courseEntities;
+        return null;
     }
     @Override
     public List<SingleCourseEntity> getSelfCourseTime(String userName, Integer id) {

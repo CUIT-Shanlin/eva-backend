@@ -14,7 +14,9 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class RoleInfoCO extends ClientObject {
+public class
+
+RoleInfoCO extends ClientObject {
 
     /**
      * 角色id
@@ -35,11 +37,6 @@ public class RoleInfoCO extends ClientObject {
      * 状态(0:禁止,1:正常)
      */
     private Long status;
-
-    /**
-     * 用户的姓名(昵称，不是用户名)的数组，该角色被分配的用户的姓名的数组
-     */
-    private List<String> userNameList;
 
     /**
      * 创建时间
