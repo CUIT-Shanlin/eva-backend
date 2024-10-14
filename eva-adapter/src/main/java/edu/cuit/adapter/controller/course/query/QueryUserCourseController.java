@@ -3,6 +3,7 @@ package edu.cuit.adapter.controller.course.query;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.client.dto.clientobject.course.ModifySingleCourseDetailCO;
+import edu.cuit.client.dto.data.course.CourseTime;
 import edu.cuit.client.dto.query.condition.MobileCourseQuery;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import jakarta.validation.Valid;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -53,6 +55,19 @@ public class QueryUserCourseController {
             @RequestParam(value = "semId",required = false) Integer semId){
         return null;
     }
+
+    /**
+     * 获取一节课的具体上课时间
+     *  @param semId 学期id
+     *  @param courseTime 课程时间模型
+     * */
+    @PostMapping("/course/time")
+    public CommonResult<LocalDateTime> getCourseTime(
+            @RequestParam(value = "semId",required = false)Integer semId,
+            @RequestBody(required = true)CourseTime courseTime){
+        return null;
+    }
+
 
 
 }

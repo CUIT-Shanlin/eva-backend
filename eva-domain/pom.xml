@@ -27,6 +27,7 @@
             <groupId>edu.cuit</groupId>
             <artifactId>eva-base-config</artifactId>
             <version>${revision}</version>
+
         </dependency>
         <dependency>
             <groupId>edu.cuit</groupId>
