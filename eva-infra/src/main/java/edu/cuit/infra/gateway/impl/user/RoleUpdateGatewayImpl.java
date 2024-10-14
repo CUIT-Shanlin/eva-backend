@@ -34,7 +34,6 @@ public class RoleUpdateGatewayImpl implements RoleUpdateGateway {
         checkRoleId(Math.toIntExact(cmd.getId()));
         SysRoleDO roleDO = roleConverter.toRoleDO(cmd);
         roleMapper.updateById(roleDO);
-        //TODO app层处理状态更新
     }
 
     @Override

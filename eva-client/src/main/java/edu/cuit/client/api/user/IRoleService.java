@@ -37,7 +37,7 @@ public interface IRoleService {
      * 获取角色所拥有的菜单id
      * @param roleId 角色id
      */
-    List<Integer> menus(Integer roleId);
+    List<Integer> roleMenus(Integer roleId);
 
     /**
      * 修改角色信息
