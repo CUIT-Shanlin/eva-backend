@@ -23,7 +23,7 @@ public class ExcelResolverTest {
             throw new RuntimeException(e);
         }
         for (CourseExcelBO courseExcelBO : courseExcelBOS) {
-            if (courseExcelBO.getCourseName().equals("分布式系统及云计算技术")) {
+//            if (courseExcelBO.getCourseName().equals("分布式系统及云计算技术")) {
                 System.out.println(courseExcelBO.getCourseName());
                 System.out.println(courseExcelBO.getDay());
                 System.out.println(courseExcelBO.getTeacherName());
@@ -31,7 +31,7 @@ public class ExcelResolverTest {
                 System.out.println(courseExcelBO.getStartTime());
                 System.out.println(courseExcelBO.getEndTime());
                 System.out.println("===============");
-            }
+//            }
         }
     }
 
