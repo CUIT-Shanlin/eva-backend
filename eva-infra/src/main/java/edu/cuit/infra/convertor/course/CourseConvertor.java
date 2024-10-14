@@ -14,15 +14,12 @@ import edu.cuit.infra.convertor.EntityFactory;
 import edu.cuit.infra.dal.database.dataobject.course.*;
 import edu.cuit.infra.dal.database.dataobject.eva.CourOneEvaTemplateDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
-import org.mapstruct.BeforeMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
+import org.mapstruct.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = {EntityFactory.class})
+@Mapper(componentModel = "spring", uses = {EntityFactory.class}, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface CourseConvertor {
 
     @Mappings({
