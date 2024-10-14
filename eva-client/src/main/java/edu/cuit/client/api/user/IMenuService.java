@@ -18,7 +18,7 @@ public interface IMenuService {
      * 获取树形菜单数据
      * @param query 菜单条件查询模型
      */
-    MenuCO mainMenu(MenuConditionalQuery query);
+    List<MenuCO> mainMenu(MenuConditionalQuery query);
 
     /**
      * 获取一个菜单信息

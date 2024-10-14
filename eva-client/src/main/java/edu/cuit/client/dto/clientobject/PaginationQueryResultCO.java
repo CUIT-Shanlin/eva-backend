@@ -14,7 +14,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class PaginationQueryResultCO<T extends Serializable> extends ClientObject {
+public class PaginationQueryResultCO<T> extends ClientObject {
 
     /**
      * 查询列表总记录

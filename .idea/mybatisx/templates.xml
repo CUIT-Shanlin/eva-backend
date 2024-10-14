@@ -28,7 +28,7 @@
                   <option name="fileName" value="${domain.fileName}Mapper" />
                   <option name="fileNameWithSuffix" value="${domain.fileName}Mapper.java" />
                   <option name="modulePath" value="$PROJECT_DIR$/eva-infra" />
-                  <option name="packageName" value="edu.cuit.infra.dal.database.mapper.eva" />
+                  <option name="packageName" value="edu.cuit.infra.dal.database.mapper" />
                 </ModuleInfoGo>
                 <ModuleInfoGo>
                   <option name="basePath" value="src/main/resources" />
@@ -38,13 +38,13 @@
                   <option name="fileName" value="${domain.fileName}Mapper" />
                   <option name="fileNameWithSuffix" value="${domain.fileName}Mapper.xml" />
                   <option name="modulePath" value="$PROJECT_DIR$/eva-infra" />
-                  <option name="packageName" value="mapper.eva" />
+                  <option name="packageName" value="mapper" />
                 </ModuleInfoGo>
               </list>
             </option>
             <option name="needsComment" value="true" />
             <option name="needsModel" value="true" />
-            <option name="relativePackage" value="dataobject.eva" />
+            <option name="relativePackage" value="dataobject" />
             <option name="superClass" value="" />
             <option name="tableUIInfoList">
               <list>
