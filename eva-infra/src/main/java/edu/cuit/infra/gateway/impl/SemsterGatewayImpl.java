@@ -34,7 +34,7 @@ public class SemsterGatewayImpl implements SemesterGateway {
 
     @Override
     public SemesterCO getSemesterInfo(Integer id) {
-        if(id!=null||id<0){
+        if(id==null||id<0){
            return getNow();
         }
         return semesterConverter.toSemesterCO(semesterMapper.selectById(id));
