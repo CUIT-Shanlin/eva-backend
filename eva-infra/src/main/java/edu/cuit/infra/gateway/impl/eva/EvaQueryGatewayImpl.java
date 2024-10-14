@@ -32,6 +32,8 @@ import edu.cuit.domain.gateway.eva.EvaQueryGateway;
 import edu.cuit.infra.convertor.PaginationConverter;
 import edu.cuit.infra.convertor.course.CourseConvertor;
 import edu.cuit.infra.convertor.eva.EvaConvertor;
+import edu.cuit.infra.convertor.user.MenuConvertor;
+import edu.cuit.infra.convertor.user.RoleConverter;
 import edu.cuit.infra.convertor.user.UserConverter;
 import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
@@ -66,6 +68,8 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     private final CourseMapper courseMapper;
     private final EvaTaskMapper evaTaskMapper;
     private final EvaConvertor evaConvertor;
+    private final RoleConverter roleConverter;
+    private final MenuConvertor menuConvertor;
     private final PaginationConverter paginationConverter;
     private final UserConverter userConverter;
     private final CourseConvertor courseConvertor;
@@ -592,12 +596,9 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         //根据userId找到角色id集合
         List<Integer> roleIds = sysUserRoleMapper.selectList(new QueryWrapper<SysUserRoleDO>().eq("user_id", userId)).stream().map(SysUserRoleDO::getRoleId).toList();
         //根据角色id集合找到角色对象集合
-        List<RoleEntity> roleEntities = sysRoleMapper.selectList(new QueryWrapper<SysRoleDO>().in("id", roleIds)).stream().map(roleDO -> userConverter.toRoleEntity(roleDO)).toList();
+        List<RoleEntity> roleEntities = sysRoleMapper.selectList(new QueryWrapper<SysRoleDO>().in("id", roleIds)).stream().map(roleDO -> roleConverter.toRoleEntity(roleDO)).toList();
         //根据角色id集合找到角色菜单表中的菜单id集合
-        List<Integer> menuIds = sysRoleMenuMapper.selectList(new QueryWrapper<SysRoleMenuDO>().in("role_id", roleIds)).stream().map(SysRoleMenuDO::getMenuId).toList();
-        //根据menuids找到菜单对象集合
-        List<MenuEntity> menuEntities = sysMenuMapper.selectList(new QueryWrapper<SysMenuDO>().in("id", menuIds)).stream().map(menuDO -> userConverter.toMenuEntity(menuDO)).toList();
-        return userConverter.toUserEntity(userDO,roleEntities,menuEntities);
+        return userConverter.toUserEntity(userDO,roleEntities);
     }
     private CourseEntity toCourseEntity(Integer courseId,Integer semId){
         //构造semester

@@ -26,7 +26,6 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
     private final EvaTaskMapper evaTaskMapper;
     private final EvaConvertor evaConvertor;
     private final FormRecordMapper formRecordMapper;
-    private final CourOneEvaTemplateMapper courOneEvaTemplateMapper;
     private final MsgTipMapper msgTipMapper;
     @Override
     @Transactional
