@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 @RequiredArgsConstructor
-public class logGatewayImpl implements LogGateway {
+public class LogGatewayImpl implements LogGateway {
     private final SysLogMapper logMapper;
     private final SysUserMapper userMapper;
     private final SysRoleMapper roleMapper;
