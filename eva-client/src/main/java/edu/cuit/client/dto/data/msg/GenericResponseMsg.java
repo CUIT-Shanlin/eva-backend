@@ -1,6 +1,7 @@
 package edu.cuit.client.dto.data.msg;
 
 import com.alibaba.cola.dto.DTO;
+import edu.cuit.client.dto.clientobject.course.SingleCourseCO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -8,12 +9,12 @@ import lombok.experimental.Accessors;
 import java.time.LocalDateTime;
 
 /**
- * 评教消息接收模型，前端接收到的评教性质的消息模型，评教接收消息较其他接收消息 只是多了 选的课程的基础消息。
+ * 服务端返回评教消息
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class WebsocketRequestMsg extends DTO {
+public class GenericResponseMsg extends DTO {
 
     /**
      * id
@@ -48,26 +49,31 @@ public class WebsocketRequestMsg extends DTO {
     /**
      * 接收消息的用户的id，为null则向所有人发送
      */
-    private Integer recipientId;
-
-    /**
-     * 发起人的id(-1或null: 系统发起)
-     */
-    private Integer senderId;
-
-    /**
-     * 评教任务的id，当且仅当为评教消息时有意义
-     */
-    private Integer taskId;
+    private Long recipientId;
 
     /**
      * 消息类型（0：待办，1：通知，2：提醒，3：警告）
      */
     private Integer type;
 
+
     /**
-     * 创建时间
+     * 发起人的id(-1或null: 系统发起)
+     */
+    private Long senderId;
+
+    /**
+     * 评教任务的id，当且仅当为评教消息时有意义
+     */
+    private Long taskId;
+
+    /**
+     * 消息发送时间
      */
     private LocalDateTime createTime;
 
+    /**
+     * 发起人的名称，发起人的名称
+     */
+    private String senderName;
 }

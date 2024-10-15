@@ -29,10 +29,9 @@ public class MsgGatewayImpl implements MsgGateway {
     @Override
     public List<MsgEntity> queryMsg(Integer userId, Integer type, Integer mode) {
         LambdaQueryWrapper<MsgTipDO> msgQuery = Wrappers.lambdaQuery();
-        msgQuery
-                .eq(MsgTipDO::getRecipientId,userId)
-                .eq(MsgTipDO::getType,type)
-                .eq(MsgTipDO::getMode,mode);
+        msgQuery.eq(MsgTipDO::getRecipientId,userId);
+        if (type != null && type >= 0) msgQuery.eq(MsgTipDO::getType,type);
+        if (mode != null && mode >= 0) msgQuery.eq(MsgTipDO::getMode,mode);
         return msgTipMapper.selectList(msgQuery).stream()
                 .map(this::getMsgEntity)
                 .toList();
@@ -41,10 +40,9 @@ public class MsgGatewayImpl implements MsgGateway {
     @Override
     public List<MsgEntity> queryTargetAmountMsg(Integer userId, Integer num, Integer type) {
         LambdaQueryWrapper<MsgTipDO> msgQuery = Wrappers.lambdaQuery();
-        msgQuery
-                .eq(MsgTipDO::getRecipientId,userId)
-                .eq(MsgTipDO::getType,type)
-                .last("limit " + num);
+        msgQuery.eq(MsgTipDO::getRecipientId,userId);
+        if (type != null && type >= 0) msgQuery.eq(MsgTipDO::getType,type);
+        if (num != null && num >= 0) msgQuery.last("limit " + num);
         return msgTipMapper.selectList(msgQuery).stream()
                 .map(this::getMsgEntity)
                 .toList();

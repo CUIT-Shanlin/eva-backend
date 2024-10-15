@@ -2,8 +2,8 @@ package edu.cuit.adapter.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckPermission;
-import edu.cuit.client.dto.data.msg.WebsocketRequestMsg;
-import edu.cuit.client.dto.data.msg.WebsocketResponseMsg;
+import edu.cuit.client.dto.data.msg.GenericRequestMsg;
+import edu.cuit.client.dto.data.msg.GenericResponseMsg;
 import edu.cuit.client.validator.status.ValidStatus;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +28,8 @@ public class MessageController {
      */
     @GetMapping("/tips/{type}/{mode}")
     @SaCheckLogin
-    public CommonResult<List<WebsocketResponseMsg>> getUserTargetTypeMsg(@PathVariable("type") @ValidStatus(value = {0,1,2,3}, message = "消息类型只能为0,1,2,3,负数或空") Integer type,
-                                                                         @PathVariable("mode") @ValidStatus(message = "mode只能是0,1,负数或空") Integer mode) {
+    public CommonResult<List<GenericResponseMsg>> getUserTargetTypeMsg(@PathVariable("type") @ValidStatus(value = {0,1,2,3}, message = "消息类型只能为0,1,2,3,负数或空") Integer type,
+                                                                       @PathVariable("mode") @ValidStatus(message = "mode只能是0,1,负数或空") Integer mode) {
         return null;
     }
 
@@ -40,8 +40,8 @@ public class MessageController {
      */
     @GetMapping("/tips/myNum/{num}/{type}")
     @SaCheckLogin
-    public CommonResult<List<WebsocketResponseMsg>> getUserTargetAmountAndTypeMsg(@PathVariable("num") Integer num,
-                                                                                  @PathVariable("type") @ValidStatus(value = {0,1,2,3}, message = "消息类型只能为0,1,2,3,负数或空") Integer type) {
+    public CommonResult<List<GenericResponseMsg>> getUserTargetAmountAndTypeMsg(@PathVariable("num") Integer num,
+                                                                                @PathVariable("type") @ValidStatus(value = {0,1,2,3}, message = "消息类型只能为0,1,2,3,负数或空") Integer type) {
         return null;
     }
 
@@ -85,7 +85,7 @@ public class MessageController {
      */
     @PostMapping("/tips/send")
     @SaCheckPermission("msg.tips.send")
-    public CommonResult<Void> sendMessage(@RequestBody WebsocketRequestMsg msg) {
+    public CommonResult<Void> sendMessage(@RequestBody GenericRequestMsg msg) {
         return null;
     }
 }
