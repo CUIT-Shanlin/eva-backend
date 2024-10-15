@@ -128,4 +128,18 @@ public interface EvaQueryGateway {
      * @param id 用户id
      */
     Integer getEvaNumber(Long id);
+
+    /**
+     * 获取一个任务对应的评教模板
+     * @param taskId 任务id
+     * @param semId 学期id
+     */
+
+    Optional<String> getTaskTemplate(Integer taskId, Integer semId);
+    /**
+     * 获取各个分数段中 课程的数目情况
+     * @param num 获取多少个分数段的数据，分数段截取后段，如果有某个分数段 课程数目为0，应当忽略掉，不参与计算
+     * @param interval 间隔，分数段之间的默认间隔，如果按照该间隔，无法达到 num 个有数据的分数段，则将间隔减少0.2分，直到达到 num 个分数段
+     */
+    List<ScoreRangeCourseCO> scoreRangeCourseInfo(Integer num,Integer interval);
 }

@@ -57,6 +57,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         evaTaskDO.setStatus(1);
         evaTaskDO.setUpdateTime(LocalDateTime.now());
         evaTaskMapper.update(evaTaskDO,new QueryWrapper<EvaTaskDO>().eq("id",evaTaskFormCO.getTaskId()));
+
         //删除对应的两种消息 “该任务的待办评教消息” “该任务的系统逾期提醒消息” 根据type判断？
         msgTipMapper.delete(new QueryWrapper<MsgTipDO>().eq("task_id",evaTaskFormCO.getTaskId()).eq("type",0));
         msgTipMapper.delete(new QueryWrapper<MsgTipDO>().eq("task_id",evaTaskFormCO.getTaskId()).eq("type",2));
@@ -92,7 +93,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         for(int i=0;i<evaCourInfDOList.size();i++){
             if(courInfDO.getWeek()==evaCourInfDOList.get(i).getWeek()){
                 if(courInfDO.getDay()==evaCourInfDOList.get(i).getDay()){
-                    if(courInfDO.getStartTime()<evaCourInfDOList.get(i).getEndTime()||courInfDO.getEndTime()>evaCourInfDOList.get(i).getStartTime()){
+                    if(courInfDO.getStartTime()>=evaCourInfDOList.get(i).getEndTime()||courInfDO.getEndTime()<=evaCourInfDOList.get(i).getStartTime()){
                         throw new UpdateException("与你其他任务所上课程冲突");
                     }
                 }
