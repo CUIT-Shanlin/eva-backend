@@ -1,13 +1,9 @@
 package edu.cuit.adapter.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
-import cn.dev33.satoken.annotation.SaCheckPermission;
-import edu.cuit.client.dto.clientobject.EvaMsgCO;
-import edu.cuit.client.dto.cmd.SendWarningMsgCmd;
-import edu.cuit.client.dto.data.msg.ServerMsg;
+import edu.cuit.client.dto.data.msg.WebsocketResponseMsg;
 import edu.cuit.client.validator.status.ValidStatus;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -30,8 +26,8 @@ public class MessageController {
      */
     @GetMapping("/tips/{type}/{mode}")
     @SaCheckLogin
-    public CommonResult<List<ServerMsg>> getUserTargetTypeMsg(@PathVariable("type") @ValidStatus(value = {0,1,2,3}, message = "消息类型只能为0,1,2,3,负数或空") Integer type,
-                                                           @PathVariable("mode") @ValidStatus(message = "mode只能是0,1,负数或空") Integer mode) {
+    public CommonResult<List<WebsocketResponseMsg>> getUserTargetTypeMsg(@PathVariable("type") @ValidStatus(value = {0,1,2,3}, message = "消息类型只能为0,1,2,3,负数或空") Integer type,
+                                                                         @PathVariable("mode") @ValidStatus(message = "mode只能是0,1,负数或空") Integer mode) {
         return null;
     }
 
@@ -42,8 +38,8 @@ public class MessageController {
      */
     @GetMapping("/msg/tips/myNum/{num}/{type}")
     @SaCheckLogin
-    public CommonResult<List<ServerMsg>> getUserTargetAmountAndTypeMsg(@PathVariable("num") Integer num,
-                                                                       @PathVariable("type") @ValidStatus(value = {0,1,2,3}, message = "消息类型只能为0,1,2,3,负数或空") Integer type) {
+    public CommonResult<List<WebsocketResponseMsg>> getUserTargetAmountAndTypeMsg(@PathVariable("num") Integer num,
+                                                                                  @PathVariable("type") @ValidStatus(value = {0,1,2,3}, message = "消息类型只能为0,1,2,3,负数或空") Integer type) {
         return null;
     }
 
@@ -74,12 +70,10 @@ public class MessageController {
     /**
      * 批量修改某种性质的消息的已读状态，（注：改为已读的同时，也要改为已显示）
      * @param mode 确定待批量修改的是普通消息还是评教消息，0: 普通消息；1：评教消息
-     * @param recipientId 接收者id
      */
-    @PutMapping("/msg/tips/{mode}/{recipientId}")
+    @PutMapping("/msg/tips/{mode}}")
     @SaCheckLogin
-    public CommonResult<Void> updateMultipleMsgRead(@PathVariable("mode") @ValidStatus(message = "mode只能为0或1") Integer mode,
-                                                    @PathVariable("recipientId") Integer recipientId) {
+    public CommonResult<Void> updateMultipleMsgRead(@PathVariable("mode") @ValidStatus(message = "mode只能为0或1") Integer mode) {
         return null;
     }
 }
