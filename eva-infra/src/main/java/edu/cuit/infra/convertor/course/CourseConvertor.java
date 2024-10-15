@@ -1,12 +1,14 @@
 package edu.cuit.infra.convertor.course;
 
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
+import edu.cuit.client.dto.clientobject.course.RecommendCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
 import edu.cuit.client.dto.clientobject.course.SubjectCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
 import edu.cuit.client.dto.cmd.course.UpdateCourseCmd;
 import edu.cuit.client.dto.cmd.course.UpdateSingleCourseCmd;
 import edu.cuit.client.dto.data.course.CoursePeriod;
+import edu.cuit.client.dto.data.course.CourseTime;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.domain.entity.course.*;
 import edu.cuit.domain.entity.user.biz.UserEntity;
@@ -101,4 +103,23 @@ public interface CourseConvertor {
 
     })
     CourseDO toCourseDO(UpdateCourseCmd courseInfo, Integer subjectId, Integer teacherId, Integer semId);
+
+    @Mappings({
+            @Mapping(target = "id",source = "courInfDO.id"),
+            @Mapping(target = "name",source = "subject.name"),
+            @Mapping(target = "teacherName",source = "user.username"),
+            @Mapping(target = "evaNum",source = "evaNum"),
+            @Mapping(target = "location",source = "courInfDO.location"),
+            @Mapping(target = "time",source = "time"),
+            @Mapping(target = "evaTeacherNum",source = "evaTeacherNum"),
+            @Mapping(target = "typeList",source = "list"),
+            @Mapping(target = "priority",source = "priority"),
+            @Mapping(target = "typeSimilarity",source = "typeSimilarity"),
+    })
+    RecommendCourseCO toRecommendCourseCO(CourInfDO courInfDO, SubjectDO subject,
+                                          SysUserDO user, Integer evaNum,
+                                          CourseTime time,Integer evaTeacherNum,
+                                          List<CourseType> list,
+                                          Double priority,Double typeSimilarity);
+    CourseTime toCourseTime(CourInfDO courInfDO);
 }

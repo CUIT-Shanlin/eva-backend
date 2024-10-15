@@ -61,11 +61,11 @@ public class RecommendCourseCO extends ClientObject {
     /**
      * 这节课被推荐的优先级
      */
-    private Float priority;
+    private Double priority;
 
     /**
      * 这节课和自己的教学课程的类型相似度
      */
-    private Float typeSimilarity;
+    private Double typeSimilarity;
 
 }
