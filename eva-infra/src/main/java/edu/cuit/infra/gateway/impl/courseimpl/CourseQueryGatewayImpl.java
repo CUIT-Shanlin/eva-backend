@@ -424,7 +424,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
 //TODO(有问题待修改)
     @Override
     public List<RecommendCourseCO> getSelfCourse(Integer semId, String userName) {
-       //TODO(待实现)
+
 
 
         return null;
