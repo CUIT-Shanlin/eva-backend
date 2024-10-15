@@ -334,8 +334,8 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         //得到SingleCourseEntity对象集合
 
         List<SingleCourseEntity> list = new ArrayList<>();
-        for (CourInfDO courInfDO : map.keySet()) {
-            list.add(courseConvertor.toSingleCourseEntity(map.get(courInfDO), courInfDO));
+        for (Map.Entry<CourInfDO, CourseEntity> courInfDOCourseEntityEntry : map.entrySet()) {
+            list.add(courseConvertor.toSingleCourseEntity(courInfDOCourseEntityEntry.getValue(), courInfDOCourseEntityEntry.getKey()));
         }
       return list;
 
