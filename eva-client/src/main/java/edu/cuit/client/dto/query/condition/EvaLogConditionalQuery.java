@@ -12,7 +12,7 @@ import java.util.List;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class EvaConditionalQuery extends ConditionalQuery {
+public class EvaLogConditionalQuery extends GenericConditionalQuery {
 
     /**
      * 课程id数组，课程id数组
@@ -59,5 +59,8 @@ public class EvaConditionalQuery extends ConditionalQuery {
      * 教学教师的id数组，教学教师的id数组
      */
     private List<Long> teacherIds;
-
+    /**
+    * 输入框中输入的查询关键字
+    */
+    private String keyword;
 }

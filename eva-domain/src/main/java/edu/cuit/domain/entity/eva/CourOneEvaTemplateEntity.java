@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 /**
- * 评教记录domain entity
+ * 课程评教情况domain entity
  */
 @Entity
 @Data

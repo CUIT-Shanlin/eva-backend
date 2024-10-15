@@ -14,10 +14,4 @@
             <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
             <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
     </resultMap>
-
-    <sql id="Base_Column_List">
-        id,teachar_id,cour_inf_id,eva_template_id,
-        status,create_time,update_time,
-        is_deleted
-    </sql>
 </mapper>

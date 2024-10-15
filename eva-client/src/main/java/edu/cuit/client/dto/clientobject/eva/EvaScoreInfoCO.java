@@ -15,17 +15,13 @@ import java.util.List;
 @Accessors(chain = true)
 public class EvaScoreInfoCO extends ClientObject{
     /**
-     * id
-     */
-    private Long id;
-    /**
      * 低于 指定分数的数目
      */
-    private Long lowerNum;
+    private Integer lowerNum;
     /**
      * 总记录数
      */
-    private Long totalNum;
+    private Integer totalNum;
     /**
      *高于指定分数的百分比
      */
@@ -33,11 +29,11 @@ public class EvaScoreInfoCO extends ClientObject{
     /**
      *较昨日 lowerNum 多了多少
      */
-    private Long moreNum;
+    private Integer moreNum;
     /**
      * 较昨日 percent 多了多少
      */
-    private Long morePercent;
+    private Integer morePercent;
     /**
      * 7日内 percent 的值
      */
