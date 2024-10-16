@@ -26,6 +26,13 @@ public interface IEvaTemplateService {
      * 获取所有模板的基础信息，仅包含名称和id信息
      */
     List<SimpleResultCO> evaAllTemplate ();
+    /**
+     * 获取一个任务对应的评教模板，任务id拿到这节课的id，这节课的id拿这门课的id，然后可以拿到对应的“模板的快照表”中的评教模板，
+     * 注：要拿快照中的模板，不要直接去找“评教模板表”中的模板。
+     * @param taskId 任务id
+     * @param semId 学期id
+     */
+    String evaTemplateByTaskId(Integer taskId,Integer semId);
 
     //修改
 
@@ -53,15 +60,5 @@ public interface IEvaTemplateService {
      */
     Void addEvaTemplate(EvaTemplateCO evaTemplateCO);
 
-    /**
-     * 提交评教表单，完成评教任务
-     * @param evaTaskFormCO 评教表单评价分值dto//返回数据类型原来没有刚建的
-     */
-    Void putEvaTemplate(EvaTaskFormCO evaTaskFormCO);
-    /**
-     * 获取一个任务对应的评教模板
-     * @param taskId 任务id
-     * @param semId 学期id
-     */
-    String getTaskTemplate(Integer taskId, Integer semId);
+
 }

@@ -23,7 +23,17 @@ public interface IEvaTaskService {
      * @param query 查询dto
      */
     PaginationQueryResultCO<EvaTaskBaseInfoCO> pageEvaUnfinishedTask(Integer semId, PagingQuery<GenericConditionalQuery> query);
-
+    /**
+     * 获取自己的所有待办评教任务
+     * @param semId 学期id
+     * @param keyword 模糊查询的关键字，模糊查询课程名称或教学老师姓名
+     */
+    List<EvaTaskDetailInfoCO> evaSelfTaskInfo(Integer semId, String keyword);
+    /**
+     * 获取一个评教任务的详细信息
+     * @param id 任务id
+     */
+    EvaTaskDetailInfoCO oneEvaTaskInfo(Integer id);
     //修改
 
     /**
@@ -43,16 +53,6 @@ public interface IEvaTaskService {
      * @param id 任务id
      */
     Void cancelMyEvaTask(Integer id);
-    /**
-     * 获取自己的所有待办评教任务
-     * @param id 用户 ID 编号
-     * @param keyword 模糊查询课程名称或教学老师姓名
-     */
-    List<EvaTaskDetailInfoCO> evaSelfTaskInfo(Integer id, String keyword);
-    /**
-     * 获取一个评教任务的详细信息
-     * @param id 任务id
-     */
-    EvaTaskDetailInfoCO oneEvaTaskInfo(Integer id);
+
 
 }
