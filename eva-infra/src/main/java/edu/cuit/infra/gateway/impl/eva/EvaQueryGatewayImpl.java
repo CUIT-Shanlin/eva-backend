@@ -141,8 +141,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         List<EvaRecordEntity> list = records.stream().map(formRecordDO->evaConvertor.ToEvaRecordEntity(formRecordDO,
                 evaTaskEntities.stream().filter(evaTaskDO->evaTaskDO.getId()
                         .equals(formRecordDO.getTaskId())).findFirst().get())).toList();
-        PaginationResultEntity<EvaRecordEntity> paginationEntity=paginationConverter.toPaginationEntity(pageLog,list);
-        return paginationEntity;
+        return paginationConverter.toPaginationEntity(pageLog,list);
     }
 
     @Override
@@ -194,8 +193,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
 
         List<EvaTaskEntity> evaTaskEntities=getEvaTaskEntities(records,userEntities,courseEntities);
 
-        PaginationResultEntity<EvaTaskEntity> evaTaskEntityPaginationEntity=paginationConverter.toPaginationEntity(pageTask,evaTaskEntities);
-        return evaTaskEntityPaginationEntity;
+        return paginationConverter.toPaginationEntity(pageTask,evaTaskEntities);
     }
 
     @Override
@@ -209,8 +207,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         QueryUtils.fileTimeQuery(queryWrapper,query.getQueryObj());
         Page<FormTemplateDO> formTemplateDOPage = formTemplateMapper.selectPage(page, queryWrapper);
         List<EvaTemplateEntity> evaTemplateEntities=formTemplateDOPage.getRecords().stream().map(pageEvaTemplateDO -> evaConvertor.ToEvaTemplateEntity(pageEvaTemplateDO)).toList();
-        PaginationResultEntity<EvaTemplateEntity> evaTemplateEntityPaginationEntity =paginationConverter.toPaginationEntity(page,evaTemplateEntities);
-        return evaTemplateEntityPaginationEntity;
+        return paginationConverter.toPaginationEntity(page,evaTemplateEntities);
     }
     //ok
     @Override
@@ -242,13 +239,11 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
                 throw new QueryException("并没有找到相关的课程");
             }
             List<SingleCourseEntity> courseEntities=getListCurInfoEntities(courInfDOS,id);
-            List<SysUserDO> teachers=sysUserMapper.selectList(teacherWrapper);;
+            List<SysUserDO> teachers=sysUserMapper.selectList(teacherWrapper);
 
             List<UserEntity> userEntities=teachers.stream().map(sysUserDO->toUserEntity(sysUserDO.getId())).toList();
 
-            List<EvaTaskEntity> list=getEvaTaskEntities(evaTaskDOS,userEntities,courseEntities);
-
-            return list;
+            return getEvaTaskEntities(evaTaskDOS,userEntities,courseEntities);
         }else{
             throw new QueryException("你输入的关键字里面并没有相应的老师名称或者课程名称");
         }
@@ -294,8 +289,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
 
             List<EvaTaskEntity> evaTaskEntityList=getEvaTaskEntities(evaTaskDOS,userEntities,courseEntities);
 
-            List<EvaRecordEntity> list=getRecordEntities(formRecordDOS,evaTaskEntityList);
-            return list;
+            return getRecordEntities(formRecordDOS,evaTaskEntityList);
         }else{
             throw new QueryException("你给的关键词信息不足以查询出应有课程或者老师");
         }
@@ -416,7 +410,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             throw new QueryException("没有相应的评教记录，不能进行计算");
         }
         //获取上个月和本月的评教数目，以有两个整数的List形式返回，data[0]：上个月评教数目；data[1]：本月评教数目
-        List<Integer> list=new ArrayList<Integer>();
+        List<Integer> list=new ArrayList<>();
         list.add(lastFormRecordDOS.size());
         list.add(nowFormRecordDOS.size());
         return list;
@@ -427,9 +421,9 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         //根据semId找到
         List<Integer> evaTaskIdS=getEvaTaskIdS(semId);
         LocalDateTime timeEnd=LocalDateTime.now();
-        LocalDateTime timeStart=LocalDateTime.now().minusDays(num);
+        LocalDateTime timeStart=LocalDateTime.now().minusDays((long)num);
 
-        LocalDateTime lastStart=LocalDateTime.now().minusDays(2*num);
+        LocalDateTime lastStart=LocalDateTime.now().minusDays((long)2*num);
         LocalDateTime lastEnd=LocalDateTime.now().minusDays(num);
         List<FormRecordDO> formRecordDOS1=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIdS).between("create_time",timeStart,timeEnd));
         List<FormRecordDO> formRecordDOS2=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIdS).between("create_time",lastStart,lastEnd));
@@ -440,9 +434,9 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         List<TimeEvaNumCO> dataArr=new ArrayList<>();
 
         for(int i=1;i<=num;i++){
-            List<FormRecordDO> formRecordDOS3=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIdS).between("create_time",LocalDateTime.now().minusDays(num-i+1),LocalDateTime.now().minusDays(num-i)));
+            List<FormRecordDO> formRecordDOS3=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIdS).between("create_time",LocalDateTime.now().minusDays((long)num-i+1),LocalDateTime.now().minusDays((long)num-i)));
             TimeEvaNumCO timeEvaNumCO=new TimeEvaNumCO();
-            timeEvaNumCO.setTime(String.valueOf(LocalDateTime.now().minusDays(num-i)));
+            timeEvaNumCO.setTime(String.valueOf(LocalDateTime.now().minusDays((long)num-i)));
             timeEvaNumCO.setMoreEvaNum(formRecordDOS3.size());
             dataArr.add(timeEvaNumCO);
         }
@@ -571,11 +565,9 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
                 records.add(unqualifiedUserInfoCO);
             }
         }
-        Page<UnqualifiedUserInfoCO> pageUnqualifiedUserInfoCO=new Page<UnqualifiedUserInfoCO>(query.getPage(), query.getSize(),records.size());
+        Page<UnqualifiedUserInfoCO> pageUnqualifiedUserInfoCO=new Page<>(query.getPage(), query.getSize(),records.size());
 
-        PaginationResultEntity<UnqualifiedUserInfoCO> paginationEntity = paginationConverter.toPaginationEntity(pageUnqualifiedUserInfoCO,records);
-
-        return paginationEntity;
+        return paginationConverter.toPaginationEntity(pageUnqualifiedUserInfoCO,records);
     }
     @Override
     public PaginationResultEntity<UnqualifiedUserInfoCO> pageBeEvaUnqualifiedUserInfo(PagingQuery<UnqualifiedUserConditionalQuery> query,Integer target){
@@ -600,11 +592,9 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
                 records.add(unqualifiedUserInfoCO);
             }
         }
-        Page<UnqualifiedUserInfoCO> pageUnqualifiedUserInfoCO=new Page<UnqualifiedUserInfoCO>(query.getPage(), query.getSize(),records.size());
+        Page<UnqualifiedUserInfoCO> pageUnqualifiedUserInfoCO=new Page<>(query.getPage(), query.getSize(),records.size());
 
-        PaginationResultEntity<UnqualifiedUserInfoCO> paginationEntity = paginationConverter.toPaginationEntity(pageUnqualifiedUserInfoCO,records);
-
-        return paginationEntity;
+        return paginationConverter.toPaginationEntity(pageUnqualifiedUserInfoCO,records);
     }
 
     @Override
@@ -613,8 +603,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         //用户id-》查询评教任务的老师-》查询status==1(已评教)
         QueryWrapper<EvaTaskDO> taskWrapper=new QueryWrapper<EvaTaskDO>().eq("teacher_id",id).eq("status",1);
         List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(taskWrapper);
-        Integer a=evaTaskDOS.size();
-        return a;
+        return evaTaskDOS.size();
     }
 
     @Override
@@ -632,14 +621,12 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         if(courOneEvaTemplateDO!=null&&formTemplateDO!=null){
             throw new QueryException("不是说快照和模板那个二选一嘛");
         }
-        String s;
-        if(courOneEvaTemplateDO==null){
-            s=courOneEvaTemplateDO.getFormTemplate();
-        }else {
-            s=formTemplateDO.getProps();
-        }
-        return Optional.of(s);
 
+        if(courOneEvaTemplateDO==null){
+            return Optional.of(courOneEvaTemplateDO.getFormTemplate());
+        }else {
+            return Optional.of(formTemplateDO.getProps());
+        }
     }
 
     @Override
@@ -648,12 +635,12 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         List<FormRecordDO> formRecordDOS=formRecordMapper.selectList(null);
         List<String> strings=formRecordDOS.stream().map(FormRecordDO::getTextValue).toList();
         //整到每个记录的分
-        List<Double> numbers =null;
+        List<Double> numbers =new ArrayList<>();
         for(int i=0;i<strings.size();i++){
             //整个方法把单个text整到平均分
             numbers.set(i, stringToSumAver(strings.get(i)));
         }
-        List<ScoreRangeCourseCO> scoreRangeCourseCOS = null;
+        List<ScoreRangeCourseCO> scoreRangeCourseCOS = new ArrayList<>();
         for(int i=100;i>100-(num*interval);i=i-interval){
             Integer sum=0;
             for(int j=0;j<numbers.size();j++){
@@ -707,21 +694,20 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         }catch (Exception e){
             throw new SysException("jsonObject 数据对象转化失败");
         }
-        Iterator iter = jsonObject.entrySet().iterator();
+        Iterator<Map.Entry<String, Object>> iter = jsonObject.entrySet().iterator();
 
         while (iter.hasNext()) {
-            Map.Entry entry = (Map.Entry) iter.next();
+            Map.Entry entry = iter.next();
             score=score+(Double) entry.getValue();
         }
-        Double averScore=score/jsonObject.size();
-        return averScore;
+        return score/jsonObject.size();
     }
     //根据传来的前n天,还有evaTaskIdS返回SimplePercent对象
     private SimplePercentCO getSimplePercent(Integer n,List<Integer> evaTaskIdS,Double score){
         List<FormRecordDO> lastFormRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIdS).gt("create_time",LocalDateTime.now().minusDays(n)));
         //总评教数
         Integer totalNum=lastFormRecordDOS.size();
-        //根据他们的form_props_values得到对应的数值 TODO
+        //根据他们的form_props_values得到对应的数值
         List<String> strings=lastFormRecordDOS.stream().map(FormRecordDO::getTextValue).toList();
         List<Double> numbers =new ArrayList<>();
         //低于 指定分数的数目
@@ -742,21 +728,21 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     //根据传来的学期id返回evaTaskIdS
     private List<Integer> getEvaTaskIdS(Integer semId){
         List<CourseDO> courseDOS=courseMapper.selectList(new QueryWrapper<CourseDO>().eq("sem_id",semId));
-        List<Integer> courseIdS=courseDOS.stream().map(CourseDO::getId).toList();
 
         if(courseDOS==null){
             throw new QueryException("并未找到相关课程");
         }
+        List<Integer> courseIdS=courseDOS.stream().map(CourseDO::getId).toList();
 
         List<CourInfDO> courInfDOS=courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id",courseIdS));
         List<Integer> courInfoIdS=courInfDOS.stream().map(CourInfDO::getId).toList();
 
         List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id",courInfoIdS));
-        List<Integer> evaTaskIdS=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
 
         if(evaTaskDOS==null){
             throw new QueryException("并未找到相关评教任务");
         }
+        List<Integer> evaTaskIdS=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
 
         return evaTaskIdS;
     }
@@ -786,29 +772,29 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     //
     private Integer getEvaNumByTeacherId(Integer teacherId){
         List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id",teacherId));
-        List<Integer> taskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
 
         if(evaTaskDOS==null){
             throw new QueryException("并未找到老师id对应的老师");
         }
+        List<Integer> taskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
 
         List<FormRecordDO> formRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",taskIds));
-        List<Integer> recordIds=formRecordDOS.stream().map(FormRecordDO::getId).toList();
 
         if(formRecordDOS==null){
             throw new QueryException("并未找到评教记录");
         }
+        List<Integer> recordIds=formRecordDOS.stream().map(FormRecordDO::getId).toList();
 
         return recordIds.size();
     }
     //
     private Integer getEvaEdNumByTeacherId(Integer teacherId){
         List<CourseDO> courseDOS=courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id",teacherId));
-        List<Integer> courIdS=courseDOS.stream().map(CourseDO::getId).toList();
 
         if(courseDOS==null){
             throw new QueryException("并未找到老师id对应的老师");
         }
+        List<Integer> courIdS=courseDOS.stream().map(CourseDO::getId).toList();
 
         List<CourInfDO> courInfDOS=courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id",courIdS));
         List<Integer> courInfoIdS=courInfDOS.stream().map(CourInfDO::getId).toList();
@@ -817,11 +803,11 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         List<Integer> taskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
 
         List<FormRecordDO> formRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",taskIds));
-        List<Integer> recordIds=formRecordDOS.stream().map(FormRecordDO::getId).toList();
 
         if(formRecordDOS==null){
             throw new QueryException("并未找到评教记录");
         }
+        List<Integer> recordIds=formRecordDOS.stream().map(FormRecordDO::getId).toList();
 
         return recordIds.size();
     }
@@ -834,11 +820,11 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         }
 
         List<FormRecordDO> formRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",taskIds).between("create_time",LocalDateTime.now().minusDays(num1),LocalDateTime.now().minusDays(num2)));
-        List<Integer> recordIds=formRecordDOS.stream().map(FormRecordDO::getId).toList();
 
         if(formRecordDOS==null){
             throw new QueryException("并未找到评教记录");
         }
+        List<Integer> recordIds=formRecordDOS.stream().map(FormRecordDO::getId).toList();
 
         return recordIds.size();
     }
@@ -857,11 +843,11 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         List<Integer> taskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
 
         List<FormRecordDO> formRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",taskIds).between("create_time",LocalDateTime.now().minusDays(num1),LocalDateTime.now().minusDays(num2)));
-        List<Integer> recordIds=formRecordDOS.stream().map(FormRecordDO::getId).toList();
 
         if(formRecordDOS==null){
             throw new QueryException("并未找到评教记录");
         }
+        List<Integer> recordIds=formRecordDOS.stream().map(FormRecordDO::getId).toList();
 
         return recordIds.size();
     }
@@ -887,13 +873,8 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         return unqualifiedUserResultCO;
     }
     private List<SingleCourseEntity> getListCurInfoEntities(List<CourInfDO> courInfDOS,Integer semId){
-        List<SingleCourseEntity> courseEntities=courInfDOS.stream().map(courInfDO -> courseConvertor.toSingleCourseEntity(
+        return courInfDOS.stream().map(courInfDO -> courseConvertor.toSingleCourseEntity(
                 toCourseEntity(courInfDO.getCourseId(),semId),courInfDO)).toList();
-        return courseEntities;
     }
 
 }
-
-
-
-

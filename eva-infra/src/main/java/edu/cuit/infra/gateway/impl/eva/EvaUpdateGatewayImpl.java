@@ -32,7 +32,6 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
     private final EvaTaskMapper evaTaskMapper;
     private final EvaConvertor evaConvertor;
     private final FormRecordMapper formRecordMapper;
-    private final MsgTipMapper msgTipMapper;
     private final CourInfMapper courInfMapper;
     private final CourseMapper courseMapper;
     @Override
@@ -59,8 +58,8 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         evaTaskMapper.update(evaTaskDO,new QueryWrapper<EvaTaskDO>().eq("id",evaTaskFormCO.getTaskId()));
 
         //删除对应的两种消息 “该任务的待办评教消息” “该任务的系统逾期提醒消息” 根据type判断？
-        msgTipMapper.delete(new QueryWrapper<MsgTipDO>().eq("task_id",evaTaskFormCO.getTaskId()).eq("type",0));
-        msgTipMapper.delete(new QueryWrapper<MsgTipDO>().eq("task_id",evaTaskFormCO.getTaskId()).eq("type",2));
+        //msgTipMapper.delete(new QueryWrapper<MsgTipDO>().eq("task_id",evaTaskFormCO.getTaskId()).eq("type",0));
+        //msgTipMapper.delete(new QueryWrapper<MsgTipDO>().eq("task_id",evaTaskFormCO.getTaskId()).eq("type",2));
 
         return null;
     }
@@ -77,8 +76,8 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
 
         List<CourInfDO> courInfDOList=courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id",courseIds));
         for(int i=0;i<courInfDOList.size();i++){
-            if(courInfDO.getWeek()==courInfDOList.get(i).getWeek()){
-                if(courInfDO.getDay()==courInfDOList.get(i).getDay()){
+            if(courInfDO.getWeek().equals(courInfDOList.get(i).getWeek())){
+                if(courInfDO.getDay().equals(courInfDOList.get(i).getDay())){
                     if(courInfDO.getStartTime()<courInfDOList.get(i).getEndTime()||courInfDO.getEndTime()>courInfDOList.get(i).getStartTime()){
                         throw new UpdateException("与你其他课程冲突");
                     }
