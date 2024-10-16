@@ -9,9 +9,11 @@ import edu.cuit.client.dto.cmd.user.UpdateUserCmd;
 import edu.cuit.client.validator.status.ValidStatus;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,6 +30,18 @@ public class UserUpdateController {
     @SaCheckPermission("system.user.update")
     public CommonResult<Void> updateInfo(@PathVariable("isUpdatePwd") Boolean isUpdatePwd,
                                      @RequestBody @Valid UpdateUserCmd cmd) {
+        return null;
+    }
+
+    /**
+     * 修改用户自己的信息
+     * @param isUpdatePwd 是否需要修改密码
+     * @param cmd 修改用户模型
+     */
+    @PutMapping("/info")
+    @SaCheckLogin
+    public CommonResult<Void> updateOwnInfo(@PathVariable("isUpdatePwd") Boolean isUpdatePwd,
+                                         @RequestBody @Valid UpdateUserCmd cmd) {
         return null;
     }
 
@@ -81,6 +95,16 @@ public class UserUpdateController {
     @PostMapping("/user")
     @SaCheckPermission("system.user.add")
     public CommonResult<Void> create(@RequestBody @Valid NewUserCmd cmd) {
+        return null;
+    }
+
+    /**
+     * 修改用户自己的头像
+     * @param avatarFile 头像文件
+     */
+    @SaCheckLogin
+    @PostMapping("/user/info/avatar")
+    public CommonResult<Void> uploadAvatar(@RequestParam("avatarFile") @NotNull(message = "头像文件不能为空") MultipartFile avatarFile) {
         return null;
     }
 
