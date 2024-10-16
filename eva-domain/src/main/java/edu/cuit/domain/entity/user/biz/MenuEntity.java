@@ -1,11 +1,14 @@
 package edu.cuit.domain.entity.user.biz;
 
 import com.alibaba.cola.domain.Entity;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * 权限菜单domain entity
@@ -20,7 +23,8 @@ public class MenuEntity {
      */
     private Integer id;
 
-    private List<MenuEntity> children;
+    @Getter(AccessLevel.NONE)
+    private Supplier<List<MenuEntity>> children;
 
     /**
      * 名称
@@ -71,5 +75,14 @@ public class MenuEntity {
      * 实现逻辑删除（0:不可用 1:可用）
      */
     private Integer isDeleted;
+
+    private List<MenuEntity> cache = null;
+
+    public synchronized List<MenuEntity> getChildren() {
+        if (cache == null) {
+            cache = children.get();
+        }
+        return cache;
+    }
 
 }
