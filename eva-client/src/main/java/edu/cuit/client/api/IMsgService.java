@@ -1,7 +1,7 @@
 package edu.cuit.client.api;
 
+import edu.cuit.client.bo.MessageBO;
 import edu.cuit.client.dto.clientobject.course.SingleCourseCO;
-import edu.cuit.client.dto.data.msg.GenericRequestMsg;
 import edu.cuit.client.dto.data.msg.GenericResponseMsg;
 
 import java.util.List;
@@ -50,6 +50,6 @@ public interface IMsgService {
      * 发送消息
      * @param msg 请求消息对象
      */
-    void sendMessage(GenericRequestMsg msg);
+    void sendMessage(MessageBO msg);
 
 }

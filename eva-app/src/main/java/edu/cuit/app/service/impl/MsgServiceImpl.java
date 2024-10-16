@@ -6,6 +6,7 @@ import com.alibaba.cola.exception.SysException;
 import edu.cuit.app.convertor.MsgBizConvertor;
 import edu.cuit.app.websocket.WebsocketManager;
 import edu.cuit.client.api.IMsgService;
+import edu.cuit.client.bo.MessageBO;
 import edu.cuit.client.dto.clientobject.course.SingleCourseCO;
 import edu.cuit.client.dto.data.msg.GenericRequestMsg;
 import edu.cuit.client.dto.data.msg.GenericResponseMsg;
@@ -64,7 +65,7 @@ public class MsgServiceImpl implements IMsgService {
     }
 
     @Override
-    public void sendMessage(GenericRequestMsg msg) {
+    public void sendMessage(MessageBO msg) {
         String senderName = null;
         if (msg.getIsShowName() == 1) {
             if (msg.getSenderId() != null && msg.getSenderId() >= 0) {
@@ -76,8 +77,9 @@ public class MsgServiceImpl implements IMsgService {
                         });
             } else senderName = "系统";
         }
-        websocketManager.sendMessage(msg.getRecipientId(),msgBizConvertor.toResponseMsg(msg,senderName));
-        msgGateway.insertMessage(msg);
+        GenericRequestMsg requestMsg = msgBizConvertor.toRequestMsg(msg);
+        websocketManager.sendMessage(msg.getRecipientId(),msgBizConvertor.toResponseMsg(requestMsg,senderName));
+        msgGateway.insertMessage(requestMsg);
     }
 
     private Integer checkAndGetUserId() {
