@@ -1,11 +1,14 @@
 package edu.cuit.domain.entity.user.biz;
 
 import com.alibaba.cola.domain.Entity;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * 角色domain entity
@@ -33,7 +36,8 @@ public class RoleEntity {
     /**
      * 角色权限菜单列表
      */
-    private List<MenuEntity> menus;
+    @Getter(AccessLevel.NONE)
+    private Supplier<List<MenuEntity>> menus;
 
     /**
      * 状态(0:禁止,1:正常)
@@ -60,6 +64,15 @@ public class RoleEntity {
      */
     public Boolean isDeleted() {
         return isDeleted == 1;
+    }
+
+    private List<MenuEntity> caches = null;
+
+    public synchronized List<MenuEntity> getMenus() {
+        if (caches == null) {
+            caches = menus.get();
+        }
+        return caches;
     }
 
 }

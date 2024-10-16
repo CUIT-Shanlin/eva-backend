@@ -30,6 +30,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 @Component
 @RequiredArgsConstructor
@@ -136,11 +137,11 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
         //查询角色
         LambdaQueryWrapper<SysRoleDO> roleQuery = new LambdaQueryWrapper<>();
         roleQuery.in(SysRoleDO::getId, getUserRoleIds(userDO.getId()));
-        List<RoleEntity> userRoles = roleMapper.selectList(roleQuery).stream()
+        Supplier<List<RoleEntity>> userRoles = () -> roleMapper.selectList(roleQuery).stream()
                 .map(roleDo -> {
 
                     //查询角色权限菜单
-                    List<MenuEntity> menus = roleQueryGateway.getRoleMenuIds(roleDo.getId())
+                    Supplier<List<MenuEntity>> menus = () -> roleQueryGateway.getRoleMenuIds(roleDo.getId())
                             .stream()
                             .map(menuId -> menuQueryGateway.getOne(menuId).orElseThrow(() -> {
                                 SysException sysException = new SysException("菜单查询出错，请联系管理员");
