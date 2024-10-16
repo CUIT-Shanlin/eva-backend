@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.Named;
 import org.mapstruct.TargetType;
 import org.springframework.beans.BeansException;
+import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Optional;
@@ -14,6 +15,7 @@ import java.util.Optional;
  * Entity工厂类
  */
 @Slf4j
+@Component
 public class EntityFactory {
 
     public <T> T newPrototypeInstance(@TargetType Class<T> clazz) {

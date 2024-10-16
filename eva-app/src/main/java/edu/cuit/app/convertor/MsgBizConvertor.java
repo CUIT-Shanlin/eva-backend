@@ -34,8 +34,8 @@ public abstract class MsgBizConvertor {
     public abstract GenericResponseMsg toResponseMsg(GenericRequestMsg msg,String senderName);
 
     @Mappings({
-            @Mapping(target = "isDisplayed", defaultValue = "0"),
-            @Mapping(target = "isRead", defaultValue = "0")
+            @Mapping(target = "isDisplayed", constant = "0"),
+            @Mapping(target = "isRead", constant = "0")
     })
     public abstract GenericRequestMsg toRequestMsg(MessageBO msg);
 
@@ -43,7 +43,8 @@ public abstract class MsgBizConvertor {
             @Mapping(target = "recipientId", expression = "java(msg.getRecipient().getId())"),
             @Mapping(target = "senderId", expression = "java(msg.getSender().getId())"),
             @Mapping(target = "senderName", expression = "java(msg.getSender().getName())"),
-            @Mapping(target = "courseInfo", source = "singleCourseCO")
+            @Mapping(target = "courseInfo", source = "singleCourseCO"),
+            @Mapping(target = "id",source = "msg.id")
     })
     public abstract EvaResponseMsg toEvaResponseMsg(MsgEntity msg, SingleCourseCO singleCourseCO);
 

@@ -39,8 +39,8 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
     private final SysUserMapper userMapper;
     private final SysRoleMapper roleMapper;
 
-    private RoleQueryGateway roleQueryGateway;
-    private MenuQueryGateway menuQueryGateway;
+    private final RoleQueryGateway roleQueryGateway;
+    private final MenuQueryGateway menuQueryGateway;
 
     private final UserConverter userConverter;
     private final RoleConverter roleConverter;
