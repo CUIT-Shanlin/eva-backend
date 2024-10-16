@@ -2,10 +2,12 @@ package edu.cuit.adapter.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import edu.cuit.client.dto.cmd.SendMessageCmd;
 import edu.cuit.client.dto.data.msg.GenericRequestMsg;
 import edu.cuit.client.dto.data.msg.GenericResponseMsg;
 import edu.cuit.client.validator.status.ValidStatus;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -85,7 +87,7 @@ public class MessageController {
      */
     @PostMapping("/tips/send")
     @SaCheckPermission("msg.tips.send")
-    public CommonResult<Void> sendMessage(@RequestBody GenericRequestMsg msg) {
+    public CommonResult<Void> sendMessage(@RequestBody @Valid SendMessageCmd msg) {
         return null;
     }
 }

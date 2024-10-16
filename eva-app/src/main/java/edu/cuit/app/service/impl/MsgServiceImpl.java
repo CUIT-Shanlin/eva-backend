@@ -1,6 +1,7 @@
 package edu.cuit.app.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.cola.exception.BizException;
 import com.alibaba.cola.exception.SysException;
 import edu.cuit.app.convertor.MsgBizConvertor;
@@ -17,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +32,8 @@ public class MsgServiceImpl implements IMsgService {
     private final WebsocketManager websocketManager;
 
     private final MsgBizConvertor msgBizConvertor;
+
+    private final Executor executor;
 
     @Override
     public List<GenericResponseMsg> getUserTargetTypeMsg(Integer type, Integer mode, SingleCourseCO courseInfo) {
@@ -78,8 +83,23 @@ public class MsgServiceImpl implements IMsgService {
             } else senderName = "系统";
         }
         GenericRequestMsg requestMsg = msgBizConvertor.toRequestMsg(msg);
-        websocketManager.sendMessage(msg.getRecipientId(),msgBizConvertor.toResponseMsg(requestMsg,senderName));
-        msgGateway.insertMessage(requestMsg);
+        GenericResponseMsg responseMsg = msgBizConvertor.toResponseMsg(requestMsg, senderName);
+        // 判断是否为广播消息
+        if (msg.getRecipientId() == null || msg.getRecipientId() < 0) {
+            // 异步处理
+            CompletableFuture.runAsync(() -> {
+                for (Integer id : userQueryGateway.findAllUserId()) {
+                    GenericRequestMsg cloneMsg = ObjectUtil.clone(requestMsg);
+                    cloneMsg.setRecipientId(id);
+                    msgGateway.insertMessage(cloneMsg);
+                }
+                websocketManager.broadcastMessage(responseMsg);
+            },executor);
+
+        } else {
+            websocketManager.sendMessage(msg.getRecipientId(),responseMsg);
+            msgGateway.insertMessage(requestMsg);
+        }
     }
 
     private Integer checkAndGetUserId() {
