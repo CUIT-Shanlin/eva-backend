@@ -2,7 +2,7 @@ package edu.cuit.app.resolver.course;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.cola.exception.BizException;
-import edu.cuit.app.bo.CourseExcelBO;
+import edu.cuit.client.bo.CourseExcelBO;
 import edu.cuit.app.util.ExcelUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;

@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class ServerMsg extends DTO {
+public class GenericResponseMsg extends DTO {
 
     /**
      * id
@@ -56,10 +56,6 @@ public class ServerMsg extends DTO {
      */
     private Integer type;
 
-    /**
-     * 发起人的名称，发起人的名称
-     */
-    private String senderName;
 
     /**
      * 发起人的id(-1或null: 系统发起)
@@ -72,12 +68,12 @@ public class ServerMsg extends DTO {
     private Long taskId;
 
     /**
-     * 一节课的模型
-     */
-    private SingleCourseCO courseInfo;
-
-    /**
      * 消息发送时间
      */
     private LocalDateTime createTime;
+
+    /**
+     * 发起人的名称，发起人的名称
+     */
+    private String senderName;
 }

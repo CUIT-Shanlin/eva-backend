@@ -1,8 +1,7 @@
 package edu.cuit.app.resolver.course;
 
-import edu.cuit.app.bo.CourseExcelBO;
+import edu.cuit.client.bo.CourseExcelBO;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 
