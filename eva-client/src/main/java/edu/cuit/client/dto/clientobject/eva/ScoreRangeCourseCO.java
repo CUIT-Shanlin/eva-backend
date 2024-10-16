@@ -15,10 +15,6 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class ScoreRangeCourseCO extends ClientObject{
     /**
-     * id
-     */
-    private Long id;
-    /**
      * 该分数段的起始分数
      */
     private Integer startScore;
