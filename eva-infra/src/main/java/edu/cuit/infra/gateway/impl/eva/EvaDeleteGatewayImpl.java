@@ -8,6 +8,7 @@ import edu.cuit.infra.dal.database.dataobject.eva.CourOneEvaTemplateDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO;
 import edu.cuit.infra.dal.database.dataobject.eva.FormTemplateDO;
+import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.eva.CourOneEvaTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
@@ -30,6 +31,7 @@ public class EvaDeleteGatewayImpl implements EvaDeleteGateway {
     private final EvaTaskMapper evaTaskMapper;
     private final FormTemplateMapper formTemplateMapper;
     private final CourOneEvaTemplateMapper courOneEvaTemplateMapper;
+    private final CourseMapper courseMapper;
     @Override
     @Transactional
     public Void deleteEvaRecord(List<Integer> ids) {
@@ -52,8 +54,9 @@ public class EvaDeleteGatewayImpl implements EvaDeleteGateway {
             //没有分配在课程中
             QueryWrapper<CourseDO> courWrapper =new QueryWrapper<>();
             courWrapper.eq("templateId",id);
+            CourseDO courseDO=courseMapper.selectOne(courWrapper);
             //获取对应课程id
-            if(courWrapper==null){
+            if(courseDO==null){
                 UpdateWrapper<FormTemplateDO> formTemplateWrapper = new UpdateWrapper<>();
                 formTemplateWrapper.eq("id", id);
                 if(formTemplateWrapper==null){

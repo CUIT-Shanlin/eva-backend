@@ -4,7 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="80ffe575-c652-4009-a1f7-76fa8e5395d7" name="更改" comment="fix: 解决冲突" />
+    <list default="true" id="80ffe575-c652-4009-a1f7-76fa8e5395d7" name="更改" comment="feat: 增加异常处理，完善时间问题，修改快照与评教模板的问题">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/eva-infra/src/main/java/edu/cuit/infra/gateway/impl/eva/EvaDeleteGatewayImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/eva-infra/src/main/java/edu/cuit/infra/gateway/impl/eva/EvaDeleteGatewayImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/eva-infra/src/main/java/edu/cuit/infra/gateway/impl/eva/EvaQueryGatewayImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/eva-infra/src/main/java/edu/cuit/infra/gateway/impl/eva/EvaQueryGatewayImpl.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -38,19 +42,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.projectsettings.compiler.javacompiler&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "spring.configuration.checksum": "a7103fda6232356d097b457de05b5f36",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="Application" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="start" />
@@ -69,6 +74,7 @@
       <option name="presentableId" value="Default" />
       <updated>1728902979543</updated>
       <workItem from="1728902981393" duration="512000" />
+      <workItem from="1729060025888" duration="5379000" />
     </task>
     <task id="LOCAL-00001" summary="fix: 解决冲突">
       <created>1728925528248</created>
@@ -77,7 +83,21 @@
       <option name="project" value="LOCAL" />
       <updated>1728925528248</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="fix: 发起评教任务修改：老师课程任务冲突">
+      <created>1728927007745</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1728927007745</updated>
+    </task>
+    <task id="LOCAL-00003" summary="feat: 增加异常处理，完善时间问题，修改快照与评教模板的问题">
+      <created>1729008630354</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1729008630354</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -85,6 +105,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="fix: 解决冲突" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: 解决冲突" />
+    <MESSAGE value="fix: 发起评教任务修改：老师课程任务冲突" />
+    <MESSAGE value="feat: 增加异常处理，完善时间问题，修改快照与评教模板的问题" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: 增加异常处理，完善时间问题，修改快照与评教模板的问题" />
   </component>
 </project>
