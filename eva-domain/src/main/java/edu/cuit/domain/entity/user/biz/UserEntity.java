@@ -83,6 +83,7 @@ public class UserEntity {
         return status == 1;
     }
 
+    @Getter(AccessLevel.NONE)
     private List<RoleEntity> rolesCache = null;
 
     public synchronized List<RoleEntity> getRoles() {

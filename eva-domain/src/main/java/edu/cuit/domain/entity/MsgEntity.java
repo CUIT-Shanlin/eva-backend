@@ -76,6 +76,7 @@ public class MsgEntity {
      */
     private LocalDateTime createTime;
 
+    @Getter(AccessLevel.NONE)
     private UserEntity recipientCache = null;
 
     public synchronized UserEntity getRecipient() {
@@ -85,6 +86,7 @@ public class MsgEntity {
         return recipientCache;
     }
 
+    @Getter(AccessLevel.NONE)
     private UserEntity senderCache = null;
 
     public synchronized UserEntity getSender() {

@@ -66,13 +66,14 @@ public class RoleEntity {
         return isDeleted == 1;
     }
 
-    private List<MenuEntity> caches = null;
+    @Getter(AccessLevel.NONE)
+    private List<MenuEntity> cache = null;
 
     public synchronized List<MenuEntity> getMenus() {
-        if (caches == null) {
-            caches = menus.get();
+        if (cache == null) {
+            cache = menus.get();
         }
-        return caches;
+        return cache;
     }
 
 }

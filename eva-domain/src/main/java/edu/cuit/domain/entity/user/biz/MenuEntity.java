@@ -76,6 +76,7 @@ public class MenuEntity {
      */
     private Integer isDeleted;
 
+    @Getter(AccessLevel.NONE)
     private List<MenuEntity> cache = null;
 
     public synchronized List<MenuEntity> getChildren() {
