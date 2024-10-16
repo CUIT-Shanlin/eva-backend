@@ -18,4 +18,9 @@ public class SemesterServiceImpl implements ISemesterService {
     public SemesterCO now() {
         return null;
     }
+
+    @Override
+    public SemesterCO semesterInfo(Integer id) {
+        return null;
+    }
 }
