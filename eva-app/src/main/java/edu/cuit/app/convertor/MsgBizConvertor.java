@@ -28,6 +28,8 @@ public abstract class MsgBizConvertor {
     })
     public abstract GenericResponseMsg toResponseMsg(MsgEntity msg);
 
+    public abstract GenericResponseMsg toResponseMsg(GenericRequestMsg msg,String senderName);
+
     @Mappings({
             @Mapping(target = "recipientId", expression = "java(msg.getRecipient().getId())"),
             @Mapping(target = "senderId", expression = "java(msg.getSender().getId())"),

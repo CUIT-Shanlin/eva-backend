@@ -89,7 +89,6 @@ public class UserEntity {
      */
     public void updateStatus(Integer status) {
         userUpdateGateway.updateStatus(id,status);
-        //TODO 更新session状态
     }
 
 }
