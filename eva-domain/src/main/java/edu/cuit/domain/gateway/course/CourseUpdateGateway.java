@@ -4,6 +4,7 @@ import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
 import edu.cuit.client.dto.cmd.course.AlignTeacherCmd;
 import edu.cuit.client.dto.cmd.course.UpdateCourseCmd;
+import edu.cuit.client.dto.cmd.course.UpdateCoursesCmd;
 import edu.cuit.client.dto.cmd.course.UpdateSingleCourseCmd;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
@@ -29,7 +30,15 @@ public interface CourseUpdateGateway {
     Void updateCourse(Integer semId, UpdateCourseCmd updateCourseCmd);
 
     /**
-     * 修改一门课程
+     * 批量修改课程的模板
+     *@param semId 学期id
+     *  @param updateCoursesCmd 批量修改课程信息
+     *
+     * */
+    void updateCourses(Integer semId, UpdateCoursesCmd updateCoursesCmd);
+
+    /**
+     * 修改一节课程
      *@param semId 学期id
      *@param updateSingleCourseCmd 修改课程信息
      *@param userName 用户名

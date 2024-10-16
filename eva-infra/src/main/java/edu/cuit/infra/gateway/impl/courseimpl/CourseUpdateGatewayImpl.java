@@ -5,6 +5,7 @@ import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
 import edu.cuit.client.dto.cmd.course.AlignTeacherCmd;
 import edu.cuit.client.dto.cmd.course.UpdateCourseCmd;
+import edu.cuit.client.dto.cmd.course.UpdateCoursesCmd;
 import edu.cuit.client.dto.cmd.course.UpdateSingleCourseCmd;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.domain.gateway.course.CourseUpdateGateway;
@@ -87,6 +88,19 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
 
         }
         return null;
+    }
+
+    @Override
+    @Transactional
+    public void updateCourses(Integer semId, UpdateCoursesCmd updateCoursesCmd) {
+        //修改updateCoursesCmd中的courseIdList集合中id对应的课程的templateId
+        List<Integer> courseIdList = updateCoursesCmd.getCourseIdList();
+        for (Integer i : courseIdList) {
+            CourseDO courseDO = new CourseDO();
+            courseDO.setTemplateId(updateCoursesCmd.getTemplateId());
+            courseMapper.update(courseDO,new QueryWrapper<CourseDO>().eq("id",i).eq("semester_id",semId));
+        }
+
     }
 
     @Override
