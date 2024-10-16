@@ -18,4 +18,10 @@ public interface ISemesterService {
      * 获取当前学期的信息
      */
     SemesterCO now();
+
+    /**
+     * 获取一个学期的信息
+     * @param id 学期id
+     */
+   SemesterCO semesterInfo( Integer id) ;
 }

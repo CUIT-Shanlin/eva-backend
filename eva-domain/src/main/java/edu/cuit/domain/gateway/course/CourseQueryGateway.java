@@ -2,6 +2,7 @@ package edu.cuit.domain.gateway.course;
 
 
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
+import edu.cuit.client.dto.clientobject.course.RecommendCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SingleCourseCO;
 
@@ -118,7 +119,7 @@ public interface CourseQueryGateway {
      * @param semId 学期id
      * @return List<CourseEntity>
      * */
-    List<CourseEntity> getSelfCourse(Integer semId);
+    List<RecommendCourseCO> getSelfCourse(Integer semId, String userName);
 
     /**
      * 获取自己教学的一门课程的课程时段

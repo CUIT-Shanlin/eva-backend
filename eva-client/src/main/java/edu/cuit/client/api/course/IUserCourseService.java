@@ -1,10 +1,7 @@
 package edu.cuit.client.api.course;
 
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
-import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
-import edu.cuit.client.dto.clientobject.course.ModifySingleCourseDetailCO;
-import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
-import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
+import edu.cuit.client.dto.clientobject.course.*;
 import edu.cuit.client.dto.data.Term;
 import jakarta.validation.Valid;
 
@@ -35,7 +32,7 @@ public interface IUserCourseService {
      * 获取自己的推荐选课
      * @param semId 学期id
      */
-    List<ModifySingleCourseDetailCO> getSelfCourse(Integer semId);
+    List<RecommendCourseCO> getSelfCourse(Integer semId);
 
     /**
      * 导入课表文件

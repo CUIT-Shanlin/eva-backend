@@ -1,10 +1,14 @@
 package edu.cuit.infra.convertor.course;
 
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
+import edu.cuit.client.dto.clientobject.course.RecommendCourseCO;
+import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
 import edu.cuit.client.dto.clientobject.course.SubjectCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
+import edu.cuit.client.dto.cmd.course.UpdateCourseCmd;
 import edu.cuit.client.dto.cmd.course.UpdateSingleCourseCmd;
 import edu.cuit.client.dto.data.course.CoursePeriod;
+import edu.cuit.client.dto.data.course.CourseTime;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.domain.entity.course.*;
 import edu.cuit.domain.entity.user.biz.UserEntity;
@@ -12,21 +16,18 @@ import edu.cuit.infra.convertor.EntityFactory;
 import edu.cuit.infra.dal.database.dataobject.course.*;
 import edu.cuit.infra.dal.database.dataobject.eva.CourOneEvaTemplateDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
-import org.mapstruct.BeforeMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
+import org.mapstruct.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = {EntityFactory.class})
+@Mapper(componentModel = "spring", uses = {EntityFactory.class}, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface CourseConvertor {
 
     @Mappings({
             @Mapping(target = "id",source = "courseDo.id"),
             @Mapping(target = "subject",source = "subject"),
             @Mapping(target = "teacher",source = "teacher"),
-            @Mapping(target = "classroom",source = "courseDo.classroom"),
             @Mapping(target = "semester",source = "semester"),
             @Mapping(target = "createTime",source = "courseDo.createTime"),
             @Mapping(target = "updateTime",source = "courseDo.updateTime"),
@@ -53,19 +54,19 @@ public interface CourseConvertor {
     @Mappings({
             @Mapping(target = "typeList",source = "typeList"),
             @Mapping(target = "dateList",source = "dateList"),
-            @Mapping(target = "courseBaseMsg.id",source = "courInfo.courseId"),
-            @Mapping(target = "courseBaseMsg.classroomList",source = "course.classRoom"),
+            @Mapping(target = "courseBaseMsg.id",source = "course.id"),
+            @Mapping(target = "courseBaseMsg.classroomList",source = "classRoomList"),
             @Mapping(target = "courseBaseMsg.name",source = "courInfo.name"),
             @Mapping(target = "courseBaseMsg.createTime",source = "courInfo.createTime"),
             @Mapping(target = "courseBaseMsg.updateTime",source = "courInfo.updateTime"),
             @Mapping(target = "courseBaseMsg.templateMsg",source = "template"),
             @Mapping(target = "courseBaseMsg.teacherInfoCO.id",source = "user.id"),
             @Mapping(target = "courseBaseMsg.teacherInfoCO.name",source = "user.username"),
-            @Mapping(target = "courseBaseMsg.teacherInfoCO.department",source = "user.department"),
+            @Mapping(target = "courseBaseMsg.teacherInfoCO.department",source = "user.department")
 
     })
     CourseDetailCO toCourseDetailCO(List<CourseType> typeList, List<CoursePeriod> dateList, SubjectDO courInfo
-            , CourseDO course, EvaTemplateCO template, SysUserDO user);
+            , CourseDO course, EvaTemplateCO template, SysUserDO user,List<String> classRoomList);
     @Mappings({
             @Mapping(target = "id",source = "id"),
     })
@@ -75,13 +76,50 @@ public interface CourseConvertor {
             @Mapping(target = "week",source = "time.week"),
             @Mapping(target = "day",source = "time.day"),
             @Mapping(target = "startTime",source = "time.startTime"),
-            @Mapping(target = "endTime",source = "time.endTime"),
+            @Mapping(target = "endTime",source = "time.endTime")
     })
     CourInfDO toCourInfDO(UpdateSingleCourseCmd singleCourse);
+
+    @Mappings({
+            @Mapping(target = "courseId",source = "courseId"),
+            @Mapping(target = "week",source = "week"),
+            @Mapping(target = "day",source = "selfTeachCourseTimeCO.day"),
+            @Mapping(target = "startTime",source = "selfTeachCourseTimeCO.startTime"),
+            @Mapping(target = "endTime",source = "selfTeachCourseTimeCO.endTime"),
+            @Mapping(target = "location",source = "selfTeachCourseTimeCO.classroom"),
+            @Mapping(target = "createTime",source = "time"),
+            @Mapping(target = "updateTime",source = "time")
+    })
+    CourInfDO toCourInfDO(SelfTeachCourseTimeCO selfTeachCourseTimeCO, Integer week, Integer courseId, LocalDateTime time);
     CourseTypeDO toCourseTypeDO(CourseType courseType);
 
+    @Mappings({
+            @Mapping(target = "subjectId",source = "subjectId"),
+            @Mapping(target = "teacherId",source = "teacherId"),
+            @Mapping(target = "semesterId",source = "semId"),
+            @Mapping(target = "templateId",source = "courseInfo.templateId"),
+            @Mapping(target = "createTime",source = "courseInfo.createTime"),
+            @Mapping(target = "updateTime",source = "courseInfo.updateTime")
 
+    })
+    CourseDO toCourseDO(UpdateCourseCmd courseInfo, Integer subjectId, Integer teacherId, Integer semId);
 
-
+    @Mappings({
+            @Mapping(target = "id",source = "courInfDO.id"),
+            @Mapping(target = "name",source = "subject.name"),
+            @Mapping(target = "teacherName",source = "user.username"),
+            @Mapping(target = "evaNum",source = "evaNum"),
+            @Mapping(target = "location",source = "courInfDO.location"),
+            @Mapping(target = "time",source = "time"),
+            @Mapping(target = "evaTeacherNum",source = "evaTeacherNum"),
+            @Mapping(target = "typeList",source = "list"),
+            @Mapping(target = "priority",source = "priority"),
+            @Mapping(target = "typeSimilarity",source = "typeSimilarity"),
+    })
+    RecommendCourseCO toRecommendCourseCO(CourInfDO courInfDO, SubjectDO subject,
+                                          SysUserDO user, Integer evaNum,
+                                          CourseTime time,Integer evaTeacherNum,
+                                          List<CourseType> list,
+                                          Double priority,Double typeSimilarity);
+    CourseTime toCourseTime(CourInfDO courInfDO);
 }
-

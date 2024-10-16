@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.cuit.client.bo.EvaProp;
 
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
+import edu.cuit.client.dto.clientobject.course.RecommendCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SingleCourseCO;
 import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
@@ -50,9 +51,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
@@ -112,16 +116,16 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         CourOneEvaTemplateDO courOneEvaTemplateDO = CourOneEvaTemplateMapper.selectOne(new QueryWrapper<CourOneEvaTemplateDO>().eq("course_id", id).eq("semester_id", semId));
         //将courOneEvaTemplateDO中的formtemplate(json)字符串，转换为EvaTemplateCO
         EvaTemplateCO evaTemplateCO=null;
-      if(courOneEvaTemplateDO.getFormTemplate()!=null){
-          try {
-              evaTemplateCO = new ObjectMapper().readValue(courOneEvaTemplateDO.getFormTemplate(), EvaTemplateCO.class);
-          } catch (JsonProcessingException e) {
-              throw new QueryException("formTemplate暂时为空");
-          }
-      }
+        if(courOneEvaTemplateDO.getFormTemplate()!=null){
+            try {
+                evaTemplateCO = new ObjectMapper().readValue(courOneEvaTemplateDO.getFormTemplate(), EvaTemplateCO.class);
+            } catch (JsonProcessingException e) {
+                throw new QueryException("formTemplate暂时为空");
+            }
+        }
         //根据courseDO中的subjectId来查询课程对应的科目信息
         SubjectDO subjectDO = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("id", courseDO.getSubjectId()));
-       //根据courseDO中的teacherId来查询课程对应的教师信息
+        //根据courseDO中的teacherId来查询课程对应的教师信息
         SysUserDO sysUserDO = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("id", courseDO.getTeacherId()));
         //先根据课程ID来查询课程detail信息
         List<String> classRoomList = new ArrayList<>();
@@ -135,7 +139,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
 
         //组装CourseDtailCO
         CourseDetailCO courseDetailCO = courseConvertor.toCourseDetailCO(courseTypeList
-                , courseTimeList, subjectDO, courseDO, evaTemplateCO, sysUserDO);
+                , courseTimeList, subjectDO, courseDO, evaTemplateCO, sysUserDO,classRoomList);
         return Optional.of(courseDetailCO);
 
     }
@@ -163,24 +167,24 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         Map<String, List<EvaProp>> evaPropMap = evaPropList.stream().collect(Collectors.groupingBy(EvaProp::getProp));
         List<CourseScoreCO> courseScoreCOList=new ArrayList<>();
         for (Map.Entry<String, List<EvaProp>> stringListEntry : evaPropMap.entrySet()) {
-           CourseScoreCO courseScoreCO=new CourseScoreCO();
-          Double sum=0.0;
-          Double max=0.0;
-          Double min=0.0;
-           courseScoreCO.setProp(stringListEntry.getKey());
-           for (EvaProp evaProp : stringListEntry.getValue()) {
-               sum+=evaProp.getScore();
-               if(evaProp.getScore()>max){
-                   max= Double.valueOf(evaProp.getScore());
-               }
-               if(evaProp.getScore()<min){
-                   min= Double.valueOf(evaProp.getScore());
-               }
-           }
-           courseScoreCO.setAverScore( (sum/stringListEntry.getValue().size()));
-           courseScoreCO.setMaxScore(max);
-           courseScoreCO.setMinScore(min);
-           courseScoreCOList.add(courseScoreCO);
+            CourseScoreCO courseScoreCO=new CourseScoreCO();
+            Double sum=0.0;
+            Double max=0.0;
+            Double min=0.0;
+            courseScoreCO.setProp(stringListEntry.getKey());
+            for (EvaProp evaProp : stringListEntry.getValue()) {
+                sum+=evaProp.getScore();
+                if(evaProp.getScore()>max){
+                    max= Double.valueOf(evaProp.getScore());
+                }
+                if(evaProp.getScore()<min){
+                    min= Double.valueOf(evaProp.getScore());
+                }
+            }
+            courseScoreCO.setAverScore( (sum/stringListEntry.getValue().size()));
+            courseScoreCO.setMaxScore(max);
+            courseScoreCO.setMinScore(min);
+            courseScoreCOList.add(courseScoreCO);
         }
         return courseScoreCOList;
     }
@@ -207,7 +211,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         }
         //将courInfDO集合添加到map集合中
         for (CourInfDO  courInfo : list) {
-                map.get(courInfo.getDay()).add(courInfo);
+            map.get(courInfo.getDay()).add(courInfo);
         }
         List<List<Integer>> result=new ArrayList<>();
         //每一天可能有6节大课，每一节大课开始时间一样
@@ -244,7 +248,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         List<SingleCourseCO> singleCourseCOList = new ArrayList<>();
         //遍历courseDo组装SingleCourseCo
         for (CourseDO courseDO : courseDOS) {
-           SingleCourseCO singleCourseCO = new SingleCourseCO();
+            SingleCourseCO singleCourseCO = new SingleCourseCO();
             CourInfDO courseInfo = getCourseInfo(courseDO);
             singleCourseCO.setId(courseInfo.getId());
             singleCourseCO.setLocation(courseInfo.getLocation());
@@ -287,23 +291,23 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         QueryWrapper<SysUserDO> wrapper = new QueryWrapper<>();
         toJudge(courseQuery,wrapper);
         if(wrapper!=null){
-           userList=userMapper.selectList(wrapper).stream().map(user->user.getId()).toList();
-          courseList = userList.stream().map(userId -> courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("teacher_id", userId).eq("semester_id", semId))).toList();
+            userList=userMapper.selectList(wrapper).stream().map(user->user.getId()).toList();
+            courseList = userList.stream().map(userId -> courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("teacher_id", userId).eq("semester_id", semId))).toList();
         }
         if(courseQuery.getKeyword()!=null){
             //得到科目集合并过滤courseList
             List<Integer> subjectIds = subjectMapper.selectList(new QueryWrapper<SubjectDO>().like("name", courseQuery.getKeyword())).stream().map(SubjectDO::getId).toList();
-           if(courseList!=null){
-               courseList=courseList.stream().filter(courseDO -> subjectIds.contains(courseDO.getSubjectId())).toList();
-           }else{
-               courseList=courseMapper.selectList(new QueryWrapper<CourseDO>().in("subject_id",subjectIds).eq("semester_id",semId));
-           }
+            if(courseList!=null){
+                courseList=courseList.stream().filter(courseDO -> subjectIds.contains(courseDO.getSubjectId())).toList();
+            }else{
+                courseList=courseMapper.selectList(new QueryWrapper<CourseDO>().in("subject_id",subjectIds).eq("semester_id",semId));
+            }
         }
         if(courseQuery.getTypeId()!=null){
             //根据Typeid，得到课程id
             List<Integer> courseIds = courseTypeCourseMapper.selectList(new QueryWrapper<CourseTypeCourseDO>()
-                                                            .eq("type_id", courseQuery.getTypeId()))
-                                                            .stream().map(CourseTypeCourseDO::getCourseId).toList();
+                            .eq("type_id", courseQuery.getTypeId()))
+                    .stream().map(CourseTypeCourseDO::getCourseId).toList();
             if(courseList!=null){
                 courseList=courseList.stream().filter(courseDO -> courseIds.contains(courseDO.getId())).toList();
             }else{
@@ -316,7 +320,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         List<CourInfDO> courInfDOS1 = courInfDOS.stream().filter(courInfDO -> courseIds.contains(courInfDO.getCourseId())).toList();
         //得到CourseEntity对象集合
         Map<CourInfDO, CourseEntity> map=new HashMap<>();
-       //先将courInfDOS1根据courseId分组
+        //先将courInfDOS1根据courseId分组
         Map<Integer, List<CourInfDO>> collect = courInfDOS1.stream().collect(Collectors.groupingBy(CourInfDO::getCourseId));
         for (Map.Entry<Integer, List<CourInfDO>> integerListEntry : collect.entrySet()) {
             CourseEntity courseEntity = toCourseEntity(integerListEntry.getKey(), semId);
@@ -330,10 +334,10 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         //得到SingleCourseEntity对象集合
 
         List<SingleCourseEntity> list = new ArrayList<>();
-        for (CourInfDO courInfDO : map.keySet()) {
-            list.add(courseConvertor.toSingleCourseEntity(map.get(courInfDO), courInfDO));
+        for (Map.Entry<CourInfDO, CourseEntity> courInfDOCourseEntityEntry : map.entrySet()) {
+            list.add(courseConvertor.toSingleCourseEntity(courInfDOCourseEntityEntry.getValue(), courInfDOCourseEntityEntry.getKey()));
         }
-      return list;
+        return list;
 
     }
 
@@ -341,12 +345,12 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     public PaginationResultEntity<CourseTypeEntity> pageCourseType(PagingQuery<GenericConditionalQuery> courseQuery) {
         Page<CourseTypeDO> page =new Page<>(courseQuery.getPage(),courseQuery.getSize());
         QueryWrapper<CourseTypeDO> queryWrapper = new QueryWrapper<>();
-            if(courseQuery.getQueryObj().getKeyword()!=null){
-                queryWrapper.like("name",courseQuery.getQueryObj().getKeyword());
-            }
-           QueryUtils.fileTimeQuery(queryWrapper,courseQuery.getQueryObj());
-            Page<CourseTypeDO> courseTypeDOPage = courseTypeMapper.selectPage(page, queryWrapper);
-            List<CourseTypeDO> records = courseTypeDOPage.getRecords();
+        if(courseQuery.getQueryObj().getKeyword()!=null){
+            queryWrapper.like("name",courseQuery.getQueryObj().getKeyword());
+        }
+        QueryUtils.fileTimeQuery(queryWrapper,courseQuery.getQueryObj());
+        Page<CourseTypeDO> courseTypeDOPage = courseTypeMapper.selectPage(page, queryWrapper);
+        List<CourseTypeDO> records = courseTypeDOPage.getRecords();
         List<CourseTypeEntity> list = records.stream().map(courseTypeDO -> courseConvertor.toCourseTypeEntity(courseTypeDO)).toList();
         return paginationConverter.toPaginationEntity(courseTypeDOPage,list);
     }
@@ -375,7 +379,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         Map<CourseDO, List<CourInfDO>> map=new HashMap<>();
         for (CourseDO courseDO : courseDOS) {
             map.put(courseDO, courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseDO.getId())));
-           }
+        }
         List<SingleCourseEntity> list =new ArrayList<>();
         for (Map.Entry<CourseDO, List<CourInfDO>> courseDOListEntry : map.entrySet()) {
             //得到subjectEntity中ID等于courseDO.getSubjectId()的subjectEntity
@@ -420,18 +424,41 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         return list;
     }
 
-//TODO(有问题待修改)
+
     @Override
-    public List<CourseEntity> getSelfCourse(Integer semId) {
-        //根据semId来找课程实体
-        List<CourseDO> semesterId = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId));
-        //得到CourseEntity集合
-        List<CourseEntity> courseEntities = semesterId.stream().map(courseDO -> toCourseEntity(courseDO.getId(), semId)).toList();
+    public List<RecommendCourseCO> getSelfCourse(Integer semId, String userName) {
+        //得到当前是第几周
+        CourseTime courseTime = toCourseTime(semId);
+        //先根据用户名来查出教师id
+        Integer teacherId = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("username", userName)).getId();
+        List<Integer> courIdList = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", teacherId).eq("semester_id", semId)).stream().map(CourseDO::getId).toList();
+        //找出老师所要教学的课程
+        List<CourInfDO> courInfDOS = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", courIdList).ge("week", courseTime.getWeek()).ge("day", courseTime.getDay()));
+        //找出老师所要评教的课程
+        List<Integer> evaCourInfoList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id", teacherId)).stream().map(EvaTaskDO::getCourInfId).toList();
+        List<CourInfDO> evaCourInfo = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("id", evaCourInfoList).ge("week", courseTime.getWeek()).ge("day", courseTime.getDay()));
+        //得到待评教的courseId集合（set集合）
+        Set<Integer> evaCourInfoSet = evaCourInfo.stream().map(CourInfDO::getCourseId).collect(Collectors.toSet());
+        evaCourInfoSet.addAll(courIdList);
+        List<CourInfDO> sameCourInfoList = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", evaCourInfoSet).ge("week", courseTime.getWeek()).ge("day", courseTime.getDay()));
+        //查询出所有评教任务
+        List<Integer> list = evaTaskMapper.selectList(null).stream().map(EvaTaskDO::getCourInfId).toList();
+        //找出List中出现次数大于8的id
+        List<Integer> collect = list.stream().filter(integer -> Collections.frequency(list, integer) >= 8).toList();
+        List<CourInfDO> geCourInfoList = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("id", collect).ge("week", courseTime.getWeek()).ge("day", courseTime.getDay()));
+        //有学期ID找出这学期所有要上的课程
+        List<Integer> courseAll = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId)).stream().map(CourseDO::getId).toList();
+        List<CourInfDO> courInfoAll = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", courseAll).ge("week", courseTime.getWeek()).ge("day", courseTime.getDay()));
+        //去掉courinfoAll中的evaCourInfo和sameCourInfoList以及geCourInfoList
+        List<CourInfDO> courInfDOList = courInfoAll.stream().filter(courInfDO -> !evaCourInfo.contains(courInfDO) && !sameCourInfoList.contains(courInfDO)&&!geCourInfoList.contains(courInfDO)).toList();
+        //执行额外推荐
+        List<RecommendCourseCO> recommendCourseCOList = getRecommendCourInfo(courInfDOList,courInfDOS);
 
-
-
-        return courseEntities;
+        return recommendCourseCOList;
     }
+
+
+
     @Override
     public List<SingleCourseEntity> getSelfCourseTime(String userName, Integer id) {
         //先根据课程id来查出课程实体
@@ -562,6 +589,120 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         }
 
     }
+    private CourseTime toCourseTime(Integer semId){
+        SemesterDO semesterDO = semesterMapper.selectById(semId);
+        if(semesterDO==null){
+            throw new  QueryException("学期不合理");
+        }
+        LocalDate now=LocalDate.now();
+        long diff = ChronoUnit.DAYS.between(semesterDO.getStartDate(), now);
+        // 计算当前周数
+        int currentWeek = (int) (diff / 7) + 1;
+        //计算当前星期几
+        int currentDayOfWeek = now.getDayOfWeek().getValue();
+        return new CourseTime().setWeek(currentWeek).setDay(currentDayOfWeek);
 
+
+    }
+    private List<RecommendCourseCO> getRecommendCourInfo(List<CourInfDO> courInfoList,List<CourInfDO> courInfDOS) {
+        //找到courInfoList中courInfoDo的id不在evaTask的cour_inf_id中的数据
+        List<Integer> checkList = evaTaskMapper.selectList(null).stream().map(EvaTaskDO::getCourInfId).toList();
+        Stream<CourInfDO> notExistCourInfo = courInfoList.stream().filter(courInfDO -> !checkList.contains(courInfDO.getId()));
+        //被选过的课程（从courInfoList中去除notExistCourInfo）
+        List<CourInfDO> existCourInfo = courInfoList.stream().filter(courInfDO -> checkList.contains(courInfDO.getId())).toList();
+        //根据未被选过的课程的courseId来分类
+        Map<Integer, List<CourInfDO>> map = notExistCourInfo.collect(Collectors.groupingBy(CourInfDO::getCourseId));
+        Map<Integer,List<Integer>> mapCourse= new HashMap<>();
+        for (Map.Entry<Integer, List<CourInfDO>> integerListEntry : map.entrySet()) {
+            CourseDO courseDO = courseMapper.selectById(integerListEntry.getKey());
+            if(!mapCourse.containsKey(courseDO.getTeacherId())){
+                ArrayList<Integer> list = new ArrayList<>();
+                list.add(integerListEntry.getKey());
+                mapCourse.put(courseDO.getTeacherId(),list);
+            }else{
+                mapCourse.get(courseDO.getTeacherId()).add(integerListEntry.getKey());
+            }
+        }
+        //老师所有课程都没有被选的（优先级priority: 5）；
+        List<CourInfDO> noCourInfoList=new ArrayList<>();
+        //没有被选择过得课程（优先级priority: 2）；
+        List<CourInfDO> notSelectCourInfoList=new ArrayList<>();
+        for (Map.Entry<Integer, List<Integer>> entry : mapCourse.entrySet()) {
+            if(entry.getValue().size()>1){
+                for (Integer i : entry.getValue()) {
+                    noCourInfoList.addAll(map.get(i));
+                }
+            }else{
+                notSelectCourInfoList.addAll(map.get(entry.getValue().get(0)));
+            }
+        }
+        List<RecommendCourseCO> recommendCourInfo = getRecommendCourInfo(noCourInfoList, 5, courInfDOS);
+        recommendCourInfo.addAll(getRecommendCourInfo(notSelectCourInfoList,2,courInfDOS));
+        recommendCourInfo.addAll(getRecommendCourInfo(existCourInfo,-2,courInfDOS));
+
+
+
+        return recommendCourInfo;
+    }
+    private List<RecommendCourseCO> getRecommendCourInfo(List<CourInfDO> courInfoList,Integer priority,List<CourInfDO> courInfDOS){
+        //先根据课程id进行分类
+        Map<Integer, List<CourInfDO>> map = courInfoList.stream().collect(Collectors.groupingBy(CourInfDO::getCourseId));
+        List<RecommendCourseCO> list=new ArrayList<>();
+        for (Map.Entry<Integer, List<CourInfDO>> entry : map.entrySet()){
+            CourseDO courseDO = courseMapper.selectById(entry.getKey());
+            //获取SubjectDO
+            SubjectDO subjectDO = subjectMapper.selectById(courseDO.getSubjectId());
+            //获取SysUserDO
+            SysUserDO sysUserDO = userMapper.selectById(courseDO.getTeacherId());
+            //获取课程类型和获取课程类型相似度
+            Map<Double, List<CourseType>> getCourseTypeList = toGetCourseTypeList(entry.getKey(), courInfDOS);
+            //教学老师被评教的次数
+            Integer allEvaNum = getEvaNum(courseDO.getTeacherId(), courseDO.getSemesterId());
+            for (CourInfDO courInfDO : entry.getValue()) {
+                //获取评教数量
+                Integer evaNum = Math.toIntExact(evaTaskMapper.selectCount(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId())));
+                //获取CourseTime
+                CourseTime courseTime = courseConvertor.toCourseTime(courInfDO);
+                for (Map.Entry<Double, List<CourseType>> entrySet : getCourseTypeList.entrySet()) {
+                    RecommendCourseCO recommendCourseCO = courseConvertor.toRecommendCourseCO(courInfDO, subjectDO, sysUserDO, evaNum, courseTime, allEvaNum, entrySet.getValue(), priority + 4 * entrySet.getKey(), entrySet.getKey());
+                    list.add(recommendCourseCO);
+                }
+
+            }
+
+
+        }
+        return list;
+    }
+    private  Map<Double,List<CourseType>> toGetCourseTypeList(Integer courseId,List<CourInfDO> courInfDOS){
+        Double score=0.0;
+        //待听的课的课程类型
+        List<Integer> typeList = courseTypeCourseMapper.selectList(new QueryWrapper<CourseTypeCourseDO>().eq("course_id", courseId)).stream().map(CourseTypeCourseDO::getTypeId).toList();
+        //老师所教学课程的课程类型
+        List<Integer> teacherTypeList=new ArrayList<>();
+        for (CourInfDO courInfDO : courInfDOS) {
+            teacherTypeList.addAll(courseTypeCourseMapper.selectList(new QueryWrapper<CourseTypeCourseDO>().eq("course_id", courInfDO.getId())).stream().map(CourseTypeCourseDO::getTypeId).toList());
+        }
+        //获取到teacherTypeList与typeList的交集
+        List<Integer> list = teacherTypeList.stream().filter(typeList::contains).toList();
+        if(typeList.size()>=teacherTypeList.size()){
+            score=(double) list.size()/typeList.size();
+        }else{
+            score=(double) list.size()/teacherTypeList.size();
+        }
+        Map<Double,List<CourseType>> map=new HashMap<>();
+        List<CourseType> typeList1 = courseTypeMapper.selectBatchIds(typeList).stream().map(courseTypeDO -> courseConvertor.toCourseType(courseId, courseTypeDO)).toList();
+
+        map.put(score,typeList1);
+
+        return map;
+    }
+    private Integer  getEvaNum(Integer teacherId,Integer semId){
+        List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", teacherId).eq("semester_id", semId));
+        List<Integer> courseId = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", courseDOS)).stream().map(CourInfDO::getId).toList();
+        Long courInfId = evaTaskMapper.selectCount(new QueryWrapper<EvaTaskDO>().in("cour_inf_id", courseId));
+
+        return courInfId.intValue();
+    }
 
 }
