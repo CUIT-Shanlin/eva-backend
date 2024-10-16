@@ -51,8 +51,8 @@ public abstract class MsgBizConvertor {
     public abstract MessageBO toMessageBO(SendMessageCmd cmd,Integer senderId);
 
     @Mappings({
-            @Mapping(target = "recipient", expression = "java(userQueryGateway.findById(msg.getRecipientId()).orElse(null))"),
-            @Mapping(target = "sender", expression = "java(userQueryGateway.findById(msg.getSenderId()).orElse(null))")
+            @Mapping(target = "recipient", expression = "java(() -> userQueryGateway.findById(msg.getRecipientId()).orElse(null))"),
+            @Mapping(target = "sender", expression = "java(() -> userQueryGateway.findById(msg.getSenderId()).orElse(null))")
     })
     public abstract MsgEntity toMsgEntity(GenericRequestMsg msg);
 
