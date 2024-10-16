@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class ClientMsg extends DTO {
+public class GenericRequestMsg extends DTO {
 
     /**
      * id

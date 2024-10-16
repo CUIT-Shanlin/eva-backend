@@ -5,6 +5,9 @@ import edu.cuit.domain.entity.user.biz.MenuEntity;
 import edu.cuit.infra.convertor.EntityFactory;
 import org.mapstruct.*;
 
+/**
+ * 菜单业务对象转换器
+ */
 @Mapper(componentModel = "spring",uses = EntityFactory.class,unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface MenuBizConvertor {
 
