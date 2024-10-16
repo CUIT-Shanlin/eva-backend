@@ -29,7 +29,10 @@ public class StpInterfaceImpl implements StpInterface {
             List<RoleEntity> roles = userEntity.getRoles();
             List<String> menus = new ArrayList<>();
             for (RoleEntity role : roles) {
-                menus.addAll(role.getMenus().stream().map(MenuEntity::getName).toList());
+                if (role.getStatus() == 0) continue;
+                menus.addAll(role.getMenus().stream()
+                        .filter(menuEntity -> menuEntity.getStatus() == 1)
+                        .map(MenuEntity::getName).toList());
             }
             return menus;
         }).orElse(new ArrayList<>());
@@ -40,6 +43,7 @@ public class StpInterfaceImpl implements StpInterface {
         Optional<UserEntity> user = userQueryGateway.findByUsername((String) loginId);
         return user.map(userEntity ->
                 userEntity.getRoles().stream()
+                        .filter(roleEntity -> roleEntity.getStatus() == 1)
                         .map(RoleEntity::getRoleName).toList())
                 .orElse(new ArrayList<>());
     }
