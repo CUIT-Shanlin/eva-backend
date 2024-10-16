@@ -2,6 +2,7 @@ package edu.cuit.app.convertor;
 
 import edu.cuit.client.bo.MessageBO;
 import edu.cuit.client.dto.clientobject.course.SingleCourseCO;
+import edu.cuit.client.dto.cmd.SendMessageCmd;
 import edu.cuit.client.dto.data.msg.EvaResponseMsg;
 import edu.cuit.client.dto.data.msg.GenericRequestMsg;
 import edu.cuit.client.dto.data.msg.GenericResponseMsg;
@@ -45,6 +46,8 @@ public abstract class MsgBizConvertor {
             @Mapping(target = "courseInfo", source = "singleCourseCO")
     })
     public abstract EvaResponseMsg toEvaResponseMsg(MsgEntity msg, SingleCourseCO singleCourseCO);
+
+    public abstract MessageBO toMessageBO(SendMessageCmd cmd,Integer senderId);
 
     @Mappings({
             @Mapping(target = "recipient", expression = "java(userQueryGateway.findById(msg.getRecipientId()).orElse(null))"),

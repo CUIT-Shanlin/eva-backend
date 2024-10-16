@@ -9,6 +9,7 @@ import edu.cuit.app.websocket.WebsocketManager;
 import edu.cuit.client.api.IMsgService;
 import edu.cuit.client.bo.MessageBO;
 import edu.cuit.client.dto.clientobject.course.SingleCourseCO;
+import edu.cuit.client.dto.cmd.SendMessageCmd;
 import edu.cuit.client.dto.data.msg.GenericRequestMsg;
 import edu.cuit.client.dto.data.msg.GenericResponseMsg;
 import edu.cuit.domain.gateway.MsgGateway;
@@ -100,6 +101,11 @@ public class MsgServiceImpl implements IMsgService {
             websocketManager.sendMessage(msg.getRecipientId(),responseMsg);
             msgGateway.insertMessage(requestMsg);
         }
+    }
+
+    @Override
+    public void handleUserSendMessage(SendMessageCmd cmd) {
+        sendMessage(msgBizConvertor.toMessageBO(cmd,checkAndGetUserId()));
     }
 
     private Integer checkAndGetUserId() {
