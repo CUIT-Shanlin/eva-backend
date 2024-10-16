@@ -14,6 +14,5 @@ public class SaTokenInterceptorConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new SaInterceptor()).addPathPatterns("/**");
-        //TODO 启动鉴权拦截器
     }
 }
