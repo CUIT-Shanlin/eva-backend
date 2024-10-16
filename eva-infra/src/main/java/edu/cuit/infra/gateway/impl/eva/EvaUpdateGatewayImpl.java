@@ -7,6 +7,7 @@ import edu.cuit.client.dto.clientobject.eva.EvaTaskFormCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
 import edu.cuit.domain.entity.eva.EvaTaskEntity;
 import edu.cuit.domain.entity.eva.EvaTemplateEntity;
+import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.domain.gateway.eva.EvaUpdateGateway;
 import edu.cuit.infra.convertor.eva.EvaConvertor;
 import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
@@ -15,6 +16,7 @@ import edu.cuit.infra.dal.database.dataobject.eva.*;
 import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.eva.*;
+import edu.cuit.infra.gateway.impl.courseimpl.CourseQueryGatewayImpl;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.annotations.Update;
@@ -34,6 +36,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
     private final FormRecordMapper formRecordMapper;
     private final CourInfMapper courInfMapper;
     private final CourseMapper courseMapper;
+    private final CourseQueryGateway courseQueryGateway;
     @Override
     @Transactional
     public Void updateEvaTemplate(EvaTemplateCO evaTemplateCO) {
@@ -90,14 +93,15 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
 
         List<CourInfDO> evaCourInfDOList=courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("id",courInfoIds));
         for(int i=0;i<evaCourInfDOList.size();i++){
-            if(courInfDO.getWeek()==evaCourInfDOList.get(i).getWeek()){
-                if(courInfDO.getDay()==evaCourInfDOList.get(i).getDay()){
+            if(courInfDO.getWeek().equals(evaCourInfDOList.get(i).getWeek())){
+                if(courInfDO.getDay().equals(evaCourInfDOList.get(i).getDay())){
                     if(courInfDO.getStartTime()>=evaCourInfDOList.get(i).getEndTime()||courInfDO.getEndTime()<=evaCourInfDOList.get(i).getStartTime()){
                         throw new UpdateException("与你其他任务所上课程冲突");
                     }
                 }
             }
         }
+        //看看是不是正在没有上完的课程 TODO
         EvaTaskDO evaTaskDO=new EvaTaskDO();
         evaTaskDO.setCreateTime(LocalDateTime.now());
         evaTaskDO.setUpdateTime(LocalDateTime.now());
