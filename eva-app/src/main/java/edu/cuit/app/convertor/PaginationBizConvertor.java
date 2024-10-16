@@ -6,6 +6,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * 分页业务对象转换器
+ */
 @Component
 public class PaginationBizConvertor {
 
