@@ -45,6 +45,12 @@ public interface UserQueryGateway {
     Optional<String> findUsernameById(Integer id);
 
     /**
+     * 获取所有用户的id
+     * @return 用户id列表
+     */
+    List<Integer> findAllUserId();
+
+    /**
      * 分页获取用户信息
      * @param query 查询对象
      * @return 数据

@@ -18,12 +18,12 @@ public class UpdatePasswordCmd extends Command {
      * 旧密码
      */
     @NotNull(message = "旧密码不能为空")
-    public String oldPassword;
+    private String oldPassword;
 
     /**
      * 新密码
      */
     @NotNull(message = "旧密码不能为空")
-    public String password;
+    private String password;
 
 }

@@ -49,7 +49,7 @@ public class GenericResponseMsg extends DTO {
     /**
      * 接收消息的用户的id，为null则向所有人发送
      */
-    private Long recipientId;
+    private Integer recipientId;
 
     /**
      * 消息类型（0：待办，1：通知，2：提醒，3：警告）
@@ -60,12 +60,12 @@ public class GenericResponseMsg extends DTO {
     /**
      * 发起人的id(-1或null: 系统发起)
      */
-    private Long senderId;
+    private Integer senderId;
 
     /**
      * 评教任务的id，当且仅当为评教消息时有意义
      */
-    private Long taskId;
+    private Integer taskId;
 
     /**
      * 消息发送时间

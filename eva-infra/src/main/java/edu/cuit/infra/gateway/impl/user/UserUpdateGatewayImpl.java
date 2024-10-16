@@ -45,7 +45,6 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
         LdapPersonDO personDO = ldapUserConvertor.userDOToLdapPersonDO(userDO);
         userMapper.updateById(userDO);
         ldapPersonRepo.save(personDO);
-        //TODO 在app层处理status更改逻辑
     }
 
     @Override

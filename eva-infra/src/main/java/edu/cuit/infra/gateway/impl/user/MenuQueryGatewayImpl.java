@@ -30,14 +30,14 @@ public class MenuQueryGatewayImpl implements MenuQueryGateway {
                 .or().eq(SysMenuDO::getStatus,query.getStatus());
         return menuMapper.selectList(menuQuery).stream()
                 .map(menuConvertor::toMenuEntity)
-                .peek(menuEntity -> menuEntity.setChildren(new ArrayList<>(getChildrenMenus(menuEntity.getId()))))
+                .peek(menuEntity -> menuEntity.setChildren(() -> new ArrayList<>(getChildrenMenus(menuEntity.getId()))))
                 .toList();
     }
 
     @Override
     public Optional<MenuEntity> getOne(Integer id) {
         Optional<MenuEntity> menuEntity = Optional.ofNullable(menuConvertor.toMenuEntity(menuMapper.selectById(id)));
-        menuEntity.ifPresent(menu -> menu.setChildren(new ArrayList<>(getChildrenMenus(menu.getId()))));
+        menuEntity.ifPresent(menu -> menu.setChildren(() -> new ArrayList<>(getChildrenMenus(menu.getId()))));
         return menuEntity;
     }
 
@@ -51,7 +51,7 @@ public class MenuQueryGatewayImpl implements MenuQueryGateway {
                 .stream().map(menuConvertor::toMenuEntity).toList();
         //递归填充子菜单
         for (MenuEntity menuEntity : menuEntities) {
-            menuEntity.setChildren(new ArrayList<>(getChildrenMenus(menuEntity.getId())));
+            menuEntity.setChildren(() -> new ArrayList<>(getChildrenMenus(menuEntity.getId())));
         }
         return menuEntities;
     }

@@ -66,6 +66,16 @@ public class WebsocketManager {
     }
 
     /**
+     * 广播消息，将消息发给所有在线用户
+     * @param message 消息对象
+     */
+    public void broadcastMessage(Object message) {
+        for (Object loginId : sessions.keySet()) {
+            sendMessage(loginId,message);
+        }
+    }
+
+    /**
      * 注册消息监听器，收到消息时触发
      * @param targetClass 序列化为目标对象
      * @param consumer 消息消费者

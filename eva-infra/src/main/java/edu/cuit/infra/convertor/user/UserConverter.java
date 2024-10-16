@@ -17,6 +17,7 @@ import org.mapstruct.Mappings;
 import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * 用户对象转换器
@@ -27,7 +28,7 @@ public interface UserConverter {
     @Mappings({
         @Mapping(source = "roles",target = "roles")
     })
-    UserEntity toUserEntity(SysUserDO userDO, List<RoleEntity> roles);
+    UserEntity toUserEntity(SysUserDO userDO, Supplier<List<RoleEntity>> roles);
 
     @Mapping(target = "extValues", ignore = true)
     SimpleResultCO toUserSimpleResult(SysUserDO userDO);

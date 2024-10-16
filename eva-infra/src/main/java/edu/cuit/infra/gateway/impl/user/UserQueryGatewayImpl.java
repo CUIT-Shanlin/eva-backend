@@ -30,6 +30,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 @Component
 @RequiredArgsConstructor
@@ -39,8 +40,8 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
     private final SysUserMapper userMapper;
     private final SysRoleMapper roleMapper;
 
-    private RoleQueryGateway roleQueryGateway;
-    private MenuQueryGateway menuQueryGateway;
+    private final RoleQueryGateway roleQueryGateway;
+    private final MenuQueryGateway menuQueryGateway;
 
     private final UserConverter userConverter;
     private final RoleConverter roleConverter;
@@ -75,6 +76,13 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
         userQuery.select(SysUserDO::getUsername)
                 .eq(SysUserDO::getId,id);
         return Optional.ofNullable(userMapper.selectOne(userQuery)).map(SysUserDO::getUsername);
+    }
+
+    @Override
+    public List<Integer> findAllUserId() {
+        LambdaQueryWrapper<SysUserDO> userQuery = Wrappers.lambdaQuery();
+        userQuery.select(SysUserDO::getId);
+        return userMapper.selectList(userQuery).stream().map(SysUserDO::getId).toList();
     }
 
     @Override
@@ -129,11 +137,11 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
         //查询角色
         LambdaQueryWrapper<SysRoleDO> roleQuery = new LambdaQueryWrapper<>();
         roleQuery.in(SysRoleDO::getId, getUserRoleIds(userDO.getId()));
-        List<RoleEntity> userRoles = roleMapper.selectList(roleQuery).stream()
+        Supplier<List<RoleEntity>> userRoles = () -> roleMapper.selectList(roleQuery).stream()
                 .map(roleDo -> {
 
                     //查询角色权限菜单
-                    List<MenuEntity> menus = roleQueryGateway.getRoleMenuIds(roleDo.getId())
+                    Supplier<List<MenuEntity>> menus = () -> roleQueryGateway.getRoleMenuIds(roleDo.getId())
                             .stream()
                             .map(menuId -> menuQueryGateway.getOne(menuId).orElseThrow(() -> {
                                 SysException sysException = new SysException("菜单查询出错，请联系管理员");

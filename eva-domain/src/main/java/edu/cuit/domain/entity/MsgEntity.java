@@ -2,10 +2,14 @@ package edu.cuit.domain.entity;
 
 import com.alibaba.cola.domain.Entity;
 import edu.cuit.domain.entity.user.biz.UserEntity;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * 用户消息domain entity
@@ -48,12 +52,14 @@ public class MsgEntity {
     /**
      * 接收消息的用户，为null则向所有人发送
      */
-    private UserEntity recipient;
+    @Getter(AccessLevel.NONE)
+    private Supplier<UserEntity> recipient;
 
     /**
      * 发起人的(-1或null: 系统发起)
      */
-    private UserEntity sender;
+    @Getter(AccessLevel.NONE)
+    private Supplier<UserEntity> sender;
 
     /**
      * 评教任务的id，当且仅当为评教消息时有意义
@@ -69,5 +75,25 @@ public class MsgEntity {
      * 创建时间
      */
     private LocalDateTime createTime;
+
+    @Getter(AccessLevel.NONE)
+    private UserEntity recipientCache = null;
+
+    public synchronized UserEntity getRecipient() {
+        if (recipientCache == null) {
+            recipientCache = recipient.get();
+        }
+        return recipientCache;
+    }
+
+    @Getter(AccessLevel.NONE)
+    private UserEntity senderCache = null;
+
+    public synchronized UserEntity getSender() {
+        if (senderCache == null) {
+            senderCache = sender.get();
+        }
+        return senderCache;
+    }
 
 }
