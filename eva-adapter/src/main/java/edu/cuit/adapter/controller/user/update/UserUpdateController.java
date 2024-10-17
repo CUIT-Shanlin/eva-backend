@@ -48,7 +48,7 @@ public class UserUpdateController {
      * 如果传入的新密码和旧密码重复或者旧密码错误直接异常返回
      * @param cmd 修改密码模型
      */
-    @PutMapping("/user/password")
+    @PutMapping("/password")
     @SaCheckLogin
     public CommonResult<Void> updatePassword(@RequestBody @Valid UpdatePasswordCmd cmd) {
         return null;
@@ -90,7 +90,7 @@ public class UserUpdateController {
      * 新建用户
      * @param cmd 新建用户模型
      */
-    @PostMapping("/user")
+    @PostMapping
     @SaCheckPermission("system.user.add")
     public CommonResult<Void> create(@RequestBody @Valid NewUserCmd cmd) {
         return null;
@@ -101,8 +101,17 @@ public class UserUpdateController {
      * @param avatarFile 头像文件
      */
     @SaCheckLogin
-    @PostMapping("/user/info/avatar")
+    @PostMapping("/info/avatar")
     public CommonResult<Void> uploadAvatar(@RequestParam("avatarFile") @NotNull(message = "头像文件不能为空") MultipartFile avatarFile) {
+        return null;
+    }
+
+    /**
+     * 同步Ldap用户数据
+     */
+    @PostMapping("/sync")
+    @SaCheckPermission("system.user.sync")
+    public CommonResult<Void> syncLdapUser() {
         return null;
     }
 
