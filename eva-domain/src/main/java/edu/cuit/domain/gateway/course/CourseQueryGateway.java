@@ -141,6 +141,10 @@ public interface CourseQueryGateway {
      *@param courseId 课程id
      * */
     List<String> getLocation(Integer courseId);
-
+    /**
+     * 根据cousInfId 获得课程对象
+     * @param courInfId
+     */
+    Optional<CourseEntity> getCourseByInfo(Integer courInfId);
 
 }
