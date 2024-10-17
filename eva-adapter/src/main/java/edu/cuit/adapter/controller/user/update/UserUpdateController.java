@@ -35,13 +35,11 @@ public class UserUpdateController {
 
     /**
      * 修改用户自己的信息
-     * @param isUpdatePwd 是否需要修改密码
      * @param cmd 修改用户模型
      */
     @PutMapping("/info")
     @SaCheckLogin
-    public CommonResult<Void> updateOwnInfo(@PathVariable("isUpdatePwd") Boolean isUpdatePwd,
-                                         @RequestBody @Valid UpdateUserCmd cmd) {
+    public CommonResult<Void> updateOwnInfo(@RequestBody @Valid UpdateUserCmd cmd) {
         return null;
     }
 
