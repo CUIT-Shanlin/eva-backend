@@ -113,10 +113,10 @@ public class UserQueryController {
     /**
      * 用户头像
      * @param id 用户id
-     * @return 响应对象，包含图片base64数据，响应体content-type为image/jpeg
+     * @return 响应对象，包含图片二进制数据，响应体content-type为image/jpeg
      */
     @GetMapping("/user/avatar/{id}")
-    public ResponseEntity<String> userAvatar(@PathVariable("id") Integer id) {
+    public ResponseEntity<byte[]> userAvatar(@PathVariable("id") Integer id) {
         return null;
     }
 
