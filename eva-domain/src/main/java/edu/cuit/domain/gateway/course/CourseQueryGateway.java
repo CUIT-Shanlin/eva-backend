@@ -124,10 +124,9 @@ public interface CourseQueryGateway {
     /**
      * 获取自己教学的一门课程的课程时段
      * @param id 课程id
-     *  @param userName 用户名
      * @return List<SingleCourseEntity>
      * */
-    List<SingleCourseEntity> getSelfCourseTime(String userName,Integer id);
+    List<SingleCourseEntity> getSelfCourseTime(Integer id);
 
     /**
      * 获取一天的具体日期

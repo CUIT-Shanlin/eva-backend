@@ -60,26 +60,27 @@ public class ICourseServiceImpl implements ICourseService {
 
     @Override
     public void updateSingleCourse(Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd) {
-
+        String userName =String.valueOf(StpUtil.getLoginId()) ;
+        courseUpdateGateway.updateSingleCourse(userName,semId,updateSingleCourseCmd);
     }
 
     @Override
     public void allocateTeacher(Integer semId, AlignTeacherCmd alignTeacherCmd) {
-
+        courseUpdateGateway.assignTeacher(semId,alignTeacherCmd);
     }
 
     @Override
     public void deleteCourses(Integer semId, Integer id, CoursePeriod coursePeriod) {
-
+        courseDeleteGateway.deleteCourses(semId,id,coursePeriod);
     }
 
     @Override
     public void addExistCoursesDetails(Integer courseId, SelfTeachCourseTimeCO timeCO) {
-
+            courseUpdateGateway.addExistCoursesDetails(courseId,timeCO);
     }
 
     @Override
     public void addNotExistCoursesDetails(Integer semId, Integer teacherId, UpdateCourseCmd courseInfo, List<SelfTeachCourseTimeCO> dateArr) {
-
+        courseUpdateGateway.addNotExistCoursesDetails(semId,teacherId,courseInfo,dateArr);
     }
 }

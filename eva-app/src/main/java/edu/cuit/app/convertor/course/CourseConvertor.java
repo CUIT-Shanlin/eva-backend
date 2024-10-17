@@ -2,10 +2,10 @@ package edu.cuit.app.convertor.course;
 
 import edu.cuit.client.dto.clientobject.SimpleCourseResultCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
-import edu.cuit.client.dto.clientobject.course.CourseModelCO;
-import edu.cuit.client.dto.clientobject.course.SingleCourseDetailCO;
-import edu.cuit.client.dto.clientobject.course.TeacherInfoCO;
+import edu.cuit.client.dto.clientobject.course.*;
+import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.domain.entity.course.CourseEntity;
+import edu.cuit.domain.entity.course.CourseTypeEntity;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.entity.course.SubjectEntity;
 import edu.cuit.infra.convertor.EntityFactory;
@@ -27,6 +27,11 @@ public interface CourseConvertor {
     SimpleCourseResultCO toSimpleCourseResultCO(CourseEntity entity);
 
     SimpleResultCO toSimpleResultCO(SubjectEntity entity);
+    SimpleResultCO toSimpleResultCO(SelfTeachCourseCO entity);
+
+    CourseType toCourseType(CourseTypeEntity courseTypeEntity);
+
+//    SelfTeachCourseTimeCO toSelfCourseTimeCO(SingleCourseEntity );
 
 
  /*   @Mappings({

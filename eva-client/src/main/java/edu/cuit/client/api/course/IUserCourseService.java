@@ -15,11 +15,10 @@ import java.util.List;
 public interface IUserCourseService {
 
     /**
-     * 获取单个用户教学的课程基础信息
+     * 获取用户自己的教学的课程基础信息
      *  @param semId 学期id
-     *  @param id 用户编号id
      * */
-    List<SimpleResultCO> getUserCourseInfo(Integer id, Integer semId);
+    List<SimpleResultCO> getUserCourseInfo( Integer semId);
 
     /**
      * 获取单个用户的教学课程的详细信息
@@ -46,7 +45,7 @@ public interface IUserCourseService {
      * 获取自己所有教学的课程的详细信息
      * @param semId 学期id
      * */
-    List<Void> selfCourseDetail(Integer semId);
+    List<SelfTeachCourseCO> selfCourseDetail(Integer semId);
 
     /**
      * 获取自己教学的一门课程的课程时段
