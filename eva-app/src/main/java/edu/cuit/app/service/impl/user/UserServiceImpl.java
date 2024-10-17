@@ -12,6 +12,8 @@ import edu.cuit.app.factory.user.RouterDetailFactory;
 import edu.cuit.client.api.user.IUserService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
+import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
+import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
 import edu.cuit.client.dto.clientobject.eva.UserSingleCourseScoreCO;
 import edu.cuit.client.dto.clientobject.user.*;
 import edu.cuit.client.dto.cmd.user.AssignRoleCmd;
@@ -21,6 +23,8 @@ import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.user.biz.UserEntity;
+import edu.cuit.domain.gateway.course.CourseQueryGateway;
+import edu.cuit.domain.gateway.eva.EvaQueryGateway;
 import edu.cuit.domain.gateway.user.LdapPersonGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.domain.gateway.user.UserUpdateGateway;
@@ -29,6 +33,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -41,6 +48,8 @@ public class UserServiceImpl implements IUserService {
     private final UserQueryGateway userQueryGateway;
     private final UserUpdateGateway userUpdateGateway;
     private final LdapPersonGateway ldapPersonGateway;
+    private final CourseQueryGateway courseQueryGateway;
+    private final EvaQueryGateway evaQueryGateway;
 
     private final AvatarManager avatarManager;
 
@@ -66,6 +75,25 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public List<UserSingleCourseScoreCO> getOneUserScore(Integer userId, Integer semId) {
+        List<SelfTeachCourseCO> courseInfoList = courseQueryGateway.getSelfCourseInfo(userQueryGateway.findUsernameById(userId)
+                .orElseThrow(() -> new SysException("找不到用户名")), semId);
+
+        List<UserSingleCourseScoreCO> resultList = new ArrayList<>();
+
+        for (SelfTeachCourseCO course : courseInfoList) {
+            List<CourseScoreCO> evaScore = courseQueryGateway.findEvaScore(course.getId(), semId);
+            double score = 0;
+            for (CourseScoreCO courseScoreCO : evaScore) {
+                score += courseScoreCO.getAverScore();
+            }
+            UserSingleCourseScoreCO courseScoreCO = new UserSingleCourseScoreCO();
+            courseScoreCO.setScore(new BigDecimal(score)
+                    .divide(new BigDecimal(evaScore.size()),2, RoundingMode.HALF_UP)
+                    .doubleValue())
+                    .setCourseName(course.getName());
+//                    .setEvaNum(evaQueryGateway.);
+            // TODO 评教次数
+        }
         return List.of();
     }
 
