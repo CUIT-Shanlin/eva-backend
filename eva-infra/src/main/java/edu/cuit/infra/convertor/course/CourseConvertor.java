@@ -4,6 +4,7 @@ import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.client.dto.clientobject.course.RecommendCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
 import edu.cuit.client.dto.clientobject.course.SubjectCO;
+import edu.cuit.client.dto.clientobject.eva.EvaTeacherInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
 import edu.cuit.client.dto.cmd.course.UpdateCourseCmd;
 import edu.cuit.client.dto.cmd.course.UpdateSingleCourseCmd;
@@ -124,4 +125,8 @@ public interface CourseConvertor {
                                           List<CourseType> list,
                                           Double priority,Double typeSimilarity);
     CourseTime toCourseTime(CourInfDO courInfDO);
+@Mappings({
+        @Mapping(target = "name",source = "username")
+})
+    EvaTeacherInfoCO toEvaTeacherInfoCO(SysUserDO sysUserDO);
 }
