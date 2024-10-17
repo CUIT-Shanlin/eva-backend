@@ -599,13 +599,14 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     }
 
     @Override
-    public Integer getEvaNumber(Long id) {
+    public Optional<Integer> getEvaNumber(Long id) {
         //获取用户已评教数目用户id
         //用户id-》查询评教任务的老师-》查询status==1(已评教)
         QueryWrapper<EvaTaskDO> taskWrapper=new QueryWrapper<EvaTaskDO>().eq("teacher_id",id).eq("status",1);
         List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(taskWrapper);
-        return evaTaskDOS.size();
+        return Optional.of(evaTaskDOS.size());
     }
+
 
     @Override
     public Optional<String> getTaskTemplate(Integer taskId, Integer semId) {
@@ -663,6 +664,21 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         List<FormTemplateDO> formTemplateDOS=formTemplateMapper.selectList(null);
         List<EvaTemplateEntity> evaTemplateEntities=formTemplateDOS.stream().map(formTemplateDO->evaConvertor.ToEvaTemplateEntity(formTemplateDO)).toList();
         return evaTemplateEntities;
+    }
+
+    @Override
+    public Optional<Double> getScoreFromRecord(String prop) {
+        Double score =stringToSumAver(prop);
+        return Optional.of(score);
+    }
+
+    @Override
+    public Optional<Integer> getEvaNumByCourInfo(Integer courInfId) {
+        //通过courInfoId->任务-》记录
+        List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id",courInfId));
+        List<Integer> evaTaskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
+        List<FormRecordDO> formRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIds));
+        return Optional.of(formRecordDOS.size());
     }
 
     //简便方法

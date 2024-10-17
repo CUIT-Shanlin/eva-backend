@@ -483,6 +483,20 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
                 .stream().map(CourInfDO::getLocation).distinct().toList();
     }
 
+    @Override
+    public Optional<CourseEntity> getCourseByInfo(Integer courInfId) {
+        CourInfDO courInfDO=courInfMapper.selectById(courInfId);
+        CourseDO courseDO=courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id",courInfId));
+
+        Supplier<UserEntity> userEntity=()->toUserEntity(courseDO.getTeacherId());
+        Supplier<SemesterEntity> semesterEntity=()->courseConvertor.toSemesterEntity(semesterMapper.selectById(courseDO.getSemesterId()));
+        Supplier<SubjectEntity> subjectEntity=()->courseConvertor.toSubjectEntity(subjectMapper.selectById(courseDO.getSubjectId()));
+        CourseEntity courseEntity=courseConvertor.toCourseEntity(courseDO,subjectEntity,userEntity,semesterEntity);
+
+        return Optional.of(courseEntity);
+    }
+
+
     private SemesterEntity getSemester(Integer semId){
         SemesterDO semesterDO=null;
         if(semId!=null){

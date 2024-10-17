@@ -10,6 +10,7 @@ import edu.cuit.client.dto.clientobject.user.GenericMenuSectionCO;
 import edu.cuit.client.dto.clientobject.user.MenuCO;
 import edu.cuit.client.dto.cmd.user.NewMenuCmd;
 import edu.cuit.client.dto.cmd.user.UpdateMenuCmd;
+import edu.cuit.client.dto.data.course.CourseTime;
 import edu.cuit.client.dto.query.condition.MenuConditionalQuery;
 import edu.cuit.domain.entity.eva.EvaRecordEntity;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
@@ -45,6 +46,13 @@ public class UserEvaServiceImpl implements IUserEvaService {private final EvaDel
             evaRecordCO.setId(evaRecordEntities.get(i).getId());
             evaRecordCO.setEvaTeacherName(userQueryGateway.findUsernameById(userId).get());
 
+
+            evaRecordCO.setCourseName(courseQueryGateway.getCourseByInfo
+                            (evaRecordEntities.get(i).getTask().getCourInf().getId())
+                    .get().getSubjectEntity().getName());
+            evaRecordCO.setAverScore(evaQueryGateway.getScoreFromRecord(evaRecordEntities.get(i).getFormPropsValues()).get());
+
+            evaRecordCO.getCourseTime();
         }
 
 
