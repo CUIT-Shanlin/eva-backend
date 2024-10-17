@@ -1,6 +1,7 @@
 package edu.cuit.app.service.impl.course;
 
 import cn.dev33.satoken.stp.StpUtil;
+import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.PaginationBizConvertor;
 import edu.cuit.app.convertor.course.CourseConvertor;
 import edu.cuit.client.api.course.IUserCourseService;
@@ -32,6 +33,7 @@ public class IUserCourseServiceImpl implements IUserCourseService {
     private final CourseDeleteGateway courseDeleteGateway;
     private final CourseConvertor courseConvertor;
     private final PaginationBizConvertor pageConvertor;
+    @CheckSemId
     @Override
     public List<SimpleResultCO> getUserCourseInfo( Integer semId) {
         String userName = String.valueOf(StpUtil.getLoginId());
@@ -41,12 +43,14 @@ public class IUserCourseServiceImpl implements IUserCourseService {
         return list;
     }
 
+    @CheckSemId
     @Override
     public List<CourseDetailCO> getUserCourseDetail(Integer id, Integer semId) {
         List<SingleCourseEntity> userCourseDetail = courseQueryGateway.getUserCourseDetail(id, semId);
         return null;
     }
 
+    @CheckSemId
     @Override
     public List<RecommendCourseCO> getSelfCourse(Integer semId) {
        return courseQueryGateway.getSelfCourse(semId, String.valueOf(StpUtil.getLoginId()));
@@ -58,6 +62,7 @@ public class IUserCourseServiceImpl implements IUserCourseService {
 
     }
 
+    @CheckSemId
     @Override
     public List<SelfTeachCourseCO> selfCourseDetail(Integer semId) {
         List<SelfTeachCourseCO> courseDetailes = courseQueryGateway.getSelfCourseInfo(String.valueOf(StpUtil.getLoginId()), semId);
