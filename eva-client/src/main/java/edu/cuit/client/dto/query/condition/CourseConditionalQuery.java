@@ -10,14 +10,15 @@ import lombok.EqualsAndHashCode;
 @Data
 public class CourseConditionalQuery extends GenericConditionalQuery {
 
-    /**
-     * 老师id
-     */
-    private Integer teacherId;
 
     /**
      * 学院名称
      */
     private String departmentName;
+
+    /**
+     *评教模板的id
+     */
+    private Integer templateId;
 
 }

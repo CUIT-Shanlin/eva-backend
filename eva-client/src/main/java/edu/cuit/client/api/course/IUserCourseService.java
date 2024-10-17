@@ -1,8 +1,9 @@
 package edu.cuit.client.api.course;
 
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
-import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
-import edu.cuit.client.dto.clientobject.course.ModifySingleCourseDetailCO;
+import edu.cuit.client.dto.clientobject.course.*;
+import edu.cuit.client.dto.data.Term;
+import jakarta.validation.Valid;
 
 
 import java.io.InputStream;
@@ -14,11 +15,10 @@ import java.util.List;
 public interface IUserCourseService {
 
     /**
-     * 获取单个用户教学的课程基础信息
+     * 获取用户自己的教学的课程基础信息
      *  @param semId 学期id
-     *  @param id 用户编号id
      * */
-    List<SimpleResultCO> getUserCourseInfo(Integer id, Integer semId);
+    List<SimpleResultCO> getUserCourseInfo( Integer semId);
 
     /**
      * 获取单个用户的教学课程的详细信息
@@ -31,14 +31,41 @@ public interface IUserCourseService {
      * 获取自己的推荐选课
      * @param semId 学期id
      */
-    List<ModifySingleCourseDetailCO> getSelfCourse(Integer semId);
+    List<RecommendCourseCO> getSelfCourse(Integer semId);
 
     /**
      * 导入课表文件
-     *
      *  @param fileStream 课表文件
-     *
+     *  @param type 用于确定是导入实验课表还是理论课表，0：理论课，1：实验课
+     *  @param term 学期模型
      * */
-    void importCourse(InputStream fileStream);
+    void importCourse(InputStream fileStream, Integer type, Term term);
+
+    /**
+     * 获取自己所有教学的课程的详细信息
+     * @param semId 学期id
+     * */
+    List<SelfTeachCourseCO> selfCourseDetail(Integer semId);
+
+    /**
+     * 获取自己教学的一门课程的课程时段
+     * @param courseId 课程id
+     * */
+    List<SelfTeachCourseTimeCO> selfCourseTime(Integer courseId);
+
+    /**
+     * 删除自己的一门课程
+     *  @param courseId 课程id
+     * */
+    Void deleteSelfCourse(Integer courseId);
+
+    /**
+     * 修改自己的一门课程信息及其课程时段
+     *@param selfTeachCourseCO 用于确定是导入实验课表还是理论课表，0：理论课，1：实验课
+     *  @param timeList 课表文件
+     * */
+   Void updateSelfCourse(SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeCO> timeList);
+
+
 
 }

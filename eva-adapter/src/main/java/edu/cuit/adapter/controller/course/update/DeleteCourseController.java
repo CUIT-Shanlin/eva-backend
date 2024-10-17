@@ -1,13 +1,11 @@
 package edu.cuit.adapter.controller.course.update;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import edu.cuit.client.dto.data.course.CoursePeriod;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Array;
 import java.util.List;
@@ -35,17 +33,15 @@ public class DeleteCourseController {
     /**
      * 批量删除某节课
      *  @param semId 学期id
-     *  @param id 对应课程编号
-     *  @param startWeek 从哪一周开始删除
-     *  @param endWeek 从哪一周结束删除
+     *  @param id 课程详情id
+     *  @param coursePeriod 课程的一段时间模型
      * */
     @DeleteMapping("/course/table")
     @SaCheckPermission("course.table.delete")
     public CommonResult<Void> deleteCourses(
             @RequestParam(value = "id",required = true) Integer id,
             @RequestParam(value = "semId",required = false) Integer semId,
-            @RequestParam(value = "startWeek",required = true) Integer startWeek,
-            @RequestParam(value = "endWeek",required = true) Integer endWeek){
+            @RequestBody CoursePeriod coursePeriod){
         return null;
     }
 
@@ -62,12 +58,23 @@ public class DeleteCourseController {
 
     /**
      * 批量删除课程类型
-     *  @param ids 课程数组
+     *  @param ids 课程类型数组
      * */
     @DeleteMapping("/course/types")
     @SaCheckPermission("course.type.delete")
     public CommonResult<Void> deleteCoursesType(
             @RequestBody List<Integer> ids){
+
+        return null;
+    }
+
+    /**
+     * 删除自己的一门课程
+     *  @param courseId 课程id
+     * */
+    @DeleteMapping("/course/my/{courseId}")
+    public CommonResult<Void> deleteSelfCourse(
+           @PathVariable(value = "courseId") Integer courseId){
 
         return null;
     }

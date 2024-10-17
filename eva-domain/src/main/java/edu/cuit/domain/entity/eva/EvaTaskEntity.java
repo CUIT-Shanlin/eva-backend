@@ -3,10 +3,13 @@ package edu.cuit.domain.entity.eva;
 import com.alibaba.cola.domain.Entity;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.entity.user.biz.UserEntity;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.function.Supplier;
 
 /**
  * 评教任务domain entity
@@ -24,17 +27,47 @@ public class EvaTaskEntity {
     /**
      * 评教老师
      */
-    private UserEntity teacher;
+    @Getter(AccessLevel.NONE)
+    private Supplier<UserEntity> teacher;
+
+    private UserEntity uCache=null;
+
+    public synchronized UserEntity getTeacher(){
+        if(uCache==null){
+            uCache=teacher.get();
+        }
+        return uCache;
+    }
 
     /**
      * 被评教的那节课
      */
-    private SingleCourseEntity courInf;
+    @Getter(AccessLevel.NONE)
+    private Supplier<SingleCourseEntity> courInf;
+
+    private SingleCourseEntity sCache=null;
+
+    public synchronized SingleCourseEntity getCourInf(){
+        if(sCache==null){
+            sCache=courInf.get();
+        }
+        return sCache;
+    }
 
     /**
      * 评教需要使用的快照模板
      */
-    private CourOneEvaTemplateEntity evaTemplate;
+    @Getter(AccessLevel.NONE)
+    private Supplier<CourOneEvaTemplateEntity> evaTemplate;
+
+    private CourOneEvaTemplateEntity cCache=null;
+
+    public synchronized CourOneEvaTemplateEntity getEvaTemplate(){
+        if(cCache==null){
+            cCache=evaTemplate.get();
+        }
+        return cCache;
+    }
 
     /**
      * 任务状态（0：待执行，1：已执行）

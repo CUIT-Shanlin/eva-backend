@@ -34,7 +34,12 @@ public class SingleCourseCO extends ClientObject {
     private Integer evaNum;
 
     /**
-     * 课程时间模型
+     * 一节课的时间
      */
     private CourseTime time;
+
+    /**
+     * 上课位置
+     */
+    private String location;
 }

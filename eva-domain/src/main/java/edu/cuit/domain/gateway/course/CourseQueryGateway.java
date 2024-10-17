@@ -1,13 +1,19 @@
 package edu.cuit.domain.gateway.course;
 
+
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
+import edu.cuit.client.dto.clientobject.course.RecommendCourseCO;
+import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SingleCourseCO;
-import edu.cuit.client.dto.clientobject.course.SingleCourseDetailCO;
+
 import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
-import edu.cuit.client.dto.data.course.CourseType;
+
 import edu.cuit.client.dto.query.CourseQuery;
 import edu.cuit.client.dto.query.PagingQuery;
+import edu.cuit.client.dto.query.condition.CourseConditionalQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
+import edu.cuit.client.dto.query.condition.MobileCourseQuery;
+import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.course.CourseEntity;
 import edu.cuit.domain.entity.course.CourseTypeEntity;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
@@ -28,7 +34,7 @@ public interface CourseQueryGateway {
      * @param courseQuery 课程查询参数
      * @return List<CourseEntity>
      */
-    List<CourseEntity> page(CourseQuery courseQuery, Integer semId);
+    PaginationResultEntity<CourseEntity> page(PagingQuery<CourseConditionalQuery> courseQuery, Integer semId);
 
     /**
      * 获取一门课程的信息
@@ -65,9 +71,9 @@ public interface CourseQueryGateway {
      * 获取一个课程时间段的课程信息
      *  @param semId 学期id
      *  @param courseQuery 课程查询相关信息
-     * @return List<SingleCourseEntity>
+     * @return List<SingleCourseCO>
      * */
-    List<SingleCourseEntity> getPeriodInfo(Integer semId,CourseQuery courseQuery);
+    List<SingleCourseCO> getPeriodInfo(Integer semId,CourseQuery courseQuery);
 
     /**
      * 获取一节课的详细信息
@@ -81,31 +87,60 @@ public interface CourseQueryGateway {
      *获取某个指定时间段的课程
      * @param semId 学期id
      * @param courseQuery 课程查询条件
-     *@return List<CourseEntity>
+     *@return List<SingleCourseEntity>
      */
-    List<SingleCourseEntity> getPeriodCourse(Integer semId,CourseQuery courseQuery);
+    List<RecommendCourseCO> getPeriodCourse(Integer semId, MobileCourseQuery courseQuery,String userName);
 
     /**
      * 分页获取课程类型
      * @param  courseQuery 课程查询参数
      * @return List<CourseTypeEntity>
      * */
-    List<CourseTypeEntity> pageCourseType(PagingQuery<GenericConditionalQuery> courseQuery);
+    PaginationResultEntity<CourseTypeEntity> pageCourseType(PagingQuery<GenericConditionalQuery> courseQuery);
 
     /**
-     * 获取单个用户的教学课程的详细信息/获取一节课的详细信息
+     * 获取单个用户的教学课程的详细信息
      *  @param semId 学期id
-     *  @param id 用户编号id/课程详情id
-     * @return List<CourseEntity>
+     *  @param id 用户编号id
+     * @return List<SingleCourseEntity>
      * */
-    List<CourseEntity> getCourseDetail( Integer id,Integer semId);
+    List<SingleCourseEntity> getUserCourseDetail( Integer id,Integer semId);
+
+    /**
+     * 获取自己教学的课程基础信息/获取自己所有教学的课程的详细信息
+     *  @param semId 学期id
+     *  @param userName 用户名
+     * @return List<SelfTeachCourseCO>
+     * */
+    List<SelfTeachCourseCO> getSelfCourseInfo(String userName, Integer semId);
 
     /**
      * 获取自己的推荐选课
      * @param semId 学期id
+     * @return List<CourseEntity>
+     * */
+    List<RecommendCourseCO> getSelfCourse(Integer semId, String userName);
+
+    /**
+     * 获取自己教学的一门课程的课程时段
+     * @param id 课程id
      * @return List<SingleCourseEntity>
      * */
-    List<SingleCourseEntity> getSelfCourse(Integer semId);
+    List<SingleCourseEntity> getSelfCourseTime(Integer id);
+
+    /**
+     * 获取一天的具体日期
+     *@param semId 学期id
+     *@param week 第几周
+     *@param day 星期几
+     * */
+    String getDate(Integer semId,Integer week,Integer day);
+
+    /**
+     * 获取课程教师位置
+     *@param courseId 课程id
+     * */
+    List<String> getLocation(Integer courseId);
 
 
 }

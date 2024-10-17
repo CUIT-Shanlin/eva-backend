@@ -1,8 +1,8 @@
 package edu.cuit.adapter.controller.course.query;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
-import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
-import edu.cuit.client.dto.clientobject.course.ModifySingleCourseDetailCO;
+import edu.cuit.client.dto.clientobject.course.*;
 import edu.cuit.client.dto.data.course.CourseTime;
 import edu.cuit.client.dto.query.condition.MobileCourseQuery;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
@@ -23,13 +23,12 @@ import java.util.List;
 public class QueryUserCourseController {
 
     /**
-     * 获取单个用户教学的课程基础信息
+     * 获取自己教学的课程基础信息
      *  @param semId 学期id
-     *  @param id 用户编号id
+     *
      * */
     @GetMapping("/courses")
     public CommonResult<List<SimpleResultCO>> getUserCourseInfo(
-            @RequestParam(value = "id",required = true) Integer id,
             @RequestParam(value = "semId",required = false) Integer semId){
         return null;
     }
@@ -40,6 +39,7 @@ public class QueryUserCourseController {
      *  @param id 用户编号id
      * */
     @GetMapping("/courses/detail")
+    @SaCheckPermission("course.tabulation.query")
     public CommonResult<List<CourseDetailCO>> getUserCourseDetail(
             @RequestParam(value = "id",required = true) Integer id,
             @RequestParam(value = "semId",required = false) Integer semId){
@@ -51,7 +51,7 @@ public class QueryUserCourseController {
      * @param semId 学期id
      */
     @GetMapping("/courses/suggestion")
-    public CommonResult<List<ModifySingleCourseDetailCO>> getSelfCourse(
+    public CommonResult<List<RecommendCourseCO>> getSelfCourse(
             @RequestParam(value = "semId",required = false) Integer semId){
         return null;
     }
@@ -65,6 +65,28 @@ public class QueryUserCourseController {
     public CommonResult<LocalDateTime> getCourseTime(
             @RequestParam(value = "semId",required = false)Integer semId,
             @RequestBody(required = true)CourseTime courseTime){
+        return null;
+    }
+
+    /**
+     * 获取自己所有教学的课程的详细信息
+     * @param semId 学期id
+     * */
+    @GetMapping("/courses/my/all/detail")
+    @SaCheckPermission("course.table.add")
+    public CommonResult<List<SelfTeachCourseCO>> selfCourseDetail(
+            @RequestParam(value = "semId",required = true)Integer semId){
+        return null;
+    }
+
+    /**
+     * 获取自己教学的一门课程的课程时段
+     * @param courseId 课程id
+     * */
+    @GetMapping("/course/my/date/{courseId}")
+    @SaCheckPermission("course.table.add")
+    public CommonResult<List<SelfTeachCourseTimeCO>> selfCourseTime(
+            @PathVariable(value = "courseId",required = true) Integer courseId){
         return null;
     }
 

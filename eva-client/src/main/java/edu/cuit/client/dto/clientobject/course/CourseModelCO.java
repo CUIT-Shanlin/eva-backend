@@ -24,6 +24,7 @@ public class CourseModelCO extends ClientObject {
 
     /**
      * 教室数组
+     * JSON形式存教室数组
      */
     private List<String> classroomList;
 
@@ -38,7 +39,7 @@ public class CourseModelCO extends ClientObject {
     private EvaTemplateCO templateMsg;
 
     /**
-     *教学老师信息信息
+     *教学老师信息
      */
     private TeacherInfoCO teacherInfoCO;
 

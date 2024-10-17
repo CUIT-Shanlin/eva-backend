@@ -1,12 +1,20 @@
 package edu.cuit.domain.gateway.course;
 
+import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
+import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
 import edu.cuit.client.dto.cmd.course.AlignTeacherCmd;
 import edu.cuit.client.dto.cmd.course.UpdateCourseCmd;
+import edu.cuit.client.dto.cmd.course.UpdateCoursesCmd;
 import edu.cuit.client.dto.cmd.course.UpdateSingleCourseCmd;
 import edu.cuit.client.dto.data.course.CourseType;
+import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * 课程更新相关数据门户接口
@@ -22,12 +30,21 @@ public interface CourseUpdateGateway {
     Void updateCourse(Integer semId, UpdateCourseCmd updateCourseCmd);
 
     /**
-     * 修改一门课程
+     * 批量修改课程的模板
      *@param semId 学期id
-     *@param updateSingleCourseCmd 修改课程信息
+     *  @param updateCoursesCmd 批量修改课程信息
      *
      * */
-    Void updateSingleCourse(Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd);
+    void updateCourses(Integer semId, UpdateCoursesCmd updateCoursesCmd);
+
+    /**
+     * 修改一节课程
+     *@param semId 学期id
+     *@param updateSingleCourseCmd 修改课程信息
+     *@param userName 用户名
+     *
+     * */
+    Void updateSingleCourse(String userName,Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd);
 
     /**
      * 修改一节课的类型
@@ -66,4 +83,28 @@ public interface CourseUpdateGateway {
      *
      * */
     Void importCourseFile(InputStream file);
+
+    /**
+     * 修改自己的一门课程信息及其课程时段
+     *@param selfTeachCourseCO 用于确定是导入实验课表还是理论课表，0：理论课，1：实验课
+     *  @param timeList 课表文件
+     * */
+    Void updateSelfCourse(String userName,SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeCO> timeList);
+
+    /**
+     * 批量新建多节课(已有课程)
+     *  @param courseId 课程id
+     *  @param timeCO 课程对应授课时间
+     * */
+    Void addExistCoursesDetails( Integer courseId, SelfTeachCourseTimeCO timeCO);
+
+    /**
+     * 批量新建多节课(新课程)
+     *  @param semId 学期ID
+     *  @param teacherId 教学老师ID
+     *  @param courseInfo 一门课程的可修改信息(一门课程的可修改信息)
+     *  @param dateArr 自己教学的一门课程的一个课程时段模型集合
+     * */
+    void addNotExistCoursesDetails(Integer semId,Integer teacherId, UpdateCourseCmd courseInfo,  List<SelfTeachCourseTimeCO> dateArr);
+
 }

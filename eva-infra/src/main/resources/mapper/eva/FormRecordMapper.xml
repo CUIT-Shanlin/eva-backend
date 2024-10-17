@@ -12,10 +12,4 @@
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
             <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
     </resultMap>
-
-    <sql id="Base_Column_List">
-        id,task_id,
-        text_value,form_props_values,create_time,
-        is_deleted
-    </sql>
 </mapper>

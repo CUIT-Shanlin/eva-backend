@@ -11,9 +11,4 @@
             <result property="formTemplate" column="form_template" jdbcType="VARCHAR"/>
             <result property="courseStatistics" column="course_statistics" jdbcType="VARCHAR"/>
     </resultMap>
-
-    <sql id="Base_Column_List">
-        id,semester_id,course_id,
-        form_template,course_statistics
-    </sql>
 </mapper>

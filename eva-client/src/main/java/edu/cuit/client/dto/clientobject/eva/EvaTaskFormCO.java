@@ -7,8 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 /**
- * 接口-评教相关-其他操作-提交评教表单 需要
- * 评教表单评价分值信息
+ * 提交评教表单
  */
 @EqualsAndHashCode(callSuper = false)
 @Data
@@ -26,10 +25,6 @@ public class EvaTaskFormCO extends ClientObject{
      * 表单评教指标对应的分值，JSON表示的字符串形式
      */
     private String formPropsValues;
-    /**
-     * 上课的时间，xx周 星期x x节课到x节课
-     */
-    private CourseTime courseTime;
     /**
      * 任务id
      */

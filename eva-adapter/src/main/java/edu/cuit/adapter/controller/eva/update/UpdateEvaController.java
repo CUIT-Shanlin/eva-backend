@@ -23,7 +23,7 @@ public class UpdateEvaController {
      * @param evaTemplateCO 评教模板dto
      */
     @PutMapping("/evaluate/template")
-    @SaCheckPermission("evaluate.record.update")
+    @SaCheckPermission("evaluate.template.update")
     public CommonResult<Void> updateEvaTemplate(
             @Valid @RequestBody EvaTemplateCO evaTemplateCO){
         return null;
@@ -57,4 +57,24 @@ public class UpdateEvaController {
             @Valid @RequestBody EvaTemplateCO evaTemplateCO){
         return null;
     }
+    /**
+     * 任意取消一个评教任务
+     * @param id 课程id
+     */
+    @PutMapping("/evaluate/task/cancel/{id}")
+    @SaCheckPermission("evaluate.task.cancel")
+    public CommonResult<Void> cancelEvaTask(
+            @PathVariable ("id") Integer id){
+        return null;
+    }
+    /**
+     * 取消一个自己的评教任务，后端需要检测是不是自己的评教任务，
+     * @param id 任务id
+     */
+    @PutMapping("/evaluate/task/cancel/my/{id}")
+    public CommonResult<Void> cancelMyEvaTask(
+            @PathVariable ("id") Integer id){
+        return null;
+    }
+
 }

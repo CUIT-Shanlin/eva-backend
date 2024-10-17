@@ -19,7 +19,7 @@ public class EvaRecordCO extends ClientObject {
     /**
      * id
      */
-    private Long id;
+    private Integer id;
 
     /**
      * 教学老师的姓名

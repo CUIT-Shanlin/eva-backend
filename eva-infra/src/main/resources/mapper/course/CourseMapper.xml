@@ -8,7 +8,7 @@
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="subjectId" column="subject_id" jdbcType="INTEGER"/>
             <result property="teacherId" column="teacher_id" jdbcType="INTEGER"/>
-            <result property="classroom" column="classroom" jdbcType="VARCHAR"/>
+            <result property="templateId" column="templateId" jdbcType="VARCHAR"/>
             <result property="semesterId" column="semester_id" jdbcType="INTEGER"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
             <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
