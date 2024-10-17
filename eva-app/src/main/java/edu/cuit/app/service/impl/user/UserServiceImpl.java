@@ -1,27 +1,32 @@
 package edu.cuit.app.service.impl.user;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.cola.exception.BizException;
 import com.alibaba.cola.exception.SysException;
 import edu.cuit.app.AvatarManager;
+import edu.cuit.app.convertor.PaginationBizConvertor;
+import edu.cuit.app.convertor.user.RoleBizConvertor;
 import edu.cuit.app.convertor.user.UserBizConvertor;
+import edu.cuit.app.factory.user.RouterDetailFactory;
 import edu.cuit.client.api.user.IUserService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.eva.UserSingleCourseScoreCO;
-import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
-import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
-import edu.cuit.client.dto.clientobject.user.UserInfoCO;
+import edu.cuit.client.dto.clientobject.user.*;
 import edu.cuit.client.dto.cmd.user.AssignRoleCmd;
 import edu.cuit.client.dto.cmd.user.NewUserCmd;
 import edu.cuit.client.dto.cmd.user.UpdateUserCmd;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.client.dto.query.condition.UnqualifiedUserConditionalQuery;
+import edu.cuit.domain.entity.PaginationResultEntity;
+import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.domain.gateway.user.LdapPersonGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.domain.gateway.user.UserUpdateGateway;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
@@ -31,6 +36,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements IUserService {
 
     private final UserQueryGateway userQueryGateway;
@@ -40,15 +46,23 @@ public class UserServiceImpl implements IUserService {
     private final AvatarManager avatarManager;
 
     private final UserBizConvertor userBizConvertor;
+    private final RoleBizConvertor roleBizConvertor;
+    private final PaginationBizConvertor paginationBizConvertor;
 
     @Override
     public UserInfoCO getOneUserInfo(Integer id) {
-        return null;
+        UserEntity user = userQueryGateway.findById(id)
+                .orElseThrow(() -> new BizException("该用户不存在"));
+        return getUserInfo(user);
     }
 
     @Override
     public PaginationQueryResultCO<UserInfoCO> pageUserInfo(PagingQuery<GenericConditionalQuery> query) {
-        return null;
+        PaginationResultEntity<UserEntity> userEntityPage = userQueryGateway.page(query);
+        List<UserInfoCO> results = userEntityPage.getRecords().stream()
+                .map(this::getUserInfo)
+                .toList();
+        return paginationBizConvertor.toPaginationEntity(userEntityPage,results);
     }
 
     @Override
@@ -73,7 +87,13 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public UserInfoCO getSelfUserInfo() {
-        return null;
+        String username = (String) StpUtil.getLoginId();
+        return getUserInfo(userQueryGateway.findByUsername(username)
+                .orElseThrow(() -> {
+                    SysException e = new SysException("用户数据查找失败，请联系管理员");
+                    log.error("系统异常",e);
+                    return e;
+                }));
     }
 
     @Override
@@ -139,5 +159,18 @@ public class UserServiceImpl implements IUserService {
             if (usernameSet.contains(newUserCmd.getUsername())) continue;
             userUpdateGateway.createUser(newUserCmd);
         }
+    }
+
+    private UserInfoCO getUserInfo(UserEntity user) {
+        List<RouterDetailCO> routerDetailList = RouterDetailFactory.createRouterDetail(user);
+        UserDetailCO userDetail = userBizConvertor.toUserDetailCO(user);
+        List<RoleInfoCO> roleInfoList = user.getRoles().stream()
+                .map(roleBizConvertor::roleEntityToRoleInfoCO)
+                .toList();
+        return new UserInfoCO()
+                .setInfo(userDetail)
+                .setRoleList(roleInfoList)
+                .setRouterList(routerDetailList)
+                .setButtonList(user.getPerms());
     }
 }
