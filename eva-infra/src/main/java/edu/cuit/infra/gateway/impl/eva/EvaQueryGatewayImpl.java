@@ -60,6 +60,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Supplier;
 
 
 @Component
@@ -91,7 +92,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             userIds=pageUser.getRecords().stream().map(SysUserDO::getId).toList();
         }
         List<SysUserDO> teachers=sysUserMapper.selectList(new QueryWrapper<SysUserDO>().in("id",userIds));
-        List<UserEntity> userEntities=teachers.stream().map(sysUserDO->toUserEntity(sysUserDO.getId())).toList();
+        List<UserEntity> userEntities=teachers.stream().map(sysUserDO-> toUserEntity(sysUserDO.getId())).toList();
         //再整课程
         List<Integer> courseIds;
         Page<CourseDO> pageCourse=new Page<>(evaLogQuery.getPage(),evaLogQuery.getSize());
@@ -135,7 +136,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
 
         List<FormRecordDO> records = pageLog.getRecords();
         List<EvaRecordEntity> list = records.stream().map(formRecordDO->evaConvertor.ToEvaRecordEntity(formRecordDO,
-                evaTaskEntities.stream().filter(evaTaskDO->evaTaskDO.getId()
+                ()->evaTaskEntities.stream().filter(evaTaskDO->evaTaskDO.getId()
                         .equals(formRecordDO.getTaskId())).findFirst().get())).toList();
         return paginationConverter.toPaginationEntity(pageLog,list);
     }
@@ -180,7 +181,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             evaTaskWrapper.in("cour_inf_id",courseInfoIds);
         }
         List<SingleCourseEntity> courseEntities=courInfDOS.stream().map(courInfDO -> courseConvertor.toSingleCourseEntity(
-                toCourseEntity(courInfDO.getCourseId(),semId),courInfDO)).toList();
+                ()->toCourseEntity(courInfDO.getCourseId(),semId),courInfDO)).toList();
         //未完成的任务
         evaTaskWrapper.eq("status",0);
 
@@ -276,7 +277,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
                 throw new QueryException("并没有找到相关的评教记录");
             }
             List<SingleCourseEntity> courseEntities=courInfDOS.stream().map(courInfDO -> courseConvertor.toSingleCourseEntity(
-                    toCourseEntity(courInfDO.getCourseId(),id),courInfDO)).toList();
+                    ()->toCourseEntity(courInfDO.getCourseId(),id),courInfDO)).toList();
             List<SysUserDO> teachers;
 
             teachers=sysUserMapper.selectList(teacherWrapper);
@@ -301,12 +302,12 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             throw new QueryException("并没有找到相应的任务");
         }
         //老师
-        UserEntity teacher=toUserEntity(evaTaskDO.getTeacherId());
+        Supplier<UserEntity> teacher=()->toUserEntity(evaTaskDO.getTeacherId());
         //课程信息
         CourInfDO courInfDO=courInfMapper.selectById(evaTaskDO.getCourInfId());
         CourseDO courseDO=courseMapper.selectById(courInfDO.getCourseId());
-        CourseEntity course=toCourseEntity(courInfDO.getCourseId(),courseDO.getSemesterId());
-        SingleCourseEntity oneCourse=courseConvertor.toSingleCourseEntity(course,courInfDO);
+        Supplier<CourseEntity> course=()->toCourseEntity(courInfDO.getCourseId(),courseDO.getSemesterId());
+        Supplier<SingleCourseEntity> oneCourse=()->courseConvertor.toSingleCourseEntity(course,courInfDO);
 
         EvaTaskEntity evaTaskEntity=evaConvertor.ToEvaTaskEntity(evaTaskDO,teacher,oneCourse);
         return Optional.of(evaTaskEntity);
@@ -663,22 +664,22 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         //根据userId找到角色id集合
         List<Integer> roleIds = sysUserRoleMapper.selectList(new QueryWrapper<SysUserRoleDO>().eq("user_id", userId)).stream().map(SysUserRoleDO::getRoleId).toList();
         //根据角色id集合找到角色对象集合
-        List<RoleEntity> roleEntities = sysRoleMapper.selectList(new QueryWrapper<SysRoleDO>().in("id", roleIds)).stream().map(roleDO -> roleConverter.toRoleEntity(roleDO)).toList();
+        Supplier<List<RoleEntity>> roleEntities = ()->sysRoleMapper.selectList(new QueryWrapper<SysRoleDO>().in("id", roleIds)).stream().map(roleDO -> roleConverter.toRoleEntity(roleDO)).toList();
         //根据角色id集合找到角色菜单表中的菜单id集合
         return userConverter.toUserEntity(userDO,roleEntities);
     }
     private CourseEntity toCourseEntity(Integer courseId,Integer semId){
         //构造semester
-        SemesterEntity semesterEntity = courseConvertor.toSemesterEntity(semesterMapper.selectById(semId));
+        Supplier<SemesterEntity> semesterEntity = ()->courseConvertor.toSemesterEntity(semesterMapper.selectById(semId));
         //构造courseDo
         CourseDO courseDO = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", courseId).eq("semester_id", semId));
         if(courseDO==null){
             throw new QueryException("并未找到相关课程");
         }
         //构造subject
-        SubjectEntity subjectEntity = courseConvertor.toSubjectEntity(subjectMapper.selectById(courseDO.getSubjectId()));
+        Supplier<SubjectEntity> subjectEntity = ()->courseConvertor.toSubjectEntity(subjectMapper.selectById(courseDO.getSubjectId()));
         //构造userEntity
-        UserEntity userEntity =toUserEntity(courseMapper.selectById(courseId).getTeacherId());
+        Supplier<UserEntity> userEntity =()->toUserEntity(courseMapper.selectById(courseId).getTeacherId());
         return courseConvertor.toCourseEntity(courseDO,subjectEntity,userEntity,semesterEntity);
     }
     //根据传来的String数据form_props_values中的数据解析出来得到平均分
@@ -745,10 +746,10 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
 
     //根据evaTaskDOs变成entity数据
     private List<EvaTaskEntity> getEvaTaskEntities(List<EvaTaskDO> evaTaskDOS,List<UserEntity> userEntities,List<SingleCourseEntity> courseEntities){
-        List<EvaTaskEntity> evaTaskEntityList=evaTaskDOS.stream().map(evaTaskDO -> evaConvertor.ToEvaTaskEntity(evaTaskDO,
-                userEntities.stream().filter(sysUserDO->sysUserDO.getId()
+        List<EvaTaskEntity> evaTaskEntityList=evaTaskDOS.stream().map(evaTaskDO ->evaConvertor.ToEvaTaskEntity(evaTaskDO,
+                ()->userEntities.stream().filter(sysUserDO->sysUserDO.getId()
                         .equals(evaTaskDO.getTeacherId())).findFirst().get(),
-                courseEntities.stream().filter(courInfDO->courInfDO.getId()
+                ()->courseEntities.stream().filter(courInfDO->courInfDO.getId()
                         .equals(evaTaskDO.getCourInfId())).findFirst().get())).toList();
         if(evaTaskEntityList==null){
             throw new QueryException("未找到相关的任务");
@@ -757,8 +758,8 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     }
     private List<EvaRecordEntity> getRecordEntities(List<FormRecordDO> formRecordDOS,List<EvaTaskEntity> evaTaskEntityList){
         List<EvaRecordEntity> list=formRecordDOS.stream().map(formRecordDO -> evaConvertor.ToEvaRecordEntity(formRecordDO,
-                evaTaskEntityList.stream().filter(evaTaskDO->evaTaskDO.getId()
-                        .equals(formRecordDO.getTaskId())).findFirst().get())).toList();
+                (()->evaTaskEntityList.stream().filter(evaTaskDO->evaTaskDO.getId()
+                        .equals(formRecordDO.getTaskId())).findFirst().get()))).toList();
         if(list==null){
             throw new QueryException("未找到相关的记录");
         }
@@ -869,8 +870,8 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         return unqualifiedUserResultCO;
     }
     private List<SingleCourseEntity> getListCurInfoEntities(List<CourInfDO> courInfDOS,Integer semId){
-        return courInfDOS.stream().map(courInfDO -> courseConvertor.toSingleCourseEntity(
-                toCourseEntity(courInfDO.getCourseId(),semId),courInfDO)).toList();
+        return courInfDOS.stream().map(courInfDO ->courseConvertor.toSingleCourseEntity(
+                ()->toCourseEntity(courInfDO.getCourseId(),semId),courInfDO)).toList();
     }
 
 }
