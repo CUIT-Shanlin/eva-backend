@@ -13,10 +13,10 @@ spring:
       maxPoolPreparedStatementPerConnectionSize: 20
 
   ldap:
-    urls: ldap://littlestrange.site:7086
-    base: dc=cuit,dc=edu,dc=cn
-    username: cn=eva_system,ou=system,ou=user,dc=cuit,dc=edu,dc=cn
-    password: cuit
+    urls: ldap://littlestrange.site:40006
+    base: dc=3015,dc=cuit
+    username: cn=admin,dc=3015,dc=cuit
+    password: 30153015
 
 mybatis-plus:
   global-config:

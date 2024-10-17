@@ -1,11 +1,8 @@
 package edu.cuit.domain.entity.user;
 
 import com.alibaba.cola.domain.Entity;
-import edu.cuit.domain.gateway.user.LdapPersonGateway;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-
-import java.util.Optional;
 
 /**
  * ldap用户domain entity
@@ -59,7 +56,5 @@ public class LdapPersonEntity {
      * 是否为管理员
      */
     private Boolean isAdmin;
-
-    private final Optional<LdapPersonGateway> ldapPersonGateway;
 
 }
