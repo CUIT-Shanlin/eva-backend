@@ -13,3 +13,8 @@ spring:
           driver-class-name: org.mariadb.jdbc.Driver
     druid:
       keep-alive: true
+
+eva:
+  avatar:
+    directory: "/avatar"
+#    directory: "D:\\Programming\\Java\\Projects\\eva-backend\\avatar"
