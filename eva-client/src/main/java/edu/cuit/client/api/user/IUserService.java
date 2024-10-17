@@ -13,6 +13,7 @@ import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.client.dto.query.condition.UnqualifiedUserConditionalQuery;
 
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -65,7 +66,7 @@ public interface IUserService {
     /**
      * 所有用户的信息
      */
-    SimpleResultCO getAllUserInfo();
+    List<SimpleResultCO> getAllUserInfo();
 
     /**
      * 用户自己的信息
@@ -74,11 +75,10 @@ public interface IUserService {
 
     /**
      * 用户头像
-     *
      * @param id 用户id
-     * @return 图片base64数据 格式：data:image/jpeg;base64,...
+     * @return 图片二进制数据 格式：data:image/jpeg;base64,...
      */
-    String getUserAvatar(Integer id);
+    byte[] getUserAvatar(Integer id);
 
     /**
      * 检查用户名是否存在
@@ -86,6 +86,13 @@ public interface IUserService {
      * @param username 用户名
      */
     Boolean isUsernameExist(String username);
+
+    /**
+     * 修改用户头像
+     * @param userId 用户id
+     * @param inputStream 头像读取流
+     */
+    void uploadUserAvatar(Integer userId, InputStream inputStream);
 
     /**
      * 修改用户信息
