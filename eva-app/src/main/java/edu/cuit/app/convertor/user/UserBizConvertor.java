@@ -17,7 +17,7 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring",uses = EntityFactory.class,unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserBizConvertor {
 
-    UserDetailCO toUserInfoCO(UserEntity userEntity);
+    UserDetailCO toUserDetailCO(UserEntity userEntity);
 
     UnqualifiedUserInfoCO toUnqualifiedUserInfoCO(UserEntity userEntity,Integer num);
 
