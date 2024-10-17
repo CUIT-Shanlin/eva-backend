@@ -153,7 +153,7 @@ public class QueryCourseController {
      * @param courseQuery 课程查询条件
      */
     @PostMapping("/courses/query")
-    public CommonResult<List<ModifySingleCourseDetailCO>> getTimeCourse(
+    public CommonResult<List<RecommendCourseCO>> getTimeCourse(
             @RequestParam(value = "semId",required = false) Integer semId,
             @Valid  @RequestBody MobileCourseQuery courseQuery){
         return null;

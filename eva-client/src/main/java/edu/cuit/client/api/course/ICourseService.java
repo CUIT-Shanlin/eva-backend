@@ -53,7 +53,7 @@ public interface ICourseService {
      * @param semId 学期id
      * @param courseQuery 课程查询条件
      */
-    List<ModifySingleCourseDetailCO> getTimeCourse(Integer semId, MobileCourseQuery courseQuery);
+    List<RecommendCourseCO> getTimeCourse(Integer semId, MobileCourseQuery courseQuery);
 
     /**
      * 修改一节课

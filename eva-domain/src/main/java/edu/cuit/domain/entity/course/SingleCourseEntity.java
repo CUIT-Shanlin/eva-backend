@@ -1,10 +1,13 @@
 package edu.cuit.domain.entity.course;
 
 import com.alibaba.cola.domain.Entity;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.function.Supplier;
 
 @RequiredArgsConstructor
 @Data
@@ -19,7 +22,8 @@ public class SingleCourseEntity {
     /**
      * 课程
      */
-    private CourseEntity course;
+    @Getter(AccessLevel.NONE)
+    private Supplier<CourseEntity> course;
 
     /**
      * 上课周时间
@@ -60,5 +64,13 @@ public class SingleCourseEntity {
      * 星期几
      */
     private Integer day;
+    @Getter(AccessLevel.NONE)
+    private CourseEntity courseCache=null;
+    private synchronized CourseEntity getCourse(){
+        if(courseCache==null){
+            courseCache=course.get();
+        }
+        return courseCache;
+    }
 
 }

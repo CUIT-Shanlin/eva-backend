@@ -39,7 +39,7 @@ public class CourseModelCO extends ClientObject {
     private EvaTemplateCO templateMsg;
 
     /**
-     *教学老师信息信息
+     *教学老师信息
      */
     private TeacherInfoCO teacherInfoCO;
 

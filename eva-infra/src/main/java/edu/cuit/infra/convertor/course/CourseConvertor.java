@@ -20,12 +20,14 @@ import org.mapstruct.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.function.Supplier;
 
 @Mapper(componentModel = "spring", uses = {EntityFactory.class}, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface CourseConvertor {
 
     @Mappings({
             @Mapping(target = "id",source = "courseDo.id"),
+            @Mapping(target = "templateId",source = "courseDo.templateId"),
             @Mapping(target = "subject",source = "subject"),
             @Mapping(target = "teacher",source = "teacher"),
             @Mapping(target = "semester",source = "semester"),
@@ -34,7 +36,7 @@ public interface CourseConvertor {
             @Mapping(target = "isDeleted",source = "courseDo.isDeleted")
     })
 
-    CourseEntity toCourseEntity(CourseDO courseDo, SubjectEntity subject, UserEntity teacher,SemesterEntity semester);
+    CourseEntity toCourseEntity(CourseDO courseDo, Supplier<SubjectEntity> subject, Supplier<UserEntity> teacher, Supplier<SemesterEntity> semester);
     CourseTypeEntity toCourseTypeEntity(CourseTypeDO courseTypeDO);
     SemesterEntity toSemesterEntity(SemesterDO semesterDO);
     @Mappings({
@@ -49,7 +51,7 @@ public interface CourseConvertor {
             @Mapping(target ="location",source = "courInfDo.location"),
             @Mapping(target ="day",source = "courInfDo.day")
     })
-    SingleCourseEntity toSingleCourseEntity(CourseEntity course, CourInfDO courInfDo);
+    SingleCourseEntity toSingleCourseEntity(Supplier<CourseEntity> course, CourInfDO courInfDo);
     SubjectEntity toSubjectEntity(SubjectDO subjectDO);
     @Mappings({
             @Mapping(target = "typeList",source = "typeList"),

@@ -89,7 +89,7 @@ public interface CourseQueryGateway {
      * @param courseQuery 课程查询条件
      *@return List<SingleCourseEntity>
      */
-    List<SingleCourseEntity> getPeriodCourse(Integer semId, MobileCourseQuery courseQuery);
+    List<RecommendCourseCO> getPeriodCourse(Integer semId, MobileCourseQuery courseQuery,String userName);
 
     /**
      * 分页获取课程类型
@@ -124,10 +124,23 @@ public interface CourseQueryGateway {
     /**
      * 获取自己教学的一门课程的课程时段
      * @param id 课程id
-     *  @param userName 用户名
      * @return List<SingleCourseEntity>
      * */
-    List<SingleCourseEntity> getSelfCourseTime(String userName,Integer id);
+    List<SingleCourseEntity> getSelfCourseTime(Integer id);
+
+    /**
+     * 获取一天的具体日期
+     *@param semId 学期id
+     *@param week 第几周
+     *@param day 星期几
+     * */
+    String getDate(Integer semId,Integer week,Integer day);
+
+    /**
+     * 获取课程教师位置
+     *@param courseId 课程id
+     * */
+    List<String> getLocation(Integer courseId);
 
 
 }
