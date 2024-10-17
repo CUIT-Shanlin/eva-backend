@@ -56,6 +56,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -281,7 +282,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         //构建courseEntity
         CourseEntity courseEntity = toCourseEntity(courInfMapper.selectById(id).getCourseId(), semId);
 
-        return Optional.of(courseConvertor.toSingleCourseEntity(courseEntity,courInfDO));
+        return Optional.of(courseConvertor.toSingleCourseEntity(()->courseEntity,courInfDO));
     }
 
     @Override
@@ -332,6 +333,10 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
 
     @Override
     public PaginationResultEntity<CourseTypeEntity> pageCourseType(PagingQuery<GenericConditionalQuery> courseQuery) {
+        if(courseQuery==null){
+            List<CourseTypeDO> courseTypeDOS = courseTypeMapper.selectList(null);
+            return paginationConverter.toPaginationEntity(new Page<>(1,courseTypeDOS.size()),courseTypeDOS.stream().map(courseTypeDO -> courseConvertor.toCourseTypeEntity(courseTypeDO)).toList());
+        }
         Page<CourseTypeDO> page =new Page<>(courseQuery.getPage(),courseQuery.getSize());
         QueryWrapper<CourseTypeDO> queryWrapper = new QueryWrapper<>();
         if(courseQuery.getQueryObj().getKeyword()!=null){
@@ -374,9 +379,12 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
             //得到subjectEntity中ID等于courseDO.getSubjectId()的subjectEntity
             SubjectEntity subjectEntity = subjectEntitys.stream().filter(subject -> subject.getId().equals(courseDOListEntry.getKey().getSubjectId())).findFirst().get();
             for (CourInfDO courInfDO : courseDOListEntry.getValue()) {
-                list.add(courseConvertor.toSingleCourseEntity(courseConvertor.toCourseEntity(courseDOListEntry.getKey(), subjectEntity,userEntity,semesterEntity), courInfDO));
+                CourseEntity courseEntity = courseConvertor.toCourseEntity(courseDOListEntry.getKey(), () -> subjectEntity, () -> userEntity, () -> semesterEntity);
+                SingleCourseEntity singleCourseEntity = courseConvertor.toSingleCourseEntity(() -> courseEntity, courInfDO);
+                list.add(singleCourseEntity);
             }
         }
+
 
         return list;
     }
@@ -449,7 +457,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
 
 
     @Override
-    public List<SingleCourseEntity> getSelfCourseTime(String userName, Integer id) {
+    public List<SingleCourseEntity> getSelfCourseTime( Integer id) {
         //先根据课程id来查出课程实体
         CourseDO courseDO = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", id));
         //先得到CourseEntity
@@ -457,7 +465,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         //根据id来查出CourInfoDo集合
         List<CourInfDO> courInfDOS = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", id));
         //转化成SingleCourseEntity
-        List<SingleCourseEntity> list = courInfDOS.stream().map(courInfDO -> courseConvertor.toSingleCourseEntity(courseEntity, courInfDO)).toList();
+        List<SingleCourseEntity> list = courInfDOS.stream().map(courInfDO -> courseConvertor.toSingleCourseEntity(()->courseEntity, courInfDO)).toList();
         return list;
     }
 
@@ -535,7 +543,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         SubjectEntity subjectEntity = courseConvertor.toSubjectEntity(subjectMapper.selectById(courseDO.getSubjectId()));
         //构造userEntity
         UserEntity userEntity =toUserEntity(courseMapper.selectById(courseId).getTeacherId());
-        return courseConvertor.toCourseEntity(courseDO,subjectEntity,userEntity,semesterEntity);
+        return courseConvertor.toCourseEntity(courseDO,()->subjectEntity,()->userEntity,()->semesterEntity);
     }
     private UserEntity toUserEntity(Integer userId){
         //得到uer对象
@@ -543,7 +551,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         //根据userId找到角色id集合
         List<Integer> roleIds = userRoleMapper.selectList(new QueryWrapper<SysUserRoleDO>().eq("user_id", userId)).stream().map(SysUserRoleDO::getRoleId).toList();
         //根据角色id集合找到角色对象集合
-        List<RoleEntity> roleEntities = roleMapper.selectList(new QueryWrapper<SysRoleDO>().in("id", roleIds)).stream().map(roleDO -> roleConverter.toRoleEntity(roleDO)).toList();
+        Supplier<List<RoleEntity>> roleEntities =()-> roleMapper.selectList(new QueryWrapper<SysRoleDO>().in("id", roleIds)).stream().map(roleDO -> roleConverter.toRoleEntity(roleDO)).toList();
         //根据角色id集合找到角色菜单表中的菜单id集合
 //        List<Integer> menuIds = roleMenuMapper.selectList(new QueryWrapper<SysRoleMenuDO>().in("role_id", roleIds)).stream().map(SysRoleMenuDO::getMenuId).toList();
         //根据menuids找到菜单对象集合
@@ -710,17 +718,17 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         Map<Integer, List<CourseDO>> map = courseDOS.stream().collect(Collectors.groupingBy(CourseDO::getSubjectId));
         for (Map.Entry<Integer, List<CourseDO>> entry : map.entrySet()) {
             SubjectDO subjectDO = subjectMapper.selectById(entry.getKey());
-            SubjectEntity subject=new SubjectEntity();
+            SubjectEntity subject=SpringUtil.getBean(SubjectEntity.class);
             subject.setName(subjectDO.getName());
             for (CourseDO courseDO : entry.getValue()) {
                 CourseEntity entity=new CourseEntity();
                 entity.setId(courseDO.getId());
-                entity.setSubject(subject);
+                entity.setSubject(() -> subject);
                 SysUserDO sysUserDO = userMapper.selectById(courseDO.getTeacherId());
 
                 UserEntity user = SpringUtil.getBean(UserEntity.class);
                 user.setName(sysUserDO.getName());
-                entity.setTeacher(user);
+                entity.setTeacher(()-> user);
                 list.add(entity);
 
             }

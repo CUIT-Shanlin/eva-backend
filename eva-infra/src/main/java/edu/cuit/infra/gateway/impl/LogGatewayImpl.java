@@ -75,7 +75,7 @@ public class LogGatewayImpl implements LogGateway {
         Stream<Integer> roleIds = userRoleMapper.selectList(new QueryWrapper<SysUserRoleDO>().eq("user_id", logDO.getUserId())).stream().map(SysUserRoleDO::getRoleId);
         List<SysRoleDO> roleList = roleMapper.selectList(new QueryWrapper<SysRoleDO>().in("id", roleIds));
         List<RoleEntity> roleEntities = roleList.stream().map(roleDO -> roleConverter.toRoleEntity(roleDO)).toList();
-        UserEntity userEntity = userConverter.toUserEntity(sysUserDO, roleEntities);
+        UserEntity userEntity = userConverter.toUserEntity(sysUserDO,()-> roleEntities);
         return logConverter.toLogEntity(logDO,moduleEntity,userEntity);
 
     }
