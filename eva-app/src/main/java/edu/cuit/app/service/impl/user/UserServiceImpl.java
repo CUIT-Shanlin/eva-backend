@@ -25,7 +25,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -94,13 +96,18 @@ public class UserServiceImpl implements IUserService {
         int id = Math.toIntExact(cmd.getId());
         if (isUpdatePwd) {
             String password = cmd.getPassword();
-            if (StrUtil.isBlank(password)) {
-                throw new BizException("新密码不能为空");
-            }
-            ldapPersonGateway.changePassword(userQueryGateway.findUsernameById(id)
-                    .orElseThrow(() -> new BizException("用户不存在")),password);
+            changePassword(id,password);
         }
         userUpdateGateway.updateInfo(cmd);
+    }
+
+    @Override
+    public void changePassword(Integer userId, String newPassword) {
+        if (StrUtil.isBlank(newPassword)) {
+            throw new BizException("新密码不能为空");
+        }
+        ldapPersonGateway.changePassword(userQueryGateway.findUsernameById(userId)
+                .orElseThrow(() -> new BizException("用户不存在")),newPassword);
     }
 
     @Override
@@ -121,5 +128,16 @@ public class UserServiceImpl implements IUserService {
     @Override
     public void create(NewUserCmd cmd) {
         userUpdateGateway.createUser(cmd);
+    }
+
+    @Override
+    public void syncLdap() {
+        List<NewUserCmd> cmdList = ldapPersonGateway.findAll().stream()
+                .map(userBizConvertor::toNewUserCmd).toList();
+        Set<String> usernameSet = new HashSet<>(userQueryGateway.findAllUsername());
+        for (NewUserCmd newUserCmd : cmdList) {
+            if (usernameSet.contains(newUserCmd.getUsername())) continue;
+            userUpdateGateway.createUser(newUserCmd);
+        }
     }
 }
