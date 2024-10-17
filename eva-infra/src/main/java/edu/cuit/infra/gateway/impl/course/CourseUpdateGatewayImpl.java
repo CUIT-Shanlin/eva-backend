@@ -1,6 +1,7 @@
-package edu.cuit.infra.gateway.impl.courseimpl;
+package edu.cuit.infra.gateway.impl.course;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import edu.cuit.client.dto.clientobject.SemesterCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
 import edu.cuit.client.dto.cmd.course.AlignTeacherCmd;
@@ -11,11 +12,9 @@ import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.domain.gateway.course.CourseUpdateGateway;
 import edu.cuit.infra.convertor.course.CourseConvertor;
 import edu.cuit.infra.dal.database.dataobject.course.*;
-import edu.cuit.infra.dal.database.dataobject.eva.CourOneEvaTemplateDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.course.*;
-import edu.cuit.infra.dal.database.mapper.eva.CourOneEvaTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
@@ -37,15 +36,13 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     private final CourseMapper courseMapper;
     private final CourseTypeCourseMapper courseTypeCourseMapper;
     private final CourseTypeMapper courseTypeMapper;
-    private final SemesterMapper semesterMapper;
     private final SubjectMapper subjectMapper;
-    private final CourOneEvaTemplateMapper courOneEvaMapper;
     private final EvaTaskMapper evaTaskMapper;
     private final SysUserMapper userMapper;
 
     @Override
     @Transactional
-    public Void updateCourse(Integer semId, UpdateCourseCmd updateCourseCmd) {
+    public void updateCourse(Integer semId, UpdateCourseCmd updateCourseCmd) {
         List<Integer> courseIdList=new ArrayList<>();
         if(updateCourseCmd.getIsUpdate()){
             //先查出课程表中的subjectId
@@ -87,7 +84,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
 
 
         }
-        return null;
+
     }
 
     @Override
@@ -201,8 +198,9 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
 
     @Override
     @Transactional
-    public Void importCourseFile(InputStream file) {
-        //TODO
+    public Void importCourseFile(InputStream file,Integer type, SemesterCO semester) {
+
+
         return null;
     }
 

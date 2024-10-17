@@ -1,6 +1,5 @@
-package edu.cuit.infra.gateway.impl.courseimpl;
+package edu.cuit.infra.gateway.impl.course;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import edu.cuit.client.dto.data.course.CoursePeriod;

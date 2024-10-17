@@ -1,11 +1,13 @@
 package edu.cuit.domain.gateway.course;
 
+import edu.cuit.client.dto.clientobject.SemesterCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
 import edu.cuit.client.dto.cmd.course.AlignTeacherCmd;
 import edu.cuit.client.dto.cmd.course.UpdateCourseCmd;
 import edu.cuit.client.dto.cmd.course.UpdateCoursesCmd;
 import edu.cuit.client.dto.cmd.course.UpdateSingleCourseCmd;
+import edu.cuit.client.dto.data.Term;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import jakarta.validation.Valid;
@@ -27,7 +29,7 @@ public interface CourseUpdateGateway {
      *@param updateCourseCmd 修改课程信息
      *
      * */
-    Void updateCourse(Integer semId, UpdateCourseCmd updateCourseCmd);
+    void updateCourse(Integer semId, UpdateCourseCmd updateCourseCmd);
 
     /**
      * 批量修改课程的模板
@@ -82,7 +84,7 @@ public interface CourseUpdateGateway {
      *  @param file 课表文件
      *
      * */
-    Void importCourseFile(InputStream file);
+    Void importCourseFile(InputStream file,Integer type, SemesterCO semester);
 
     /**
      * 修改自己的一门课程信息及其课程时段
