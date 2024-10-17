@@ -82,7 +82,7 @@ public class RoleQueryGatewayImpl implements RoleQueryGateway {
      * 填充roleEntity字段
      */
     private void fillRoleEntity(RoleEntity roleEntity) {
-        roleEntity.setMenus(getRoleMenuIds(roleEntity.getId())
+        roleEntity.setMenus(() -> getRoleMenuIds(roleEntity.getId())
                 .stream().map(menuId -> menuQueryGateway.getOne(menuId).orElseThrow(() -> {
                     SysException sysException = new SysException("菜单查询异常，请联系管理员");
                     log.error("菜单查询异常，请联系管理员",sysException);

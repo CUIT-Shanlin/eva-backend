@@ -1,9 +1,8 @@
 package edu.cuit.app.resolver;
 
-import edu.cuit.app.bo.CourseExcelBO;
+import edu.cuit.client.bo.CourseExcelBO;
 import edu.cuit.app.resolver.course.CourseExcelResolver;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.BufferedInputStream;
 import java.io.File;

@@ -1,5 +1,6 @@
 package edu.cuit.domain.gateway;
 
+import edu.cuit.client.dto.data.msg.GenericRequestMsg;
 import edu.cuit.domain.entity.MsgEntity;
 import org.springframework.stereotype.Component;
 
@@ -49,4 +50,10 @@ public interface MsgGateway {
      * @param mode 确定待批量修改的是普通消息还是评教消息，0: 普通消息；1：评教消息
      */
     void updateMultipleMsgRead(Integer userId,Integer mode);
+
+    /**
+     * 插入消息数据
+     * @param msg 请求消息
+     */
+    void insertMessage(GenericRequestMsg msg);
 }

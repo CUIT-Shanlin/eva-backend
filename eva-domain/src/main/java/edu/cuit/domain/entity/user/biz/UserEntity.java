@@ -5,6 +5,7 @@ import edu.cuit.domain.gateway.user.UserUpdateGateway;
 import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * 用户domain entity
@@ -72,13 +73,24 @@ public class UserEntity {
     /**
      * 角色列表
      */
-    private List<RoleEntity> roles;
+    @Getter(AccessLevel.NONE)
+    private Supplier<List<RoleEntity>> roles;
 
     /**
      * 用户账号是否被禁用
      */
     public Boolean isBanned() {
         return status == 1;
+    }
+
+    @Getter(AccessLevel.NONE)
+    private List<RoleEntity> rolesCache = null;
+
+    public synchronized List<RoleEntity> getRoles() {
+        if (rolesCache == null) {
+            rolesCache = roles.get();
+        }
+        return rolesCache;
     }
 
     private final UserUpdateGateway userUpdateGateway;
@@ -89,7 +101,6 @@ public class UserEntity {
      */
     public void updateStatus(Integer status) {
         userUpdateGateway.updateStatus(id,status);
-        //TODO 更新session状态
     }
 
 }

@@ -4,6 +4,7 @@ import com.alibaba.cola.exception.BizException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import edu.cuit.client.dto.data.msg.GenericRequestMsg;
 import edu.cuit.domain.entity.MsgEntity;
 import edu.cuit.domain.gateway.MsgGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
@@ -77,7 +78,12 @@ public class MsgGatewayImpl implements MsgGateway {
         msgTipMapper.update(msgUpdate);
     }
 
-    private void checkUser(Integer userId,Integer id) {
+    @Override
+    public void insertMessage(GenericRequestMsg msg) {
+        msgTipMapper.insert(msgConvertor.toMsgDO(msg));
+    }
+
+    private void checkUser(Integer userId, Integer id) {
         MsgTipDO msgTipDO = msgTipMapper.selectById(id);
         if (!Objects.equals(msgTipDO.getRecipientId(), userId)) {
             throw new BizException("只能修改自己的消息");
@@ -86,7 +92,7 @@ public class MsgGatewayImpl implements MsgGateway {
 
     private MsgEntity getMsgEntity(MsgTipDO msgTipDO) {
         return msgConvertor.toMsgEntity(msgTipDO,
-                userQueryGateway.findById(msgTipDO.getSenderId()).orElseThrow(() -> new BizException("发送者id不存在")),
-                userQueryGateway.findById(msgTipDO.getRecipientId()).orElseThrow(() -> new BizException("接受者id不存在")));
+                () -> userQueryGateway.findById(msgTipDO.getSenderId()).orElseThrow(() -> new BizException("发送者id不存在")),
+                () -> userQueryGateway.findById(msgTipDO.getRecipientId()).orElseThrow(() -> new BizException("接受者id不存在")));
     }
 }

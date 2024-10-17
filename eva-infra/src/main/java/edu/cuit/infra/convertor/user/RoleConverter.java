@@ -13,6 +13,7 @@ import org.mapstruct.Mappings;
 import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * 角色对象转换器
@@ -31,7 +32,7 @@ public interface RoleConverter {
     @Mappings({
             @Mapping(target = "menus",source = "menus")
     })
-    RoleEntity toRoleEntity(SysRoleDO roleDO,List<MenuEntity> menus);
+    RoleEntity toRoleEntity(SysRoleDO roleDO, Supplier<List<MenuEntity>> menus);
 
 
     @Mapping(target = "extValues", ignore = true)

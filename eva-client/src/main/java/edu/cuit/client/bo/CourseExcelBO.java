@@ -1,4 +1,4 @@
-package edu.cuit.app.bo;
+package edu.cuit.client.bo;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
