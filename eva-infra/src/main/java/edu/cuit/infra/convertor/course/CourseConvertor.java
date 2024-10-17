@@ -27,6 +27,7 @@ public interface CourseConvertor {
 
     @Mappings({
             @Mapping(target = "id",source = "courseDo.id"),
+            @Mapping(target = "templateId",source = "courseDo.templateId"),
             @Mapping(target = "subject",source = "subject"),
             @Mapping(target = "teacher",source = "teacher"),
             @Mapping(target = "semester",source = "semester"),

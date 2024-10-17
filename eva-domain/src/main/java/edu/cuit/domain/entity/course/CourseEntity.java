@@ -28,6 +28,7 @@ public class CourseEntity {
     /**
      * 科目
      */
+    @Getter(AccessLevel.NONE)
     private Supplier<SubjectEntity> subject;
 
     /**
@@ -46,6 +47,11 @@ public class CourseEntity {
      * 创建时间
      */
     private LocalDateTime createTime;
+
+    /**
+     * 模板id，仅在有快照数据前生效
+     */
+    private Integer templateId;
 
     /**
      * 更新时间

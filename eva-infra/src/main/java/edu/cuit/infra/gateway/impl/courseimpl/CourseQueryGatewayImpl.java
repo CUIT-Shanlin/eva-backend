@@ -476,6 +476,13 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         return localDate.toString();
     }
 
+    @Override
+    public List<String> getLocation(Integer courseId) {
+        //并对教师去重
+        return courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseId))
+                .stream().map(CourInfDO::getLocation).distinct().toList();
+    }
+
     private SemesterEntity getSemester(Integer semId){
         SemesterDO semesterDO=null;
         if(semId!=null){
