@@ -36,6 +36,13 @@ public interface LdapPersonGateway {
     List<LdapPersonEntity> findAll();
 
     /**
+     * 更改用户密码
+     * @param username 用户名
+     * @param newPassword 新的明文密码
+     */
+    void changePassword(String username,String newPassword);
+
+    /**
      * 修改用户信息（用户名为标识符）
      * @param user LdapPersonEntity
      */

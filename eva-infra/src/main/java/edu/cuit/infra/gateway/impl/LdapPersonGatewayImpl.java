@@ -19,6 +19,9 @@ import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.stereotype.Component;
 
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,6 +56,13 @@ public class LdapPersonGatewayImpl implements LdapPersonGateway {
         LdapPersonDO personDO = ldapPersonRepo.findByUsername(user.getUsername()).orElseThrow(() -> new BizException("该用户不存在"));
         BeanUtil.copyProperties(user,personDO, CopyOptions.create().ignoreNullValue().setOverride(true));
         ldapPersonRepo.save(personDO);
+    }
+
+    @Override
+    public void changePassword(String username, String newPassword) {
+        ModificationItem[] mods = new ModificationItem[1];
+        mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE,new BasicAttribute("userPassword", newPassword));
+        ldapTemplate.modifyAttributes(EvaLdapUtils.getUserLdapNameId(username),mods);
     }
 
     @Override
