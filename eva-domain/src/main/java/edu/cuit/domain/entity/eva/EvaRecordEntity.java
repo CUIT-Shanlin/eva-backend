@@ -1,10 +1,14 @@
 package edu.cuit.domain.entity.eva;
 
 import com.alibaba.cola.domain.Entity;
+import edu.cuit.domain.entity.course.SemesterEntity;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.function.Supplier;
 
 /**
  * 评教记录domain entity
@@ -22,7 +26,16 @@ public class EvaRecordEntity {
     /**
      * 评教任务
      */
-    private EvaTaskEntity task;
+    @Getter(AccessLevel.NONE)
+    private Supplier<EvaTaskEntity> task;
+    private EvaTaskEntity tCache=null;
+
+    public synchronized EvaTaskEntity getTask(){
+        if(tCache==null){
+            tCache=task.get();
+        }
+        return tCache;
+    }
 
     /**
      * 详细的文字评价

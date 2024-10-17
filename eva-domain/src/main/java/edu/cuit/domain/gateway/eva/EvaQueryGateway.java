@@ -57,10 +57,11 @@ public interface EvaQueryGateway {
     List<EvaTaskEntity> evaSelfTaskInfo(Integer id, String keyword);
     /**
      * 获取自己的评教记录
+     * @param userId
      * @param id 学期ID 编号
      * @param keyword 模糊查询课程名称或教学老师姓名
      */
-    List<EvaRecordEntity> getEvaLogInfo(Integer id,String keyword);
+    List<EvaRecordEntity> getEvaLogInfo(Integer userId,Integer id,String keyword);
     /**
      * 获取一个评教任务的详细信息
      * @param id 任务id
@@ -142,4 +143,8 @@ public interface EvaQueryGateway {
      * @param interval 间隔，分数段之间的默认间隔，如果按照该间隔，无法达到 num 个有数据的分数段，则将间隔减少0.2分，直到达到 num 个分数段
      */
     List<ScoreRangeCourseCO> scoreRangeCourseInfo(Integer num,Integer interval);
+    /**
+     * 获得所有评教模板
+     */
+    List<EvaTemplateEntity> getAllTemplate();
 }
