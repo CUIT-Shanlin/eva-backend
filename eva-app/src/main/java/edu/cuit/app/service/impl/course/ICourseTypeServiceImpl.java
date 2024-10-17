@@ -36,8 +36,7 @@ public class ICourseTypeServiceImpl implements ICourseTypeService {
     @Override
     public List<CourseType> allCourseType() {
         PaginationResultEntity<CourseTypeEntity> entity = courseQueryGateway.pageCourseType(null);
-        List<CourseType> list = entity.getRecords().stream().map(courseConvertor::toCourseType).toList();
-        return list;
+        return entity.getRecords().stream().map(courseConvertor::toCourseType).toList();
     }
 
     @Override

@@ -1,10 +1,17 @@
 package edu.cuit.app.service.impl.course;
 
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.json.JSON;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.PaginationBizConvertor;
 import edu.cuit.app.convertor.course.CourseConvertor;
+import edu.cuit.app.resolver.course.CourseExcelResolver;
+import edu.cuit.app.service.operate.UserCourseDetail;
 import edu.cuit.client.api.course.IUserCourseService;
+import edu.cuit.client.bo.CourseExcelBO;
+import edu.cuit.client.dto.clientobject.SemesterCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.client.dto.clientobject.course.RecommendCourseCO;
@@ -19,10 +26,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,22 +36,27 @@ public class IUserCourseServiceImpl implements IUserCourseService {
     private final CourseUpdateGateway courseUpdateGateway;
     private final CourseDeleteGateway courseDeleteGateway;
     private final CourseConvertor courseConvertor;
+    private final UserCourseDetail userCourseDetail;
     private final PaginationBizConvertor pageConvertor;
     @CheckSemId
     @Override
     public List<SimpleResultCO> getUserCourseInfo( Integer semId) {
         String userName = String.valueOf(StpUtil.getLoginId());
         List<SelfTeachCourseCO> selfCourseInfo = courseQueryGateway.getSelfCourseInfo(userName, semId);
-        List<SimpleResultCO> list = selfCourseInfo.stream().map(courseConvertor::toSimpleResultCO).toList();
 
-        return list;
+        return selfCourseInfo.stream().map(courseConvertor::toSimpleResultCO).toList();
     }
 
     @CheckSemId
     @Override
     public List<CourseDetailCO> getUserCourseDetail(Integer id, Integer semId) {
-        List<SingleCourseEntity> userCourseDetail = courseQueryGateway.getUserCourseDetail(id, semId);
-        return null;
+        List<List<SingleCourseEntity>> courseList = courseQueryGateway.getUserCourseDetail(id, semId);
+        List<CourseDetailCO> result=new ArrayList<>();
+        for (List<SingleCourseEntity> singleCourseEntities : courseList) {
+           result.add(userCourseDetail.getUserCourseDetail(singleCourseEntities, semId));
+        }
+
+        return result;
     }
 
     @CheckSemId
@@ -58,16 +67,23 @@ public class IUserCourseServiceImpl implements IUserCourseService {
     }
 
     @Override
-    public void importCourse(InputStream fileStream, Integer type, Term term) {
+    public void importCourse(InputStream fileStream, Integer type, String semester) {
+        SemesterCO semesterCO=null;
+        try {
+            semesterCO = new ObjectMapper().readValue(semester, SemesterCO.class);
+        } catch (JsonProcessingException e) {
+            throw new ClassCastException("学期类型转换错");
+        }
+        List<CourseExcelBO> courseExcelBOS = CourseExcelResolver.resolveData(CourseExcelResolver.Strategy.EXPERIMENTAL_COURSE, fileStream);
+
 
     }
 
     @CheckSemId
     @Override
     public List<SelfTeachCourseCO> selfCourseDetail(Integer semId) {
-        List<SelfTeachCourseCO> courseDetailes = courseQueryGateway.getSelfCourseInfo(String.valueOf(StpUtil.getLoginId()), semId);
 
-        return courseDetailes;
+        return courseQueryGateway.getSelfCourseInfo(String.valueOf(StpUtil.getLoginId()), semId);
     }
 
     @Override
