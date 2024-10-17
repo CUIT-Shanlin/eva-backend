@@ -19,7 +19,6 @@ import edu.cuit.client.dto.cmd.user.NewUserCmd;
 import edu.cuit.client.dto.cmd.user.UpdateUserCmd;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
-import edu.cuit.client.dto.query.condition.UnqualifiedUserConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.domain.gateway.user.LdapPersonGateway;
@@ -63,16 +62,6 @@ public class UserServiceImpl implements IUserService {
                 .map(this::getUserInfo)
                 .toList();
         return paginationBizConvertor.toPaginationEntity(userEntityPage,results);
-    }
-
-    @Override
-    public PaginationQueryResultCO<UnqualifiedUserInfoCO> pageUnqualifiedUser(Integer type, Integer target, PagingQuery<UnqualifiedUserConditionalQuery> query) {
-        return null;
-    }
-
-    @Override
-    public UnqualifiedUserResultCO getTargetAmountUnqualifiedUser(Integer type, Integer num, Integer target) {
-        return null;
     }
 
     @Override
