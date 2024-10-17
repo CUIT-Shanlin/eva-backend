@@ -184,7 +184,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             evaTaskWrapper.in("cour_inf_id",courseInfoIds);
         }
         List<SingleCourseEntity> courseEntities=courInfDOS.stream().map(courInfDO -> courseConvertor.toSingleCourseEntity(
-                toCourseEntity(courInfDO.getCourseId(),semId),courInfDO)).toList();
+                toCourseEntitynfDO.getCourseId(),semId),courInfDO)).toList();
         //未完成的任务
         evaTaskWrapper.eq("status",0);
 

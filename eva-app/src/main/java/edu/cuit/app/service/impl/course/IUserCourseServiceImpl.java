@@ -74,7 +74,7 @@ public class IUserCourseServiceImpl implements IUserCourseService {
         } catch (JsonProcessingException e) {
             throw new ClassCastException("学期类型转换错");
         }
-        List<CourseExcelBO> courseExcelBOS = CourseExcelResolver.resolveData(CourseExcelResolver.Strategy.EXPERIMENTAL_COURSE, fileStream);
+        CourseExcelResolver.resolveData(CourseExcelResolver.Strategy.EXPERIMENTAL_COURSE, fileStream)
 
 
     }
