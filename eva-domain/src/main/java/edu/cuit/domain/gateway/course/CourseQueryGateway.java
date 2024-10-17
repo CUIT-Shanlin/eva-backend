@@ -136,5 +136,11 @@ public interface CourseQueryGateway {
      * */
     String getDate(Integer semId,Integer week,Integer day);
 
+    /**
+     * 获取课程教师位置
+     *@param courseId 课程id
+     * */
+    List<String> getLocation(Integer courseId);
+
 
 }
