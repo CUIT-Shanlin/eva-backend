@@ -8,6 +8,7 @@ import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 评教模板相关业务接口
@@ -32,7 +33,7 @@ public interface IEvaTemplateService {
      * @param taskId 任务id
      * @param semId 学期id
      */
-    String evaTemplateByTaskId(Integer taskId,Integer semId);
+    Optional<String> evaTemplateByTaskId(Integer taskId, Integer semId);
 
     //修改
 
