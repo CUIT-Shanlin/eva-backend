@@ -12,6 +12,6 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring",uses = EntityFactory.class,unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface RoleBizConvertor {
 
-    RoleInfoCO roleEntityToRoleDO(RoleEntity entity);
+    RoleInfoCO roleEntityToRoleInfoCO(RoleEntity entity);
 
 }

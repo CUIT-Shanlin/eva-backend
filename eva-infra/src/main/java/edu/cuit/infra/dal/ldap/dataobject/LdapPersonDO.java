@@ -1,9 +1,7 @@
 package edu.cuit.infra.dal.ldap.dataobject;
 
-import edu.cuit.infra.enums.LdapConstant;
 import lombok.Data;
 import org.springframework.ldap.odm.annotations.Attribute;
-import org.springframework.ldap.odm.annotations.DnAttribute;
 import org.springframework.ldap.odm.annotations.Entry;
 import org.springframework.ldap.odm.annotations.Id;
 
@@ -13,7 +11,7 @@ import javax.naming.Name;
  * Ldap用户信息
  */
 @Entry(
-        base = "ou=member,ou=user",//FIXME 动态设置
+        base = "ou=member,ou=user",
         objectClasses = {"inetOrgPerson","posixAccount","organizationalPerson","person"}
 )
 @Data

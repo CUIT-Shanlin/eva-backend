@@ -4,6 +4,7 @@ import com.alibaba.cola.domain.Entity;
 import edu.cuit.domain.gateway.user.UserUpdateGateway;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -94,6 +95,17 @@ public class UserEntity {
     }
 
     private final UserUpdateGateway userUpdateGateway;
+
+    public List<String> getPerms() {
+        List<String> perms = new ArrayList<>();
+        for (RoleEntity role : getRoles()) {
+            perms.addAll(role.getMenus().stream()
+                    .filter(menuEntity -> menuEntity.getType() == 2)
+                    .map(MenuEntity::getPerms)
+                    .toList());
+        }
+        return perms;
+    }
 
     /**
      * 更新用户状态

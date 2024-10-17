@@ -102,6 +102,13 @@ public interface IUserService {
     void updateInfo(Boolean isUpdatePwd,UpdateUserCmd cmd);
 
     /**
+     * 更改用户密码
+     * @param userId 用户id
+     * @param newPassword 新密码
+     */
+    void changePassword(Integer userId,String newPassword);
+
+    /**
      * 修改用户状态
      * @param userId 用户id
      * @param status 状态 1为禁止，0为正常
@@ -125,5 +132,11 @@ public interface IUserService {
      * @param cmd 新建用户模型
      */
     void create(NewUserCmd cmd);
+
+    /**
+     * 同步ldap数据
+     * 遇到username相同用户则跳过
+     */
+    void syncLdap();
 
 }
