@@ -3,6 +3,7 @@ package edu.cuit.domain.gateway.eva;
 import edu.cuit.client.dto.clientobject.eva.*;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
+import edu.cuit.client.dto.data.course.CourseTime;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.EvaLogConditionalQuery;
 import edu.cuit.client.dto.query.condition.EvaTaskConditionalQuery;
@@ -157,4 +158,8 @@ public interface EvaQueryGateway {
      * @param courInfId
      */
     Optional<Integer> getEvaNumByCourInfo(Integer courInfId);
+    /**
+     * 通过课程id找到所有评教过此课程的评教次数
+     */
+    Optional<Integer> getEvaNumByCourse(Integer courseId);
 }
