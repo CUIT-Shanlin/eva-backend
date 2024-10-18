@@ -300,9 +300,9 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     @Override
     public List<EvaRecordEntity> getEvaEdLogInfo(Integer userId, Integer semId, Integer courseId) {
         //课程id ->课程->courInfo->evaTask->record
-        List<CourInfDO> courInfDO=new ArrayList<>();
+        List<CourInfDO> courInfDOs=new ArrayList<>();
         if(courseId!=null){
-            courInfDO=courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id",courseId));
+            courInfDOs=courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id",courseId));
         }else{
             QueryWrapper<CourseDO> courseDOQueryWrapper=new QueryWrapper<CourseDO>();
             if(semId!=null){
@@ -311,15 +311,20 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
                 courseDOQueryWrapper.eq("teacher_id",userId);
             }
             CourseDO courseDO=courseMapper.selectOne(courseDOQueryWrapper);
-            courInfDO=courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id",courseDO.getId()));
+            courInfDOs=courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id",courseDO.getId()));
         }
-        List<Integer> courInfoIds=courInfDO.stream().map(CourInfDO::getId).toList();
+        List<Integer> courInfoIds=courInfDOs.stream().map(CourInfDO::getId).toList();
         List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id",courInfoIds));
         List<Integer> evaTaskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
 
         List<FormRecordDO> formRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIds));
 
-
+        UserEntity userEntity=toUserEntity(userId);
+        List<UserEntity> userEntities=new ArrayList<>();
+        userEntities.add(userEntity);
+        List<SingleCourseEntity> singleCourseEntities=courInfDOs.stream().map(courInfDO -> courseConvertor.toSingleCourseEntity(
+                ()->toCourseEntity(courInfDO.getCourseId(),semId),courInfDO)).toList();
+        List<EvaTaskEntity> evaTaskEntities=getEvaTaskEntities(evaTaskDOS,userEntities,singleCourseEntities);
         return null;
     }
 
