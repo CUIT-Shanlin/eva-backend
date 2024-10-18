@@ -23,7 +23,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -52,7 +54,12 @@ public class MsgServiceImpl implements IMsgService {
     @Override
     public List<GenericResponseMsg> getUserTargetTypeMsg(Integer type, Integer mode) {
         List<GenericResponseMsg> result;
-        if (mode == 1) {
+        if (mode == null || mode < 0) {
+            result = new ArrayList<>(getUserSelfEvaMsg(type).stream()
+                    .map(evaResponseMsg -> (GenericResponseMsg) evaResponseMsg)
+                    .toList());
+            result.addAll(getUserSelfNormalMsg(type));
+        } else if (mode == 1) {
             result = getUserSelfEvaMsg(type).stream()
                     .map(evaResponseMsg -> (GenericResponseMsg) evaResponseMsg)
                     .toList();
@@ -124,7 +131,8 @@ public class MsgServiceImpl implements IMsgService {
             },executor);
 
         } else {
-            websocketManager.sendMessage(msg.getRecipientId(),responseMsg);
+            if (!Objects.equals(msg.getSenderId(), msg.getRecipientId()))
+                websocketManager.sendMessage(msg.getRecipientId(),responseMsg);
             msgGateway.insertMessage(requestMsg);
         }
     }
