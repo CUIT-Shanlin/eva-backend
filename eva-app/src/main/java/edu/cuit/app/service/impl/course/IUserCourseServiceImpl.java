@@ -5,7 +5,8 @@ import com.alibaba.cola.exception.BizException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.cuit.app.aop.CheckSemId;
-import edu.cuit.app.convertor.course.CourseConvertor;
+
+import edu.cuit.app.convertor.course.CourseBizConvertor;
 import edu.cuit.app.resolver.course.CourseExcelResolver;
 
 import edu.cuit.app.service.operate.course.query.UserCourseDetailQueryExec;
@@ -34,7 +35,7 @@ public class IUserCourseServiceImpl implements IUserCourseService {
     private final CourseQueryGateway courseQueryGateway;
     private final CourseUpdateGateway courseUpdateGateway;
     private final CourseDeleteGateway courseDeleteGateway;
-    private final CourseConvertor courseConvertor;
+    private final CourseBizConvertor courseConvertor;
     private final UserCourseDetailQueryExec userCourseDetailQueryExec;
 
     @CheckSemId

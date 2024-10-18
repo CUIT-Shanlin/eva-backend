@@ -1,7 +1,8 @@
 package edu.cuit.app.service.impl.course;
 
 import edu.cuit.app.convertor.PaginationBizConvertor;
-import edu.cuit.app.convertor.course.CourseConvertor;
+
+import edu.cuit.app.convertor.course.CourseBizConvertor;
 import edu.cuit.client.api.course.ICourseTypeService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.data.course.CourseType;
@@ -12,6 +13,7 @@ import edu.cuit.domain.entity.course.CourseTypeEntity;
 import edu.cuit.domain.gateway.course.CourseDeleteGateway;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.domain.gateway.course.CourseUpdateGateway;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +25,7 @@ public class ICourseTypeServiceImpl implements ICourseTypeService {
     private final CourseQueryGateway courseQueryGateway;
     private final CourseUpdateGateway courseUpdateGateway;
     private final CourseDeleteGateway courseDeleteGateway;
-    private final CourseConvertor courseConvertor;
+    private final CourseBizConvertor courseConvertor;
     private final PaginationBizConvertor pageConvertor;
     @Override
     public PaginationQueryResultCO<CourseType> pageCourseType(PagingQuery<GenericConditionalQuery> courseQuery) {

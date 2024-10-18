@@ -1,6 +1,7 @@
 package edu.cuit.app.service.operate.course.query;
 
-import edu.cuit.app.convertor.course.CourseConvertor;
+import edu.cuit.app.convertor.course.CourseBizConvertor;
+
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.client.dto.clientobject.course.CourseModelCO;
 import edu.cuit.client.dto.data.course.CoursePeriod;
@@ -22,7 +23,7 @@ public class UserCourseDetailQueryExec {
 
     private final CourseQueryGateway courseQueryGateway;
 
-    private final CourseConvertor courseConvertor;
+    private final CourseBizConvertor courseConvertor;
     public  CourseDetailCO getUserCourseDetail(List<SingleCourseEntity> singleCourseEntities,Integer semId){
         List<CourseType> typeList = courseQueryGateway.getCourseType(singleCourseEntities.get(0).getCourseEntity().getId());
         CourseModelCO courseModelCO = courseConvertor.toCourseModelCO(singleCourseEntities.get(0).getCourseEntity(), courseQueryGateway.getLocation(singleCourseEntities.get(0).getCourseEntity().getId()));
