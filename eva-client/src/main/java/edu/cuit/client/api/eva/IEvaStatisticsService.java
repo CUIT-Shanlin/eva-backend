@@ -2,6 +2,8 @@ package edu.cuit.client.api.eva;
 
 import edu.cuit.client.dto.clientobject.eva.*;
 
+import java.util.List;
+
 /**
  * 评教统计相关业务接口
  */
@@ -38,7 +40,7 @@ public interface IEvaStatisticsService {
      * 获取上个月和本月的评教数目，以有两个整数的List<Integer>形式返回，data[0]：上个月评教数目；data[1]：本月评教数目
      * @param semId 学期id
      */
-    Void getMonthEvaNUmber(Integer semId);
+    List<Integer> getMonthEvaNUmber(Integer semId);
 
     /**
      * 获取指定过去一段时间内的详细评教统计数据

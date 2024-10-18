@@ -19,7 +19,7 @@ public class EvaTaskDetailInfoCO extends ClientObject {
     /**
      * 任务id
      */
-    private Long id;
+    private Integer id;
     /**
      * 任务状态（0：待执行，1：已执行，2：已撤回）
      */
