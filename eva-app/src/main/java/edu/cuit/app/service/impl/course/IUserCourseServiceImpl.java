@@ -1,6 +1,7 @@
 package edu.cuit.app.service.impl.course;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.alibaba.cola.exception.BizException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.cuit.app.aop.CheckSemId;
@@ -75,6 +76,8 @@ public class IUserCourseServiceImpl implements IUserCourseService {
             FileImportExec.importCourse(CourseExcelResolver.resolveData(CourseExcelResolver.Strategy.THEORY_COURSE, fileStream));
         }else if(type==1){
             FileImportExec.importCourse(CourseExcelResolver.resolveData(CourseExcelResolver.Strategy.EXPERIMENTAL_COURSE, fileStream));
+        }else{
+            throw new BizException("课表类型转换错误");
         }
         courseUpdateGateway.importCourseFile(FileImportExec.courseExce, semesterCO,type);
 

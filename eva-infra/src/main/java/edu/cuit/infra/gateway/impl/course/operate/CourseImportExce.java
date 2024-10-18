@@ -68,7 +68,8 @@ public class CourseImportExce {
             for (CourseExcelBO courseExcelBO : stringListEntry.getValue()) {
                 Integer userId = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("username", courseExcelBO.getTeacherName()).eq("prof_title", courseExcelBO.getProfTitle())).getId();
                //评教表单模版id
-                CourseDO courseDO = addCourse(courseExcelBO, id, userId, semId);
+                Integer evaTemplateId = getEvaTemplateId(type);
+                CourseDO courseDO = addCourse(courseExcelBO, id, userId, semId,evaTemplateId);
                 courseMapper.insert(courseDO);
                 //课程类型课程关联表
 
@@ -89,7 +90,7 @@ public class CourseImportExce {
         subjectDO.setUpdateTime(LocalDateTime.now());
         return subjectDO;
     }
-    private CourseDO addCourse(CourseExcelBO courseExcelBO, Integer subjectId, Integer userId,Integer semId) {
+    private CourseDO addCourse(CourseExcelBO courseExcelBO, Integer subjectId, Integer userId,Integer semId,Integer evaTemplateId) {
       CourseDO courseDO=new CourseDO();
       courseDO.setSubjectId(subjectId);
       courseDO.setTeacherId(userId);
@@ -99,6 +100,6 @@ public class CourseImportExce {
       return courseDO;
     }
     private Integer getEvaTemplateId(Integer type){
-return formTemplateMapper.selectOne(new QueryWrapper<FormTemplateDO>().eq("is_default", type)).getId();
+    return formTemplateMapper.selectOne(new QueryWrapper<FormTemplateDO>().eq("is_default", type)).getId();
     }
 }
