@@ -67,7 +67,7 @@ public class UserEntity {
     private String phone;
 
     /**
-     * 状态，1为禁止，0为正常
+     * 状态，0为禁止，1为正常
      */
     private Integer status;
 
