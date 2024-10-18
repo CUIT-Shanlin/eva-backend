@@ -2,7 +2,7 @@ package edu.cuit.app.service.impl.course;
 
 import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.PaginationBizConvertor;
-import edu.cuit.app.convertor.course.CourseConvertor;
+import edu.cuit.app.convertor.course.CourseBizConvertor;
 import edu.cuit.client.api.course.ICourseDetailService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.SimpleCourseResultCO;
@@ -20,14 +20,12 @@ import edu.cuit.domain.entity.course.SubjectEntity;
 import edu.cuit.domain.gateway.course.CourseDeleteGateway;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.domain.gateway.course.CourseUpdateGateway;
-import edu.cuit.domain.gateway.eva.EvaQueryGateway;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +33,7 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     private final CourseQueryGateway courseQueryGateway;
     private final CourseUpdateGateway courseUpdateGateway;
     private final CourseDeleteGateway courseDeleteGateway;
-    private final CourseConvertor courseConvertor;
+    private final CourseBizConvertor courseBizConvertor;
     private final PaginationBizConvertor pagenConvertor;
     @CheckSemId
     @Override
@@ -45,7 +43,7 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
         List<CourseModelCO> list=new ArrayList<>();
         for (CourseEntity record : records) {
             List<String> location = courseQueryGateway.getLocation(record.getId());
-            list.add(courseConvertor.toCourseModelCO(record, location));
+            list.add(courseBizConvertor.toCourseModelCO(record, location));
         }
         return pagenConvertor.toPaginationEntity(page, list);
     }
@@ -69,7 +67,7 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     @Override
     public List<SimpleCourseResultCO> allCourseInfo(Integer semId) {
         PaginationResultEntity<CourseEntity> page = courseQueryGateway.page(null, semId);
-        return page.getRecords().stream().map(courseConvertor::toSimpleCourseResultCO).toList();
+        return page.getRecords().stream().map(courseBizConvertor::toSimpleCourseResultCO).toList();
 
 
     }
@@ -77,7 +75,7 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     @Override
     public List<SimpleResultCO> allSubjectInfo() {
         List<SubjectEntity> subject = courseQueryGateway.findSubjectInfo();
-        return subject.stream().map(courseConvertor::toSimpleResultCO).toList();
+        return subject.stream().map(courseBizConvertor::toSimpleResultCO).toList();
     }
 
     @CheckSemId

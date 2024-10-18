@@ -81,7 +81,7 @@ public class MessageController {
      * 批量修改某种性质的消息的已读状态，（注：改为已读的同时，也要改为已显示）
      * @param mode 确定待批量修改的是普通消息还是评教消息，0: 普通消息；1：评教消息
      */
-    @PutMapping("/tips/{mode}}")
+    @PutMapping("/tips/{mode}")
     @SaCheckLogin
     public CommonResult<Void> updateMultipleMsgRead(@PathVariable("mode") @ValidStatus(message = "mode只能为0或1") Integer mode) {
         msgService.updateMultipleMsgRead(mode);
