@@ -28,9 +28,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
@@ -219,70 +219,146 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
 
     @Override
     @Transactional
-    public Void updateSelfCourse(String userName, SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeCO> timeList) {
-        //先根据userName来找到用户id
+    public Map<String,Map<Integer,Integer>> updateSelfCourse(String userName, SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeCO> timeList) {
+        String msg=null;
         Integer userId = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("username", userName)).getId();
+        if(userId==null){
+            throw new QueryException("用户不存在");
+        }
         CourseDO courseDO = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", selfTeachCourseCO.getId()).eq("teacher_id", userId));
         if(courseDO==null){
             //课程不存在(抛出异常)
-            throw new QueryException("没有该用户对应课程");
+            throw new QueryException("用户对应课程不存在");
         }
-        //找出这个老师的其他课程
-        List<CourseDO> courseDOList = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", userId).eq("semester_id", courseDO.getSemesterId()));
-        //去掉courseDOList中的courseDO
-        courseDOList.remove(courseDO);
-        //修改courseDo的updateTime
-        courseDO.setUpdateTime(LocalDateTime.now());
-        courseMapper.update(courseDO,new QueryWrapper<CourseDO>().eq("id", selfTeachCourseCO.getId()).eq("teacher_id", userId));
-/*        //找出课程对应的科目实体类
+        List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", userId).eq("semester_id", courseDO.getSemesterId()));
+        courseDOS.removeIf(aDo -> aDo.getId().equals(selfTeachCourseCO.getId()));
         SubjectDO subjectDO = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("id", courseDO.getSubjectId()));
-        //修改subject
-        subjectDO.setName(selfTeachCourseCO.getName());
-        subjectDO.setNature(selfTeachCourseCO.getNature());
-        subjectDO.setUpdateTime(LocalDateTime.now());
-        subjectMapper.update(subjectDO,new QueryWrapper<SubjectDO>().eq("id", courseDO.getSubjectId()));*/
-        //对于课程类型先删除再添加
-        courseTypeCourseMapper.delete(new QueryWrapper<CourseTypeCourseDO>().eq("course_id", selfTeachCourseCO.getId()));
-        for (CourseType type : selfTeachCourseCO.getTypeList()) {
-            CourseTypeCourseDO courseTypeCourseDO = new CourseTypeCourseDO();
-            courseTypeCourseDO.setCourseId(selfTeachCourseCO.getId());
-            courseTypeCourseDO.setTypeId(type.getId());
-            courseTypeCourseDO.setUpdateTime(LocalDateTime.now());
-            courseTypeCourseDO.setCreateTime(LocalDateTime.now());
-            courseTypeCourseMapper.insert(courseTypeCourseDO);
-        }
-        //修改课程时间表（先删除再添加）
-        courInfMapper.delete(new QueryWrapper<CourInfDO>().eq("course_id", selfTeachCourseCO.getId()));
-        //遍历timeList集合，来添加课程时间表
+        msg=toJudge(subjectDO,selfTeachCourseCO);
+        //课程类型
+        msg+=JudgeCourseType(courseDO,selfTeachCourseCO);
+        //课程时间段
+        Map<Integer,Integer> taskMap=new HashMap<>();
+        msg+=JudgeCourseTime(courseDO,timeList,courseDOS,selfTeachCourseCO,taskMap);
+        return null;
+    }
+
+    private String JudgeCourseTime(CourseDO courseDO, List<SelfTeachCourseTimeCO> timeList,List<CourseDO> courseDOList,SelfTeachCourseCO selfTeachCourseCO,Map<Integer,Integer> taskMap) {
+        String msg="";
+        List<CourInfDO> courInfoList = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseDO.getId()));
+        List<CourInfDO> courseChangeList=new ArrayList<>();
         for (SelfTeachCourseTimeCO selfTeachCourseTimeCO : timeList) {
             for (Integer week : selfTeachCourseTimeCO.getWeeks()) {
+               CourInfDO courInfDO=new CourInfDO();
+               courInfDO.setCourseId(courseDO.getId());
+               courInfDO.setWeek(week);
+               courInfDO.setDay(selfTeachCourseTimeCO.getDay());
+               courInfDO.setStartTime(selfTeachCourseTimeCO.getStartTime());
+               courInfDO.setEndTime(selfTeachCourseTimeCO.getEndTime());
+               courInfDO.setLocation(selfTeachCourseTimeCO.getClassroom());
+               courseChangeList.add(courInfDO);
+            }
+        }
+        List<CourInfDO> difference = getDifference(courseChangeList, courInfoList);
+        List<CourInfDO> difference2 = getDifference( courInfoList,courseChangeList);
+        if(difference.isEmpty()){
+            return "";
+        }else{
+            for (CourInfDO courInfDO : difference2) {
+                courInfMapper.delete(new QueryWrapper<CourInfDO>()
+                        .eq("course_id", courInfDO.getCourseId())
+                        .eq("week", courInfDO.getWeek()).eq("day", courInfDO.getDay())
+                        .eq("start_time", courInfDO.getStartTime()).eq("end_time",courInfDO.getEndTime()));
+                evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId())).forEach(evaTaskDO -> taskMap.put(evaTaskDO.getId(),evaTaskDO.getTeacherId()));
+                evaTaskMapper.delete(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId()));
+            }
+            for (CourInfDO courInfDO : difference) {
                 QueryWrapper<CourInfDO> wrapper = new QueryWrapper<CourInfDO>()
-                        .eq("week", week)
-                        .eq("day", selfTeachCourseTimeCO.getDay())
-                        .eq("start_time", selfTeachCourseTimeCO.getStartTime());
+                        .eq("week", courInfDO.getWeek())
+                        .eq("day", courInfDO.getDay())
+                        .eq("start_time", courInfDO.getStartTime())
+                        .eq("end_time", courInfDO.getEndTime());
                 for(CourseDO course : courseDOList){
-                    wrapper.eq("course_id", selfTeachCourseCO.getId());
+                    wrapper.eq("course_id", course.getId());
                     //判断对应时间段是否已经有课了
                     if(courInfMapper.selectOne(wrapper)!=null){
                         throw new UpdateException("该时间段你已经有课了");
                     }
-                    //判断对应时间段的教室是否被占用
-                    wrapper.eq("location", selfTeachCourseTimeCO.getClassroom());
-                    if(courInfMapper.selectOne(wrapper)!=null){
-                        //被占用了，抛出异常
-                        throw new UpdateException("该时间段教室已占用");
-                    }
                 }
-                CourInfDO courInfDO = courseConvertor.toCourInfDO(selfTeachCourseTimeCO, week, courseDO.getId(),LocalDateTime.now());
+                //判断对应时间段的教室是否被占用
+                wrapper.eq("location", courInfDO.getLocation());
+                if(courInfMapper.selectOne(wrapper)!=null){
+                    //被占用了，抛出异常
+                    throw new UpdateException("该时间段教室已占用");
+                }
                 courInfMapper.insert(courInfDO);
             }
-            //根据课程Id来删除评教任务
-            evaTaskMapper.delete(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", selfTeachCourseCO.getId()));
+            return msg+selfTeachCourseCO.getName()+"课程的上课时间被修改了,"+"因而取消您对该课程的评教任务";
+        }
+    }
+    public  List<CourInfDO> getDifference(List<CourInfDO> courseChangeList, List<CourInfDO> courInfoList) {
+        return courseChangeList.stream()
+                .filter(courseChange -> courInfoList.stream()
+                        .noneMatch(courInfo -> Objects.equals(courseChange.getWeek(), courInfo.getWeek())
+                                && Objects.equals(courseChange.getDay(), courInfo.getDay())
+                                && Objects.equals(courseChange.getStartTime(), courInfo.getStartTime())
+                                && Objects.equals(courseChange.getEndTime(), courInfo.getEndTime())))
+                .collect(Collectors.toList());
+    }
 
+    private String JudgeCourseType(CourseDO courseDO,SelfTeachCourseCO selfTeachCourseCO) {
+        String msg="";
+        // 获取课程类型ID
+        List<Integer> typeIdDo = courseTypeCourseMapper.selectList(new QueryWrapper<CourseTypeCourseDO>().eq("course_id", courseDO.getId()))
+                .stream()
+                .map(CourseTypeCourseDO::getTypeId)
+                .sorted()
+                .collect(Collectors.toList());
 
+        // 获取自定义课程类型的名称
+        List<String> typeName = selfTeachCourseCO.getTypeList().stream()
+                .map(CourseType::getName)
+                .collect(Collectors.toList());
+
+        // 获取数据库中的类型ID
+        List<Integer> typeIdIn = courseTypeMapper.selectList(new QueryWrapper<CourseTypeDO>().in("name", typeName))
+                .stream()
+                .map(CourseTypeDO::getId)
+                .sorted()
+                .toList();
+
+        // 比较两个集合
+        if (typeIdIn.equals(typeIdDo)) {
+            return msg;
+        } else {
+            courseTypeCourseMapper.delete(new QueryWrapper<CourseTypeCourseDO>().eq("course_id",courseDO.getId() ).in("type_id", typeIdDo));
+            typeIdIn.forEach(typeId -> {
+                CourseTypeCourseDO courseTypeCourseDO=new CourseTypeCourseDO();
+                courseTypeCourseDO.setCourseId(courseDO.getId());
+                courseTypeCourseDO.setTypeId(typeId);
+                courseTypeCourseDO.setCreateTime(LocalDateTime.now());
+                courseTypeCourseDO.setUpdateTime(LocalDateTime.now());
+                courseTypeCourseMapper.insert(courseTypeCourseDO);
+            });
+
+            return msg+"课程类型被修改为:"+String.join(",", typeName)+"。";
         }
 
-        return null;
+    }
+
+    private String toJudge(SubjectDO subjectDO, SelfTeachCourseCO selfTeachCourseCO) {
+        String msg="";
+        String name = subjectDO.getName();
+        //0: 理论课相关默认；1: 实验课相关默认；
+        String natureExp = subjectDO.getNature().equals(0) ? "理论课" : "实践课";
+        if(!subjectDO.getName().equals(selfTeachCourseCO.getName())){
+            subjectDO.setName(selfTeachCourseCO.getName());
+            if(!subjectDO.getNature().equals(selfTeachCourseCO.getNature())){
+                subjectDO.setNature(selfTeachCourseCO.getNature());
+                return msg+name+"课程的名称被改成了"+subjectDO.getName()+"，类型被改成了"+natureExp+"。";
+            }
+            return msg+name+"课程的名称被改成了"+subjectDO.getName()+"。";
+        }
+        return "";
     }
 
     @Override
