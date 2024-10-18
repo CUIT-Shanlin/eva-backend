@@ -8,6 +8,7 @@ import edu.cuit.client.dto.clientobject.course.SingleCourseCO;
 
 import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
 
+import edu.cuit.client.dto.data.course.CourseTime;
 import edu.cuit.client.dto.query.CourseQuery;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.CourseConditionalQuery;
@@ -146,5 +147,10 @@ public interface CourseQueryGateway {
      * @param courInfId
      */
     Optional<CourseEntity> getCourseByInfo(Integer courInfId);
+    /**
+     * 通过一节课得到courseTime
+     * @param courInfId
+     */
+    Optional<CourseTime> getCourseTimeByCourse(Integer courInfId);
 
 }

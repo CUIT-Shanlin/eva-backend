@@ -496,6 +496,17 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         return Optional.of(courseEntity);
     }
 
+    @Override
+    public Optional<CourseTime> getCourseTimeByCourse(Integer courInfId) {
+        CourInfDO courInfDO=courInfMapper.selectById(courInfId);
+        CourseTime courseTime=new CourseTime();
+        courseTime.setStartTime(courInfDO.getStartTime());
+        courseTime.setEndTime(courInfDO.getEndTime());
+        courseTime.setWeek(courInfDO.getWeek());
+        courseTime.setDay(courInfDO.getDay());
+        return Optional.of(courseTime);
+    }
+
 
     private SemesterEntity getSemester(Integer semId){
         SemesterDO semesterDO=null;
