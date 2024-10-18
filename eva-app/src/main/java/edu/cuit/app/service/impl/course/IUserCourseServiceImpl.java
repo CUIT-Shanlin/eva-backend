@@ -9,9 +9,11 @@ import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.course.CourseBizConvertor;
 import edu.cuit.app.resolver.course.CourseExcelResolver;
 
+import edu.cuit.app.service.impl.MsgServiceImpl;
 import edu.cuit.app.service.operate.course.query.UserCourseDetailQueryExec;
 import edu.cuit.app.service.operate.course.update.FileImportExec;
 import edu.cuit.client.api.course.IUserCourseService;
+import edu.cuit.client.bo.MessageBO;
 import edu.cuit.client.dto.clientobject.SemesterCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
@@ -37,6 +39,7 @@ public class IUserCourseServiceImpl implements IUserCourseService {
     private final CourseDeleteGateway courseDeleteGateway;
     private final CourseBizConvertor courseConvertor;
     private final UserCourseDetailQueryExec userCourseDetailQueryExec;
+    private final MsgServiceImpl msgService;
 
     @CheckSemId
     @Override
@@ -121,6 +124,8 @@ public class IUserCourseServiceImpl implements IUserCourseService {
     @Override
     public Void updateSelfCourse(SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeCO> timeList) {
         courseUpdateGateway.updateSelfCourse(String.valueOf(StpUtil.getLoginId()),selfTeachCourseCO, timeList);
+
+//        msgService.handleUserSendMessage();
         return null;
     }
 }
