@@ -1,5 +1,6 @@
 package edu.cuit.app.service.impl.eva;
 import com.alibaba.cola.exception.BizException;
+import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.user.MenuBizConvertor;
 import edu.cuit.client.api.eva.IEvaTaskService;
 import edu.cuit.client.api.user.IMenuService;
@@ -31,11 +32,13 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
     private final EvaUpdateGateway evaUpdateGateway;
     private final EvaQueryGateway evaQueryGateway;
     @Override
+    @CheckSemId
     public PaginationQueryResultCO<EvaTaskBaseInfoCO> pageEvaUnfinishedTask(Integer semId, PagingQuery<GenericConditionalQuery> query) {
         return null;
     }
 
     @Override
+    @CheckSemId
     public List<EvaTaskDetailInfoCO> evaSelfTaskInfo(Integer semId, String keyword) {
         return null;
     }

@@ -64,6 +64,13 @@ public interface EvaQueryGateway {
      */
     List<EvaRecordEntity> getEvaLogInfo(Integer userId,Integer id,String keyword);
     /**
+     * 获取别人对自己的评教记录
+     * @param userId
+     * @param semId
+     * @param courseId
+     */
+    List<EvaRecordEntity> getEvaEdLogInfo(Integer userId,Integer semId,Integer courseId);
+    /**
      * 获取一个评教任务的详细信息
      * @param id 任务id
      * @return EvaTaskEntity

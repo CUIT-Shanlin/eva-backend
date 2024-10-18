@@ -1,6 +1,7 @@
 package edu.cuit.app.service.impl.eva;
 import cn.dev33.satoken.stp.StpUtil;
 import com.alibaba.cola.exception.SysException;
+import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.eva.EvaRecordBizConvertor;
 import edu.cuit.client.api.eva.IUserEvaService;
 import edu.cuit.client.dto.clientobject.eva.EvaRecordCO;
@@ -31,6 +32,7 @@ public class UserEvaServiceImpl implements IUserEvaService {private final EvaDel
     //怎么获取自己的 TODO
     //去评教
     @Override
+    @CheckSemId
     public List<EvaRecordCO> getEvaLogInfo(Integer semId, String keyword) {
         Integer userId= (Integer) StpUtil.getLoginId();
         List<EvaRecordCO> evaRecordCOS=new ArrayList<>();
@@ -54,6 +56,7 @@ public class UserEvaServiceImpl implements IUserEvaService {private final EvaDel
     }
     //被评教
     @Override
+    @CheckSemId
     public List<EvaRecordCO> getEvaLoggingInfo(Integer courseId, Integer semId) {
         Integer userId= (Integer) StpUtil.getLoginId();
         if(userId==null){

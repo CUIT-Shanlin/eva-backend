@@ -1,6 +1,7 @@
 package edu.cuit.app.service.impl.eva;
 
 import com.alibaba.cola.exception.BizException;
+import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.user.MenuBizConvertor;
 import edu.cuit.client.api.eva.IEvaRecordService;
 import edu.cuit.client.api.user.IMenuService;
@@ -29,6 +30,7 @@ public class EvaRecordServiceImpl implements IEvaRecordService {
     private final EvaQueryGateway evaQueryGateway;
     private final EvaConvertor convertor;
     @Override
+    @CheckSemId
     public PaginationQueryResultCO<EvaRecordCO> pageEvaRecord(Integer semId, PagingQuery<EvaLogConditionalQuery> query) {
         return null;
     }

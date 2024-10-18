@@ -28,13 +28,13 @@ public interface EvaRecordBizConvertor {
     CourseTime toCourseTime(SingleCourseEntity singleCourseEntity);
     @Mappings({
             @Mapping(target = "id",expression="java(evaRecordEntity.getId())"),
-            @Mapping(target = "teacherName",expression = "java(courseEntity.getUserEntity().getName())"),
+            @Mapping(target = "teacherName",expression = "java(courseEntity.getTeacher().getName())"),
             @Mapping(target = "evaTeacherName",expression = "java(evaRecordEntity.getTask().getTeacher().getName())"),
             @Mapping(target = "courseName",expression= "java(courseEntity.getSubjectEntity().getName())"),
             @Mapping(target = "textValue",expression="java(evaRecordEntity.getTextValue())"),
             @Mapping(target = "formPropsValues",expression="java(evaRecordEntity.getFormPropsValues())"),
             @Mapping(target = "createTime",expression="java(evaRecordEntity.getCreateTime())"),
-            @Mapping(target = "courseTime",expression="java(toCourseTime(singleCourseEntity)"),
+            @Mapping(target = "courseTime",expression="java(toCourseTime(singleCourseEntity))"),
             @Mapping(target = "averScore",ignore = true),
     })
     EvaRecordCO evaRecordEntityToCo(EvaRecordEntity evaRecordEntity, SingleCourseEntity singleCourseEntity, CourseEntity courseEntity);
