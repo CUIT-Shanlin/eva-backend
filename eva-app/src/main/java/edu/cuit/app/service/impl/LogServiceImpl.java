@@ -14,7 +14,8 @@ import java.util.List;
 public class LogServiceImpl implements ILogService {
 
     @Override
-    public PaginationQueryResultCO<OperateLogCO> page(PagingQuery<GenericConditionalQuery> query) {
+    public PaginationQueryResultCO<OperateLogCO> page(PagingQuery<GenericConditionalQuery> query
+            , Integer moduleId) {
         return null;
     }
 
