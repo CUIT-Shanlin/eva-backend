@@ -1,17 +1,8 @@
 package edu.cuit.app.service.impl.eva;
 import cn.dev33.satoken.stp.StpUtil;
-import com.alibaba.cola.exception.BizException;
 import com.alibaba.cola.exception.SysException;
-import edu.cuit.app.convertor.user.MenuBizConvertor;
 import edu.cuit.client.api.eva.IUserEvaService;
-import edu.cuit.client.api.user.IMenuService;
 import edu.cuit.client.dto.clientobject.eva.EvaRecordCO;
-import edu.cuit.client.dto.clientobject.user.GenericMenuSectionCO;
-import edu.cuit.client.dto.clientobject.user.MenuCO;
-import edu.cuit.client.dto.cmd.user.NewMenuCmd;
-import edu.cuit.client.dto.cmd.user.UpdateMenuCmd;
-import edu.cuit.client.dto.data.course.CourseTime;
-import edu.cuit.client.dto.query.condition.MenuConditionalQuery;
 import edu.cuit.domain.entity.course.CourseEntity;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.entity.eva.EvaRecordEntity;
@@ -19,10 +10,7 @@ import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.domain.gateway.eva.EvaDeleteGateway;
 import edu.cuit.domain.gateway.eva.EvaQueryGateway;
 import edu.cuit.domain.gateway.eva.EvaUpdateGateway;
-import edu.cuit.domain.gateway.user.MenuQueryGateway;
-import edu.cuit.domain.gateway.user.MenuUpdateGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
-import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -63,7 +51,7 @@ public class UserEvaServiceImpl implements IUserEvaService {private final EvaDel
             evaRecordCO.setAverScore(evaQueryGateway.getScoreFromRecord(evaRecordEntities.get(i).getFormPropsValues()).get());
 
             evaRecordCO.setCourseTime(courseQueryGateway.getCourseTimeByCourse(singleCourseEntity.getId()).get());
-            evaRecordCO.setTeacherName(courseEntity.getUserEntity().getName());
+            evaRecordCO.setTeacherName(courseEntity.getTeacher().getName());
             evaRecordCO.setFormPropsValues(evaRecordEntities.get(i).getFormPropsValues());
             evaRecordCO.setTextValue(evaRecordEntities.get(i).getTextValue());
             evaRecordCO.setCreateTime(evaRecordEntities.get(i).getCreateTime());

@@ -137,7 +137,12 @@ public class UserServiceImpl implements IUserService {
         int id = Math.toIntExact(cmd.getId());
         if (isUpdatePwd) {
             String password = cmd.getPassword();
-            changePassword(id,password);
+            ldapPersonGateway.changePassword(userQueryGateway.findUsernameById(id)
+                    .orElseThrow(() -> {
+                        SysException e = new SysException("找不到用户名，请联系管理员");
+                        log.error("发生系统异常",e);
+                        return e;
+                    }),password);
         }
         userUpdateGateway.updateInfo(cmd);
     }
