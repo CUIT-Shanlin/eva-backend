@@ -40,7 +40,7 @@ public interface IEvaStatisticsService {
      * @param num 获取多少个分数段的数据，分数段截取后段，如果有某个分数段 课程数目为0，应当忽略掉，不参与计算
      * @param interval 间隔，分数段之间的默认间隔，如果按照该间隔，无法达到 num 个有数据的分数段，则将间隔减少0.2分，直到达到 num 个分数段
      */
-    ScoreRangeCourseCO scoreRangeCourseInfo(Integer num, Integer interval);
+    List<ScoreRangeCourseCO> scoreRangeCourseInfo(Integer num, Integer interval);
 
     /**
      * 获取上个月和本月的评教数目，以有两个整数的List<Integer>形式返回，data[0]：上个月评教数目；data[1]：本月评教数目

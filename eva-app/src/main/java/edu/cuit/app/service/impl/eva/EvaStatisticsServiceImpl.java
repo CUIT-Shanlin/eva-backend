@@ -56,20 +56,20 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
     }
 
     @Override
-    public ScoreRangeCourseCO scoreRangeCourseInfo(Integer num, Integer interval) {
-        return null;
+    public List<ScoreRangeCourseCO> scoreRangeCourseInfo(Integer num, Integer interval) {
+        return evaQueryGateway.scoreRangeCourseInfo(num,interval);
     }
 
     @Override
     @CheckSemId
     public List<Integer> getMonthEvaNUmber(Integer semId) {
-        return null;
+        return evaQueryGateway.getMonthEvaNUmber(semId);
     }
 
     @Override
     @CheckSemId
     public PastTimeEvaDetailCO getEvaData(Integer semId, Integer num, Integer target, Integer evaTarget) {
-        return null;
+        return evaQueryGateway.getEvaData(semId,num,target,evaTarget).get();
     }
 
     @Override
