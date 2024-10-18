@@ -1,5 +1,6 @@
 package edu.cuit.infra.convertor;
 
+import edu.cuit.client.bo.SysLogBO;
 import edu.cuit.domain.entity.log.SysLogEntity;
 import edu.cuit.domain.entity.log.SysLogModuleEntity;
 import edu.cuit.domain.entity.user.biz.UserEntity;
@@ -21,6 +22,9 @@ public interface LogConverter {
            @Mapping(target = "content",source = "logDO.content"),
            @Mapping(target = "createTime",source = "logDO.createTime"),
    })
-    SysLogEntity toLogEntity(SysLogDO logDO, SysLogModuleEntity module, UserEntity user);
+   SysLogEntity toLogEntity(SysLogDO logDO, SysLogModuleEntity module, UserEntity user);
+
    SysLogModuleEntity toModuleEntity(SysLogModuleDO moduleDO);
+
+   SysLogDO toLogDO(SysLogBO logBO);
 }

@@ -1,6 +1,7 @@
 package edu.cuit.adapter.controller.user.update;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import edu.cuit.client.api.user.IRoleService;
 import edu.cuit.client.dto.cmd.user.AssignPermCmd;
 import edu.cuit.client.dto.cmd.user.NewRoleCmd;
 import edu.cuit.client.dto.cmd.user.UpdateRoleCmd;
@@ -21,6 +22,8 @@ import java.util.List;
 @Validated
 public class RoleUpdateController {
 
+    private final IRoleService roleService;
+
     /**
      * 修改角色信息
      * @param updateRoleCmd 修改角色模型
@@ -28,7 +31,8 @@ public class RoleUpdateController {
     @PutMapping("/role")
     @SaCheckPermission("system.role.update")
     public CommonResult<Void> updateInfo(@RequestBody @Valid UpdateRoleCmd updateRoleCmd) {
-        return null;
+        roleService.updateInfo(updateRoleCmd);
+        return CommonResult.success();
     }
 
     /**
@@ -40,7 +44,8 @@ public class RoleUpdateController {
     @SaCheckPermission("system.role.update")
     public CommonResult<Void> updateStatus(@PathVariable("roleId") Integer roleId,
                                            @PathVariable("status") @ValidStatus Integer status) {
-        return null;
+        roleService.updateStatus(roleId,status);
+        return CommonResult.success();
     }
 
     /**
@@ -50,7 +55,8 @@ public class RoleUpdateController {
     @PutMapping("/role/auth")
     @SaCheckPermission("system.role.assignPerm")
     public CommonResult<Void> assignPerm(@RequestBody @Valid AssignPermCmd assignPermCmd) {
-        return null;
+        roleService.assignPerm(assignPermCmd);
+        return CommonResult.success();
     }
 
     /**
@@ -60,7 +66,8 @@ public class RoleUpdateController {
     @PostMapping("/role")
     @SaCheckPermission("system.role.add")
     public CommonResult<Void> create(@RequestBody @Valid NewRoleCmd newRoleCmd) {
-        return null;
+        roleService.create(newRoleCmd);
+        return CommonResult.success();
     }
 
     /**
@@ -70,7 +77,8 @@ public class RoleUpdateController {
     @DeleteMapping("/role")
     @SaCheckPermission("system.role.delete")
     public CommonResult<Void> delete(@RequestParam("roleId") Integer roleId) {
-        return null;
+        roleService.delete(roleId);
+        return CommonResult.success();
     }
 
     /**
@@ -80,7 +88,8 @@ public class RoleUpdateController {
     @DeleteMapping("/roles")
     @SaCheckPermission("system.role.delete")
     public CommonResult<Void> multipleDelete(@RequestBody List<Integer> ids) {
-        return null;
+        roleService.multipleDelete(ids);
+        return CommonResult.success();
     }
 
 }

@@ -1,6 +1,7 @@
 package edu.cuit.adapter.controller.user.query;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import edu.cuit.client.api.user.IRoleService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.user.RoleInfoCO;
 import edu.cuit.client.dto.clientobject.user.SimpleRoleInfoCO;
@@ -22,6 +23,8 @@ import java.util.List;
 @Validated
 public class RoleQueryController {
 
+    private final IRoleService roleService;
+
     /**
      * 分页获取角色信息
      * @param pagingQuery 分页查询模型
@@ -29,7 +32,7 @@ public class RoleQueryController {
     @PostMapping("/roles")
     @SaCheckPermission("system.role.query")
     public CommonResult<PaginationQueryResultCO<RoleInfoCO>> page(@RequestBody @Valid PagingQuery<GenericConditionalQuery> pagingQuery) {
-        return null;
+        return CommonResult.success(roleService.page(pagingQuery));
     }
 
     /**
@@ -39,7 +42,7 @@ public class RoleQueryController {
     @GetMapping("/role")
     @SaCheckPermission("system.role.query")
     public CommonResult<RoleInfoCO> one(@RequestParam("id") Integer id) {
-        return null;
+        return CommonResult.success(roleService.one(id));
     }
 
     /**
@@ -48,7 +51,7 @@ public class RoleQueryController {
     @GetMapping("/role/all")
     @SaCheckPermission("system.role.query")
     public CommonResult<List<SimpleRoleInfoCO>> all() {
-        return null;
+        return CommonResult.success(roleService.all());
     }
 
     /**
@@ -58,7 +61,7 @@ public class RoleQueryController {
     @GetMapping("/menu/idList/{roleId}")
     @SaCheckPermission("system.menu.query")
     public CommonResult<List<Integer>> menus(@PathVariable("roleId") Integer roleId) {
-        return null;
+        return CommonResult.success(roleService.roleMenus(roleId));
     }
 
 

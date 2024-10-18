@@ -18,6 +18,7 @@ import edu.cuit.client.dto.clientobject.eva.UserSingleCourseScoreCO;
 import edu.cuit.client.dto.clientobject.user.*;
 import edu.cuit.client.dto.cmd.user.AssignRoleCmd;
 import edu.cuit.client.dto.cmd.user.NewUserCmd;
+import edu.cuit.client.dto.cmd.user.UpdatePasswordCmd;
 import edu.cuit.client.dto.cmd.user.UpdateUserCmd;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
@@ -35,10 +36,7 @@ import org.springframework.stereotype.Service;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -115,6 +113,11 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    public Integer getIdByUsername(String username) {
+        return userQueryGateway.findIdByUsername(username).orElseThrow(() -> new BizException("用户名未找到"));
+    }
+
+    @Override
     public byte[] getUserAvatar(Integer id) {
         return avatarManager.getUserAvatarBytes(id);
     }
@@ -134,18 +137,38 @@ public class UserServiceImpl implements IUserService {
         int id = Math.toIntExact(cmd.getId());
         if (isUpdatePwd) {
             String password = cmd.getPassword();
-            changePassword(id,password);
+            ldapPersonGateway.changePassword(userQueryGateway.findUsernameById(id)
+                    .orElseThrow(() -> {
+                        SysException e = new SysException("找不到用户名，请联系管理员");
+                        log.error("发生系统异常",e);
+                        return e;
+                    }),password);
         }
         userUpdateGateway.updateInfo(cmd);
     }
 
     @Override
-    public void changePassword(Integer userId, String newPassword) {
-        if (StrUtil.isBlank(newPassword)) {
+    public void updateOwnInfo(UpdateUserCmd cmd) {
+        Optional<Integer> id = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
+        cmd.setId(Long.valueOf(id.orElseThrow(() -> {
+            SysException e = new SysException("用户id查询失败");
+            log.error("发生系统异常",e);
+            return e;
+        })));
+        updateInfo(false,cmd);
+    }
+
+    @Override
+    public void changePassword(Integer userId, UpdatePasswordCmd cmd) {
+        String username = userQueryGateway.findUsernameById(userId)
+                .orElseThrow(() -> new BizException("用户不存在"));
+        if (!ldapPersonGateway.authenticate(username, cmd.getOldPassword())) {
+            throw new BizException("旧密码输入错误");
+        }
+        if (StrUtil.isBlank(cmd.getPassword())) {
             throw new BizException("新密码不能为空");
         }
-        ldapPersonGateway.changePassword(userQueryGateway.findUsernameById(userId)
-                .orElseThrow(() -> new BizException("用户不存在")),newPassword);
+        ldapPersonGateway.changePassword(username,cmd.getPassword());
     }
 
     @Override

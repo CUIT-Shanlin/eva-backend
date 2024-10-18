@@ -1,6 +1,7 @@
 package edu.cuit.adapter.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import edu.cuit.client.api.ILogService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.log.LogModuleCO;
 import edu.cuit.client.dto.clientobject.log.OperateLogCO;
@@ -23,6 +24,8 @@ import java.util.List;
 @RequestMapping("/logs")
 public class LogController {
 
+    private final ILogService logService;
+
     /**
      * 分页获取日志
      * @param query 分页查询模型
@@ -31,7 +34,7 @@ public class LogController {
     @SaCheckPermission("system.log.query")
     public CommonResult<PaginationQueryResultCO<OperateLogCO>> page(@RequestBody @Valid PagingQuery<GenericConditionalQuery> query,
                                                                     @PathVariable("moduleId") Integer moduleId) {
-        return null;
+        return CommonResult.success(logService.page(query, moduleId));
     }
 
     /**
@@ -40,7 +43,7 @@ public class LogController {
     @PostMapping("/modules")
     @SaCheckPermission("system.log.query")
     public CommonResult<List<LogModuleCO>> getModules() {
-        return null;
+        return CommonResult.success(logService.getModules());
     }
 
 }
