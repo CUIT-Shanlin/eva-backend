@@ -53,6 +53,12 @@ public class CourseTypeDO implements Serializable {
     @TableField(value = "is_deleted")
     private Integer isDeleted;
 
+    /**
+     * 判断该数据是否是默认数据，0: 理论课相关默认；1: 实验课相关默认；-1：非默认数据
+     */
+    @TableField(value = "is_default")
+    private Integer isDefault;
+
     @TableField(exist = false)
     @Serial
     private static final long serialVersionUID = 1L;
