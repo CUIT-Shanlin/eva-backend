@@ -82,6 +82,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     private final FormRecordMapper formRecordMapper;
     private final FormTemplateMapper formTemplateMapper;
     private final CourOneEvaTemplateMapper courOneEvaTemplateMapper;
+
     @Override
     public PaginationResultEntity<EvaRecordEntity> pageEvaRecord(Integer semId, PagingQuery<EvaLogConditionalQuery> evaLogQuery) {
         //先整老师

@@ -28,7 +28,7 @@ public class ICourseServiceImpl implements ICourseService {
     private final CourseQueryGateway courseQueryGateway;
     private final CourseUpdateGateway courseUpdateGateway;
     private final CourseDeleteGateway courseDeleteGateway;
-    private final CourseBizConvertor courseBizConvertor;
+    private final CourseBizConvertor courseConvertor;
     @CheckSemId
     @Override
     public List<List<Integer>> courseNum(Integer semId, Integer week) {

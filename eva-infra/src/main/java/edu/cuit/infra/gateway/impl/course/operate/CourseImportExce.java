@@ -4,10 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.cuit.client.bo.CourseExcelBO;
 import edu.cuit.client.dto.clientobject.course.SubjectCO;
 import edu.cuit.infra.convertor.course.CourseConvertor;
-import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
-import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
-import edu.cuit.infra.dal.database.dataobject.course.CourseTypeCourseDO;
-import edu.cuit.infra.dal.database.dataobject.course.SubjectDO;
+import edu.cuit.infra.dal.database.dataobject.course.*;
 import edu.cuit.infra.dal.database.dataobject.eva.CourOneEvaTemplateDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO;
@@ -31,7 +28,6 @@ import java.util.Map;
 public class CourseImportExce {
     private final CourseConvertor courseConvertor;
     private final CourInfMapper courInfMapper;
-    private final SemesterMapper semesterMapper;
     private final CourseMapper courseMapper;
     private final CourseTypeCourseMapper courseTypeCourseMapper;
     private final CourseTypeMapper courseTypeMapper;
@@ -72,7 +68,7 @@ public class CourseImportExce {
                 CourseDO courseDO = addCourse(courseExcelBO, id, userId, semId,evaTemplateId);
                 courseMapper.insert(courseDO);
                 //课程类型课程关联表
-
+                toInsert(courseDO.getId(), type);
                 for (Integer week : courseExcelBO.getWeeks()) {
                     CourInfDO courInfDO = courseConvertor.toCourInfDO(courseDO.getId(), week, courseExcelBO, LocalDateTime.now());
                     courInfMapper.insert(courInfDO);
@@ -95,11 +91,23 @@ public class CourseImportExce {
       courseDO.setSubjectId(subjectId);
       courseDO.setTeacherId(userId);
       courseDO.setSemesterId(semId);
+      courseDO.setTemplateId(evaTemplateId);
       courseDO.setCreateTime(LocalDateTime.now());
       courseDO.setUpdateTime(LocalDateTime.now());
       return courseDO;
     }
     private Integer getEvaTemplateId(Integer type){
     return formTemplateMapper.selectOne(new QueryWrapper<FormTemplateDO>().eq("is_default", type)).getId();
+    }
+    private void toInsert(Integer courseId,Integer type){
+        //根据type来找到课程类型
+        Integer id = courseTypeMapper.selectOne(new QueryWrapper<CourseTypeDO>().eq("is_default", type)).getId();
+        //插入课程类型课程关联表
+        CourseTypeCourseDO courseTypeCourseDO = new CourseTypeCourseDO();
+        courseTypeCourseDO.setCourseId(courseId);
+        courseTypeCourseDO.setCourseId(id);
+        courseTypeCourseDO.setCreateTime(LocalDateTime.now());
+        courseTypeCourseDO.setUpdateTime(LocalDateTime.now());
+        courseTypeCourseMapper.insert(courseTypeCourseDO);
     }
 }
