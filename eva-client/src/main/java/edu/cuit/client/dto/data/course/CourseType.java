@@ -42,4 +42,9 @@ public class CourseType extends DTO {
      * 课程更新时间
      */
     private LocalDateTime updateTime;
+
+    /**
+     * 是否是默认数据
+     */
+    private Integer isDefault;
 }

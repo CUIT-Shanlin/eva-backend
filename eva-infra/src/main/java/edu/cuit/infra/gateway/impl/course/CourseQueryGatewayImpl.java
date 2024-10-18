@@ -1,4 +1,4 @@
-package edu.cuit.infra.gateway.impl.courseimpl;
+package edu.cuit.infra.gateway.impl.course;
 
 
 import cn.hutool.extra.spring.SpringUtil;
@@ -15,6 +15,7 @@ import edu.cuit.client.dto.clientobject.course.RecommendCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SingleCourseCO;
 import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
+import edu.cuit.client.dto.clientobject.eva.EvaTeacherInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
 import edu.cuit.client.dto.data.course.CoursePeriod;
 import edu.cuit.client.dto.data.course.CourseTime;
@@ -350,7 +351,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     }
 
     @Override
-    public List<SingleCourseEntity> getUserCourseDetail(Integer id, Integer semId) {
+    public List<List<SingleCourseEntity>> getUserCourseDetail(Integer id, Integer semId) {
         //id为用户id
 
         //构造semester
@@ -359,14 +360,6 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>()
                 .eq("teacher_id", id)
                 .eq("semester_id", semId));
-
-        List<Integer> subjectIds = courseDOS.stream().map(CourseDO::getSubjectId).toList();
-        for (CourseDO courseDO : courseDOS) {
-            subjectIds.add(courseDO.getSubjectId());
-        }
-        List<SubjectDO> subjectDOS = subjectMapper.selectList(new QueryWrapper<SubjectDO>().in("id", subjectIds));
-        //构造subject
-        List<SubjectEntity> subjectEntitys= subjectDOS.stream().map(subjectDO -> courseConvertor.toSubjectEntity(subjectDO)).toList();
         //构造userEntity
         UserEntity userEntity =toUserEntity(id);
         //根据courseDo中的subjectid找出courInfoDo集合
@@ -374,21 +367,21 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         for (CourseDO courseDO : courseDOS) {
             map.put(courseDO, courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseDO.getId())));
         }
-        List<SingleCourseEntity> list =new ArrayList<>();
+        List<List<SingleCourseEntity>> list =new ArrayList<>();
+        List<SingleCourseEntity> temp = new ArrayList<>();
         for (Map.Entry<CourseDO, List<CourInfDO>> courseDOListEntry : map.entrySet()) {
-            //得到subjectEntity中ID等于courseDO.getSubjectId()的subjectEntity
-            SubjectEntity subjectEntity = subjectEntitys.stream().filter(subject -> subject.getId().equals(courseDOListEntry.getKey().getSubjectId())).findFirst().get();
+            SubjectEntity subjectEntity = courseConvertor.toSubjectEntity(subjectMapper.selectById(courseDOListEntry.getKey().getSubjectId()));
             for (CourInfDO courInfDO : courseDOListEntry.getValue()) {
                 CourseEntity courseEntity = courseConvertor.toCourseEntity(courseDOListEntry.getKey(), () -> subjectEntity, () -> userEntity, () -> semesterEntity);
                 SingleCourseEntity singleCourseEntity = courseConvertor.toSingleCourseEntity(() -> courseEntity, courInfDO);
-                list.add(singleCourseEntity);
+                temp.add(singleCourseEntity);
             }
+            list.add(temp);
+            //清空temp集合
+            temp.clear();
         }
-
-
         return list;
     }
-
 
     @Override
     public List<SelfTeachCourseCO> getSelfCourseInfo(String userName, Integer semId) {
@@ -481,6 +474,21 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         //并对教师去重
         return courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseId))
                 .stream().map(CourInfDO::getLocation).distinct().toList();
+    }
+
+    @Override
+    public List<CourseType> getCourseType(Integer courseId) {
+        List<Integer> typeIds = courseTypeCourseMapper.selectList(new QueryWrapper<CourseTypeCourseDO>()
+                .eq("course_id", courseId)).stream().map(CourseTypeCourseDO::getTypeId).toList();
+
+       return courseTypeMapper.selectList(new QueryWrapper<CourseTypeDO>().in("id", typeIds)).stream().map(courseType->courseConvertor.toCourseType(courseId,courseType)).toList();
+    }
+
+    @Override
+    public List<EvaTeacherInfoCO> getEvaUsers(Integer courseId) {
+        List<Integer> userList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courseId)).stream().map(EvaTaskDO::getTeacherId).toList();
+
+        return userMapper.selectList(new QueryWrapper<SysUserDO>().in("id", userList)).stream().map(courseConvertor::toEvaTeacherInfoCO).toList();
     }
 
     @Override

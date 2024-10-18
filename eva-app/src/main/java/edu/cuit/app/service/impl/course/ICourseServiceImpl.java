@@ -5,6 +5,7 @@ import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.course.CourseBizConvertor;
 import edu.cuit.client.api.course.ICourseService;
 import edu.cuit.client.dto.clientobject.course.*;
+import edu.cuit.client.dto.clientobject.eva.EvaTeacherInfoCO;
 import edu.cuit.client.dto.cmd.course.AlignTeacherCmd;
 import edu.cuit.client.dto.cmd.course.UpdateCourseCmd;
 import edu.cuit.client.dto.cmd.course.UpdateSingleCourseCmd;
@@ -45,9 +46,10 @@ public class ICourseServiceImpl implements ICourseService {
     @CheckSemId
     @Override
     public SingleCourseDetailCO getCourseDetail(Integer semId, Integer id) {
-        Optional<SingleCourseEntity> entity = courseQueryGateway.getSingleCourseDetail(id, semId);
-//        return courseConvertor.toSingleCourseDetailCO(entity.get());
-        return null;
+        List<EvaTeacherInfoCO> evaUsers = courseQueryGateway.getEvaUsers(id);
+       return courseQueryGateway.getSingleCourseDetail(id, semId)
+                .map(courseEntity -> courseConvertor.toSingleCourseDetailCO(courseEntity,evaUsers))
+                .orElseThrow(()->new RuntimeException("这节课不存在"));
     }
 
     @CheckSemId

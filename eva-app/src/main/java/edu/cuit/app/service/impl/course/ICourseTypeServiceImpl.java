@@ -1,7 +1,7 @@
 package edu.cuit.app.service.impl.course;
 
 import edu.cuit.app.convertor.PaginationBizConvertor;
-import edu.cuit.app.convertor.course.CourseBizConvertor;
+import edu.cuit.app.convertor.course.CourseConvertor;
 import edu.cuit.client.api.course.ICourseTypeService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.data.course.CourseType;
@@ -23,12 +23,12 @@ public class ICourseTypeServiceImpl implements ICourseTypeService {
     private final CourseQueryGateway courseQueryGateway;
     private final CourseUpdateGateway courseUpdateGateway;
     private final CourseDeleteGateway courseDeleteGateway;
-    private final CourseBizConvertor courseBizConvertor;
+    private final CourseConvertor courseConvertor;
     private final PaginationBizConvertor pageConvertor;
     @Override
     public PaginationQueryResultCO<CourseType> pageCourseType(PagingQuery<GenericConditionalQuery> courseQuery) {
         PaginationResultEntity<CourseTypeEntity> entity = courseQueryGateway.pageCourseType(courseQuery);
-        List<CourseType> list = entity.getRecords().stream().map(courseBizConvertor::toCourseType).toList();
+        List<CourseType> list = entity.getRecords().stream().map(courseConvertor::toCourseType).toList();
 
         return pageConvertor.toPaginationEntity(entity,list);
     }
@@ -36,8 +36,7 @@ public class ICourseTypeServiceImpl implements ICourseTypeService {
     @Override
     public List<CourseType> allCourseType() {
         PaginationResultEntity<CourseTypeEntity> entity = courseQueryGateway.pageCourseType(null);
-        List<CourseType> list = entity.getRecords().stream().map(courseBizConvertor::toCourseType).toList();
-        return list;
+        return entity.getRecords().stream().map(courseConvertor::toCourseType).toList();
     }
 
     @Override

@@ -1,6 +1,7 @@
 package edu.cuit.app.service.impl.eva;
 import cn.dev33.satoken.stp.StpUtil;
 import com.alibaba.cola.exception.SysException;
+import edu.cuit.app.convertor.eva.EvaRecordBizConvertor;
 import edu.cuit.client.api.eva.IUserEvaService;
 import edu.cuit.client.dto.clientobject.eva.EvaRecordCO;
 import edu.cuit.domain.entity.course.CourseEntity;
@@ -25,8 +26,10 @@ public class UserEvaServiceImpl implements IUserEvaService {private final EvaDel
     private final EvaQueryGateway evaQueryGateway;
     private final UserQueryGateway userQueryGateway;
     private final CourseQueryGateway courseQueryGateway;
+    private final EvaRecordBizConvertor evaRecordBizConvertor;
 
     //怎么获取自己的 TODO
+    //去评教
     @Override
     public List<EvaRecordCO> getEvaLogInfo(Integer semId, String keyword) {
         Integer userId= (Integer) StpUtil.getLoginId();
@@ -39,29 +42,24 @@ public class UserEvaServiceImpl implements IUserEvaService {private final EvaDel
             throw new QueryException("并没有找到相关的评教记录");
         }
         for(int i=0;i<evaRecordEntities.size();i++){
-            EvaRecordCO evaRecordCO=new EvaRecordCO();
-            evaRecordCO.setId(evaRecordEntities.get(i).getId());
-            evaRecordCO.setEvaTeacherName(userQueryGateway.findUsernameById(userId).get());
-
             CourseEntity courseEntity =courseQueryGateway.getCourseByInfo
                             (evaRecordEntities.get(i).getTask().getCourInf().getId()).get();
             SingleCourseEntity singleCourseEntity=evaRecordEntities.get(i).getTask().getCourInf();
+            EvaRecordCO evaRecordCO=evaRecordBizConvertor.evaRecordEntityToCo(evaRecordEntities.get(i),singleCourseEntity,courseEntity);
 
-            evaRecordCO.setCourseName(courseEntity.getSubjectEntity().getName());
             evaRecordCO.setAverScore(evaQueryGateway.getScoreFromRecord(evaRecordEntities.get(i).getFormPropsValues()).get());
-
-            evaRecordCO.setCourseTime(courseQueryGateway.getCourseTimeByCourse(singleCourseEntity.getId()).get());
-            evaRecordCO.setTeacherName(courseEntity.getTeacher().getName());
-            evaRecordCO.setFormPropsValues(evaRecordEntities.get(i).getFormPropsValues());
-            evaRecordCO.setTextValue(evaRecordEntities.get(i).getTextValue());
-            evaRecordCO.setCreateTime(evaRecordEntities.get(i).getCreateTime());
             evaRecordCOS.add(evaRecordCO);
         }
         return evaRecordCOS;
     }
-
+    //被评教
     @Override
     public List<EvaRecordCO> getEvaLoggingInfo(Integer courseId, Integer semId) {
+        Integer userId= (Integer) StpUtil.getLoginId();
+        if(userId==null){
+            throw new SysException("还没有登录，怎么查到这里的");
+        }
+
         return null;
     }
 }

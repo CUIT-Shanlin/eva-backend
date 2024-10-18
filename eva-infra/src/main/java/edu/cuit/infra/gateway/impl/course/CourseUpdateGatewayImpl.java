@@ -1,8 +1,11 @@
-package edu.cuit.infra.gateway.impl.courseimpl;
+package edu.cuit.infra.gateway.impl.course;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import edu.cuit.client.bo.CourseExcelBO;
+import edu.cuit.client.dto.clientobject.SemesterCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
+import edu.cuit.client.dto.clientobject.course.SubjectCO;
 import edu.cuit.client.dto.cmd.course.AlignTeacherCmd;
 import edu.cuit.client.dto.cmd.course.UpdateCourseCmd;
 import edu.cuit.client.dto.cmd.course.UpdateCoursesCmd;
@@ -11,13 +14,12 @@ import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.domain.gateway.course.CourseUpdateGateway;
 import edu.cuit.infra.convertor.course.CourseConvertor;
 import edu.cuit.infra.dal.database.dataobject.course.*;
-import edu.cuit.infra.dal.database.dataobject.eva.CourOneEvaTemplateDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.course.*;
-import edu.cuit.infra.dal.database.mapper.eva.CourOneEvaTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
+import edu.cuit.infra.gateway.impl.course.operate.CourseImportExce;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
@@ -28,24 +30,25 @@ import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
 public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     private final CourseConvertor courseConvertor;
     private final CourInfMapper courInfMapper;
+    private final SemesterMapper semesterMapper;
     private final CourseMapper courseMapper;
     private final CourseTypeCourseMapper courseTypeCourseMapper;
     private final CourseTypeMapper courseTypeMapper;
-    private final SemesterMapper semesterMapper;
     private final SubjectMapper subjectMapper;
-    private final CourOneEvaTemplateMapper courOneEvaMapper;
     private final EvaTaskMapper evaTaskMapper;
     private final SysUserMapper userMapper;
+    private final CourseImportExce courseImportExce;
 
     @Override
     @Transactional
-    public Void updateCourse(Integer semId, UpdateCourseCmd updateCourseCmd) {
+    public void updateCourse(Integer semId, UpdateCourseCmd updateCourseCmd) {
         List<Integer> courseIdList=new ArrayList<>();
         if(updateCourseCmd.getIsUpdate()){
             //先查出课程表中的subjectId
@@ -87,7 +90,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
 
 
         }
-        return null;
+
     }
 
     @Override
@@ -201,8 +204,16 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
 
     @Override
     @Transactional
-    public Void importCourseFile(InputStream file) {
-        //TODO
+    public Void importCourseFile(Map<String, List<CourseExcelBO>> courseExce, SemesterCO semester, Integer type) {
+
+        if(semester.getId() != null && semesterMapper.exists(new QueryWrapper<SemesterDO>().eq("id",semester.getId()))){
+            //执行已有学期的删除添加逻辑
+            courseImportExce.deleteCourse(semester.getId());
+        }else{
+            //直接插入学期
+            semesterMapper.insert(courseConvertor.toSemesterDO(semester));
+        }
+        courseImportExce.addAll(courseExce, type,semester.getId());
         return null;
     }
 

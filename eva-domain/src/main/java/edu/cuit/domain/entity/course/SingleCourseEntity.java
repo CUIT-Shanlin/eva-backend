@@ -66,7 +66,7 @@ public class SingleCourseEntity {
     private Integer day;
     @Getter(AccessLevel.NONE)
     private CourseEntity courseCache=null;
-    private synchronized CourseEntity getCourse(){
+    public synchronized CourseEntity getCourseEntity(){
         if(courseCache==null){
             courseCache=course.get();
         }

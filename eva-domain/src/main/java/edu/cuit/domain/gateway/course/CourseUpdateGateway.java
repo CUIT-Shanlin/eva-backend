@@ -1,11 +1,15 @@
 package edu.cuit.domain.gateway.course;
 
+import edu.cuit.client.bo.CourseExcelBO;
+import edu.cuit.client.dto.clientobject.SemesterCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
+import edu.cuit.client.dto.clientobject.course.SubjectCO;
 import edu.cuit.client.dto.cmd.course.AlignTeacherCmd;
 import edu.cuit.client.dto.cmd.course.UpdateCourseCmd;
 import edu.cuit.client.dto.cmd.course.UpdateCoursesCmd;
 import edu.cuit.client.dto.cmd.course.UpdateSingleCourseCmd;
+import edu.cuit.client.dto.data.Term;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import jakarta.validation.Valid;
@@ -15,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 课程更新相关数据门户接口
@@ -27,7 +32,7 @@ public interface CourseUpdateGateway {
      *@param updateCourseCmd 修改课程信息
      *
      * */
-    Void updateCourse(Integer semId, UpdateCourseCmd updateCourseCmd);
+    void updateCourse(Integer semId, UpdateCourseCmd updateCourseCmd);
 
     /**
      * 批量修改课程的模板
@@ -79,10 +84,11 @@ public interface CourseUpdateGateway {
     /**
      * 导入课表文件
      *
-     *  @param file 课表文件
+     *  @param courseExce 科目对应的课程信息
+     *  @param semester 学期
      *
      * */
-    Void importCourseFile(InputStream file);
+    Void importCourseFile( Map<String, List<CourseExcelBO>> courseExce, SemesterCO semester, Integer type);
 
     /**
      * 修改自己的一门课程信息及其课程时段

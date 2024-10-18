@@ -84,11 +84,6 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     private final CourOneEvaTemplateMapper courOneEvaTemplateMapper;
 
     @Override
-    public Optional<Integer> getEvaNumByCourse(Integer courseId) {
-        return Optional.empty();
-    }
-
-    @Override
     public PaginationResultEntity<EvaRecordEntity> pageEvaRecord(Integer semId, PagingQuery<EvaLogConditionalQuery> evaLogQuery) {
         //先整老师
         List<Integer> userIds=null;
@@ -682,6 +677,17 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     public Optional<Integer> getEvaNumByCourInfo(Integer courInfId) {
         //通过courInfoId->任务-》记录
         List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id",courInfId));
+        List<Integer> evaTaskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
+        List<FormRecordDO> formRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIds));
+        return Optional.of(formRecordDOS.size());
+    }
+
+    @Override
+    public Optional<Integer> getEvaNumByCourse(Integer courseId) {
+        CourseDO courseDO=courseMapper.selectById(courseId);
+        List<CourInfDO> courInfDOS=courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id",courseDO.getId()));
+        List<Integer> courInfoIds=courInfDOS.stream().map(CourInfDO::getId).toList();
+        List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id",courInfoIds));
         List<Integer> evaTaskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
         List<FormRecordDO> formRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIds));
         return Optional.of(formRecordDOS.size());
