@@ -8,6 +8,7 @@ import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
 import edu.cuit.client.dto.clientobject.user.UserInfoCO;
 import edu.cuit.client.dto.cmd.user.AssignRoleCmd;
 import edu.cuit.client.dto.cmd.user.NewUserCmd;
+import edu.cuit.client.dto.cmd.user.UpdatePasswordCmd;
 import edu.cuit.client.dto.cmd.user.UpdateUserCmd;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
@@ -55,6 +56,13 @@ public interface IUserService {
     UserInfoCO getSelfUserInfo();
 
     /**
+     * 通过用户名获取用户ID
+     * 未找到则抛出异常
+     * @param username 用户名
+     */
+    Integer getIdByUsername(String username);
+
+    /**
      * 用户头像
      * @param id 用户id
      * @return 图片二进制数据 格式：data:image/jpeg;base64,...
@@ -83,11 +91,17 @@ public interface IUserService {
     void updateInfo(Boolean isUpdatePwd,UpdateUserCmd cmd);
 
     /**
+     * 修改用户自己的信息
+     * @param cmd 修改用户模型
+     */
+    void updateOwnInfo(UpdateUserCmd cmd);
+
+    /**
      * 更改用户密码
      * @param userId 用户id
      * @param newPassword 新密码
      */
-    void changePassword(Integer userId,String newPassword);
+    void changePassword(Integer userId, UpdatePasswordCmd cmd);
 
     /**
      * 修改用户状态

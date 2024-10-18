@@ -1,6 +1,7 @@
 package edu.cuit.adapter.controller.user.update;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import edu.cuit.client.api.user.IMenuService;
 import edu.cuit.client.dto.cmd.user.NewMenuCmd;
 import edu.cuit.client.dto.cmd.user.UpdateMenuCmd;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
@@ -19,6 +20,8 @@ import java.util.List;
 @Validated
 public class MenuUpdateController {
 
+    private final IMenuService menuService;
+
     /**
      * 修改菜单信息
      * @param updateMenuCmd 修改菜单模型
@@ -26,7 +29,8 @@ public class MenuUpdateController {
     @PutMapping("/menu")
     @SaCheckPermission("system.menu.update")
     public CommonResult<Void> update(@RequestBody @Valid UpdateMenuCmd updateMenuCmd) {
-        return null;
+        menuService.update(updateMenuCmd);
+        return CommonResult.success();
     }
 
     /**
@@ -36,7 +40,8 @@ public class MenuUpdateController {
     @PostMapping("/menu")
     @SaCheckPermission("system.menu.add")
     public CommonResult<Void> create(@RequestBody @Valid NewMenuCmd newMenuCmd) {
-        return null;
+        menuService.create(newMenuCmd);
+        return CommonResult.success();
     }
 
     /**
@@ -46,7 +51,8 @@ public class MenuUpdateController {
     @DeleteMapping("/menu/{menuId}")
     @SaCheckPermission("system.menu.delete")
     public CommonResult<Void> delete(@PathVariable("menuId") Integer menuId) {
-        return null;
+        menuService.delete(menuId);
+        return CommonResult.success();
     }
 
     /**
@@ -56,7 +62,8 @@ public class MenuUpdateController {
     @DeleteMapping("/menus")
     @SaCheckPermission("system.menu.delete")
     public CommonResult<Void> multipleDelete(@RequestBody List<Integer> ids) {
-        return null;
+        menuService.multipleDelete(ids);
+        return CommonResult.success();
     }
 
 }

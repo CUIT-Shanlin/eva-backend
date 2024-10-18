@@ -2,6 +2,9 @@ package edu.cuit.adapter.controller.user.update;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import cn.dev33.satoken.stp.StpUtil;
+import com.alibaba.cola.exception.SysException;
+import edu.cuit.client.api.user.IUserService;
 import edu.cuit.client.dto.cmd.user.AssignRoleCmd;
 import edu.cuit.client.dto.cmd.user.NewUserCmd;
 import edu.cuit.client.dto.cmd.user.UpdatePasswordCmd;
@@ -11,15 +14,21 @@ import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
 @Validated
 @RequestMapping("/user")
+@Slf4j
 public class UserUpdateController {
+
+    private final IUserService userService;
 
     /**
      * 修改用户信息
@@ -30,7 +39,8 @@ public class UserUpdateController {
     @SaCheckPermission("system.user.update")
     public CommonResult<Void> updateInfo(@PathVariable("isUpdatePwd") Boolean isUpdatePwd,
                                      @RequestBody @Valid UpdateUserCmd cmd) {
-        return null;
+        userService.updateInfo(isUpdatePwd,cmd);
+        return CommonResult.success();
     }
 
     /**
@@ -40,7 +50,8 @@ public class UserUpdateController {
     @PutMapping("/info")
     @SaCheckLogin
     public CommonResult<Void> updateOwnInfo(@RequestBody @Valid UpdateUserCmd cmd) {
-        return null;
+        userService.updateOwnInfo(cmd);
+        return CommonResult.success();
     }
 
     /**
@@ -51,7 +62,8 @@ public class UserUpdateController {
     @PutMapping("/password")
     @SaCheckLogin
     public CommonResult<Void> updatePassword(@RequestBody @Valid UpdatePasswordCmd cmd) {
-        return null;
+        userService.changePassword(userService.getIdByUsername(((String) StpUtil.getLoginId())), cmd);
+        return CommonResult.success();
     }
 
     /**
@@ -63,7 +75,8 @@ public class UserUpdateController {
     @SaCheckPermission("system.user.update")
     public CommonResult<Void> updateStatus(@PathVariable("userId") Integer userId,
                                            @PathVariable("status") @ValidStatus(message = "状态只能为0或1") Integer status) {
-        return null;
+        userService.updateStatus(userId,status);
+        return CommonResult.success();
     }
 
     /**
@@ -73,7 +86,8 @@ public class UserUpdateController {
     @DeleteMapping
     @SaCheckPermission("system.user.delete")
     public CommonResult<Void> delete(@RequestParam("userId") Integer userId) {
-        return null;
+        userService.delete(userId);
+        return CommonResult.success();
     }
 
     /**
@@ -83,7 +97,8 @@ public class UserUpdateController {
     @PutMapping("/roles")
     @SaCheckPermission("system.user.assignRole")
     public CommonResult<Void> assignRole(@RequestBody @Valid AssignRoleCmd cmd) {
-        return null;
+        userService.assignRole(cmd);
+        return CommonResult.success();
     }
 
     /**
@@ -93,7 +108,8 @@ public class UserUpdateController {
     @PostMapping
     @SaCheckPermission("system.user.add")
     public CommonResult<Void> create(@RequestBody @Valid NewUserCmd cmd) {
-        return null;
+        userService.create(cmd);
+        return CommonResult.success();
     }
 
     /**
@@ -103,7 +119,14 @@ public class UserUpdateController {
     @SaCheckLogin
     @PostMapping("/info/avatar")
     public CommonResult<Void> uploadAvatar(@RequestParam("avatarFile") @NotNull(message = "头像文件不能为空") MultipartFile avatarFile) {
-        return null;
+        try {
+            userService.uploadUserAvatar(userService.getIdByUsername(((String) StpUtil.getLoginId())), avatarFile.getInputStream());
+        } catch (IOException e) {
+            SysException ex = new SysException("处理上传图片失败，请联系管理员");
+            log.error("发生系统异常",ex);
+            throw ex;
+        }
+        return CommonResult.success();
     }
 
     /**
@@ -112,7 +135,8 @@ public class UserUpdateController {
     @PostMapping("/sync")
     @SaCheckPermission("system.user.sync")
     public CommonResult<Void> syncLdapUser() {
-        return null;
+        userService.syncLdap();
+        return CommonResult.success();
     }
 
 }
