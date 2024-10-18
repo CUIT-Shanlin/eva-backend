@@ -94,8 +94,9 @@ public interface CourseUpdateGateway {
      * 修改自己的一门课程信息及其课程时段
      *@param selfTeachCourseCO 用于确定是导入实验课表还是理论课表，0：理论课，1：实验课
      *  @param timeList 课表文件
+     *  @param userName 用户名
      * */
-    Void updateSelfCourse(String userName,SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeCO> timeList);
+    Map<String,Map<Integer,Integer>> updateSelfCourse(String userName,SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeCO> timeList);
 
     /**
      * 批量新建多节课(已有课程)

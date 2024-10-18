@@ -20,6 +20,7 @@ import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.client.dto.clientobject.course.RecommendCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
+import edu.cuit.client.dto.cmd.SendMessageCmd;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.gateway.course.CourseDeleteGateway;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
@@ -123,7 +124,19 @@ public class IUserCourseServiceImpl implements IUserCourseService {
 
     @Override
     public Void updateSelfCourse(SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeCO> timeList) {
-        courseUpdateGateway.updateSelfCourse(String.valueOf(StpUtil.getLoginId()),selfTeachCourseCO, timeList);
+        Map<String, Map<Integer, Integer>> mapMsg = courseUpdateGateway.updateSelfCourse(String.valueOf(StpUtil.getLoginId()), selfTeachCourseCO, timeList);
+        for (Map.Entry<String, Map<Integer, Integer>> stringMapEntry : mapMsg.entrySet()) {
+            SendMessageCmd sendMessageCmd=new SendMessageCmd();
+            sendMessageCmd.setMsg(stringMapEntry.getValue().toString());
+            for (Map.Entry<Integer, Integer> mapEntry : stringMapEntry.getValue().entrySet()) {
+                sendMessageCmd.setTaskId(mapEntry.getKey()).setMode(0)
+                        .setRecipientId(mapEntry.getValue())
+                        .setType(1)
+                        .setIsShowName(1);
+                msgService.handleUserSendMessage(sendMessageCmd);
+            }
+        }
+
 
 //        msgService.handleUserSendMessage();
         return null;
