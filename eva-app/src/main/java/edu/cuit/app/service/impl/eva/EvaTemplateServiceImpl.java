@@ -1,5 +1,6 @@
 package edu.cuit.app.service.impl.eva;
 import com.alibaba.cola.exception.BizException;
+import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.user.MenuBizConvertor;
 import edu.cuit.client.api.eva.IEvaTemplateService;
 import edu.cuit.client.api.user.IMenuService;
@@ -36,6 +37,7 @@ public class EvaTemplateServiceImpl implements IEvaTemplateService {
     private final EvaUpdateGateway evaUpdateGateway;
     private final EvaQueryGateway evaQueryGateway;
     @Override
+    @CheckSemId
     public PaginationQueryResultCO<EvaTemplateCO> pageEvaTemplate(Integer semId, PagingQuery<GenericConditionalQuery> query) {
         return null;
     }
@@ -57,6 +59,7 @@ public class EvaTemplateServiceImpl implements IEvaTemplateService {
     }
 
     @Override
+    @CheckSemId
     public Optional<String> evaTemplateByTaskId(Integer taskId, Integer semId) {
         Optional<String> prop =evaQueryGateway.getTaskTemplate(taskId,semId);
         return prop;

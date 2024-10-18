@@ -1,5 +1,6 @@
 package edu.cuit.app.service.impl.eva;
 import com.alibaba.cola.exception.BizException;
+import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.user.MenuBizConvertor;
 import edu.cuit.client.api.eva.IEvaStatisticsService;
 import edu.cuit.client.api.user.IMenuService;
@@ -26,16 +27,19 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
     private final EvaUpdateGateway evaUpdateGateway;
     private final EvaQueryGateway evaQueryGateway;
     @Override
+    @CheckSemId
     public EvaScoreInfoCO evaScoreStatisticsInfo(Integer semId, Number score) {
         return null;
     }
 
     @Override
+    @CheckSemId
     public EvaSituationCO evaTemplateSituation(Integer semId) {
         return null;
     }
 
     @Override
+    @CheckSemId
     public OneDayAddEvaDataCO evaOneDayInfo(Integer day, Integer num, Integer semId) {
         return null;
     }
@@ -46,11 +50,13 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
     }
 
     @Override
-    public Void getMonthEvaNUmber(Integer semId) {
+    @CheckSemId
+    public List<Integer> getMonthEvaNUmber(Integer semId) {
         return null;
     }
 
     @Override
+    @CheckSemId
     public PastTimeEvaDetailCO getEvaData(Integer semId, Integer num, Integer target, Integer evaTarget) {
         return null;
     }
