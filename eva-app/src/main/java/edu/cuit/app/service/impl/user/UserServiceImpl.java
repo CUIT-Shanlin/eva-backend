@@ -83,7 +83,6 @@ public class UserServiceImpl implements IUserService {
         for (SelfTeachCourseCO course : courseInfoList) {
             List<CourseScoreCO> evaScore = courseQueryGateway.findEvaScore(course.getId(), semId);
             double score = 0;
-            int count = 0;
             for (CourseScoreCO courseScoreCO : evaScore) {
                 score += courseScoreCO.getAverScore();
             }
@@ -92,9 +91,11 @@ public class UserServiceImpl implements IUserService {
                     .divide(new BigDecimal(evaScore.size()),2, RoundingMode.HALF_UP)
                     .doubleValue())
                     .setCourseName(course.getName())
-                    .setEvaNum(1); //TODO 设置评教数目
+                    .setEvaNum(evaQueryGateway.getEvaNumByCourse(course.getId())
+                            .orElse(0));
+            resultList.add(courseScoreCO);
         }
-        return List.of();
+        return resultList;
     }
 
     @Override
