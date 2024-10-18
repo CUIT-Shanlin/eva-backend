@@ -62,7 +62,20 @@ public class UserEvaServiceImpl implements IUserEvaService {private final EvaDel
         if(userId==null){
             throw new SysException("还没有登录，怎么查到这里的");
         }
+        List<EvaRecordEntity> evaRecordEntities=evaQueryGateway.getEvaEdLogInfo(userId,semId,courseId);
+        List<EvaRecordCO> evaRecordCOS=new ArrayList<>();
+        if(evaRecordEntities.size()==0){
+            throw new QueryException("并没有找到相关的评教记录");
+        }
+        for(int i=0;i<evaRecordEntities.size();i++){
+            CourseEntity courseEntity =courseQueryGateway.getCourseByInfo
+                    (evaRecordEntities.get(i).getTask().getCourInf().getId()).get();
+            SingleCourseEntity singleCourseEntity=evaRecordEntities.get(i).getTask().getCourInf();
+            EvaRecordCO evaRecordCO=evaRecordBizConvertor.evaRecordEntityToCo(evaRecordEntities.get(i),singleCourseEntity,courseEntity);
 
-        return null;
+            evaRecordCO.setAverScore(evaQueryGateway.getScoreFromRecord(evaRecordEntities.get(i).getFormPropsValues()).get());
+            evaRecordCOS.add(evaRecordCO);
+        }
+        return evaRecordCOS;
     }
 }

@@ -325,7 +325,8 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         List<SingleCourseEntity> singleCourseEntities=courInfDOs.stream().map(courInfDO -> courseConvertor.toSingleCourseEntity(
                 ()->toCourseEntity(courInfDO.getCourseId(),semId),courInfDO)).toList();
         List<EvaTaskEntity> evaTaskEntities=getEvaTaskEntities(evaTaskDOS,userEntities,singleCourseEntities);
-        return null;
+
+        return getRecordEntities(formRecordDOS,evaTaskEntities);
     }
 
     //ok

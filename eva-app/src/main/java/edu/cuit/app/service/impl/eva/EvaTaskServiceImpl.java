@@ -15,6 +15,7 @@ import edu.cuit.client.dto.cmd.user.UpdateMenuCmd;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.client.dto.query.condition.MenuConditionalQuery;
+import edu.cuit.domain.entity.eva.EvaTaskEntity;
 import edu.cuit.domain.gateway.eva.EvaDeleteGateway;
 import edu.cuit.domain.gateway.eva.EvaQueryGateway;
 import edu.cuit.domain.gateway.eva.EvaUpdateGateway;
@@ -45,6 +46,10 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
 
     @Override
     public EvaTaskDetailInfoCO oneEvaTaskInfo(Integer id) {
+
+        EvaTaskDetailInfoCO evaTaskDetailInfoCO=new EvaTaskDetailInfoCO();
+        EvaTaskEntity evaTaskEntity=evaQueryGateway.oneEvaTaskInfo(id).get();
+
         return null;
     }
 
