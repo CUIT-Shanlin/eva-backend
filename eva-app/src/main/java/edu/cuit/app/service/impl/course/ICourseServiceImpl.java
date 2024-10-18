@@ -2,7 +2,7 @@ package edu.cuit.app.service.impl.course;
 
 import cn.dev33.satoken.stp.StpUtil;
 import edu.cuit.app.aop.CheckSemId;
-import edu.cuit.app.convertor.course.CourseConvertor;
+import edu.cuit.app.convertor.course.CourseBizConvertor;
 import edu.cuit.client.api.course.ICourseService;
 import edu.cuit.client.dto.clientobject.course.*;
 import edu.cuit.client.dto.clientobject.eva.EvaTeacherInfoCO;
@@ -28,7 +28,7 @@ public class ICourseServiceImpl implements ICourseService {
     private final CourseQueryGateway courseQueryGateway;
     private final CourseUpdateGateway courseUpdateGateway;
     private final CourseDeleteGateway courseDeleteGateway;
-    private final CourseConvertor courseConvertor;
+    private final CourseBizConvertor courseBizConvertor;
     @CheckSemId
     @Override
     public List<List<Integer>> courseNum(Integer semId, Integer week) {

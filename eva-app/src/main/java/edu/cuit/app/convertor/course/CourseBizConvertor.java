@@ -7,7 +7,6 @@ import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.domain.entity.course.CourseEntity;
 import edu.cuit.domain.entity.course.CourseTypeEntity;
-import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.entity.course.SubjectEntity;
 import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.infra.convertor.EntityFactory;
@@ -24,7 +23,8 @@ import java.util.List;
  * 课程业务对象转换器
  */
 @Mapper(componentModel = "spring",uses = {EntityFactory.class,FormTemplateMapper.class},unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public abstract class CourseConvertor {
+public abstract class CourseBizConvertor {
+
     @Autowired
     FormTemplateMapper formTemplateMapper;
 
@@ -39,9 +39,6 @@ public abstract class CourseConvertor {
     public abstract SimpleResultCO toSimpleResultCO(SelfTeachCourseCO entity);
 
     public abstract CourseType toCourseType(CourseTypeEntity courseTypeEntity);
-
-
-
 
     @Mappings({
             @Mapping(target = "id",source = "courseEntity.id"),

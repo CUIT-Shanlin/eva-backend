@@ -7,18 +7,20 @@ import edu.cuit.infra.convertor.SemesterConverter;
 import edu.cuit.infra.dal.database.dataobject.course.SemesterDO;
 import edu.cuit.infra.dal.database.mapper.course.SemesterMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.List;
 
+@Component
 @RequiredArgsConstructor
-public class SemsterGatewayImpl implements SemesterGateway {
+public class SemesterGatewayImpl implements SemesterGateway {
     private final SemesterMapper semesterMapper;
     private final SemesterConverter semesterConverter;
     @Override
     public List<SemesterCO> getAll() {
         List<SemesterDO> semesterDOS = semesterMapper.selectList(null);
-        List<SemesterCO> list = semesterDOS.stream().map(semester -> semesterConverter.toSemesterCO(semester)).toList();
+        List<SemesterCO> list = semesterDOS.stream().map(semesterConverter::toSemesterCO).toList();
         return list;
     }
 
