@@ -60,6 +60,13 @@ public interface IMsgService {
     void updateMultipleMsgRead(Integer mode);
 
     /**
+     * 删除评教消息
+     * @param taskId 评教任务id
+     * @param type 消息类型（0：待办，1：通知，2：提醒，3：警告；null或者负数：全部）
+     */
+    void deleteEvaMsg(Integer taskId,Integer type);
+
+    /**
      * 发送消息
      * @param msg 请求消息对象
      */

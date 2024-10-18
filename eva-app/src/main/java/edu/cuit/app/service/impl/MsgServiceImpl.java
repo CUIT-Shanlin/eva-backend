@@ -104,6 +104,11 @@ public class MsgServiceImpl implements IMsgService {
     }
 
     @Override
+    public void deleteEvaMsg(Integer taskId, Integer type) {
+        msgGateway.deleteMessage(taskId,type);
+    }
+
+    @Override
     public void sendMessage(MessageBO msg) {
         String senderName = null;
         if (msg.getIsShowName() == 1) {
@@ -131,8 +136,7 @@ public class MsgServiceImpl implements IMsgService {
             },executor);
 
         } else {
-            if (!Objects.equals(msg.getSenderId(), msg.getRecipientId()))
-                websocketManager.sendMessage(msg.getRecipientId(),responseMsg);
+            websocketManager.sendMessage(msg.getRecipientId(),responseMsg);
             msgGateway.insertMessage(requestMsg);
         }
     }
