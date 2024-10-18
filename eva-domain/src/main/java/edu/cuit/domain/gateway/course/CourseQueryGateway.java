@@ -8,8 +8,6 @@ import edu.cuit.client.dto.clientobject.course.SingleCourseCO;
 
 import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
 
-import edu.cuit.client.dto.clientobject.eva.EvaTeacherInfoCO;
-import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.client.dto.query.CourseQuery;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.CourseConditionalQuery;
@@ -20,7 +18,6 @@ import edu.cuit.domain.entity.course.CourseEntity;
 import edu.cuit.domain.entity.course.CourseTypeEntity;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.entity.course.SubjectEntity;
-import edu.cuit.domain.entity.user.biz.UserEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -107,7 +104,7 @@ public interface CourseQueryGateway {
      *  @param id 用户编号id
      * @return List<SingleCourseEntity>
      * */
-    List<List<SingleCourseEntity>> getUserCourseDetail( Integer id,Integer semId);
+    List<SingleCourseEntity> getUserCourseDetail( Integer id,Integer semId);
 
     /**
      * 获取自己教学的课程基础信息/获取自己所有教学的课程的详细信息
@@ -140,10 +137,20 @@ public interface CourseQueryGateway {
     String getDate(Integer semId,Integer week,Integer day);
 
     /**
-     * 获取课程教室位置
+     * 获取课程教师位置
      *@param courseId 课程id
      * */
     List<String> getLocation(Integer courseId);
+    /**
+     * 根据cousInfId 获得课程对象
+     * @param courInfId
+     */
+    Optional<CourseEntity> getCourseByInfo(Integer courInfId);
+    /**
+     * 通过一节课得到courseTime
+     * @param courInfId
+     */
+    Optional<CourseTime> getCourseTimeByCourse(Integer courInfId);
 
     /**
      * 根据课程id来获取课程类型集合

@@ -10,7 +10,10 @@ import edu.cuit.client.dto.clientobject.user.GenericMenuSectionCO;
 import edu.cuit.client.dto.clientobject.user.MenuCO;
 import edu.cuit.client.dto.cmd.user.NewMenuCmd;
 import edu.cuit.client.dto.cmd.user.UpdateMenuCmd;
+import edu.cuit.client.dto.data.course.CourseTime;
 import edu.cuit.client.dto.query.condition.MenuConditionalQuery;
+import edu.cuit.domain.entity.course.CourseEntity;
+import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.entity.eva.EvaRecordEntity;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.domain.gateway.eva.EvaDeleteGateway;
@@ -19,9 +22,12 @@ import edu.cuit.domain.gateway.eva.EvaUpdateGateway;
 import edu.cuit.domain.gateway.user.MenuQueryGateway;
 import edu.cuit.domain.gateway.user.MenuUpdateGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
+import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
+import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -36,19 +42,34 @@ public class UserEvaServiceImpl implements IUserEvaService {private final EvaDel
     @Override
     public List<EvaRecordCO> getEvaLogInfo(Integer semId, String keyword) {
         Integer userId= (Integer) StpUtil.getLoginId();
+        List<EvaRecordCO> evaRecordCOS=new ArrayList<>();
         if(userId==null){
             throw new SysException("还没有登录，怎么查到这里的");
         }
         List<EvaRecordEntity> evaRecordEntities=evaQueryGateway.getEvaLogInfo(userId,semId,keyword);
+        if(evaRecordEntities.size()==0){
+            throw new QueryException("并没有找到相关的评教记录");
+        }
         for(int i=0;i<evaRecordEntities.size();i++){
             EvaRecordCO evaRecordCO=new EvaRecordCO();
             evaRecordCO.setId(evaRecordEntities.get(i).getId());
             evaRecordCO.setEvaTeacherName(userQueryGateway.findUsernameById(userId).get());
 
+            CourseEntity courseEntity =courseQueryGateway.getCourseByInfo
+                            (evaRecordEntities.get(i).getTask().getCourInf().getId()).get();
+            SingleCourseEntity singleCourseEntity=evaRecordEntities.get(i).getTask().getCourInf();
+
+            evaRecordCO.setCourseName(courseEntity.getSubjectEntity().getName());
+            evaRecordCO.setAverScore(evaQueryGateway.getScoreFromRecord(evaRecordEntities.get(i).getFormPropsValues()).get());
+
+            evaRecordCO.setCourseTime(courseQueryGateway.getCourseTimeByCourse(singleCourseEntity.getId()).get());
+            evaRecordCO.setTeacherName(courseEntity.getUserEntity().getName());
+            evaRecordCO.setFormPropsValues(evaRecordEntities.get(i).getFormPropsValues());
+            evaRecordCO.setTextValue(evaRecordEntities.get(i).getTextValue());
+            evaRecordCO.setCreateTime(evaRecordEntities.get(i).getCreateTime());
+            evaRecordCOS.add(evaRecordCO);
         }
-
-
-        return null;
+        return evaRecordCOS;
     }
 
     @Override

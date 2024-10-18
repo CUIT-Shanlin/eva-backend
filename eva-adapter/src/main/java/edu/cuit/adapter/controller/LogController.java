@@ -10,10 +10,7 @@ import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -30,9 +27,10 @@ public class LogController {
      * 分页获取日志
      * @param query 分页查询模型
      */
-    @PostMapping
+    @PostMapping("/{moduleId}")
     @SaCheckPermission("system.log.query")
-    public CommonResult<PaginationQueryResultCO<OperateLogCO>> page(@RequestBody @Valid PagingQuery<GenericConditionalQuery> query) {
+    public CommonResult<PaginationQueryResultCO<OperateLogCO>> page(@RequestBody @Valid PagingQuery<GenericConditionalQuery> query,
+                                                                    @PathVariable("moduleId") Integer moduleId) {
         return null;
     }
 

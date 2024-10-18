@@ -3,6 +3,7 @@ package edu.cuit.domain.gateway.eva;
 import edu.cuit.client.dto.clientobject.eva.*;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
+import edu.cuit.client.dto.data.course.CourseTime;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.EvaLogConditionalQuery;
 import edu.cuit.client.dto.query.condition.EvaTaskConditionalQuery;
@@ -128,7 +129,7 @@ public interface EvaQueryGateway {
      * 获取用户已评教数目
      * @param id 用户id
      */
-    Integer getEvaNumber(Long id);
+    Optional<Integer> getEvaNumber(Long id);
 
     /**
      * 获取一个任务对应的评教模板
@@ -147,4 +148,18 @@ public interface EvaQueryGateway {
      * 获得所有评教模板
      */
     List<EvaTemplateEntity> getAllTemplate();
+    /**
+     * 得到一条record里面的平均分
+     * @param prop
+     */
+    Optional<Double> getScoreFromRecord(String prop);
+    /**
+     * 通过一节课id找到此节课评教次数
+     * @param courInfId
+     */
+    Optional<Integer> getEvaNumByCourInfo(Integer courInfId);
+    /**
+     * 通过课程id找到所有评教过此课程的评教次数
+     */
+    Optional<Integer> getEvaNumByCourse(Integer courseId);
 }
