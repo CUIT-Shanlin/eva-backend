@@ -4,7 +4,6 @@ import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import edu.cuit.client.api.IMsgService;
 import edu.cuit.client.dto.cmd.SendMessageCmd;
-import edu.cuit.client.dto.data.msg.GenericRequestMsg;
 import edu.cuit.client.dto.data.msg.GenericResponseMsg;
 import edu.cuit.client.validator.status.ValidStatus;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
@@ -36,7 +35,7 @@ public class MessageController {
     public CommonResult<List<GenericResponseMsg>> getUserTargetTypeMsg(@PathVariable("type") @ValidStatus(value = {0,1,2,3}, message = "消息类型只能为0,1,2,3,负数或空") Integer type,
                                                                        @PathVariable("mode") @ValidStatus(message = "mode只能是0,1,负数或空") Integer mode) {
         //TODO 调用课程信息
-        return CommonResult.success(msgService.getUserTargetTypeMsg(type,mode,null));
+        return CommonResult.success(msgService.getUserSelfNormalMsg(type));
     }
 
     /**

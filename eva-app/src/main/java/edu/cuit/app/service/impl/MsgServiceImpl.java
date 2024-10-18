@@ -5,14 +5,19 @@ import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.cola.exception.BizException;
 import com.alibaba.cola.exception.SysException;
 import edu.cuit.app.convertor.MsgBizConvertor;
+import edu.cuit.app.convertor.course.CourseBizConvertor;
 import edu.cuit.app.websocket.WebsocketManager;
 import edu.cuit.client.api.IMsgService;
 import edu.cuit.client.bo.MessageBO;
 import edu.cuit.client.dto.clientobject.course.SingleCourseCO;
 import edu.cuit.client.dto.cmd.SendMessageCmd;
+import edu.cuit.client.dto.data.msg.EvaResponseMsg;
 import edu.cuit.client.dto.data.msg.GenericRequestMsg;
 import edu.cuit.client.dto.data.msg.GenericResponseMsg;
+import edu.cuit.domain.entity.MsgEntity;
+import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.gateway.MsgGateway;
+import edu.cuit.domain.gateway.eva.EvaQueryGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,24 +34,45 @@ public class MsgServiceImpl implements IMsgService {
 
     private final MsgGateway msgGateway;
     private final UserQueryGateway userQueryGateway;
+    private final EvaQueryGateway evaQueryGateway;
 
     private final WebsocketManager websocketManager;
 
     private final MsgBizConvertor msgBizConvertor;
+    private final CourseBizConvertor courseBizConvertor;
 
     private final Executor executor;
 
     @Override
-    public List<GenericResponseMsg> getUserTargetTypeMsg(Integer type, Integer mode, SingleCourseCO courseInfo) {
+    public List<GenericResponseMsg> getUserSelfNormalMsg(Integer type) {
+        return  msgGateway.queryMsg(checkAndGetUserId(), type, 0).stream()
+                .map(msgBizConvertor::toResponseMsg).toList();
+    }
+
+    @Override
+    public List<GenericResponseMsg> getUserTargetTypeMsg(Integer type, Integer mode) {
         List<GenericResponseMsg> result;
         if (mode == 1) {
-            result = msgGateway.queryMsg(checkAndGetUserId(), type, mode).stream()
-                    .map(msg -> ((GenericResponseMsg) msgBizConvertor.toEvaResponseMsg(msg, courseInfo))).toList();
+            result = getUserSelfEvaMsg(type).stream()
+                    .map(evaResponseMsg -> (GenericResponseMsg) evaResponseMsg)
+                    .toList();
         } else {
-            result = msgGateway.queryMsg(checkAndGetUserId(), type, mode).stream()
-                    .map(msgBizConvertor::toResponseMsg).toList();
+            result = getUserSelfNormalMsg(type);
         }
         return result;
+    }
+
+    @Override
+    public List<EvaResponseMsg> getUserSelfEvaMsg(Integer type) {
+        List<MsgEntity> msgEntities = msgGateway.queryMsg(checkAndGetUserId(), type, 1);
+        return msgEntities.stream().map(msgEntity -> evaQueryGateway.oneEvaTaskInfo(msgEntity.getTaskId()).map(taskEntity -> {
+            // 获取评教信息对应课程
+            SingleCourseEntity courInf = taskEntity.getCourInf();
+            // 转换为课程对象
+            SingleCourseCO singleCourseCO = courseBizConvertor.toSingleCourseCO(courInf,
+                    evaQueryGateway.getEvaNumByCourInfo(courInf.getId()).orElse(0));
+            return msgBizConvertor.toEvaResponseMsg(msgEntity,singleCourseCO);
+        }).orElseThrow(() -> new BizException("获取评教信息失败"))).toList();
     }
 
     @Override
