@@ -83,6 +83,16 @@ public class MsgGatewayImpl implements MsgGateway {
         msgTipMapper.insert(msgConvertor.toMsgDO(msg));
     }
 
+    @Override
+    public void deleteMessage(Integer taskId, Integer type) {
+        LambdaQueryWrapper<MsgTipDO> msgQuery = Wrappers.lambdaQuery();
+        msgQuery.eq(MsgTipDO::getTaskId,taskId);
+        if (type >= 0) {
+            msgQuery.eq(MsgTipDO::getType,type);
+        }
+        msgTipMapper.delete(msgQuery);
+    }
+
     private void checkUser(Integer userId, Integer id) {
         MsgTipDO msgTipDO = msgTipMapper.selectById(id);
         if (!Objects.equals(msgTipDO.getRecipientId(), userId)) {
