@@ -681,6 +681,17 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         return Optional.of(formRecordDOS.size());
     }
 
+    @Override
+    public Optional<Integer> getEvaNumByCourse(Integer courseId) {
+        CourseDO courseDO=courseMapper.selectById(courseId);
+        List<CourInfDO> courInfDOS=courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id",courseDO.getId()));
+        List<Integer> courInfoIds=courInfDOS.stream().map(CourInfDO::getId).toList();
+        List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id",courInfoIds));
+        List<Integer> evaTaskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
+        List<FormRecordDO> formRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIds));
+        return Optional.of(formRecordDOS.size());
+    }
+
     //简便方法
     private UserEntity toUserEntity(Integer userId){
         //得到uer对象
