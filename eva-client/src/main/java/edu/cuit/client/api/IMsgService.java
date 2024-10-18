@@ -3,6 +3,7 @@ package edu.cuit.client.api;
 import edu.cuit.client.bo.MessageBO;
 import edu.cuit.client.dto.clientobject.course.SingleCourseCO;
 import edu.cuit.client.dto.cmd.SendMessageCmd;
+import edu.cuit.client.dto.data.msg.EvaResponseMsg;
 import edu.cuit.client.dto.data.msg.GenericResponseMsg;
 
 import java.util.List;
@@ -13,12 +14,23 @@ import java.util.List;
 public interface IMsgService {
 
     /**
-     * 获取当前用户自己的指定类型的所有消息
+     * 获取当前用户指定类型的消息
      * @param type 消息类型（0：待办，1：通知，2：提醒，3：警告；null或者负数：全部）
      * @param mode 确定是普通消息还是评教消息，0: 普通消息；1：评教消息，null或者负数：全部
-     * @param courseInfo 当mode为评教消息时所传递的对应评教的课程信息
      */
-    List<GenericResponseMsg> getUserTargetTypeMsg(Integer type, Integer mode, SingleCourseCO courseInfo);
+    List<GenericResponseMsg> getUserTargetTypeMsg(Integer type,Integer mode);
+
+    /**
+     * 获取当前用户自己的指定类型的所有消息
+     * @param type 消息类型（0：待办，1：通知，2：提醒，3：警告；null或者负数：全部）
+     */
+    List<GenericResponseMsg> getUserSelfNormalMsg(Integer type);
+
+    /**
+     * 获取当前用户的评教消息
+     * @param type 消息类型（0：待办，1：通知，2：提醒，3：警告；null或者负数：全部）
+     */
+    List<EvaResponseMsg> getUserSelfEvaMsg(Integer type);
 
     /**
      * 获取用户自己指定数目的指定类型的消息

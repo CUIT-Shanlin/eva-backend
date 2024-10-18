@@ -8,6 +8,7 @@ import edu.cuit.zhuyimeng.framework.common.util.ServletUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
+import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
@@ -28,7 +29,7 @@ public class WebSocketInterceptor implements HandshakeInterceptor {
 
         // 未登录情况下拒绝握手
         if(!StpUtil.isLogin()) {
-            ServletUtils.writeCodeJSON((HttpServletResponse) response, CommonResult.error(HttpStatusCodeConstants.UNAUTHORIZED));
+            ServletUtils.writeCodeJSON(((ServletServerHttpResponse) response).getServletResponse(), CommonResult.error(HttpStatusCodeConstants.UNAUTHORIZED));
             return false;
         }
         attr.putAll(attributes);

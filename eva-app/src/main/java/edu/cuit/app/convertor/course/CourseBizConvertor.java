@@ -45,9 +45,6 @@ public abstract class CourseBizConvertor {
 
     public abstract CourseType toCourseType(CourseTypeEntity courseTypeEntity);
 
-
-
-
     @Mappings({
             @Mapping(target = "id",source = "courseEntity.id"),
             @Mapping(target = "classroomList",source = "classroomList"),
@@ -59,8 +56,8 @@ public abstract class CourseBizConvertor {
     })
     public abstract CourseModelCO toCourseModelCO(CourseEntity courseEntity, List<String> classroomList);
 
-    abstract EvaTemplateCO toEvaTemplateCO(FormTemplateDO formTemplateDO);
-    abstract TeacherInfoCO toTeacherInfoCO(UserEntity userEntity);
+    public abstract EvaTemplateCO toEvaTemplateCO(FormTemplateDO formTemplateDO);
+    public abstract TeacherInfoCO toTeacherInfoCO(UserEntity userEntity);
     @Mappings({
             @Mapping(target = "location",source = "singleCourseEntity.location"),
             @Mapping(target = "nature",expression = "java(singleCourseEntity.getCourseEntity().getSubjectEntity().getNature())"),
@@ -78,7 +75,8 @@ public abstract class CourseBizConvertor {
             @Mapping(target = "teacherName",expression = "java(singleCourseEntity.getCourseEntity().getTeacher().getUsername())"),
             @Mapping(target = "evaNum",source = "size")
     })
-    abstract SingleCourseCO toSingleCourseCO(SingleCourseEntity singleCourseEntity,Integer size);
-    abstract CourseTime toCourseTime(SingleCourseEntity singleCourseEntity);
+    public abstract SingleCourseCO toSingleCourseCO(SingleCourseEntity singleCourseEntity,Integer size);
+
+    public abstract CourseTime toCourseTime(SingleCourseEntity singleCourseEntity);
 
 }
