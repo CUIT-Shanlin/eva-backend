@@ -23,7 +23,7 @@ public class UpdatePasswordCmd extends Command {
     /**
      * 新密码
      */
-    @NotNull(message = "旧密码不能为空")
+    @NotNull(message = "新密码不能为空")
     private String password;
 
 }

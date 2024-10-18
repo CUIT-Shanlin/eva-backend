@@ -2,6 +2,7 @@ package edu.cuit.adapter.controller.user.query;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import edu.cuit.client.api.user.IUserService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.eva.UserSingleCourseScoreCO;
@@ -15,6 +16,9 @@ import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +33,8 @@ import java.util.List;
 @Validated
 public class UserQueryController {
 
+    private final IUserService userService;
+
     /**
      * 一个用户信息
      * @param id 用户id
@@ -36,7 +42,7 @@ public class UserQueryController {
     @GetMapping("/user/{id}")
     @SaCheckPermission("system.user.query")
     public CommonResult<UserInfoCO> oneUserInfo(@PathVariable("id") Integer id) {
-        return null;
+        return CommonResult.success(userService.getOneUserInfo(id));
     }
 
     /**
@@ -47,7 +53,7 @@ public class UserQueryController {
     @SaCheckPermission("system.user.query")
     public CommonResult<PaginationQueryResultCO<UserInfoCO>> pageUserInfo(
             @RequestBody @Valid PagingQuery<GenericConditionalQuery> query) {
-        return null;
+        return CommonResult.success(userService.pageUserInfo(query));
     }
 
     /**
@@ -62,6 +68,7 @@ public class UserQueryController {
             @PathVariable("type") Integer type,
             @PathVariable("target") Integer target,
             @RequestBody @Valid PagingQuery<UnqualifiedUserConditionalQuery> query) {
+        // TODO 调用未达标用户
         return null;
     }
 
@@ -76,6 +83,7 @@ public class UserQueryController {
     public CommonResult<List<UnqualifiedUserResultCO>> getTargetAmountUnqualifiedUser(@PathVariable("type") Integer type,
                                                                          @PathVariable("num") Integer num,
                                                                          @PathVariable("target") Integer target) {
+        // TODO 调用未达标用户
         return null;
     }
 
@@ -89,7 +97,8 @@ public class UserQueryController {
     public CommonResult<List<UserSingleCourseScoreCO>> oneUserScore(
             @PathVariable("userId") Integer userId,
             @RequestParam(value = "semId",required = false) Integer semId) {
-        return null;
+        //TODO 判断学期是否
+        return CommonResult.success(userService.getOneUserScore(userId,semId));
     }
 
     /**
@@ -97,8 +106,8 @@ public class UserQueryController {
      */
     @GetMapping("/users/all")
     @SaCheckPermission("system.user.list")
-    public CommonResult<SimpleResultCO> allUserInfo(){
-        return null;
+    public CommonResult<List<SimpleResultCO>> allUserInfo(){
+        return CommonResult.success(userService.getAllUserInfo());
     }
 
     /**
@@ -107,7 +116,7 @@ public class UserQueryController {
     @GetMapping("/user/info")
     @SaCheckLogin
     public CommonResult<UserInfoCO> selfUserInfo(){
-        return null;
+        return CommonResult.success(userService.getSelfUserInfo());
     }
 
     /**
@@ -117,7 +126,11 @@ public class UserQueryController {
      */
     @GetMapping("/user/avatar/{id}")
     public ResponseEntity<byte[]> userAvatar(@PathVariable("id") Integer id) {
-        return null;
+        byte[] userAvatarData = userService.getUserAvatar(id);
+        HttpStatusCode status = userAvatarData.length == 0 ? HttpStatus.NOT_FOUND : HttpStatus.OK;
+        ResponseEntity<byte[]> response = new ResponseEntity<>(userAvatarData,status);
+        response.getHeaders().setContentType(MediaType.IMAGE_JPEG);
+        return response;
     }
 
     /**
@@ -127,7 +140,7 @@ public class UserQueryController {
     @GetMapping("/username/exist")
     @SaCheckPermission("system.user.isExist")
     public CommonResult<Boolean> isExist(@RequestParam("username") String username) {
-        return null;
+        return CommonResult.success(userService.isUsernameExist(username));
     }
 
 }

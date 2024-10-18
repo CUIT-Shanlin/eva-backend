@@ -14,7 +14,7 @@ import org.mapstruct.*;
 public interface LdapUserConvertor {
 
     @Mappings({
-            @Mapping(target = "name", expression = "java(ldapPersonDO.getSurname()+ldapPersonDO.getGivenName())"),
+            @Mapping(target = "name", expression = "java(ldapPersonDO.getCommonName())"),
             @Mapping(target = "isAdmin", ignore = true)
     })
     LdapPersonEntity ldapPersonDoToLdapPersonEntity(LdapPersonDO ldapPersonDO);
@@ -44,7 +44,7 @@ public interface LdapUserConvertor {
     }
 
     @Mappings({
-            @Mapping(target = "commonName", ignore = true),
+            @Mapping(target = "commonName", source = "ldapPersonEntity.name"),
             @Mapping(target = "gidNumber", ignore = true),
             @Mapping(target = "homeDirectory", ignore = true),
             @Mapping(target = "id", ignore = true),

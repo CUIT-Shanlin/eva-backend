@@ -17,7 +17,8 @@ public interface MenuConvertor {
      * 不包含子菜单
      */
     @Mappings({
-            @Mapping(target = "children", ignore = true)
+            @Mapping(target = "children", ignore = true),
+            @Mapping(target = "parent", ignore = true)
     })
     MenuEntity toMenuEntity(SysMenuDO menuDO);
 

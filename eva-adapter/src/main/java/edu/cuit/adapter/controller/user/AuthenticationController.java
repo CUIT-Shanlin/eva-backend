@@ -1,6 +1,7 @@
 package edu.cuit.adapter.controller.user;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
+import edu.cuit.client.api.user.IUserAuthService;
 import edu.cuit.client.dto.cmd.user.UserLoginCmd;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import jakarta.validation.Valid;
@@ -20,21 +21,24 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 public class AuthenticationController {
 
+    private final IUserAuthService userAuthService;
+
     /**
      * 登录请求
      */
     @PostMapping("/login")
     public CommonResult<Pair<String,String>> login(@Valid @RequestBody UserLoginCmd loginCmd) {
-        return null;
+        return CommonResult.success(userAuthService.login(loginCmd));
     }
 
     /**
      * 退出登录
      */
     @GetMapping("/logout")
-    @SaCheckLogin //需要登录了才能退出登录
+    @SaCheckLogin
     public CommonResult<Void> logout() {
-        return null;
+        userAuthService.logout();
+        return CommonResult.success();
     }
 
 }

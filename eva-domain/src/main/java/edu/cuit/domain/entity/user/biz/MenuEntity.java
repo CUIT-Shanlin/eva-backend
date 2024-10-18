@@ -27,6 +27,17 @@ public class MenuEntity {
     private Supplier<List<MenuEntity>> children;
 
     /**
+     * 父菜单
+     */
+    @Getter(AccessLevel.NONE)
+    private Supplier<MenuEntity> parent;
+
+    /**
+     * 父菜单Id
+     */
+    private Integer parentId;
+
+    /**
      * 名称
      */
     private String name;

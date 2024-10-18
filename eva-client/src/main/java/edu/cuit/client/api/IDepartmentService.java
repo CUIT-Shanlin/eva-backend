@@ -1,5 +1,7 @@
 package edu.cuit.client.api;
 
+import java.util.List;
+
 /**
  * 学院信息相关业务接口
  */
@@ -8,5 +10,5 @@ public interface IDepartmentService {
     /**
      * 获取所有学院名称
      */
-    String all();
+    List<String> all();
 }

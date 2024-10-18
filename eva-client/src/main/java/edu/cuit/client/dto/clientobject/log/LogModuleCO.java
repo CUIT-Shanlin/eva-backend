@@ -16,7 +16,7 @@ public class LogModuleCO extends ClientObject {
     /**
      * id
      */
-    private Long id;
+    private Integer id;
 
     /**
      * 模块名称
