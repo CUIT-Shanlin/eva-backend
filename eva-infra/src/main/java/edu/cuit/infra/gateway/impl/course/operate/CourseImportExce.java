@@ -11,11 +11,13 @@ import edu.cuit.infra.dal.database.dataobject.course.SubjectDO;
 import edu.cuit.infra.dal.database.dataobject.eva.CourOneEvaTemplateDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO;
+import edu.cuit.infra.dal.database.dataobject.eva.FormTemplateDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.course.*;
 import edu.cuit.infra.dal.database.mapper.eva.CourOneEvaTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
+import edu.cuit.infra.dal.database.mapper.eva.FormTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -38,6 +40,7 @@ public class CourseImportExce {
     private final FormRecordMapper recordMapper;
     private final CourOneEvaTemplateMapper courOneEvaTemplateMapper;
     private final SysUserMapper userMapper;
+    private final FormTemplateMapper formTemplateMapper;
     //删除这学期所有的课程
     public void deleteCourse(Integer semId) {
         //先找出所有的课程
@@ -64,12 +67,14 @@ public class CourseImportExce {
             }
             for (CourseExcelBO courseExcelBO : stringListEntry.getValue()) {
                 Integer userId = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("username", courseExcelBO.getTeacherName()).eq("prof_title", courseExcelBO.getProfTitle())).getId();
+               //评教表单模版id
                 CourseDO courseDO = addCourse(courseExcelBO, id, userId, semId);
                 courseMapper.insert(courseDO);
+                //课程类型课程关联表
+
                 for (Integer week : courseExcelBO.getWeeks()) {
                     CourInfDO courInfDO = courseConvertor.toCourInfDO(courseDO.getId(), week, courseExcelBO, LocalDateTime.now());
                     courInfMapper.insert(courInfDO);
-
                 }
 
             }
@@ -92,5 +97,8 @@ public class CourseImportExce {
       courseDO.setCreateTime(LocalDateTime.now());
       courseDO.setUpdateTime(LocalDateTime.now());
       return courseDO;
+    }
+    private Integer getEvaTemplateId(Integer type){
+return formTemplateMapper.selectOne(new QueryWrapper<FormTemplateDO>().eq("is_default", type)).getId();
     }
 }

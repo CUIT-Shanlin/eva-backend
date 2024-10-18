@@ -8,6 +8,9 @@ import edu.cuit.client.dto.clientobject.course.SingleCourseCO;
 
 import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
 
+import edu.cuit.client.dto.clientobject.eva.EvaTeacherInfoCO;
+import edu.cuit.client.dto.data.course.CourseTime;
+import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.client.dto.query.CourseQuery;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.CourseConditionalQuery;
@@ -104,7 +107,7 @@ public interface CourseQueryGateway {
      *  @param id 用户编号id
      * @return List<SingleCourseEntity>
      * */
-    List<SingleCourseEntity> getUserCourseDetail( Integer id,Integer semId);
+    List<List<SingleCourseEntity>> getUserCourseDetail( Integer id,Integer semId);
 
     /**
      * 获取自己教学的课程基础信息/获取自己所有教学的课程的详细信息
