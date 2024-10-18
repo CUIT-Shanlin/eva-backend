@@ -1,4 +1,4 @@
-package edu.cuit.app.service.operate;
+package edu.cuit.app.service.operate.course.query;
 
 import edu.cuit.app.convertor.course.CourseConvertor;
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
@@ -7,6 +7,7 @@ import edu.cuit.client.dto.data.course.CoursePeriod;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,11 +17,12 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class UserCourseDetail {
-    @Autowired
-    CourseQueryGateway courseQueryGateway;
-    @Autowired
-    CourseConvertor courseConvertor;
+@RequiredArgsConstructor
+public class UserCourseDetailQueryExec {
+
+    private final CourseQueryGateway courseQueryGateway;
+
+    private final CourseConvertor courseConvertor;
     public  CourseDetailCO getUserCourseDetail(List<SingleCourseEntity> singleCourseEntities,Integer semId){
         List<CourseType> typeList = courseQueryGateway.getCourseType(singleCourseEntities.get(0).getCourseEntity().getId());
         CourseModelCO courseModelCO = courseConvertor.toCourseModelCO(singleCourseEntities.get(0).getCourseEntity(), courseQueryGateway.getLocation(singleCourseEntities.get(0).getCourseEntity().getId()));
@@ -30,6 +32,13 @@ public class UserCourseDetail {
            String dayOfWeek = entity.getDay().toString()+entity.getStartTime().toString()+entity.getEndTime().toString();
             courseByDay.computeIfAbsent(dayOfWeek, k -> new ArrayList<>()).add(entity);
         }
+        List<CoursePeriod> coursePeriodList = getCoursePeriods(courseByDay);
+
+
+        return new CourseDetailCO().setCourseBaseMsg(courseModelCO).setDateList(coursePeriodList).setTypeList(typeList);
+    }
+
+    private static List<CoursePeriod> getCoursePeriods(Map<String, List<SingleCourseEntity>> courseByDay) {
         List<CoursePeriod> coursePeriodList = new ArrayList<>();
         CoursePeriod temp=new CoursePeriod();
         for (Map.Entry<String, List<SingleCourseEntity>> entry : courseByDay.entrySet()) {
@@ -52,8 +61,6 @@ public class UserCourseDetail {
             //清空temp
             temp=new CoursePeriod();
         }
-
-
-        return new CourseDetailCO().setCourseBaseMsg(courseModelCO).setDateList(coursePeriodList).setTypeList(typeList);
+        return coursePeriodList;
     }
 }

@@ -16,7 +16,6 @@ import edu.cuit.infra.dal.database.dataobject.eva.*;
 import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.eva.*;
-import edu.cuit.infra.gateway.impl.courseimpl.CourseQueryGatewayImpl;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.annotations.Update;

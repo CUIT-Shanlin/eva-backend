@@ -1,23 +1,21 @@
 package edu.cuit.app.service.impl.course;
 
 import cn.dev33.satoken.stp.StpUtil;
-import cn.hutool.json.JSON;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.cuit.app.aop.CheckSemId;
-import edu.cuit.app.convertor.PaginationBizConvertor;
 import edu.cuit.app.convertor.course.CourseConvertor;
 import edu.cuit.app.resolver.course.CourseExcelResolver;
-import edu.cuit.app.service.operate.UserCourseDetail;
+
+import edu.cuit.app.service.operate.course.query.UserCourseDetailQueryExec;
+import edu.cuit.app.service.operate.course.update.FileImportExec;
 import edu.cuit.client.api.course.IUserCourseService;
-import edu.cuit.client.bo.CourseExcelBO;
 import edu.cuit.client.dto.clientobject.SemesterCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.client.dto.clientobject.course.RecommendCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
-import edu.cuit.client.dto.data.Term;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.gateway.course.CourseDeleteGateway;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
@@ -36,8 +34,8 @@ public class IUserCourseServiceImpl implements IUserCourseService {
     private final CourseUpdateGateway courseUpdateGateway;
     private final CourseDeleteGateway courseDeleteGateway;
     private final CourseConvertor courseConvertor;
-    private final UserCourseDetail userCourseDetail;
-    private final PaginationBizConvertor pageConvertor;
+    private final UserCourseDetailQueryExec userCourseDetailQueryExec;
+
     @CheckSemId
     @Override
     public List<SimpleResultCO> getUserCourseInfo( Integer semId) {
@@ -48,12 +46,11 @@ public class IUserCourseServiceImpl implements IUserCourseService {
     }
 
     @CheckSemId
-    @Override
     public List<CourseDetailCO> getUserCourseDetail(Integer id, Integer semId) {
         List<List<SingleCourseEntity>> courseList = courseQueryGateway.getUserCourseDetail(id, semId);
         List<CourseDetailCO> result=new ArrayList<>();
         for (List<SingleCourseEntity> singleCourseEntities : courseList) {
-           result.add(userCourseDetail.getUserCourseDetail(singleCourseEntities, semId));
+           result.add(userCourseDetailQueryExec.getUserCourseDetail(singleCourseEntities, semId));
         }
 
         return result;
@@ -74,8 +71,12 @@ public class IUserCourseServiceImpl implements IUserCourseService {
         } catch (JsonProcessingException e) {
             throw new ClassCastException("学期类型转换错");
         }
-        CourseExcelResolver.resolveData(CourseExcelResolver.Strategy.EXPERIMENTAL_COURSE, fileStream)
-
+        if(type==0){
+            FileImportExec.importCourse(CourseExcelResolver.resolveData(CourseExcelResolver.Strategy.THEORY_COURSE, fileStream));
+        }else if(type==1){
+            FileImportExec.importCourse(CourseExcelResolver.resolveData(CourseExcelResolver.Strategy.EXPERIMENTAL_COURSE, fileStream));
+        }
+        courseUpdateGateway.importCourseFile(FileImportExec.courseExce, semesterCO,type);
 
     }
 

@@ -30,6 +30,12 @@ public class CourseTypeDO implements Serializable {
     private String name;
 
     /**
+     * 是否为默认课程类型
+     */
+    @TableField(value = "is_default")
+    private Integer isDefault;
+
+    /**
      * 描述
      */
     @TableField(value = "description")

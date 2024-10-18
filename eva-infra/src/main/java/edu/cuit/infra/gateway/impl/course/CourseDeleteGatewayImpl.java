@@ -92,8 +92,12 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
     @Transactional
     public Void deleteCourseType(List<Integer> ids) {
         if(ids==null){
-            throw new RuntimeException("请选择要删除的课程类型");
+            throw new UpdateException("请选择要删除的课程类型");
         }
+        courseTypeMapper.selectList(new QueryWrapper<CourseTypeDO>().in("id",ids)).forEach(courseTypeDO ->
+        {if(courseTypeDO.getIsDeleted()!=-1)
+            throw new UpdateException("默认课程类型不能删除");
+        });
         QueryWrapper<CourseTypeCourseDO> wrapper = new QueryWrapper<>();
         wrapper.in("type_id",ids);
         //将courseTypeCourse逻辑删除

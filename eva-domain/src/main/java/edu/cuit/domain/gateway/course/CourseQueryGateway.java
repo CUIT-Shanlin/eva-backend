@@ -158,4 +158,6 @@ public interface CourseQueryGateway {
     List<EvaTeacherInfoCO> getEvaUsers(Integer courseId);
 
 
+
+
 }

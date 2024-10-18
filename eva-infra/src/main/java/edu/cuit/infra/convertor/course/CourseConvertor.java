@@ -1,5 +1,7 @@
 package edu.cuit.infra.convertor.course;
 
+import edu.cuit.client.bo.CourseExcelBO;
+import edu.cuit.client.dto.clientobject.SemesterCO;
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.client.dto.clientobject.course.RecommendCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
@@ -17,7 +19,9 @@ import edu.cuit.infra.convertor.EntityFactory;
 import edu.cuit.infra.dal.database.dataobject.course.*;
 import edu.cuit.infra.dal.database.dataobject.eva.CourOneEvaTemplateDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
+import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import org.mapstruct.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -129,4 +133,17 @@ public interface CourseConvertor {
         @Mapping(target = "name",source = "username")
 })
     EvaTeacherInfoCO toEvaTeacherInfoCO(SysUserDO sysUserDO);
+    SemesterDO toSemesterDO(SemesterCO semesterCO);
+    @Mappings({
+            @Mapping(target = "courseId",source = "courseId"),
+            @Mapping(target = "week",source = "week"),
+            @Mapping(target = "day",source = "courseExcelBO.day"),
+            @Mapping(target = "startTime",source = "courseExcelBO.startTime"),
+            @Mapping(target = "endTime",source = "courseExcelBO.endTime"),
+            @Mapping(target = "createTime",source = "time"),
+            @Mapping(target = "updateTime",source = "time"),
+            @Mapping(target = "location",source = "courseExcelBO.classroom"),
+    })
+    CourInfDO toCourInfDO(Integer courseId, Integer week, CourseExcelBO courseExcelBO, LocalDateTime time);
+
 }
