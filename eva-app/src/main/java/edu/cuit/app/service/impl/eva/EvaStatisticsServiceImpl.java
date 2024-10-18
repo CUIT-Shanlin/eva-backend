@@ -51,7 +51,7 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
 
     @Override
     @CheckSemId
-    public Void getMonthEvaNUmber(Integer semId) {
+    public List<Integer> getMonthEvaNUmber(Integer semId) {
         return null;
     }
 

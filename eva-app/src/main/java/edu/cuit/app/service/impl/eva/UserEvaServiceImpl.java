@@ -29,7 +29,6 @@ public class UserEvaServiceImpl implements IUserEvaService {private final EvaDel
     private final CourseQueryGateway courseQueryGateway;
     private final EvaRecordBizConvertor evaRecordBizConvertor;
 
-    //怎么获取自己的 TODO
     //去评教
     @Override
     @CheckSemId

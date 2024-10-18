@@ -52,10 +52,11 @@ public interface EvaQueryGateway {
 
     /**
      * 获取自己的所有待办评教任务
+     * @param useId
      * @param id 学期ID 编号
      * @param keyword 模糊查询课程名称或教学老师姓名
      */
-    List<EvaTaskEntity> evaSelfTaskInfo(Integer id, String keyword);
+    List<EvaTaskEntity> evaSelfTaskInfo(Integer useId,Integer id, String keyword);
     /**
      * 获取自己的评教记录
      * @param userId
