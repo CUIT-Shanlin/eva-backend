@@ -36,3 +36,7 @@ eva:
 
 sa-token:
   jwt-secret-key: lagjaohanhlahjiraosujsjstoprjhows
+  is-read-cookie: false
+#  is-log: true
+  token-name: Authorization
+

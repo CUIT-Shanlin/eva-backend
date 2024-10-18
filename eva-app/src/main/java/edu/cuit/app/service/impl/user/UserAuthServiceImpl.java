@@ -20,6 +20,9 @@ public class UserAuthServiceImpl implements IUserAuthService {
 
     @Override
     public Pair<String, String> login(UserLoginCmd loginCmd) {
+        if (StpUtil.isLogin()) {
+            throw new BizException("您已经登录过了");
+        }
         if (ldapPersonGateway.authenticate(loginCmd.getUsername(),loginCmd.getPassword())) {
             UserEntity user = userQueryGateway.findByUsername(loginCmd.getUsername()).orElseThrow(() -> new BizException("用户名未找到"));
             if (user.getStatus() == 0) {

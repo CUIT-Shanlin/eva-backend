@@ -123,12 +123,12 @@ public class UserQueryController {
      * @param id 用户id
      * @return 响应对象，包含图片二进制数据，响应体content-type为image/jpeg
      */
-    @GetMapping("/user/avatar/{id}")
+    @GetMapping(value = "/user/avatar/{id}",produces = {"image/jpeg"})
     public ResponseEntity<byte[]> userAvatar(@PathVariable("id") Integer id) {
         byte[] userAvatarData = userService.getUserAvatar(id);
         HttpStatusCode status = userAvatarData.length == 0 ? HttpStatus.NOT_FOUND : HttpStatus.OK;
         ResponseEntity<byte[]> response = new ResponseEntity<>(userAvatarData,status);
-        response.getHeaders().setContentType(MediaType.IMAGE_JPEG);
+//        response.getHeaders().setContentType(MediaType.IMAGE_JPEG);
         return response;
     }
 
