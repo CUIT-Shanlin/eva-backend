@@ -4,8 +4,11 @@ import edu.cuit.domain.gateway.DepartmentGateway;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
+
+@Component
 @RequiredArgsConstructor
 public class DepartmentGatewayImpl implements DepartmentGateway {
     private final SysUserMapper userMapper;

@@ -18,17 +18,17 @@ public class OperateLogCO extends ClientObject {
     /**
      * id
      */
-    private Long id;
+    private Integer id;
 
     /**
      * 模块ID
      */
-    private Long moduleId;
+    private Integer moduleId;
 
     /**
      * 操作类型, 0123 对应 增删改查，4是其他
      */
-    private Long type;
+    private Integer type;
 
     /**
      * 操作者姓名

@@ -1,7 +1,10 @@
 package edu.cuit.infra.gateway.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import edu.cuit.client.bo.SysLogBO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
@@ -26,12 +29,17 @@ import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserRoleMapper;
 import edu.cuit.infra.util.QueryUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.stream.Stream;
 
 @RequiredArgsConstructor
+@Component
 public class LogGatewayImpl implements LogGateway {
     private final SysLogMapper logMapper;
     private final SysUserMapper userMapper;
@@ -42,14 +50,20 @@ public class LogGatewayImpl implements LogGateway {
     private final SysLogModuleMapper logModuleMapper;
     private final LogConverter logConverter;
     private final PaginationConverter pageConverter;
+
+    private final Executor executor;
+
     @Override
-    public PaginationResultEntity<SysLogEntity> page(PagingQuery<GenericConditionalQuery> query) {
-        QueryWrapper<SysLogDO> wrapper=new QueryWrapper<SysLogDO>();
+    public PaginationResultEntity<SysLogEntity> page(PagingQuery<GenericConditionalQuery> query,Integer moduleId) {
+        QueryWrapper<SysLogDO> wrapper=new QueryWrapper<>();
         QueryUtils.fileTimeQuery(wrapper,query.getQueryObj());
         if(query.getQueryObj().getKeyword()!=null){
             wrapper.like("content",query.getQueryObj().getKeyword());
         }
         Page<SysLogDO> page=new Page<>(query.getPage(),query.getSize());
+        if (moduleId >= 0) {
+            wrapper.eq("moduleId",moduleId);
+        }
         Page<SysLogDO> logPage = logMapper.selectPage(page, wrapper);
         List<SysLogDO> records = logPage.getRecords();
         List<SysLogEntity> logEntities = new ArrayList<>();
@@ -61,20 +75,33 @@ public class LogGatewayImpl implements LogGateway {
     }
 
     @Override
+    public Optional<SysLogModuleEntity> getModuleByName(String name) {
+        LambdaQueryWrapper<SysLogModuleDO> moduleQuery = Wrappers.lambdaQuery();
+        moduleQuery.eq(SysLogModuleDO::getName,name);
+        return Optional.of(logConverter.toModuleEntity(logModuleMapper.selectOne(moduleQuery)));
+    }
+
+    @Override
     public List<SysLogModuleEntity> getModules() {
         List<SysLogModuleDO> sysLogModuleDOS = logModuleMapper.selectList(null);
-        List<SysLogModuleEntity> list = sysLogModuleDOS.stream().map(logConverter::toModuleEntity).toList();
-
-        return list;
+        return sysLogModuleDOS.stream().map(logConverter::toModuleEntity).toList();
     }
-    
+
+    @Override
+    public void insertLog(SysLogBO logBO) {
+        CompletableFuture.runAsync(() -> {
+            SysLogDO logDO = logConverter.toLogDO(logBO);
+            logMapper.insert(logDO);
+        },executor);
+    }
+
     private SysLogEntity toSysLogEntity(SysLogDO logDO){
         SysLogModuleDO sysLogModuleDO = logModuleMapper.selectById(logDO.getModuleId());
         SysLogModuleEntity moduleEntity = logConverter.toModuleEntity(sysLogModuleDO);
         SysUserDO sysUserDO = userMapper.selectById(logDO.getUserId());
         Stream<Integer> roleIds = userRoleMapper.selectList(new QueryWrapper<SysUserRoleDO>().eq("user_id", logDO.getUserId())).stream().map(SysUserRoleDO::getRoleId);
         List<SysRoleDO> roleList = roleMapper.selectList(new QueryWrapper<SysRoleDO>().in("id", roleIds));
-        List<RoleEntity> roleEntities = roleList.stream().map(roleDO -> roleConverter.toRoleEntity(roleDO)).toList();
+        List<RoleEntity> roleEntities = roleList.stream().map(roleConverter::toRoleEntity).toList();
         UserEntity userEntity = userConverter.toUserEntity(sysUserDO,()-> roleEntities);
         return logConverter.toLogEntity(logDO,moduleEntity,userEntity);
 

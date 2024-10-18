@@ -2,6 +2,7 @@ package edu.cuit.adapter.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import edu.cuit.client.api.IMsgService;
 import edu.cuit.client.dto.cmd.SendMessageCmd;
 import edu.cuit.client.dto.data.msg.GenericRequestMsg;
 import edu.cuit.client.dto.data.msg.GenericResponseMsg;
@@ -23,6 +24,8 @@ import java.util.List;
 @RequestMapping("/msg")
 public class MessageController {
 
+    private final IMsgService msgService;
+
     /**
      * 获取当前用户自己的指定类型的所有消息
      * @param type 消息类型（0：待办，1：通知，2：提醒，3：警告；null或者负数：全部）
@@ -32,7 +35,8 @@ public class MessageController {
     @SaCheckLogin
     public CommonResult<List<GenericResponseMsg>> getUserTargetTypeMsg(@PathVariable("type") @ValidStatus(value = {0,1,2,3}, message = "消息类型只能为0,1,2,3,负数或空") Integer type,
                                                                        @PathVariable("mode") @ValidStatus(message = "mode只能是0,1,负数或空") Integer mode) {
-        return null;
+        //TODO 调用课程信息
+        return CommonResult.success(msgService.getUserTargetTypeMsg(type,mode,null));
     }
 
     /**
@@ -44,7 +48,7 @@ public class MessageController {
     @SaCheckLogin
     public CommonResult<List<GenericResponseMsg>> getUserTargetAmountAndTypeMsg(@PathVariable("num") Integer num,
                                                                                 @PathVariable("type") @ValidStatus(value = {0,1,2,3}, message = "消息类型只能为0,1,2,3,负数或空") Integer type) {
-        return null;
+        return CommonResult.success(msgService.getUserTargetAmountAndTypeMsg(num,type));
     }
 
     /**
@@ -56,7 +60,8 @@ public class MessageController {
     @SaCheckLogin
     public CommonResult<Void> updateMsgDisplay(@RequestParam("id") Integer id,
                                                @RequestParam("isDisplayed") @ValidStatus(message = "显示状态只能为0或1") Integer isDisplayed) {
-        return null;
+        msgService.updateMsgDisplay(id,isDisplayed);
+        return CommonResult.success();
     }
 
     /**
@@ -68,17 +73,19 @@ public class MessageController {
     @SaCheckLogin
     public CommonResult<Void> updateMsgRead(@RequestParam("id") Integer id,
                                             @RequestParam("isRead") @ValidStatus(message = "已读状态只能为0或1") Integer isRead) {
-        return null;
+        msgService.updateMsgRead(id,isRead);
+        return CommonResult.success();
     }
 
     /**
      * 批量修改某种性质的消息的已读状态，（注：改为已读的同时，也要改为已显示）
      * @param mode 确定待批量修改的是普通消息还是评教消息，0: 普通消息；1：评教消息
      */
-    @PutMapping("/tips/{mode}}")
+    @PutMapping("/tips/{mode}")
     @SaCheckLogin
     public CommonResult<Void> updateMultipleMsgRead(@PathVariable("mode") @ValidStatus(message = "mode只能为0或1") Integer mode) {
-        return null;
+        msgService.updateMultipleMsgRead(mode);
+        return CommonResult.success();
     }
 
     /**
@@ -88,6 +95,7 @@ public class MessageController {
     @PostMapping("/tips/send")
     @SaCheckPermission("msg.tips.send")
     public CommonResult<Void> sendMessage(@RequestBody @Valid SendMessageCmd msg) {
-        return null;
+        msgService.handleUserSendMessage(msg);
+        return CommonResult.success();
     }
 }

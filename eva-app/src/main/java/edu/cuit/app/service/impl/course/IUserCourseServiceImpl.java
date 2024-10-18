@@ -3,7 +3,7 @@ package edu.cuit.app.service.impl.course;
 import cn.dev33.satoken.stp.StpUtil;
 import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.PaginationBizConvertor;
-import edu.cuit.app.convertor.course.CourseConvertor;
+import edu.cuit.app.convertor.course.CourseBizConvertor;
 import edu.cuit.client.api.course.IUserCourseService;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -31,14 +30,14 @@ public class IUserCourseServiceImpl implements IUserCourseService {
     private final CourseQueryGateway courseQueryGateway;
     private final CourseUpdateGateway courseUpdateGateway;
     private final CourseDeleteGateway courseDeleteGateway;
-    private final CourseConvertor courseConvertor;
+    private final CourseBizConvertor courseBizConvertor;
     private final PaginationBizConvertor pageConvertor;
     @CheckSemId
     @Override
     public List<SimpleResultCO> getUserCourseInfo( Integer semId) {
         String userName = String.valueOf(StpUtil.getLoginId());
         List<SelfTeachCourseCO> selfCourseInfo = courseQueryGateway.getSelfCourseInfo(userName, semId);
-        List<SimpleResultCO> list = selfCourseInfo.stream().map(courseConvertor::toSimpleResultCO).toList();
+        List<SimpleResultCO> list = selfCourseInfo.stream().map(courseBizConvertor::toSimpleResultCO).toList();
 
         return list;
     }

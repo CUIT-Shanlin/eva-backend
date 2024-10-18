@@ -1,6 +1,5 @@
 package edu.cuit.app;
 
-import edu.cuit.Application;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,7 +10,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
 
-@SpringBootTest(classes = Application.class)
+@SpringBootTest
 public class AvatarTest {
 
     private final String PATH = "D:\\Programming\\Java\\Projects\\eva-backend\\avatar";

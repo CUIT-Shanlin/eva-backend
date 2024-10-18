@@ -20,11 +20,6 @@
     <dependencies>
         <dependency>
             <groupId>edu.cuit</groupId>
-            <artifactId>start</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>edu.cuit</groupId>
             <artifactId>eva-base-common</artifactId>
             <version>${revision}</version>
         </dependency>

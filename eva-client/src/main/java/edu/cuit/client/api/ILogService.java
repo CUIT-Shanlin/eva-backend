@@ -17,8 +17,9 @@ public interface ILogService {
     /**
      * 分页获取日志
      * @param query 分页查询模型
+     * @param moduleId 日志模块id，负数则是全部
      */
-    PaginationQueryResultCO<OperateLogCO> page(PagingQuery<GenericConditionalQuery> query);
+    PaginationQueryResultCO<OperateLogCO> page(PagingQuery<GenericConditionalQuery> query,Integer moduleId);
 
     /**
      * 获取全部日志模块

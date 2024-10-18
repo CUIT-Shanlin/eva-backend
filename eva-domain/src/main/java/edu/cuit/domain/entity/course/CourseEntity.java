@@ -1,7 +1,6 @@
 package edu.cuit.domain.entity.course;
 
 import com.alibaba.cola.domain.Entity;
-import edu.cuit.domain.entity.user.biz.RoleEntity;
 import edu.cuit.domain.entity.user.biz.UserEntity;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -9,7 +8,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -76,7 +74,7 @@ public class CourseEntity {
 
     @Getter(AccessLevel.NONE)
     private UserEntity userCache = null;
-    public synchronized UserEntity getUserEntity() {
+    public synchronized UserEntity getTeacher() {
         if (userCache == null) {
             userCache = teacher.get();
         }

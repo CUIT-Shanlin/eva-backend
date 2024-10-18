@@ -86,6 +86,13 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
     }
 
     @Override
+    public List<String> findAllUsername() {
+        LambdaQueryWrapper<SysUserDO> userQuery = Wrappers.lambdaQuery();
+        userQuery.select(SysUserDO::getUsername);
+        return userMapper.selectList(userQuery).stream().map(SysUserDO::getUsername).toList();
+    }
+
+    @Override
     public PaginationResultEntity<UserEntity> page(PagingQuery<GenericConditionalQuery> query) {
         Page<SysUserDO> userPage = Page.of(query.getPage(),query.getSize());
         GenericConditionalQuery queryObj = query.getQueryObj();

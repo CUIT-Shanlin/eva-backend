@@ -34,12 +34,12 @@ public class RoleServiceImpl implements IRoleService {
     @Override
     public PaginationQueryResultCO<RoleInfoCO> page(PagingQuery<GenericConditionalQuery> pagingQuery) {
         PaginationResultEntity<RoleEntity> page = roleQueryGateway.page(pagingQuery);
-        return paginationBizConvertor.toPaginationEntity(page,page.getRecords().stream().map(roleBizConvertor::roleEntityToRoleDO).toList());
+        return paginationBizConvertor.toPaginationEntity(page,page.getRecords().stream().map(roleBizConvertor::roleEntityToRoleInfoCO).toList());
     }
 
     @Override
     public RoleInfoCO one(Integer id) {
-        return roleQueryGateway.getById(id).map(roleBizConvertor::roleEntityToRoleDO)
+        return roleQueryGateway.getById(id).map(roleBizConvertor::roleEntityToRoleInfoCO)
                 .orElseThrow(() -> new BizException("该角色不存在"));
     }
 
