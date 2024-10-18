@@ -145,6 +145,10 @@ public class UserServiceImpl implements IUserService {
                     }),password);
         }
         userUpdateGateway.updateInfo(cmd);
+        if (cmd.getStatus() == 0) {
+            StpUtil.logout(userQueryGateway.findUsernameById(Math.toIntExact(cmd.getId()))
+                    .orElseThrow(() -> new BizException("用户ID不存在")));
+        }
     }
 
     @Override
@@ -174,6 +178,10 @@ public class UserServiceImpl implements IUserService {
     @Override
     public void updateStatus(Integer userId, Integer status) {
         userUpdateGateway.updateStatus(userId,status);
+        if (status == 0) {
+            StpUtil.logout(userQueryGateway.findUsernameById(Math.toIntExact(userId))
+                    .orElseThrow(() -> new BizException("用户ID不存在")));
+        }
     }
 
     @Override
