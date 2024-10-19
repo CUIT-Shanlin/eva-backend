@@ -8,9 +8,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import edu.cuit.client.dto.clientobject.SimpleEvaPercentCO;
 import edu.cuit.client.dto.clientobject.SimplePercentCO;
 import edu.cuit.client.dto.clientobject.TimeEvaNumCO;
-import edu.cuit.client.dto.clientobject.eva.EvaScoreInfoCO;
-import edu.cuit.client.dto.clientobject.eva.PastTimeEvaDetailCO;
-import edu.cuit.client.dto.clientobject.eva.ScoreRangeCourseCO;
+import edu.cuit.client.dto.clientobject.eva.*;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
 import edu.cuit.client.dto.query.PagingQuery;
@@ -58,6 +56,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Supplier;
@@ -439,7 +438,59 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         evaScoreInfoCO.setPercentArr(percentArr);
         return Optional.of(evaScoreInfoCO);
     }
-//ok
+
+    @Override
+    public Optional<EvaSituationCO> evaTemplateSituation(Integer semId) {
+        List<EvaTaskDO> evaTaskDOS=new ArrayList<>();
+        if(semId!=null){
+            List<Integer> evaTaskIds=getEvaTaskIdS(semId);
+            evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("task_id",evaTaskIds));
+        }else{
+            evaTaskDOS=evaTaskMapper.selectList(null);
+        }
+        Integer totalNum=0;
+        Integer evaNum=0;
+        for(int i=0;i<evaTaskDOS.size();i++){
+            if(evaTaskDOS.get(i).getStatus()==0){
+                totalNum++;
+            }
+            if(evaTaskDOS.get(i).getStatus()==1){
+                evaNum++;
+            }
+        }
+        LocalDateTime end=LocalDateTime.now();
+        LocalDateTime start=LocalDateTime.of(end.getYear(),end.getMonthValue(),end.getDayOfMonth(),0,0);
+
+        List<EvaTaskDO> lastEvaTaskDOS=new ArrayList<>();
+        if(semId!=null){
+            List<Integer> evaTaskIds=getEvaTaskIdS(semId);
+            lastEvaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("task_id",evaTaskIds).between("create_time",start,end));
+        }else{
+            lastEvaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().between("create_time",start,end));
+        }
+        Integer unTotalNum=0;
+        for(int i=0;i<lastEvaTaskDOS.size();i++){
+            if(lastEvaTaskDOS.get(i).getStatus()==0){
+                unTotalNum++;
+            }
+        }
+        List<TimeEvaNumCO> list=new ArrayList<>();
+        for(int i=0;i<7;i++){
+            TimeEvaNumCO timeEvaNumCO=new TimeEvaNumCO();
+            timeEvaNumCO.setTime(String.valueOf(LocalDate.now().minusDays(i)));
+            timeEvaNumCO.setMoreEvaNum(getEvaNumByDate(i,semId));
+        }
+
+        EvaSituationCO evaSituationCO=new EvaSituationCO();
+        evaSituationCO.setEvaNum(evaNum);
+        evaSituationCO.setTotalNum(totalNum);
+        evaSituationCO.setMoreEvaNum(getEvaNumByDate(0,semId));
+        evaSituationCO.setMoreNum(unTotalNum);
+
+        return Optional.empty();
+    }
+
+    //ok
     @Override
     public List<Integer> getMonthEvaNUmber(Integer semId) {
         Integer nowYear=LocalDateTime.now().getYear();
@@ -468,7 +519,30 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         list.add(nowFormRecordDOS.size());
         return list;
     }
-//ok
+
+    @Override
+    public Optional<OneDayAddEvaDataCO> evaOneDayInfo(Integer day, Integer num, Integer semId) {
+        LocalDateTime time =LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonthValue(),LocalDateTime.now().getDayOfMonth(),0,0);
+        List<TimeEvaNumCO> timeEvaNumCOS=new ArrayList<>();
+        for(int i=0;i<num+1;i++){
+            LocalDateTime start=time.minusDays(day).plusHours((24/num)*i);
+
+            List<Integer> evaTaskIds=getEvaTaskIdS(semId);
+            List<FormRecordDO> formRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIds)
+                    .between("create_time",start,start.plusHours(24/num)));
+            TimeEvaNumCO timeEvaNumCO=new TimeEvaNumCO();
+            timeEvaNumCO.setTime(String.valueOf(start));
+            timeEvaNumCO.setMoreEvaNum(formRecordDOS.size());
+            timeEvaNumCOS.add(timeEvaNumCO);
+        }
+        OneDayAddEvaDataCO oneDayAddEvaDataCO=new OneDayAddEvaDataCO();
+        oneDayAddEvaDataCO.setMoreNum(getEvaNumByDate(day,semId));
+        oneDayAddEvaDataCO.setMorePercent((getEvaNumByDate(day,semId)/getEvaNumByDate(day+1,semId))*100);
+        oneDayAddEvaDataCO.setEvaNumArr(timeEvaNumCOS);
+        return Optional.of(oneDayAddEvaDataCO);
+    }
+
+    //ok
     @Override
     public Optional<PastTimeEvaDetailCO> getEvaData(Integer semId, Integer num, Integer target, Integer evaTarget) {
         //根据semId找到
@@ -833,7 +907,26 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
 
         return evaTaskIdS;
     }
-
+    //获得几天前的新增评教数
+    private Integer getEvaNumByDate(Integer num,Integer semId){
+        LocalDateTime start;
+        LocalDateTime end=LocalDateTime.now();
+        LocalDateTime time=LocalDateTime.of(end.getYear(),end.getMonthValue(),end.getDayOfMonth(),0,0);
+        if(num==0){
+            end=LocalDateTime.now();
+            start=LocalDateTime.of(end.getYear(),end.getMonthValue(),end.getDayOfMonth(),0,0);
+        }else{
+            end=time.minusDays(num-1);
+            start=time.minusDays(num);
+        }
+        QueryWrapper<FormRecordDO> query=new QueryWrapper<>();
+        if(semId!=null){
+            List<Integer> evaTaskIds=getEvaTaskIdS(semId);
+            query.in("task_id",evaTaskIds);
+        }
+        List<FormRecordDO> formRecordDOs=formRecordMapper.selectList(query.between("create_time",start,end));
+        return formRecordDOs.size();
+    }
     //根据evaTaskDOs变成entity数据
     private List<EvaTaskEntity> getEvaTaskEntities(List<EvaTaskDO> evaTaskDOS,List<UserEntity> userEntities,List<SingleCourseEntity> courseEntities){
         List<EvaTaskEntity> evaTaskEntityList=evaTaskDOS.stream().map(evaTaskDO ->evaConvertor.ToEvaTaskEntity(evaTaskDO,

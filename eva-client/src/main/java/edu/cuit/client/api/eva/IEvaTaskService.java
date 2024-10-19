@@ -5,8 +5,7 @@ import edu.cuit.client.dto.clientobject.eva.EvaInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskBaseInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskDetailInfoCO;
 import edu.cuit.client.dto.query.PagingQuery;
-import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
-import jakarta.validation.Valid;
+import edu.cuit.client.dto.query.condition.EvaTaskConditionalQuery;
 
 import java.util.List;
 
@@ -22,7 +21,7 @@ public interface IEvaTaskService {
      * @param semId 学期id
      * @param query 查询dto
      */
-    PaginationQueryResultCO<EvaTaskBaseInfoCO> pageEvaUnfinishedTask(Integer semId, PagingQuery<GenericConditionalQuery> query);
+    PaginationQueryResultCO<EvaTaskBaseInfoCO> pageEvaUnfinishedTask(Integer semId, PagingQuery<EvaTaskConditionalQuery> query);
     /**
      * 获取自己的所有待办评教任务
      * @param semId 学期id

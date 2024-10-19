@@ -3,7 +3,6 @@ package edu.cuit.domain.gateway.eva;
 import edu.cuit.client.dto.clientobject.eva.*;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
-import edu.cuit.client.dto.data.course.CourseTime;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.EvaLogConditionalQuery;
 import edu.cuit.client.dto.query.condition.EvaTaskConditionalQuery;
@@ -13,11 +12,7 @@ import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.eva.EvaRecordEntity;
 import edu.cuit.domain.entity.eva.EvaTaskEntity;
 import edu.cuit.domain.entity.eva.EvaTemplateEntity;
-import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.Optional;
@@ -52,23 +47,23 @@ public interface EvaQueryGateway {
 
     /**
      * 获取自己的所有待办评教任务
-     * @param useId
+     * @param useId 用户id
      * @param id 学期ID 编号
      * @param keyword 模糊查询课程名称或教学老师姓名
      */
     List<EvaTaskEntity> evaSelfTaskInfo(Integer useId,Integer id, String keyword);
     /**
      * 获取自己的评教记录
-     * @param userId
+     * @param userId 用户id
      * @param id 学期ID 编号
      * @param keyword 模糊查询课程名称或教学老师姓名
      */
     List<EvaRecordEntity> getEvaLogInfo(Integer userId,Integer id,String keyword);
     /**
      * 获取别人对自己的评教记录
-     * @param userId
-     * @param semId
-     * @param courseId
+     * @param userId 用户id
+     * @param semId 学期id
+     * @param courseId 课程id
      */
     List<EvaRecordEntity> getEvaEdLogInfo(Integer userId,Integer semId,Integer courseId);
     /**
@@ -85,6 +80,11 @@ public interface EvaQueryGateway {
      * @return EvaScoreInfoCO
      */
     Optional<EvaScoreInfoCO> evaScoreStatisticsInfo(Integer semId, Number score);
+    /**
+     * 获取评教任务完成情况
+     * @param semId 学期id
+     */
+    Optional<EvaSituationCO> evaTemplateSituation(Integer semId);
 
     /**
      * 获取上个月和本月的评教数目，以有两个整数的List<Integer>形式返回，data[0]：上个月评教数目；data[1]：本月评教数目
@@ -92,6 +92,13 @@ public interface EvaQueryGateway {
      * @return List<Integer>
      */
     List<Integer> getMonthEvaNUmber(Integer semId);
+    /**
+     * 获取指定某一天的详细评教统计数据
+     * @param day 指定的这一天和今天相差多少天，eg：0 =》 今天，-1 =》 昨天
+     * @param num 要将这一天的24小时分几段时间进行数据的统计
+     * @param semId 学期id
+     */
+    Optional<OneDayAddEvaDataCO> evaOneDayInfo(Integer day, Integer num, Integer semId);
 
     /**
      * 获取指定过去一段时间内的详细评教统计数据
@@ -158,12 +165,12 @@ public interface EvaQueryGateway {
     List<EvaTemplateEntity> getAllTemplate();
     /**
      * 得到一条record里面的平均分
-     * @param prop
+     * @param prop 评教指标和分数
      */
     Optional<Double> getScoreFromRecord(String prop);
     /**
      * 通过一节课id找到此节课评教次数
-     * @param courInfId
+     * @param courInfId 课程详情id
      */
     Optional<Integer> getEvaNumByCourInfo(Integer courInfId);
     /**

@@ -1,6 +1,7 @@
 package edu.cuit.app.service.impl.eva;
 import cn.dev33.satoken.stp.StpUtil;
 import edu.cuit.app.aop.CheckSemId;
+import edu.cuit.app.convertor.PaginationBizConvertor;
 import edu.cuit.app.convertor.eva.EvaTaskBizConvertor;
 import edu.cuit.client.api.eva.IEvaTaskService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
@@ -8,7 +9,8 @@ import edu.cuit.client.dto.clientobject.eva.EvaInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskBaseInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskDetailInfoCO;
 import edu.cuit.client.dto.query.PagingQuery;
-import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
+import edu.cuit.client.dto.query.condition.EvaTaskConditionalQuery;
+import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.entity.eva.EvaTaskEntity;
 import edu.cuit.domain.gateway.eva.EvaDeleteGateway;
@@ -24,14 +26,18 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class EvaTaskServiceImpl implements IEvaTaskService {
-    private final EvaDeleteGateway evaDeleteGateway;
     private final EvaUpdateGateway evaUpdateGateway;
     private final EvaQueryGateway evaQueryGateway;
     private final EvaTaskBizConvertor evaTaskBizConvertor;
+    private final PaginationBizConvertor paginationBizConvertor;
     @Override
     @CheckSemId
-    public PaginationQueryResultCO<EvaTaskBaseInfoCO> pageEvaUnfinishedTask(Integer semId, PagingQuery<GenericConditionalQuery> query) {
-        return null;
+    public PaginationQueryResultCO<EvaTaskBaseInfoCO> pageEvaUnfinishedTask(Integer semId, PagingQuery<EvaTaskConditionalQuery> query) {
+        PaginationResultEntity<EvaTaskEntity> page=evaQueryGateway.pageEvaUnfinishedTask(semId,query);
+        List<EvaTaskBaseInfoCO> results =page.getRecords().stream()
+                .map(evaTaskBizConvertor::evaTaskEntityToEvaBaseCO)
+                .toList();
+        return paginationBizConvertor.toPaginationEntity(page,results);
     }
 
     @Override
@@ -40,20 +46,19 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
         Integer useId=(Integer) StpUtil.getLoginId();
         List<EvaTaskEntity> evaTaskEntities=evaQueryGateway.evaSelfTaskInfo(useId,semId,keyword);
         List<EvaTaskDetailInfoCO> evaTaskDetailInfoCOS=new ArrayList<>();
-        for(int i=0;i<evaTaskEntities.size();i++) {
-            SingleCourseEntity singleCourseEntity = evaTaskEntities.get(i).getCourInf();
-            EvaTaskDetailInfoCO evaTaskDetailInfoCO = evaTaskBizConvertor.evaTaskEntityToTaskDetailCO(evaTaskEntities.get(i), singleCourseEntity);
+        for (EvaTaskEntity evaTaskEntity : evaTaskEntities) {
+            SingleCourseEntity singleCourseEntity = evaTaskEntity.getCourInf();
+            EvaTaskDetailInfoCO evaTaskDetailInfoCO = evaTaskBizConvertor.evaTaskEntityToTaskDetailCO(evaTaskEntity, singleCourseEntity);
             evaTaskDetailInfoCOS.add(evaTaskDetailInfoCO);
         }
-        return null;
+        return evaTaskDetailInfoCOS;
     }
 
     @Override
     public EvaTaskDetailInfoCO oneEvaTaskInfo(Integer id) {
         EvaTaskEntity evaTaskEntity=evaQueryGateway.oneEvaTaskInfo(id).get();
         SingleCourseEntity singleCourseEntity=evaTaskEntity.getCourInf();
-        EvaTaskDetailInfoCO evaTaskDetailInfoCO=evaTaskBizConvertor.evaTaskEntityToTaskDetailCO(evaTaskEntity,singleCourseEntity);
-        return evaTaskDetailInfoCO;
+        return evaTaskBizConvertor.evaTaskEntityToTaskDetailCO(evaTaskEntity,singleCourseEntity);
     }
     //发起任务之后，要同时发送该任务的评教待办消息 TODO
     @Override

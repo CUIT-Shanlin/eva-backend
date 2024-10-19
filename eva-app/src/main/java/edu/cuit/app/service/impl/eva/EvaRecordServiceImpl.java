@@ -1,16 +1,19 @@
 package edu.cuit.app.service.impl.eva;
 
 import edu.cuit.app.aop.CheckSemId;
+import edu.cuit.app.convertor.PaginationBizConvertor;
+import edu.cuit.app.convertor.eva.EvaRecordBizConvertor;
 import edu.cuit.client.api.eva.IEvaRecordService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.eva.EvaRecordCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskFormCO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.EvaLogConditionalQuery;
+import edu.cuit.domain.entity.PaginationResultEntity;
+import edu.cuit.domain.entity.eva.EvaRecordEntity;
 import edu.cuit.domain.gateway.eva.EvaDeleteGateway;
 import edu.cuit.domain.gateway.eva.EvaQueryGateway;
 import edu.cuit.domain.gateway.eva.EvaUpdateGateway;
-import edu.cuit.infra.convertor.eva.EvaConvertor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,11 +26,19 @@ public class EvaRecordServiceImpl implements IEvaRecordService {
     private final EvaDeleteGateway evaDeleteGateway;
     private final EvaUpdateGateway evaUpdateGateway;
     private final EvaQueryGateway evaQueryGateway;
-    private final EvaConvertor convertor;
+    private final EvaRecordBizConvertor evaRecordBizConvertor;
+    private final PaginationBizConvertor paginationBizConvertor;
     @Override
     @CheckSemId
     public PaginationQueryResultCO<EvaRecordCO> pageEvaRecord(Integer semId, PagingQuery<EvaLogConditionalQuery> query) {
-        return null;
+        PaginationResultEntity<EvaRecordEntity> page=evaQueryGateway.pageEvaRecord(semId,query);
+        List<EvaRecordCO> results = page.getRecords().stream()
+                .map(evaRecordBizConvertor::evaRecordEntityToCo)
+                .toList();
+        for(int i=0;i<results.size();i++){
+            results.get(i).setAverScore(evaQueryGateway.getScoreFromRecord(page.getRecords().get(i).getFormPropsValues()).get());
+        }
+        return paginationBizConvertor.toPaginationEntity(page,results);
     }
 
     @Override
