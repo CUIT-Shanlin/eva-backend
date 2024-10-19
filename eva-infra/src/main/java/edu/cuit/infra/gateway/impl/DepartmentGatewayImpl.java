@@ -16,7 +16,6 @@ public class DepartmentGatewayImpl implements DepartmentGateway {
     public List<String> getAll() {
         List<SysUserDO> sysUserDOS = userMapper.selectList(null);
         //根据角色的院系进行分类(去重)
-        List<String> list = sysUserDOS.stream().map(SysUserDO::getDepartment).distinct().toList();
-        return list;
+        return sysUserDOS.stream().map(SysUserDO::getDepartment).distinct().toList();
     }
 }

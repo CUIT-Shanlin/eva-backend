@@ -18,12 +18,12 @@ public class EvaInfoCO extends ClientObject {
     /**
      * id
      */
-    private Long id;
+    private Integer id;
 
     /**
      * 任务状态（0：待执行，1：已执行）
      */
-    private Long status;
+    private Integer status;
 
     /**
      * 评教老师的id

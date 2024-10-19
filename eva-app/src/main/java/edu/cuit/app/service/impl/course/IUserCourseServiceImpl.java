@@ -132,7 +132,8 @@ public class IUserCourseServiceImpl implements IUserCourseService {
         Map<String, Map<Integer, Integer>> mapMsg = courseUpdateGateway.updateSelfCourse(String.valueOf(StpUtil.getLoginId()), selfTeachCourseCO, timeList);
         for (Map.Entry<String, Map<Integer, Integer>> stringMapEntry : mapMsg.entrySet()) {
             SendMessageCmd sendMessageCmd=new SendMessageCmd();
-            sendMessageCmd.setMsg(stringMapEntry.getValue().toString());
+//            sendMessageCmd.setMsg(stringMapEntry.getValue().toString());
+            sendMessageCmd.setMsg(stringMapEntry.getKey());
             for (Map.Entry<Integer, Integer> mapEntry : stringMapEntry.getValue().entrySet()) {
                 sendMessageCmd.setTaskId(mapEntry.getKey()).setMode(0)
                         .setRecipientId(mapEntry.getValue())

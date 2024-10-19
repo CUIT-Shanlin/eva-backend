@@ -3,6 +3,7 @@ package edu.cuit.app.service.impl.eva;
 import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.PaginationBizConvertor;
 import edu.cuit.app.convertor.eva.EvaRecordBizConvertor;
+import edu.cuit.app.service.impl.MsgServiceImpl;
 import edu.cuit.client.api.eva.IEvaRecordService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.eva.EvaRecordCO;
@@ -28,6 +29,7 @@ public class EvaRecordServiceImpl implements IEvaRecordService {
     private final EvaQueryGateway evaQueryGateway;
     private final EvaRecordBizConvertor evaRecordBizConvertor;
     private final PaginationBizConvertor paginationBizConvertor;
+    private final MsgServiceImpl msgService;
     @Override
     @CheckSemId
     public PaginationQueryResultCO<EvaRecordCO> pageEvaRecord(Integer semId, PagingQuery<EvaLogConditionalQuery> query) {
@@ -55,12 +57,13 @@ public class EvaRecordServiceImpl implements IEvaRecordService {
         return null;
     }
     //记得完成评教任务之后，
-    // 要删除对应的两种消息 “该任务的待办评教消息” “该任务的系统逾期提醒消息” TODO
+    // 要删除对应的两种消息 “该任务的待办评教消息” “该任务的系统逾期提醒消息”
     @Override
     public Void putEvaTemplate(EvaTaskFormCO evaTaskFormCO) {
         evaUpdateGateway.putEvaTemplate(evaTaskFormCO);
         //要删除对应的两种消息 “该任务的待办评教消息” “该任务的系统逾期提醒消息”
-
+        msgService.deleteEvaMsg(evaTaskFormCO.getTaskId(),0);
+        msgService.deleteEvaMsg(evaTaskFormCO.getTaskId(),2);
         return null;
     }
 }

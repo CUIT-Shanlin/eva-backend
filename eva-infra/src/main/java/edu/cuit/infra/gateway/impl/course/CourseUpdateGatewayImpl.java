@@ -55,7 +55,11 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         List<Integer> courseIdList=new ArrayList<>();
         if(updateCourseCmd.getIsUpdate()){
             //先查出课程表中的subjectId
-            Integer subjectId = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", updateCourseCmd.getId())).getSubjectId();
+            CourseDO courseDO = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", updateCourseCmd.getId()));
+            if(courseDO==null){
+                throw new QueryException("没有该课程");
+            }
+            Integer subjectId = courseDO.getSubjectId();
             //再根据subjectId更新对应科目表
             subjectMapper.update(courseConvertor.toSubjectDO(updateCourseCmd.getSubjectMsg()),new QueryWrapper<SubjectDO>().eq("id",subjectId));
             //根据subjectId来找出所有课程Id集合
@@ -298,7 +302,9 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         //课程时间段
         Map<Integer,Integer> taskMap=new HashMap<>();
         msg+=JudgeCourseTime(courseDO,timeList,courseDOS,selfTeachCourseCO,taskMap);
-        return null;
+        Map<String,Map<Integer,Integer>> map=new HashMap<>();
+        map.put(msg,taskMap);
+        return map;
     }
 
     private String JudgeCourseTime(CourseDO courseDO, List<SelfTeachCourseTimeCO> timeList,List<CourseDO> courseDOList,SelfTeachCourseCO selfTeachCourseCO,Map<Integer,Integer> taskMap) {
