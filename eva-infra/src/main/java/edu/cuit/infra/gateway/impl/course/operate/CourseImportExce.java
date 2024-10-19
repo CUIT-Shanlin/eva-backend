@@ -46,7 +46,7 @@ public class CourseImportExce {
         List<Integer> courInfoIds = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", courseIdList)).stream().map(CourInfDO::getId).toList();
         courInfMapper.delete(new QueryWrapper<CourInfDO>().in("course_id", courseIdList));
         //删除评教任务
-        List<Integer> taskIds = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("course_id", courseIdList)).stream().map(EvaTaskDO::getId).toList();
+        List<Integer> taskIds = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id", courInfoIds)).stream().map(EvaTaskDO::getId).toList();
         evaTaskMapper.deleteBatchIds(taskIds);
         //删除评教表单记录
         recordMapper.delete(new QueryWrapper<FormRecordDO>().in("task_id", taskIds));
