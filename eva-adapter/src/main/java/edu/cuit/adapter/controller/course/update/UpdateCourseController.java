@@ -162,9 +162,8 @@ public class UpdateCourseController {
     public CommonResult<Boolean> isImport(
             @PathVariable(value = "type",required = true) Integer type,
             @Valid @RequestBody Term term){
-//        return CommonResult.success(courseTypeService.isImport(type, term));
-//        return CommonResult.success(courseDetailService.isImport(type, term));
-        return null;
+
+        return CommonResult.success(userCourseService.isImported(type, term));
 
     }
 

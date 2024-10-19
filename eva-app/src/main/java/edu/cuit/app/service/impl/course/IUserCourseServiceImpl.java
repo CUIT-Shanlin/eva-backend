@@ -22,6 +22,7 @@ import edu.cuit.client.dto.clientobject.course.RecommendCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
 import edu.cuit.client.dto.cmd.SendMessageCmd;
+import edu.cuit.client.dto.data.Term;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.gateway.course.CourseDeleteGateway;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
@@ -144,5 +145,11 @@ public class IUserCourseServiceImpl implements IUserCourseService {
 
 //        msgService.handleUserSendMessage();
         return null;
+    }
+
+    @Override
+    public Boolean isImported(Integer type, Term term) {
+
+        return courseUpdateGateway.isImported(type, term);
     }
 }

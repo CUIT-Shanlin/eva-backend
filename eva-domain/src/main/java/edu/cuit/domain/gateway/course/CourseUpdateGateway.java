@@ -114,4 +114,11 @@ public interface CourseUpdateGateway {
      * */
     void addNotExistCoursesDetails(Integer semId,Integer teacherId, UpdateCourseCmd courseInfo,  List<SelfTeachCourseTimeCO> dateArr);
 
+    /**
+     * 删除自己的一门课程
+     *  @param type 用于确定是导入实验课表还是理论课表，0：理论课，1：实验课
+     *  @param term 学期类
+     * */
+    Boolean isImported(Integer type,Term term);
+
 }

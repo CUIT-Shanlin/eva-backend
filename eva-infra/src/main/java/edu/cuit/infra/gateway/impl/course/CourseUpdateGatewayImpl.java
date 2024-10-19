@@ -10,6 +10,7 @@ import edu.cuit.client.dto.cmd.course.AlignTeacherCmd;
 import edu.cuit.client.dto.cmd.course.UpdateCourseCmd;
 import edu.cuit.client.dto.cmd.course.UpdateCoursesCmd;
 import edu.cuit.client.dto.cmd.course.UpdateSingleCourseCmd;
+import edu.cuit.client.dto.data.Term;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.domain.gateway.course.CourseUpdateGateway;
 import edu.cuit.infra.convertor.course.CourseConvertor;
@@ -27,7 +28,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -507,5 +510,24 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
             }
         }
 
+    }
+
+    @Override
+    public Boolean isImported(Integer type, Term term) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse(term.getStartDate(), formatter);
+        SemesterDO semesterDO = semesterMapper.selectOne(new QueryWrapper<SemesterDO>().eq("start_date", date).eq("start_year", term.getStartYear()).eq("end_year", term.getEndYear()));
+        if(semesterDO==null)return false;
+        List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("sem_id", semesterDO.getId()));
+        if(courseDOS==null)return false;
+        List<SubjectDO> subjectDOS = subjectMapper.selectList(new QueryWrapper<SubjectDO>().in("id", courseDOS.stream().map(CourseDO::getSubjectId).toList()));
+        for (SubjectDO subjectDO : subjectDOS) {
+            if(!subjectDO.getNature().equals(type)){
+                return false;
+            }
+        }
+
+
+        return true;
     }
 }
