@@ -2,6 +2,7 @@ package edu.cuit.adapter.controller.user.query;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import edu.cuit.client.api.eva.IEvaStatisticsService;
 import edu.cuit.client.api.user.IUserService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
@@ -34,6 +35,7 @@ import java.util.List;
 public class UserQueryController {
 
     private final IUserService userService;
+    private final IEvaStatisticsService evaStatisticsService;
 
     /**
      * 一个用户信息
@@ -68,8 +70,7 @@ public class UserQueryController {
             @PathVariable("type") Integer type,
             @PathVariable("target") Integer target,
             @RequestBody @Valid PagingQuery<UnqualifiedUserConditionalQuery> query) {
-        // TODO 调用未达标用户
-        return null;
+        return CommonResult.success(evaStatisticsService.pageUnqualifiedUser(type,target,query));
     }
 
     /**
@@ -83,8 +84,7 @@ public class UserQueryController {
     public CommonResult<UnqualifiedUserResultCO> getTargetAmountUnqualifiedUser(@PathVariable("type") Integer type,
                                                                          @PathVariable("num") Integer num,
                                                                          @PathVariable("target") Integer target) {
-        // TODO 调用未达标用户
-        return null;
+        return CommonResult.success(evaStatisticsService.getTargetAmountUnqualifiedUser(type, num, target));
     }
 
     /**
