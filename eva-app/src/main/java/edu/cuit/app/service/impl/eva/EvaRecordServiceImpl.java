@@ -54,10 +54,13 @@ public class EvaRecordServiceImpl implements IEvaRecordService {
         evaDeleteGateway.deleteEvaRecord(ids);
         return null;
     }
-    //记得完成评教任务之后，要删除对应的两种消息 “该任务的待办评教消息” “该任务的系统逾期提醒消息”
+    //记得完成评教任务之后，
+    // 要删除对应的两种消息 “该任务的待办评教消息” “该任务的系统逾期提醒消息” TODO
     @Override
     public Void putEvaTemplate(EvaTaskFormCO evaTaskFormCO) {
         evaUpdateGateway.putEvaTemplate(evaTaskFormCO);
+        //要删除对应的两种消息 “该任务的待办评教消息” “该任务的系统逾期提醒消息”
+
         return null;
     }
 }
