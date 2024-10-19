@@ -3,7 +3,7 @@ package edu.cuit.app.resolver.course;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.cola.exception.BizException;
 import edu.cuit.client.bo.CourseExcelBO;
-import edu.cuit.app.util.ExcelUtils;
+import edu.cuit.app.resolver.course.util.ExcelUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -28,8 +28,6 @@ public class TheoryCourseExcelResolver extends CourseExcelResolverStrategy {
     private final static Integer WEEK_START = 1;
 
     private Sheet sheet;
-
-    private final List<CourseExcelBO> results = new ArrayList<>();
 
     protected TheoryCourseExcelResolver(InputStream excelFile) {
         this.excelFileStream = excelFile;
@@ -67,9 +65,7 @@ public class TheoryCourseExcelResolver extends CourseExcelResolverStrategy {
                 CourseExcelBO existedCourse = results.get(courseExcelBO);
                 // 课程相同且相邻，合并为一节课
                 if (existedCourse != null && courseExcelBO.isAdjoin(existedCourse)) {
-                    if (courseExcelBO.getStartTime() > existedCourse.getEndTime()) {
-                        courseExcelBO.setStartTime(existedCourse.getStartTime());
-                    } else courseExcelBO.setEndTime(existedCourse.getEndTime());
+                    ExcelUtils.mergeTwoCourse(existedCourse,courseExcelBO);
                 }
                 results.put(courseExcelBO,courseExcelBO);
             }
@@ -89,13 +85,15 @@ public class TheoryCourseExcelResolver extends CourseExcelResolverStrategy {
         List<CourseExcelBO> results = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             int startColumn = i * 9 + WEEK_START;
-            String courseName = row.getCell(startColumn).getStringCellValue();
+            Cell courseNameCell = row.getCell(startColumn);
+            if (courseNameCell.getCellType() == CellType.BLANK) continue;
+            String courseName = ExcelUtils.getCellStringValue(courseNameCell);
             if (StrUtil.isBlank(courseName)) continue;
-            String teacherName = row.getCell(startColumn + 2).getStringCellValue();
-            String profTitle = row.getCell(startColumn + 3).getStringCellValue();
-            String weeksStr = row.getCell(startColumn + 5).getStringCellValue();
-            String classroom = row.getCell(startColumn + 6).getStringCellValue();
-            String courseClass = row.getCell(startColumn + 7).getStringCellValue();
+            String teacherName = ExcelUtils.getCellStringValue(row.getCell(startColumn + 2));
+            String profTitle = ExcelUtils.getCellStringValue(row.getCell(startColumn + 3));
+            String weeksStr = ExcelUtils.getCellStringValue(row.getCell(startColumn + 5));
+            String classroom = ExcelUtils.getCellStringValue(row.getCell(startColumn + 6));
+            String courseClass = ExcelUtils.getCellStringValue(row.getCell(startColumn + 7));
 
             CourseExcelBO courseExcelBO = new CourseExcelBO();
             courseExcelBO

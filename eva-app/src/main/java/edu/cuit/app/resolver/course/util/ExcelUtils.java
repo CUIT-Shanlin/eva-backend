@@ -1,10 +1,14 @@
-package edu.cuit.app.util;
+package edu.cuit.app.resolver.course.util;
 
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.cola.exception.BizException;
+import edu.cuit.client.bo.CourseExcelBO;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,6 +71,36 @@ public class ExcelUtils {
             }
         }
         return result;
+    }
+
+    /**
+     * 获取单元格的字符串值，自动转换类型
+     * @param cell 单元格
+     * @return 字符串值
+     */
+    public static String getCellStringValue(Cell cell) {
+        CellType cellType = cell.getCellType();
+        if (cellType == CellType.NUMERIC) {
+            return new BigDecimal(String.valueOf(cell.getNumericCellValue()))
+                    .stripTrailingZeros().toPlainString();
+        } else if (cellType == CellType.STRING) {
+            return cell.getStringCellValue();
+        } else if (cellType == CellType.BLANK) {
+            return null;
+        }else {
+            throw new BizException("表格数据异常：存在不是字符串或数字的单元格数据");
+        }
+    }
+
+    /**
+     * 合并两节课的结束，需要先自行判断相邻，合并到course1
+     * @param course1 课程1
+     * @param course2 课程2
+     */
+    public static void mergeTwoCourse(CourseExcelBO course2,CourseExcelBO course1) {
+        if (course1.getStartTime() > course2.getEndTime()) {
+            course1.setStartTime(course2.getStartTime());
+        } else course1.setEndTime(course2.getEndTime());
     }
 
 }
