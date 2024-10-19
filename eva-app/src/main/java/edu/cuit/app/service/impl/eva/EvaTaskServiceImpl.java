@@ -1,62 +1,86 @@
 package edu.cuit.app.service.impl.eva;
-import com.alibaba.cola.exception.BizException;
-import edu.cuit.app.convertor.user.MenuBizConvertor;
+import cn.dev33.satoken.stp.StpUtil;
+import edu.cuit.app.aop.CheckSemId;
+import edu.cuit.app.convertor.PaginationBizConvertor;
+import edu.cuit.app.convertor.eva.EvaTaskBizConvertor;
 import edu.cuit.client.api.eva.IEvaTaskService;
-import edu.cuit.client.api.user.IMenuService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.eva.EvaInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskBaseInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskDetailInfoCO;
-import edu.cuit.client.dto.clientobject.user.GenericMenuSectionCO;
-import edu.cuit.client.dto.clientobject.user.MenuCO;
-import edu.cuit.client.dto.cmd.user.NewMenuCmd;
-import edu.cuit.client.dto.cmd.user.UpdateMenuCmd;
 import edu.cuit.client.dto.query.PagingQuery;
-import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
-import edu.cuit.client.dto.query.condition.MenuConditionalQuery;
+import edu.cuit.client.dto.query.condition.EvaTaskConditionalQuery;
+import edu.cuit.domain.entity.PaginationResultEntity;
+import edu.cuit.domain.entity.course.SingleCourseEntity;
+import edu.cuit.domain.entity.eva.EvaTaskEntity;
 import edu.cuit.domain.gateway.eva.EvaDeleteGateway;
 import edu.cuit.domain.gateway.eva.EvaQueryGateway;
 import edu.cuit.domain.gateway.eva.EvaUpdateGateway;
-import edu.cuit.domain.gateway.user.MenuQueryGateway;
-import edu.cuit.domain.gateway.user.MenuUpdateGateway;
+import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class EvaTaskServiceImpl implements IEvaTaskService {
-    private final EvaDeleteGateway evaDeleteGateway;
     private final EvaUpdateGateway evaUpdateGateway;
     private final EvaQueryGateway evaQueryGateway;
+    private final EvaTaskBizConvertor evaTaskBizConvertor;
+    private final PaginationBizConvertor paginationBizConvertor;
     @Override
-    public PaginationQueryResultCO<EvaTaskBaseInfoCO> pageEvaUnfinishedTask(Integer semId, PagingQuery<GenericConditionalQuery> query) {
-        return null;
+    @CheckSemId
+    public PaginationQueryResultCO<EvaTaskBaseInfoCO> pageEvaUnfinishedTask(Integer semId, PagingQuery<EvaTaskConditionalQuery> query) {
+        PaginationResultEntity<EvaTaskEntity> page=evaQueryGateway.pageEvaUnfinishedTask(semId,query);
+        List<EvaTaskBaseInfoCO> results =page.getRecords().stream()
+                .map(evaTaskBizConvertor::evaTaskEntityToEvaBaseCO)
+                .toList();
+        return paginationBizConvertor.toPaginationEntity(page,results);
     }
 
     @Override
+    @CheckSemId
     public List<EvaTaskDetailInfoCO> evaSelfTaskInfo(Integer semId, String keyword) {
-        return null;
+        Integer useId=(Integer) StpUtil.getLoginId();
+        List<EvaTaskEntity> evaTaskEntities=evaQueryGateway.evaSelfTaskInfo(useId,semId,keyword);
+        List<EvaTaskDetailInfoCO> evaTaskDetailInfoCOS=new ArrayList<>();
+        for (EvaTaskEntity evaTaskEntity : evaTaskEntities) {
+            SingleCourseEntity singleCourseEntity = evaTaskEntity.getCourInf();
+            EvaTaskDetailInfoCO evaTaskDetailInfoCO = evaTaskBizConvertor.evaTaskEntityToTaskDetailCO(evaTaskEntity, singleCourseEntity);
+            evaTaskDetailInfoCOS.add(evaTaskDetailInfoCO);
+        }
+        return evaTaskDetailInfoCOS;
     }
 
     @Override
     public EvaTaskDetailInfoCO oneEvaTaskInfo(Integer id) {
+        EvaTaskEntity evaTaskEntity=evaQueryGateway.oneEvaTaskInfo(id).get();
+        SingleCourseEntity singleCourseEntity=evaTaskEntity.getCourInf();
+        return evaTaskBizConvertor.evaTaskEntityToTaskDetailCO(evaTaskEntity,singleCourseEntity);
+    }
+    //发起任务之后，要同时发送该任务的评教待办消息 TODO
+    @Override
+    public Void postEvaTask(EvaInfoCO evaInfoCO) {
+        evaUpdateGateway.postEvaTask(evaInfoCO);
         return null;
     }
 
     @Override
-    public Void postEvaTask(EvaInfoCO evaInfoCO) {
-        return null;
-    }
-    //撤回消息
-    @Override
     public Void cancelEvaTask(Integer id) {
+        evaUpdateGateway.cancelEvaTaskById(id);
         return null;
     }
-    //怎么判断自己的
     @Override
     public Void cancelMyEvaTask(Integer id) {
+        Integer useId=(Integer) StpUtil.getLoginId();
+        EvaTaskEntity evaTaskEntity=evaQueryGateway.oneEvaTaskInfo(id).get();
+        if(evaTaskEntity.getTeacher().getId()!=useId){
+            throw new QueryException("不能删去不是自己评教的任务");
+        }else{
+            evaUpdateGateway.cancelEvaTaskById(id);
+        }
         return null;
     }
 }

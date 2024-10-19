@@ -1,12 +1,9 @@
 package edu.cuit.app.convertor.eva;
 
 import edu.cuit.client.dto.clientobject.eva.EvaRecordCO;
-import edu.cuit.client.dto.clientobject.user.RoleInfoCO;
 import edu.cuit.client.dto.data.course.CourseTime;
-import edu.cuit.domain.entity.course.CourseEntity;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.entity.eva.EvaRecordEntity;
-import edu.cuit.domain.entity.user.biz.RoleEntity;
 import edu.cuit.infra.convertor.EntityFactory;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -28,14 +25,14 @@ public interface EvaRecordBizConvertor {
     CourseTime toCourseTime(SingleCourseEntity singleCourseEntity);
     @Mappings({
             @Mapping(target = "id",expression="java(evaRecordEntity.getId())"),
-            @Mapping(target = "teacherName",expression = "java(courseEntity.getTeacher().getName())"),
+            @Mapping(target = "teacherName",expression = "java(evaRecordEntity.getTask().getCourInf().getCourseEntity().getTeacher().getName())"),
             @Mapping(target = "evaTeacherName",expression = "java(evaRecordEntity.getTask().getTeacher().getName())"),
-            @Mapping(target = "courseName",expression= "java(courseEntity.getSubjectEntity().getName())"),
+            @Mapping(target = "courseName",expression= "java(evaRecordEntity.getTask().getCourInf().getCourseEntity().getSubjectEntity().getName())"),
             @Mapping(target = "textValue",expression="java(evaRecordEntity.getTextValue())"),
             @Mapping(target = "formPropsValues",expression="java(evaRecordEntity.getFormPropsValues())"),
             @Mapping(target = "createTime",expression="java(evaRecordEntity.getCreateTime())"),
-            @Mapping(target = "courseTime",expression="java(toCourseTime(singleCourseEntity))"),
+            @Mapping(target = "courseTime",expression="java(toCourseTime(evaRecordEntity.getTask().getCourInf()))"),
             @Mapping(target = "averScore",ignore = true),
     })
-    EvaRecordCO evaRecordEntityToCo(EvaRecordEntity evaRecordEntity, SingleCourseEntity singleCourseEntity, CourseEntity courseEntity);
+    EvaRecordCO evaRecordEntityToCo(EvaRecordEntity evaRecordEntity);
 }

@@ -1,6 +1,10 @@
 package edu.cuit.adapter.controller.course.update;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import edu.cuit.app.service.impl.course.ICourseDetailServiceImpl;
+import edu.cuit.app.service.impl.course.ICourseServiceImpl;
+import edu.cuit.app.service.impl.course.ICourseTypeServiceImpl;
+import edu.cuit.app.service.impl.course.IUserCourseServiceImpl;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
 import edu.cuit.client.dto.cmd.course.AlignTeacherCmd;
@@ -16,6 +20,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -25,6 +30,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @Validated
 public class UpdateCourseController {
+    private final ICourseDetailServiceImpl courseDetailService;
+    private final ICourseServiceImpl courseService;
+    private final ICourseTypeServiceImpl courseTypeService;
+    private final IUserCourseServiceImpl userCourseService;
 
     /**
      * 修改一门课程
@@ -37,7 +46,8 @@ public class UpdateCourseController {
     public CommonResult<Void> updateCourse(
             @RequestParam(value = "semId",required = false) Integer semId,
             @Valid @RequestBody UpdateCourseCmd updateCourseCmd){
-        return null;
+        courseDetailService.updateCourse(semId, updateCourseCmd);
+        return CommonResult.success(null);
     }
 
     /**
@@ -51,7 +61,8 @@ public class UpdateCourseController {
     public CommonResult<Void> updateCourses(
             @RequestParam(value = "semId",required = false) Integer semId,
             @Valid @RequestBody UpdateCoursesCmd updateCoursesCmd){
-        return null;
+        courseDetailService.updateCourses(semId, updateCoursesCmd);
+        return CommonResult.success(null);
     }
 
     /**
@@ -65,7 +76,8 @@ public class UpdateCourseController {
     public CommonResult<Void> updateSingleCourse(
             @RequestParam(value = "semId",required = false) Integer semId,
             @Valid @RequestBody UpdateSingleCourseCmd updateSingleCourseCmd){
-        return null;
+        courseService.updateSingleCourse(semId, updateSingleCourseCmd);
+        return CommonResult.success(null);
     }
 
     /**
@@ -77,7 +89,8 @@ public class UpdateCourseController {
     @SaCheckPermission("course.type.update")
     public CommonResult<Void> updateCourseType(
             @Valid @RequestBody CourseType courseType){
-        return null;
+        courseTypeService.updateCourseType(courseType);
+        return CommonResult.success(null);
     }
 
     /**
@@ -89,7 +102,8 @@ public class UpdateCourseController {
     @SaCheckPermission("course.tabulation.add")
     public CommonResult<Void> addCourse(
             @RequestParam(value = "semId",required = false) Integer semId){
-        return null;
+        courseDetailService.addCourse(semId);
+        return CommonResult.success(null);
     }
 
     /**
@@ -103,7 +117,8 @@ public class UpdateCourseController {
     public CommonResult<Void> allocateTeacher(
             @RequestParam(value = "semId",required = false) Integer semId,
             @Valid  @RequestBody AlignTeacherCmd alignTeacherCmd){
-        return null;
+        courseService.allocateTeacher(semId, alignTeacherCmd);
+        return CommonResult.success(null);
     }
 
     /**
@@ -115,7 +130,8 @@ public class UpdateCourseController {
     @PostMapping("/course/type")
     @SaCheckPermission("course.type.add")
     public CommonResult<Void> addCourseType(@Valid @RequestBody CourseType courseType){
-        return null;
+        courseTypeService.addCourseType(courseType);
+        return CommonResult.success(null);
     }
 
     /**
@@ -129,8 +145,9 @@ public class UpdateCourseController {
     public CommonResult<Void> imporCourse(
             @RequestParam(value = "file",required = true) MultipartFile file,
             @PathVariable Integer type,
-            @RequestParam(value = "semester",required = true) String semester ){
-        return null;
+            @RequestParam(value = "semester",required = true) String semester ) throws IOException {
+        userCourseService.importCourse(file.getInputStream(), type, semester);
+        return CommonResult.success(null);
     }
 
     /**
@@ -145,7 +162,9 @@ public class UpdateCourseController {
     public CommonResult<Boolean> isImport(
             @PathVariable(value = "type",required = true) Integer type,
             @Valid @RequestBody Term term){
-        return null;
+
+        return CommonResult.success(userCourseService.isImported(type, term));
+
     }
 
     /**
@@ -157,7 +176,8 @@ public class UpdateCourseController {
     public CommonResult<Void> updateSelfCourse(
             @Valid @RequestBody SelfTeachCourseCO selfTeachCourseCO,
             @Valid @RequestBody List<SelfTeachCourseTimeCO> timeList){
-        return null;
+        userCourseService.updateSelfCourse(selfTeachCourseCO, timeList);
+        return CommonResult.success(null);
     }
 
     /**
@@ -170,7 +190,8 @@ public class UpdateCourseController {
     public CommonResult<Void> addExistCoursesDetails(
              @PathVariable Integer courseId
             ,@Valid @RequestBody SelfTeachCourseTimeCO timeCO){
-        return null;
+        courseService.addExistCoursesDetails(courseId, timeCO);
+        return CommonResult.success(null);
     }
 
     /**
@@ -186,7 +207,8 @@ public class UpdateCourseController {
           @RequestParam(value = "teacherId",required = true) Integer teacherId,
           @Valid @RequestBody UpdateCourseCmd courseInfo,
           @Valid @RequestBody List<SelfTeachCourseTimeCO> dateArr){
-        return null;
+        courseService.addNotExistCoursesDetails(semId, teacherId, courseInfo, dateArr);
+        return CommonResult.success(null);
     }
 
 }

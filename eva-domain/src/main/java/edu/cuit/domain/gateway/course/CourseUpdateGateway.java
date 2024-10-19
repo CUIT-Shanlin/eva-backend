@@ -32,7 +32,7 @@ public interface CourseUpdateGateway {
      *@param updateCourseCmd 修改课程信息
      *
      * */
-    void updateCourse(Integer semId, UpdateCourseCmd updateCourseCmd);
+    String updateCourse(Integer semId, UpdateCourseCmd updateCourseCmd);
 
     /**
      * 批量修改课程的模板
@@ -49,7 +49,7 @@ public interface CourseUpdateGateway {
      *@param userName 用户名
      *
      * */
-    Void updateSingleCourse(String userName,Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd);
+    Map<String,List<Integer>> updateSingleCourse(String userName,Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd);
 
     /**
      * 修改一节课的类型
@@ -79,7 +79,7 @@ public interface CourseUpdateGateway {
      *  @param alignTeacherCmd 内涵课程id，以及听课老师集合
      *
      * */
-    Void assignTeacher(Integer semId, AlignTeacherCmd alignTeacherCmd);
+    Map<String,List<Integer>> assignTeacher(Integer semId, AlignTeacherCmd alignTeacherCmd);
 
     /**
      * 导入课表文件
@@ -94,8 +94,9 @@ public interface CourseUpdateGateway {
      * 修改自己的一门课程信息及其课程时段
      *@param selfTeachCourseCO 用于确定是导入实验课表还是理论课表，0：理论课，1：实验课
      *  @param timeList 课表文件
+     *  @param userName 用户名
      * */
-    Void updateSelfCourse(String userName,SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeCO> timeList);
+    Map<String,Map<Integer,Integer>> updateSelfCourse(String userName,SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeCO> timeList);
 
     /**
      * 批量新建多节课(已有课程)
@@ -112,5 +113,12 @@ public interface CourseUpdateGateway {
      *  @param dateArr 自己教学的一门课程的一个课程时段模型集合
      * */
     void addNotExistCoursesDetails(Integer semId,Integer teacherId, UpdateCourseCmd courseInfo,  List<SelfTeachCourseTimeCO> dateArr);
+
+    /**
+     * 删除自己的一门课程
+     *  @param type 用于确定是导入实验课表还是理论课表，0：理论课，1：实验课
+     *  @param term 学期类
+     * */
+    Boolean isImported(Integer type,Term term);
 
 }
