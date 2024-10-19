@@ -23,12 +23,13 @@ import java.util.List;
 public class UserEvaServiceImpl implements IUserEvaService {
     private final EvaQueryGateway evaQueryGateway;
     private final EvaRecordBizConvertor evaRecordBizConvertor;
+    private final UserQueryGateway userQueryGateway;
 
     //去评教
     @Override
     @CheckSemId
     public List<EvaRecordCO> getEvaLogInfo(Integer semId, String keyword) {
-        Integer userId= (Integer) StpUtil.getLoginId();
+        Integer userId=userQueryGateway.findIdByUsername(String.valueOf(StpUtil.getLoginId())).get();
         List<EvaRecordCO> evaRecordCOS=new ArrayList<>();
         if(userId==null){
             throw new SysException("还没有登录，怎么查到这里的");
@@ -49,7 +50,7 @@ public class UserEvaServiceImpl implements IUserEvaService {
     @Override
     @CheckSemId
     public List<EvaRecordCO> getEvaLoggingInfo(Integer courseId, Integer semId) {
-        Integer userId= (Integer) StpUtil.getLoginId();
+        Integer userId=userQueryGateway.findIdByUsername(String.valueOf(StpUtil.getLoginId())).get();
         if(userId==null){
             throw new SysException("还没有登录，怎么查到这里的");
         }

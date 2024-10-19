@@ -3,7 +3,9 @@ import cn.dev33.satoken.stp.StpUtil;
 import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.PaginationBizConvertor;
 import edu.cuit.app.convertor.eva.EvaTaskBizConvertor;
+import edu.cuit.app.service.impl.MsgServiceImpl;
 import edu.cuit.client.api.eva.IEvaTaskService;
+import edu.cuit.client.bo.MessageBO;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.eva.EvaInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskBaseInfoCO;
@@ -13,9 +15,10 @@ import edu.cuit.client.dto.query.condition.EvaTaskConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.entity.eva.EvaTaskEntity;
-import edu.cuit.domain.gateway.eva.EvaDeleteGateway;
+import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.domain.gateway.eva.EvaQueryGateway;
 import edu.cuit.domain.gateway.eva.EvaUpdateGateway;
+import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,8 +31,11 @@ import java.util.List;
 public class EvaTaskServiceImpl implements IEvaTaskService {
     private final EvaUpdateGateway evaUpdateGateway;
     private final EvaQueryGateway evaQueryGateway;
+    private final UserQueryGateway userQueryGateway;
+    private final CourseQueryGateway courseQueryGateway;
     private final EvaTaskBizConvertor evaTaskBizConvertor;
     private final PaginationBizConvertor paginationBizConvertor;
+    private final MsgServiceImpl msgService;
     @Override
     @CheckSemId
     public PaginationQueryResultCO<EvaTaskBaseInfoCO> pageEvaUnfinishedTask(Integer semId, PagingQuery<EvaTaskConditionalQuery> query) {
@@ -43,7 +49,7 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
     @Override
     @CheckSemId
     public List<EvaTaskDetailInfoCO> evaSelfTaskInfo(Integer semId, String keyword) {
-        Integer useId=(Integer) StpUtil.getLoginId();
+        Integer useId=userQueryGateway.findIdByUsername(String.valueOf(StpUtil.getLoginId())).get();
         List<EvaTaskEntity> evaTaskEntities=evaQueryGateway.evaSelfTaskInfo(useId,semId,keyword);
         List<EvaTaskDetailInfoCO> evaTaskDetailInfoCOS=new ArrayList<>();
         for (EvaTaskEntity evaTaskEntity : evaTaskEntities) {
@@ -60,10 +66,14 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
         SingleCourseEntity singleCourseEntity=evaTaskEntity.getCourInf();
         return evaTaskBizConvertor.evaTaskEntityToTaskDetailCO(evaTaskEntity,singleCourseEntity);
     }
-    //发起任务之后，要同时发送该任务的评教待办消息 TODO
+    //发起任务之后，要同时发送该任务的评教待办消息
     @Override
     public Void postEvaTask(EvaInfoCO evaInfoCO) {
-        evaUpdateGateway.postEvaTask(evaInfoCO);
+        String msg=evaUpdateGateway.postEvaTask(evaInfoCO);
+        msgService.sendMessage(new MessageBO().setMsg(msg)
+                .setMode(1).setIsShowName(1)
+                .setRecipientId(evaInfoCO.getTeacherId()).setSenderId(evaInfoCO.getTeacherId())
+                .setType(0).setTaskId(evaInfoCO.getId()));
         return null;
     }
 
@@ -74,7 +84,7 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
     }
     @Override
     public Void cancelMyEvaTask(Integer id) {
-        Integer useId=(Integer) StpUtil.getLoginId();
+        Integer useId=userQueryGateway.findIdByUsername(String.valueOf(StpUtil.getLoginId())).get();
         EvaTaskEntity evaTaskEntity=evaQueryGateway.oneEvaTaskInfo(id).get();
         if(evaTaskEntity.getTeacher().getId()!=useId){
             throw new QueryException("不能删去不是自己评教的任务");

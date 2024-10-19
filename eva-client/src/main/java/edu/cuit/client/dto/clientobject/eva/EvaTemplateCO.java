@@ -44,6 +44,10 @@ public class EvaTemplateCO extends ClientObject {
      * 更新时间
      */
     private LocalDateTime updateTime;
+    /**
+     * 是否删除(-1非默认数据)
+     */
+    private Integer isDeleted;
 
 
 
