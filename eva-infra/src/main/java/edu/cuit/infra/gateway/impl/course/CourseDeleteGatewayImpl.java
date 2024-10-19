@@ -131,7 +131,7 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
 
     @Override
     @Transactional
-    public     Map<String,List<Integer>> deleteSelfCourse(String userName, Integer courseId) {
+    public Map<String,List<Integer>> deleteSelfCourse(String userName, Integer courseId) {
         if(userName==null){
             throw new QueryException("请先登录");
         }
