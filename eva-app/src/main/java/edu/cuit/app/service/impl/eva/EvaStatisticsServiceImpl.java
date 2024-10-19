@@ -57,12 +57,13 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
     }
 
     @Override
-    public PaginationQueryResultCO<UnqualifiedUserInfoCO> pageUnqualifiedUser(Integer type, Integer target, PagingQuery<UnqualifiedUserConditionalQuery> query) {
+    @CheckSemId
+    public PaginationQueryResultCO<UnqualifiedUserInfoCO> pageUnqualifiedUser(Integer semId,Integer type, Integer target, PagingQuery<UnqualifiedUserConditionalQuery> query) {
         if(type==1){
-            PaginationResultEntity<UnqualifiedUserInfoCO> page=evaQueryGateway.pageEvaUnqualifiedUserInfo(query,target);
+            PaginationResultEntity<UnqualifiedUserInfoCO> page=evaQueryGateway.pageEvaUnqualifiedUserInfo(semId,query,target);
             return paginationBizConvertor.toPaginationEntity(page,page.getRecords());
         } else if(type==0){
-            PaginationResultEntity<UnqualifiedUserInfoCO> page=evaQueryGateway.pageBeEvaUnqualifiedUserInfo(query,target);
+            PaginationResultEntity<UnqualifiedUserInfoCO> page=evaQueryGateway.pageBeEvaUnqualifiedUserInfo(semId,query,target);
             return paginationBizConvertor.toPaginationEntity(page,page.getRecords());
         }else {
             throw new SysException("type是10以外的值");
@@ -71,13 +72,14 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
     }
 
     @Override
-    public UnqualifiedUserResultCO getTargetAmountUnqualifiedUser(Integer type, Integer num, Integer target) {
+    @CheckSemId
+    public UnqualifiedUserResultCO getTargetAmountUnqualifiedUser(Integer semId,Integer type, Integer num, Integer target) {
 
         UnqualifiedUserResultCO unqualifiedUserResultCO=null;
         if(type==1){
-            unqualifiedUserResultCO=evaQueryGateway.getEvaTargetAmountUnqualifiedUser(null,num,target).get();
+            unqualifiedUserResultCO=evaQueryGateway.getEvaTargetAmountUnqualifiedUser(semId,null,num,target).get();
         } else if(type==0){
-            unqualifiedUserResultCO=evaQueryGateway.getBeEvaTargetAmountUnqualifiedUser(null,num,target).get();
+            unqualifiedUserResultCO=evaQueryGateway.getBeEvaTargetAmountUnqualifiedUser(semId,null,num,target).get();
         }else {
             throw new SysException("type是10以外的值");
         }

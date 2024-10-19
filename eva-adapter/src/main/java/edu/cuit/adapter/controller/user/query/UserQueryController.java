@@ -2,6 +2,7 @@ package edu.cuit.adapter.controller.user.query;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import edu.cuit.client.api.eva.IEvaStatisticsService;
 import edu.cuit.client.api.user.IUserService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
@@ -34,6 +35,7 @@ import java.util.List;
 public class UserQueryController {
 
     private final IUserService userService;
+    private final IEvaStatisticsService evaStatisticsService;
 
     /**
      * 一个用户信息
@@ -67,9 +69,9 @@ public class UserQueryController {
     public CommonResult<PaginationQueryResultCO<UnqualifiedUserInfoCO>> pageUnqualifiedUser(
             @PathVariable("type") Integer type,
             @PathVariable("target") Integer target,
-            @RequestBody @Valid PagingQuery<UnqualifiedUserConditionalQuery> query) {
-        // TODO 调用未达标用户
-        return null;
+            @RequestBody @Valid PagingQuery<UnqualifiedUserConditionalQuery> query,
+            @RequestParam(value = "semId",required = false) Integer semId) {
+        return CommonResult.success(evaStatisticsService.pageUnqualifiedUser(semId,type,target,query));
     }
 
     /**
@@ -77,14 +79,15 @@ public class UserQueryController {
      * @param type 0：获取 评教 未达标的用户、1：获取 被评教 次数未达标的用户
      * @param num 加载前几个用户数据
      * @param target 评教或被评教的目标 数目，大于等于该数目则达标，小于则未达标
+     * @param semId 学期id
      */
     @GetMapping("/users/unqualified/{type}/{num}/{target}")
     @SaCheckPermission("system.user.query")
     public CommonResult<UnqualifiedUserResultCO> getTargetAmountUnqualifiedUser(@PathVariable("type") Integer type,
                                                                          @PathVariable("num") Integer num,
-                                                                         @PathVariable("target") Integer target) {
-        // TODO 调用未达标用户
-        return null;
+                                                                         @PathVariable("target") Integer target,
+                                                                         @RequestParam(value = "semId",required = false) Integer semId) {
+        return CommonResult.success(evaStatisticsService.getTargetAmountUnqualifiedUser(semId,type, num, target));
     }
 
     /**
@@ -123,13 +126,11 @@ public class UserQueryController {
      * @param id 用户id
      * @return 响应对象，包含图片二进制数据，响应体content-type为image/jpeg
      */
-    @GetMapping("/user/avatar/{id}")
+    @GetMapping(value = "/user/avatar/{id}",produces = {"image/jpeg"})
     public ResponseEntity<byte[]> userAvatar(@PathVariable("id") Integer id) {
         byte[] userAvatarData = userService.getUserAvatar(id);
         HttpStatusCode status = userAvatarData.length == 0 ? HttpStatus.NOT_FOUND : HttpStatus.OK;
-        ResponseEntity<byte[]> response = new ResponseEntity<>(userAvatarData,status);
-        response.getHeaders().setContentType(MediaType.IMAGE_JPEG);
-        return response;
+        return new ResponseEntity<>(userAvatarData,status);
     }
 
     /**
