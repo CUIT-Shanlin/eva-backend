@@ -4,7 +4,11 @@ import cn.dev33.satoken.annotation.SaCheckPermission;
 import edu.cuit.client.api.user.IMenuService;
 import edu.cuit.client.dto.cmd.user.NewMenuCmd;
 import edu.cuit.client.dto.cmd.user.UpdateMenuCmd;
+import edu.cuit.common.enums.LogModule;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
+import edu.cuit.zhuyimeng.framework.logging.aspect.annotation.OperateLog;
+import edu.cuit.zhuyimeng.framework.logging.aspect.enums.OperateLogType;
+import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -28,8 +32,10 @@ public class MenuUpdateController {
      */
     @PutMapping("/menu")
     @SaCheckPermission("system.menu.update")
+    @OperateLog(module = LogModule.PERM,type = OperateLogType.UPDATE)
     public CommonResult<Void> update(@RequestBody @Valid UpdateMenuCmd updateMenuCmd) {
         menuService.update(updateMenuCmd);
+        LogUtils.logContent(updateMenuCmd.getName() + " 权限");
         return CommonResult.success();
     }
 
@@ -39,8 +45,10 @@ public class MenuUpdateController {
      */
     @PostMapping("/menu")
     @SaCheckPermission("system.menu.add")
+    @OperateLog(module = LogModule.PERM,type = OperateLogType.CREATE)
     public CommonResult<Void> create(@RequestBody @Valid NewMenuCmd newMenuCmd) {
         menuService.create(newMenuCmd);
+        LogUtils.logContent(newMenuCmd.getName() + " 权限");
         return CommonResult.success();
     }
 
@@ -50,8 +58,10 @@ public class MenuUpdateController {
      */
     @DeleteMapping("/menu/{menuId}")
     @SaCheckPermission("system.menu.delete")
+    @OperateLog(module = LogModule.PERM,type = OperateLogType.DELETE)
     public CommonResult<Void> delete(@PathVariable("menuId") Integer menuId) {
         menuService.delete(menuId);
+        LogUtils.logContent("ID为 " + menuId + " 的权限");
         return CommonResult.success();
     }
 
@@ -61,8 +71,10 @@ public class MenuUpdateController {
      */
     @DeleteMapping("/menus")
     @SaCheckPermission("system.menu.delete")
+    @OperateLog(module = LogModule.PERM,type = OperateLogType.DELETE)
     public CommonResult<Void> multipleDelete(@RequestBody List<Integer> ids) {
         menuService.multipleDelete(ids);
+        LogUtils.logContent("ID为 " + ids.toString() + " 的权限");
         return CommonResult.success();
     }
 
