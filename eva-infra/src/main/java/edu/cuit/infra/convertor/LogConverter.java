@@ -26,5 +26,6 @@ public interface LogConverter {
 
    SysLogModuleEntity toModuleEntity(SysLogModuleDO moduleDO);
 
-   SysLogDO toLogDO(SysLogBO logBO);
+   @Mapping(target = "userId",source = "userId")
+   SysLogDO toLogDO(SysLogBO logBO,Integer userId);
 }

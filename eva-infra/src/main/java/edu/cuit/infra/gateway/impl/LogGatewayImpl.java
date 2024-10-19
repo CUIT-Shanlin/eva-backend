@@ -1,5 +1,6 @@
 package edu.cuit.infra.gateway.impl;
 
+import com.alibaba.cola.exception.SysException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -13,6 +14,7 @@ import edu.cuit.domain.entity.log.SysLogModuleEntity;
 import edu.cuit.domain.entity.user.biz.RoleEntity;
 import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.domain.gateway.LogGateway;
+import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.infra.convertor.LogConverter;
 import edu.cuit.infra.convertor.PaginationConverter;
 import edu.cuit.infra.convertor.user.RoleConverter;
@@ -29,6 +31,7 @@ import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserRoleMapper;
 import edu.cuit.infra.util.QueryUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -40,6 +43,7 @@ import java.util.stream.Stream;
 
 @RequiredArgsConstructor
 @Component
+@Slf4j
 public class LogGatewayImpl implements LogGateway {
     private final SysLogMapper logMapper;
     private final SysUserMapper userMapper;
@@ -50,6 +54,8 @@ public class LogGatewayImpl implements LogGateway {
     private final SysLogModuleMapper logModuleMapper;
     private final LogConverter logConverter;
     private final PaginationConverter pageConverter;
+
+    private final UserQueryGateway userQueryGateway;
 
     private final Executor executor;
 
@@ -78,7 +84,13 @@ public class LogGatewayImpl implements LogGateway {
     public Optional<SysLogModuleEntity> getModuleByName(String name) {
         LambdaQueryWrapper<SysLogModuleDO> moduleQuery = Wrappers.lambdaQuery();
         moduleQuery.eq(SysLogModuleDO::getName,name);
-        return Optional.of(logConverter.toModuleEntity(logModuleMapper.selectOne(moduleQuery)));
+        SysLogModuleDO sysLogModuleDO = logModuleMapper.selectOne(moduleQuery);
+        if (sysLogModuleDO == null) {
+            SysException e = new SysException(name + " 日志模块不存在，请联系管理员");
+            log.error("发生系统异常",e);
+            throw e;
+        }
+        return Optional.of(logConverter.toModuleEntity(sysLogModuleDO));
     }
 
     @Override
@@ -90,7 +102,7 @@ public class LogGatewayImpl implements LogGateway {
     @Override
     public void insertLog(SysLogBO logBO) {
         CompletableFuture.runAsync(() -> {
-            SysLogDO logDO = logConverter.toLogDO(logBO);
+            SysLogDO logDO = logConverter.toLogDO(logBO,userQueryGateway.findIdByUsername(logBO.getUserId()).orElse(null));
             logMapper.insert(logDO);
         },executor);
     }

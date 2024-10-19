@@ -24,6 +24,9 @@ public interface LogBizConvertor {
     })
     OperateLogCO toOperateLogCO(SysLogEntity log);
 
+    @Mappings({
+            @Mapping(target = "content",source = "logBO.customContent")
+    })
     SysLogBO toOperateLogBO(OperateLogBO logBO,Integer moduleId);
 
     LogModuleCO toLogModuleCO(SysLogModuleEntity module);
