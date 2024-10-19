@@ -112,33 +112,37 @@ public interface EvaQueryGateway {
 
     /**
      * 获取指定数量评教任务未达标用户信息
+     * @param semId 学期id
      * @param query 查询对象
      * @param num 前几个用户数据
      * @param target 评教的目标 数目，大于等于该数目则达标，小于则未达标
      */
-    Optional<UnqualifiedUserResultCO> getEvaTargetAmountUnqualifiedUser(UnqualifiedUserConditionalQuery query, Integer num, Integer target);
+    Optional<UnqualifiedUserResultCO> getEvaTargetAmountUnqualifiedUser(Integer semId,UnqualifiedUserConditionalQuery query, Integer num, Integer target);
 
     /**
      * 获取指定数量被评教任务未达标用户信息
+     * @param semId 学期id
      * @param query 查询对象
      * @param num 前几个用户数据
      * @param target 被评教的目标 数目，大于等于该数目则达标，小于则未达标
      */
-    Optional<UnqualifiedUserResultCO> getBeEvaTargetAmountUnqualifiedUser(UnqualifiedUserConditionalQuery query,Integer num,Integer target);
+    Optional<UnqualifiedUserResultCO> getBeEvaTargetAmountUnqualifiedUser(Integer semId,UnqualifiedUserConditionalQuery query,Integer num,Integer target);
 
     /**
      * 分页获取评教未达标用户
+     * @param semId 学期id
      * @param query 查询对象
      * @param target 评教的目标 数目，大于等于该数目则达标，小于则未达标
      */
-    PaginationResultEntity<UnqualifiedUserInfoCO> pageEvaUnqualifiedUserInfo(PagingQuery<UnqualifiedUserConditionalQuery> query, Integer target);
+    PaginationResultEntity<UnqualifiedUserInfoCO> pageEvaUnqualifiedUserInfo(Integer semId,PagingQuery<UnqualifiedUserConditionalQuery> query, Integer target);
 
     /**
      * 分页获取被评教未达标用户
+     * @param semId 学期id
      * @param query 查询对象
      * @param target 被评教的目标 数目，大于等于该数目则达标，小于则未达标
      */
-    PaginationResultEntity<UnqualifiedUserInfoCO> pageBeEvaUnqualifiedUserInfo(PagingQuery<UnqualifiedUserConditionalQuery> query,Integer target);
+    PaginationResultEntity<UnqualifiedUserInfoCO> pageBeEvaUnqualifiedUserInfo(Integer semId,PagingQuery<UnqualifiedUserConditionalQuery> query,Integer target);
 
     /**
      * 获取用户已评教数目

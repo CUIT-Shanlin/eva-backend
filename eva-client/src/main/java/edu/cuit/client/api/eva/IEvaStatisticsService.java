@@ -62,7 +62,7 @@ public interface IEvaStatisticsService {
      * @param target 评教或被评教的目标 数目，大于等于该数目则达标，小于则未达标
      * @param query 查询对象
      */
-    PaginationQueryResultCO<UnqualifiedUserInfoCO> pageUnqualifiedUser(Integer type, Integer target, PagingQuery<UnqualifiedUserConditionalQuery> query);
+    PaginationQueryResultCO<UnqualifiedUserInfoCO> pageUnqualifiedUser(Integer semId,Integer type, Integer target, PagingQuery<UnqualifiedUserConditionalQuery> query);
 
 
     /**
@@ -71,5 +71,5 @@ public interface IEvaStatisticsService {
      * @param num 加载前几个用户数据
      * @param target 评教或被评教的目标 数目，大于等于该数目则达标，小于则未达标
      */
-    UnqualifiedUserResultCO getTargetAmountUnqualifiedUser(Integer type, Integer num,Integer target);
+    UnqualifiedUserResultCO getTargetAmountUnqualifiedUser(Integer semId,Integer type, Integer num,Integer target);
 }
