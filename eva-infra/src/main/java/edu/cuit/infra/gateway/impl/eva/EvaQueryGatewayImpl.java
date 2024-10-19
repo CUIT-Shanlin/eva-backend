@@ -612,7 +612,10 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     @Override
     public Optional<UnqualifiedUserResultCO> getEvaTargetAmountUnqualifiedUser(UnqualifiedUserConditionalQuery query, Integer num, Integer target){
         //根据系查老师
-        List<SysUserDO> teacher=sysUserMapper.selectList(new QueryWrapper<SysUserDO>().eq("department",query.getDepartment()));
+        List<SysUserDO> teacher=new ArrayList<>();
+        if(query!=null) {
+            teacher = sysUserMapper.selectList(new QueryWrapper<SysUserDO>().eq("department", query.getDepartment()));
+        }
         List<Integer> teacherIdS=teacher.stream().map(SysUserDO::getId).toList();
 
         if(teacherIdS==null){
