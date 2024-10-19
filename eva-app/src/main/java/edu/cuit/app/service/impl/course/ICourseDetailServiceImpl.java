@@ -3,13 +3,17 @@ package edu.cuit.app.service.impl.course;
 import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.PaginationBizConvertor;
 import edu.cuit.app.convertor.course.CourseBizConvertor;
+import edu.cuit.app.service.impl.MsgServiceImpl;
+import edu.cuit.app.service.operate.course.MsgResult;
 import edu.cuit.client.api.course.ICourseDetailService;
+import edu.cuit.client.bo.MessageBO;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.SimpleCourseResultCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.client.dto.clientobject.course.CourseModelCO;
 import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
+import edu.cuit.client.dto.cmd.SendMessageCmd;
 import edu.cuit.client.dto.cmd.course.UpdateCourseCmd;
 import edu.cuit.client.dto.cmd.course.UpdateCoursesCmd;
 import edu.cuit.client.dto.query.PagingQuery;
@@ -26,6 +30,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +40,8 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     private final CourseDeleteGateway courseDeleteGateway;
     private final CourseBizConvertor courseBizConvertor;
     private final PaginationBizConvertor pagenConvertor;
+    private final MsgServiceImpl msgService;
+   private final MsgResult msgResult;
     @CheckSemId
     @Override
     public PaginationQueryResultCO<CourseModelCO> pageCoursesInfo(Integer semId, PagingQuery<CourseConditionalQuery> courseQuery) {
@@ -49,7 +56,6 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     }
 
     @CheckSemId
-
     @Override
     public CourseDetailCO courseInfo(Integer id, Integer semId) {
 
@@ -81,7 +87,11 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     @CheckSemId
     @Override
     public void updateCourse(Integer semId, UpdateCourseCmd updateCourseCmd) {
-            courseUpdateGateway.updateCourse(semId, updateCourseCmd);
+        String msg = courseUpdateGateway.updateCourse(semId, updateCourseCmd);
+        msgService.sendMessage(new MessageBO().setMsg(msg)
+                .setMode(0).setIsShowName(1)
+                .setRecipientId(null).setSenderId(null)
+                .setType(1));
     }
 
     @CheckSemId
@@ -99,6 +109,8 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     @CheckSemId
     @Override
     public void delete(Integer semId, Integer id) {
-        courseDeleteGateway.deleteCourse(semId, id);
+
+        Map<String, List<Integer>> map = courseDeleteGateway.deleteCourse(semId, id);
+       msgResult.toSendMsg(map);
     }
 }

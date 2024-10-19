@@ -1,6 +1,11 @@
 package edu.cuit.adapter.controller.course.query;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import edu.cuit.adapter.controller.course.util.CalculateClassTime;
+import edu.cuit.app.service.impl.course.ICourseDetailServiceImpl;
+import edu.cuit.app.service.impl.course.ICourseServiceImpl;
+import edu.cuit.app.service.impl.course.ICourseTypeServiceImpl;
+import edu.cuit.app.service.impl.course.IUserCourseServiceImpl;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.course.*;
 import edu.cuit.client.dto.data.course.CourseTime;
@@ -11,7 +16,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -21,6 +28,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @Validated
 public class QueryUserCourseController {
+    private final ICourseDetailServiceImpl courseDetailService;
+    private final ICourseServiceImpl courseService;
+    private final ICourseTypeServiceImpl courseTypeService;
+    private final IUserCourseServiceImpl userCourseService;
 
     /**
      * 获取自己教学的课程基础信息
@@ -30,7 +41,7 @@ public class QueryUserCourseController {
     @GetMapping("/courses")
     public CommonResult<List<SimpleResultCO>> getUserCourseInfo(
             @RequestParam(value = "semId",required = false) Integer semId){
-        return null;
+        return CommonResult.success(userCourseService.getUserCourseInfo(semId));
     }
 
     /**
@@ -43,7 +54,7 @@ public class QueryUserCourseController {
     public CommonResult<List<CourseDetailCO>> getUserCourseDetail(
             @RequestParam(value = "id",required = true) Integer id,
             @RequestParam(value = "semId",required = false) Integer semId){
-        return null;
+            return CommonResult.success(userCourseService.getUserCourseDetail(id,semId));
     }
 
     /**
@@ -53,7 +64,7 @@ public class QueryUserCourseController {
     @GetMapping("/courses/suggestion")
     public CommonResult<List<RecommendCourseCO>> getSelfCourse(
             @RequestParam(value = "semId",required = false) Integer semId){
-        return null;
+        return CommonResult.success(userCourseService.getSelfCourse(semId));
     }
 
     /**
@@ -65,7 +76,10 @@ public class QueryUserCourseController {
     public CommonResult<LocalDateTime> getCourseTime(
             @RequestParam(value = "semId",required = false)Integer semId,
             @RequestBody(required = true)CourseTime courseTime){
-        return null;
+        String date = courseService.getDate(semId, courseTime.getWeek(), courseTime.getDay());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime localDateTime = LocalDateTime.parse(date, formatter);
+        return CommonResult.success(CalculateClassTime.calculateClassTime(localDateTime, courseTime.getStartTime()));
     }
 
     /**
@@ -76,7 +90,7 @@ public class QueryUserCourseController {
     @SaCheckPermission("course.table.add")
     public CommonResult<List<SelfTeachCourseCO>> selfCourseDetail(
             @RequestParam(value = "semId",required = true)Integer semId){
-        return null;
+        return CommonResult.success(userCourseService.selfCourseDetail(semId));
     }
 
     /**
@@ -87,7 +101,7 @@ public class QueryUserCourseController {
     @SaCheckPermission("course.table.add")
     public CommonResult<List<SelfTeachCourseTimeCO>> selfCourseTime(
             @PathVariable(value = "courseId",required = true) Integer courseId){
-        return null;
+        return CommonResult.success(userCourseService.selfCourseTime(courseId));
     }
 
 

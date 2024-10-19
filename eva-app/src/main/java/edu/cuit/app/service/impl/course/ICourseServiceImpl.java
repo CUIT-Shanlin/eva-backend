@@ -3,7 +3,10 @@ package edu.cuit.app.service.impl.course;
 import cn.dev33.satoken.stp.StpUtil;
 import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.course.CourseBizConvertor;
+import edu.cuit.app.service.impl.MsgServiceImpl;
+import edu.cuit.app.service.operate.course.MsgResult;
 import edu.cuit.client.api.course.ICourseService;
+import edu.cuit.client.bo.MessageBO;
 import edu.cuit.client.dto.clientobject.course.*;
 import edu.cuit.client.dto.clientobject.eva.EvaTeacherInfoCO;
 import edu.cuit.client.dto.cmd.course.AlignTeacherCmd;
@@ -20,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -29,6 +33,8 @@ public class ICourseServiceImpl implements ICourseService {
     private final CourseUpdateGateway courseUpdateGateway;
     private final CourseDeleteGateway courseDeleteGateway;
     private final CourseBizConvertor courseConvertor;
+//    private final MsgServiceImpl msgService;
+    private final MsgResult msgResult;
     @CheckSemId
     @Override
     public List<List<Integer>> courseNum(Integer semId, Integer week) {
@@ -70,19 +76,26 @@ public class ICourseServiceImpl implements ICourseService {
     @Override
     public void updateSingleCourse(Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd) {
         String userName =String.valueOf(StpUtil.getLoginId()) ;
-        courseUpdateGateway.updateSingleCourse(userName,semId,updateSingleCourseCmd);
+        Map<String, List<Integer>> map = courseUpdateGateway.updateSingleCourse(userName, semId, updateSingleCourseCmd);
+
+        msgResult.toSendMsg(map);
+
     }
 
     @CheckSemId
     @Override
     public void allocateTeacher(Integer semId, AlignTeacherCmd alignTeacherCmd) {
-        courseUpdateGateway.assignTeacher(semId,alignTeacherCmd);
+        Map<String, List<Integer>> map = courseUpdateGateway.assignTeacher(semId, alignTeacherCmd);
+       msgResult.toSendMsg(map);
+
     }
 
     @CheckSemId
     @Override
     public void deleteCourses(Integer semId, Integer id, CoursePeriod coursePeriod) {
-        courseDeleteGateway.deleteCourses(semId,id,coursePeriod);
+        Map<String, List<Integer>> map = courseDeleteGateway.deleteCourses(semId, id, coursePeriod);
+        msgResult.toSendMsg(map);
+
     }
 
     @Override

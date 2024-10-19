@@ -119,11 +119,14 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     public Optional<CourseDetailCO> getCourseInfo(Integer id, Integer semId) {
         //根据id和semId来查询课程信息
         CourseDO courseDO = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", id).eq("semester_id", semId));
+        if(courseDO==null){
+            throw new QueryException("该课程不存在");
+        }
         //根据id和semId来查询评教快照信息
         CourOneEvaTemplateDO courOneEvaTemplateDO = CourOneEvaTemplateMapper.selectOne(new QueryWrapper<CourOneEvaTemplateDO>().eq("course_id", id).eq("semester_id", semId));
         //将courOneEvaTemplateDO中的formtemplate(json)字符串，转换为EvaTemplateCO
         EvaTemplateCO evaTemplateCO=null;
-        if(courOneEvaTemplateDO.getFormTemplate()!=null){
+        if(courOneEvaTemplateDO!=null&&courOneEvaTemplateDO.getFormTemplate()!=null){
             try {
                 evaTemplateCO = new ObjectMapper().readValue(courOneEvaTemplateDO.getFormTemplate(), EvaTemplateCO.class);
             } catch (JsonProcessingException e) {
@@ -465,7 +468,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     @Override
     public String getDate(Integer semId, Integer week, Integer day) {
         SemesterDO semesterDO = semesterMapper.selectById(semId);
-        LocalDate localDate = semesterDO.getStartDate().plusDays((week-1) * 7 + day - 1);
+        LocalDate localDate = semesterDO.getStartDate().plusDays((week-1) * 7L + day - 1);
         return localDate.toString();
     }
 
