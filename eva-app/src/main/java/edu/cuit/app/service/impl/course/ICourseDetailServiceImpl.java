@@ -3,6 +3,7 @@ package edu.cuit.app.service.impl.course;
 import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.PaginationBizConvertor;
 import edu.cuit.app.convertor.course.CourseBizConvertor;
+import edu.cuit.app.service.impl.MsgServiceImpl;
 import edu.cuit.client.api.course.ICourseDetailService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.SimpleCourseResultCO;
@@ -35,6 +36,7 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     private final CourseDeleteGateway courseDeleteGateway;
     private final CourseBizConvertor courseBizConvertor;
     private final PaginationBizConvertor pagenConvertor;
+    private final MsgServiceImpl msgService;
     @CheckSemId
     @Override
     public PaginationQueryResultCO<CourseModelCO> pageCoursesInfo(Integer semId, PagingQuery<CourseConditionalQuery> courseQuery) {
@@ -49,7 +51,6 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     }
 
     @CheckSemId
-
     @Override
     public CourseDetailCO courseInfo(Integer id, Integer semId) {
 
@@ -81,7 +82,8 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     @CheckSemId
     @Override
     public void updateCourse(Integer semId, UpdateCourseCmd updateCourseCmd) {
-            courseUpdateGateway.updateCourse(semId, updateCourseCmd);
+        String msg = courseUpdateGateway.updateCourse(semId, updateCourseCmd);
+//        msgService.sendMessage();
     }
 
     @CheckSemId
