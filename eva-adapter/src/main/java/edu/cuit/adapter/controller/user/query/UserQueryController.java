@@ -80,7 +80,7 @@ public class UserQueryController {
      */
     @GetMapping("/users/unqualified/{type}/{num}/{target}")
     @SaCheckPermission("system.user.query")
-    public CommonResult<List<UnqualifiedUserResultCO>> getTargetAmountUnqualifiedUser(@PathVariable("type") Integer type,
+    public CommonResult<UnqualifiedUserResultCO> getTargetAmountUnqualifiedUser(@PathVariable("type") Integer type,
                                                                          @PathVariable("num") Integer num,
                                                                          @PathVariable("target") Integer target) {
         // TODO 调用未达标用户
@@ -97,7 +97,6 @@ public class UserQueryController {
     public CommonResult<List<UserSingleCourseScoreCO>> oneUserScore(
             @PathVariable("userId") Integer userId,
             @RequestParam(value = "semId",required = false) Integer semId) {
-        //TODO 判断学期是否
         return CommonResult.success(userService.getOneUserScore(userId,semId));
     }
 
