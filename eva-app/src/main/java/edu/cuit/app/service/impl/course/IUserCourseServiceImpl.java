@@ -10,6 +10,7 @@ import edu.cuit.app.convertor.course.CourseBizConvertor;
 import edu.cuit.app.resolver.course.CourseExcelResolver;
 
 import edu.cuit.app.service.impl.MsgServiceImpl;
+import edu.cuit.app.service.operate.course.MsgResult;
 import edu.cuit.app.service.operate.course.query.UserCourseDetailQueryExec;
 import edu.cuit.app.service.operate.course.update.FileImportExec;
 import edu.cuit.client.api.course.IUserCourseService;
@@ -41,6 +42,8 @@ public class IUserCourseServiceImpl implements IUserCourseService {
     private final CourseBizConvertor courseConvertor;
     private final UserCourseDetailQueryExec userCourseDetailQueryExec;
     private final MsgServiceImpl msgService;
+    private final MsgResult msgResult;
+
 
     @CheckSemId
     @Override
@@ -118,7 +121,8 @@ public class IUserCourseServiceImpl implements IUserCourseService {
 
     @Override
     public Void deleteSelfCourse(Integer courseId) {
-        courseDeleteGateway.deleteSelfCourse(String.valueOf(StpUtil.getLoginId()),courseId);
+        Map<String, List<Integer>> map = courseDeleteGateway.deleteSelfCourse(String.valueOf(StpUtil.getLoginId()), courseId);
+        msgResult.toSendMsg(map);
         return null;
     }
 

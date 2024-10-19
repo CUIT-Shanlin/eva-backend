@@ -49,7 +49,7 @@ public interface CourseUpdateGateway {
      *@param userName 用户名
      *
      * */
-    Void updateSingleCourse(String userName,Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd);
+    Map<String,List<Integer>> updateSingleCourse(String userName,Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd);
 
     /**
      * 修改一节课的类型
@@ -79,7 +79,7 @@ public interface CourseUpdateGateway {
      *  @param alignTeacherCmd 内涵课程id，以及听课老师集合
      *
      * */
-    Void assignTeacher(Integer semId, AlignTeacherCmd alignTeacherCmd);
+    Map<String,List<Integer>> assignTeacher(Integer semId, AlignTeacherCmd alignTeacherCmd);
 
     /**
      * 导入课表文件

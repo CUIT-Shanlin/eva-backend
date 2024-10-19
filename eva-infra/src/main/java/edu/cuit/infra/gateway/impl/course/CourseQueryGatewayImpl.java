@@ -465,7 +465,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     @Override
     public String getDate(Integer semId, Integer week, Integer day) {
         SemesterDO semesterDO = semesterMapper.selectById(semId);
-        LocalDate localDate = semesterDO.getStartDate().plusDays((week-1) * 7 + day - 1);
+        LocalDate localDate = semesterDO.getStartDate().plusDays((week-1) * 7L + day - 1);
         return localDate.toString();
     }
 

@@ -1,6 +1,10 @@
 package edu.cuit.adapter.controller.course.update;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import edu.cuit.app.service.impl.course.ICourseDetailServiceImpl;
+import edu.cuit.app.service.impl.course.ICourseServiceImpl;
+import edu.cuit.app.service.impl.course.ICourseTypeServiceImpl;
+import edu.cuit.app.service.impl.course.IUserCourseServiceImpl;
 import edu.cuit.client.dto.data.course.CoursePeriod;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +21,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @Validated
 public class DeleteCourseController {
+    private final ICourseDetailServiceImpl courseDetailService;
+    private final ICourseServiceImpl courseService;
+    private final ICourseTypeServiceImpl courseTypeService;
+    private final IUserCourseServiceImpl userCourseService;
     /**
      * 连带删除一门课程
      *  @param semId 学期id
@@ -27,7 +35,8 @@ public class DeleteCourseController {
     public CommonResult<Void> delete(
             @RequestParam(value = "id",required = true) Integer id,
             @RequestParam(value = "semId",required = false) Integer semId){
-        return null;
+        courseDetailService.delete(semId,id);
+        return CommonResult.success(null);
     }
 
     /**
@@ -42,7 +51,8 @@ public class DeleteCourseController {
             @RequestParam(value = "id",required = true) Integer id,
             @RequestParam(value = "semId",required = false) Integer semId,
             @RequestBody CoursePeriod coursePeriod){
-        return null;
+        courseService.deleteCourses(semId,id,coursePeriod);
+        return CommonResult.success(null);
     }
 
     /**
@@ -53,7 +63,8 @@ public class DeleteCourseController {
     @SaCheckPermission("course.type.delete")
     public CommonResult<Void> deleteCourseType(
             @RequestParam(value = "id",required = true) Integer id){
-        return null;
+        courseTypeService.deleteCourseType(id);
+        return CommonResult.success(null);
     }
 
     /**
@@ -64,8 +75,9 @@ public class DeleteCourseController {
     @SaCheckPermission("course.type.delete")
     public CommonResult<Void> deleteCoursesType(
             @RequestBody List<Integer> ids){
+        courseTypeService.deleteCoursesType(ids);
 
-        return null;
+        return CommonResult.success(null);
     }
 
     /**
@@ -75,8 +87,8 @@ public class DeleteCourseController {
     @DeleteMapping("/course/my/{courseId}")
     public CommonResult<Void> deleteSelfCourse(
            @PathVariable(value = "courseId") Integer courseId){
-
-        return null;
+        userCourseService.deleteSelfCourse(courseId);
+        return CommonResult.success(null);
     }
 
 }
