@@ -5,8 +5,6 @@ import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.eva.EvaRecordBizConvertor;
 import edu.cuit.client.api.eva.IUserEvaService;
 import edu.cuit.client.dto.clientobject.eva.EvaRecordCO;
-import edu.cuit.domain.entity.course.CourseEntity;
-import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.entity.eva.EvaRecordEntity;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.domain.gateway.eva.EvaDeleteGateway;
@@ -22,11 +20,8 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class UserEvaServiceImpl implements IUserEvaService {private final EvaDeleteGateway evaDeleteGateway;
-    private final EvaUpdateGateway evaUpdateGateway;
+public class UserEvaServiceImpl implements IUserEvaService {
     private final EvaQueryGateway evaQueryGateway;
-    private final UserQueryGateway userQueryGateway;
-    private final CourseQueryGateway courseQueryGateway;
     private final EvaRecordBizConvertor evaRecordBizConvertor;
 
     //去评教
@@ -42,13 +37,10 @@ public class UserEvaServiceImpl implements IUserEvaService {private final EvaDel
         if(evaRecordEntities.size()==0){
             throw new QueryException("并没有找到相关的评教记录");
         }
-        for(int i=0;i<evaRecordEntities.size();i++){
-            CourseEntity courseEntity =courseQueryGateway.getCourseByInfo
-                            (evaRecordEntities.get(i).getTask().getCourInf().getId()).get();
-            SingleCourseEntity singleCourseEntity=evaRecordEntities.get(i).getTask().getCourInf();
-            EvaRecordCO evaRecordCO=evaRecordBizConvertor.evaRecordEntityToCo(evaRecordEntities.get(i),singleCourseEntity,courseEntity);
+        for (EvaRecordEntity evaRecordEntity : evaRecordEntities) {
+            EvaRecordCO evaRecordCO = evaRecordBizConvertor.evaRecordEntityToCo(evaRecordEntity);
 
-            evaRecordCO.setAverScore(evaQueryGateway.getScoreFromRecord(evaRecordEntities.get(i).getFormPropsValues()).get());
+            evaRecordCO.setAverScore(evaQueryGateway.getScoreFromRecord(evaRecordEntity.getFormPropsValues()).get());
             evaRecordCOS.add(evaRecordCO);
         }
         return evaRecordCOS;
@@ -66,13 +58,10 @@ public class UserEvaServiceImpl implements IUserEvaService {private final EvaDel
         if(evaRecordEntities.size()==0){
             throw new QueryException("并没有找到相关的评教记录");
         }
-        for(int i=0;i<evaRecordEntities.size();i++){
-            CourseEntity courseEntity =courseQueryGateway.getCourseByInfo
-                    (evaRecordEntities.get(i).getTask().getCourInf().getId()).get();
-            SingleCourseEntity singleCourseEntity=evaRecordEntities.get(i).getTask().getCourInf();
-            EvaRecordCO evaRecordCO=evaRecordBizConvertor.evaRecordEntityToCo(evaRecordEntities.get(i),singleCourseEntity,courseEntity);
+        for (EvaRecordEntity evaRecordEntity : evaRecordEntities) {
+            EvaRecordCO evaRecordCO = evaRecordBizConvertor.evaRecordEntityToCo(evaRecordEntity);
 
-            evaRecordCO.setAverScore(evaQueryGateway.getScoreFromRecord(evaRecordEntities.get(i).getFormPropsValues()).get());
+            evaRecordCO.setAverScore(evaQueryGateway.getScoreFromRecord(evaRecordEntity.getFormPropsValues()).get());
             evaRecordCOS.add(evaRecordCO);
         }
         return evaRecordCOS;

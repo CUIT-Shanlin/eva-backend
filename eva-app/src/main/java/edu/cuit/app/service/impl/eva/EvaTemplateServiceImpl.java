@@ -1,32 +1,23 @@
 package edu.cuit.app.service.impl.eva;
-import com.alibaba.cola.exception.BizException;
 import edu.cuit.app.aop.CheckSemId;
-import edu.cuit.app.convertor.user.MenuBizConvertor;
+import edu.cuit.app.convertor.PaginationBizConvertor;
+import edu.cuit.app.convertor.eva.EvaTemplateBizConvertor;
 import edu.cuit.client.api.eva.IEvaTemplateService;
-import edu.cuit.client.api.user.IMenuService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
-import edu.cuit.client.dto.clientobject.SimplePercentCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
-import edu.cuit.client.dto.clientobject.user.GenericMenuSectionCO;
-import edu.cuit.client.dto.clientobject.user.MenuCO;
-import edu.cuit.client.dto.cmd.user.NewMenuCmd;
-import edu.cuit.client.dto.cmd.user.UpdateMenuCmd;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
-import edu.cuit.client.dto.query.condition.MenuConditionalQuery;
+import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.eva.EvaTemplateEntity;
 import edu.cuit.domain.gateway.eva.EvaDeleteGateway;
 import edu.cuit.domain.gateway.eva.EvaQueryGateway;
 import edu.cuit.domain.gateway.eva.EvaUpdateGateway;
-import edu.cuit.domain.gateway.user.MenuQueryGateway;
-import edu.cuit.domain.gateway.user.MenuUpdateGateway;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,10 +27,16 @@ public class EvaTemplateServiceImpl implements IEvaTemplateService {
     private final EvaDeleteGateway evaDeleteGateway;
     private final EvaUpdateGateway evaUpdateGateway;
     private final EvaQueryGateway evaQueryGateway;
+    private final PaginationBizConvertor paginationBizConvertor;
+    private final EvaTemplateBizConvertor evaTemplateBizConvertor;
     @Override
     @CheckSemId
     public PaginationQueryResultCO<EvaTemplateCO> pageEvaTemplate(Integer semId, PagingQuery<GenericConditionalQuery> query) {
-        return null;
+        PaginationResultEntity<EvaTemplateEntity> page=evaQueryGateway.pageEvaTemplate(semId,query);
+        List<EvaTemplateCO> results = page.getRecords().stream()
+                .map(evaTemplateBizConvertor::evaTemplateToEvaTemplateEntity)
+                .toList();
+        return paginationBizConvertor.toPaginationEntity(page,results);
     }
 
     @Override
@@ -61,8 +58,7 @@ public class EvaTemplateServiceImpl implements IEvaTemplateService {
     @Override
     @CheckSemId
     public Optional<String> evaTemplateByTaskId(Integer taskId, Integer semId) {
-        Optional<String> prop =evaQueryGateway.getTaskTemplate(taskId,semId);
-        return prop;
+        return evaQueryGateway.getTaskTemplate(taskId,semId);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package edu.cuit.app.convertor.eva;
 
 import edu.cuit.client.dto.clientobject.eva.EvaInfoCO;
+import edu.cuit.client.dto.clientobject.eva.EvaTaskBaseInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskDetailInfoCO;
 import edu.cuit.client.dto.data.course.CourseTime;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
@@ -36,4 +37,10 @@ public interface EvaTaskBizConvertor {
     })
     EvaTaskDetailInfoCO evaTaskEntityToTaskDetailCO(EvaTaskEntity evaTaskEntity,SingleCourseEntity singleCourseEntity);
 
+    @Mappings({
+            @Mapping(target = "evaTeacherName",expression="java(evaTaskEntity.getTeacher().getName())"),
+            @Mapping(target = "teacherName",expression= "java(evaTaskEntity.getCourInf().getCourseEntity().getTeacher().getName())"),
+            @Mapping(target = "courseName",expression= "java(evaTaskEntity.getCourInf().getCourseEntity().getSubjectEntity().getName())"),
+    })
+    EvaTaskBaseInfoCO evaTaskEntityToEvaBaseCO(EvaTaskEntity evaTaskEntity);
 }
