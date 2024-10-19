@@ -71,7 +71,7 @@ public class UserQueryController {
             @PathVariable("target") Integer target,
             @RequestBody @Valid PagingQuery<UnqualifiedUserConditionalQuery> query,
             @RequestParam(value = "semId",required = false) Integer semId) {
-        return CommonResult.success(evaStatisticsService.pageUnqualifiedUser(type,target,query));
+        return CommonResult.success(evaStatisticsService.pageUnqualifiedUser(semId,type,target,query));
     }
 
     /**
@@ -87,7 +87,7 @@ public class UserQueryController {
                                                                          @PathVariable("num") Integer num,
                                                                          @PathVariable("target") Integer target,
                                                                          @RequestParam(value = "semId",required = false) Integer semId) {
-        return CommonResult.success(evaStatisticsService.getTargetAmountUnqualifiedUser(type, num, target));
+        return CommonResult.success(evaStatisticsService.getTargetAmountUnqualifiedUser(semId,type, num, target));
     }
 
     /**

@@ -609,10 +609,17 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
 
         return Optional.of(pastTimeEvaDetailCO);
     }
+    //怎么得到query里面的keyword TODO
     @Override
-    public Optional<UnqualifiedUserResultCO> getEvaTargetAmountUnqualifiedUser(UnqualifiedUserConditionalQuery query, Integer num, Integer target){
+    public Optional<UnqualifiedUserResultCO> getEvaTargetAmountUnqualifiedUser(Integer semId,UnqualifiedUserConditionalQuery query, Integer num, Integer target){
         //根据系查老师
-        List<SysUserDO> teacher=sysUserMapper.selectList(new QueryWrapper<SysUserDO>().eq("department",query.getDepartment()));
+        List<SysUserDO> teacher=new ArrayList<>();
+        if(query.getDepartment()!=null) {
+            teacher = sysUserMapper.selectList(new QueryWrapper<SysUserDO>().eq("department", query.getDepartment()));
+        }else {
+            teacher=sysUserMapper.selectList(null);
+        }
+
         List<Integer> teacherIdS=teacher.stream().map(SysUserDO::getId).toList();
 
         if(teacherIdS==null){
@@ -622,10 +629,10 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         List<UnqualifiedUserInfoCO> dataArr=new ArrayList<>();
         //根据
         for(int i=0;i<teacherIdS.size();i++){
-            Integer n=getEvaNumByTeacherId(teacherIdS.get(i));
+            Integer n=getEvaNumByTeacherId(teacherIdS.get(i),semId);
             if(n<target){
                 UnqualifiedUserInfoCO unqualifiedUserInfoCO=new UnqualifiedUserInfoCO();
-                unqualifiedUserInfoCO.setDepartment(query.getDepartment());
+                unqualifiedUserInfoCO.setDepartment(sysUserMapper.selectById(teacherIdS.get(i)).getDepartment());
                 unqualifiedUserInfoCO.setId(teacherIdS.get(i));
                 unqualifiedUserInfoCO.setName(sysUserMapper.selectById(teacherIdS.get(i)).getName());
                 unqualifiedUserInfoCO.setNum(n);
@@ -640,9 +647,14 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         return Optional.of(unqualifiedUserResultCO);
     }
     @Override
-    public Optional<UnqualifiedUserResultCO> getBeEvaTargetAmountUnqualifiedUser(UnqualifiedUserConditionalQuery query,Integer num,Integer target){
+    public Optional<UnqualifiedUserResultCO> getBeEvaTargetAmountUnqualifiedUser(Integer semId,UnqualifiedUserConditionalQuery query,Integer num,Integer target){
         //根据系查老师
-        List<SysUserDO> teacher=sysUserMapper.selectList(new QueryWrapper<SysUserDO>().eq("department",query.getDepartment()));
+        List<SysUserDO> teacher=new ArrayList<>();
+        if(query.getDepartment()!=null) {
+            teacher = sysUserMapper.selectList(new QueryWrapper<SysUserDO>().eq("department", query.getDepartment()));
+        }else {
+            teacher=sysUserMapper.selectList(null);
+        }
         List<Integer> teacherIdS=teacher.stream().map(SysUserDO::getId).toList();
 
         if(teacherIdS==null){
@@ -653,10 +665,10 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
 
         //任务-》课程详情-》课程-》老师
         for(int i=0;i<teacherIdS.size();i++){
-            Integer n=getEvaEdNumByTeacherId(teacherIdS.get(i));
+            Integer n=getEvaEdNumByTeacherId(teacherIdS.get(i),semId);
             if(n<target){
                 UnqualifiedUserInfoCO unqualifiedUserInfoCO=new UnqualifiedUserInfoCO();
-                unqualifiedUserInfoCO.setDepartment(query.getDepartment());
+                unqualifiedUserInfoCO.setDepartment(sysUserMapper.selectById(teacherIdS.get(i)).getDepartment());
                 unqualifiedUserInfoCO.setId(teacherIdS.get(i));
                 unqualifiedUserInfoCO.setName(sysUserMapper.selectById(teacherIdS.get(i)).getName());
                 unqualifiedUserInfoCO.setNum(n);
@@ -670,17 +682,24 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         return Optional.of(unqualifiedUserResultCO);
     }
     @Override
-    public PaginationResultEntity<UnqualifiedUserInfoCO> pageEvaUnqualifiedUserInfo(PagingQuery<UnqualifiedUserConditionalQuery> query, Integer target){
+    public PaginationResultEntity<UnqualifiedUserInfoCO> pageEvaUnqualifiedUserInfo(Integer semId,PagingQuery<UnqualifiedUserConditionalQuery> query, Integer target){
         List<Integer> userIds=new ArrayList<>();
         Page<SysUserDO> pageUser=new Page<>(query.getPage(),query.getSize());
+        QueryWrapper<SysUserDO> queryWrapper = null;
         if(query.getQueryObj().getDepartment()!=null){
-            pageUser=sysUserMapper.selectPage(pageUser,new QueryWrapper<SysUserDO>().like("department",query.getQueryObj().getDepartment()));
-            userIds=pageUser.getRecords().stream().map(SysUserDO::getId).toList();
+            queryWrapper.eq("department",query.getQueryObj().getDepartment());
         }
+        if(query.getQueryObj().getKeyword()!=null){
+            queryWrapper.eq("name",query.getQueryObj().getKeyword());
+        }
+
+        pageUser=sysUserMapper.selectPage(pageUser,queryWrapper);
+        userIds=pageUser.getRecords().stream().map(SysUserDO::getId).toList();
+
         List<Integer> teacherIdS=new ArrayList<>();
         List<UnqualifiedUserInfoCO> records=new ArrayList<>();
         for(int i=0;i<userIds.size();i++){
-            Integer k=getEvaNumByTeacherId(userIds.get(i));
+            Integer k=getEvaNumByTeacherId(userIds.get(i),semId);
             if(k>=target){
                 teacherIdS.add(userIds.get(i));
                 UnqualifiedUserInfoCO unqualifiedUserInfoCO=new UnqualifiedUserInfoCO();
@@ -697,17 +716,25 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         return paginationConverter.toPaginationEntity(pageUnqualifiedUserInfoCO,records);
     }
     @Override
-    public PaginationResultEntity<UnqualifiedUserInfoCO> pageBeEvaUnqualifiedUserInfo(PagingQuery<UnqualifiedUserConditionalQuery> query,Integer target){
+    public PaginationResultEntity<UnqualifiedUserInfoCO> pageBeEvaUnqualifiedUserInfo(Integer semId,PagingQuery<UnqualifiedUserConditionalQuery> query,Integer target){
+
         List<Integer> userIds=new ArrayList<>();
         Page<SysUserDO> pageUser=new Page<>(query.getPage(),query.getSize());
+        QueryWrapper<SysUserDO> queryWrapper = null;
         if(query.getQueryObj().getDepartment()!=null){
-            pageUser=sysUserMapper.selectPage(pageUser,new QueryWrapper<SysUserDO>().like("department",query.getQueryObj().getDepartment()));
-            userIds=pageUser.getRecords().stream().map(SysUserDO::getId).toList();
+            queryWrapper.eq("department",query.getQueryObj().getDepartment());
         }
+        if(query.getQueryObj().getKeyword()!=null){
+            queryWrapper.eq("name",query.getQueryObj().getKeyword());
+        }
+
+        pageUser=sysUserMapper.selectPage(pageUser,queryWrapper);
+        userIds=pageUser.getRecords().stream().map(SysUserDO::getId).toList();
+
         List<Integer> teacherIdS=new ArrayList<>();
         List<UnqualifiedUserInfoCO> records=new ArrayList<>();
         for(int i=0;i<userIds.size();i++){
-            Integer k=getEvaEdNumByTeacherId(userIds.get(i));
+            Integer k=getEvaEdNumByTeacherId(userIds.get(i),semId);
             if(k>=target){
                 teacherIdS.add(userIds.get(i));
                 UnqualifiedUserInfoCO unqualifiedUserInfoCO=new UnqualifiedUserInfoCO();
@@ -950,9 +977,14 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     }
 
     //
-    private Integer getEvaNumByTeacherId(Integer teacherId){
-        List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id",teacherId));
-
+    private Integer getEvaNumByTeacherId(Integer teacherId,Integer semId){
+        List<EvaTaskDO> evaTaskDOS;
+        if(semId!=null){
+            List<Integer> evaIds=getEvaTaskIdS(semId);
+            evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id",teacherId).in("id",evaIds));
+        }else {
+            evaTaskDOS = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id", teacherId));
+        }
         if(evaTaskDOS==null){
             throw new QueryException("并未找到老师id对应的老师");
         }
@@ -968,9 +1000,13 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         return recordIds.size();
     }
     //
-    private Integer getEvaEdNumByTeacherId(Integer teacherId){
-        List<CourseDO> courseDOS=courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id",teacherId));
-
+    private Integer getEvaEdNumByTeacherId(Integer teacherId,Integer semId){
+        List<CourseDO> courseDOS;
+        if(semId!=null) {
+            courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", teacherId).eq("semester_id",semId));
+        }else {
+            courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", teacherId));
+        }
         if(courseDOS==null){
             throw new QueryException("并未找到老师id对应的老师");
         }
