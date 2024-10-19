@@ -1,6 +1,12 @@
 package edu.cuit.client.api.eva;
 
+import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.eva.*;
+import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
+import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
+import edu.cuit.client.dto.query.PagingQuery;
+import edu.cuit.client.dto.query.condition.UnqualifiedUserConditionalQuery;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -34,7 +40,7 @@ public interface IEvaStatisticsService {
      * @param num 获取多少个分数段的数据，分数段截取后段，如果有某个分数段 课程数目为0，应当忽略掉，不参与计算
      * @param interval 间隔，分数段之间的默认间隔，如果按照该间隔，无法达到 num 个有数据的分数段，则将间隔减少0.2分，直到达到 num 个分数段
      */
-    ScoreRangeCourseCO scoreRangeCourseInfo(Integer num, Integer interval);
+    List<ScoreRangeCourseCO> scoreRangeCourseInfo(Integer num, Integer interval);
 
     /**
      * 获取上个月和本月的评教数目，以有两个整数的List<Integer>形式返回，data[0]：上个月评教数目；data[1]：本月评教数目
@@ -50,4 +56,20 @@ public interface IEvaStatisticsService {
      * @param semId 学期id
      */
     PastTimeEvaDetailCO getEvaData(Integer semId, Integer num, Integer target, Integer evaTarget);
+    /**
+     * 分页获取未达标用户
+     * @param type 0：获取评教未达标的用户、1：获取被评教次数未达标的用户
+     * @param target 评教或被评教的目标 数目，大于等于该数目则达标，小于则未达标
+     * @param query 查询对象
+     */
+    PaginationQueryResultCO<UnqualifiedUserInfoCO> pageUnqualifiedUser(Integer type, Integer target, PagingQuery<UnqualifiedUserConditionalQuery> query);
+
+
+    /**
+     * 获取指定数目未达标的用户信息
+     * @param type 0：获取 评教 未达标的用户、1：获取 被评教 次数未达标的用户
+     * @param num 加载前几个用户数据
+     * @param target 评教或被评教的目标 数目，大于等于该数目则达标，小于则未达标
+     */
+    UnqualifiedUserResultCO getTargetAmountUnqualifiedUser(Integer type, Integer num,Integer target);
 }
