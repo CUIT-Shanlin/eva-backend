@@ -127,9 +127,7 @@ public class UserQueryController {
     public ResponseEntity<byte[]> userAvatar(@PathVariable("id") Integer id) {
         byte[] userAvatarData = userService.getUserAvatar(id);
         HttpStatusCode status = userAvatarData.length == 0 ? HttpStatus.NOT_FOUND : HttpStatus.OK;
-        ResponseEntity<byte[]> response = new ResponseEntity<>(userAvatarData,status);
-//        response.getHeaders().setContentType(MediaType.IMAGE_JPEG);
-        return response;
+        return new ResponseEntity<>(userAvatarData,status);
     }
 
     /**
