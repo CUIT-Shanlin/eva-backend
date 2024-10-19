@@ -88,7 +88,7 @@ public class TheoryCourseExcelResolver extends CourseExcelResolverStrategy {
         Row row = sheet.getRow(rowIndex);
         List<CourseExcelBO> results = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
-            int startColumn = i * 9 + 1;
+            int startColumn = i * 9 + WEEK_START;
             String courseName = row.getCell(startColumn).getStringCellValue();
             if (StrUtil.isBlank(courseName)) continue;
             String teacherName = row.getCell(startColumn + 2).getStringCellValue();
