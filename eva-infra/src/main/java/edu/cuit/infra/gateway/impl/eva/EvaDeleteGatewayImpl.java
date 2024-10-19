@@ -51,6 +51,11 @@ public class EvaDeleteGatewayImpl implements EvaDeleteGateway {
     @Transactional
     public Void deleteEvaTemplate(List<Integer> ids) {
         for(Integer id : ids){
+            //是否是默认数据
+            FormTemplateDO formTemplateDO=formTemplateMapper.selectById(id);
+            if(formTemplateDO.getIsDeleted()==1||formTemplateDO.getIsDeleted()==0){
+                throw new UpdateException("这是默认数据，杜锟浩说：”人类，默认数据，我罩的，懂？“");
+            }
             //没有分配在课程中
             QueryWrapper<CourseDO> courWrapper =new QueryWrapper<>();
             courWrapper.eq("templateId",id);

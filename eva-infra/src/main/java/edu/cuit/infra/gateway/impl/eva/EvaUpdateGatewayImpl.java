@@ -12,9 +12,11 @@ import edu.cuit.domain.gateway.eva.EvaUpdateGateway;
 import edu.cuit.infra.convertor.eva.EvaConvertor;
 import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
+import edu.cuit.infra.dal.database.dataobject.course.SemesterDO;
 import edu.cuit.infra.dal.database.dataobject.eva.*;
 import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
+import edu.cuit.infra.dal.database.mapper.course.SemesterMapper;
 import edu.cuit.infra.dal.database.mapper.eva.*;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -35,7 +38,8 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
     private final FormRecordMapper formRecordMapper;
     private final CourInfMapper courInfMapper;
     private final CourseMapper courseMapper;
-    private final CourseQueryGateway courseQueryGateway;
+
+    private final SemesterMapper semesterMapper;
     @Override
     @Transactional
     public Void updateEvaTemplate(EvaTemplateCO evaTemplateCO) {
@@ -59,9 +63,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         evaTaskDO.setUpdateTime(LocalDateTime.now());
         evaTaskMapper.update(evaTaskDO,new QueryWrapper<EvaTaskDO>().eq("id",evaTaskFormCO.getTaskId()));
 
-        //删除对应的两种消息 “该任务的待办评教消息” “该任务的系统逾期提醒消息” 根据type判断？
-        //msgTipMapper.delete(new QueryWrapper<MsgTipDO>().eq("task_id",evaTaskFormCO.getTaskId()).eq("type",0));
-        //msgTipMapper.delete(new QueryWrapper<MsgTipDO>().eq("task_id",evaTaskFormCO.getTaskId()).eq("type",2));
+        //
 
         return null;
     }
@@ -69,9 +71,37 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
     @Override
     @Transactional
     //TODO 同时发送该任务的评教待办消息;
-    public Void postEvaTask(EvaInfoCO evaInfoCO) {
+    public String postEvaTask(EvaInfoCO evaInfoCO) {
         //同时发送该任务的评教待办消息;TODO 朱还在写相关接口
         CourInfDO courInfDO=courInfMapper.selectById(evaInfoCO.getCourInfId());
+        CourseDO courseDO=courseMapper.selectById(courInfDO.getCourseId());
+        //选中的课程是否已经上完
+        SemesterDO semesterDO = semesterMapper.selectById(courseDO.getSemesterId());
+        LocalDate localDate = semesterDO.getStartDate().plusDays((courInfDO.getWeek()-1) * 7L + courInfDO.getDay() - 1);
+
+        Integer f=2;//判断是不是课程快临近结束或已经结束 1冲0无
+        if(localDate.getYear()>=LocalDate.now().getYear()){
+            if(localDate.getYear()==LocalDate.now().getYear()){
+                if(localDate.getMonthValue()<LocalDate.now().getMonthValue()){
+                    f=1;
+                }else if(localDate.getMonthValue()>LocalDate.now().getMonthValue()){
+                    f=0;
+                }else {
+                    if(localDate.getDayOfMonth()>LocalDate.now().getDayOfMonth()){
+                        f=0;
+                    }else {
+                        f=1;
+                    }
+                }
+            }else{
+                f=0;
+            }
+        }else {
+            f=1;
+        }
+        if(f==1){
+            throw new UpdateException("课程快临近结束或已经结束");
+        }
         //看看是否和老师自己的课有冲突
         List<CourseDO> courseDOList=courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id",evaInfoCO.getTeacherId()));
         List<Integer> courseIds=courseDOList.stream().map(CourseDO::getId).toList();

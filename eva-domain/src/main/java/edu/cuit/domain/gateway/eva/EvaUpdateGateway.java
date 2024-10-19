@@ -29,7 +29,7 @@ public interface EvaUpdateGateway {
      * 要同时发送该任务的评教待办消息;
      *@param evaInfoCO EvaInfoCO
      */
-    Void postEvaTask(EvaInfoCO evaInfoCO);
+    String postEvaTask(EvaInfoCO evaInfoCO);
     /**
      * 新建评教模板
      * @param evaTemplateCO EvaTemplateCO
