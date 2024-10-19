@@ -20,8 +20,7 @@ public class SemesterGatewayImpl implements SemesterGateway {
     @Override
     public List<SemesterCO> getAll() {
         List<SemesterDO> semesterDOS = semesterMapper.selectList(null);
-        List<SemesterCO> list = semesterDOS.stream().map(semesterConverter::toSemesterCO).toList();
-        return list;
+        return semesterDOS.stream().map(semesterConverter::toSemesterCO).toList();
     }
 
     @Override
