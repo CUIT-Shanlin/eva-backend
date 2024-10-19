@@ -69,7 +69,8 @@ public class UserQueryController {
     public CommonResult<PaginationQueryResultCO<UnqualifiedUserInfoCO>> pageUnqualifiedUser(
             @PathVariable("type") Integer type,
             @PathVariable("target") Integer target,
-            @RequestBody @Valid PagingQuery<UnqualifiedUserConditionalQuery> query) {
+            @RequestBody @Valid PagingQuery<UnqualifiedUserConditionalQuery> query,
+            @RequestParam(value = "semId",required = false) Integer semId) {
         return CommonResult.success(evaStatisticsService.pageUnqualifiedUser(type,target,query));
     }
 
