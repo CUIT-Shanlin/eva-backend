@@ -79,7 +79,6 @@ public class UpdateCourseController {
      *
      * */
     @PutMapping("/course/one")
-    @OperateLog(module = LogModule.COURSE,type = OperateLogType.UPDATE)
     @SaCheckPermission("course.tabulation.update")
     public CommonResult<Void> updateSingleCourse(
             @RequestParam(value = "semId",required = false) Integer semId,
@@ -109,7 +108,6 @@ public class UpdateCourseController {
      * */
     //TODO（删除该接口）
     @PostMapping("/course")
-    @OperateLog(module = LogModule.COURSE,type = OperateLogType.CREATE)
     @SaCheckPermission("course.tabulation.add")
     public CommonResult<Void> addCourse(@RequestParam(value = "semId",required = false) Integer semId){
         courseDetailService.addCourse(semId);
@@ -186,7 +184,6 @@ public class UpdateCourseController {
      *  @param timeList 课表文件
     * */
     @PutMapping("/course/my/info/date")
-    @OperateLog(module = LogModule.COURSE,type = OperateLogType.UPDATE)
     public CommonResult<Void> updateSelfCourse(
             @Valid @RequestBody SelfTeachCourseCO selfTeachCourseCO,
             @Valid @RequestBody List<SelfTeachCourseTimeCO> timeList){
