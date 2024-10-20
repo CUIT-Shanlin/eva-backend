@@ -12,7 +12,9 @@ import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 
 /**
  * Websocket 集中管理
@@ -26,6 +28,8 @@ public class WebsocketManager {
     private final Map<Integer,Pair<MessageConsumer,Class<?>>> consumers = new HashMap<>();
 
     private final ObjectMapper objectMapper;
+
+    private final Executor executor;
 
     private int consumerIndex = 0;
 
@@ -70,9 +74,11 @@ public class WebsocketManager {
      * @param message 消息对象
      */
     public void broadcastMessage(Object message) {
-        for (Object loginId : sessions.keySet()) {
-            sendMessage(loginId,message);
-        }
+        CompletableFuture.runAsync(() -> {
+            for (Object loginId : sessions.keySet()) {
+                sendMessage(loginId,message);
+            }
+        },executor);
     }
 
     /**
