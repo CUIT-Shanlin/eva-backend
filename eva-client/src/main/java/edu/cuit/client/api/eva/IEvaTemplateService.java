@@ -33,7 +33,7 @@ public interface IEvaTemplateService {
      * @param taskId 任务id
      * @param semId 学期id
      */
-    Optional<String> evaTemplateByTaskId(Integer taskId, Integer semId);
+    String evaTemplateByTaskId(Integer taskId, Integer semId);
 
     //修改
 

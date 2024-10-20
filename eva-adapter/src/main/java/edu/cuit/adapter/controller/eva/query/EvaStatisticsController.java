@@ -1,6 +1,7 @@
 package edu.cuit.adapter.controller.eva.query;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import edu.cuit.client.api.eva.IEvaStatisticsService;
 import edu.cuit.client.dto.clientobject.eva.ScoreRangeCourseCO;
 import edu.cuit.client.dto.clientobject.eva.*;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
@@ -18,6 +19,8 @@ import java.util.List;
 @Validated
 public class EvaStatisticsController {
 
+    private final IEvaStatisticsService iEvaStatisticsService;
+
     // 评教记录相关统计
 
     /**
@@ -30,7 +33,7 @@ public class EvaStatisticsController {
     public CommonResult<EvaScoreInfoCO> evaScoreStatisticsInfo(
             @RequestParam (value = "semId",required = false) Integer semId,
             @RequestParam ("score") Number score){
-        return null;
+        return CommonResult.success(iEvaStatisticsService.evaScoreStatisticsInfo(semId,score));
     }
     /**
      * 获取评教任务完成情况
@@ -40,7 +43,7 @@ public class EvaStatisticsController {
     @SaCheckPermission("evaluate.task.situation.query")
     public CommonResult<EvaSituationCO> evaTemplateSituation(
             @RequestParam (value = "semId",required = false) Integer semId){
-        return null;
+        return CommonResult.success(iEvaStatisticsService.evaTemplateSituation(semId));
     }
     // 评教看板相关
 
@@ -56,7 +59,7 @@ public class EvaStatisticsController {
             @PathVariable ("day") Integer day,
             @PathVariable ("num") Integer num,
             @RequestParam (value = "semId",required = false) Integer semId){
-        return null;
+        return CommonResult.success(iEvaStatisticsService.evaOneDayInfo(day, num, semId));
     }
     /**
      * 获取各个分数段中 课程的数目情况
@@ -67,7 +70,7 @@ public class EvaStatisticsController {
     public CommonResult<List<ScoreRangeCourseCO>> scoreRangeCourseInfo(
             @PathVariable ("num") Integer num,
             @PathVariable ("interval") Integer interval){
-        return null;
+        return CommonResult.success(iEvaStatisticsService.scoreRangeCourseInfo(num, interval));
     }
     /**
      * 获取上个月和本月的评教数目，以有两个整数的List<Integer>形式返回，data[0]：上个月评教数目；data[1]：本月评教数目
@@ -76,7 +79,7 @@ public class EvaStatisticsController {
     @GetMapping("/evaluate/month/count")
     public CommonResult<List<Integer>> getMonthEvaNUmber(
             @RequestParam(value = "semId",required = false) Integer semId){
-        return null;
+        return CommonResult.success(iEvaStatisticsService.getMonthEvaNUmber(semId));
     }
     /**
      * 获取指定过去一段时间内的详细评教统计数据
@@ -91,6 +94,6 @@ public class EvaStatisticsController {
             @PathVariable ("num") Integer num,
             @PathVariable ("target") Integer target,
             @PathVariable ("evaTarget") Integer evaTarget){
-        return null;
+        return CommonResult.success(iEvaStatisticsService.getEvaData(semId, num, target, evaTarget));
     }
 }
