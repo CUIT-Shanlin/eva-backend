@@ -16,7 +16,7 @@ public class UpdateTest {
     public void testUpdate() {
         SysRoleDO sysRoleDO = new SysRoleDO();
         sysRoleDO.setId(1)
-                .setStatus(1);
+                .setStatus(0);
         roleMapper.updateById(sysRoleDO);
         System.out.println(sysRoleDO.toString());
     }

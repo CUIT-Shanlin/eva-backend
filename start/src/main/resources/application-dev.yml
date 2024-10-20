@@ -14,6 +14,10 @@ spring:
     druid:
       keep-alive: true
 
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
 eva:
   avatar:
 #    directory: "/avatar"
