@@ -9,7 +9,7 @@
             <result property="teacherId" column="teacher_id" jdbcType="INTEGER"/>
             <result property="courInfId" column="cour_inf_id" jdbcType="INTEGER"/>
             <result property="status" column="status" jdbcType="TINYINT"/>
-            <result property="evaTemplateId" column="eva_template_id" jdbcType="INTEGER"/>
+<!--            <result property="evaTemplateId" column="eva_template_id" jdbcType="INTEGER"/>-->
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
             <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
             <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>

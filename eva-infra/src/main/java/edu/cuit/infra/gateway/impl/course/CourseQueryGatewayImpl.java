@@ -660,11 +660,11 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     }
     private void toJudgeTime(MobileCourseQuery courseQuery,QueryWrapper wrapper){
         if(courseQuery.getStartDay()!=null&&courseQuery.getEndDay()!=null){
-            wrapper.between("start_day",courseQuery.getStartDay(),courseQuery.getEndDay());
+            wrapper.between("start_time",courseQuery.getStartDay(),courseQuery.getEndDay());
         }else if(courseQuery.getStartDay()!=null&&courseQuery.getEndDay()==null){
-            wrapper.ge("start_day",courseQuery.getStartDay());
+            wrapper.ge("start_time",courseQuery.getStartDay());
         }else if(courseQuery.getStartDay()==null&&courseQuery.getEndDay()!=null){
-            wrapper.le("end_day",courseQuery.getEndDay());
+            wrapper.le("end_time",courseQuery.getEndDay());
         }else{
             wrapper=null;
         }
@@ -791,6 +791,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         List<CourseEntity> list=new ArrayList<>();
         //获取所有的课程的基础信息
         List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId));
+        if(courseDOS.isEmpty())throw new QueryException("这学期还没有相关课程");
         //根据科目id进行分类
         Map<Integer, List<CourseDO>> map = courseDOS.stream().collect(Collectors.groupingBy(CourseDO::getSubjectId));
         for (Map.Entry<Integer, List<CourseDO>> entry : map.entrySet()) {

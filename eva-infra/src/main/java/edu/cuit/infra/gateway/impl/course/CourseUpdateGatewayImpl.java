@@ -125,8 +125,10 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
             CourseDO courseDO = new CourseDO();
             courseDO.setTemplateId(updateCoursesCmd.getTemplateId());
             courseMapper.update(courseDO,new QueryWrapper<CourseDO>().eq("id",i).eq("semester_id",semId));
-            Integer semesterId = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", i).eq("semester_id", semId)).getSemesterId();
-            String name = subjectMapper.selectById(semesterId).getName();
+            CourseDO courseDO1 = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", i).eq("semester_id", semId));
+            if(courseDO1==null) throw new QueryException("并未找到相关课程");
+            Integer subjectId =courseDO1 .getSubjectId();
+            String name = subjectMapper.selectById(subjectId).getName();
             LogUtils.logContent(name+"(ID:"+i+")课程模板被修改了");
         }
 
@@ -555,9 +557,9 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
 
     @Override
     public Boolean isImported(Integer type, Term term) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate date = LocalDate.parse(term.getStartDate(), formatter);
-        SemesterDO semesterDO = semesterMapper.selectOne(new QueryWrapper<SemesterDO>().eq("start_date", date).eq("start_year", term.getStartYear()).eq("end_year", term.getEndYear()));
+   /*     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse(term.getStartDate(), formatter);*/
+        SemesterDO semesterDO = semesterMapper.selectOne(new QueryWrapper<SemesterDO>().eq("period", term.getPeriod()).eq("start_year", term.getStartYear()).eq("end_year", term.getEndYear()));
         if(semesterDO==null)return false;
         List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("sem_id", semesterDO.getId()));
         if(courseDOS.isEmpty())return false;
