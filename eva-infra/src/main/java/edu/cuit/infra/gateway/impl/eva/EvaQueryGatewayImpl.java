@@ -157,50 +157,6 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
                 ()->evaTaskEntities.stream().filter(evaTaskDO->evaTaskDO.getId()
                         .equals(formRecordDO.getTaskId())).findFirst().get())).toList();
         return paginationConverter.toPaginationEntity(pageLog,list);
-        /*//再整课程
-        List<Integer> courseIds;
-        Page<CourseDO> pageCourse=new Page<>(evaLogQuery.getPage(),evaLogQuery.getSize());
-        if(subjectMapper.selectList(new QueryWrapper<SubjectDO>().like("name",evaLogQuery.getQueryObj().getKeyword()))!=null){
-
-            List<SubjectDO> subjectDOS=subjectMapper.selectList(new QueryWrapper<SubjectDO>().like("name",evaLogQuery.getQueryObj().getKeyword()));
-            List<Integer> subjectIds=subjectDOS.stream().map(SubjectDO::getId).toList();
-
-            pageCourse=courseMapper.selectPage(pageCourse,new QueryWrapper<CourseDO>().in("id",subjectIds).eq("semId",semId));
-            courseIds=pageCourse.getRecords().stream().map(CourseDO::getId).toList();
-        }else {
-            pageCourse=courseMapper.selectPage(pageCourse,new QueryWrapper<CourseDO>().eq("semId",semId));
-            courseIds=pageCourse.getRecords().stream().map(CourseDO::getId).toList();
-        }
-
-        Page<FormRecordDO> pageLog=new Page<>(evaLogQuery.getPage(),evaLogQuery.getSize());
-        QueryWrapper<EvaTaskDO> evaTaskWrapper=new QueryWrapper<>();
-
-        if(userIds!=null){
-            evaTaskWrapper.in("teacher_id",userIds);
-        }
-        List<CourInfDO> courInfDOS=courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id",courseIds));
-        List<Integer> courseInfoIds=courInfDOS.stream().map(CourInfDO::getId).toList();
-        if(courseIds!=null){
-            evaTaskWrapper.in("cour_inf_id",courseInfoIds);
-        }
-        List<SingleCourseEntity> courseEntities=getListCurInfoEntities(courInfDOS,semId);
-
-
-        //根据eva任务来找到eva记录
-        List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(evaTaskWrapper);
-        List<Integer> evaTaskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
-
-        List<EvaTaskEntity> evaTaskEntities=getEvaTaskEntities(evaTaskDOS,userEntities,courseEntities);
-
-        QueryWrapper<FormRecordDO> formRecordWrapper=new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIds);
-
-        pageLog = formRecordMapper.selectPage(pageLog,formRecordWrapper);
-
-        List<FormRecordDO> records = pageLog.getRecords();
-        List<EvaRecordEntity> list = records.stream().map(formRecordDO->evaConvertor.ToEvaRecordEntity(formRecordDO,
-                ()->evaTaskEntities.stream().filter(evaTaskDO->evaTaskDO.getId()
-                        .equals(formRecordDO.getTaskId())).findFirst().get())).toList();
-        return paginationConverter.toPaginationEntity(pageLog,list);*/
     }
 
     @Override
