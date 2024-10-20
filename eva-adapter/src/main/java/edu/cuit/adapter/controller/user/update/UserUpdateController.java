@@ -10,7 +10,11 @@ import edu.cuit.client.dto.cmd.user.NewUserCmd;
 import edu.cuit.client.dto.cmd.user.UpdatePasswordCmd;
 import edu.cuit.client.dto.cmd.user.UpdateUserCmd;
 import edu.cuit.client.validator.status.ValidStatus;
+import edu.cuit.common.enums.LogModule;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
+import edu.cuit.zhuyimeng.framework.logging.aspect.annotation.OperateLog;
+import edu.cuit.zhuyimeng.framework.logging.aspect.enums.OperateLogType;
+import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +41,7 @@ public class UserUpdateController {
      */
     @PutMapping("/{isUpdatePwd}")
     @SaCheckPermission("system.user.update")
+    @OperateLog(module = LogModule.USER,type = OperateLogType.UPDATE)
     public CommonResult<Void> updateInfo(@PathVariable("isUpdatePwd") Boolean isUpdatePwd,
                                      @RequestBody @Valid UpdateUserCmd cmd) {
         userService.updateInfo(isUpdatePwd,cmd);
@@ -73,6 +78,7 @@ public class UserUpdateController {
      */
     @PutMapping("/status/{userId}/{status}")
     @SaCheckPermission("system.user.update")
+    @OperateLog(module = LogModule.USER,type = OperateLogType.UPDATE)
     public CommonResult<Void> updateStatus(@PathVariable("userId") Integer userId,
                                            @PathVariable("status") @ValidStatus(message = "状态只能为0或1") Integer status) {
         userService.updateStatus(userId,status);
@@ -85,6 +91,7 @@ public class UserUpdateController {
      */
     @DeleteMapping
     @SaCheckPermission("system.user.delete")
+    @OperateLog(module = LogModule.USER,type = OperateLogType.DELETE)
     public CommonResult<Void> delete(@RequestParam("userId") Integer userId) {
         userService.delete(userId);
         return CommonResult.success();
@@ -96,6 +103,7 @@ public class UserUpdateController {
      */
     @PutMapping("/roles")
     @SaCheckPermission("system.user.assignRole")
+    @OperateLog(module = LogModule.USER,type = OperateLogType.UPDATE)
     public CommonResult<Void> assignRole(@RequestBody @Valid AssignRoleCmd cmd) {
         userService.assignRole(cmd);
         return CommonResult.success();
@@ -107,8 +115,10 @@ public class UserUpdateController {
      */
     @PostMapping
     @SaCheckPermission("system.user.add")
+    @OperateLog(module = LogModule.USER,type = OperateLogType.CREATE)
     public CommonResult<Void> create(@RequestBody @Valid NewUserCmd cmd) {
         userService.create(cmd);
+        LogUtils.logContent(cmd.getName() + " 用户");
         return CommonResult.success();
     }
 
@@ -134,8 +144,10 @@ public class UserUpdateController {
      */
     @PostMapping("/sync")
     @SaCheckPermission("system.user.sync")
+    @OperateLog(module = LogModule.USER,type = OperateLogType.CREATE)
     public CommonResult<Void> syncLdapUser() {
         userService.syncLdap();
+        LogUtils.logContent(" 同步LDAP用户任务");
         return CommonResult.success();
     }
 
