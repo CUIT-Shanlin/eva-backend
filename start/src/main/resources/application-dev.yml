@@ -5,9 +5,9 @@ spring:
       strict: false
       datasource:
         master:
-          url: jdbc:mariadb://littlestrange.site:40005/evaluate_system?characterEncoding=utf8&serverTimezone=UTC
+#          url: jdbc:mariadb://littlestrange.site:40005/evaluate_system?characterEncoding=utf8&serverTimezone=UTC
           # 内网环境
-#          url: jdbc:mariadb://192.168.1.13:3307/evaluate_system?characterEncoding=utf8&serverTimezone=UTC
+          url: jdbc:mariadb://192.168.1.13:3307/evaluate_system?characterEncoding=utf8&serverTimezone=UTC
           username: member
           password: 3015niubi
           driver-class-name: org.mariadb.jdbc.Driver

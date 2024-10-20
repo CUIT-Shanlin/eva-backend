@@ -13,7 +13,11 @@ import edu.cuit.client.dto.cmd.course.UpdateCoursesCmd;
 import edu.cuit.client.dto.cmd.course.UpdateSingleCourseCmd;
 import edu.cuit.client.dto.data.Term;
 import edu.cuit.client.dto.data.course.CourseType;
+import edu.cuit.common.enums.LogModule;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
+import edu.cuit.zhuyimeng.framework.logging.aspect.annotation.OperateLog;
+import edu.cuit.zhuyimeng.framework.logging.aspect.enums.OperateLogType;
+import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -42,12 +46,13 @@ public class UpdateCourseController {
      *
      * */
     @PutMapping("/course")
+    @OperateLog(module = LogModule.COURSE,type = OperateLogType.UPDATE)
     @SaCheckPermission("course.tabulation.update")
     public CommonResult<Void> updateCourse(
             @RequestParam(value = "semId",required = false) Integer semId,
             @Valid @RequestBody UpdateCourseCmd updateCourseCmd){
         courseDetailService.updateCourse(semId, updateCourseCmd);
-        return CommonResult.success(null);
+        return CommonResult.success(null,()->LogUtils.logContent(updateCourseCmd.getSubjectMsg().getName()+"课程内容"));
     }
 
     /**
@@ -57,12 +62,14 @@ public class UpdateCourseController {
      *
      * */
     @PutMapping("/courses/template")
+    @OperateLog(module = LogModule.COURSE,type = OperateLogType.UPDATE)
     @SaCheckPermission("course.template.update")
     public CommonResult<Void> updateCourses(
             @RequestParam(value = "semId",required = false) Integer semId,
             @Valid @RequestBody UpdateCoursesCmd updateCoursesCmd){
         courseDetailService.updateCourses(semId, updateCoursesCmd);
-        return CommonResult.success(null);
+
+        return CommonResult.success(null,()->updateCoursesCmd.getCourseIdList().forEach(course->LogUtils.logContent("ID为"+course+"的课程模板")));
     }
 
     /**
@@ -72,12 +79,13 @@ public class UpdateCourseController {
      *
      * */
     @PutMapping("/course/one")
+    @OperateLog(module = LogModule.COURSE,type = OperateLogType.UPDATE)
     @SaCheckPermission("course.tabulation.update")
     public CommonResult<Void> updateSingleCourse(
             @RequestParam(value = "semId",required = false) Integer semId,
             @Valid @RequestBody UpdateSingleCourseCmd updateSingleCourseCmd){
         courseService.updateSingleCourse(semId, updateSingleCourseCmd);
-        return CommonResult.success(null);
+        return CommonResult.success(null,()-> LogUtils.logContent("ID为"+updateSingleCourseCmd.getId()+"的上课信息"));
     }
 
     /**
@@ -86,11 +94,12 @@ public class UpdateCourseController {
      *
      * */
     @PutMapping("/course/type")
+    @OperateLog(module = LogModule.COURSE,type = OperateLogType.UPDATE)
     @SaCheckPermission("course.type.update")
     public CommonResult<Void> updateCourseType(
             @Valid @RequestBody CourseType courseType){
         courseTypeService.updateCourseType(courseType);
-        return CommonResult.success(null);
+        return CommonResult.success(null,()->LogUtils.logContent("ID为"+courseType.getId()+"的课程类型"));
     }
 
     /**
@@ -98,11 +107,13 @@ public class UpdateCourseController {
      *  @param semId 学期id
      *
      * */
+    //TODO（删除该接口）
     @PostMapping("/course")
+    @OperateLog(module = LogModule.COURSE,type = OperateLogType.CREATE)
     @SaCheckPermission("course.tabulation.add")
-    public CommonResult<Void> addCourse(
-            @RequestParam(value = "semId",required = false) Integer semId){
+    public CommonResult<Void> addCourse(@RequestParam(value = "semId",required = false) Integer semId){
         courseDetailService.addCourse(semId);
+        LogUtils.logContent("新建课程");
         return CommonResult.success(null);
     }
 
@@ -128,10 +139,11 @@ public class UpdateCourseController {
      *
      * */
     @PostMapping("/course/type")
+    @OperateLog(module = LogModule.COURSE,type = OperateLogType.CREATE)
     @SaCheckPermission("course.type.add")
     public CommonResult<Void> addCourseType(@Valid @RequestBody CourseType courseType){
         courseTypeService.addCourseType(courseType);
-        return CommonResult.success(null);
+        return CommonResult.success(null,()->LogUtils.logContent(courseType.getName()+"课程类型"));
     }
 
     /**
@@ -141,13 +153,14 @@ public class UpdateCourseController {
      *  @param semester 学期模型
      * */
     @PutMapping("/course/import/{type}")
+    @OperateLog(module = LogModule.COURSE,type = OperateLogType.CREATE)
     @SaCheckPermission("course.table.import")
     public CommonResult<Void> imporCourse(
             @RequestParam(value = "file",required = true) MultipartFile file,
             @PathVariable Integer type,
             @RequestParam(value = "semester",required = true) String semester ) throws IOException {
         userCourseService.importCourse(file.getInputStream(), type, semester);
-        return CommonResult.success(null);
+        return CommonResult.success(null,()->LogUtils.logContent(semester+"学期的"+type+"课表"));
     }
 
     /**
@@ -173,11 +186,12 @@ public class UpdateCourseController {
      *  @param timeList 课表文件
     * */
     @PutMapping("/course/my/info/date")
+    @OperateLog(module = LogModule.COURSE,type = OperateLogType.UPDATE)
     public CommonResult<Void> updateSelfCourse(
             @Valid @RequestBody SelfTeachCourseCO selfTeachCourseCO,
             @Valid @RequestBody List<SelfTeachCourseTimeCO> timeList){
         userCourseService.updateSelfCourse(selfTeachCourseCO, timeList);
-        return CommonResult.success(null);
+        return CommonResult.success(null,()->LogUtils.logContent("ID为"+selfTeachCourseCO.getId()+"的课程信息和课程时间段"));
     }
 
     /**
@@ -187,11 +201,13 @@ public class UpdateCourseController {
      *
      * */
     @PostMapping("/course/batch/exist/{courseId}")
+    @SaCheckPermission("course.table.add")
+    @OperateLog(module = LogModule.COURSE,type = OperateLogType.CREATE)
     public CommonResult<Void> addExistCoursesDetails(
              @PathVariable Integer courseId
             ,@Valid @RequestBody SelfTeachCourseTimeCO timeCO){
         courseService.addExistCoursesDetails(courseId, timeCO);
-        return CommonResult.success(null);
+        return CommonResult.success(null,()->LogUtils.logContent("ID为"+courseId+"的上课信息"));
     }
 
     /**
@@ -202,13 +218,16 @@ public class UpdateCourseController {
      *  @param dateArr 自己教学的一门课程的一个课程时段模型集合
      * */
     @PostMapping("/course/batch/notExist")
+    @SaCheckPermission("course.table.add")
+    @OperateLog(module = LogModule.COURSE,type = OperateLogType.CREATE)
     public CommonResult<Void> addNotExistCoursesDetails(
           @RequestParam(value = "semId",required = false) Integer semId,
           @RequestParam(value = "teacherId",required = true) Integer teacherId,
           @Valid @RequestBody UpdateCourseCmd courseInfo,
           @Valid @RequestBody List<SelfTeachCourseTimeCO> dateArr){
         courseService.addNotExistCoursesDetails(semId, teacherId, courseInfo, dateArr);
-        return CommonResult.success(null);
+
+        return CommonResult.success(null,()-> LogUtils.logContent("教师ID为"+teacherId+"的"+courseInfo.getSubjectMsg().getName()+"课程"));
     }
 
 }

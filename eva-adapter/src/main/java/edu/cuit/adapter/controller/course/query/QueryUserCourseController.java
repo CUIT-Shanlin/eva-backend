@@ -87,7 +87,6 @@ public class QueryUserCourseController {
      * @param semId 学期id
      * */
     @GetMapping("/courses/my/all/detail")
-    @SaCheckPermission("course.table.add")
     public CommonResult<List<SelfTeachCourseCO>> selfCourseDetail(
             @RequestParam(value = "semId",required = true)Integer semId){
         return CommonResult.success(userCourseService.selfCourseDetail(semId));
@@ -98,7 +97,6 @@ public class QueryUserCourseController {
      * @param courseId 课程id
      * */
     @GetMapping("/course/my/date/{courseId}")
-    @SaCheckPermission("course.table.add")
     public CommonResult<List<SelfTeachCourseTimeCO>> selfCourseTime(
             @PathVariable(value = "courseId",required = true) Integer courseId){
         return CommonResult.success(userCourseService.selfCourseTime(courseId));

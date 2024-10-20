@@ -122,9 +122,10 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         if(courINfo==null){
             throw new QueryException("该节课不存在");
         }
-
         //先根据用户名来查出教师id
-        Integer teacherId = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("username", userName)).getId();
+        SysUserDO userDO = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("username", userName));
+        if(userDO==null)throw new QueryException("老师不存在");
+        Integer teacherId = userDO.getId();
         //根据teacherId和semId找出他的所有授课
         List<CourseDO> courseDOList = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", teacherId).eq("semester_id", semId));
         //根据CourseDO中的Id和updateSingleCourseCmd中的time来判断来查看这个老师在这个时间段是否有课程
@@ -138,8 +139,9 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
             if (courInfDO != null) {
                 throw new UpdateException("该时间段已有课程");
             }
-            if(courseDO.getId()==courINfo.getCourseId()){
+            if(courseDO.getId().equals(courINfo.getCourseId())){
                 courseDo=courseDO;
+                break;
             }
         }
         //判断location是否被占用
@@ -156,7 +158,9 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                         }
                     }
                 }
-        String name = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("id", courseDo.getSubjectId())).getName();
+        assert courseDo != null;
+        SubjectDO subjectDO = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("id", courseDo.getSubjectId()));
+        String name = subjectDO.getName();
         //更新一节课的数据
         CourInfDO courInfDO = courseConvertor.toCourInfDO(updateSingleCourseCmd);
         courInfDO.setUpdateTime(LocalDateTime.now());
@@ -225,7 +229,6 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
             evaTaskDO.setStatus(0);
             evaTaskDO.setCreateTime(LocalDateTime.now());
             evaTaskDO.setUpdateTime(LocalDateTime.now());
-            evaTaskDO.setIsDeleted(0);
             return evaTaskDO;
         }).toList();
         taskList.forEach(evaTaskMapper::insert);
@@ -260,7 +263,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                 .ge("end_time", courInfDO.getStartTime())
                 .in("id", courInfoList));
         if(courINfo!=null){
-            throw new UpdateException("课程时间冲突，评教老师在该时间段已经有了评教任务");
+            throw new UpdateException("课程时间冲突，评教老师中有人在该时间段已经有了评教任务");
         }
 
     }
@@ -296,6 +299,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", userId).eq("semester_id", courseDO.getSemesterId()));
         courseDOS.removeIf(aDo -> aDo.getId().equals(selfTeachCourseCO.getId()));
         SubjectDO subjectDO = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("id", courseDO.getSubjectId()));
+        if(subjectDO==null)throw new QueryException("该课程对应的科目不存在");
         msg=toJudge(subjectDO,selfTeachCourseCO);
         //课程类型
         msg+=JudgeCourseType(courseDO,selfTeachCourseCO);
@@ -525,15 +529,13 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         SemesterDO semesterDO = semesterMapper.selectOne(new QueryWrapper<SemesterDO>().eq("start_date", date).eq("start_year", term.getStartYear()).eq("end_year", term.getEndYear()));
         if(semesterDO==null)return false;
         List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("sem_id", semesterDO.getId()));
-        if(courseDOS==null)return false;
+        if(courseDOS.isEmpty())return false;
         List<SubjectDO> subjectDOS = subjectMapper.selectList(new QueryWrapper<SubjectDO>().in("id", courseDOS.stream().map(CourseDO::getSubjectId).toList()));
         for (SubjectDO subjectDO : subjectDOS) {
-            if(!subjectDO.getNature().equals(type)){
-                return false;
+            if(subjectDO.getNature().equals(type)){
+                return true;
             }
         }
-
-
         return true;
     }
 }
