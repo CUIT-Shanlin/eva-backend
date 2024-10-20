@@ -41,8 +41,7 @@ public class DeleteCourseController {
             @RequestParam(value = "id",required = true) Integer id,
             @RequestParam(value = "semId",required = false) Integer semId){
         courseDetailService.delete(semId,id);
-        LogUtils.logContent("ID为"+id+"的课程");
-        return CommonResult.success(null);
+       return CommonResult.success(null,()-> LogUtils.logContent("ID为"+id+"的课程"));
     }
 
     /**
@@ -59,8 +58,7 @@ public class DeleteCourseController {
             @RequestParam(value = "semId",required = false) Integer semId,
             @RequestBody CoursePeriod coursePeriod){
         courseService.deleteCourses(semId,id,coursePeriod);
-        LogUtils.logContent("ID为"+id+"的课");
-        return CommonResult.success(null);
+        return CommonResult.success(null,()-> LogUtils.logContent("ID为"+id+"的课"));
     }
 
     /**
@@ -72,8 +70,7 @@ public class DeleteCourseController {
     @SaCheckPermission("course.type.delete")
     public CommonResult<Void> deleteCourseType(@RequestParam(value = "id",required = true) Integer id){
         courseTypeService.deleteCourseType(id);
-        LogUtils.logContent("ID为"+id+"的课程类型");
-        return CommonResult.success(null);
+        return CommonResult.success(null,()-> LogUtils.logContent("ID为"+id+"的课程类型"));
     }
 
     /**
@@ -86,8 +83,7 @@ public class DeleteCourseController {
     public CommonResult<Void> deleteCoursesType(
             @RequestBody List<Integer> ids){
         courseTypeService.deleteCoursesType(ids);
-        ids.forEach(id->LogUtils.logContent("ID为"+id+"的课程类型"));
-        return CommonResult.success(null);
+        return CommonResult.success(null,()-> LogUtils.logContent("ID为"+ids.toString()+"的课程类型"));
     }
 
     /**
@@ -99,8 +95,8 @@ public class DeleteCourseController {
     public CommonResult<Void> deleteSelfCourse(
            @PathVariable(value = "courseId") Integer courseId){
         userCourseService.deleteSelfCourse(courseId);
-        LogUtils.logContent("ID为"+courseId+"的课程");
-        return CommonResult.success(null);
+
+        return CommonResult.success(null,()->LogUtils.logContent("ID为"+courseId+"的课程"));
     }
 
 }
