@@ -6,7 +6,11 @@ import edu.cuit.client.dto.cmd.user.AssignPermCmd;
 import edu.cuit.client.dto.cmd.user.NewRoleCmd;
 import edu.cuit.client.dto.cmd.user.UpdateRoleCmd;
 import edu.cuit.client.validator.status.ValidStatus;
+import edu.cuit.common.enums.LogModule;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
+import edu.cuit.zhuyimeng.framework.logging.aspect.annotation.OperateLog;
+import edu.cuit.zhuyimeng.framework.logging.aspect.enums.OperateLogType;
+import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -30,6 +34,7 @@ public class RoleUpdateController {
      */
     @PutMapping("/role")
     @SaCheckPermission("system.role.update")
+    @OperateLog(module = LogModule.ROLE,type = OperateLogType.UPDATE)
     public CommonResult<Void> updateInfo(@RequestBody @Valid UpdateRoleCmd updateRoleCmd) {
         roleService.updateInfo(updateRoleCmd);
         return CommonResult.success();
@@ -42,6 +47,7 @@ public class RoleUpdateController {
      */
     @PutMapping("/role/status/{roleId}/{status}")
     @SaCheckPermission("system.role.update")
+    @OperateLog(module = LogModule.ROLE,type = OperateLogType.UPDATE)
     public CommonResult<Void> updateStatus(@PathVariable("roleId") Integer roleId,
                                            @PathVariable("status") @ValidStatus Integer status) {
         roleService.updateStatus(roleId,status);
@@ -54,6 +60,7 @@ public class RoleUpdateController {
      */
     @PutMapping("/role/auth")
     @SaCheckPermission("system.role.assignPerm")
+    @OperateLog(module = LogModule.ROLE,type = OperateLogType.UPDATE)
     public CommonResult<Void> assignPerm(@RequestBody @Valid AssignPermCmd assignPermCmd) {
         roleService.assignPerm(assignPermCmd);
         return CommonResult.success();
@@ -65,8 +72,10 @@ public class RoleUpdateController {
      */
     @PostMapping("/role")
     @SaCheckPermission("system.role.add")
+    @OperateLog(module = LogModule.ROLE,type = OperateLogType.CREATE)
     public CommonResult<Void> create(@RequestBody @Valid NewRoleCmd newRoleCmd) {
         roleService.create(newRoleCmd);
+        LogUtils.logContent(newRoleCmd.getRoleName() + "角色");
         return CommonResult.success();
     }
 
@@ -76,6 +85,7 @@ public class RoleUpdateController {
      */
     @DeleteMapping("/role")
     @SaCheckPermission("system.role.delete")
+    @OperateLog(module = LogModule.ROLE,type = OperateLogType.DELETE)
     public CommonResult<Void> delete(@RequestParam("roleId") Integer roleId) {
         roleService.delete(roleId);
         return CommonResult.success();
@@ -87,8 +97,10 @@ public class RoleUpdateController {
      */
     @DeleteMapping("/roles")
     @SaCheckPermission("system.role.delete")
+    @OperateLog(module = LogModule.ROLE,type = OperateLogType.DELETE)
     public CommonResult<Void> multipleDelete(@RequestBody List<Integer> ids) {
         roleService.multipleDelete(ids);
+        LogUtils.logContent("ID为 " + ids + " 的角色");
         return CommonResult.success();
     }
 
