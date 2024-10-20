@@ -33,7 +33,6 @@ public class ICourseServiceImpl implements ICourseService {
     private final CourseUpdateGateway courseUpdateGateway;
     private final CourseDeleteGateway courseDeleteGateway;
     private final CourseBizConvertor courseConvertor;
-//    private final MsgServiceImpl msgService;
     private final MsgResult msgResult;
     @CheckSemId
     @Override

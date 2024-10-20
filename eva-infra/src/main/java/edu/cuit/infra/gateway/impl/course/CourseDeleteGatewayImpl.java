@@ -14,6 +14,7 @@ import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
+import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,13 +30,18 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
     private final CourseMapper courseMapper;
     private final CourseTypeCourseMapper courseTypeCourseMapper;
     private final CourseTypeMapper courseTypeMapper;
-    private final SemesterMapper semesterMapper;
     private final SubjectMapper subjectMapper;
     private final EvaTaskMapper evaTaskMapper;
     private final FormRecordMapper formRecordMapper;
     private final SysUserMapper userMapper;
 
 
+    /**
+     * 批量删除某节课
+     *  @param semId 学期id
+     *  @param id 对应课程编号
+     *  @param coursePeriod 课程的一段时间模型
+     * */
     @Override
     @Transactional
     public Map<String,List<Integer>> deleteCourses(Integer semId, Integer id, CoursePeriod coursePeriod) {
@@ -61,10 +67,16 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         Map<String,List<Integer>> map=new HashMap<>();
         map.put("你所评教的上课时间在第"+coursePeriod.getStartWeek()+"周，星期"+coursePeriod.getDay()
                 +"，第"+coursePeriod.getStartTime()+"-"+coursePeriod.getEndTime()+"节，"+name+"课程已经被删除，故已取消您对该课程的评教任务",userList);
+        LogUtils.logContent(name+"(课程ID:"+id+")的一些课");
         return map;
     }
 
 
+    /**
+     * 连带删除一门课程
+     *  @param semId 学期id
+     *  @param id 对应课程编号
+     * */
     @Override
     @Transactional
     public Map<String,List<Integer>> deleteCourse(Integer semId, Integer id) {
@@ -102,11 +114,17 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         formRecordMapper.delete(formRecordWrapper);
         Map<String,List<Integer>> map=new HashMap<>();
         map.put("因为"+name+"课程已被删除，"+"故已取消您对该课程的评教任务,和评教记录",teacherIds);
-
+        LogUtils.logContent(name+"(课程ID:"+id+")这门课");
         return map;
     }
 
 
+
+
+    /**
+     * 删除一个课程类型/批量删除课程类型
+     *   @param ids 课程类型数组
+     * */
     @Override
     @Transactional
     public Void deleteCourseType(List<Integer> ids) {
@@ -124,8 +142,9 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         // 将对应课程类型的逻辑删除
         UpdateWrapper<CourseTypeDO> courseTypeWrapper=new UpdateWrapper<>();
         courseTypeWrapper.in("id",ids);
+        List<CourseTypeDO> courseTypeDOS = courseTypeMapper.selectList(courseTypeWrapper);
         courseTypeMapper.delete(courseTypeWrapper);
-
+        courseTypeDOS.forEach(courseType->LogUtils.logContent(courseType.getName()+"课程类型"));
         return null;
     }
 

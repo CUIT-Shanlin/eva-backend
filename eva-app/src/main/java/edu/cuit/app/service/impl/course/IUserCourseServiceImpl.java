@@ -62,7 +62,6 @@ public class IUserCourseServiceImpl implements IUserCourseService {
         for (List<SingleCourseEntity> singleCourseEntities : courseList) {
            result.add(userCourseDetailQueryExec.getUserCourseDetail(singleCourseEntities, semId));
         }
-
         return result;
     }
 
@@ -70,7 +69,6 @@ public class IUserCourseServiceImpl implements IUserCourseService {
     @Override
     public List<RecommendCourseCO> getSelfCourse(Integer semId) {
        return courseQueryGateway.getSelfCourse(semId, String.valueOf(StpUtil.getLoginId()));
-
     }
 
     @Override

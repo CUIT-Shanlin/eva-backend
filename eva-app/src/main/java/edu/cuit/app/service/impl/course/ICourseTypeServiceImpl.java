@@ -31,7 +31,6 @@ public class ICourseTypeServiceImpl implements ICourseTypeService {
     public PaginationQueryResultCO<CourseType> pageCourseType(PagingQuery<GenericConditionalQuery> courseQuery) {
         PaginationResultEntity<CourseTypeEntity> entity = courseQueryGateway.pageCourseType(courseQuery);
         List<CourseType> list = entity.getRecords().stream().map(courseConvertor::toCourseType).toList();
-
         return pageConvertor.toPaginationEntity(entity,list);
     }
 
