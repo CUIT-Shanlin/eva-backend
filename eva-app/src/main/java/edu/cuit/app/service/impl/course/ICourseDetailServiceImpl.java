@@ -58,7 +58,6 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     @CheckSemId
     @Override
     public CourseDetailCO courseInfo(Integer id, Integer semId) {
-
        return courseQueryGateway.getCourseInfo(id, semId).orElseThrow(()->new QueryException("课程不存在"));
 
     }

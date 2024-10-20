@@ -52,8 +52,7 @@ public class UpdateCourseController {
             @RequestParam(value = "semId",required = false) Integer semId,
             @Valid @RequestBody UpdateCourseCmd updateCourseCmd){
         courseDetailService.updateCourse(semId, updateCourseCmd);
-        LogUtils.logContent(updateCourseCmd.getSubjectMsg().getName()+"课程内容");
-        return CommonResult.success(null);
+        return CommonResult.success(null,()->LogUtils.logContent(updateCourseCmd.getSubjectMsg().getName()+"课程内容"));
     }
 
     /**
@@ -69,8 +68,8 @@ public class UpdateCourseController {
             @RequestParam(value = "semId",required = false) Integer semId,
             @Valid @RequestBody UpdateCoursesCmd updateCoursesCmd){
         courseDetailService.updateCourses(semId, updateCoursesCmd);
-        updateCoursesCmd.getCourseIdList().forEach(course->LogUtils.logContent("ID为"+course+"的课程模板"));
-        return CommonResult.success(null);
+
+        return CommonResult.success(null,()->updateCoursesCmd.getCourseIdList().forEach(course->LogUtils.logContent("ID为"+course+"的课程模板")));
     }
 
     /**
@@ -86,8 +85,7 @@ public class UpdateCourseController {
             @RequestParam(value = "semId",required = false) Integer semId,
             @Valid @RequestBody UpdateSingleCourseCmd updateSingleCourseCmd){
         courseService.updateSingleCourse(semId, updateSingleCourseCmd);
-        LogUtils.logContent("ID为"+updateSingleCourseCmd.getId()+"的上课信息");
-        return CommonResult.success(null);
+        return CommonResult.success(null,()-> LogUtils.logContent("ID为"+updateSingleCourseCmd.getId()+"的上课信息"));
     }
 
     /**
@@ -101,8 +99,7 @@ public class UpdateCourseController {
     public CommonResult<Void> updateCourseType(
             @Valid @RequestBody CourseType courseType){
         courseTypeService.updateCourseType(courseType);
-        LogUtils.logContent("ID为"+courseType.getId()+"的课程类型");
-        return CommonResult.success(null);
+        return CommonResult.success(null,()->LogUtils.logContent("ID为"+courseType.getId()+"的课程类型"));
     }
 
     /**
@@ -146,8 +143,7 @@ public class UpdateCourseController {
     @SaCheckPermission("course.type.add")
     public CommonResult<Void> addCourseType(@Valid @RequestBody CourseType courseType){
         courseTypeService.addCourseType(courseType);
-        LogUtils.logContent(courseType.getName()+"课程类型");
-        return CommonResult.success(null);
+        return CommonResult.success(null,()->LogUtils.logContent(courseType.getName()+"课程类型"));
     }
 
     /**
@@ -164,8 +160,7 @@ public class UpdateCourseController {
             @PathVariable Integer type,
             @RequestParam(value = "semester",required = true) String semester ) throws IOException {
         userCourseService.importCourse(file.getInputStream(), type, semester);
-        LogUtils.logContent(semester+"学期的"+type+"课表");
-        return CommonResult.success(null);
+        return CommonResult.success(null,()->LogUtils.logContent(semester+"学期的"+type+"课表"));
     }
 
     /**
@@ -196,8 +191,7 @@ public class UpdateCourseController {
             @Valid @RequestBody SelfTeachCourseCO selfTeachCourseCO,
             @Valid @RequestBody List<SelfTeachCourseTimeCO> timeList){
         userCourseService.updateSelfCourse(selfTeachCourseCO, timeList);
-        LogUtils.logContent("ID为"+selfTeachCourseCO.getId()+"的课程信息和课程时间段");
-        return CommonResult.success(null);
+        return CommonResult.success(null,()->LogUtils.logContent("ID为"+selfTeachCourseCO.getId()+"的课程信息和课程时间段"));
     }
 
     /**
@@ -213,8 +207,7 @@ public class UpdateCourseController {
              @PathVariable Integer courseId
             ,@Valid @RequestBody SelfTeachCourseTimeCO timeCO){
         courseService.addExistCoursesDetails(courseId, timeCO);
-        LogUtils.logContent("ID为"+courseId+"的上课信息");
-        return CommonResult.success(null);
+        return CommonResult.success(null,()->LogUtils.logContent("ID为"+courseId+"的上课信息"));
     }
 
     /**
@@ -233,8 +226,8 @@ public class UpdateCourseController {
           @Valid @RequestBody UpdateCourseCmd courseInfo,
           @Valid @RequestBody List<SelfTeachCourseTimeCO> dateArr){
         courseService.addNotExistCoursesDetails(semId, teacherId, courseInfo, dateArr);
-        LogUtils.logContent("教师ID为"+teacherId+"的"+courseInfo.getSubjectMsg().getName()+"课程");
-        return CommonResult.success(null);
+
+        return CommonResult.success(null,()-> LogUtils.logContent("教师ID为"+teacherId+"的"+courseInfo.getSubjectMsg().getName()+"课程"));
     }
 
 }
