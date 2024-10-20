@@ -57,8 +57,8 @@ public class EvaTemplateServiceImpl implements IEvaTemplateService {
 
     @Override
     @CheckSemId
-    public Optional<String> evaTemplateByTaskId(Integer taskId, Integer semId) {
-        return evaQueryGateway.getTaskTemplate(taskId,semId);
+    public String evaTemplateByTaskId(Integer taskId, Integer semId) {
+        return evaQueryGateway.getTaskTemplate(taskId,semId).get();
     }
 
     @Override
