@@ -13,11 +13,7 @@ import java.util.List;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class EvaTaskConditionalQuery extends GenericConditionalQuery{
-    /**
-     * 输入框中输入的查询关键字
-     */
-    private String keyword;
+public class EvaTaskConditionalQuery extends ConditionalQuery{
     /**
      * 开始的创建时间
      */

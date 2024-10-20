@@ -11,8 +11,10 @@ import edu.cuit.infra.dal.database.mapper.eva.CourOneEvaTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormTemplateMapper;
+import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
+import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +29,7 @@ public class EvaDeleteGatewayImpl implements EvaDeleteGateway {
     private final FormTemplateMapper formTemplateMapper;
     private final CourOneEvaTemplateMapper courOneEvaTemplateMapper;
     private final CourseMapper courseMapper;
+    private final SysUserMapper sysUserMapper;
     @Override
     @Transactional
     public Void deleteEvaRecord(List<Integer> ids) {
@@ -36,7 +39,10 @@ public class EvaDeleteGatewayImpl implements EvaDeleteGateway {
             if(formRecordWrapper==null){
                 throw new QueryException("可怜的人类，并未找到找到相应评教记录");
             }else {
+                FormRecordDO formRecordDO=formRecordMapper.selectById(id);
                 formRecordMapper.delete(formRecordWrapper);
+                LogUtils.logContent(sysUserMapper.selectById(evaTaskMapper.selectById(formRecordDO.getTaskId()).getTeacherId()).getName()
+                    +" 用户评教任务ID为"+formRecordDO.getTaskId()+"的评教记录");
             }
         }
         return null;
@@ -60,10 +66,11 @@ public class EvaDeleteGatewayImpl implements EvaDeleteGateway {
                 UpdateWrapper<FormTemplateDO> formTemplateWrapper = new UpdateWrapper<>();
                 formTemplateWrapper.eq("id", id);
                 if(formTemplateWrapper==null){
-                    throw new QueryException("可怜的人类，并未找到找到相应课程");
+                    throw new QueryException("可怜的人类，并未找到找到相应模板");
                 }else{
                     //删除模板
                     formTemplateMapper.delete(formTemplateWrapper);
+                    LogUtils.logContent(formTemplateMapper.selectById(id).getName() +" 的评教模板");
                 }
             }else{
                 throw new UpdateException("可怜的人类，该模板已经被课程分配，无法再进行删除");
