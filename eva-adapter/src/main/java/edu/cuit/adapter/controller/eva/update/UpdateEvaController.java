@@ -38,8 +38,13 @@ public class UpdateEvaController {
     public CommonResult<Void> updateEvaTemplate(
             @Valid @RequestBody EvaTemplateCO evaTemplateCO){
         iEvaTemplateService.updateEvaTemplate(evaTemplateCO);
-        LogUtils.logContent(evaTemplateCO.getName()+" 的评教模板");
-        return CommonResult.success(null);
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                LogUtils.logContent(evaTemplateCO.getName()+" 的评教模板");
+            }
+        };
+        return CommonResult.success(null,runnable);
     }
 
     //其他操做
@@ -52,8 +57,13 @@ public class UpdateEvaController {
     public CommonResult<Void> putEvaTemplate(
             @Valid @RequestBody EvaTaskFormCO evaTaskFormCO){
         iEvaRecordService.putEvaTemplate(evaTaskFormCO);
-        LogUtils.logContent("ID为"+evaTaskFormCO.getId()+" 的评教记录"+",完成ID"+evaTaskFormCO.getTaskId()+" 的评教任务");
-        return CommonResult.success(null);
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                LogUtils.logContent("ID为"+evaTaskFormCO.getId()+" 的评教记录"+",完成ID"+evaTaskFormCO.getTaskId()+" 的评教任务");
+            }
+        };
+        return CommonResult.success(null,runnable);
     }
     /**
      * 发起评教任务
@@ -64,8 +74,13 @@ public class UpdateEvaController {
     public CommonResult<Void> postEvaTask(
             @Valid @RequestBody EvaInfoCO evaInfoCO){
         iEvaTaskService.postEvaTask(evaInfoCO);
-        LogUtils.logContent("ID为"+evaInfoCO.getId()+" 的评教任务");
-        return CommonResult.success(null);
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                LogUtils.logContent("ID为"+evaInfoCO.getId()+" 的评教任务");
+            }
+        };
+        return CommonResult.success(null,runnable);
     }
     /**
      * 新建评教模板
@@ -76,8 +91,13 @@ public class UpdateEvaController {
     public CommonResult<Void> addEvaTemplate(
             @Valid @RequestBody EvaTemplateCO evaTemplateCO){
         iEvaTemplateService.addEvaTemplate(evaTemplateCO);
-        LogUtils.logContent(evaTemplateCO.getName()+" 的评教模板");
-        return CommonResult.success(null);
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                LogUtils.logContent(evaTemplateCO.getName()+" 的评教模板");
+            }
+        };
+        return CommonResult.success(null,runnable);
     }
     /**
      * 任意取消一个评教任务
@@ -89,8 +109,14 @@ public class UpdateEvaController {
     public CommonResult<Void> cancelEvaTask(
             @PathVariable ("id") Integer id){
         iEvaTaskService.cancelEvaTask(id);
-        LogUtils.logContent("ID为"+id+" 的评教任务");
-        return CommonResult.success(null);
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                LogUtils.logContent("ID为"+id+" 的评教任务");
+            }
+        };
+
+        return CommonResult.success(null,runnable);
     }
     /**
      * 取消一个自己的评教任务，后端需要检测是不是自己的评教任务，
@@ -101,8 +127,14 @@ public class UpdateEvaController {
     public CommonResult<Void> cancelMyEvaTask(
             @PathVariable ("id") Integer id){
         iEvaTaskService.cancelMyEvaTask(id);
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                LogUtils.logContent("ID为"+id+" 的评教任务");
+            }
+        };
         LogUtils.logContent("ID为"+id+" 的评教任务");
-        return CommonResult.success(null);
+        return CommonResult.success(null,runnable);
     }
 
 }
