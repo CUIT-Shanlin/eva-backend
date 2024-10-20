@@ -57,13 +57,7 @@ public class UpdateEvaController {
     public CommonResult<Void> putEvaTemplate(
             @Valid @RequestBody EvaTaskFormCO evaTaskFormCO){
         iEvaRecordService.putEvaTemplate(evaTaskFormCO);
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                LogUtils.logContent("ID为"+evaTaskFormCO.getId()+" 的评教记录"+",完成ID"+evaTaskFormCO.getTaskId()+" 的评教任务");
-            }
-        };
-        return CommonResult.success(null,runnable);
+        return CommonResult.success(null);
     }
     /**
      * 发起评教任务
@@ -74,13 +68,7 @@ public class UpdateEvaController {
     public CommonResult<Void> postEvaTask(
             @Valid @RequestBody EvaInfoCO evaInfoCO){
         iEvaTaskService.postEvaTask(evaInfoCO);
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                LogUtils.logContent("ID为"+evaInfoCO.getId()+" 的评教任务");
-            }
-        };
-        return CommonResult.success(null,runnable);
+        return CommonResult.success(null);
     }
     /**
      * 新建评教模板
@@ -109,14 +97,7 @@ public class UpdateEvaController {
     public CommonResult<Void> cancelEvaTask(
             @PathVariable ("id") Integer id){
         iEvaTaskService.cancelEvaTask(id);
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                LogUtils.logContent("ID为"+id+" 的评教任务");
-            }
-        };
-
-        return CommonResult.success(null,runnable);
+        return CommonResult.success(null);
     }
     /**
      * 取消一个自己的评教任务，后端需要检测是不是自己的评教任务，
@@ -127,14 +108,8 @@ public class UpdateEvaController {
     public CommonResult<Void> cancelMyEvaTask(
             @PathVariable ("id") Integer id){
         iEvaTaskService.cancelMyEvaTask(id);
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                LogUtils.logContent("ID为"+id+" 的评教任务");
-            }
-        };
         LogUtils.logContent("ID为"+id+" 的评教任务");
-        return CommonResult.success(null,runnable);
+        return CommonResult.success(null);
     }
 
 }
