@@ -12,7 +12,7 @@ import java.util.List;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class EvaLogConditionalQuery extends GenericConditionalQuery {
+public class EvaLogConditionalQuery extends ConditionalQuery {
 
     /**
      * 课程id数组，课程id数组
@@ -40,15 +40,6 @@ public class EvaLogConditionalQuery extends GenericConditionalQuery {
      */
     private List<Long> evaTeacherIds;
 
-    /**
-     * 最高分，最高分
-     */
-    private double maxScore;
-
-    /**
-     * 最低分，最低分
-     */
-    private double minScore;
 
     /**
      * 开始的评教时间，筛选评教时间的开始时间
@@ -59,8 +50,4 @@ public class EvaLogConditionalQuery extends GenericConditionalQuery {
      * 教学教师的id数组，教学教师的id数组
      */
     private List<Long> teacherIds;
-    /**
-    * 输入框中输入的查询关键字
-    */
-    private String keyword;
 }

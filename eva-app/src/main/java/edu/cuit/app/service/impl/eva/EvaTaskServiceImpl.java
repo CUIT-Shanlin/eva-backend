@@ -20,6 +20,7 @@ import edu.cuit.domain.gateway.eva.EvaQueryGateway;
 import edu.cuit.domain.gateway.eva.EvaUpdateGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
+import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -80,6 +81,7 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
     @Override
     public Void cancelEvaTask(Integer id) {
         evaUpdateGateway.cancelEvaTaskById(id);
+        LogUtils.logContent(evaQueryGateway.getNameByTaskId(id).get()+"任务ID为"+id+"的评教任务");
         return null;
     }
     @Override

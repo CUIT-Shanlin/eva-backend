@@ -25,7 +25,7 @@ public class EvaScoreInfoCO extends ClientObject{
     /**
      *高于指定分数的百分比
      */
-    private String percent;
+    private Number percent;
     /**
      *较昨日 lowerNum 多了多少
      */
@@ -33,7 +33,7 @@ public class EvaScoreInfoCO extends ClientObject{
     /**
      * 较昨日 percent 多了多少
      */
-    private Integer morePercent;
+    private Number morePercent;
     /**
      * 7日内 percent 的值
      */

@@ -36,13 +36,7 @@ public class DeleteEvaController {
     public CommonResult<Void> deleteOneEvaLogById(
             @RequestParam(value = "id") Integer id){
         iEvaRecordService.deleteOneEvaLogById(id);
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                LogUtils.logContent("ID为"+id+"的评教记录");
-            }
-        };
-        return CommonResult.success(null,runnable);
+        return CommonResult.success(null);
     }
     /**
      * 批量删除评教记录，删除之后，相当于用户没有进行过这次评教，id集合放请求体
@@ -54,13 +48,7 @@ public class DeleteEvaController {
     public CommonResult<Void> deleteEvaLogsById(
             @RequestBody List<Integer> ids){
         iEvaRecordService.deleteEvaLogsById(ids);
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                LogUtils.logContent("ID为" + ids.toString() + "的评教记录");
-            }
-        };
-        return CommonResult.success(null,runnable);
+        return CommonResult.success(null);
     }
     /**
      * 删除评教模板
@@ -72,13 +60,7 @@ public class DeleteEvaController {
     public CommonResult<Void> deleteEvaTemplateById(
             @RequestParam(value = "templateId") Integer templateId){
         iEvaTemplateService.deleteEvaTemplateById(templateId);
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                LogUtils.logContent("ID为"+templateId+"的评教模板");
-            }
-        };
-        return CommonResult.success(null,runnable);
+        return CommonResult.success(null);
     }
     /**
      * 批量删除模板，后端要再次检验是否可被删除
@@ -90,13 +72,7 @@ public class DeleteEvaController {
     public CommonResult<Void> deleteEvaTemplatesById(
             @RequestBody List<Integer> ids ){
         iEvaTemplateService.deleteEvaTemplatesById(ids);
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                LogUtils.logContent("ID为"+ids.toString()+"的评教模板");
-            }
-        };
-        return CommonResult.success(null,runnable);
+        return CommonResult.success(null);
     }
 
 }
