@@ -41,7 +41,7 @@ public class DeleteCourseController {
             @RequestParam(value = "id",required = true) Integer id,
             @RequestParam(value = "semId",required = false) Integer semId){
         courseDetailService.delete(semId,id);
-       return CommonResult.success(null,()-> LogUtils.logContent("ID为"+id+"的课程"));
+       return CommonResult.success(null);
     }
 
     /**
@@ -58,7 +58,7 @@ public class DeleteCourseController {
             @RequestParam(value = "semId",required = false) Integer semId,
             @RequestBody CoursePeriod coursePeriod){
         courseService.deleteCourses(semId,id,coursePeriod);
-        return CommonResult.success(null,()-> LogUtils.logContent("ID为"+id+"的课"));
+        return CommonResult.success(null);
     }
 
     /**
@@ -70,7 +70,7 @@ public class DeleteCourseController {
     @SaCheckPermission("course.type.delete")
     public CommonResult<Void> deleteCourseType(@RequestParam(value = "id",required = true) Integer id){
         courseTypeService.deleteCourseType(id);
-        return CommonResult.success(null,()-> LogUtils.logContent("ID为"+id+"的课程类型"));
+        return CommonResult.success(null);
     }
 
     /**
@@ -83,7 +83,7 @@ public class DeleteCourseController {
     public CommonResult<Void> deleteCoursesType(
             @RequestBody List<Integer> ids){
         courseTypeService.deleteCoursesType(ids);
-        return CommonResult.success(null,()-> LogUtils.logContent("ID为"+ids.toString()+"的课程类型"));
+        return CommonResult.success(null);
     }
 
     /**
@@ -96,7 +96,7 @@ public class DeleteCourseController {
            @PathVariable(value = "courseId") Integer courseId){
         userCourseService.deleteSelfCourse(courseId);
 
-        return CommonResult.success(null,()->LogUtils.logContent("ID为"+courseId+"的课程"));
+        return CommonResult.success(null);
     }
 
 }

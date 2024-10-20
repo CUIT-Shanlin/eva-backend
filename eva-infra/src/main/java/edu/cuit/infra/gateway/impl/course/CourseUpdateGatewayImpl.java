@@ -1,5 +1,6 @@
 package edu.cuit.infra.gateway.impl.course;
 
+import cn.hutool.log.Log;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.cuit.client.bo.CourseExcelBO;
 import edu.cuit.client.dto.clientobject.SemesterCO;
@@ -23,6 +24,7 @@ import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.infra.gateway.impl.course.operate.CourseImportExce;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
+import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,6 +51,13 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     private final SysUserMapper userMapper;
     private final CourseImportExce courseImportExce;
 
+
+    /**
+     * 修改一门课程
+     *@param semId 学期id
+     *@param updateCourseCmd 修改课程信息
+     *
+     * */
     @Override
     @Transactional
     public String updateCourse(Integer semId, UpdateCourseCmd updateCourseCmd) {
@@ -100,6 +109,13 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
 
     }
 
+
+    /**
+     * 批量修改课程的模板
+     *@param semId 学期id
+     *  @param updateCoursesCmd 批量修改课程信息
+     *
+     * */
     @Override
     @Transactional
     public void updateCourses(Integer semId, UpdateCoursesCmd updateCoursesCmd) {
@@ -109,6 +125,9 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
             CourseDO courseDO = new CourseDO();
             courseDO.setTemplateId(updateCoursesCmd.getTemplateId());
             courseMapper.update(courseDO,new QueryWrapper<CourseDO>().eq("id",i).eq("semester_id",semId));
+            Integer semesterId = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", i).eq("semester_id", semId)).getSemesterId();
+            String name = subjectMapper.selectById(semesterId).getName();
+            LogUtils.logContent(name+"(ID:"+i+")课程模板被修改了");
         }
 
     }
@@ -180,8 +199,13 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     @Override
     @Transactional
     public Void updateCourseType(CourseType courseType) {
+        //判断课程类型是否存在
+        CourseTypeDO courseTypeDO = courseTypeMapper.selectById(courseType.getId());
+        if(courseTypeDO==null)throw new QueryException("该课程类型不存在");
         //根据id更新课程类型
         courseTypeMapper.update(courseConvertor.toCourseTypeDO(courseType),new QueryWrapper<CourseTypeDO>().eq("id",courseType.getId()));
+        LogUtils.logContent(courseType.getName()+"课程类型");
+
         return null;
     }
 
@@ -190,7 +214,6 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     public Void addCourseType(CourseType courseType) {
         // 根据课程类型名称查询数据库
         CourseTypeDO existingCourseType = courseTypeMapper.selectOne(new QueryWrapper<CourseTypeDO>().eq("name", courseType.getName()));
-
         if (existingCourseType == null) {
             // 如果不存在相同名称的课程类型，则插入新记录
             courseTypeMapper.insert(courseConvertor.toCourseTypeDO(courseType));
@@ -238,6 +261,11 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         map.put("你已经被分配去听第"+courInfDO.getWeek()+"周，星期"
                 +courInfDO.getDay()+"，第"+courInfDO.getStartTime()+"-"+courInfDO.getEndTime()+"节，"+name+"课程。位置："+courInfDO.getLocation()
                 ,alignTeacherCmd.getEvaTeacherIdList());
+        for (Integer i : alignTeacherCmd.getEvaTeacherIdList()) {
+            SysUserDO userDO = userMapper.selectById(i);
+            LogUtils.logContent(userDO.getName()+"老师去听，第"+courInfDO.getWeek()+"周，星期"
+                    +courInfDO.getDay()+"，第"+courInfDO.getStartTime()+"-"+courInfDO.getEndTime()+"节，"+name+"课程。位置："+courInfDO.getLocation()+name+"课程");
+        }
         return map;
     }
 
@@ -271,7 +299,6 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     @Override
     @Transactional
     public Void importCourseFile(Map<String, List<CourseExcelBO>> courseExce, SemesterCO semester, Integer type) {
-
         if(semester.getId() != null && semesterMapper.exists(new QueryWrapper<SemesterDO>().eq("id",semester.getId()))){
             //执行已有学期的删除添加逻辑
             courseImportExce.deleteCourse(semester.getId());
@@ -458,7 +485,11 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
             courInfDO.setUpdateTime(LocalDateTime.now());
             courInfMapper.insert(courInfDO);
         }
-
+        CourseDO courseDO = courseMapper.selectById(courseId);
+        if(courseDO.getTemplateId()!=null)throw new  QueryException("不存在对应的课程");
+        SubjectDO subjectDO = subjectMapper.selectById(courseDO.getSubjectId());
+        if(subjectDO==null)throw  new QueryException("不存在对应的课程的科目");
+        LogUtils.logContent(subjectDO.getName()+"(ID:"+courseDO.getId()+")的课程的课数");
 
         return null;
     }
