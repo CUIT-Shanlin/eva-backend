@@ -100,7 +100,6 @@ public class RoleUpdateController {
     @OperateLog(module = LogModule.ROLE,type = OperateLogType.DELETE)
     public CommonResult<Void> multipleDelete(@RequestBody List<Integer> ids) {
         roleService.multipleDelete(ids);
-        LogUtils.logContent("ID为 " + ids + " 的角色");
         return CommonResult.success();
     }
 

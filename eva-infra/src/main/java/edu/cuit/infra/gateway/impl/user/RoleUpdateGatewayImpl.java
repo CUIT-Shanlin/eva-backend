@@ -18,6 +18,7 @@ import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -35,7 +36,7 @@ public class RoleUpdateGatewayImpl implements RoleUpdateGateway {
         SysRoleDO tmp = checkRoleId(Math.toIntExact(cmd.getId()));
         SysRoleDO roleDO = roleConverter.toRoleDO(cmd);
         roleMapper.updateById(roleDO);
-        LogUtils.logContent(tmp.getRoleName() + "角色的信息");
+        LogUtils.logContent(tmp.getRoleName() + "角色(" + tmp.getId() + ")的信息");
     }
 
     @Override
@@ -44,7 +45,7 @@ public class RoleUpdateGatewayImpl implements RoleUpdateGateway {
         LambdaUpdateWrapper<SysRoleDO> roleUpdate = Wrappers.lambdaUpdate();
         roleUpdate.set(SysRoleDO::getStatus,status).eq(SysRoleDO::getId,roleId);
         roleMapper.update(roleUpdate);
-        LogUtils.logContent(tmp.getRoleName() + " 角色的状态");
+        LogUtils.logContent(tmp.getRoleName() + " 角色(" + tmp.getId() + ")的状态");
     }
 
     @Override
@@ -54,19 +55,22 @@ public class RoleUpdateGatewayImpl implements RoleUpdateGateway {
         userRoleMapper.delete(Wrappers.lambdaQuery(SysUserRoleDO.class).eq(SysUserRoleDO::getRoleId,roleId));
         roleMenuMapper.delete(Wrappers.lambdaQuery(SysRoleMenuDO.class).eq(SysRoleMenuDO::getRoleId,roleId));
 
-        LogUtils.logContent(tmp.getRoleName() + "角色");
+        LogUtils.logContent(tmp.getRoleName() + "角色(" + tmp.getId() + ")");
     }
 
     @Override
     public void deleteMultipleRole(List<Integer> ids) {
+        List<SysRoleDO> tmp = new ArrayList<>();
         for (Integer id : ids) {
-            checkRoleId(id);
+            tmp.add(checkRoleId(id));
         }
         for (Integer id : ids) {
             roleMapper.deleteById(id);
             userRoleMapper.delete(Wrappers.lambdaQuery(SysUserRoleDO.class).eq(SysUserRoleDO::getRoleId,id));
             roleMenuMapper.delete(Wrappers.lambdaQuery(SysRoleMenuDO.class).eq(SysRoleMenuDO::getRoleId,id));
         }
+
+        LogUtils.logContent(tmp + " 角色");
     }
 
     @Override
@@ -84,7 +88,7 @@ public class RoleUpdateGatewayImpl implements RoleUpdateGateway {
                     .setRoleId(roleId));
         }
 
-        LogUtils.logContent(tmp.getRoleName() + " 角色的权限");
+        LogUtils.logContent(tmp.getRoleName() + " 角色(" + tmp.getId() + ")的权限");
     }
 
     @Override

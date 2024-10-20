@@ -35,7 +35,6 @@ public class MenuUpdateController {
     @OperateLog(module = LogModule.PERM,type = OperateLogType.UPDATE)
     public CommonResult<Void> update(@RequestBody @Valid UpdateMenuCmd updateMenuCmd) {
         menuService.update(updateMenuCmd);
-        LogUtils.logContent(updateMenuCmd.getName() + " 权限");
         return CommonResult.success();
     }
 
@@ -61,7 +60,6 @@ public class MenuUpdateController {
     @OperateLog(module = LogModule.PERM,type = OperateLogType.DELETE)
     public CommonResult<Void> delete(@PathVariable("menuId") Integer menuId) {
         menuService.delete(menuId);
-        LogUtils.logContent("ID为 " + menuId + " 的权限");
         return CommonResult.success();
     }
 
@@ -74,7 +72,6 @@ public class MenuUpdateController {
     @OperateLog(module = LogModule.PERM,type = OperateLogType.DELETE)
     public CommonResult<Void> multipleDelete(@RequestBody List<Integer> ids) {
         menuService.multipleDelete(ids);
-        LogUtils.logContent("ID为 " + ids.toString() + " 的权限");
         return CommonResult.success();
     }
 
