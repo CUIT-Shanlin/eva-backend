@@ -11,9 +11,11 @@ import edu.cuit.infra.dal.database.dataobject.user.SysMenuDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysRoleMenuDO;
 import edu.cuit.infra.dal.database.mapper.user.SysMenuMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysRoleMenuMapper;
+import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -27,27 +29,34 @@ public class MenuUpdateGatewayImpl implements MenuUpdateGateway {
 
     @Override
     public void updateMenuInfo(UpdateMenuCmd cmd) {
-        checkMenuId(cmd.getId());
+        SysMenuDO tmp = checkMenuId(cmd.getId());
         SysMenuDO menuDO = menuConvertor.toMenuDO(cmd);
         menuMapper.updateById(menuDO);
+
+        LogUtils.logContent(tmp.getName() + " 权限的信息");
     }
 
     @Override
     public void deleteMenu(Integer menuId) {
-        checkMenuId(menuId);
+        SysMenuDO tmp = checkMenuId(menuId);
         roleMenuMapper.delete(Wrappers.lambdaQuery(SysRoleMenuDO.class).eq(SysRoleMenuDO::getMenuId,menuId));
         menuMapper.deleteById(menuId);
+
+        LogUtils.logContent(tmp.getName() + " 权限");
     }
 
     @Override
     public void deleteMultipleMenu(List<Integer> menuIds) {
+        List<SysMenuDO> tmp = new ArrayList<>();
         for (Integer menuId : menuIds) {
-            checkMenuId(menuId);
+            tmp.add(checkMenuId(menuId));
         }
         for (Integer menuId : menuIds) {
             roleMenuMapper.delete(Wrappers.lambdaQuery(SysRoleMenuDO.class).eq(SysRoleMenuDO::getMenuId,menuId));
             menuMapper.deleteById(menuId);
         }
+
+        LogUtils.logContent(tmp + " 权限");
     }
 
     @Override
@@ -56,12 +65,13 @@ public class MenuUpdateGatewayImpl implements MenuUpdateGateway {
         menuMapper.insert(menuDO);
     }
 
-    private void checkMenuId(Integer id) {
+    private SysMenuDO checkMenuId(Integer id) {
         LambdaQueryWrapper<SysMenuDO> menuQuery = Wrappers.lambdaQuery();
-        menuQuery.select(SysMenuDO::getId).eq(SysMenuDO::getId,id);
+        menuQuery.select(SysMenuDO::getId,SysMenuDO::getName).eq(SysMenuDO::getId,id);
         SysMenuDO sysMenuDO = menuMapper.selectOne(menuQuery);
         if (sysMenuDO == null) {
             throw new BizException("菜单id: " + id + " 不存在");
         }
+        return sysMenuDO;
     }
 }
