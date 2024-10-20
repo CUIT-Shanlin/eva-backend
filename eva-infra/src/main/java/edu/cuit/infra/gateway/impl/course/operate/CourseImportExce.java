@@ -16,6 +16,7 @@ import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
+import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -66,7 +67,10 @@ public class CourseImportExce {
                 id=subjectDO.getId();
             }
             for (CourseExcelBO courseExcelBO : stringListEntry.getValue()) {
-                Integer userId = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("username", courseExcelBO.getTeacherName()).eq("prof_title", courseExcelBO.getProfTitle())).getId();
+                SysUserDO userDO = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("username", courseExcelBO.getTeacherName()).eq("prof_title", courseExcelBO.getProfTitle()));
+                if(userDO==null)throw new QueryException(courseExcelBO.getTeacherName()+"不存在");
+                Integer userId = userDO.getId();
+
                //评教表单模版id
                 Integer evaTemplateId = getEvaTemplateId(type);
                 CourseDO courseDO = addCourse(courseExcelBO, id, userId, semId,evaTemplateId);

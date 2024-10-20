@@ -30,6 +30,7 @@ import edu.cuit.infra.dal.database.mapper.user.SysRoleMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserRoleMapper;
 import edu.cuit.infra.util.QueryUtils;
+import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -71,13 +72,13 @@ public class LogGatewayImpl implements LogGateway {
             wrapper.eq("moduleId",moduleId);
         }
         Page<SysLogDO> logPage = logMapper.selectPage(page, wrapper);
+       if(logPage.getRecords().isEmpty())throw new QueryException("没有找到日志记录");
         List<SysLogDO> records = logPage.getRecords();
         List<SysLogEntity> logEntities = new ArrayList<>();
         for (SysLogDO record : records) {
             logEntities.add(toSysLogEntity(record));
         }
-        pageConverter.toPaginationEntity(logPage, logEntities);
-        return null;
+        return pageConverter.toPaginationEntity(logPage, logEntities);
     }
 
     @Override
@@ -96,6 +97,7 @@ public class LogGatewayImpl implements LogGateway {
     @Override
     public List<SysLogModuleEntity> getModules() {
         List<SysLogModuleDO> sysLogModuleDOS = logModuleMapper.selectList(null);
+        if(sysLogModuleDOS.isEmpty())throw new QueryException("日志模块中暂时还没有信息");
         return sysLogModuleDOS.stream().map(logConverter::toModuleEntity).toList();
     }
 
@@ -109,6 +111,7 @@ public class LogGatewayImpl implements LogGateway {
 
     private SysLogEntity toSysLogEntity(SysLogDO logDO){
         SysLogModuleDO sysLogModuleDO = logModuleMapper.selectById(logDO.getModuleId());
+        if(sysLogModuleDO==null)throw new QueryException("日志模块不存在");
         SysLogModuleEntity moduleEntity = logConverter.toModuleEntity(sysLogModuleDO);
         SysUserDO sysUserDO = userMapper.selectById(logDO.getUserId());
         Stream<Integer> roleIds = userRoleMapper.selectList(new QueryWrapper<SysUserRoleDO>().eq("user_id", logDO.getUserId())).stream().map(SysUserRoleDO::getRoleId);

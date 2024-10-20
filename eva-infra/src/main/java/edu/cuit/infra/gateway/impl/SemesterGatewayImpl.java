@@ -23,6 +23,7 @@ public class SemesterGatewayImpl implements SemesterGateway {
     @Override
     public List<SemesterCO> getAll() {
         List<SemesterDO> semesterDOS = semesterMapper.selectList(null);
+        if(semesterDOS.isEmpty()) throw new NoSuchElementException("数据库中还没有学期数据");
         return semesterDOS.stream().map(semesterConverter::toSemesterCO).toList();
     }
 
@@ -45,6 +46,8 @@ public class SemesterGatewayImpl implements SemesterGateway {
         if(id==null||id<0){
            return getNow();
         }
-        return semesterConverter.toSemesterCO(semesterMapper.selectById(id));
+        SemesterDO semesterDO = semesterMapper.selectById(id);
+        if(semesterDO==null)throw new QueryException("学期不存在");
+        return semesterConverter.toSemesterCO(semesterDO);
     }
 }
