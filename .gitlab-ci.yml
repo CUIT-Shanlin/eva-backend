@@ -29,8 +29,12 @@ sonarqube-check:
 
 build:
   stage: build
+  cache:
+    key: "${CI_PROJECT_ID}"
+    paths:
+      - .m2/repository
   script:
-    - mvn package -Dmaven.test.skip=true
+    - mvn package -Dmaven.test.skip=true -Dmaven.repo.local=.m2/repository
   rules:
     - if: $CI_COMMIT_BRANCH == 'master'
 
