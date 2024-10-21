@@ -6,6 +6,8 @@ variables:
 
 stages:
   - sonarqube-check
+  - build
+  - publish
 
 sonarqube-check:
   stage: sonarqube-check
@@ -22,6 +24,24 @@ sonarqube-check:
   allow_failure: true
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_COMMIT_BRANCH == 'master'
     - if: $CI_COMMIT_BRANCH == 'review'
     - if: $CI_COMMIT_BRANCH == 'dev'
+
+build:
+  stage: build
+  script:
+    - mvn package -Dmaven.test.skip=true
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'master'
+
+publish:
+  stage: publish
+  image: docker
+  services:
+    - docker:dind
+  script:
+    - docker login -u $HARBOR_USER -p $HARBOR_PASSWORD $HARBOR_URL
+    - docker build -t $HARBOR_URL/eva-system/eva-server:1.0-SNAPSHOT .
+    - docker push $CI_REGISTRY/eva-system/eva-server:1.0-SNAPSHOT
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'master'
