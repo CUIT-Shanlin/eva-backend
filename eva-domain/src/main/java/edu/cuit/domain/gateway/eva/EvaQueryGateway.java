@@ -181,4 +181,8 @@ public interface EvaQueryGateway {
      * 通过课程id找到所有评教过此课程的评教次数
      */
     Optional<Integer> getEvaNumByCourse(Integer courseId);
+    /**
+     * 通过任务id返回评教老师名字
+     */
+    Optional<String> getNameByTaskId(Integer taskId);
 }
