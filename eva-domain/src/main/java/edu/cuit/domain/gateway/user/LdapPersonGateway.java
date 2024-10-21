@@ -1,6 +1,7 @@
 package edu.cuit.domain.gateway.user;
 
 import edu.cuit.domain.entity.user.LdapPersonEntity;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
@@ -8,7 +9,10 @@ import java.util.Optional;
 /**
  * 用户访问ldap 用户的数据门户接口
  */
+@Component
 public interface LdapPersonGateway {
+
+    //测试
 
     /**
      * 认证密码是否正确（采用bind dn的方式）
@@ -30,6 +34,13 @@ public interface LdapPersonGateway {
      * @return List<LdapPersonEntity>
      */
     List<LdapPersonEntity> findAll();
+
+    /**
+     * 更改用户密码
+     * @param username 用户名
+     * @param newPassword 新的明文密码
+     */
+    void changePassword(String username,String newPassword);
 
     /**
      * 修改用户信息（用户名为标识符）

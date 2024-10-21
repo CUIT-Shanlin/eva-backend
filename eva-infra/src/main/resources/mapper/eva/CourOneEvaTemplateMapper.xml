@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="edu.cuit.infra.dal.database.mapper.eva.CourOneEvaTemplateMapper">
+
+    <resultMap id="BaseResultMap" type="edu.cuit.infra.dal.database.dataobject.eva.CourOneEvaTemplateDO">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="semesterId" column="semester_id" jdbcType="INTEGER"/>
+            <result property="courseId" column="course_id" jdbcType="INTEGER"/>
+            <result property="formTemplate" column="form_template" jdbcType="VARCHAR"/>
+            <result property="courseStatistics" column="course_statistics" jdbcType="VARCHAR"/>
+    </resultMap>
+</mapper>

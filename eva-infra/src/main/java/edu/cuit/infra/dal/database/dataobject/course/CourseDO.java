@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import lombok.Data;
 
 /**
- * 课程表
+ * 课程表（一门课程）
  * @TableName course
  */
 @TableName(value ="course")
@@ -30,22 +30,17 @@ public class CourseDO implements Serializable {
     private Integer subjectId;
 
     /**
-     * 评教模板的id
-     */
-    @TableField(value = "template_id")
-    private Integer templateId;
-
-    /**
      * 教学老师id
      */
     @TableField(value = "teacher_id")
     private Integer teacherId;
 
+
     /**
-     * JSON形式存教室数组
+     * 学期id
      */
-    @TableField(value = "classroom")
-    private String classroom;
+    @TableField(value = "semester_id")
+    private Integer semesterId;
 
     /**
      * 创建时间
@@ -64,6 +59,12 @@ public class CourseDO implements Serializable {
      */
     @TableField(value = "is_deleted")
     private Integer isDeleted;
+
+    /**
+     * 模板id，仅在有快照数据前生效
+     */
+    @TableField(value = "templateId")
+    private Integer templateId;
 
     @TableField(exist = false)
     @Serial
