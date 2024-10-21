@@ -49,7 +49,7 @@ publish:
       alias: docker
   before_script:
     - until docker info; do sleep 5s; done
-    - ls -l
+    - ls -l ./start
   script:
     - docker login -u $HARBOR_USER -p $HARBOR_PASSWORD $HARBOR_URL
     - docker build -t $HARBOR_URL/eva-system/eva-server:1.0-SNAPSHOT .
