@@ -7,7 +7,8 @@ ENV PARAMS=""
 
 ENV JVMOPTIONS=""
 
-COPY start/.target/flight-service-biz-1.0.jar /app.jar
+COPY start/.target/eva-server.jar /app.jar
 
 #ENTRYPOINT ["java","$JVMOPTIONS","-jar","/app.jar","$PARAMS"]
+#-dspring.profiles.active=prod
 CMD java ${JVMOPTIONS} -jar /app.jar ${PARAMS}
