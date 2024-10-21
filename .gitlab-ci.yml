@@ -1,4 +1,4 @@
-image: $HARBOR_URL/library/maven:3-eclipse-temurin-17
+image: 192.168.1.152:80/library/maven:3-eclipse-temurin-17
 
 variables:
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
