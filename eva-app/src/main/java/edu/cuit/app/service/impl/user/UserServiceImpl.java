@@ -144,11 +144,16 @@ public class UserServiceImpl implements IUserService {
                         return e;
                     }),password);
         }
-        userUpdateGateway.updateInfo(cmd);
+        String username = userQueryGateway.findUsernameById(Math.toIntExact(cmd.getId()))
+                .orElseThrow(() -> new BizException("用户ID不存在"));
         if (cmd.getStatus() == 0) {
-            StpUtil.logout(userQueryGateway.findUsernameById(Math.toIntExact(cmd.getId()))
-                    .orElseThrow(() -> new BizException("用户ID不存在")));
+            StpUtil.logout(username);
         }
+        userUpdateGateway.updateInfo(cmd);
+        if (!StrUtil.isEmpty(cmd.getUsername())) {
+            StpUtil.logout(username);
+        }
+
     }
 
     @Override
