@@ -40,11 +40,13 @@ build:
 
 publish:
   stage: publish
-  image: docker:20.10.16
+  image: docker:23.0.2-alpine3.17
   services:
-    - name: docker:20.10.16-dind
-      command: ["--tls=false"]
+    - name: docker:23.0.2-dind-alpine3.17
       alias: docker
+  before_script:
+    - docker --version
+    - until docker info; do sleep 1; done
   script:
     - docker login -u $HARBOR_USER -p $HARBOR_PASSWORD $HARBOR_URL
     - docker build -t $HARBOR_URL/eva-system/eva-server:1.0-SNAPSHOT .
