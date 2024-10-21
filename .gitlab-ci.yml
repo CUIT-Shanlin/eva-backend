@@ -2,7 +2,6 @@ variables:
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
   DOCKER_TLS_CERTDIR: ""
-#  GIT_CHECKOUT: "true"
 
 stages:
   - sonarqube-check
@@ -10,11 +9,8 @@ stages:
   - publish
 
 sonarqube-check:
-  image: 192.168.1.152:80/library/maven:3-eclipse-temurin-17
+  image: $HARBOR_URL/library/maven:3-eclipse-temurin-17
   stage: sonarqube-check
-#  dependencies:
-#    - get-binaries
-#    - build
   cache:
     key: "${CI_PROJECT_ID}"
     paths:
@@ -29,7 +25,7 @@ sonarqube-check:
     - if: $CI_COMMIT_BRANCH == 'dev'
 
 build:
-  image: 192.168.1.152:80/library/maven:3-eclipse-temurin-17
+  image: $HARBOR_URL/library/maven:3-eclipse-temurin-17
   stage: build
   cache:
     key: "${CI_PROJECT_ID}"
@@ -48,13 +44,13 @@ publish:
   image: docker:23.0.2-alpine3.17
   services:
     - name: docker:23.0.2-dind-alpine3.17
-      command: [ "--tls=false" ]
+      command: [ "--tls=false","--insecure-registry=${HARBOR_URL}" ]
       alias: docker
   before_script:
     - until docker info; do sleep 5s; done
   script:
     - docker login -u $HARBOR_USER -p $HARBOR_PASSWORD $HARBOR_URL
     - docker build -t $HARBOR_URL/eva-system/eva-server:1.0-SNAPSHOT .
-    - docker push $CI_REGISTRY/eva-system/eva-server:1.0-SNAPSHOT
+    - docker push $HARBOR_URL/eva-system/eva-server:1.0-SNAPSHOT
   rules:
     - if: $CI_COMMIT_BRANCH == 'master'
