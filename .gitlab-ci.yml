@@ -38,13 +38,14 @@ build:
   artifacts:
     paths:
       - start/target/eva-server.jar
+    expire_in: 1 days
 
 publish:
   stage: publish
   image: docker:23.0.2-alpine3.17
   services:
     - name: docker:23.0.2-dind-alpine3.17
-      command: [ "--tls=false","--insecure-registry=${HARBOR_URL}" ]
+      command: [ "--tls=false" ]
       alias: docker
   before_script:
     - until docker info; do sleep 5s; done
