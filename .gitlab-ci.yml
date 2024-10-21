@@ -1,10 +1,8 @@
-image: 192.168.1.152:80/library/maven:3-eclipse-temurin-17
-
 variables:
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
   DOCKER_TLS_CERTDIR: ""
-
+  GIT_CHECKOUT: "true"
 
 stages:
   - sonarqube-check
@@ -12,6 +10,7 @@ stages:
   - publish
 
 sonarqube-check:
+  image: 192.168.1.152:80/library/maven:3-eclipse-temurin-17
   stage: sonarqube-check
 #  dependencies:
 #    - get-binaries
@@ -30,6 +29,7 @@ sonarqube-check:
     - if: $CI_COMMIT_BRANCH == 'dev'
 
 build:
+  image: 192.168.1.152:80/library/maven:3-eclipse-temurin-17
   stage: build
   cache:
     key: "${CI_PROJECT_ID}"
