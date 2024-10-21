@@ -9,12 +9,6 @@ stages:
   - build
   - publish
 
-cache:
-  key: "${CI_PROJECT_ID}"
-  paths:
-    - .m2/repository
-    - start/target/eva-server.jar
-
 sonarqube-check:
   image: 192.168.1.152:80/library/maven:3-eclipse-temurin-17
   stage: sonarqube-check
@@ -41,20 +35,17 @@ build:
     key: "${CI_PROJECT_ID}"
     paths:
       - .m2/repository
-      - start/target/eva-server.jar
   script:
     - mvn package -Dmaven.test.skip=true -Dmaven.repo.local=.m2/repository
   rules:
     - if: $CI_COMMIT_BRANCH == 'master'
+  artifacts:
+    paths:
+      - start/target/eva-server.jar
 
 publish:
   stage: publish
   image: docker:23.0.2-alpine3.17
-  cache:
-    key: "${CI_PROJECT_ID}"
-    paths:
-      - .m2/repository
-      - start/target/eva-server.jar
   services:
     - name: docker:23.0.2-dind-alpine3.17
       command: [ "--tls=false" ]
