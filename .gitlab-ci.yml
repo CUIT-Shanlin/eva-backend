@@ -35,6 +35,7 @@ build:
     key: "${CI_PROJECT_ID}"
     paths:
       - .m2/repository
+      - start/target
   script:
     - mvn package -Dmaven.test.skip=true -Dmaven.repo.local=.m2/repository
   rules:
@@ -43,6 +44,10 @@ build:
 publish:
   stage: publish
   image: docker:23.0.2-alpine3.17
+  cache:
+    key: "${CI_PROJECT_ID}"
+    paths:
+      - start/target
   services:
     - name: docker:23.0.2-dind-alpine3.17
       command: [ "--tls=false" ]
