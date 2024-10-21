@@ -438,17 +438,24 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         if(user==null)throw new QueryException("用户不存在");
         Integer teacherId = user.getId();
         List<CourseDO> course = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", teacherId).eq("semester_id", semId));
-        if(course.isEmpty())throw new QueryException("未找到该老师相关的课程");
+//        if(course.isEmpty())throw new QueryException("未找到该老师相关的课程");
         List<Integer> courIdList =  course.stream().map(CourseDO::getId).toList();
         //找出老师所要教学的课程
-        List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", teacherId).eq("semester_id", semId));
+//        List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", teacherId).eq("semester_id", semId));
         //找出老师所要评教的课程
         List<EvaTaskDO> taskDOList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id", teacherId));
         List<CourInfDO> evaCourInfo;
         Set<Integer> evaCourInfoSet=new HashSet<>();
         if(!taskDOList.isEmpty()) {
             List<Integer> evaCourInfoList = taskDOList.stream().map(EvaTaskDO::getCourInfId).toList();
-            evaCourInfo = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("id", evaCourInfoList).ge("week", courseTime.getWeek()).or().ge("day", courseTime.getDay()));
+            evaCourInfo = courInfMapper.selectList( new QueryWrapper<CourInfDO>()
+                    .in("id", evaCourInfoList)
+                    .and(wrapper -> wrapper
+                            .gt("week", courseTime.getWeek())
+                            .or()
+                            .eq("week", courseTime.getWeek())
+                            .gt("day", courseTime.getDay())
+                    ));
             //得到待评教的courseId集合（set集合）
             evaCourInfoSet = evaCourInfo.stream().map(CourInfDO::getCourseId).collect(Collectors.toSet());
         } else {
@@ -461,10 +468,18 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         List<Integer> list = evaTaskMapper.selectList(null).stream().map(EvaTaskDO::getCourInfId).toList();
         //找出List中出现次数大于8的id
         List<Integer> collect = list.stream().filter(integer -> Collections.frequency(list, integer) >= 8).toList();
-        List<CourInfDO> geCourInfoList = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("id", collect).ge("week", courseTime.getWeek()).ge("day", courseTime.getDay()));
+        List<CourInfDO> geCourInfoList = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("id", collect).and(wrapper -> wrapper
+                .gt("week", courseTime.getWeek())
+                .or()
+                .eq("week", courseTime.getWeek())
+                .gt("day", courseTime.getDay())
+        ));
         //有学期ID找出这学期所有要上的课程
         List<Integer> courseAll = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId)).stream().map(CourseDO::getId).toList();
-        List<CourInfDO> courInfoAll = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", courseAll).ge("week", courseTime.getWeek()).ge("day", courseTime.getDay()));
+        List<CourInfDO> courInfoAll = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", courseAll).gt("week", courseTime.getWeek())
+                .or()
+                .eq("week", courseTime.getWeek())
+                .gt("day", courseTime.getDay()));
         //根据id去掉courinfoAll中的evaCourInfo和sameCourInfoList以及geCourInfoList
 //        List<CourInfDO> courInfDOList = courInfoAll.stream().filter(courInfDO -> !evaCourInfo.stream().map(CourInfDO::getId).toList().contains(courInfDO.getId())).filter(courInfDO -> !sameCourInfoList.contains(courInfDO)).filter(courInfDO -> !geCourInfoList.contains(courInfDO)).toList();
         List<CourInfDO> courInfDOList = courInfoAll.stream()
@@ -473,7 +488,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
                         &&!geCourInfoList.stream().map(CourInfDO::getId).toList().contains(courInfDO.getId()))
                         .toList();
         //执行额外推荐
-        return getRecommendCourInfo(courInfDOList, courseDOS);
+        return getRecommendCourInfo(courInfDOList, /*courseDOS*/course);
     }
 
 
