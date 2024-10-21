@@ -40,9 +40,9 @@ build:
 
 publish:
   stage: publish
-  image: docker
+  image: docker:20.10.16
   services:
-    - name: docker:dind
+    - name: docker:20.10.16-dind
       alias: docker
   script:
     - docker login -u $HARBOR_USER -p $HARBOR_PASSWORD $HARBOR_URL
