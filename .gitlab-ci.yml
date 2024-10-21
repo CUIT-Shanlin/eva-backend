@@ -2,7 +2,7 @@ variables:
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
   DOCKER_TLS_CERTDIR: ""
-  GIT_CHECKOUT: "true"
+#  GIT_CHECKOUT: "true"
 
 stages:
   - sonarqube-check
@@ -49,6 +49,7 @@ publish:
       alias: docker
   before_script:
     - until docker info; do sleep 5s; done
+    - ls -l
   script:
     - docker login -u $HARBOR_USER -p $HARBOR_PASSWORD $HARBOR_URL
     - docker build -t $HARBOR_URL/eva-system/eva-server:1.0-SNAPSHOT .
