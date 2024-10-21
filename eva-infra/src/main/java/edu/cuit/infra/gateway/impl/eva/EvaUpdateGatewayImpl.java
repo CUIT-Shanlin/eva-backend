@@ -5,9 +5,6 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import edu.cuit.client.dto.clientobject.eva.EvaInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskFormCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
-import edu.cuit.domain.entity.eva.EvaTaskEntity;
-import edu.cuit.domain.entity.eva.EvaTemplateEntity;
-import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.domain.gateway.eva.EvaUpdateGateway;
 import edu.cuit.infra.convertor.eva.EvaConvertor;
 import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
@@ -20,8 +17,6 @@ import edu.cuit.infra.dal.database.mapper.course.SemesterMapper;
 import edu.cuit.infra.dal.database.mapper.eva.*;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
-import org.apache.ibatis.annotations.Update;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,11 +45,11 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
     }
     @Override
     @Transactional
-    //TODO 要删除对应的两种消息 “该任务的待办评教消息” “该任务的系统逾期提醒消息”
     public Void putEvaTemplate(EvaTaskFormCO evaTaskFormCO) {
         //把评教的具体数据传进去给评教记录
         FormRecordDO formRecordDO=evaConvertor.ToFormRecordDO(evaTaskFormCO);
         formRecordDO.setCreateTime(LocalDateTime.now());
+        formRecordDO.setIsDeleted(1);
         formRecordMapper.insert(formRecordDO);
 
         //通过任务id把任务状态改了
@@ -62,17 +57,13 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         evaTaskDO.setStatus(1);
         evaTaskDO.setUpdateTime(LocalDateTime.now());
         evaTaskMapper.update(evaTaskDO,new QueryWrapper<EvaTaskDO>().eq("id",evaTaskFormCO.getTaskId()));
-
-        //
-
         return null;
     }
 
     @Override
     @Transactional
-    //TODO 同时发送该任务的评教待办消息;
     public String postEvaTask(EvaInfoCO evaInfoCO) {
-        //同时发送该任务的评教待办消息;TODO 朱还在写相关接口
+        //同时发送该任务的评教待办消息;
         CourInfDO courInfDO=courInfMapper.selectById(evaInfoCO.getCourInfId());
         CourseDO courseDO=courseMapper.selectById(courInfDO.getCourseId());
         //选中的课程是否已经上完
@@ -110,7 +101,8 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         for(int i=0;i<courInfDOList.size();i++){
             if(courInfDO.getWeek().equals(courInfDOList.get(i).getWeek())){
                 if(courInfDO.getDay().equals(courInfDOList.get(i).getDay())){
-                    if(courInfDO.getStartTime()<courInfDOList.get(i).getEndTime()||courInfDO.getEndTime()>courInfDOList.get(i).getStartTime()){
+                    if(((courInfDO.getStartTime()<=courInfDOList.get(i).getEndTime())&&(courInfDO.getEndTime()>=courInfDOList.get(i).getStartTime()))
+                            ||((courInfDOList.get(i).getStartTime()<=courInfDO.getEndTime())&&(courInfDOList.get(i).getEndTime()>=courInfDO.getStartTime()))){
                         throw new UpdateException("与你其他课程冲突");
                     }
                 }
