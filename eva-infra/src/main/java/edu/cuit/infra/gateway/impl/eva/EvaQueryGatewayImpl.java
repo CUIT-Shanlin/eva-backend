@@ -88,6 +88,15 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
 
     @Override
     public PaginationResultEntity<EvaRecordEntity> pageEvaRecord(Integer semId, PagingQuery<EvaLogConditionalQuery> query) {
+        QueryWrapper userQuery=new QueryWrapper();
+        if(query.getQueryObj().getDepartmentName()==null){
+            userQuery.eq("department",query.getQueryObj().getDepartmentName());
+        }
+        if(query.getQueryObj().getKeyword()==null){
+            userQuery.like("department",query.getQueryObj().getKeyword());
+        }
+        List<SysUserDO> sysUserDOList=sysUserMapper.selectList(userQuery);
+        List<Integer> sysUserIds=sysUserDOList.stream().map(SysUserDO::getId).toList();
         QueryWrapper<CourseDO> courseWrapper = new QueryWrapper<CourseDO>();
         //先看课程
         if(semId!=null){
@@ -99,7 +108,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         if(query.getQueryObj().getTeacherIds()!=null){
             courseWrapper.in("teacher_id",query.getQueryObj().getTeacherIds());
         }
-        List<CourseDO> courseDOS=courseMapper.selectList(courseWrapper);
+        List<CourseDO> courseDOS=courseMapper.selectList(courseWrapper.in("teacher_id",sysUserIds));
         List<Integer> courIds=courseDOS.stream().map(CourseDO::getId).toList();
 
         //课程详情
@@ -132,7 +141,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         if(query.getQueryObj().getStartEvaluateTime()!=null){
             evaTaskWrapper.in("start_time",query.getQueryObj().getStartEvaluateTime());
         }
-        List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(evaTaskWrapper);
+        List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(evaTaskWrapper.in("teacher_id",sysUserIds));
         List<Integer> evaTaskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
         //评教记录
         QueryWrapper<FormRecordDO> formRecordWrapper=new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIds);
@@ -199,7 +208,15 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         List<SingleCourseEntity> courseEntities=courInfDOS.stream().map(courInfDO -> courseConvertor.toSingleCourseEntity(
                 ()->toCourseEntity(courInfDO.getCourseId(),semId),courInfDO)).toList();
         //未完成的任务
-        evaTaskWrapper.eq("status",0);
+        if(taskQuery.getQueryObj().getTaskStatus()!=null) {
+            evaTaskWrapper.eq("status", taskQuery.getQueryObj().getTaskStatus());
+        }
+        if(taskQuery.getQueryObj().getStartCreateTime()!=null){
+            evaTaskWrapper.ge("create_time",taskQuery.getQueryObj().getStartCreateTime());
+        }
+        if(taskQuery.getQueryObj().getEndCreateTime()!=null){
+            evaTaskWrapper.le("create_time",taskQuery.getQueryObj().getEndCreateTime());
+        }
 
         pageTask=evaTaskMapper.selectPage(pageTask,evaTaskWrapper);
         List<EvaTaskDO> records=pageTask.getRecords();
