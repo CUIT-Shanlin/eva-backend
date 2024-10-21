@@ -51,7 +51,7 @@ publish:
     - until docker info; do sleep 5s; done
   script:
     - docker login -u $HARBOR_USER -p $HARBOR_PASSWORD $HARBOR_URL
-    - docker build -t $HARBOR_URL/eva-system/eva-server:1.0-SNAPSHOT .
-    - docker push $HARBOR_URL/eva-system/eva-server:1.0-SNAPSHOT
+    - docker build -t $HARBOR_URL/eva-system/eva-server:1.0.1-SNAPSHOT .
+    - docker push $HARBOR_URL/eva-system/eva-server:1.0.1-SNAPSHOT
   rules:
     - if: $CI_COMMIT_BRANCH == 'master'
