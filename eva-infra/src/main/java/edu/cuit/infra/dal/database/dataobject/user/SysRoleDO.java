@@ -9,6 +9,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * 角色
@@ -16,6 +17,7 @@ import lombok.Data;
  */
 @TableName(value ="sys_role")
 @Data
+@Accessors(chain = true)
 public class SysRoleDO implements Serializable {
     /**
      * 角色id

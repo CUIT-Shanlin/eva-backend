@@ -13,7 +13,7 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class PagingQuery extends Query {
+public class PagingQuery <T extends ConditionalQuery> extends Query {
 
     /**
      * 页数
@@ -33,5 +33,5 @@ public class PagingQuery extends Query {
      * 查询条件对象
      */
     @Valid
-    private ConditionalQuery queryObj;
+    private T queryObj;
 }

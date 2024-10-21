@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDate;
+
 import lombok.Data;
 
 /**
@@ -45,6 +47,12 @@ public class SemesterDO implements Serializable {
      */
     @TableField(value = "end_year")
     private String endYear;
+
+    /**
+     * 学期开始日期（需是星期一）
+     */
+    @TableField(value = "start_date")
+    private LocalDate startDate;
 
     @TableField(exist = false)
     @Serial

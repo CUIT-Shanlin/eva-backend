@@ -7,16 +7,16 @@
     <resultMap id="BaseResultMap" type="edu.cuit.infra.dal.database.dataobject.course.CourseDO">
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="subjectId" column="subject_id" jdbcType="INTEGER"/>
-            <result property="templateId" column="template_id" jdbcType="INTEGER"/>
             <result property="teacherId" column="teacher_id" jdbcType="INTEGER"/>
-            <result property="classroom" column="classroom" jdbcType="VARCHAR"/>
+            <result property="templateId" column="templateId" jdbcType="VARCHAR"/>
+            <result property="semesterId" column="semester_id" jdbcType="INTEGER"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
             <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
             <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,subject_id,template_id,
+        id,subject_id,semester_id,
         teacher_id,classroom,create_time,
         update_time,is_deleted
     </sql>

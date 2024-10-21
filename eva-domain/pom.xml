@@ -20,17 +20,19 @@
     <dependencies>
         <dependency>
             <groupId>edu.cuit</groupId>
-            <artifactId>eva-base</artifactId>
+            <artifactId>eva-base-common</artifactId>
             <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>eva-base-config</artifactId>
+            <version>${revision}</version>
+
         </dependency>
         <dependency>
             <groupId>edu.cuit</groupId>
             <artifactId>eva-client</artifactId>
             <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>edu.cuit.zhuyimeng</groupId>
-            <artifactId>zym-spring-boot-starter-common</artifactId>
         </dependency>
         <dependency>
             <groupId>com.alibaba.cola</groupId>

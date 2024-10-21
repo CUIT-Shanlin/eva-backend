@@ -1,0 +1,35 @@
+package edu.cuit.adapter.controller.course.util;
+
+import java.time.LocalDateTime;
+
+public class CalculateClassTime {
+    public static LocalDateTime calculateClassTime(LocalDateTime baseTime, int classNumber) {
+        // 每节课的时间（45分钟）
+        long classDuration = 45;
+        // 课间休息时间（10分钟）
+        long breakDuration = 10;
+
+        // 判断上午、下午或晚上的起始时间
+        LocalDateTime startTime;
+        if (classNumber <= 4) {
+            // 上午第一节课从8点开始
+            startTime = baseTime.withHour(8).withMinute(0).withSecond(0);
+        } else if (classNumber <= 8) {
+            // 下午第一节课从2点开始
+            startTime = baseTime.withHour(14).withMinute(0).withSecond(0);
+            // 调整课节号，使其从1开始计算
+            classNumber -= 4;
+        } else {
+            // 晚上第一节课从7:30开始
+            startTime = baseTime.withHour(19).withMinute(30).withSecond(0);
+            // 调整课节号，使其从1开始计算
+            classNumber -= 8;
+        }
+
+        // 计算总时间偏移量
+        long totalOffset = (classDuration + breakDuration) * (classNumber - 1);
+
+        // 计算具体上课时间
+        return startTime.plusMinutes(totalOffset);
+    }
+}
