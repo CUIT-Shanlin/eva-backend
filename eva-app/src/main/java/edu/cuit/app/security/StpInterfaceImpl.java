@@ -31,7 +31,7 @@ public class StpInterfaceImpl implements StpInterface {
             for (RoleEntity role : roles) {
                 if (role.getStatus() == 0) continue;
                 menus.addAll(role.getMenus().stream()
-                        .filter(menuEntity -> menuEntity.getType() == 2)
+                        .filter(menuEntity -> menuEntity.getType() == 2 && menuEntity.getPerms() != null)
                         .filter(menuEntity -> menuEntity.getStatus() == 1)
                         .map(MenuEntity::getPerms).toList());
             }
