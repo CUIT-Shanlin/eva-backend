@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import edu.cuit.client.dto.cmd.user.NewUserCmd;
 import edu.cuit.client.dto.cmd.user.UpdateUserCmd;
+import edu.cuit.domain.entity.user.LdapPersonEntity;
+import edu.cuit.domain.gateway.user.LdapPersonGateway;
 import edu.cuit.domain.gateway.user.UserUpdateGateway;
 import edu.cuit.infra.convertor.user.LdapUserConvertor;
 import edu.cuit.infra.convertor.user.UserConverter;
@@ -30,6 +32,8 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
     private final SysUserRoleMapper userRoleMapper;
     private final LdapPersonRepo ldapPersonRepo;
 
+    private final LdapPersonGateway ldapPersonGateway;
+
     private final UserConverter userConverter;
     private final LdapUserConvertor ldapUserConvertor;
 
@@ -43,9 +47,9 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
         if (checkUsernameExistence(cmd.getUsername())) {
             throw new BizException("用户名已存在");
         }
-        LdapPersonDO personDO = ldapUserConvertor.userDOToLdapPersonDO(userDO);
         userMapper.updateById(userDO);
-        ldapPersonRepo.save(personDO);
+        LdapPersonEntity ldapPersonEntity = ldapUserConvertor.userDOToLdapPersonEntity(userDO);
+        ldapPersonGateway.saveUser(ldapPersonEntity);
 
         LogUtils.logContent(tmp.getName() + " 用户(id:" + tmp.getId() + ")的信息");
     }
@@ -94,9 +98,9 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
             throw new BizException("用户名已存在");
         }
         SysUserDO userDO = userConverter.toUserDO(cmd);
-        LdapPersonDO personDO = ldapUserConvertor.userDOToLdapPersonDO(userDO);
+        LdapPersonEntity ldapPerson = ldapUserConvertor.userDOToLdapPersonEntity(userDO);
         userMapper.insert(userDO);
-        ldapPersonRepo.save(personDO);
+        ldapPersonGateway.saveUser(ldapPerson);
     }
 
     /**
