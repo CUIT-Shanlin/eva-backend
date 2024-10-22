@@ -44,17 +44,17 @@ public class CourseImportExce {
         List<Integer> courseIdList = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId)).stream().map(CourseDO::getId).toList();
         courseMapper.delete(new QueryWrapper<CourseDO>().eq("semester_id", semId));
        //删除每节课
-        List<Integer> courInfoIds = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", courseIdList)).stream().map(CourInfDO::getId).toList();
-        courInfMapper.delete(new QueryWrapper<CourInfDO>().in("course_id", courseIdList));
+        List<Integer> courInfoIds = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in(!courseIdList.isEmpty(),"course_id", courseIdList)).stream().map(CourInfDO::getId).toList();
+        courInfMapper.delete(new QueryWrapper<CourInfDO>().in(!courseIdList.isEmpty(),"course_id", courseIdList));
         //删除评教任务
-        List<EvaTaskDO> taskDOList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id", courInfoIds));
+        List<EvaTaskDO> taskDOList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in(!courInfoIds.isEmpty(),"cour_inf_id", courInfoIds));
         if(!taskDOList.isEmpty()) {
             List<Integer> taskIds = taskDOList.stream().map(EvaTaskDO::getId).toList();
             evaTaskMapper.deleteBatchIds(taskIds);
             //删除评教表单记录
-            recordMapper.delete(new QueryWrapper<FormRecordDO>().in("task_id", taskIds));
+            recordMapper.delete(new QueryWrapper<FormRecordDO>().in(!taskIds.isEmpty(),"task_id", taskIds));
             //删除评教快照
-            courOneEvaTemplateMapper.delete(new QueryWrapper<CourOneEvaTemplateDO>().in("course_id", courseIdList));
+            courOneEvaTemplateMapper.delete(new QueryWrapper<CourOneEvaTemplateDO>().in(!courseIdList.isEmpty(),"course_id", courseIdList));
         }
 
     }
