@@ -46,6 +46,8 @@ public class IUserCourseServiceImpl implements IUserCourseService {
     private final MsgServiceImpl msgService;
     private final MsgResult msgResult;
 
+    private final ObjectMapper objectMapper;
+
 
     @CheckSemId
     @Override
@@ -76,9 +78,9 @@ public class IUserCourseServiceImpl implements IUserCourseService {
     public void importCourse(InputStream fileStream, Integer type, String semester) {
         SemesterCO semesterCO=null;
         try {
-            semesterCO = new ObjectMapper().readValue(semester, SemesterCO.class);
+            semesterCO = objectMapper.readValue(semester, SemesterCO.class);
         } catch (JsonProcessingException e) {
-            throw new UpdateException("学期类型转换错");
+            throw new UpdateException("学期类型转换错误");
         }
         if(type==0){
             FileImportExec.importCourse(CourseExcelResolver.resolveData(CourseExcelResolver.Strategy.THEORY_COURSE, fileStream));
