@@ -301,14 +301,17 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     @Override
     @Transactional
     public Void importCourseFile(Map<String, List<CourseExcelBO>> courseExce, SemesterCO semester, Integer type) {
-        if(semester.getId() != null && semesterMapper.exists(new QueryWrapper<SemesterDO>().eq("id",semester.getId()))){
+        SemesterDO semesterDO = semesterMapper.selectOne(new QueryWrapper<SemesterDO>().eq("start_year", semester.getStartYear()).eq("period", semester.getPeriod()));
+        if(semesterDO!=null){
             //执行已有学期的删除添加逻辑
             courseImportExce.deleteCourse(semester.getId());
         }else{
             //直接插入学期
-            semesterMapper.insert(courseConvertor.toSemesterDO(semester));
+            SemesterDO semesterDO1 = courseConvertor.toSemesterDO(semester);
+            semesterMapper.insert(semesterDO1);
+            semesterDO=semesterDO1;
         }
-        courseImportExce.addAll(courseExce, type,semester.getId());
+        courseImportExce.addAll(courseExce, type,semesterDO.getId());
         return null;
     }
 
