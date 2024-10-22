@@ -68,7 +68,7 @@ public interface CourseConvertor {
             @Mapping(target = "courseBaseMsg.updateTime",source = "courInfo.updateTime"),
             @Mapping(target = "courseBaseMsg.templateMsg",source = "template"),
             @Mapping(target = "courseBaseMsg.teacherInfoCO.id",source = "user.id"),
-            @Mapping(target = "courseBaseMsg.teacherInfoCO.name",source = "user.username"),
+            @Mapping(target = "courseBaseMsg.teacherInfoCO.name",source = "user.name"),
             @Mapping(target = "courseBaseMsg.teacherInfoCO.department",source = "user.department")
 
     })
@@ -114,7 +114,7 @@ public interface CourseConvertor {
     @Mappings({
             @Mapping(target = "id",source = "courInfDO.id"),
             @Mapping(target = "name",source = "subject.name"),
-            @Mapping(target = "teacherName",source = "user.username"),
+            @Mapping(target = "teacherName",source = "user.name"),
             @Mapping(target = "evaNum",source = "evaNum"),
             @Mapping(target = "location",source = "courInfDO.location"),
             @Mapping(target = "time",source = "time"),
@@ -130,7 +130,7 @@ public interface CourseConvertor {
                                           Double priority,Double typeSimilarity);
     CourseTime toCourseTime(CourInfDO courInfDO);
 @Mappings({
-        @Mapping(target = "name",source = "username")
+        @Mapping(target = "name",source = "name")
 })
     EvaTeacherInfoCO toEvaTeacherInfoCO(SysUserDO sysUserDO);
     SemesterDO toSemesterDO(SemesterCO semesterCO);
