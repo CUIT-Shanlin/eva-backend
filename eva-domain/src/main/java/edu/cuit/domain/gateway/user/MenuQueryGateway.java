@@ -33,4 +33,9 @@ public interface MenuQueryGateway {
      */
     List<MenuEntity> getChildrenMenus(Integer parentMenuId);
 
+    /**
+     * 获取所有菜单
+     */
+    List<MenuEntity> getAllMenu();
+
 }

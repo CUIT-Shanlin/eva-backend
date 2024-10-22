@@ -56,6 +56,12 @@ public interface LdapPersonGateway {
     void createUser(LdapPersonEntity user, String password);
 
     /**
+     * 删除用户
+     * @param user LdapPersonEntity
+     */
+    void deleteUser(LdapPersonEntity user);
+
+    /**
      * 添加管理员
      * @param username 用户名
      */

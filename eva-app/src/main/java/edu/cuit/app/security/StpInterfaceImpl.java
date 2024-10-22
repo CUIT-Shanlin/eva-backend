@@ -23,6 +23,7 @@ public class StpInterfaceImpl implements StpInterface {
 
     @Override
     public List<String> getPermissionList(Object loginId, String loginType) {
+        if ("admin".equals(loginId)) return List.of("*");
         Optional<UserEntity> user = userQueryGateway.findByUsername((String) loginId);
         return user.map(userEntity -> {
             List<RoleEntity> roles = userEntity.getRoles();
@@ -30,7 +31,7 @@ public class StpInterfaceImpl implements StpInterface {
             for (RoleEntity role : roles) {
                 if (role.getStatus() == 0) continue;
                 menus.addAll(role.getMenus().stream()
-                        .filter(menuEntity -> menuEntity.getType() == 2)
+                        .filter(menuEntity -> menuEntity.getType() == 2 && menuEntity.getPerms() != null)
                         .filter(menuEntity -> menuEntity.getStatus() == 1)
                         .map(MenuEntity::getPerms).toList());
             }
@@ -40,6 +41,7 @@ public class StpInterfaceImpl implements StpInterface {
 
     @Override
     public List<String> getRoleList(Object loginId, String loginType) {
+        if ("admin".equals(loginId)) return List.of("*");
         Optional<UserEntity> user = userQueryGateway.findByUsername((String) loginId);
         return user.map(userEntity ->
                 userEntity.getRoles().stream()

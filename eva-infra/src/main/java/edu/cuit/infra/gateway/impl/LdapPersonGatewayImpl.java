@@ -70,10 +70,16 @@ public class LdapPersonGatewayImpl implements LdapPersonGateway {
         LdapPersonDO personDO = ldapUserConvertor.ldapPersonEntityToLdapPersonDO(user);
         personDO.setUserPassword(password);
         personDO.setId(EvaLdapUtils.getUserLdapNameId(personDO.getUsername()));
-        personDO.setCommonName(personDO.getSurname() + personDO.getGivenName());
         personDO.setUidNumber(IdUtil.getSnowflakeNextIdStr());
         personDO.setHomeDirectory("/home/" + user.getUsername());
         ldapTemplate.create(personDO);
+    }
+
+    @Override
+    public void deleteUser(LdapPersonEntity user) {
+        LdapPersonDO personDO = ldapUserConvertor.ldapPersonEntityToLdapPersonDO(user);
+        personDO.setId(EvaLdapUtils.getUserLdapNameId(personDO.getUsername()));
+        ldapTemplate.delete(personDO);
     }
 
     @Override

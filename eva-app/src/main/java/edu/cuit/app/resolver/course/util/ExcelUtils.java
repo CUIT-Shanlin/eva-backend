@@ -5,6 +5,7 @@ import com.alibaba.cola.exception.BizException;
 import edu.cuit.client.bo.CourseExcelBO;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 
@@ -87,9 +88,22 @@ public class ExcelUtils {
             return cell.getStringCellValue();
         } else if (cellType == CellType.BLANK) {
             return null;
-        }else {
+        } else {
             throw new BizException("表格数据异常：存在不是字符串或数字的单元格数据");
         }
+    }
+
+    /**
+     * 计算公式的值
+     * @param sheet sheet
+     * @param cell 单元格
+     * @return 公式的字符串值
+     */
+    public static String getExcelFormulaEvaString(Sheet sheet, Cell cell) {
+        Object cellValue = "";
+        FormulaEvaluator evaluator = sheet.getWorkbook().getCreationHelper().createFormulaEvaluator();
+        cell = evaluator.evaluateInCell(cell);
+        return getCellStringValue(cell);
     }
 
     /**

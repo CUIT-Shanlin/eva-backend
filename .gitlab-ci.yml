@@ -1,17 +1,16 @@
-image: 192.168.1.152:80/library/maven:3-eclipse-temurin-17
-
 variables:
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
+  DOCKER_TLS_CERTDIR: ""
 
 stages:
   - sonarqube-check
+  - build
+  - publish
 
 sonarqube-check:
+  image: $HARBOR_URL/library/maven:3-eclipse-temurin-17
   stage: sonarqube-check
-#  dependencies:
-#    - get-binaries
-#    - build
   cache:
     key: "${CI_PROJECT_ID}"
     paths:
@@ -22,6 +21,37 @@ sonarqube-check:
   allow_failure: true
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_COMMIT_BRANCH == 'master'
     - if: $CI_COMMIT_BRANCH == 'review'
     - if: $CI_COMMIT_BRANCH == 'dev'
+
+build:
+  image: $HARBOR_URL/library/maven:3-eclipse-temurin-17
+  stage: build
+  cache:
+    key: "${CI_PROJECT_ID}"
+    paths:
+      - .m2/repository
+  script:
+    - mvn package -Dmaven.test.skip=true -Dmaven.repo.local=.m2/repository
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'master'
+  artifacts:
+    paths:
+      - start/target/eva-server.jar
+    expire_in: 1 days
+
+publish:
+  stage: publish
+  image: docker:23.0.2-alpine3.17
+  services:
+    - name: docker:23.0.2-dind-alpine3.17
+      command: [ "--tls=false" ]
+      alias: docker
+  before_script:
+    - until docker info; do sleep 5s; done
+  script:
+    - docker login -u $HARBOR_USER -p $HARBOR_PASSWORD $HARBOR_URL
+    - docker build -t $HARBOR_URL/eva-system/eva-server:1.0.1-SNAPSHOT .
+    - docker push $HARBOR_URL/eva-system/eva-server:1.0.1-SNAPSHOT
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'master'

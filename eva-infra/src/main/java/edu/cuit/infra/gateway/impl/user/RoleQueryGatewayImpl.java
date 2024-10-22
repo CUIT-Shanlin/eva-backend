@@ -78,6 +78,19 @@ public class RoleQueryGatewayImpl implements RoleQueryGateway {
         return menuMapper.selectList(menuQuery).stream().map(SysMenuDO::getId).toList();
     }
 
+    @Override
+    public Integer getDefaultRoleId() {
+        LambdaQueryWrapper<SysRoleDO> roleQuery = Wrappers.lambdaQuery();
+        roleQuery.select(SysRoleDO::getId).eq(SysRoleDO::getIsDefault,1);
+        SysRoleDO sysRoleDO = roleMapper.selectOne(roleQuery);
+        if (sysRoleDO == null) {
+            SysException e = new SysException("未找到默认角色，请联系管理员");
+            log.error("发生系统异常",e);
+            throw e;
+        }
+        return sysRoleDO.getId();
+    }
+
     /**
      * 填充roleEntity字段
      */

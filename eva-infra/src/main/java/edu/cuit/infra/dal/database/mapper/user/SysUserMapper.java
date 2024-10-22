@@ -1,4 +1,6 @@
 package edu.cuit.infra.dal.database.mapper.user;
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 import com.github.yulichang.base.MPJBaseMapper;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
@@ -13,6 +15,8 @@ import org.apache.ibatis.annotations.Mapper;
 */
 @Mapper
 public interface SysUserMapper extends MPJBaseMapper<SysUserDO> {
+
+    SysUserDO findIdByUsername(@Param("username") String username);
 
 }
 
