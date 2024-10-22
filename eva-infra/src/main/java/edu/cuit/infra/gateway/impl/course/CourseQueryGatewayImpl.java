@@ -81,6 +81,9 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     private final SysUserRoleMapper userRoleMapper;
     private final SysRoleMenuMapper roleMenuMapper;
     private final PaginationConverter paginationConverter;
+
+    private final ObjectMapper objectMapper;
+
     @Override
     public PaginationResultEntity<CourseEntity> page(PagingQuery<CourseConditionalQuery> courseQuery, Integer semId) {
         if(courseQuery==null){
@@ -124,7 +127,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         EvaTemplateCO evaTemplateCO=null;
         if(courOneEvaTemplateDO!=null&&courOneEvaTemplateDO.getFormTemplate()!=null){
             try {
-                evaTemplateCO = new ObjectMapper().readValue(courOneEvaTemplateDO.getFormTemplate(), EvaTemplateCO.class);
+                evaTemplateCO = objectMapper.readValue(courOneEvaTemplateDO.getFormTemplate(), EvaTemplateCO.class);
             } catch (JsonProcessingException e) {
                 throw new QueryException("formTemplate暂时为空");
             }
@@ -167,7 +170,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         //将json形式的字符串转化成EvaProp对象
         List<EvaProp> evaPropList = taskProps.stream().map(taskProp -> {
             try {
-                return new ObjectMapper().readValue(taskProp, EvaProp.class);
+                return objectMapper.readValue(taskProp, EvaProp.class);
             } catch (JsonProcessingException e) {
                 throw new ClassCastException("类型转化错误");
             }
