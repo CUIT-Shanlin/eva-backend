@@ -60,11 +60,14 @@ public class CourseImportExce {
     }
     public void addAll( Map<String, List<CourseExcelBO>> courseExce, Integer type,Integer semId){
         for (Map.Entry<String, List<CourseExcelBO>> stringListEntry : courseExce.entrySet()) {
-            Integer id = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("name", stringListEntry.getKey())).getId();
-            if(id==null){
+            SubjectDO subjectDO1 = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("name", stringListEntry.getKey()));
+            Integer id = null;
+            if(subjectDO1==null){
                 SubjectDO subjectDO = addSubject(stringListEntry.getKey(), type);
                 subjectMapper.insert(subjectDO);
                 id=subjectDO.getId();
+            }else{
+                id=subjectDO1.getId();
             }
             for (CourseExcelBO courseExcelBO : stringListEntry.getValue()) {
                 SysUserDO userDO = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("username", courseExcelBO.getTeacherName()).eq("prof_title", courseExcelBO.getProfTitle()));
