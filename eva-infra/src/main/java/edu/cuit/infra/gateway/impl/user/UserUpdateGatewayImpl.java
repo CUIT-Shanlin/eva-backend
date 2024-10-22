@@ -104,6 +104,12 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
         if (checkUsernameExistence(cmd.getUsername())) {
             throw new BizException("用户名已存在");
         }
+
+        SysUserDO existedUsername = userMapper.findIdByUsername(cmd.getUsername());
+        if (existedUsername != null) {
+            throw new BizException("该用户名已存在于归档的用户（数据库逻辑删除）中");
+        }
+
         SysUserDO userDO = userConverter.toUserDO(cmd);
         LdapPersonEntity ldapPerson = ldapUserConvertor.userDOToLdapPersonEntity(userDO);
         userMapper.insert(userDO);

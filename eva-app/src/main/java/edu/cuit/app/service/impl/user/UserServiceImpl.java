@@ -214,7 +214,10 @@ public class UserServiceImpl implements IUserService {
         Set<String> usernameSet = new HashSet<>(userQueryGateway.findAllUsername());
         for (NewUserCmd newUserCmd : cmdList) {
             if (usernameSet.contains(newUserCmd.getUsername())) continue;
-            userUpdateGateway.createUser(newUserCmd);
+            try {
+                userUpdateGateway.createUser(newUserCmd);
+            } catch (BizException ignored) {
+            }
         }
     }
 
