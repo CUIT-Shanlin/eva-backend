@@ -27,6 +27,7 @@ import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.gateway.course.CourseDeleteGateway;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.domain.gateway.course.CourseUpdateGateway;
+import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -77,7 +78,7 @@ public class IUserCourseServiceImpl implements IUserCourseService {
         try {
             semesterCO = new ObjectMapper().readValue(semester, SemesterCO.class);
         } catch (JsonProcessingException e) {
-            throw new ClassCastException("学期类型转换错");
+            throw new UpdateException("学期类型转换错");
         }
         if(type==0){
             FileImportExec.importCourse(CourseExcelResolver.resolveData(CourseExcelResolver.Strategy.THEORY_COURSE, fileStream));

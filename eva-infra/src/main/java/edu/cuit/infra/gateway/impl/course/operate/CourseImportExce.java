@@ -71,7 +71,10 @@ public class CourseImportExce {
             }
             for (CourseExcelBO courseExcelBO : stringListEntry.getValue()) {
                 SysUserDO userDO = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("username", courseExcelBO.getTeacherName()).eq("prof_title", courseExcelBO.getProfTitle()));
-                if(userDO==null)throw new QueryException(courseExcelBO.getTeacherName()+"不存在");
+                if(userDO==null){//如果老师不存在就把，课程就放弃
+                    subjectMapper.deleteById(id);
+                    continue;
+                }
                 Integer userId = userDO.getId();
 
                //评教表单模版id
