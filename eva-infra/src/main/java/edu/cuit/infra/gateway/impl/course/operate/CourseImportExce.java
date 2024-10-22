@@ -70,7 +70,7 @@ public class CourseImportExce {
                 id=subjectDO1.getId();
             }
             for (CourseExcelBO courseExcelBO : stringListEntry.getValue()) {
-                SysUserDO userDO = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("username", courseExcelBO.getTeacherName()).eq("prof_title", courseExcelBO.getProfTitle()));
+                SysUserDO userDO = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("name", courseExcelBO.getTeacherName()).eq("prof_title", courseExcelBO.getProfTitle()));
                 if(userDO==null){//如果老师不存在就把，课程就放弃
                     subjectMapper.deleteById(id);
                     continue;
