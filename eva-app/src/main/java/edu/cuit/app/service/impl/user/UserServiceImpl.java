@@ -177,6 +177,9 @@ public class UserServiceImpl implements IUserService {
         if (StrUtil.isBlank(cmd.getPassword())) {
             throw new BizException("新密码不能为空");
         }
+        if (cmd.getOldPassword().equals(cmd.getPassword())) {
+            throw new BizException("新密码和旧密码不能相同");
+        }
         ldapPersonGateway.changePassword(username,cmd.getPassword());
     }
 
