@@ -23,6 +23,7 @@ public class StpInterfaceImpl implements StpInterface {
 
     @Override
     public List<String> getPermissionList(Object loginId, String loginType) {
+        if ("admin".equals(loginId)) return List.of("*");
         Optional<UserEntity> user = userQueryGateway.findByUsername((String) loginId);
         return user.map(userEntity -> {
             List<RoleEntity> roles = userEntity.getRoles();
@@ -40,6 +41,7 @@ public class StpInterfaceImpl implements StpInterface {
 
     @Override
     public List<String> getRoleList(Object loginId, String loginType) {
+        if ("admin".equals(loginId)) return List.of("*");
         Optional<UserEntity> user = userQueryGateway.findByUsername((String) loginId);
         return user.map(userEntity ->
                 userEntity.getRoles().stream()
