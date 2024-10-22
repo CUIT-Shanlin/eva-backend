@@ -11,12 +11,13 @@
             <result property="status" column="status" jdbcType="TINYINT"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
             <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+            <result property="isDefault" column="is_default" jdbcType="TINYINT"/>
             <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,role_name,description,
         status,create_time,update_time,
-        is_deleted
+        is_deleted,is_defalult
     </sql>
 </mapper>
