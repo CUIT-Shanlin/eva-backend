@@ -145,7 +145,8 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
     private UserEntity fileUserEntity(SysUserDO userDO) {
         //查询角色
         LambdaQueryWrapper<SysRoleDO> roleQuery = new LambdaQueryWrapper<>();
-        roleQuery.in(SysRoleDO::getId, getUserRoleIds(userDO.getId()));
+        List<Integer> userRoleIds = getUserRoleIds(userDO.getId());
+        roleQuery.in(!userRoleIds.isEmpty(),SysRoleDO::getId, userRoleIds);
         Supplier<List<RoleEntity>> userRoles = () -> roleMapper.selectList(roleQuery).stream()
                 .map(roleDo -> {
 
