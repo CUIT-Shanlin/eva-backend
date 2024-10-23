@@ -18,6 +18,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -47,6 +48,7 @@ public class LogServiceImpl implements ILogService {
     }
 
     @Override
+    @Transactional
     public PaginationQueryResultCO<OperateLogCO> page(PagingQuery<GenericConditionalQuery> query
             , Integer moduleId) {
         PaginationResultEntity<SysLogEntity> resultPage = logGateway.page(query, moduleId);
@@ -57,6 +59,7 @@ public class LogServiceImpl implements ILogService {
     }
 
     @Override
+    @Transactional
     public List<LogModuleCO> getModules() {
         return logGateway.getModules().stream()
                 .map(logBizConvertor::toLogModuleCO)

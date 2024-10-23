@@ -18,6 +18,7 @@ import edu.cuit.domain.gateway.user.RoleQueryGateway;
 import edu.cuit.domain.gateway.user.RoleUpdateGateway;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -32,54 +33,64 @@ public class RoleServiceImpl implements IRoleService {
     private final PaginationBizConvertor paginationBizConvertor;
 
     @Override
+    @Transactional
     public PaginationQueryResultCO<RoleInfoCO> page(PagingQuery<GenericConditionalQuery> pagingQuery) {
         PaginationResultEntity<RoleEntity> page = roleQueryGateway.page(pagingQuery);
         return paginationBizConvertor.toPaginationEntity(page,page.getRecords().stream().map(roleBizConvertor::roleEntityToRoleInfoCO).toList());
     }
 
     @Override
+    @Transactional
     public RoleInfoCO one(Integer id) {
         return roleQueryGateway.getById(id).map(roleBizConvertor::roleEntityToRoleInfoCO)
                 .orElseThrow(() -> new BizException("该角色不存在"));
     }
 
     @Override
+    @Transactional
     public List<SimpleRoleInfoCO> all() {
         return roleQueryGateway.allRole();
     }
 
     @Override
+    @Transactional
     public List<Integer> roleMenus(Integer roleId) {
         return roleQueryGateway.getRoleMenuIds(roleId);
     }
 
     @Override
+    @Transactional
     public void updateInfo(UpdateRoleCmd updateRoleCmd) {
         roleUpdateGateway.updateRoleInfo(updateRoleCmd);
         if (updateRoleCmd.getStatus() != null) updateStatus(Math.toIntExact(updateRoleCmd.getId()),updateRoleCmd.getStatus());
     }
 
     @Override
+    @Transactional
     public void updateStatus(Integer roleId, Integer status) {
         roleUpdateGateway.updateRoleStatus(roleId,status);
     }
 
     @Override
+    @Transactional
     public void assignPerm(AssignPermCmd assignPermCmd) {
         roleUpdateGateway.assignPerms(assignPermCmd.getRoleId(),assignPermCmd.getMenuIdList());
     }
 
     @Override
+    @Transactional
     public void create(NewRoleCmd newRoleCmd) {
         roleUpdateGateway.createRole(newRoleCmd);
     }
 
     @Override
+    @Transactional
     public void delete(Integer roleId) {
         roleUpdateGateway.deleteRole(roleId);
     }
 
     @Override
+    @Transactional
     public void multipleDelete(List<Integer> ids) {
         roleUpdateGateway.deleteMultipleRole(ids);
     }
