@@ -157,7 +157,7 @@ public class UserServiceImpl implements IUserService {
         }
         String username = userQueryGateway.findUsernameById(Math.toIntExact(cmd.getId()))
                 .orElseThrow(() -> new BizException("用户ID不存在"));
-        if (cmd.getStatus() == 0) {
+        if (cmd.getStatus() != null && cmd.getStatus() == 0) {
             StpUtil.logout(username);
         }
         userUpdateGateway.updateInfo(cmd);

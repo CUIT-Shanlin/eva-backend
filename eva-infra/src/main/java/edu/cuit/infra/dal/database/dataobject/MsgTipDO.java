@@ -28,7 +28,7 @@ public class MsgTipDO implements Serializable {
     /**
      * 发起人的id(-1或null: 系统发起)
      */
-    @TableField(value = "sender _id")
+    @TableField(value = "sender_id")
     private Integer senderId;
 
     /**

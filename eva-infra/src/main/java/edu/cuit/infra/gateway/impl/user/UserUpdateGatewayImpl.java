@@ -50,7 +50,7 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
         if (checkUsernameExistence(cmd.getUsername())) {
             throw new BizException("用户名已存在");
         }
-        if (cmd.getStatus() == 0) checkAdmin(Math.toIntExact(cmd.getId()));
+        if (cmd.getStatus() != null && cmd.getStatus() == 0) checkAdmin(Math.toIntExact(cmd.getId()));
         userMapper.updateById(userDO);
         LdapPersonEntity ldapPersonEntity = ldapUserConvertor.userDOToLdapPersonEntity(userDO);
         ldapPersonGateway.saveUser(ldapPersonEntity);
