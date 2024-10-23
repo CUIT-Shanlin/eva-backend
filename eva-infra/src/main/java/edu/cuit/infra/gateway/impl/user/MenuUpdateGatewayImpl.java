@@ -65,7 +65,7 @@ public class MenuUpdateGatewayImpl implements MenuUpdateGateway {
 
     @Override
     public void createMenu(NewMenuCmd cmd) {
-        if (cmd.getParentId() != null && menuQueryGateway.getOne(cmd.getParentId()).isEmpty())
+        if (cmd.getParentId() != null && cmd.getParentId() != 0 && menuQueryGateway.getOne(cmd.getParentId()).isEmpty())
             throw new BizException("父菜单ID: " + cmd.getParentId() + " 不存在");
         SysMenuDO menuDO = menuConvertor.toMenuDO(cmd);
         menuMapper.insert(menuDO);
