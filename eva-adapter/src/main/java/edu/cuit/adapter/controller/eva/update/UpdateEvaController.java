@@ -4,6 +4,7 @@ import cn.dev33.satoken.annotation.SaCheckPermission;
 import edu.cuit.client.api.eva.IEvaRecordService;
 import edu.cuit.client.api.eva.IEvaTaskService;
 import edu.cuit.client.api.eva.IEvaTemplateService;
+import edu.cuit.client.dto.clientobject.eva.AddTaskCO;
 import edu.cuit.client.dto.clientobject.eva.EvaInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskFormCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
@@ -55,12 +56,13 @@ public class UpdateEvaController {
     }
     /**
      * 发起评教任务
-     *@param evaInfoCO 评教信息dto
+     *@param addTaskCO 评教信息dto
      */
     @PostMapping("/evaluate/task")
     public CommonResult<Void> postEvaTask(
-            @Valid @RequestBody EvaInfoCO evaInfoCO){
-        iEvaTaskService.postEvaTask(evaInfoCO);
+            @Valid @RequestBody AddTaskCO addTaskCO){
+        System.out.println(addTaskCO);
+        iEvaTaskService.postEvaTask(addTaskCO);
         return CommonResult.success(null);
     }
     /**

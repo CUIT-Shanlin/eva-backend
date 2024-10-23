@@ -1,6 +1,7 @@
 package edu.cuit.client.api.eva;
 
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
+import edu.cuit.client.dto.clientobject.eva.AddTaskCO;
 import edu.cuit.client.dto.clientobject.eva.EvaInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskBaseInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskDetailInfoCO;
@@ -37,9 +38,9 @@ public interface IEvaTaskService {
 
     /**
      * 发起评教任务
-     *@param evaInfoCO 评教信息dto
+     *@param addTaskCO 增加评教dto
      */
-    Void postEvaTask(EvaInfoCO evaInfoCO);
+    Void postEvaTask(AddTaskCO addTaskCO);
 
     /**
      * 任意取消一个评教任务

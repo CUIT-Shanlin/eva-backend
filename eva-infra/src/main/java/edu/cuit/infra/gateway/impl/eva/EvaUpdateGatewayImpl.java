@@ -2,6 +2,7 @@ package edu.cuit.infra.gateway.impl.eva;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import edu.cuit.client.dto.clientobject.eva.AddTaskCO;
 import edu.cuit.client.dto.clientobject.eva.EvaInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskFormCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
@@ -15,6 +16,7 @@ import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.SemesterMapper;
 import edu.cuit.infra.dal.database.mapper.eva.*;
+import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -22,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Component
@@ -62,8 +65,8 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
 
     @Override
     @Transactional
-    public String postEvaTask(EvaInfoCO evaInfoCO) {
-        //同时发送该任务的评教待办消息;
+    public Integer postEvaTask(AddTaskCO addTaskCO) {
+        /*//同时发送该任务的评教待办消息;
         CourInfDO courInfDO=courInfMapper.selectById(evaInfoCO.getCourInfId());
         CourseDO courseDO=courseMapper.selectById(courInfDO.getCourseId());
         //选中的课程是否已经上完
@@ -123,14 +126,23 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
             }
         }
         //看看是不是正在没有上完的课程 TODO
+        */
+
         EvaTaskDO evaTaskDO=new EvaTaskDO();
         evaTaskDO.setCreateTime(LocalDateTime.now());
         evaTaskDO.setUpdateTime(LocalDateTime.now());
         evaTaskDO.setStatus(0);
-        evaTaskDO.setCourInfId(evaInfoCO.getCourInfId());
-        evaTaskDO.setTeacherId(evaInfoCO.getTeacherId());
+        evaTaskDO.setCourInfId(addTaskCO.getCourInfId());
+        evaTaskDO.setTeacherId(addTaskCO.getTeacherId());
+        evaTaskDO.setIsDeleted(0);
         evaTaskMapper.insert(evaTaskDO);
-        return null;
+
+        Integer taskId=evaTaskMapper.selectOne(new QueryWrapper<EvaTaskDO>().eq("teacher_id",addTaskCO.getTeacherId()).eq("cour_inf_id",addTaskCO.getCourInfId())).getId();
+
+        if(taskId==null){
+            throw new QueryException("没有找到你的id");
+        }
+        return taskId;
     }
 
     @Override

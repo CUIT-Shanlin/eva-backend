@@ -1,5 +1,6 @@
 package edu.cuit.domain.gateway.eva;
 
+import edu.cuit.client.dto.clientobject.eva.AddTaskCO;
 import edu.cuit.client.dto.clientobject.eva.EvaInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskFormCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
@@ -27,9 +28,9 @@ public interface EvaUpdateGateway {
     /**
      * 发起评教任务
      * 要同时发送该任务的评教待办消息;
-     *@param evaInfoCO EvaInfoCO
+     *@param addTaskCO AddTaskCO
      */
-    String postEvaTask(EvaInfoCO evaInfoCO);
+    Integer postEvaTask(AddTaskCO addTaskCO);
     /**
      * 新建评教模板
      * @param evaTemplateCO EvaTemplateCO
