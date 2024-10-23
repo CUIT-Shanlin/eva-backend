@@ -89,6 +89,7 @@ public class LdapPersonDO {
     /**
      * 密码，只用于新增用户
      */
+    @Attribute(name = "userPassword")
     private String userPassword;
 
 
