@@ -17,6 +17,7 @@ import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
+import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -75,7 +76,7 @@ public class CourseImportExce {
                 }
                 SysUserDO userDO = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("name", courseExcelBO.getTeacherName()).eq("prof_title", courseExcelBO.getProfTitle()));
                 if(userDO==null){//如果老师不存在就把，课程就放弃
-                    subjectMapper.deleteById(id);
+//                    subjectMapper.deleteById(id);
                     continue;
                 }
                 Integer userId = userDO.getId();
@@ -114,7 +115,9 @@ public class CourseImportExce {
       return courseDO;
     }
     private Integer getEvaTemplateId(Integer type){
-    return formTemplateMapper.selectOne(new QueryWrapper<FormTemplateDO>().eq("is_default", type)).getId();
+        FormTemplateDO isDefault = formTemplateMapper.selectOne(new QueryWrapper<FormTemplateDO>().eq("is_default", type));
+        if(isDefault==null)throw new UpdateException("还没有对应评教模版");
+        return isDefault .getId();//is_default
     }
     private void toInsert(Integer courseId,Integer type){
         //根据type来找到课程类型
