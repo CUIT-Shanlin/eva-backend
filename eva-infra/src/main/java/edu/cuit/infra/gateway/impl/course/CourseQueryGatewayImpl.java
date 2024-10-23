@@ -816,7 +816,8 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         Map<Integer, List<CourseDO>> map = courseDOS.stream().collect(Collectors.groupingBy(CourseDO::getSubjectId));
         for (Map.Entry<Integer, List<CourseDO>> entry : map.entrySet()) {
             SubjectDO subjectDO = subjectMapper.selectById(entry.getKey());
-            SubjectEntity subject=SpringUtil.getBean(SubjectEntity.class);
+//            SubjectEntity subject=SpringUtil.getBean(SubjectEntity.class);
+            SubjectEntity subject=new SubjectEntity();
             subject.setName(subjectDO.getName());
             for (CourseDO courseDO : entry.getValue()) {
                 CourseEntity entity=new CourseEntity();
