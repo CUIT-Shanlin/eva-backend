@@ -1,5 +1,6 @@
 package edu.cuit.infra.gateway.impl.user;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.cola.exception.SysException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -100,9 +101,10 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
         //查询
         LambdaQueryWrapper<SysUserDO> userQuery = Wrappers.lambdaQuery();
         QueryUtils.fileTimeQuery(userQuery,queryObj,SysUserDO::getCreateTime,SysUserDO::getUpdateTime);
+        String keyword = queryObj.getKeyword();
         userQuery
-                .or().like(SysUserDO::getName,queryObj.getKeyword())
-                .or().like(SysUserDO::getUsername,queryObj.getKeyword());
+                .like(SysUserDO::getName,keyword)
+                .or().like(SysUserDO::getUsername,keyword);
         Page<SysUserDO> usersPage = userMapper.selectPage(userPage, userQuery);
 
         //映射

@@ -17,40 +17,56 @@ public class QueryUtils {
                                                                            SFunction<T,?> createTimeProp,
                                                                            SFunction<T,?> updateTimeProp) {
         if (query.getStartCreateTime() != null) {
-            queryWrapper.or().gt(createTimeProp,query.getStartCreateTime())
-                    .or().eq(createTimeProp,query.getStartCreateTime());
+            queryWrapper.and(queryWrp -> {
+               queryWrp.gt(createTimeProp,query.getStartCreateTime())
+                       .or().eq(createTimeProp,query.getStartCreateTime());
+            });
         }
         if (query.getEndCreateTime() != null) {
-            queryWrapper.or().lt(createTimeProp,query.getEndCreateTime())
-                    .or().eq(createTimeProp,query.getEndCreateTime());
+            queryWrapper.and(queryWrp -> {
+                queryWrp.lt(createTimeProp,query.getEndCreateTime())
+                        .or().eq(createTimeProp,query.getEndCreateTime());
+            });
         }
         if (query.getStartUpdateTime() != null) {
-            queryWrapper.or().gt(updateTimeProp,query.getStartUpdateTime())
-                    .or().eq(updateTimeProp,query.getStartUpdateTime());
+            queryWrapper.and(queryWrp -> {
+                queryWrp.gt(updateTimeProp,query.getStartUpdateTime())
+                        .or().eq(updateTimeProp,query.getStartUpdateTime());
+            });
         }
         if (query.getEndUpdateTime() != null) {
-            queryWrapper.or().lt(updateTimeProp,query.getEndUpdateTime())
-                    .or().eq(updateTimeProp,query.getEndUpdateTime());
+            queryWrapper.and(queryWrp -> {
+                queryWrp.lt(updateTimeProp,query.getEndUpdateTime())
+                        .or().eq(updateTimeProp,query.getEndUpdateTime());
+            });
         }
     }
 
     public static <T,R extends GenericConditionalQuery> void fileTimeQuery(QueryWrapper<T> queryWrapper, R query) {
         if (query.getStartCreateTime() != null) {
-            queryWrapper.or().gt("createTime",query.getStartCreateTime())
-                    .or().eq("createTime",query.getStartCreateTime());
+            queryWrapper.and(queryWrp -> {
+                queryWrp.gt("createTime",query.getStartCreateTime())
+                        .or().eq("createTime",query.getStartCreateTime());
+            });
         }
         if (query.getEndCreateTime() != null) {
-            queryWrapper.or().lt("createTime",query.getEndCreateTime())
-                    .or().eq("createTime",query.getEndCreateTime());
+            queryWrapper.and(queryWrp -> {
+                queryWrp.lt("createTime",query.getEndCreateTime())
+                        .or().eq("createTime",query.getEndCreateTime());
+            });
         }
         if (query.getStartUpdateTime() != null) {
-            queryWrapper.or().gt("updateTime",query.getStartUpdateTime())
-                    .or().eq("updateTime",query.getStartUpdateTime());
+            queryWrapper.and(queryWrp -> {
+                queryWrp.gt("updateTime",query.getStartUpdateTime())
+                        .or().eq("updateTime",query.getStartUpdateTime());
+            });
 
         }
         if (query.getEndUpdateTime() != null) {
-            queryWrapper.or().lt("updateTime",query.getEndUpdateTime())
-                    .or().eq("updateTime",query.getEndUpdateTime());
+            queryWrapper.and(queryWrp -> {
+                queryWrapper.lt("updateTime",query.getEndUpdateTime())
+                        .or().eq("updateTime",query.getEndUpdateTime());
+            });
 
         }
     }
