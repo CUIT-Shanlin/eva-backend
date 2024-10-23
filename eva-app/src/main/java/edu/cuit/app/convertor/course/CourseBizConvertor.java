@@ -35,11 +35,16 @@ public abstract class CourseBizConvertor {
 
     @Mappings({
             @Mapping(target = "name",expression = "java(entity.getSubjectEntity().getName())"),
-            @Mapping(target = "id",source = "id"),
-            @Mapping(target = "teacherName",expression= "java(entity.getTeacher().getName())"),
+            @Mapping(target = "id",expression = "java(entity.getId())"),
+            @Mapping(target = "teacherName",expression= "java(entity.getTeacher().getName())")
     })
     public abstract SimpleCourseResultCO toSimpleCourseResultCO(CourseEntity entity);
 
+    @Mappings({
+
+            @Mapping(target = "id",expression = "java(entity.getId())")
+
+    })
     public abstract SimpleResultCO toSimpleResultCO(SubjectEntity entity);
     public abstract SimpleResultCO toSimpleResultCO(SelfTeachCourseCO entity);
 

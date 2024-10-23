@@ -211,7 +211,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     }
 
     @Override
-    public List<List<Integer>> getWeekCourses(Integer week, Integer semId) {
+    public List<List<Integer>> getWeekCourses(Integer semId, Integer week) {
         //根据学期semId来找到这学期所有的课程ids
         List<Integer> courseIds = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId)).stream().map(CourseDO::getId).toList();
         if (courseIds.isEmpty())throw new QueryException("暂时还没有该学期的课程信息");
@@ -236,7 +236,6 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
                 newList.add(sum);
             }
             result.add(newList);
-            newList.clear();
         }
         return result;
     }
@@ -816,7 +815,8 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         Map<Integer, List<CourseDO>> map = courseDOS.stream().collect(Collectors.groupingBy(CourseDO::getSubjectId));
         for (Map.Entry<Integer, List<CourseDO>> entry : map.entrySet()) {
             SubjectDO subjectDO = subjectMapper.selectById(entry.getKey());
-            SubjectEntity subject=SpringUtil.getBean(SubjectEntity.class);
+//            SubjectEntity subject=SpringUtil.getBean(SubjectEntity.class);
+            SubjectEntity subject=new SubjectEntity();
             subject.setName(subjectDO.getName());
             for (CourseDO courseDO : entry.getValue()) {
                 CourseEntity entity=new CourseEntity();
