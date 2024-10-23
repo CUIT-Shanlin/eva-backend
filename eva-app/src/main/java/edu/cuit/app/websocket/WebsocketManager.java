@@ -59,7 +59,9 @@ public class WebsocketManager {
      * @param message 消息对象
      */
     public void sendMessage(Object loginId,Object message) {
-        for (WebSocketSession webSocketSession : sessions.get(loginId)) {
+        Set<WebSocketSession> sessions = this.sessions.get(loginId);
+        if (sessions == null) return;
+        for (WebSocketSession webSocketSession : sessions) {
             try {
                 webSocketSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
             } catch (IOException e) {

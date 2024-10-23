@@ -63,7 +63,7 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
         SysUserDO tmp = checkIdExistence(userId);
         checkAdmin(userId);
         LambdaUpdateWrapper<SysUserDO> userUpdate = Wrappers.lambdaUpdate();
-        userUpdate.set(SysUserDO::getStatus,status).eq(SysUserDO::getId,userUpdate);
+        userUpdate.set(SysUserDO::getStatus,status).eq(SysUserDO::getId,userId);
         userMapper.update(userUpdate);
 
         LogUtils.logContent(tmp.getName() + " 用户(id:" + tmp.getId() + ")的状态为 " + status);
@@ -114,7 +114,7 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
         LdapPersonEntity ldapPerson = ldapUserConvertor.userDOToLdapPersonEntity(userDO);
         userMapper.insert(userDO);
         assignRole(userDO.getId(),List.of(roleQueryGateway.getDefaultRoleId()));
-        ldapPersonGateway.saveUser(ldapPerson);
+        ldapPersonGateway.createUser(ldapPerson,cmd.getPassword());
     }
 
     private void checkAdmin(Integer userId) {

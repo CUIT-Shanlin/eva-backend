@@ -47,7 +47,7 @@
       <dependency>
         <groupId>edu.cuit.zhuyimeng</groupId>
         <artifactId>zym-spring-boot-starter-common</artifactId>
-        <version>1.7.4</version>
+        <version>1.7.5</version>
       </dependency>
       <dependency>
         <groupId>edu.cuit.zhuyimeng</groupId>
@@ -62,7 +62,7 @@
       <dependency>
         <groupId>edu.cuit.zhuyimeng</groupId>
         <artifactId>zym-spring-boot-starter-jdbc</artifactId>
-        <version>1.2</version>
+        <version>1.2.1</version>
       </dependency>
       <dependency>
         <groupId>edu.cuit.zhuyimeng</groupId>

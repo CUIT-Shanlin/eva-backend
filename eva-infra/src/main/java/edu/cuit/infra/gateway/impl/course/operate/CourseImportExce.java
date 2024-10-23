@@ -17,6 +17,7 @@ import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
+import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -44,17 +45,17 @@ public class CourseImportExce {
         List<Integer> courseIdList = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId)).stream().map(CourseDO::getId).toList();
         courseMapper.delete(new QueryWrapper<CourseDO>().eq("semester_id", semId));
        //删除每节课
-        List<Integer> courInfoIds = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", courseIdList)).stream().map(CourInfDO::getId).toList();
-        courInfMapper.delete(new QueryWrapper<CourInfDO>().in("course_id", courseIdList));
+        List<Integer> courInfoIds = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in(!courseIdList.isEmpty(),"course_id", courseIdList)).stream().map(CourInfDO::getId).toList();
+        courInfMapper.delete(new QueryWrapper<CourInfDO>().in(!courseIdList.isEmpty(),"course_id", courseIdList));
         //删除评教任务
-        List<EvaTaskDO> taskDOList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id", courInfoIds));
+        List<EvaTaskDO> taskDOList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in(!courInfoIds.isEmpty(),"cour_inf_id", courInfoIds));
         if(!taskDOList.isEmpty()) {
             List<Integer> taskIds = taskDOList.stream().map(EvaTaskDO::getId).toList();
             evaTaskMapper.deleteBatchIds(taskIds);
             //删除评教表单记录
-            recordMapper.delete(new QueryWrapper<FormRecordDO>().in("task_id", taskIds));
+            recordMapper.delete(new QueryWrapper<FormRecordDO>().in(!taskIds.isEmpty(),"task_id", taskIds));
             //删除评教快照
-            courOneEvaTemplateMapper.delete(new QueryWrapper<CourOneEvaTemplateDO>().in("course_id", courseIdList));
+            courOneEvaTemplateMapper.delete(new QueryWrapper<CourOneEvaTemplateDO>().in(!courseIdList.isEmpty(),"course_id", courseIdList));
         }
 
     }
@@ -70,9 +71,12 @@ public class CourseImportExce {
                 id=subjectDO1.getId();
             }
             for (CourseExcelBO courseExcelBO : stringListEntry.getValue()) {
+                if(courseExcelBO.getProfTitle()==null){
+                    courseExcelBO.setProfTitle("讲师");
+                }
                 SysUserDO userDO = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("name", courseExcelBO.getTeacherName()).eq("prof_title", courseExcelBO.getProfTitle()));
                 if(userDO==null){//如果老师不存在就把，课程就放弃
-                    subjectMapper.deleteById(id);
+//                    subjectMapper.deleteById(id);
                     continue;
                 }
                 Integer userId = userDO.getId();
@@ -111,7 +115,9 @@ public class CourseImportExce {
       return courseDO;
     }
     private Integer getEvaTemplateId(Integer type){
-    return formTemplateMapper.selectOne(new QueryWrapper<FormTemplateDO>().eq("is_default", type)).getId();
+        FormTemplateDO isDefault = formTemplateMapper.selectOne(new QueryWrapper<FormTemplateDO>().eq("is_default", type));
+        if(isDefault==null)throw new UpdateException("还没有对应评教模版");
+        return isDefault .getId();//is_default
     }
     private void toInsert(Integer courseId,Integer type){
         //根据type来找到课程类型

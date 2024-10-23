@@ -22,6 +22,7 @@ import edu.cuit.domain.gateway.user.UserQueryGateway;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,12 +47,14 @@ public class MsgServiceImpl implements IMsgService {
     private final Executor executor;
 
     @Override
+    @Transactional
     public List<GenericResponseMsg> getUserSelfNormalMsg(Integer type) {
         return  msgGateway.queryMsg(checkAndGetUserId(), type, 0).stream()
                 .map(msgBizConvertor::toResponseMsg).toList();
     }
 
     @Override
+    @Transactional
     public List<GenericResponseMsg> getUserTargetTypeMsg(Integer type, Integer mode) {
         List<GenericResponseMsg> result;
         if (mode == null || mode < 0) {
@@ -70,6 +73,7 @@ public class MsgServiceImpl implements IMsgService {
     }
 
     @Override
+    @Transactional
     public List<EvaResponseMsg> getUserSelfEvaMsg(Integer type) {
         List<MsgEntity> msgEntities = msgGateway.queryMsg(checkAndGetUserId(), type, 1);
         return msgEntities.stream().map(msgEntity -> evaQueryGateway.oneEvaTaskInfo(msgEntity.getTaskId()).map(taskEntity -> {
@@ -83,32 +87,38 @@ public class MsgServiceImpl implements IMsgService {
     }
 
     @Override
+    @Transactional
     public List<GenericResponseMsg> getUserTargetAmountAndTypeMsg(Integer num, Integer type) {
         return msgGateway.queryTargetAmountMsg(checkAndGetUserId(),num,type).stream()
                 .map(msgBizConvertor::toResponseMsg).toList();
     }
 
     @Override
+    @Transactional
     public void updateMsgDisplay(Integer id, Integer isDisplayed) {
         msgGateway.updateMsgDisplay(checkAndGetUserId(),id,isDisplayed);
     }
 
     @Override
+    @Transactional
     public void updateMsgRead(Integer id, Integer isRead) {
         msgGateway.updateMsgRead(checkAndGetUserId(),id,isRead);
     }
 
     @Override
+    @Transactional
     public void updateMultipleMsgRead(Integer mode) {
         msgGateway.updateMultipleMsgRead(checkAndGetUserId(),mode);
     }
 
     @Override
+    @Transactional
     public void deleteEvaMsg(Integer taskId, Integer type) {
         msgGateway.deleteMessage(taskId,type);
     }
 
     @Override
+    @Transactional
     public void sendMessage(MessageBO msg) {
         String senderName = null;
         if (msg.getIsShowName() == 1) {
@@ -142,6 +152,7 @@ public class MsgServiceImpl implements IMsgService {
     }
 
     @Override
+    @Transactional
     public void handleUserSendMessage(SendMessageCmd cmd) {
         sendMessage(msgBizConvertor.toMessageBO(cmd,checkAndGetUserId()));
     }

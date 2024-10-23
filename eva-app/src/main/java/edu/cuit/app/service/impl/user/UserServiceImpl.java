@@ -32,6 +32,7 @@ import edu.cuit.domain.gateway.user.UserUpdateGateway;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -56,6 +57,7 @@ public class UserServiceImpl implements IUserService {
     private final PaginationBizConvertor paginationBizConvertor;
 
     @Override
+    @Transactional
     public UserInfoCO getOneUserInfo(Integer id) {
         UserEntity user = userQueryGateway.findById(id)
                 .orElseThrow(() -> new BizException("该用户不存在"));
@@ -63,6 +65,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     public PaginationQueryResultCO<UserInfoCO> pageUserInfo(PagingQuery<GenericConditionalQuery> query) {
         PaginationResultEntity<UserEntity> userEntityPage = userQueryGateway.page(query);
         List<UserInfoCO> results = userEntityPage.getRecords().stream()
@@ -72,6 +75,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     public List<UserSingleCourseScoreCO> getOneUserScore(Integer userId, Integer semId) {
         List<SelfTeachCourseCO> courseInfoList = courseQueryGateway.getSelfCourseInfo(userQueryGateway.findUsernameById(userId)
                 .orElseThrow(() -> new SysException("找不到用户名")), semId);
@@ -97,11 +101,13 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     public List<SimpleResultCO> getAllUserInfo() {
         return userQueryGateway.allUser();
     }
 
     @Override
+    @Transactional
     public UserInfoCO getSelfUserInfo() {
         String username = (String) StpUtil.getLoginId();
         return getUserInfo(userQueryGateway.findByUsername(username)
@@ -113,26 +119,31 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     public Integer getIdByUsername(String username) {
         return userQueryGateway.findIdByUsername(username).orElseThrow(() -> new BizException("用户名未找到"));
     }
 
     @Override
+    @Transactional
     public byte[] getUserAvatar(Integer id) {
         return avatarManager.getUserAvatarBytes(id);
     }
 
     @Override
+    @Transactional
     public Boolean isUsernameExist(String username) {
         return userQueryGateway.isUsernameExist(username);
     }
 
     @Override
+    @Transactional
     public void uploadUserAvatar(Integer userId, InputStream inputStream) {
         avatarManager.uploadUserAvatar(userId,inputStream);
     }
 
     @Override
+    @Transactional
     public void updateInfo(Boolean isUpdatePwd, UpdateUserCmd cmd) {
         int id = Math.toIntExact(cmd.getId());
         if (isUpdatePwd) {
@@ -157,6 +168,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     public void updateOwnInfo(UpdateUserCmd cmd) {
         Optional<Integer> id = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
         cmd.setId(Long.valueOf(id.orElseThrow(() -> {
@@ -168,6 +180,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     public void changePassword(Integer userId, UpdatePasswordCmd cmd) {
         String username = userQueryGateway.findUsernameById(userId)
                 .orElseThrow(() -> new BizException("用户不存在"));
@@ -184,6 +197,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     public void updateStatus(Integer userId, Integer status) {
         userUpdateGateway.updateStatus(userId,status);
         if (status == 0) {
@@ -193,21 +207,25 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     public void delete(Integer userId) {
         userUpdateGateway.deleteUser(userId);
     }
 
     @Override
+    @Transactional
     public void assignRole(AssignRoleCmd cmd) {
         userUpdateGateway.assignRole(cmd.getUserId(),cmd.getRoleIdList());
     }
 
     @Override
+    @Transactional
     public void create(NewUserCmd cmd) {
         userUpdateGateway.createUser(cmd);
     }
 
     @Override
+    @Transactional
     public void syncLdap() {
         List<NewUserCmd> cmdList = ldapPersonGateway.findAll().stream()
                 .map(userBizConvertor::toNewUserCmd).toList();
