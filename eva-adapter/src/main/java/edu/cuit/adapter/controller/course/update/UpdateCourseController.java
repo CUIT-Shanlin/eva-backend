@@ -7,10 +7,7 @@ import edu.cuit.app.service.impl.course.ICourseTypeServiceImpl;
 import edu.cuit.app.service.impl.course.IUserCourseServiceImpl;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
-import edu.cuit.client.dto.cmd.course.AlignTeacherCmd;
-import edu.cuit.client.dto.cmd.course.UpdateCourseCmd;
-import edu.cuit.client.dto.cmd.course.UpdateCoursesCmd;
-import edu.cuit.client.dto.cmd.course.UpdateSingleCourseCmd;
+import edu.cuit.client.dto.cmd.course.*;
 import edu.cuit.client.dto.data.Term;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.common.enums.LogModule;
@@ -79,6 +76,7 @@ public class UpdateCourseController {
      *
      * */
     @PutMapping("/course/one")
+    @OperateLog(module = LogModule.COURSE,type = OperateLogType.UPDATE)
     @SaCheckPermission("course.tabulation.update")
     public CommonResult<Void> updateSingleCourse(
             @RequestParam(value = "semId",required = false) Integer semId,
@@ -180,14 +178,12 @@ public class UpdateCourseController {
 
     /**
     * 修改自己的一门课程信息及其课程时段
-     *@param selfTeachCourseCO 用于确定是导入实验课表还是理论课表，0：理论课，1：实验课
-     *  @param timeList 课表文件
+     *@param updateCourseInfoAndTime 内含有课程信息，课程时段信息
     * */
     @PutMapping("/course/my/info/date")
     public CommonResult<Void> updateSelfCourse(
-            @Valid @RequestBody SelfTeachCourseCO selfTeachCourseCO,
-            @Valid @RequestBody List<SelfTeachCourseTimeCO> timeList){
-        userCourseService.updateSelfCourse(selfTeachCourseCO, timeList);
+            @Valid @RequestBody UpdateCourseInfoAndTime updateCourseInfoAndTime){
+        userCourseService.updateSelfCourse(updateCourseInfoAndTime.getCourseInfo(), updateCourseInfoAndTime.getDateArr());
         return CommonResult.success(null);
     }
 
