@@ -46,12 +46,22 @@ public abstract class CourseBizConvertor {
 
     })
     public abstract SimpleResultCO toSimpleResultCO(SubjectEntity entity);
+    @Mappings({
+
+            @Mapping(target = "id",expression = "java(entity.getId())")
+
+    })
     public abstract SimpleResultCO toSimpleResultCO(SelfTeachCourseCO entity);
+    @Mappings({
+
+            @Mapping(target = "id",expression = "java(courseTypeEntity.getId())")
+
+    })
 
     public abstract CourseType toCourseType(CourseTypeEntity courseTypeEntity);
 
     @Mappings({
-            @Mapping(target = "id",source = "courseEntity.id"),
+            @Mapping(target = "id",expression = "java(courseEntity.getId())"),
             @Mapping(target = "classroomList",source = "classroomList"),
             @Mapping(target = "createTime",source = "courseEntity.createTime"),
             @Mapping(target = "updateTime",source = "courseEntity.updateTime"),
@@ -61,7 +71,19 @@ public abstract class CourseBizConvertor {
     })
     public abstract CourseModelCO toCourseModelCO(CourseEntity courseEntity, List<String> classroomList);
 
+    @Mappings({
+
+            @Mapping(target = "id",expression = "java(formTemplateDO.getId())"),
+            @Mapping(target = "isDefault",expression = "java(formTemplateDO.getIsDefault())"),
+
+    })
     public abstract EvaTemplateCO toEvaTemplateCO(FormTemplateDO formTemplateDO);
+    @Mappings({
+
+            @Mapping(target = "id",expression = "java(userEntity.getId())"),
+
+
+    })
     public abstract TeacherInfoCO toTeacherInfoCO(UserEntity userEntity);
     @Mappings({
             @Mapping(target = "location",source = "singleCourseEntity.location"),
