@@ -38,7 +38,7 @@ public class DeleteCourseController {
     @OperateLog(module = LogModule.COURSE,type = OperateLogType.DELETE)
     @SaCheckPermission("course.tabulation.delete")
     public CommonResult<Void> delete(
-            @RequestParam(value = "id",required = true) Integer id,
+            @RequestParam(value = "courseId") Integer id,
             @RequestParam(value = "semId",required = false) Integer semId){
         courseDetailService.delete(semId,id);
        return CommonResult.success(null);
