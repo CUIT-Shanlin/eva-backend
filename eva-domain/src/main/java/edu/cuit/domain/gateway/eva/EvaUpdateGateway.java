@@ -7,6 +7,8 @@ import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
 import edu.cuit.domain.entity.eva.EvaTaskEntity;
 import edu.cuit.domain.entity.eva.EvaTemplateEntity;
 import org.springframework.stereotype.Component;
+
+import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -35,7 +37,7 @@ public interface EvaUpdateGateway {
      * 新建评教模板
      * @param evaTemplateCO EvaTemplateCO
      */
-    Void addEvaTemplate(EvaTemplateCO evaTemplateCO);
+    Void addEvaTemplate(EvaTemplateCO evaTemplateCO) throws ParseException;
     /**
      * 任意取消一个评教任务
      * @param id 任务id

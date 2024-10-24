@@ -83,8 +83,8 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
 
     @Override
     public Void cancelEvaTask(Integer id) {
-        evaUpdateGateway.cancelEvaTaskById(id);
         LogUtils.logContent(evaQueryGateway.getNameByTaskId(id).get()+"任务ID为"+id+"的评教任务");
+        evaUpdateGateway.cancelEvaTaskById(id);
         return null;
     }
     @Override

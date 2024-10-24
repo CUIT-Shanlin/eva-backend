@@ -38,19 +38,15 @@ public class EvaTemplateCO extends ClientObject {
     /**
      * 创建时间
      */
-    private LocalDateTime createTime;
+    private String createTime;
 
     /**
      * 更新时间
      */
-    private LocalDateTime updateTime;
+    private String updateTime;
     /**
      * 是否是默认数据(-1非默认数据)
      */
     private Integer isDefault;
-
-
-
-
 
 }

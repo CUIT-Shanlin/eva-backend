@@ -18,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
+
 /**
  * 评教相关更新接口
  */
@@ -72,7 +74,7 @@ public class UpdateEvaController {
     @PostMapping("/evaluate/template")
     @OperateLog(module = LogModule.EVA,type = OperateLogType.CREATE)
     public CommonResult<Void> addEvaTemplate(
-            @Valid @RequestBody EvaTemplateCO evaTemplateCO){
+            @Valid @RequestBody EvaTemplateCO evaTemplateCO) throws ParseException {
         iEvaTemplateService.addEvaTemplate(evaTemplateCO);
         LogUtils.logContent(evaTemplateCO.getName()+" 的评教模板");
         return CommonResult.success(null);

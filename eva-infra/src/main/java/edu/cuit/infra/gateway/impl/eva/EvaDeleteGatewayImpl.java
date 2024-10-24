@@ -40,9 +40,9 @@ public class EvaDeleteGatewayImpl implements EvaDeleteGateway {
                 throw new QueryException("可怜的人类，并未找到找到相应评教记录");
             }else {
                 FormRecordDO formRecordDO=formRecordMapper.selectById(id);
-                formRecordMapper.delete(formRecordWrapper);
                 LogUtils.logContent(sysUserMapper.selectById(evaTaskMapper.selectById(formRecordDO.getTaskId()).getTeacherId()).getName()
-                    +" 用户评教任务ID为"+formRecordDO.getTaskId()+"的评教记录");
+                        +" 用户评教任务ID为"+formRecordDO.getTaskId()+"的评教记录");
+                formRecordMapper.delete(formRecordWrapper);
             }
         }
         return null;
@@ -69,8 +69,8 @@ public class EvaDeleteGatewayImpl implements EvaDeleteGateway {
                     throw new QueryException("可怜的人类，并未找到找到相应模板");
                 }else{
                     //删除模板
-                    formTemplateMapper.delete(formTemplateWrapper);
                     LogUtils.logContent(formTemplateMapper.selectById(id).getName() +" 的评教模板");
+                    formTemplateMapper.delete(formTemplateWrapper);
                 }
             }else{
                 throw new UpdateException("可怜的人类，该模板已经被课程分配，无法再进行删除");

@@ -1,5 +1,7 @@
 package edu.cuit.infra.gateway.impl.eva;
 
+import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import edu.cuit.client.dto.clientobject.eva.AddTaskCO;
@@ -19,12 +21,17 @@ import edu.cuit.infra.dal.database.mapper.eva.*;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Component
@@ -41,8 +48,15 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
     @Override
     @Transactional
     public Void updateEvaTemplate(EvaTemplateCO evaTemplateCO) {
-        FormTemplateDO formTemplateDO = evaConvertor.ToFormTemplateDO(evaTemplateCO);
-        formTemplateDO.setUpdateTime(LocalDateTime.now());
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        FormTemplateDO formTemplateDO=new FormTemplateDO();
+        formTemplateDO.setDescription(evaTemplateCO.getDescription());
+        formTemplateDO.setProps(evaTemplateCO.getProps());
+        formTemplateDO.setIsDefault(evaTemplateCO.getIsDefault());
+        formTemplateDO.setIsDeleted(0);
+        formTemplateDO.setName(evaTemplateCO.getName());
+        formTemplateDO.setUpdateTime(LocalDateTime.parse(evaTemplateCO.getUpdateTime(),df));
+        formTemplateDO.setCreateTime(LocalDateTime.parse(evaTemplateCO.getCreateTime(),df));
         formTemplateMapper.update(formTemplateDO, new QueryWrapper<FormTemplateDO>().eq("id", evaTemplateCO.getId()));
         return null;
     }
@@ -50,9 +64,14 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
     @Transactional
     public Void putEvaTemplate(EvaTaskFormCO evaTaskFormCO) {
         //把评教的具体数据传进去给评教记录
-        FormRecordDO formRecordDO=evaConvertor.ToFormRecordDO(evaTaskFormCO);
+        FormRecordDO formRecordDO=new FormRecordDO();
+        formRecordDO.setIsDeleted(0);
+        formRecordDO.setTaskId(evaTaskFormCO.getTaskId());
+        formRecordDO.setTextValue(evaTaskFormCO.getTextValue());
         formRecordDO.setCreateTime(LocalDateTime.now());
         formRecordDO.setIsDeleted(1);
+
+        formRecordDO.setFormPropsValues(JSONUtil.toJsonStr(evaTaskFormCO.getFormPropsValues()));
         formRecordMapper.insert(formRecordDO);
 
         //通过任务id把任务状态改了
@@ -66,10 +85,10 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
     @Override
     @Transactional
     public Integer postEvaTask(AddTaskCO addTaskCO) {
-        /*//同时发送该任务的评教待办消息;
-        CourInfDO courInfDO=courInfMapper.selectById(evaInfoCO.getCourInfId());
+        //同时发送该任务的评教待办消息;
+        CourInfDO courInfDO=courInfMapper.selectById(addTaskCO.getCourInfId());
         CourseDO courseDO=courseMapper.selectById(courInfDO.getCourseId());
-        //选中的课程是否已经上完
+        /*//选中的课程是否已经上完
         SemesterDO semesterDO = semesterMapper.selectById(courseDO.getSemesterId());
         LocalDate localDate = semesterDO.getStartDate().plusDays((courInfDO.getWeek()-1) * 7L + courInfDO.getDay() - 1);
 
@@ -95,9 +114,9 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         }
         if(f==1){
             throw new UpdateException("课程快临近结束或已经结束");
-        }
+        }*/
         //看看是否和老师自己的课有冲突
-        List<CourseDO> courseDOList=courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id",evaInfoCO.getTeacherId()));
+        List<CourseDO> courseDOList=courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id",addTaskCO.getTeacherId()));
         List<Integer> courseIds=courseDOList.stream().map(CourseDO::getId).toList();
 
         List<CourInfDO> courInfDOList=courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id",courseIds));
@@ -112,7 +131,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
             }
         }
         //看看是否和老师其他评教任务有冲突
-        List<EvaTaskDO> evaTaskDOList=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id",evaInfoCO.getTeacherId()));
+        List<EvaTaskDO> evaTaskDOList=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id",addTaskCO.getTeacherId()));
         List<Integer> courInfoIds=evaTaskDOList.stream().map(EvaTaskDO::getCourInfId).toList();
 
         List<CourInfDO> evaCourInfDOList=courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("id",courInfoIds));
@@ -126,7 +145,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
             }
         }
         //看看是不是正在没有上完的课程 TODO
-        */
+
 
         EvaTaskDO evaTaskDO=new EvaTaskDO();
         evaTaskDO.setCreateTime(LocalDateTime.now());
@@ -147,10 +166,17 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
 
     @Override
     @Transactional
-    public Void addEvaTemplate(EvaTemplateCO evaTemplateCO) {
-        FormTemplateDO formTemplateDO=evaConvertor.ToFormTemplateDO(evaTemplateCO);
-        formTemplateDO.setUpdateTime(LocalDateTime.now());
-        formTemplateDO.setCreateTime(LocalDateTime.now());
+    public Void addEvaTemplate(EvaTemplateCO evaTemplateCO) throws ParseException {
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        FormTemplateDO formTemplateDO=new FormTemplateDO();
+        formTemplateDO.setDescription(evaTemplateCO.getDescription());
+        formTemplateDO.setProps(evaTemplateCO.getProps());
+        formTemplateDO.setIsDefault(evaTemplateCO.getIsDefault());
+        formTemplateDO.setId(evaTemplateCO.getId());
+        formTemplateDO.setIsDeleted(0);
+        formTemplateDO.setName(evaTemplateCO.getName());
+        formTemplateDO.setUpdateTime(LocalDateTime.parse(evaTemplateCO.getUpdateTime(),df));
+        formTemplateDO.setCreateTime(LocalDateTime.parse(evaTemplateCO.getCreateTime(),df));
         formTemplateMapper.insert(formTemplateDO);
         return null;
     }
