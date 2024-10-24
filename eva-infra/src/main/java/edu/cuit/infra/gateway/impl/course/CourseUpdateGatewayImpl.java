@@ -257,7 +257,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
             return evaTaskDO;
         }).toList();
         taskList.forEach(evaTaskMapper::insert);
-        Integer subjectId = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", courseId)).getSubjectId();
+        Integer subjectId = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", courInfDO.getCourseId())).getSubjectId();
         String name = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("id", subjectId)).getName();
         Map<String,List<Integer>> map=new HashMap<>();
         map.put("你已经被分配去听第"+courInfDO.getWeek()+"周，星期"
@@ -265,6 +265,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                 ,alignTeacherCmd.getEvaTeacherIdList());
         for (Integer i : alignTeacherCmd.getEvaTeacherIdList()) {
             SysUserDO userDO = userMapper.selectById(i);
+            if(userDO==null)throw new QueryException("所分配老师中有人未在数据库中");
             LogUtils.logContent(userDO.getName()+"老师去听，第"+courInfDO.getWeek()+"周，星期"
                     +courInfDO.getDay()+"，第"+courInfDO.getStartTime()+"-"+courInfDO.getEndTime()+"节，"+name+"课程。位置："+courInfDO.getLocation()+name+"课程");
         }
@@ -273,26 +274,30 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
 
     private void judgeAlsoHasCourse(Integer semId,List<Integer> evaTeacherIdList, CourInfDO courInfDO) {
         List<Integer> list = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId).in(!evaTeacherIdList.isEmpty(),"teacher_id", evaTeacherIdList)).stream().map(CourseDO::getId).toList();
-       CourInfDO courInfDOList = courInfMapper.selectOne(new QueryWrapper<CourInfDO>()
+       if(list.isEmpty())return;
+        List<CourInfDO> courInfDOList = courInfMapper.selectList(new QueryWrapper<CourInfDO>()
                 .eq("week", courInfDO.getWeek())
                 .eq("day", courInfDO.getDay())
                 .le("start_time", courInfDO.getEndTime())
                 .ge("end_time", courInfDO.getStartTime())
-                .in(!list.isEmpty(),"course_id", list));
-        if(courInfDOList!=null){
+                .in(true,"course_id", list));
+        if(!courInfDOList.isEmpty()){
             throw new UpdateException("该时间段已有课程");
         }
     }
 
     private void judgeAlsoHasTask(List<Integer> userList,CourInfDO courInfDO){
         List<Integer> courInfoList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in(!userList.isEmpty(),"teacher_id", userList)).stream().map(EvaTaskDO::getCourInfId).toList();
-        CourInfDO courINfo = courInfMapper.selectOne(new QueryWrapper<CourInfDO>()
+        if(courInfoList.isEmpty()){
+            return;
+        }
+        List<CourInfDO> courINfo = courInfMapper.selectList(new QueryWrapper<CourInfDO>()
                 .eq("week", courInfDO.getWeek())
                 .eq("day", courInfDO.getDay())
                 .le("start_time", courInfDO.getEndTime())
                 .ge("end_time", courInfDO.getStartTime())
-                .in(!courInfoList.isEmpty(),"id", courInfoList));
-        if(courINfo!=null){
+                .in(true,"id", courInfoList));
+        if(!courINfo.isEmpty()){
             throw new UpdateException("课程时间冲突，评教老师中有人在该时间段已经有了评教任务");
         }
 
@@ -564,7 +569,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         LocalDate date = LocalDate.parse(term.getStartDate(), formatter);*/
         SemesterDO semesterDO = semesterMapper.selectOne(new QueryWrapper<SemesterDO>().eq("period", term.getPeriod()).eq("start_year", term.getStartYear()).eq("end_year", term.getEndYear()));
         if(semesterDO==null)return false;
-        List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("sem_id", semesterDO.getId()));
+        List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semesterDO.getId()));
         if(courseDOS.isEmpty())return false;
         List<Integer> list = courseDOS.stream().map(CourseDO::getSubjectId).toList();
         List<SubjectDO> subjectDOS = subjectMapper.selectList(new QueryWrapper<SubjectDO>().in(!list.isEmpty(),"id",list ));

@@ -47,6 +47,10 @@ public class CourseImportExce {
        //删除每节课
         List<Integer> courInfoIds = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in(!courseIdList.isEmpty(),"course_id", courseIdList)).stream().map(CourInfDO::getId).toList();
         courInfMapper.delete(new QueryWrapper<CourInfDO>().in(!courseIdList.isEmpty(),"course_id", courseIdList));
+        //删除课程对应的课程类型关联表
+        if(!courseIdList.isEmpty()){
+            courseTypeCourseMapper.delete(new QueryWrapper<CourseTypeCourseDO>().in(true,"course_id", courseIdList));
+        }
         //删除评教任务
         List<EvaTaskDO> taskDOList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in(!courInfoIds.isEmpty(),"cour_inf_id", courInfoIds));
         if(!taskDOList.isEmpty()) {
@@ -125,7 +129,7 @@ public class CourseImportExce {
         //插入课程类型课程关联表
         CourseTypeCourseDO courseTypeCourseDO = new CourseTypeCourseDO();
         courseTypeCourseDO.setCourseId(courseId);
-        courseTypeCourseDO.setCourseId(id);
+        courseTypeCourseDO.setTypeId(id);
         courseTypeCourseDO.setCreateTime(LocalDateTime.now());
         courseTypeCourseDO.setUpdateTime(LocalDateTime.now());
         courseTypeCourseMapper.insert(courseTypeCourseDO);

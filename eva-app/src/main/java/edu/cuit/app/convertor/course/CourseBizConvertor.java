@@ -78,10 +78,17 @@ public abstract class CourseBizConvertor {
             @Mapping(target = "id",expression = "java(singleCourseEntity.getCourseEntity().getId())"),
             @Mapping(target = "name",expression = "java(singleCourseEntity.getCourseEntity().getSubjectEntity().getName())"),
             @Mapping(target = "teacherName",expression = "java(singleCourseEntity.getCourseEntity().getTeacher().getName())"),
-            @Mapping(target = "evaNum",source = "size")
+            @Mapping(target = "evaNum",expression = "java(size)")
     })
     public abstract SingleCourseCO toSingleCourseCO(SingleCourseEntity singleCourseEntity,Integer size);
 
+
+    @Mappings({
+            @Mapping(target = "week",expression = "java(singleCourseEntity.getWeek())"),
+            @Mapping(target = "day",expression = "java(singleCourseEntity.getDay())"),
+            @Mapping(target = "startTime",expression = "java(singleCourseEntity.getStartTime())"),
+            @Mapping(target = "endTime",expression = "java(singleCourseEntity.getEndTime())")
+    })
     public abstract CourseTime toCourseTime(SingleCourseEntity singleCourseEntity);
 
 }
