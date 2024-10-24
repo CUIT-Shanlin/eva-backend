@@ -3,6 +3,7 @@ package edu.cuit.app.websocket;
 import com.alibaba.cola.exception.SysException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
@@ -63,7 +64,7 @@ public class WebsocketManager {
         if (sessions == null) return;
         for (WebSocketSession webSocketSession : sessions) {
             try {
-                webSocketSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
+                webSocketSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(CommonResult.success(message))));
             } catch (IOException e) {
                 log.error("websocket处理对象失败，请联系管理员",e);
                 throw new SysException("websocket处理对象失败，请联系管理员");
