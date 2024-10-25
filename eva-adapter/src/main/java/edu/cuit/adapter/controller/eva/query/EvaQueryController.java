@@ -114,7 +114,7 @@ public class EvaQueryController {
      * @param semId 学期id
      * @param keyword 模糊查询的关键字，模糊查询课程名称或教学老师姓名
      */
-    @GetMapping("/evaluate/records")
+    @GetMapping("/evaluate/records/{keyword}")
     public CommonResult<List<EvaRecordCO>> getEvaLogInfo(
             @RequestParam(value = "semId",required = false) Integer semId,
             @PathVariable ("keyword") String keyword){

@@ -43,6 +43,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
     private final FormRecordMapper formRecordMapper;
     private final CourInfMapper courInfMapper;
     private final CourseMapper courseMapper;
+    private final CourOneEvaTemplateMapper courOneEvaTemplateMapper;
 
     private final SemesterMapper semesterMapper;
     @Override
@@ -69,7 +70,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         formRecordDO.setTaskId(evaTaskFormCO.getTaskId());
         formRecordDO.setTextValue(evaTaskFormCO.getTextValue());
         formRecordDO.setCreateTime(LocalDateTime.now());
-        formRecordDO.setIsDeleted(1);
+        formRecordDO.setIsDeleted(0);
 
         formRecordDO.setFormPropsValues(JSONUtil.toJsonStr(evaTaskFormCO.getFormPropsValues()));
         formRecordMapper.insert(formRecordDO);
@@ -79,6 +80,18 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         evaTaskDO.setStatus(1);
         evaTaskDO.setUpdateTime(LocalDateTime.now());
         evaTaskMapper.update(evaTaskDO,new QueryWrapper<EvaTaskDO>().eq("id",evaTaskFormCO.getTaskId()));
+
+        //检验是否有快照模板，没有就建一个
+        CourInfDO courInfDO=courInfMapper.selectById(evaTaskDO.getCourInfId());
+        CourseDO courseDO=courseMapper.selectById(courInfDO.getCourseId());
+        CourOneEvaTemplateDO courOneEvaTemplateDO=courOneEvaTemplateMapper.selectOne(new QueryWrapper<CourOneEvaTemplateDO>().eq("course_id",courseDO));
+        if(courOneEvaTemplateDO==null){
+            courOneEvaTemplateDO.setCourseId(courseDO.getId());
+            courOneEvaTemplateDO.setSemesterId(courseDO.getSemesterId());
+            FormTemplateDO formTemplateDO=formTemplateMapper.selectById(courseDO.getTemplateId());
+            String s="{ name: \""+formTemplateDO.getName()+"\", description: \""+formTemplateDO.getDescription()+"\", props: "+formTemplateDO.getProps()+" }";
+            courOneEvaTemplateDO.setFormTemplate(s);
+        }
         return null;
     }
 
@@ -88,7 +101,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         //同时发送该任务的评教待办消息;
         CourInfDO courInfDO=courInfMapper.selectById(addTaskCO.getCourInfId());
         CourseDO courseDO=courseMapper.selectById(courInfDO.getCourseId());
-        /*//选中的课程是否已经上完
+        //选中的课程是否已经上完
         SemesterDO semesterDO = semesterMapper.selectById(courseDO.getSemesterId());
         LocalDate localDate = semesterDO.getStartDate().plusDays((courInfDO.getWeek()-1) * 7L + courInfDO.getDay() - 1);
 
@@ -114,7 +127,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         }
         if(f==1){
             throw new UpdateException("课程快临近结束或已经结束");
-        }*/
+        }
         //看看是否和老师自己的课有冲突
         List<CourseDO> courseDOList=courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id",addTaskCO.getTeacherId()));
         List<Integer> courseIds=courseDOList.stream().map(CourseDO::getId).toList();
@@ -144,9 +157,6 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
                 }
             }
         }
-        //看看是不是正在没有上完的课程 TODO
-
-
         EvaTaskDO evaTaskDO=new EvaTaskDO();
         evaTaskDO.setCreateTime(LocalDateTime.now());
         evaTaskDO.setUpdateTime(LocalDateTime.now());
@@ -187,7 +197,9 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         //取消相应的评教任务
         UpdateWrapper<EvaTaskDO> evaTaskWrapper=new UpdateWrapper<>();
         evaTaskWrapper.eq("id",id);
-        evaTaskMapper.delete(evaTaskWrapper);
+        EvaTaskDO evaTaskDO=evaTaskMapper.selectById(id);
+        evaTaskDO.setStatus(2);
+        evaTaskMapper.update(evaTaskDO,evaTaskWrapper);
         return null;
     }
 }
