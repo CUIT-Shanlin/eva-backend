@@ -197,9 +197,11 @@ public class UpdateCourseController {
     @SaCheckPermission("course.table.add")
     @OperateLog(module = LogModule.COURSE,type = OperateLogType.CREATE)
     public CommonResult<Void> addExistCoursesDetails(
-             @PathVariable Integer courseId
-            ,@Valid @RequestBody SelfTeachCourseTimeCO timeCO){
-        courseService.addExistCoursesDetails(courseId, timeCO);
+             @PathVariable Integer courseId,
+            @Valid @RequestBody List<SelfTeachCourseTimeCO> timeCO){
+        for (SelfTeachCourseTimeCO selfTeachCourseTimeCO : timeCO) {
+            courseService.addExistCoursesDetails(courseId, selfTeachCourseTimeCO);
+        }
         return CommonResult.success(null);
     }
 
@@ -207,8 +209,7 @@ public class UpdateCourseController {
      * 批量新建多节课(新课程)
      *  @param semId 学期ID
      *  @param teacherId 教学老师ID
-     *  @param courseInfo 一门课程的可修改信息(一门课程的可修改信息)
-     *  @param dateArr 自己教学的一门课程的一个课程时段模型集合
+     *  @param addcourse 内含有课程信息，课程时段信息
      * */
     @PostMapping("/course/batch/notExist")
     @SaCheckPermission("course.table.add")
@@ -216,11 +217,10 @@ public class UpdateCourseController {
     public CommonResult<Void> addNotExistCoursesDetails(
           @RequestParam(value = "semId",required = false) Integer semId,
           @RequestParam(value = "teacherId",required = true) Integer teacherId,
-          @Valid @RequestBody UpdateCourseCmd courseInfo,
-          @Valid @RequestBody List<SelfTeachCourseTimeCO> dateArr){
-        courseService.addNotExistCoursesDetails(semId, teacherId, courseInfo, dateArr);
+          @Valid @RequestBody AddCoursesAndCourInfo addcourse){
+        courseService.addNotExistCoursesDetails(semId, teacherId, addcourse.getCourseInfo(), addcourse.getDateArr());
 
-        return CommonResult.success(null,()-> LogUtils.logContent("教师ID为"+teacherId+"的"+courseInfo.getSubjectMsg().getName()+"课程"));
+        return CommonResult.success(null,()-> LogUtils.logContent("教师ID为"+teacherId+"的"+addcourse.getCourseInfo().getSubjectMsg().getName()+"课程"));
     }
 
 }

@@ -65,7 +65,7 @@ public class CourseImportExce {
     }
     public void addAll( Map<String, List<CourseExcelBO>> courseExce, Integer type,Integer semId){
         for (Map.Entry<String, List<CourseExcelBO>> stringListEntry : courseExce.entrySet()) {
-            SubjectDO subjectDO1 = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("name", stringListEntry.getKey()));
+            SubjectDO subjectDO1 = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("name", stringListEntry.getKey()).eq("nature",type));
             Integer id = null;
             if(subjectDO1==null){
                 SubjectDO subjectDO = addSubject(stringListEntry.getKey(), type);
@@ -88,7 +88,13 @@ public class CourseImportExce {
                //评教表单模版id
                 Integer evaTemplateId = getEvaTemplateId(type);
                 CourseDO courseDO = addCourse(courseExcelBO, id, userId, semId,evaTemplateId);
-                courseMapper.insert(courseDO);
+                //根据subjectId和teacherId看数据库里是否有该课程
+                CourseDO courseDO1 = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("subject_id", courseDO.getSubjectId()).eq("teacher_id", courseDO.getTeacherId()));
+                if(courseDO1==null){
+                    courseMapper.insert(courseDO);
+                }else{
+                    courseDO=courseDO1;
+                }
                 //课程类型课程关联表
                 toInsert(courseDO.getId(), type);
                 for (Integer week : courseExcelBO.getWeeks()) {

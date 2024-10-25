@@ -62,10 +62,9 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
 
     }
 
-    @CheckSemId
     @Override
-    public List<CourseScoreCO> evaResult(Integer id, Integer semId) {
-        return courseQueryGateway.findEvaScore(id, semId);
+    public List<CourseScoreCO> evaResult(Integer id) {
+        return courseQueryGateway.findEvaScore(id);
     }
 
     @CheckSemId

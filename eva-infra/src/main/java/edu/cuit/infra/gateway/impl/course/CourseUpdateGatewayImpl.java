@@ -138,7 +138,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     @Transactional
     public Map<String,List<Integer>> updateSingleCourse(String userName,Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd) {
         if(updateSingleCourseCmd.getTime()==null){
-            System.out.println(555);
+            throw new UpdateException("修改的时间不能为空");
         }
         //先将要修改的那节课查出来
         CourInfDO courINfo = courInfMapper.selectById(updateSingleCourseCmd.getId());
@@ -210,7 +210,10 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         CourseTypeDO courseTypeDO = courseTypeMapper.selectById(courseType.getId());
         if(courseTypeDO==null)throw new QueryException("该课程类型不存在");
         //根据id更新课程类型
-        courseTypeMapper.update(courseConvertor.toCourseTypeDO(courseType),new QueryWrapper<CourseTypeDO>().eq("id",courseType.getId()));
+        courseTypeDO.setName(courseType.getName());
+        courseTypeDO.setDescription(courseType.getDescription());
+        courseTypeDO.setUpdateTime(LocalDateTime.now());
+        courseTypeMapper.update(courseTypeDO,new QueryWrapper<CourseTypeDO>().eq("id",courseType.getId()));
         LogUtils.logContent(courseType.getName()+"课程类型");
 
         return null;
@@ -223,7 +226,10 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         CourseTypeDO existingCourseType = courseTypeMapper.selectOne(new QueryWrapper<CourseTypeDO>().eq("name", courseType.getName()));
         if (existingCourseType == null) {
             // 如果不存在相同名称的课程类型，则插入新记录
-            courseTypeMapper.insert(courseConvertor.toCourseTypeDO(courseType));
+            CourseTypeDO courseTypeDO=new CourseTypeDO();
+            courseTypeDO.setName(courseType.getName());
+            courseTypeDO.setDescription(courseType.getDescription());
+            courseTypeMapper.insert(courseTypeDO);
         }else {
             throw new UpdateException("该课程类型已存在");
         }
@@ -330,7 +336,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     public Map<String,Map<Integer,Integer>> updateSelfCourse(String userName, SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeCO> timeList) {
         String msg=null;
 
-        SysUserDO userDO = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("name", /*userName*/"甘建红"));
+        SysUserDO userDO = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("name", userName));
         if(userDO==null){
             throw new QueryException("用户不存在");
         }
@@ -505,7 +511,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
             courInfMapper.insert(courInfDO);
         }
         CourseDO courseDO = courseMapper.selectById(courseId);
-        if(courseDO.getTemplateId()!=null)throw new  QueryException("不存在对应的课程");
+        if(courseDO==null)throw new  QueryException("不存在对应的课程");
         SubjectDO subjectDO = subjectMapper.selectById(courseDO.getSubjectId());
         if(subjectDO==null)throw  new QueryException("不存在对应的课程的科目");
         LogUtils.logContent(subjectDO.getName()+"(ID:"+courseDO.getId()+")的课程的课数");

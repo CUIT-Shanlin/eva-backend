@@ -83,7 +83,7 @@ public class UserServiceImpl implements IUserService {
         List<UserSingleCourseScoreCO> resultList = new ArrayList<>();
 
         for (SelfTeachCourseCO course : courseInfoList) {
-            List<CourseScoreCO> evaScore = courseQueryGateway.findEvaScore(course.getId(), semId);
+            List<CourseScoreCO> evaScore = courseQueryGateway.findEvaScore(course.getId());
             double score = 0;
             for (CourseScoreCO courseScoreCO : evaScore) {
                 score += courseScoreCO.getAverScore();

@@ -109,8 +109,9 @@ public class IUserCourseServiceImpl implements IUserCourseService {
         for (Map.Entry<String, List<SingleCourseEntity>> entry : map.entrySet()) {
             SelfTeachCourseTimeCO time=new SelfTeachCourseTimeCO();
             time.setDay(entry.getValue().get(0).getDay());
-            time.setDay(entry.getValue().get(0).getStartTime());
-            time.setDay(entry.getValue().get(0).getEndTime());
+            time.setStartTime(entry.getValue().get(0).getStartTime());
+            time.setEndTime(entry.getValue().get(0).getEndTime());
+            time.setClassroom(entry.getValue().get(0).getLocation());
             List<Integer> week=new ArrayList<>();
             for (SingleCourseEntity courseTime : entry.getValue()) {
                 week.add(courseTime.getWeek());

@@ -50,11 +50,10 @@ public interface CourseQueryGateway {
 
     /**
      * 获取一门课程的评教统计
-     *@param semId 学期id
      * @param id 课程编号id
      * @return List<CourseScoreCO>
      */
-    List<CourseScoreCO> findEvaScore(Integer id,Integer semId);
+    List<CourseScoreCO> findEvaScore(Integer id);
 
     /**
      * 获取所有的科目的基础信息

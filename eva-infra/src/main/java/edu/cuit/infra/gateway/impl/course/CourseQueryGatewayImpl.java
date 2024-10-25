@@ -110,6 +110,13 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         if(userIds!=null){
             courseWrapper.in(!userIds.isEmpty(),"teacher_id",userIds);
         }
+        //关键字查询
+        List<Integer> listSubject=new ArrayList<>();
+        if(courseQuery.getQueryObj().getKeyword()!=null){
+            List<SubjectDO> subjectDOS = subjectMapper.selectList(new QueryWrapper<SubjectDO>().like("name", courseQuery.getQueryObj().getKeyword()));
+            listSubject.addAll(subjectDOS.stream().map(SubjectDO::getId).toList());
+        }
+        courseWrapper.in(!listSubject.isEmpty(),"subject_id",listSubject);
         pageCourse = courseMapper.selectPage(pageCourse,courseWrapper);
         //将paginationEntity中的records类型转化成CourseEntity
         List<CourseDO> records = pageCourse.getRecords();
@@ -157,7 +164,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     }
 
     @Override
-    public List<CourseScoreCO> findEvaScore(Integer id, Integer semId) {
+    public List<CourseScoreCO> findEvaScore(Integer id) {
         //根据课程ID找到全部courInfoDo信息
         List<Integer> courInfos = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", id)).stream().map(CourInfDO::getId).toList();
         if(courInfos.isEmpty()) throw new QueryException("该课程没有课程信息");
@@ -165,7 +172,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         QueryWrapper<EvaTaskDO> evaTaskWrapper = new QueryWrapper<>();
         evaTaskWrapper.in(true,"cour_inf_id", courInfos);
         List<Integer> evaTaskDOIds = evaTaskMapper.selectList(evaTaskWrapper).stream().map(EvaTaskDO::getId).toList();
-        if(evaTaskDOIds.isEmpty())throw new QueryException("暂时还没有该课程的评教统计");
+        if(evaTaskDOIds.isEmpty())throw new QueryException("暂时还没有该课程的评教任务");
         //根据评教任务id来找到评教表单记录数据中的form_props_values
         List<String> taskProps = formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id", evaTaskDOIds))
                 .stream().map(FormRecordDO::getFormPropsValues).toList();
@@ -388,8 +395,9 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
             map.put(courseDO, courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseDO.getId())));
         }
         List<List<SingleCourseEntity>> list =new ArrayList<>();
-        List<SingleCourseEntity> temp = new ArrayList<>();
+
         for (Map.Entry<CourseDO, List<CourInfDO>> courseDOListEntry : map.entrySet()) {
+            List<SingleCourseEntity> temp = new ArrayList<>();
             SubjectEntity subjectEntity = courseConvertor.toSubjectEntity(subjectMapper.selectById(courseDOListEntry.getKey().getSubjectId()));
             for (CourInfDO courInfDO : courseDOListEntry.getValue()) {
                 CourseEntity courseEntity = courseConvertor.toCourseEntity(courseDOListEntry.getKey(), () -> subjectEntity, () -> userEntity, () -> semesterEntity);
@@ -397,12 +405,16 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
                 temp.add(singleCourseEntity);
             }
             list.add(temp);
-            //清空temp集合
-            temp.clear();
         }
         return list;
     }
 
+    /**
+     * 获取自己教学的课程基础信息/获取自己所有教学的课程的详细信息
+     *  @param semId 学期id
+     *  @param userName 用户名
+     * @return List<SelfTeachCourseCO>
+     * */
     @Override
     public List<SelfTeachCourseCO> getSelfCourseInfo(String userName, Integer semId) {
         //根据用户名来查出教师id
@@ -420,7 +432,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
             if (subjectDO==null)throw new QueryException("未找到对应科目");
             //拿到课程类型id集合
             List<CourseTypeCourseDO> courseTypeCourse = courseTypeCourseMapper.selectList(new QueryWrapper<CourseTypeCourseDO>().eq("course_id", courseDO.getId()));
-            if(courseTypeCourse.isEmpty())throw new QueryException("未找到对应课程类型");
+//            if(courseTypeCourse.isEmpty())throw new QueryException("未找到对应课程类型");
             List<Integer> courseTypeIds =courseTypeCourse .stream().map(CourseTypeCourseDO::getTypeId).toList();
             List<CourseTypeDO> typeList = courseTypeIds.stream().map(courseTypeMapper::selectById).toList();
             List<CourseType> TPList = typeList.stream().map(courseTypeDO -> courseConvertor.toCourseType(courseDO.getId(),courseTypeDO)).toList();

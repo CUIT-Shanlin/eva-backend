@@ -69,15 +69,13 @@ public class QueryCourseController {
 
     /**
      * 一门课程的评教统计
-     * @param semId 学期id
      * @param id ID编号
      */
     @GetMapping("/course/eva")
     @SaCheckPermission("course.tabulation.eva.query")
     public CommonResult<List<CourseScoreCO>> evaResult(
-            @RequestParam(value = "id",required = true) Integer id,
-            @RequestParam(value = "semId",required = false) Integer semId){
-        return CommonResult.success(courseDetailService.evaResult(id, semId));
+            @RequestParam(value = "id",required = true) Integer id){
+        return CommonResult.success(courseDetailService.evaResult(id));
     }
 
     /**
