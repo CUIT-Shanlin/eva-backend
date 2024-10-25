@@ -45,6 +45,9 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
     @Override
     @Transactional
     public Map<String,List<Integer>> deleteCourses(Integer semId, Integer id, CoursePeriod coursePeriod) {
+        CourInfDO courInfDO = courInfMapper.selectById(id);
+        if(courInfDO==null)throw new UpdateException("该节课不存在");
+        id=courInfDO.getCourseId();
         CourseDO courseDO = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", id).eq("semester_id", semId));
         if(courseDO==null){
             throw new QueryException("课程不存在");
@@ -95,14 +98,14 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
        }
         //删除课程详情表
         UpdateWrapper<CourInfDO> courInfoWrapper=new UpdateWrapper<>();
-        courseWrapper.eq("course_id",id);
+        courInfoWrapper.eq("course_id",id);
         courInfMapper.delete(courInfoWrapper);
-        //得到科目id
+        /*//得到科目id
         Integer subjectId = courseMapper.selectOne(courseWrapper).getSubjectId();
         //删除科目数据
         UpdateWrapper<SubjectDO> subjectWrapper=new UpdateWrapper<>();
         subjectWrapper.eq("id",subjectId);
-        subjectMapper.delete(subjectWrapper);
+        subjectMapper.delete(subjectWrapper);*/
         //删除评教任务数据
         QueryWrapper<EvaTaskDO> evaTaskWrapper=new QueryWrapper<>();
         evaTaskWrapper.eq("cour_inf_id",id);
@@ -133,7 +136,7 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
             throw new UpdateException("请选择要删除的课程类型");
         }
         courseTypeMapper.selectList(new QueryWrapper<CourseTypeDO>().in(!ids.isEmpty(),"id",ids)).forEach(courseTypeDO ->
-        {if(courseTypeDO.getIsDeleted()!=-1)
+        {if(courseTypeDO.getIsDefault()!=-1)
             throw new UpdateException("默认课程类型不能删除");
         });
         QueryWrapper<CourseTypeCourseDO> wrapper = new QueryWrapper<>();

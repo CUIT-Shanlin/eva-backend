@@ -137,6 +137,9 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     @Override
     @Transactional
     public Map<String,List<Integer>> updateSingleCourse(String userName,Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd) {
+        if(updateSingleCourseCmd.getTime()==null){
+            throw new UpdateException("修改的时间不能为空");
+        }
         //先将要修改的那节课查出来
         CourInfDO courINfo = courInfMapper.selectById(updateSingleCourseCmd.getId());
         CourseDO courseDo=null;
@@ -144,13 +147,17 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
             throw new QueryException("该节课不存在");
         }
         //先根据用户名来查出教师id
-        SysUserDO userDO = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("name", userName));
+        SysUserDO userDO = userMapper.selectById(courseMapper.selectById(courINfo.getCourseId()).getTeacherId());
         if(userDO==null)throw new QueryException("老师不存在");
         Integer teacherId = userDO.getId();
         //根据teacherId和semId找出他的所有授课
         List<CourseDO> courseDOList = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", teacherId).eq("semester_id", semId));
         //根据CourseDO中的Id和updateSingleCourseCmd中的time来判断来查看这个老师在这个时间段是否有课程
         for (CourseDO courseDO : courseDOList) {
+            if(courseDO.getId().equals(courINfo.getCourseId())){
+                courseDo=courseDO;
+                continue;
+            }
             CourInfDO courInfDO = courInfMapper.selectOne(new QueryWrapper<CourInfDO>()
                     .eq("course_id", courseDO.getId())
                     .eq("week", updateSingleCourseCmd.getTime().getWeek())
@@ -160,10 +167,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
             if (courInfDO != null) {
                 throw new UpdateException("该时间段已有课程");
             }
-            if(courseDO.getId().equals(courINfo.getCourseId())){
-                courseDo=courseDO;
-                break;
-            }
+
         }
         //判断location是否被占用
             //先根据updateSingleCourseCmd中的数据找出所有对应时间段的课程
@@ -195,6 +199,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                 +updateSingleCourseCmd.getTime().getWeek()+"周，星期"+updateSingleCourseCmd.getTime().getDay()
                 +"，第"+updateSingleCourseCmd.getTime().getStartTime()+"-"+updateSingleCourseCmd.getTime().getEndTime()+"节。教室："+
                 updateSingleCourseCmd.getLocation(),userList);
+        LogUtils.logContent(userName+"修改了"+name+"上课时间信息");
         return map;
     }
 
@@ -205,7 +210,10 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         CourseTypeDO courseTypeDO = courseTypeMapper.selectById(courseType.getId());
         if(courseTypeDO==null)throw new QueryException("该课程类型不存在");
         //根据id更新课程类型
-        courseTypeMapper.update(courseConvertor.toCourseTypeDO(courseType),new QueryWrapper<CourseTypeDO>().eq("id",courseType.getId()));
+        courseTypeDO.setName(courseType.getName());
+        courseTypeDO.setDescription(courseType.getDescription());
+        courseTypeDO.setUpdateTime(LocalDateTime.now());
+        courseTypeMapper.update(courseTypeDO,new QueryWrapper<CourseTypeDO>().eq("id",courseType.getId()));
         LogUtils.logContent(courseType.getName()+"课程类型");
 
         return null;
@@ -218,7 +226,10 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         CourseTypeDO existingCourseType = courseTypeMapper.selectOne(new QueryWrapper<CourseTypeDO>().eq("name", courseType.getName()));
         if (existingCourseType == null) {
             // 如果不存在相同名称的课程类型，则插入新记录
-            courseTypeMapper.insert(courseConvertor.toCourseTypeDO(courseType));
+            CourseTypeDO courseTypeDO=new CourseTypeDO();
+            courseTypeDO.setName(courseType.getName());
+            courseTypeDO.setDescription(courseType.getDescription());
+            courseTypeMapper.insert(courseTypeDO);
         }else {
             throw new UpdateException("该课程类型已存在");
         }
@@ -257,7 +268,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
             return evaTaskDO;
         }).toList();
         taskList.forEach(evaTaskMapper::insert);
-        Integer subjectId = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", courseId)).getSubjectId();
+        Integer subjectId = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", courInfDO.getCourseId())).getSubjectId();
         String name = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("id", subjectId)).getName();
         Map<String,List<Integer>> map=new HashMap<>();
         map.put("你已经被分配去听第"+courInfDO.getWeek()+"周，星期"
@@ -265,6 +276,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                 ,alignTeacherCmd.getEvaTeacherIdList());
         for (Integer i : alignTeacherCmd.getEvaTeacherIdList()) {
             SysUserDO userDO = userMapper.selectById(i);
+            if(userDO==null)throw new QueryException("所分配老师中有人未在数据库中");
             LogUtils.logContent(userDO.getName()+"老师去听，第"+courInfDO.getWeek()+"周，星期"
                     +courInfDO.getDay()+"，第"+courInfDO.getStartTime()+"-"+courInfDO.getEndTime()+"节，"+name+"课程。位置："+courInfDO.getLocation()+name+"课程");
         }
@@ -273,26 +285,30 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
 
     private void judgeAlsoHasCourse(Integer semId,List<Integer> evaTeacherIdList, CourInfDO courInfDO) {
         List<Integer> list = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId).in(!evaTeacherIdList.isEmpty(),"teacher_id", evaTeacherIdList)).stream().map(CourseDO::getId).toList();
-       CourInfDO courInfDOList = courInfMapper.selectOne(new QueryWrapper<CourInfDO>()
+       if(list.isEmpty())return;
+        List<CourInfDO> courInfDOList = courInfMapper.selectList(new QueryWrapper<CourInfDO>()
                 .eq("week", courInfDO.getWeek())
                 .eq("day", courInfDO.getDay())
                 .le("start_time", courInfDO.getEndTime())
                 .ge("end_time", courInfDO.getStartTime())
-                .in(!list.isEmpty(),"course_id", list));
-        if(courInfDOList!=null){
+                .in(true,"course_id", list));
+        if(!courInfDOList.isEmpty()){
             throw new UpdateException("该时间段已有课程");
         }
     }
 
     private void judgeAlsoHasTask(List<Integer> userList,CourInfDO courInfDO){
         List<Integer> courInfoList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in(!userList.isEmpty(),"teacher_id", userList)).stream().map(EvaTaskDO::getCourInfId).toList();
-        CourInfDO courINfo = courInfMapper.selectOne(new QueryWrapper<CourInfDO>()
+        if(courInfoList.isEmpty()){
+            return;
+        }
+        List<CourInfDO> courINfo = courInfMapper.selectList(new QueryWrapper<CourInfDO>()
                 .eq("week", courInfDO.getWeek())
                 .eq("day", courInfDO.getDay())
                 .le("start_time", courInfDO.getEndTime())
                 .ge("end_time", courInfDO.getStartTime())
-                .in(!courInfoList.isEmpty(),"id", courInfoList));
-        if(courINfo!=null){
+                .in(true,"id", courInfoList));
+        if(!courINfo.isEmpty()){
             throw new UpdateException("课程时间冲突，评教老师中有人在该时间段已经有了评教任务");
         }
 
@@ -319,10 +335,12 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     @Transactional
     public Map<String,Map<Integer,Integer>> updateSelfCourse(String userName, SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeCO> timeList) {
         String msg=null;
-        Integer userId = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("name", userName)).getId();
-        if(userId==null){
+
+        SysUserDO userDO = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("name", userName));
+        if(userDO==null){
             throw new QueryException("用户不存在");
         }
+        Integer userId =userDO.getId();
         CourseDO courseDO = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", selfTeachCourseCO.getId()).eq("teacher_id", userId));
         if(courseDO==null){
             //课程不存在(抛出异常)
@@ -346,7 +364,6 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     private String JudgeCourseTime(CourseDO courseDO, List<SelfTeachCourseTimeCO> timeList,List<CourseDO> courseDOList,SelfTeachCourseCO selfTeachCourseCO,Map<Integer,Integer> taskMap) {
         String msg="";
         List<Integer> courInfoIds = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id", courseDO.getTeacherId())).stream().map(EvaTaskDO::getCourInfId).toList();
-//        List<CourInfDO> evaInfDOList = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("id", courInfoIds));
         List<CourInfDO> courInfoList = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseDO.getId()));
         List<CourInfDO> courseChangeList=new ArrayList<>();
         for (SelfTeachCourseTimeCO selfTeachCourseTimeCO : timeList) {
@@ -387,6 +404,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                         throw new UpdateException("该时间段你已经有课了");
                     }
                 }
+
                 //评教
                 QueryWrapper<CourInfDO> wrapper = new QueryWrapper<CourInfDO>()
                         .eq("week", courInfDO.getWeek())
@@ -444,6 +462,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
             return msg;
         } else {
             courseTypeCourseMapper.delete(new QueryWrapper<CourseTypeCourseDO>().eq("course_id",courseDO.getId() ).in(!typeIdDo.isEmpty(),"type_id", typeIdDo));
+
             typeIdIn.forEach(typeId -> {
                 CourseTypeCourseDO courseTypeCourseDO=new CourseTypeCourseDO();
                 courseTypeCourseDO.setCourseId(courseDO.getId());
@@ -469,6 +488,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                 subjectDO.setNature(selfTeachCourseCO.getNature());
                 return msg+name+"课程的名称被改成了"+subjectDO.getName()+"，类型被改成了"+natureExp+"。";
             }
+            subjectMapper.update(subjectDO,new QueryWrapper<SubjectDO>().eq("id",subjectDO.getId()));
             return msg+name+"课程的名称被改成了"+subjectDO.getName()+"。";
         }
         return "";
@@ -491,7 +511,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
             courInfMapper.insert(courInfDO);
         }
         CourseDO courseDO = courseMapper.selectById(courseId);
-        if(courseDO.getTemplateId()!=null)throw new  QueryException("不存在对应的课程");
+        if(courseDO==null)throw new  QueryException("不存在对应的课程");
         SubjectDO subjectDO = subjectMapper.selectById(courseDO.getSubjectId());
         if(subjectDO==null)throw  new QueryException("不存在对应的课程的科目");
         LogUtils.logContent(subjectDO.getName()+"(ID:"+courseDO.getId()+")的课程的课数");
@@ -564,7 +584,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         LocalDate date = LocalDate.parse(term.getStartDate(), formatter);*/
         SemesterDO semesterDO = semesterMapper.selectOne(new QueryWrapper<SemesterDO>().eq("period", term.getPeriod()).eq("start_year", term.getStartYear()).eq("end_year", term.getEndYear()));
         if(semesterDO==null)return false;
-        List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("sem_id", semesterDO.getId()));
+        List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semesterDO.getId()));
         if(courseDOS.isEmpty())return false;
         List<Integer> list = courseDOS.stream().map(CourseDO::getSubjectId).toList();
         List<SubjectDO> subjectDOS = subjectMapper.selectList(new QueryWrapper<SubjectDO>().in(!list.isEmpty(),"id",list ));

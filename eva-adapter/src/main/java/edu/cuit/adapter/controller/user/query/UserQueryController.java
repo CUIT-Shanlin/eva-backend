@@ -137,7 +137,7 @@ public class UserQueryController {
      * 检查用户名是否存在
      * @param username 用户名
      */
-    @GetMapping("/username/exist")
+    @GetMapping("/user/username/exist")
     @SaCheckPermission("system.user.isExist")
     public CommonResult<Boolean> isExist(@RequestParam("username") String username) {
         return CommonResult.success(userService.isUsernameExist(username));

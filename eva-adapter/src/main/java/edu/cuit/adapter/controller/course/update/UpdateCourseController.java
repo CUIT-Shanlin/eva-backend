@@ -7,10 +7,7 @@ import edu.cuit.app.service.impl.course.ICourseTypeServiceImpl;
 import edu.cuit.app.service.impl.course.IUserCourseServiceImpl;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
-import edu.cuit.client.dto.cmd.course.AlignTeacherCmd;
-import edu.cuit.client.dto.cmd.course.UpdateCourseCmd;
-import edu.cuit.client.dto.cmd.course.UpdateCoursesCmd;
-import edu.cuit.client.dto.cmd.course.UpdateSingleCourseCmd;
+import edu.cuit.client.dto.cmd.course.*;
 import edu.cuit.client.dto.data.Term;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.common.enums.LogModule;
@@ -79,6 +76,7 @@ public class UpdateCourseController {
      *
      * */
     @PutMapping("/course/one")
+    @OperateLog(module = LogModule.COURSE,type = OperateLogType.UPDATE)
     @SaCheckPermission("course.tabulation.update")
     public CommonResult<Void> updateSingleCourse(
             @RequestParam(value = "semId",required = false) Integer semId,
@@ -180,14 +178,12 @@ public class UpdateCourseController {
 
     /**
     * 修改自己的一门课程信息及其课程时段
-     *@param selfTeachCourseCO 用于确定是导入实验课表还是理论课表，0：理论课，1：实验课
-     *  @param timeList 课表文件
+     *@param updateCourseInfoAndTime 内含有课程信息，课程时段信息
     * */
     @PutMapping("/course/my/info/date")
     public CommonResult<Void> updateSelfCourse(
-            @Valid @RequestBody SelfTeachCourseCO selfTeachCourseCO,
-            @Valid @RequestBody List<SelfTeachCourseTimeCO> timeList){
-        userCourseService.updateSelfCourse(selfTeachCourseCO, timeList);
+            @Valid @RequestBody UpdateCourseInfoAndTime updateCourseInfoAndTime){
+        userCourseService.updateSelfCourse(updateCourseInfoAndTime.getCourseInfo(), updateCourseInfoAndTime.getDateArr());
         return CommonResult.success(null);
     }
 
@@ -201,9 +197,11 @@ public class UpdateCourseController {
     @SaCheckPermission("course.table.add")
     @OperateLog(module = LogModule.COURSE,type = OperateLogType.CREATE)
     public CommonResult<Void> addExistCoursesDetails(
-             @PathVariable Integer courseId
-            ,@Valid @RequestBody SelfTeachCourseTimeCO timeCO){
-        courseService.addExistCoursesDetails(courseId, timeCO);
+             @PathVariable Integer courseId,
+            @Valid @RequestBody List<SelfTeachCourseTimeCO> timeCO){
+        for (SelfTeachCourseTimeCO selfTeachCourseTimeCO : timeCO) {
+            courseService.addExistCoursesDetails(courseId, selfTeachCourseTimeCO);
+        }
         return CommonResult.success(null);
     }
 
@@ -211,8 +209,7 @@ public class UpdateCourseController {
      * 批量新建多节课(新课程)
      *  @param semId 学期ID
      *  @param teacherId 教学老师ID
-     *  @param courseInfo 一门课程的可修改信息(一门课程的可修改信息)
-     *  @param dateArr 自己教学的一门课程的一个课程时段模型集合
+     *  @param addcourse 内含有课程信息，课程时段信息
      * */
     @PostMapping("/course/batch/notExist")
     @SaCheckPermission("course.table.add")
@@ -220,11 +217,10 @@ public class UpdateCourseController {
     public CommonResult<Void> addNotExistCoursesDetails(
           @RequestParam(value = "semId",required = false) Integer semId,
           @RequestParam(value = "teacherId",required = true) Integer teacherId,
-          @Valid @RequestBody UpdateCourseCmd courseInfo,
-          @Valid @RequestBody List<SelfTeachCourseTimeCO> dateArr){
-        courseService.addNotExistCoursesDetails(semId, teacherId, courseInfo, dateArr);
+          @Valid @RequestBody AddCoursesAndCourInfo addcourse){
+        courseService.addNotExistCoursesDetails(semId, teacherId, addcourse.getCourseInfo(), addcourse.getDateArr());
 
-        return CommonResult.success(null,()-> LogUtils.logContent("教师ID为"+teacherId+"的"+courseInfo.getSubjectMsg().getName()+"课程"));
+        return CommonResult.success(null,()-> LogUtils.logContent("教师ID为"+teacherId+"的"+addcourse.getCourseInfo().getSubjectMsg().getName()+"课程"));
     }
 
 }

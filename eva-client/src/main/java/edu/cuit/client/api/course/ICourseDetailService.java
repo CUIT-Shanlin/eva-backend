@@ -38,10 +38,9 @@ public interface ICourseDetailService {
     /**
      * 一门课程的评教统计
      *
-     * @param semId 学期id
      * @param id ID编号
      */
-    List<CourseScoreCO> evaResult(Integer id,Integer semId);
+    List<CourseScoreCO> evaResult(Integer id);
 
     /**
      * 获取所有的课程的基础信息

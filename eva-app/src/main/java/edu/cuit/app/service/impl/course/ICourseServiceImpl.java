@@ -19,9 +19,11 @@ import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.gateway.course.CourseDeleteGateway;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.domain.gateway.course.CourseUpdateGateway;
+import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -52,9 +54,13 @@ public class ICourseServiceImpl implements ICourseService {
     @Override
     public SingleCourseDetailCO getCourseDetail(Integer semId, Integer id) {
         List<EvaTeacherInfoCO> evaUsers = courseQueryGateway.getEvaUsers(id);
-       return courseQueryGateway.getSingleCourseDetail(id, semId)
-                .map(courseEntity -> courseConvertor.toSingleCourseDetailCO(courseEntity,evaUsers))
-                .orElseThrow(()->new RuntimeException("这节课不存在"));
+        if(evaUsers==null){
+            evaUsers=new ArrayList<>();
+        }
+        List<EvaTeacherInfoCO> finalEvaUsers = evaUsers;
+        return courseQueryGateway.getSingleCourseDetail(id, semId)
+                .map(courseEntity -> courseConvertor.toSingleCourseDetailCO(courseEntity, finalEvaUsers))
+                .orElseThrow(()->new QueryException("这节课不存在"));
     }
 
     @CheckSemId

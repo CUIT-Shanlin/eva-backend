@@ -43,32 +43,37 @@ public class QueryUtils {
     }
 
     public static <T,R extends GenericConditionalQuery> void fileTimeQuery(QueryWrapper<T> queryWrapper, R query) {
-        if (query.getStartCreateTime() != null) {
-            queryWrapper.and(queryWrp -> {
-                queryWrp.gt("createTime",query.getStartCreateTime())
-                        .or().eq("createTime",query.getStartCreateTime());
-            });
-        }
-        if (query.getEndCreateTime() != null) {
-            queryWrapper.and(queryWrp -> {
-                queryWrp.lt("createTime",query.getEndCreateTime())
-                        .or().eq("createTime",query.getEndCreateTime());
-            });
-        }
+        fileCreateTimeQuery(queryWrapper,query);
         if (query.getStartUpdateTime() != null) {
             queryWrapper.and(queryWrp -> {
-                queryWrp.gt("updateTime",query.getStartUpdateTime())
-                        .or().eq("updateTime",query.getStartUpdateTime());
+                queryWrp.gt("update_time",query.getStartUpdateTime())
+                        .or().eq("update_time",query.getStartUpdateTime());
             });
 
         }
         if (query.getEndUpdateTime() != null) {
             queryWrapper.and(queryWrp -> {
-                queryWrapper.lt("updateTime",query.getEndUpdateTime())
-                        .or().eq("updateTime",query.getEndUpdateTime());
+                queryWrp.lt("update_time",query.getEndUpdateTime())
+                        .or().eq("update_time",query.getEndUpdateTime());
             });
 
         }
+    }
+
+    public static <T,R extends GenericConditionalQuery> void fileCreateTimeQuery(QueryWrapper<T> queryWrapper,R query) {
+        if (query.getStartCreateTime() != null) {
+            queryWrapper.and(queryWrp -> {
+                queryWrp.gt("create_time",query.getStartCreateTime())
+                        .or().eq("create_time",query.getStartCreateTime());
+            });
+        }
+        if (query.getEndCreateTime() != null) {
+            queryWrapper.and(queryWrp -> {
+                queryWrp.lt("create_time",query.getEndCreateTime())
+                        .or().eq("create_time",query.getEndCreateTime());
+            });
+        }
+
     }
 
     public static <T> Page<T> createPage(PagingQuery<?> pageQuery) {

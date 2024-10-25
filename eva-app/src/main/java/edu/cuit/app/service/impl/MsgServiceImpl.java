@@ -146,7 +146,7 @@ public class MsgServiceImpl implements IMsgService {
             },executor);
 
         } else {
-            websocketManager.sendMessage(msg.getRecipientId(),responseMsg);
+            websocketManager.sendMessage(userQueryGateway.findUsernameById(msg.getRecipientId()).orElse(null),responseMsg);
             msgGateway.insertMessage(requestMsg);
         }
     }
@@ -158,7 +158,7 @@ public class MsgServiceImpl implements IMsgService {
     }
 
     private Integer checkAndGetUserId() {
-        if (StpUtil.isLogin()) {
+        if (!StpUtil.isLogin()) {
             throw new BizException("用户未登录");
         }
         String loginId = (String) StpUtil.getLoginId();

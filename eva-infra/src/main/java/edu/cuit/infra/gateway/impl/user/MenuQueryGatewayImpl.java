@@ -1,5 +1,6 @@
 package edu.cuit.infra.gateway.impl.user;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import edu.cuit.client.dto.query.condition.MenuConditionalQuery;
@@ -26,7 +27,7 @@ public class MenuQueryGatewayImpl implements MenuQueryGateway {
     @Override
     public List<MenuEntity> getMenus(MenuConditionalQuery query) {
         LambdaQueryWrapper<SysMenuDO> menuQuery = Wrappers.lambdaQuery();
-        menuQuery.isNull(SysMenuDO::getParentId)
+        menuQuery.eq(SysMenuDO::getParentId,0)
                 .like(SysMenuDO::getName,query.getKeyword())
                 .eq(SysMenuDO::getStatus,query.getStatus());
         return menuMapper.selectList(menuQuery).stream()

@@ -25,8 +25,13 @@ public class UserCourseDetailQueryExec {
 
     private final CourseBizConvertor courseConvertor;
     public  CourseDetailCO getUserCourseDetail(List<SingleCourseEntity> singleCourseEntities,Integer semId){
-        List<CourseType> typeList = courseQueryGateway.getCourseType(singleCourseEntities.get(0).getCourseEntity().getId());
-        CourseModelCO courseModelCO = courseConvertor.toCourseModelCO(singleCourseEntities.get(0).getCourseEntity(), courseQueryGateway.getLocation(singleCourseEntities.get(0).getCourseEntity().getId()));
+        List<CourseType> typeList=null;
+        CourseModelCO courseModelCO=null;
+        if(!singleCourseEntities.isEmpty()){
+             typeList = courseQueryGateway.getCourseType(singleCourseEntities.get(0).getCourseEntity().getId());
+             courseModelCO = courseConvertor.toCourseModelCO(singleCourseEntities.get(0).getCourseEntity(), courseQueryGateway.getLocation(singleCourseEntities.get(0).getCourseEntity().getId()));
+        }
+
         //根据singleCourseEntities中的上课的星期数和startTime以及endTime，将课程分类
         Map<String, List<SingleCourseEntity>> courseByDay = new HashMap<>();
         for (SingleCourseEntity entity : singleCourseEntities) {

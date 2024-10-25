@@ -32,8 +32,8 @@ public class MessageController {
      */
     @GetMapping("/tips/{type}/{mode}")
     @SaCheckLogin
-    public CommonResult<List<GenericResponseMsg>> getUserTargetTypeMsg(@PathVariable("type") @ValidStatus(value = {0,1,2,3}, message = "消息类型只能为0,1,2,3,负数或空") Integer type,
-                                                                       @PathVariable("mode") @ValidStatus(message = "mode只能是0,1,负数或空") Integer mode) {
+    public CommonResult<List<GenericResponseMsg>> getUserTargetTypeMsg(@PathVariable("type") @ValidStatus(value = {-1,0,1,2,3}, message = "消息类型只能为0,1,2,3,-1") Integer type,
+                                                                       @PathVariable("mode") @ValidStatus(value = {-1, 0, 1},message = "mode只能是0,1,-1") Integer mode) {
         return CommonResult.success(msgService.getUserTargetTypeMsg(type,mode));
     }
 
@@ -45,7 +45,7 @@ public class MessageController {
     @GetMapping("/tips/myNum/{num}/{type}")
     @SaCheckLogin
     public CommonResult<List<GenericResponseMsg>> getUserTargetAmountAndTypeMsg(@PathVariable("num") Integer num,
-                                                                                @PathVariable("type") @ValidStatus(value = {0,1,2,3}, message = "消息类型只能为0,1,2,3,负数或空") Integer type) {
+                                                                                @PathVariable("type") @ValidStatus(value = {-1,0,1,2,3}, message = "消息类型只能为0,1,2,3,-1") Integer type) {
         return CommonResult.success(msgService.getUserTargetAmountAndTypeMsg(num,type));
     }
 

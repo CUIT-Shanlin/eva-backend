@@ -47,6 +47,10 @@ public class CourseImportExce {
        //删除每节课
         List<Integer> courInfoIds = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in(!courseIdList.isEmpty(),"course_id", courseIdList)).stream().map(CourInfDO::getId).toList();
         courInfMapper.delete(new QueryWrapper<CourInfDO>().in(!courseIdList.isEmpty(),"course_id", courseIdList));
+        //删除课程对应的课程类型关联表
+        if(!courseIdList.isEmpty()){
+            courseTypeCourseMapper.delete(new QueryWrapper<CourseTypeCourseDO>().in(true,"course_id", courseIdList));
+        }
         //删除评教任务
         List<EvaTaskDO> taskDOList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in(!courInfoIds.isEmpty(),"cour_inf_id", courInfoIds));
         if(!taskDOList.isEmpty()) {
@@ -61,7 +65,7 @@ public class CourseImportExce {
     }
     public void addAll( Map<String, List<CourseExcelBO>> courseExce, Integer type,Integer semId){
         for (Map.Entry<String, List<CourseExcelBO>> stringListEntry : courseExce.entrySet()) {
-            SubjectDO subjectDO1 = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("name", stringListEntry.getKey()));
+            SubjectDO subjectDO1 = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("name", stringListEntry.getKey()).eq("nature",type));
             Integer id = null;
             if(subjectDO1==null){
                 SubjectDO subjectDO = addSubject(stringListEntry.getKey(), type);
@@ -84,7 +88,13 @@ public class CourseImportExce {
                //评教表单模版id
                 Integer evaTemplateId = getEvaTemplateId(type);
                 CourseDO courseDO = addCourse(courseExcelBO, id, userId, semId,evaTemplateId);
-                courseMapper.insert(courseDO);
+                //根据subjectId和teacherId看数据库里是否有该课程
+                CourseDO courseDO1 = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("subject_id", courseDO.getSubjectId()).eq("teacher_id", courseDO.getTeacherId()));
+                if(courseDO1==null){
+                    courseMapper.insert(courseDO);
+                }else{
+                    courseDO=courseDO1;
+                }
                 //课程类型课程关联表
                 toInsert(courseDO.getId(), type);
                 for (Integer week : courseExcelBO.getWeeks()) {
@@ -125,7 +135,7 @@ public class CourseImportExce {
         //插入课程类型课程关联表
         CourseTypeCourseDO courseTypeCourseDO = new CourseTypeCourseDO();
         courseTypeCourseDO.setCourseId(courseId);
-        courseTypeCourseDO.setCourseId(id);
+        courseTypeCourseDO.setTypeId(id);
         courseTypeCourseDO.setCreateTime(LocalDateTime.now());
         courseTypeCourseDO.setUpdateTime(LocalDateTime.now());
         courseTypeCourseMapper.insert(courseTypeCourseDO);

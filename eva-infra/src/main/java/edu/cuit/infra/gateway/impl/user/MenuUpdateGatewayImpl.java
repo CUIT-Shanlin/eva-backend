@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import edu.cuit.client.dto.cmd.user.NewMenuCmd;
 import edu.cuit.client.dto.cmd.user.UpdateMenuCmd;
+import edu.cuit.domain.entity.user.biz.MenuEntity;
+import edu.cuit.domain.gateway.user.MenuQueryGateway;
 import edu.cuit.domain.gateway.user.MenuUpdateGateway;
 import edu.cuit.infra.convertor.user.MenuConvertor;
 import edu.cuit.infra.dal.database.dataobject.user.SysMenuDO;
@@ -25,6 +27,8 @@ public class MenuUpdateGatewayImpl implements MenuUpdateGateway {
     private final SysMenuMapper menuMapper;
     private final SysRoleMenuMapper roleMenuMapper;
 
+    private final MenuQueryGateway menuQueryGateway;
+
     private final MenuConvertor menuConvertor;
 
     @Override
@@ -40,7 +44,7 @@ public class MenuUpdateGatewayImpl implements MenuUpdateGateway {
     public void deleteMenu(Integer menuId) {
         SysMenuDO tmp = checkMenuId(menuId);
         roleMenuMapper.delete(Wrappers.lambdaQuery(SysRoleMenuDO.class).eq(SysRoleMenuDO::getMenuId,menuId));
-        menuMapper.deleteById(menuId);
+        deleteMenuAndChildren(menuId);
 
         LogUtils.logContent(tmp.getName() + " 权限");
     }
@@ -53,7 +57,7 @@ public class MenuUpdateGatewayImpl implements MenuUpdateGateway {
         }
         for (Integer menuId : menuIds) {
             roleMenuMapper.delete(Wrappers.lambdaQuery(SysRoleMenuDO.class).eq(SysRoleMenuDO::getMenuId,menuId));
-            menuMapper.deleteById(menuId);
+            deleteMenuAndChildren(menuId);
         }
 
         LogUtils.logContent(tmp + " 权限");
@@ -61,8 +65,18 @@ public class MenuUpdateGatewayImpl implements MenuUpdateGateway {
 
     @Override
     public void createMenu(NewMenuCmd cmd) {
+        if (cmd.getParentId() != null && cmd.getParentId() != 0 && menuQueryGateway.getOne(cmd.getParentId()).isEmpty())
+            throw new BizException("父菜单ID: " + cmd.getParentId() + " 不存在");
         SysMenuDO menuDO = menuConvertor.toMenuDO(cmd);
         menuMapper.insert(menuDO);
+    }
+
+    private void deleteMenuAndChildren(Integer menuId) {
+        List<MenuEntity> childrenMenus = menuQueryGateway.getChildrenMenus(menuId);
+        for (MenuEntity childMenu : childrenMenus) {
+            deleteMenuAndChildren(childMenu.getId());
+        }
+        menuMapper.deleteById(menuId);
     }
 
     private SysMenuDO checkMenuId(Integer id) {
