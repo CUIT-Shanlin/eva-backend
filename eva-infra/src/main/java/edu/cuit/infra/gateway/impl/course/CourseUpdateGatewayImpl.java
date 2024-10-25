@@ -336,7 +336,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     public Map<String,Map<Integer,Integer>> updateSelfCourse(String userName, SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeCO> timeList) {
         String msg=null;
 
-        SysUserDO userDO = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("name", userName));
+        SysUserDO userDO = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("username", userName));
         if(userDO==null){
             throw new QueryException("用户不存在");
         }

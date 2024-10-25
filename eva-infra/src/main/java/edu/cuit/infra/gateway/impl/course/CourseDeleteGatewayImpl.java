@@ -159,7 +159,7 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
             throw new QueryException("请先登录");
         }
         //先根据userName来找到用户id
-        Integer userId = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("name", userName)).getId();
+        Integer userId = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("username", userName)).getId();
         if(userId==null){
             throw new QueryException("你已经被删除了");
         }

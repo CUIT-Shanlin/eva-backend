@@ -45,7 +45,7 @@ public class CourseRecommendExce {
 
     public List<RecommendCourseCO> RecommendCourse(Integer semId, String userName,CourseTime courseTime){
         //查询user
-        SysUserDO user = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("name", userName));
+        SysUserDO user = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("username", userName));
         if(user==null)throw new QueryException("用户不存在");
         //查询user授课程集合
         List<CourseDO> courseDOS1 = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", user.getId()).eq("semester_id", semId));
@@ -179,7 +179,7 @@ public class CourseRecommendExce {
     public List<RecommendCourseCO> togetPeriodCourse(Integer semId, MobileCourseQuery courseQuery, String userName){
         SemesterDO semesterDO = semesterMapper.selectById(semId);
         //老师教学课程
-        SysUserDO user = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("name", /*userName*/"甘建红"));
+        SysUserDO user = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("username", userName));
         if(user==null)throw new QueryException("用户不存在");
         List<CourseDO> userCourse = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", user.getId()).eq("semester_id", semId));
         List<CourseDO> courseList=judeTimetoGetCourse(semesterDO, courseQuery);

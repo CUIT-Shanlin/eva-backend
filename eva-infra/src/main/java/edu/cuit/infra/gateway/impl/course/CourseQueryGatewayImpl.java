@@ -418,7 +418,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     @Override
     public List<SelfTeachCourseCO> getSelfCourseInfo(String userName, Integer semId) {
         //根据用户名来查出教师id
-        SysUserDO user = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("name", userName));
+        SysUserDO user = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("username", userName));
         if(user==null)throw new QueryException("用户不存在");
         Integer teacherId = user.getId();
         //根据学期来找到这学期所有课程
