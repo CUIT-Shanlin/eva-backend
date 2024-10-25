@@ -17,6 +17,7 @@ import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -82,7 +83,7 @@ public class EvaTemplateServiceImpl implements IEvaTemplateService {
     }
 
     @Override
-    public Void addEvaTemplate(EvaTemplateCO evaTemplateCO) {
+    public Void addEvaTemplate(EvaTemplateCO evaTemplateCO) throws ParseException {
         evaUpdateGateway.addEvaTemplate(evaTemplateCO);
         return null;
     }

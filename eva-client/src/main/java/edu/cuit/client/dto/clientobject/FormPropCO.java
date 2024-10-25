@@ -1,25 +1,23 @@
 package edu.cuit.client.dto.clientobject;
-
 import com.alibaba.cola.dto.ClientObject;
+import edu.cuit.client.dto.data.course.CourseTime;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
+/**
+ * 提交评教表单
+ */
 @EqualsAndHashCode(callSuper = false)
 @Data
 @Accessors(chain = true)
-public class SimplePercentCO extends ClientObject{
+public class FormPropCO extends ClientObject{
     /**
-     * 数据对应日期
+     * 评教指标
      */
-    private LocalDate date;
+    private String prop;
     /**
-     * 7日内 percent 的值
+     * 该指标对应的分数
      */
-    private Double value;
-
+    private Number score;
 }

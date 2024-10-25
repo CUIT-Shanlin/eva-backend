@@ -7,6 +7,7 @@ import edu.cuit.app.service.impl.MsgServiceImpl;
 import edu.cuit.client.api.eva.IEvaTaskService;
 import edu.cuit.client.bo.MessageBO;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
+import edu.cuit.client.dto.clientobject.eva.AddTaskCO;
 import edu.cuit.client.dto.clientobject.eva.EvaInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskBaseInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskDetailInfoCO;
@@ -23,6 +24,7 @@ import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,19 +71,20 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
     }
     //发起任务之后，要同时发送该任务的评教待办消息
     @Override
-    public Void postEvaTask(EvaInfoCO evaInfoCO) {
-        String msg=evaUpdateGateway.postEvaTask(evaInfoCO);
-        msgService.sendMessage(new MessageBO().setMsg(msg)
+    @Transactional
+    public Void postEvaTask(AddTaskCO addTaskCO) {
+        Integer taskId=evaUpdateGateway.postEvaTask(addTaskCO);
+        msgService.sendMessage(new MessageBO().setMsg("")
                 .setMode(1).setIsShowName(1)
-                .setRecipientId(evaInfoCO.getTeacherId()).setSenderId(evaInfoCO.getTeacherId())
-                .setType(0).setTaskId(evaInfoCO.getId()));
+                .setRecipientId(addTaskCO.getTeacherId()).setSenderId(addTaskCO.getTeacherId())
+                .setType(0).setTaskId(taskId));
         return null;
     }
 
     @Override
     public Void cancelEvaTask(Integer id) {
-        evaUpdateGateway.cancelEvaTaskById(id);
         LogUtils.logContent(evaQueryGateway.getNameByTaskId(id).get()+"任务ID为"+id+"的评教任务");
+        evaUpdateGateway.cancelEvaTaskById(id);
         return null;
     }
     @Override

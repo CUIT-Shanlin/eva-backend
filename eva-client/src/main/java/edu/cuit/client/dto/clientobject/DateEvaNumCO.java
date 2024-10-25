@@ -6,20 +6,22 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
+/**
+ * 数据模型EvaSituationCO 需要
+ * 这一天内评教次数的统计数据
+ */
 @EqualsAndHashCode(callSuper = false)
 @Data
 @Accessors(chain = true)
-public class SimplePercentCO extends ClientObject{
+public class DateEvaNumCO extends ClientObject{
+
     /**
-     * 数据对应日期
+     * 新增评教数目
+     */
+    private Integer moreEvaNum;
+    /**
+     * 当前时间点
      */
     private LocalDate date;
-    /**
-     * 7日内 percent 的值
-     */
-    private Double value;
-
 }
