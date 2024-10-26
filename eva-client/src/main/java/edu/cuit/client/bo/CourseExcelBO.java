@@ -3,6 +3,7 @@ package edu.cuit.client.bo;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -11,7 +12,7 @@ import java.util.Objects;
  */
 @Data
 @Accessors(chain = true)
-public class CourseExcelBO {
+public class CourseExcelBO implements Cloneable{
 
     /**
      * 课程名称
@@ -67,7 +68,7 @@ public class CourseExcelBO {
     public boolean isAdjoin(CourseExcelBO target) {
         return Objects.equals(courseName, target.courseName) &&
                 Objects.equals(day,target.day) &&
-                Objects.equals(weeks,target.weeks) &&
+//                Objects.equals(weeks,target.weeks) &&
                 Objects.equals(courseClass,target.courseClass) &&
                 (startTime == target.endTime + 1 || endTime == target.startTime - 1);
     }
@@ -81,13 +82,27 @@ public class CourseExcelBO {
                 Objects.equals(teacherName, that.teacherName) &&
                 Objects.equals(profTitle, that.profTitle) &&
                 Objects.equals(day, that.day) &&
-                Objects.equals(weeks, that.weeks) &&
+//                Objects.equals(weeks, that.weeks) &&
                 Objects.equals(classroom, that.classroom) &&
                 Objects.equals(courseClass,that.courseClass);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(courseName, teacherName, profTitle, day, weeks, classroom);
+        return Objects.hash(courseName, teacherName, profTitle, day, classroom,courseClass);
+    }
+
+    @Override
+    protected Object clone() {
+        return new CourseExcelBO()
+                .setDay(day)
+                .setClassroom(classroom)
+                .setCourseClass(courseClass)
+                .setWeeks(new ArrayList<>(weeks))
+                .setCourseName(courseName)
+                .setTeacherName(teacherName)
+                .setProfTitle(profTitle)
+                .setStartTime(startTime)
+                .setEndTime(endTime);
     }
 }
