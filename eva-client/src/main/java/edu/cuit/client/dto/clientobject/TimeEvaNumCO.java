@@ -19,5 +19,5 @@ public class TimeEvaNumCO extends ClientObject{
     /**
      * 当前时间点
      */
-    private LocalTime time;
+    private String time;
 }

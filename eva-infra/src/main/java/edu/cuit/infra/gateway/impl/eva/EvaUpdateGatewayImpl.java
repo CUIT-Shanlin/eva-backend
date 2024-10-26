@@ -49,7 +49,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
     @Override
     @Transactional
     public Void updateEvaTemplate(EvaTemplateCO evaTemplateCO) {
-        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         FormTemplateDO formTemplateDO=new FormTemplateDO();
         formTemplateDO.setDescription(evaTemplateCO.getDescription());
         formTemplateDO.setProps(evaTemplateCO.getProps());
@@ -64,6 +64,11 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
     @Override
     @Transactional
     public Void putEvaTemplate(EvaTaskFormCO evaTaskFormCO) {
+        EvaTaskDO evaTaskDO=evaTaskMapper.selectById(evaTaskFormCO.getTaskId());
+        CourInfDO courInfDO=courInfMapper.selectById(evaTaskDO.getCourInfId());
+        CourseDO courseDO=courseMapper.selectById(courInfDO.getCourseId());
+        CourOneEvaTemplateDO courOneEvaTemplateDO=courOneEvaTemplateMapper.selectOne(new QueryWrapper<CourOneEvaTemplateDO>().eq("course_id",courseDO.getId()));
+        FormTemplateDO formTemplateDO=formTemplateMapper.selectById(courseDO.getTemplateId());
         //把评教的具体数据传进去给评教记录
         FormRecordDO formRecordDO=new FormRecordDO();
         formRecordDO.setIsDeleted(0);
@@ -76,21 +81,18 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         formRecordMapper.insert(formRecordDO);
 
         //通过任务id把任务状态改了
-        EvaTaskDO evaTaskDO=evaTaskMapper.selectById(evaTaskFormCO.getTaskId());
         evaTaskDO.setStatus(1);
         evaTaskDO.setUpdateTime(LocalDateTime.now());
         evaTaskMapper.update(evaTaskDO,new QueryWrapper<EvaTaskDO>().eq("id",evaTaskFormCO.getTaskId()));
 
         //检验是否有快照模板，没有就建一个
-        CourInfDO courInfDO=courInfMapper.selectById(evaTaskDO.getCourInfId());
-        CourseDO courseDO=courseMapper.selectById(courInfDO.getCourseId());
-        CourOneEvaTemplateDO courOneEvaTemplateDO=courOneEvaTemplateMapper.selectOne(new QueryWrapper<CourOneEvaTemplateDO>().eq("course_id",courseDO));
         if(courOneEvaTemplateDO==null){
-            courOneEvaTemplateDO.setCourseId(courseDO.getId());
-            courOneEvaTemplateDO.setSemesterId(courseDO.getSemesterId());
-            FormTemplateDO formTemplateDO=formTemplateMapper.selectById(courseDO.getTemplateId());
+            CourOneEvaTemplateDO courOneEvaTemplateDO1=new CourOneEvaTemplateDO();
+            courOneEvaTemplateDO1.setCourseId(courseDO.getId());
+            courOneEvaTemplateDO1.setSemesterId(courseDO.getSemesterId());
             String s="{ name: \""+formTemplateDO.getName()+"\", description: \""+formTemplateDO.getDescription()+"\", props: "+formTemplateDO.getProps()+" }";
-            courOneEvaTemplateDO.setFormTemplate(s);
+            courOneEvaTemplateDO1.setFormTemplate(s);
+            courOneEvaTemplateMapper.insert(courOneEvaTemplateDO1);
         }
         return null;
     }

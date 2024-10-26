@@ -13,7 +13,7 @@ import java.util.List;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class EvaTaskConditionalQuery extends ConditionalQuery{
+public class EvaTaskConditionalQuery extends GenericConditionalQuery{
     /**
      * 开始的创建时间
      */
