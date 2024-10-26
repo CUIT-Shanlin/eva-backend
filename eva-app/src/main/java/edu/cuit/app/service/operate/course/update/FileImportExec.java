@@ -25,7 +25,6 @@ public class FileImportExec {
         for (CourseExcelBO entity : list) {
             String courseName = entity.getCourseName();
             courseExce.computeIfAbsent(courseName, k -> new ArrayList<>()).add(entity);
-
         }
     }
 

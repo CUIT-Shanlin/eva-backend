@@ -320,7 +320,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         SemesterDO semesterDO = semesterMapper.selectOne(new QueryWrapper<SemesterDO>().eq("start_year", semester.getStartYear()).eq("period", semester.getPeriod()));
         if(semesterDO!=null){
             //执行已有学期的删除添加逻辑
-            courseImportExce.deleteCourse(semester.getId());
+            courseImportExce.deleteCourse(semester.getId(),type);
         }else{
             //直接插入学期
             SemesterDO semesterDO1 = courseConvertor.toSemesterDO(semester);
