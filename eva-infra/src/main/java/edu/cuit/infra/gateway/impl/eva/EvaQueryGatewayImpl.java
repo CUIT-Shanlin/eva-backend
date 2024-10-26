@@ -243,8 +243,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
 
         pageTask=evaTaskMapper.selectPage(pageTask,evaTaskWrapper);
 
-        List<Integer> userIds=pageTask.getRecords().stream().map(EvaTaskDO::getTeacherId).toList();
-        List<SysUserDO> sysUserDOS=sysUserMapper.selectList(new QueryWrapper<SysUserDO>().in("id",userIds));
+        List<SysUserDO> sysUserDOS=sysUserMapper.selectList(null);
         List<UserEntity> userEntities=sysUserDOS.stream().map(sysUserDO->toUserEntity(sysUserDO.getId())).toList();
 
         List<EvaTaskEntity> evaTaskEntities=getEvaTaskEntities(pageTask.getRecords(),userEntities,courseEntities);
@@ -297,14 +296,14 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             //eva任务->课程详情表->课程表->学期id
             List<Integer> courseIds=courseDOS.stream().map(CourseDO::getId).toList();
             List<CourInfDO> courInfDOS;
-            if(courseIds==null){
+            if(CollectionUtil.isEmpty(courseIds)){
                 courInfDOS=courInfMapper.selectList(null);
             }else {
                 courInfDOS=courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id",courseIds));
             }
             List<Integer> courInfIds=courInfDOS.stream().map(CourInfDO::getId).toList();
             List<EvaTaskDO> evaTaskDOS=null;
-            if(courInfIds==null){
+            if(CollectionUtil.isEmpty(courInfIds)){
                 evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>()
                         //顺便选出没有完成的
                         .eq("status",0).eq("teacher_id",userId));
@@ -313,7 +312,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
                         //顺便选出没有完成的
                         .eq("status", 0).eq("teacher_id", userId));
             }
-            if(evaTaskDOS==null){
+            if(CollectionUtil.isEmpty(evaTaskDOS)){
                 throw new QueryException("并没有找到相关的任务");
             }
             List<SingleCourseEntity> courseEntities=getListCurInfoEntities(courInfDOS);
@@ -361,27 +360,27 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             //eva任务->课程详情表->课程表->学期id
             List<Integer> courseIds=courseDOS.stream().map(CourseDO::getId).toList();
             List<CourInfDO> courInfDOS;
-            if(courseIds==null){
+            if(CollectionUtil.isEmpty(courseIds)){
                 courInfDOS=courInfMapper.selectList(null);
             }else {
                 courInfDOS = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", courseIds));
             }
             List<Integer> courInfIds=courInfDOS.stream().map(CourInfDO::getId).toList();
             List<EvaTaskDO> evaTaskDOS;
-            if(courInfIds==null){
+            if(CollectionUtil.isEmpty(courInfIds)){
                 evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id",evaUserId));
             }else {
                 evaTaskDOS = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id", courInfIds).eq("teacher_id", evaUserId));
             }
             List<Integer> evaTaskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
             List<FormRecordDO> formRecordDOS;
-            if(evaTaskIds==null){
+            if(CollectionUtil.isEmpty(evaTaskDOS)){
                 formRecordDOS=formRecordMapper.selectList(null);
             }else {
                 formRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIds));
             }
 
-            if(formRecordDOS==null){
+            if(CollectionUtil.isEmpty(formRecordDOS)){
                 throw new QueryException("并没有找到相关的评教记录");
             }
             List<SingleCourseEntity> courseEntities=courInfDOS.stream().map(courInfDO -> courseConvertor.toSingleCourseEntity(
@@ -416,7 +415,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             }
             List<CourseDO> courseDO=courseMapper.selectList(courseDOQueryWrapper);
             List<Integer> couIds=courseDO.stream().map(CourseDO::getId).toList();
-            if(couIds==null){
+            if(CollectionUtil.isEmpty(couIds)){
                 courInfDOs=courInfMapper.selectList(null);
             }else {
                 courInfDOs=courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id",couIds));
@@ -424,14 +423,14 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         }
         List<Integer> courInfoIds=courInfDOs.stream().map(CourInfDO::getId).toList();
         List<EvaTaskDO> evaTaskDOS;
-        if(courInfoIds==null){
+        if(CollectionUtil.isEmpty(courInfoIds)){
             evaTaskDOS=evaTaskMapper.selectList(null);
         }else {
             evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id",courInfoIds));
         }
         List<Integer> evaTaskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
         List<FormRecordDO> formRecordDOS;
-        if(evaTaskIds==null){
+        if(CollectionUtil.isEmpty(evaTaskIds)){
             formRecordDOS=formRecordMapper.selectList(null);
         }else {
             formRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIds));
@@ -439,7 +438,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         //是评教老师，不能用userId
         List<SysUserDO> sysUserDOS;
         List<Integer> userIds=evaTaskDOS.stream().map(EvaTaskDO::getTeacherId).toList();
-        if(userIds==null){
+        if(CollectionUtil.isEmpty(userIds)){
             sysUserDOS=sysUserMapper.selectList(null);
         }else {
             sysUserDOS=sysUserMapper.selectList(new QueryWrapper<SysUserDO>().in("id",userIds));
@@ -482,12 +481,12 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         //学期id->找到课程-》找到课程详情-》评教任务详情-》评教表单记录里面
         List<Integer> evaTaskIdS=getEvaTaskIdS(semId);
         List<FormRecordDO> nowFormRecordDOS;
-        if(evaTaskIdS==null){
+        if(CollectionUtil.isEmpty(evaTaskIdS)){
             nowFormRecordDOS=formRecordMapper.selectList(null);
         }else {
             nowFormRecordDOS = formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id", evaTaskIdS));
         }
-        if(nowFormRecordDOS==null){
+        if(CollectionUtil.isEmpty(nowFormRecordDOS)){
             throw new QueryException("未找到相应的评教记录");
         }
         //总评教数
@@ -517,7 +516,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         }
         //整个方法把以前的数据拿出来
         List<FormRecordDO> last1FormRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIdS).gt("create_time",LocalDateTime.now().minusDays(1)));
-        if(last1FormRecordDOS==null){
+        if(CollectionUtil.isEmpty(last1FormRecordDOS)){
             throw new QueryException("未找到相应的评教记录");
         }
         //总评教数
@@ -967,7 +966,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             throw new QueryException("不是说快照和模板那个二选一嘛");
         }
 
-        if(courOneEvaTemplateDO==null){
+        if(courOneEvaTemplateDO!=null){
             return Optional.of(courOneEvaTemplateDO.getFormTemplate());
         }else {
             return Optional.of(formTemplateDO.getProps());
@@ -1020,7 +1019,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         //通过courInfoId->任务-》记录
         List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id",courInfId));
         List<Integer> evaTaskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
-        if(evaTaskIds==null){
+        if(CollectionUtil.isEmpty(evaTaskIds)){
             throw new QueryException("并没有找到相关任务");
         }
         List<FormRecordDO> formRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIds));
@@ -1032,12 +1031,12 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         CourseDO courseDO=courseMapper.selectById(courseId);
         List<CourInfDO> courInfDOS=courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id",courseDO.getId()));
         List<Integer> courInfoIds=courInfDOS.stream().map(CourInfDO::getId).toList();
-        if(courInfoIds==null){
+        if(CollectionUtil.isEmpty(courInfoIds)){
             throw new QueryException("并没有找到相关课程详情");
         }
         List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id",courInfoIds));
         List<Integer> evaTaskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
-        if(evaTaskIds==null){
+        if(CollectionUtil.isEmpty(evaTaskIds)){
             throw new QueryException("并没有找到相关任务");
         }
         List<FormRecordDO> formRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIds));
@@ -1140,23 +1139,23 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         }else {
             List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId));
 
-            if (courseDOS == null) {
+            if (CollectionUtil.isEmpty(courseDOS)) {
                 throw new QueryException("并未找到相关课程");
             }
             List<Integer> courseIdS = courseDOS.stream().map(CourseDO::getId).toList();
 
-            if(courseIdS==null){
+            if(CollectionUtil.isEmpty(courseIdS)){
                 throw new QueryException("并未找到相关课程");
             }
 
             List<CourInfDO> courInfDOS = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", courseIdS));
             List<Integer> courInfoIdS = courInfDOS.stream().map(CourInfDO::getId).toList();
-            if(courInfoIdS==null){
+            if(CollectionUtil.isEmpty(courInfoIdS)){
                 throw new QueryException("并未找到相关课程");
             }
             List<EvaTaskDO> evaTaskDOS = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id", courInfoIdS));
 
-            if (evaTaskDOS == null) {
+            if (CollectionUtil.isEmpty(evaTaskDOS)) {
                 throw new QueryException("并未找到相关评教任务");
             }
             List<Integer> evaTaskIdS = evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
