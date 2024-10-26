@@ -177,7 +177,7 @@ public class CourseRecommendExce {
     private List<CourseType> getCourseType(CourseDO courseDo){
         List<CourseTypeCourseDO> courseId = courseTypeCourseMapper.selectList(new QueryWrapper<CourseTypeCourseDO>().eq("course_id", courseDo.getId()));
         List<CourseTypeDO> courseTypeList = courseId.stream().map(courseTypeCourseDO -> courseTypeMapper.selectById(courseTypeCourseDO.getTypeId())).toList();
-        return courseTypeList.stream().map(courseTypeDO -> courseConvertor.toCourseType(courseDo.getId(), courseTypeDO)).toList();
+        return courseTypeList.stream().map(courseConvertor::toCourseType).toList();
     }
     public List<RecommendCourseCO> togetPeriodCourse(Integer semId, MobileCourseQuery courseQuery, String userName){
 //        userName="ganjianhong";

@@ -156,7 +156,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         //根据courseTypeIds查询课程类型表，得到课程类型的集合
         List<CourseTypeDO> courseTypes = courseTypeMapper.selectList(new QueryWrapper<CourseTypeDO>().in(!courseTypeIds.isEmpty(),"id", courseTypeIds));
         //将courseTypeDO转化成CourseType
-        List<CourseType> courseTypeList = courseTypes.stream().map(courseTypeDO -> courseConvertor.toCourseType(id,courseTypeDO)).toList();
+        List<CourseType> courseTypeList = courseTypes.stream().map(courseConvertor::toCourseType).toList();
         //组装CourseDtailCO
         CourseDetailCO courseDetailCO = courseConvertor.toCourseDetailCO(courseTypeList
                 , courseTimeList, subjectDO, courseDO, evaTemplateCO, sysUserDO,classRoomList);
@@ -435,7 +435,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
 //            if(courseTypeCourse.isEmpty())throw new QueryException("未找到对应课程类型");
             List<Integer> courseTypeIds =courseTypeCourse .stream().map(CourseTypeCourseDO::getTypeId).toList();
             List<CourseTypeDO> typeList = courseTypeIds.stream().map(courseTypeMapper::selectById).toList();
-            List<CourseType> TPList = typeList.stream().map(courseTypeDO -> courseConvertor.toCourseType(courseDO.getId(),courseTypeDO)).toList();
+            List<CourseType> TPList = typeList.stream().map(courseConvertor::toCourseType).toList();
             //统计评教数
             Long courInfId = evaTaskMapper.selectCount(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courseDO.getId()));
             //添加到selfteachCourseCO中
@@ -494,7 +494,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         List<CourseTypeCourseDO> courseTypeCourse = courseTypeCourseMapper.selectList(new QueryWrapper<CourseTypeCourseDO>().eq("course_id", courseId));
         if (courseTypeCourse.isEmpty())return new ArrayList<>();
         List<Integer> typeIds = courseTypeCourse.stream().map(CourseTypeCourseDO::getTypeId).toList();
-       return courseTypeMapper.selectList(new QueryWrapper<CourseTypeDO>().in(!typeIds.isEmpty(),"id", typeIds)).stream().map(courseType->courseConvertor.toCourseType(courseId,courseType)).toList();
+       return courseTypeMapper.selectList(new QueryWrapper<CourseTypeDO>().in(!typeIds.isEmpty(),"id", typeIds)).stream().map(courseConvertor::toCourseType).toList();
     }
 
     @Override
@@ -754,7 +754,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
             score=(double) list.size()/teacherTypeList.size();
         }
         Map<Double,List<CourseType>> map=new HashMap<>();
-        List<CourseType> typeList1 = courseTypeMapper.selectBatchIds(typeList).stream().map(courseTypeDO -> courseConvertor.toCourseType(courseId, courseTypeDO)).toList();
+        List<CourseType> typeList1 = courseTypeMapper.selectBatchIds(typeList).stream().map(courseConvertor::toCourseType).toList();
 
         map.put(score,typeList1);
 
@@ -782,7 +782,8 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
             SubjectEntity subject=new SubjectEntity();
             subject.setName(subjectDO.getName());
             for (CourseDO courseDO : entry.getValue()) {
-                CourseEntity entity=new CourseEntity();
+                CourseEntity entity= new CourseEntity();
+//                CourseEntity entity = courseConvertor.toCourseEntity(courseDO, () -> null, () -> null, () -> null);
                 entity.setId(courseDO.getId());
                 entity.setSubject(() -> subject);
                 SysUserDO sysUserDO = userMapper.selectById(courseDO.getTeacherId());
