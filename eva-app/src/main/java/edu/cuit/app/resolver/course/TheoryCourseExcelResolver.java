@@ -2,6 +2,7 @@ package edu.cuit.app.resolver.course;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.cola.exception.BizException;
+import edu.cuit.app.resolver.course.util.ExcelCourseUtils;
 import edu.cuit.client.bo.CourseExcelBO;
 import edu.cuit.app.resolver.course.util.ExcelUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -56,22 +57,26 @@ public class TheoryCourseExcelResolver extends CourseExcelResolverStrategy {
     }
 
     private List<CourseExcelBO> read() {
-        Map<CourseExcelBO,CourseExcelBO> results = new HashMap<>();
+
+        Map<CourseExcelBO,List<CourseExcelBO>> courses = new HashMap<>();
         int rowCount = startRows.get(0);
         for (int i = rowCount; i <= endRow; i++) {
             List<CourseExcelBO> courseExcelBOS = readLine(i, getTime(i));
 
             for (CourseExcelBO courseExcelBO : courseExcelBOS) {
-                CourseExcelBO existedCourse = results.get(courseExcelBO);
-                // 课程相同且相邻，合并为一节课
-                if (existedCourse != null && courseExcelBO.isAdjoin(existedCourse)) {
-                    ExcelUtils.mergeTwoCourse(existedCourse,courseExcelBO);
-                }
-                results.put(courseExcelBO,courseExcelBO);
+                courses.putIfAbsent(courseExcelBO,new ArrayList<>());
+                courses.get(courseExcelBO).add(courseExcelBO);
             }
 
         }
-        return new ArrayList<>(results.values());
+
+        List<CourseExcelBO> result = new ArrayList<>();
+
+        for (List<CourseExcelBO> sameCourse : courses.values()) {
+            result.addAll(ExcelCourseUtils.mergeMultipleCourses(sameCourse));
+        }
+
+        return result;
     }
 
     /**

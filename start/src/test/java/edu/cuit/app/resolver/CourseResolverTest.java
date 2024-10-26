@@ -10,7 +10,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.List;
 
-public class ExperimentalCourseResolverTest {
+public class CourseResolverTest {
 
     @Test
     public void testExpResolve() {
@@ -18,9 +18,11 @@ public class ExperimentalCourseResolverTest {
         try {
             List<CourseExcelBO> courseExcelBOS = CourseExcelResolver.resolveData(CourseExcelResolver.Strategy.EXPERIMENTAL_COURSE,
                     new BufferedInputStream(new FileInputStream(file)));
-            System.out.println(courseExcelBOS.stream().filter(courseExcelBO ->
-                    courseExcelBO.getTeacherName().equals("蒋瑜") && courseExcelBO.getDay() == 2)
-                    .toList());
+            List<CourseExcelBO> courses = courseExcelBOS.stream()
+                    .toList();
+            for (CourseExcelBO cours : courses) {
+                System.out.println(cours);
+            }
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -30,8 +32,11 @@ public class ExperimentalCourseResolverTest {
     public void testTheoryResolve() throws FileNotFoundException {
         File file = new File("D:\\Programming\\Java\\Projects\\evaluate-system\\2023-2024-2学期教师课表.xlsx");
         List<CourseExcelBO> courseExcelBOS = CourseExcelResolver.resolveData(CourseExcelResolver.Strategy.THEORY_COURSE,
-                new BufferedInputStream(new FileInputStream(file)));
-        System.out.println(courseExcelBOS.toString());
+                new BufferedInputStream(new FileInputStream(file))).stream()
+                .toList();
+        for (CourseExcelBO courseExcelBO : courseExcelBOS) {
+            System.out.println(courseExcelBO.getStartTime() + "-" + courseExcelBO.getEndTime() + " " + courseExcelBO.getWeeks());
+        }
     }
 
 }

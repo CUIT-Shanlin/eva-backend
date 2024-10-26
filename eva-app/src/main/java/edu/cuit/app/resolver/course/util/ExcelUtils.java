@@ -1,5 +1,7 @@
 package edu.cuit.app.resolver.course.util;
 
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.cola.exception.BizException;
 import edu.cuit.client.bo.CourseExcelBO;
@@ -11,6 +13,7 @@ import org.apache.poi.ss.util.CellRangeAddress;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -104,17 +107,6 @@ public class ExcelUtils {
         FormulaEvaluator evaluator = sheet.getWorkbook().getCreationHelper().createFormulaEvaluator();
         cell = evaluator.evaluateInCell(cell);
         return getCellStringValue(cell);
-    }
-
-    /**
-     * 合并两节课的结束，需要先自行判断相邻，合并到course1
-     * @param course1 课程1
-     * @param course2 课程2
-     */
-    public static void mergeTwoCourse(CourseExcelBO course2,CourseExcelBO course1) {
-        if (course1.getStartTime() > course2.getEndTime()) {
-            course1.setStartTime(course2.getStartTime());
-        } else course1.setEndTime(course2.getEndTime());
     }
 
 }
