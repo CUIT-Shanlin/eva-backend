@@ -19,6 +19,7 @@ import java.util.List;
  */
 public interface ICourseDetailService {
 
+
     /**
      * 分页获取课程列表
      *
