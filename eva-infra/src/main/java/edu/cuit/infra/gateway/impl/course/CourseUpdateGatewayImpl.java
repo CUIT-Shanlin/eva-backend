@@ -363,7 +363,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
 
     private String JudgeCourseTime(CourseDO courseDO, List<SelfTeachCourseTimeCO> timeList,List<CourseDO> courseDOList,SelfTeachCourseCO selfTeachCourseCO,Map<Integer,Integer> taskMap) {
         String msg="";
-        List<Integer> courInfoIds = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id", courseDO.getTeacherId())).stream().map(EvaTaskDO::getCourInfId).toList();
+        List<Integer> courInfoIds = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id", courseDO.getTeacherId()).eq("status",0)).stream().map(EvaTaskDO::getCourInfId).toList();
         List<CourInfDO> courInfoList = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseDO.getId()));
         List<CourInfDO> courseChangeList=new ArrayList<>();
         for (SelfTeachCourseTimeCO selfTeachCourseTimeCO : timeList) {
@@ -392,6 +392,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                 evaTaskMapper.delete(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId()));
             }
             for (CourInfDO courInfDO : difference) {
+//                if(courInfMapper.exists(new QueryWrapper<CourInfDO>().eq("course_id",courInfDO.getCourseId())))continue;
                 for(CourseDO course : courseDOList){
                     QueryWrapper<CourInfDO> wrapper = new QueryWrapper<CourInfDO>()
                             .eq("week", courInfDO.getWeek())
@@ -400,7 +401,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                             .ge("end_time", courInfDO.getStartTime())
                             .eq("course_id", course.getId());
                     //判断对应时间段是否已经有课了
-                    if(courInfMapper.selectOne(wrapper)!=null){
+                    if(!courInfMapper.selectList(wrapper).isEmpty()){
                         throw new UpdateException("该时间段你已经有课了");
                     }
                 }
@@ -412,7 +413,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                         .le("start_time", courInfDO.getEndTime())
                         .ge("end_time", courInfDO.getStartTime())
                         .in(!courInfoIds.isEmpty(),"course_id", courInfoIds);
-                    if(courInfMapper.selectOne(wrapper)!=null){
+                    if(!courInfMapper.selectList(wrapper).isEmpty()){
                         throw new UpdateException("该时间段你有要去评教的课程");
                     }
                 //判断对应时间段的教室是否被占用
