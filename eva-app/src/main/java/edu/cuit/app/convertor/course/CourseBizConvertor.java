@@ -54,7 +54,8 @@ public abstract class CourseBizConvertor {
     public abstract SimpleResultCO toSimpleResultCO(SelfTeachCourseCO entity);
     @Mappings({
 
-            @Mapping(target = "id",expression = "java(courseTypeEntity.getId())")
+            @Mapping(target = "id",expression = "java(courseTypeEntity.getId())"),
+            @Mapping(target = "isDefault",expression = "java(courseTypeEntity.getIsDefault())"),
 
     })
 
