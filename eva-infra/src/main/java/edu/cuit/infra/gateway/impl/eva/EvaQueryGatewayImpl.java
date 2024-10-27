@@ -416,7 +416,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             List<CourseDO> courseDO=courseMapper.selectList(courseDOQueryWrapper);
             List<Integer> couIds=courseDO.stream().map(CourseDO::getId).toList();
             if(CollectionUtil.isEmpty(couIds)){
-                courInfDOs=courInfMapper.selectList(null);
+                throw new QueryException("该老师还没有相关课程？");
             }else {
                 courInfDOs=courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id",couIds));
             }
@@ -946,7 +946,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         return Optional.of(evaTaskDOS.size());
     }
 
-//zjok//TODO
+//zjok
     @Override
     public Optional<String> getTaskTemplate(Integer taskId, Integer semId) {
         //任务
@@ -961,13 +961,11 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         //2.去课程那边拿到
         CourseDO courseDO=courseMapper.selectById(courInfDO.getCourseId());
         FormTemplateDO formTemplateDO=formTemplateMapper.selectOne(new QueryWrapper<FormTemplateDO>().eq("id",courseDO.getTemplateId()));
-        //
-        if(courOneEvaTemplateDO!=null&&formTemplateDO!=null){
-            throw new QueryException("不是说快照和模板那个二选一嘛");
-        }
 
         if(courOneEvaTemplateDO!=null){
-            return Optional.of(courOneEvaTemplateDO.getFormTemplate());
+            JSONObject jsonObject= new JSONObject(courOneEvaTemplateDO.getFormTemplate());
+            String s=jsonObject.getStr("props");
+            return Optional.of(s);
         }else {
             return Optional.of(formTemplateDO.getProps());
         }

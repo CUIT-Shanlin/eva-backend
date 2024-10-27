@@ -85,7 +85,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
             CourOneEvaTemplateDO courOneEvaTemplateDO1=new CourOneEvaTemplateDO();
             courOneEvaTemplateDO1.setCourseId(courseDO.getId());
             courOneEvaTemplateDO1.setSemesterId(courseDO.getSemesterId());
-            String s="{ name: \""+formTemplateDO.getName()+"\", description: \""+formTemplateDO.getDescription()+"\", props: "+formTemplateDO.getProps()+" }";
+            String s="{\"name\":\""+formTemplateDO.getName()+"\",\"description\":\""+formTemplateDO.getDescription()+"\",\"props\":\""+formTemplateDO.getProps()+"\"}";
             courOneEvaTemplateDO1.setFormTemplate(s);
             courOneEvaTemplateMapper.insert(courOneEvaTemplateDO1);
         }
