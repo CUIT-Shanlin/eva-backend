@@ -3,6 +3,7 @@ package edu.cuit.client.api.course;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.SimpleCourseResultCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
+import edu.cuit.client.dto.clientobject.SimpleSubjectResultCO;
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.client.dto.clientobject.course.CourseModelCO;
 import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
@@ -56,7 +57,7 @@ public interface ICourseDetailService {
      *
      *
      */
-    List<SimpleResultCO> allSubjectInfo();
+    List<SimpleSubjectResultCO> allSubjectInfo();
 
     /**
      * 修改一门课程
