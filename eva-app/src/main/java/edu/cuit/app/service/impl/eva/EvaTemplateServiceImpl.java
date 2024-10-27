@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,14 +30,23 @@ public class EvaTemplateServiceImpl implements IEvaTemplateService {
     private final EvaUpdateGateway evaUpdateGateway;
     private final EvaQueryGateway evaQueryGateway;
     private final PaginationBizConvertor paginationBizConvertor;
-    private final EvaTemplateBizConvertor evaTemplateBizConvertor;
     @Override
     @CheckSemId
     public PaginationQueryResultCO<EvaTemplateCO> pageEvaTemplate(Integer semId, PagingQuery<GenericConditionalQuery> query) {
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         PaginationResultEntity<EvaTemplateEntity> page=evaQueryGateway.pageEvaTemplate(semId,query);
-        List<EvaTemplateCO> results = page.getRecords().stream()
-                .map(evaTemplateBizConvertor::evaTemplateToEvaTemplateEntity)
-                .toList();
+        List<EvaTemplateCO> results =new ArrayList<>();
+        for(int i=0;i<page.getRecords().size();i++){
+            EvaTemplateCO evaTemplateCO=new EvaTemplateCO();
+            evaTemplateCO.setId(page.getRecords().get(i).getId());
+            evaTemplateCO.setIsDefault(page.getRecords().get(i).getIsDeleted());
+            evaTemplateCO.setName(page.getRecords().get(i).getName());
+            evaTemplateCO.setDescription(page.getRecords().get(i).getDescription());
+            evaTemplateCO.setUpdateTime(page.getRecords().get(i).getUpdateTime().format(fmt));
+            evaTemplateCO.setCreateTime(page.getRecords().get(i).getCreateTime().format(fmt));
+            evaTemplateCO.setProps(page.getRecords().get(i).getProps());
+            results.add(evaTemplateCO);
+        }
         return paginationBizConvertor.toPaginationEntity(page,results);
     }
 

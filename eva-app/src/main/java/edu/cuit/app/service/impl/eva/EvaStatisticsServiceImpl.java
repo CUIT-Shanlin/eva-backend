@@ -59,10 +59,10 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
     @Override
     @CheckSemId
     public PaginationQueryResultCO<UnqualifiedUserInfoCO> pageUnqualifiedUser(Integer semId,Integer type, Integer target, PagingQuery<UnqualifiedUserConditionalQuery> query) {
-        if(type==1){
+        if(type==0){
             PaginationResultEntity<UnqualifiedUserInfoCO> page=evaQueryGateway.pageEvaUnqualifiedUserInfo(semId,query,target);
             return paginationBizConvertor.toPaginationEntity(page,page.getRecords());
-        } else if(type==0){
+        } else if(type==1){
             PaginationResultEntity<UnqualifiedUserInfoCO> page=evaQueryGateway.pageBeEvaUnqualifiedUserInfo(semId,query,target);
             return paginationBizConvertor.toPaginationEntity(page,page.getRecords());
         }else {
@@ -76,10 +76,10 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
     public UnqualifiedUserResultCO getTargetAmountUnqualifiedUser(Integer semId,Integer type, Integer num, Integer target) {
 
         UnqualifiedUserResultCO unqualifiedUserResultCO=null;
-        if(type==1){
-            unqualifiedUserResultCO=evaQueryGateway.getEvaTargetAmountUnqualifiedUser(semId,null,num,target).get();
-        } else if(type==0){
-            unqualifiedUserResultCO=evaQueryGateway.getBeEvaTargetAmountUnqualifiedUser(semId,null,num,target).get();
+        if(type==0){
+            unqualifiedUserResultCO=evaQueryGateway.getEvaTargetAmountUnqualifiedUser(semId,num,target).get();
+        } else if(type==1){
+            unqualifiedUserResultCO=evaQueryGateway.getBeEvaTargetAmountUnqualifiedUser(semId,num,target).get();
         }else {
             throw new SysException("type是10以外的值");
         }
