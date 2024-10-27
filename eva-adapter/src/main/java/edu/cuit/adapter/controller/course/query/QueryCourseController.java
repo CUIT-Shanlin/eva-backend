@@ -9,6 +9,7 @@ import edu.cuit.client.api.course.ICourseDetailService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.SimpleCourseResultCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
+import edu.cuit.client.dto.clientobject.SimpleSubjectResultCO;
 import edu.cuit.client.dto.clientobject.course.*;
 import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
 import edu.cuit.client.dto.data.course.CourseType;
@@ -96,8 +97,8 @@ public class QueryCourseController {
      */
     @GetMapping("/courses/subject/all")
     @SaCheckPermission("course.tabulation.list")
-    public CommonResult<List<SimpleResultCO>> allSubjectInfo(){
-       return CommonResult.success(courseDetailService.allSubjectInfo());
+    public CommonResult<List<SimpleSubjectResultCO>> allSubjectInfo(){
+        return CommonResult.success(courseDetailService.allSubjectInfo());
     }
 
     /**
