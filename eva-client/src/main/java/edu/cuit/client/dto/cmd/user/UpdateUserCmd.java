@@ -7,6 +7,7 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.hibernate.validator.constraints.Length;
 
 /**
  * 修改用户模型
@@ -25,6 +26,7 @@ public class UpdateUserCmd extends Command {
     /**
      * 用户名(需更新ldap)
      */
+    @NotBlank(message = "用户名不能为空")
     private String username;
 
     /**
@@ -41,17 +43,19 @@ public class UpdateUserCmd extends Command {
     /**
      * 昵称(需更新ldap)
      */
+    @NotBlank(message = "名称不能为空")
     private String name;
 
     /**
      * 密码，明文密码(需更新ldap)
      */
+    @NotBlank(message = "密码不能为空")
+    @Length(min = 4,message = "密码长度不能小于4")
     private String password;
 
     /**
      * 手机号(需更新ldap)
      */
-    @Pattern(regexp = GenericPattern.CHINA_PHONE,message = "手机号不符合格式")
     private String phone;
 
     /**
