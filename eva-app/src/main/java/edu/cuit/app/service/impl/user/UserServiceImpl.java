@@ -148,6 +148,7 @@ public class UserServiceImpl implements IUserService {
         int id = Math.toIntExact(cmd.getId());
         if (isUpdatePwd) {
             String password = cmd.getPassword();
+            if (StrUtil.isBlank(password)) throw new BizException("密码不能为空");
             ldapPersonGateway.changePassword(userQueryGateway.findUsernameById(id)
                     .orElseThrow(() -> {
                         SysException e = new SysException("找不到用户名，请联系管理员");

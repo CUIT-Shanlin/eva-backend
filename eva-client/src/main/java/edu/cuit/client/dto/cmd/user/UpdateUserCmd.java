@@ -49,7 +49,6 @@ public class UpdateUserCmd extends Command {
     /**
      * 密码，明文密码(需更新ldap)
      */
-    @NotBlank(message = "密码不能为空")
     @Length(min = 4,message = "密码长度不能小于4")
     private String password;
 
