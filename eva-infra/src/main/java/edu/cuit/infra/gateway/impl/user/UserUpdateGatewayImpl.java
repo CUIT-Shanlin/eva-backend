@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @Component
@@ -83,14 +84,23 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
     @Override
     public void assignRole(Integer userId, List<Integer> roleId) {
         SysUserDO tmp = checkIdExistence(userId);
-        //删除原来的
+
         checkAdmin(userId);
-        LambdaUpdateWrapper<SysUserRoleDO> userRoleUpdate = Wrappers.lambdaUpdate();
-        userRoleUpdate.eq(SysUserRoleDO::getUserId,userId);
-        userRoleMapper.delete(userRoleUpdate);
+
+        Integer defaultRoleId = roleQueryGateway.getDefaultRoleId();
+        List<Integer> roleIdList = roleId.stream()
+                .distinct()
+                .filter(id -> !Objects.equals(id, defaultRoleId))
+                .toList();
+
+        //删除原来的
+        LambdaQueryWrapper<SysUserRoleDO> userRoleQuery = Wrappers.lambdaQuery();
+        userRoleQuery.eq(SysUserRoleDO::getUserId,userId)
+                .ne(SysUserRoleDO::getRoleId,defaultRoleId);
+        userRoleMapper.delete(userRoleQuery);
 
         //插入新的
-        for (Integer id : roleId) {
+        for (Integer id : roleIdList) {
             userRoleMapper.insert(new SysUserRoleDO()
                     .setUserId(userId)
                     .setRoleId(id));
