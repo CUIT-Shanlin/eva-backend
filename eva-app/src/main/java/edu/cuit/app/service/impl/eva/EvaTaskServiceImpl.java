@@ -55,7 +55,7 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
     @Override
     @CheckSemId
     public List<EvaTaskDetailInfoCO> evaSelfTaskInfo(Integer semId, String keyword) {
-        Integer useId=userQueryGateway.findIdByUsername(String.valueOf(StpUtil.getLoginId())).get();
+        Integer useId=userQueryGateway.findIdByUsername(String.valueOf(StpUtil.getLoginId())).orElseThrow(()->new SysException("并没有找到该用户id"));
         List<EvaTaskEntity> evaTaskEntities=evaQueryGateway.evaSelfTaskInfo(useId,semId,keyword);
         List<EvaTaskDetailInfoCO> evaTaskDetailInfoCOS=new ArrayList<>();
         for (EvaTaskEntity evaTaskEntity : evaTaskEntities) {
@@ -68,7 +68,7 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
 
     @Override
     public EvaTaskDetailInfoCO oneEvaTaskInfo(Integer id) {
-        EvaTaskEntity evaTaskEntity=evaQueryGateway.oneEvaTaskInfo(id).get();
+        EvaTaskEntity evaTaskEntity=evaQueryGateway.oneEvaTaskInfo(id).orElseThrow(()->new SysException("并没有找到相关任务信息"));
         SingleCourseEntity singleCourseEntity=evaTaskEntity.getCourInf();
         return evaTaskBizConvertor.evaTaskEntityToTaskDetailCO(evaTaskEntity,singleCourseEntity);
     }

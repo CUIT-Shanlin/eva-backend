@@ -1,4 +1,6 @@
 package edu.cuit.app.service.impl.eva;
+import cn.hutool.core.collection.CollectionUtil;
+import com.alibaba.cola.exception.SysException;
 import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.PaginationBizConvertor;
 import edu.cuit.app.convertor.eva.EvaTemplateBizConvertor;
@@ -53,7 +55,7 @@ public class EvaTemplateServiceImpl implements IEvaTemplateService {
     @Override
     public List<SimpleResultCO> evaAllTemplate() {
         List<EvaTemplateEntity> evaTemplateEntities=evaQueryGateway.getAllTemplate();
-        if(evaTemplateEntities==null){
+        if(CollectionUtil.isEmpty(evaTemplateEntities)){
             throw new QueryException("暂时还没有评教模板");
         }
         List<SimpleResultCO> simpleResultCOS=new ArrayList<>();
@@ -69,7 +71,7 @@ public class EvaTemplateServiceImpl implements IEvaTemplateService {
     @Override
     @CheckSemId
     public String evaTemplateByTaskId(Integer taskId, Integer semId) {
-        return evaQueryGateway.getTaskTemplate(taskId,semId).get();
+        return evaQueryGateway.getTaskTemplate(taskId,semId).orElseThrow(()->new SysException("并没有找到相关模板"));
     }
 
     @Override
