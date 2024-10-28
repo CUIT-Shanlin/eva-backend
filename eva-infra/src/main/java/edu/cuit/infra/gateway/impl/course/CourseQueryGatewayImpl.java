@@ -94,7 +94,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
             return getCourseList(semId);
         }
         // 根据courseQuery中的departmentName以及courseQuery中的页数和一页显示数到userMapper中找对应数量的对应用户id，
-        List<Integer> userIds=null;
+        List<Integer> userIds=new ArrayList<>();
         if(courseQuery.getQueryObj().getDepartmentName()!=null){
             Page<SysUserDO> pageUser=new Page<>(courseQuery.getPage(),courseQuery.getSize());
             pageUser=userMapper.selectPage(pageUser,new QueryWrapper<SysUserDO>().like("department",courseQuery.getQueryObj().getDepartmentName()));
@@ -107,8 +107,8 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         if(semId!=null){
             courseWrapper.eq("semester_id",semId);
         }
-        if(userIds!=null){
-            courseWrapper.in(!userIds.isEmpty(),"teacher_id",userIds);
+        if(!userIds.isEmpty()){
+            courseWrapper.in(true,"teacher_id",userIds);
         }
         //关键字查询
         List<Integer> listSubject=new ArrayList<>();
