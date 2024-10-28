@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    dynamic:
+      primary: master
+      strict: false
+      datasource:
+        master:
+          url: jdbc:mariadb://eva-mariadb/evaluate_system?characterEncoding=utf8&serverTimezone=UTC
+          username: root
+          password: eva-system
+          driver-class-name: org.mariadb.jdbc.Driver
+
+eva:
+  avatar:
+    #    directory: "/avatar"
+    directory: "/data/avatar"
