@@ -29,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -146,8 +147,14 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
         //查询角色
         LambdaQueryWrapper<SysRoleDO> roleQuery = new LambdaQueryWrapper<>();
         List<Integer> userRoleIds = getUserRoleIds(userDO.getId());
-        roleQuery.in(!userRoleIds.isEmpty(),SysRoleDO::getId, userRoleIds);
-        Supplier<List<RoleEntity>> userRoles = () -> roleMapper.selectList(roleQuery).stream()
+        List<SysRoleDO> roles;
+        if (userRoleIds.isEmpty()) {
+            roles = List.of();
+        } else {
+            roleQuery.in(SysRoleDO::getId, userRoleIds);
+            roles = roleMapper.selectList(roleQuery);
+        }
+        Supplier<List<RoleEntity>> userRoles = () -> roles.stream()
                 .map(roleDo -> {
 
                     //查询角色权限菜单
