@@ -2,6 +2,7 @@ package edu.cuit.client.dto.cmd.user;
 
 import com.alibaba.cola.dto.Command;
 import edu.cuit.client.validator.status.ValidStatus;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -18,19 +19,19 @@ public class NewUserCmd extends Command {
     /**
      * 用户名
      */
-    @NotNull(message = "用户名不能为空")
+    @NotBlank(message = "用户名不能为空")
     private String username;
 
     /**
      * 昵称
      */
-    @NotNull(message = "昵称不能为空")
+    @NotBlank(message = "昵称不能为空")
     private String name;
 
     /**
      * 密码，明文密码
      */
-    @NotNull(message = "密码不能为空")
+    @NotBlank(message = "密码不能为空")
     private String password;
 
     /**
