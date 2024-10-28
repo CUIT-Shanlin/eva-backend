@@ -114,7 +114,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         }
         //关键字查询
         List<Integer> listSubject=new ArrayList<>();
-        if(courseQuery.getQueryObj().getKeyword()!=null){
+        if(courseQuery.getQueryObj().getKeyword()!=null&& !courseQuery.getQueryObj().getKeyword().isEmpty()){
             List<SubjectDO> subjectDOS = subjectMapper.selectList(new QueryWrapper<SubjectDO>().like("name", courseQuery.getQueryObj().getKeyword()));
             if(subjectDOS.isEmpty())return paginationConverter.toPaginationEntity(pageCourse, new ArrayList<>());
             listSubject.addAll(subjectDOS.stream().map(SubjectDO::getId).toList());
@@ -368,7 +368,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         Page<CourseTypeDO> page =new Page<>(courseQuery.getPage(),courseQuery.getSize());
 //        QueryWrapper<CourseTypeDO> queryWrapper = new QueryWrapper<>();
         LambdaQueryWrapper<CourseTypeDO> queryWrapper = Wrappers.lambdaQuery();
-        if(courseQuery.getQueryObj().getKeyword()!=null){
+        if(courseQuery.getQueryObj().getKeyword()!=null&&!courseQuery.getQueryObj().getKeyword().isEmpty()){
             queryWrapper.like(CourseTypeDO::getName,courseQuery.getQueryObj().getKeyword());
         }
 //        QueryUtils.fileTimeQuery(queryWrapper,courseQuery.getQueryObj());
