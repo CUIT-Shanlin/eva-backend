@@ -78,7 +78,7 @@ public class CourseRecommendExce {
         List<EvaTaskDO> taskList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("status", 1).or().eq("status", 0));
         List<Integer> courInfoList = taskList.stream().map(EvaTaskDO::getCourInfId).toList();
         List<CourInfDO> courseDOS=new ArrayList<>();
-        if(!courInfoList.isEmpty())courseDOS = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in(!courInfoList.isEmpty(),"id", courInfoList));
+        if(!courInfoList.isEmpty())courseDOS = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in(true,"id", courInfoList));
         Map<Integer, List<CourInfDO>> collect = courseDOS.stream().collect(Collectors.groupingBy(CourInfDO::getCourseId));
         List<Integer> collect1 = collect.entrySet().stream().filter(entry -> entry.getValue().size() >= 8).map(Map.Entry::getKey).toList();
         //从collet中找出小于8次的
@@ -395,7 +395,10 @@ public class CourseRecommendExce {
         if(courseQuery.getTeacherId()==null&&courseQuery.getDepartmentName()!=null){
             List<SysUserDO> user = userMapper.selectList(new QueryWrapper<SysUserDO>().eq("department", courseQuery.getDepartmentName()));
             List<Integer> userIds = user.stream().map(SysUserDO::getId).toList();
-            List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().in(true, "teacher_id", userIds));
+            List<CourseDO> courseDOS =new ArrayList<>();
+            if(!userIds.isEmpty()){
+                courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().in(true, "teacher_id", userIds));
+            }
             list.addAll(courseDOS);
         }
         return list;

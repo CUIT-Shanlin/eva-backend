@@ -157,7 +157,10 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         //根据id查询课程类型表，得到课程类型的id集合
         List<Integer> courseTypeIds = courseTypeCourseMapper.selectList(new QueryWrapper<CourseTypeCourseDO>().eq("course_id", id)).stream().map(CourseTypeCourseDO::getTypeId).toList();
         //根据courseTypeIds查询课程类型表，得到课程类型的集合
-        List<CourseTypeDO> courseTypes = courseTypeMapper.selectList(new QueryWrapper<CourseTypeDO>().in(!courseTypeIds.isEmpty(),"id", courseTypeIds));
+        List<CourseTypeDO> courseTypes=new ArrayList<>();
+        if(!courseTypeIds.isEmpty()){
+             courseTypes = courseTypeMapper.selectList(new QueryWrapper<CourseTypeDO>().in(true, "id", courseTypeIds));
+        }
         //将courseTypeDO转化成CourseType
         List<CourseType> courseTypeList = courseTypes.stream().map(courseConvertor::toCourseType).toList();
         //组装CourseDtailCO
@@ -503,7 +506,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     @Override
     public List<EvaTeacherInfoCO> getEvaUsers(Integer courseId) {
         List<EvaTaskDO> taskDOList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courseId));
-        if (taskDOList.isEmpty())return null;
+        if (taskDOList.isEmpty())return new ArrayList<>();
         List<Integer> userList = taskDOList.stream().map(EvaTaskDO::getTeacherId).toList();
         return userMapper.selectList(new QueryWrapper<SysUserDO>().in(!userList.isEmpty(),"id", userList)).stream().map(courseConvertor::toEvaTeacherInfoCO).toList();
     }
@@ -614,7 +617,10 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         //根据userId找到角色id集合
         List<Integer> roleIds = userRoleMapper.selectList(new QueryWrapper<SysUserRoleDO>().eq("user_id", userId)).stream().map(SysUserRoleDO::getRoleId).toList();
         //根据角色id集合找到角色对象集合
-        Supplier<List<RoleEntity>> roleEntities =()-> roleMapper.selectList(new QueryWrapper<SysRoleDO>().in(!roleIds.isEmpty(),"id", roleIds)).stream().map(roleConverter::toRoleEntity).toList();
+        Supplier<List<RoleEntity>> roleEntities= ArrayList::new;
+        if(!roleIds.isEmpty()){
+            roleEntities =()-> roleMapper.selectList(new QueryWrapper<SysRoleDO>().in(true,"id", roleIds)).stream().map(roleConverter::toRoleEntity).toList();
+        }
         //根据角色id集合找到角色菜单表中的菜单id集合
 //        List<Integer> menuIds = roleMenuMapper.selectList(new QueryWrapper<SysRoleMenuDO>().in("role_id", roleIds)).stream().map(SysRoleMenuDO::getMenuId).toList();
         //根据menuids找到菜单对象集合
