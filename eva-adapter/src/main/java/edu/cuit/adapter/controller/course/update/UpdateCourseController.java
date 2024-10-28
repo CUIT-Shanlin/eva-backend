@@ -156,7 +156,7 @@ public class UpdateCourseController {
             @PathVariable Integer type,
             @RequestParam(value = "semester",required = true) String semester ) throws IOException {
         userCourseService.importCourse(file.getInputStream(), type, semester);
-        return CommonResult.success(null,()->LogUtils.logContent(semester+"学期的"+type+"课表"));
+        return CommonResult.success(null);
     }
 
     /**
