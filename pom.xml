@@ -47,7 +47,7 @@
       <dependency>
         <groupId>edu.cuit.zhuyimeng</groupId>
         <artifactId>zym-spring-boot-starter-common</artifactId>
-        <version>1.7.6</version>
+        <version>1.7.7</version>
       </dependency>
       <dependency>
         <groupId>edu.cuit.zhuyimeng</groupId>
