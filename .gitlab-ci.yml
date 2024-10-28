@@ -8,6 +8,7 @@ stages:
   - sonarqube-check
   - build
   - publish
+  - recreate
 
 sonarqube-check:
   image: $HARBOR_URL/library/maven:3-eclipse-temurin-17
@@ -57,5 +58,13 @@ publish:
     - docker push $HARBOR_URL/eva-system/eva-server:$EVA_VERSION
     - docker tag eva-server:$EVA_VERSION $HARBOR_URL/eva-system/eva-server
     - docker push $HARBOR_URL/eva-system/eva-server
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'master'
+
+recreate:
+  image: $HARBOR_URL/library/busybox:1.37.0
+  stage: recreate
+  script:
+    - curl -X POST $PORTAINER_UPDATE_URL
   rules:
     - if: $CI_COMMIT_BRANCH == 'master'
