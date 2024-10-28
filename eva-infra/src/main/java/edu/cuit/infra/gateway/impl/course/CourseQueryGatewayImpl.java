@@ -93,15 +93,17 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
             //获取所有的课程的基础信息
             return getCourseList(semId);
         }
+        Page<CourseDO> pageCourse=new Page<>(courseQuery.getPage(),courseQuery.getSize());
         // 根据courseQuery中的departmentName以及courseQuery中的页数和一页显示数到userMapper中找对应数量的对应用户id，
         List<Integer> userIds=new ArrayList<>();
         if(courseQuery.getQueryObj().getDepartmentName()!=null){
             Page<SysUserDO> pageUser=new Page<>(courseQuery.getPage(),courseQuery.getSize());
             pageUser=userMapper.selectPage(pageUser,new QueryWrapper<SysUserDO>().like("department",courseQuery.getQueryObj().getDepartmentName()));
+            if (pageUser.getRecords().isEmpty())return paginationConverter.toPaginationEntity(pageCourse, new ArrayList<>());
             userIds=pageUser.getRecords().stream().map(SysUserDO::getId).toList();
         }
         //根据courseQuery中的create时间范围，和update时间范围查询semester_id为semId的CourseDO
-        Page<CourseDO> pageCourse=new Page<>(courseQuery.getPage(),courseQuery.getSize());
+
         QueryWrapper<CourseDO> courseWrapper=new QueryWrapper<>();
         QueryUtils.fileTimeQuery(courseWrapper,courseQuery.getQueryObj());
         if(semId!=null){
@@ -114,6 +116,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         List<Integer> listSubject=new ArrayList<>();
         if(courseQuery.getQueryObj().getKeyword()!=null){
             List<SubjectDO> subjectDOS = subjectMapper.selectList(new QueryWrapper<SubjectDO>().like("name", courseQuery.getQueryObj().getKeyword()));
+            if(subjectDOS.isEmpty())return paginationConverter.toPaginationEntity(pageCourse, new ArrayList<>());
             listSubject.addAll(subjectDOS.stream().map(SubjectDO::getId).toList());
         }
         courseWrapper.in(!listSubject.isEmpty(),"subject_id",listSubject);
@@ -215,7 +218,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     public List<SubjectEntity> findSubjectInfo() {
         // 查询所有课程基础信息
         List<SubjectDO> subjectDOS = subjectMapper.selectList(null);
-        if (subjectDOS.isEmpty()) throw new QueryException("暂时还没有课程信息");
+        if (subjectDOS.isEmpty()) return new ArrayList<>();
         //将数据库对象转换为业务对象
         return subjectDOS.stream().map(courseConvertor::toSubjectEntity).toList();
     }
@@ -386,7 +389,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>()
                 .eq("teacher_id", id)
                 .eq("semester_id", semId));
-        if(courseDOS.isEmpty())throw new QueryException("未找到对应课程");
+        if(courseDOS.isEmpty())return new ArrayList<>(new ArrayList<>());
         //构造userEntity
         UserEntity userEntity =toUserEntity(id);
         //根据courseDo中的subjectid找出courInfoDo集合
@@ -423,7 +426,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         Integer teacherId = user.getId();
         //根据学期来找到这学期所有课程
         List<CourseDO> courseList = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId).eq("teacher_id", teacherId));
-        if(courseList.isEmpty())throw new QueryException("未找到该老师相关的课程");
+        if(courseList.isEmpty())return new ArrayList<>();
         List<SelfTeachCourseCO> list = new ArrayList<>();
         for (CourseDO courseDO : courseList) {
 
@@ -464,7 +467,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     public List<SingleCourseEntity> getSelfCourseTime( Integer id) {
         //先根据课程id来查出课程实体
         CourseDO courseDO = courseMapper.selectById(id);
-        if(courseDO==null)throw new QueryException("课程不存在");
+        if(courseDO==null)return new ArrayList<>();
         //先得到CourseEntity
         CourseEntity courseEntity = toCourseEntity(id,courseDO.getSemesterId());
         //根据id来查出CourInfoDo集合
@@ -769,11 +772,15 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     }
 
     private PaginationResultEntity<CourseEntity> getCourseList(Integer semId) {
+        PaginationResultEntity<CourseEntity> result=new PaginationResultEntity<>();
 //        Page<SysUserDO> pageUser=new Page<>(courseQuery.getPage(),courseQuery.getSize())
         List<CourseEntity> list=new ArrayList<>();
         //获取所有的课程的基础信息
         List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId));
-        if(courseDOS.isEmpty())throw new QueryException("这学期还没有相关课程");
+        if(courseDOS.isEmpty()){
+            result.setRecords(new ArrayList<>());
+            return result;
+        }
         //根据科目id进行分类
         Map<Integer, List<CourseDO>> map = courseDOS.stream().collect(Collectors.groupingBy(CourseDO::getSubjectId));
         for (Map.Entry<Integer, List<CourseDO>> entry : map.entrySet()) {
@@ -796,7 +803,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
 
             }
         }
-        PaginationResultEntity<CourseEntity> result=new PaginationResultEntity<>();
+
         result.setRecords(list);
         return result;
 
