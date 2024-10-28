@@ -781,6 +781,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
 //            SubjectEntity subject=SpringUtil.getBean(SubjectEntity.class);
             SubjectEntity subject=new SubjectEntity();
             subject.setName(subjectDO.getName());
+            subject.setNature(subjectDO.getNature());
             for (CourseDO courseDO : entry.getValue()) {
                 CourseEntity entity= new CourseEntity();
 //                CourseEntity entity = courseConvertor.toCourseEntity(courseDO, () -> null, () -> null, () -> null);

@@ -1,11 +1,10 @@
 package edu.cuit.infra.gateway.impl.eva;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.json.JSONUtil;
-import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import edu.cuit.client.dto.clientobject.eva.AddTaskCO;
-import edu.cuit.client.dto.clientobject.eva.EvaInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskFormCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
 import edu.cuit.domain.gateway.eva.EvaUpdateGateway;
@@ -21,16 +20,12 @@ import edu.cuit.infra.dal.database.mapper.eva.*;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -49,7 +44,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
     @Override
     @Transactional
     public Void updateEvaTemplate(EvaTemplateCO evaTemplateCO) {
-        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         FormTemplateDO formTemplateDO=new FormTemplateDO();
         formTemplateDO.setDescription(evaTemplateCO.getDescription());
         formTemplateDO.setProps(evaTemplateCO.getProps());
@@ -64,6 +59,11 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
     @Override
     @Transactional
     public Void putEvaTemplate(EvaTaskFormCO evaTaskFormCO) {
+        EvaTaskDO evaTaskDO=evaTaskMapper.selectById(evaTaskFormCO.getTaskId());
+        CourInfDO courInfDO=courInfMapper.selectById(evaTaskDO.getCourInfId());
+        CourseDO courseDO=courseMapper.selectById(courInfDO.getCourseId());
+        CourOneEvaTemplateDO courOneEvaTemplateDO=courOneEvaTemplateMapper.selectOne(new QueryWrapper<CourOneEvaTemplateDO>().eq("course_id",courseDO.getId()));
+        FormTemplateDO formTemplateDO=formTemplateMapper.selectById(courseDO.getTemplateId());
         //把评教的具体数据传进去给评教记录
         FormRecordDO formRecordDO=new FormRecordDO();
         formRecordDO.setIsDeleted(0);
@@ -76,21 +76,18 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         formRecordMapper.insert(formRecordDO);
 
         //通过任务id把任务状态改了
-        EvaTaskDO evaTaskDO=evaTaskMapper.selectById(evaTaskFormCO.getTaskId());
         evaTaskDO.setStatus(1);
         evaTaskDO.setUpdateTime(LocalDateTime.now());
         evaTaskMapper.update(evaTaskDO,new QueryWrapper<EvaTaskDO>().eq("id",evaTaskFormCO.getTaskId()));
 
         //检验是否有快照模板，没有就建一个
-        CourInfDO courInfDO=courInfMapper.selectById(evaTaskDO.getCourInfId());
-        CourseDO courseDO=courseMapper.selectById(courInfDO.getCourseId());
-        CourOneEvaTemplateDO courOneEvaTemplateDO=courOneEvaTemplateMapper.selectOne(new QueryWrapper<CourOneEvaTemplateDO>().eq("course_id",courseDO));
         if(courOneEvaTemplateDO==null){
-            courOneEvaTemplateDO.setCourseId(courseDO.getId());
-            courOneEvaTemplateDO.setSemesterId(courseDO.getSemesterId());
-            FormTemplateDO formTemplateDO=formTemplateMapper.selectById(courseDO.getTemplateId());
-            String s="{ name: \""+formTemplateDO.getName()+"\", description: \""+formTemplateDO.getDescription()+"\", props: "+formTemplateDO.getProps()+" }";
-            courOneEvaTemplateDO.setFormTemplate(s);
+            CourOneEvaTemplateDO courOneEvaTemplateDO1=new CourOneEvaTemplateDO();
+            courOneEvaTemplateDO1.setCourseId(courseDO.getId());
+            courOneEvaTemplateDO1.setSemesterId(courseDO.getSemesterId());
+            String s="{\"name\":\""+formTemplateDO.getName()+"\",\"description\":\""+formTemplateDO.getDescription()+"\",\"props\":\""+formTemplateDO.getProps()+"\"}";
+            courOneEvaTemplateDO1.setFormTemplate(s);
+            courOneEvaTemplateMapper.insert(courOneEvaTemplateDO1);
         }
         return null;
     }
@@ -131,14 +128,15 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         //看看是否和老师自己的课有冲突
         List<CourseDO> courseDOList=courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id",addTaskCO.getTeacherId()));
         List<Integer> courseIds=courseDOList.stream().map(CourseDO::getId).toList();
-
-        List<CourInfDO> courInfDOList=courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id",courseIds));
-        for(int i=0;i<courInfDOList.size();i++){
-            if(courInfDO.getWeek().equals(courInfDOList.get(i).getWeek())){
-                if(courInfDO.getDay().equals(courInfDOList.get(i).getDay())){
-                    if(((courInfDO.getStartTime()<=courInfDOList.get(i).getEndTime())&&(courInfDO.getEndTime()>=courInfDOList.get(i).getStartTime()))
-                            ||((courInfDOList.get(i).getStartTime()<=courInfDO.getEndTime())&&(courInfDOList.get(i).getEndTime()>=courInfDO.getStartTime()))){
-                        throw new UpdateException("与你其他课程冲突");
+        if(CollectionUtil.isNotEmpty(courseIds)) {
+            List<CourInfDO> courInfDOList = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", courseIds));
+            for (int i = 0; i < courInfDOList.size(); i++) {
+                if (courInfDO.getWeek().equals(courInfDOList.get(i).getWeek())) {
+                    if (courInfDO.getDay().equals(courInfDOList.get(i).getDay())) {
+                        if (((courInfDO.getStartTime() <= courInfDOList.get(i).getEndTime()) && (courInfDO.getEndTime() >= courInfDOList.get(i).getStartTime()))
+                                || ((courInfDOList.get(i).getStartTime() <= courInfDO.getEndTime()) && (courInfDOList.get(i).getEndTime() >= courInfDO.getStartTime()))) {
+                            throw new UpdateException("与你其他课程冲突");
+                        }
                     }
                 }
             }
@@ -146,13 +144,14 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         //看看是否和老师其他评教任务有冲突
         List<EvaTaskDO> evaTaskDOList=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id",addTaskCO.getTeacherId()));
         List<Integer> courInfoIds=evaTaskDOList.stream().map(EvaTaskDO::getCourInfId).toList();
-
-        List<CourInfDO> evaCourInfDOList=courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("id",courInfoIds));
-        for(int i=0;i<evaCourInfDOList.size();i++){
-            if(courInfDO.getWeek().equals(evaCourInfDOList.get(i).getWeek())){
-                if(courInfDO.getDay().equals(evaCourInfDOList.get(i).getDay())){
-                    if(courInfDO.getStartTime()>=evaCourInfDOList.get(i).getEndTime()||courInfDO.getEndTime()<=evaCourInfDOList.get(i).getStartTime()){
-                        throw new UpdateException("与你其他任务所上课程冲突");
+        if(CollectionUtil.isNotEmpty(courInfoIds)) {
+            List<CourInfDO> evaCourInfDOList = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("id", courInfoIds));
+            for (int i = 0; i < evaCourInfDOList.size(); i++) {
+                if (courInfDO.getWeek().equals(evaCourInfDOList.get(i).getWeek())) {
+                    if (courInfDO.getDay().equals(evaCourInfDOList.get(i).getDay())) {
+                        if (courInfDO.getStartTime() >= evaCourInfDOList.get(i).getEndTime() || courInfDO.getEndTime() <= evaCourInfDOList.get(i).getStartTime()) {
+                            throw new UpdateException("与你其他任务所上课程冲突");
+                        }
                     }
                 }
             }

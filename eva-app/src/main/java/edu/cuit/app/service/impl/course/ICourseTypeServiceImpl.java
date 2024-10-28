@@ -5,6 +5,7 @@ import edu.cuit.app.convertor.PaginationBizConvertor;
 import edu.cuit.app.convertor.course.CourseBizConvertor;
 import edu.cuit.client.api.course.ICourseTypeService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
+import edu.cuit.client.dto.cmd.course.UpdateCoursesType;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
@@ -65,5 +66,11 @@ public class ICourseTypeServiceImpl implements ICourseTypeService {
     public void deleteCoursesType(List<Integer> ids) {
         courseDeleteGateway.deleteCourseType(ids);
 
+    }
+
+    @Override
+    public Void updateCoursesType(UpdateCoursesType updateCoursesType) {
+       courseUpdateGateway.updateCoursesType(updateCoursesType);
+        return null;
     }
 }

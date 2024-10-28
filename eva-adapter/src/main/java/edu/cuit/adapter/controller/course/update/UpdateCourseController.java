@@ -86,7 +86,7 @@ public class UpdateCourseController {
     }
 
     /**
-     * 修改一节课的类型
+     * 修改一个课程类型
      *  @param courseType 修改课课程类型
      *
      * */
@@ -221,6 +221,18 @@ public class UpdateCourseController {
         courseService.addNotExistCoursesDetails(semId, teacherId, addcourse.getCourseInfo(), addcourse.getDateArr());
 
         return CommonResult.success(null,()-> LogUtils.logContent("教师ID为"+teacherId+"的"+addcourse.getCourseInfo().getSubjectMsg().getName()+"课程"));
+    }
+
+    /**
+     * 批量修改课程对应类型的模型
+     *  @param updateCoursesType 课程id
+     *
+     * */
+    @PutMapping("/courses/type")
+    @SaCheckPermission("course.template.update")
+    public CommonResult<Void> updateCoursesType(@Valid @RequestBody UpdateCoursesType updateCoursesType){
+        courseTypeService.updateCoursesType(updateCoursesType);
+        return CommonResult.success(null);
     }
 
 }

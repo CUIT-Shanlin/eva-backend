@@ -10,6 +10,7 @@ import edu.cuit.client.bo.MessageBO;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.SimpleCourseResultCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
+import edu.cuit.client.dto.clientobject.SimpleSubjectResultCO;
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.client.dto.clientobject.course.CourseModelCO;
 import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
@@ -77,9 +78,9 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     }
 
     @Override
-    public List<SimpleResultCO> allSubjectInfo() {
+    public List<SimpleSubjectResultCO> allSubjectInfo() {
         List<SubjectEntity> subject = courseQueryGateway.findSubjectInfo();
-        return subject.stream().map(courseBizConvertor::toSimpleResultCO).toList();
+        return subject.stream().map(courseBizConvertor::toSimpleSubjectResultCO).toList();
     }
 
     @CheckSemId

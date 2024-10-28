@@ -42,6 +42,9 @@ public interface CourseConvertor {
     })
 
     CourseEntity toCourseEntity(CourseDO courseDo, Supplier<SubjectEntity> subject, Supplier<UserEntity> teacher, Supplier<SemesterEntity> semester);
+    @Mappings({
+            @Mapping(target = "isDefault",source = "courseTypeDO.isDefault")
+    })
     CourseTypeEntity toCourseTypeEntity(CourseTypeDO courseTypeDO);
     SemesterEntity toSemesterEntity(SemesterDO semesterDO);
     @Mappings({

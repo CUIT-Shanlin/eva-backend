@@ -7,10 +7,7 @@ import edu.cuit.client.dto.clientobject.SemesterCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
 import edu.cuit.client.dto.clientobject.course.SubjectCO;
-import edu.cuit.client.dto.cmd.course.AlignTeacherCmd;
-import edu.cuit.client.dto.cmd.course.UpdateCourseCmd;
-import edu.cuit.client.dto.cmd.course.UpdateCoursesCmd;
-import edu.cuit.client.dto.cmd.course.UpdateSingleCourseCmd;
+import edu.cuit.client.dto.cmd.course.*;
 import edu.cuit.client.dto.data.Term;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.domain.gateway.course.CourseUpdateGateway;
@@ -320,7 +317,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         SemesterDO semesterDO = semesterMapper.selectOne(new QueryWrapper<SemesterDO>().eq("start_year", semester.getStartYear()).eq("period", semester.getPeriod()));
         if(semesterDO!=null){
             //执行已有学期的删除添加逻辑
-            courseImportExce.deleteCourse(semester.getId());
+            courseImportExce.deleteCourse(semester.getId(),type);
         }else{
             //直接插入学期
             SemesterDO semesterDO1 = courseConvertor.toSemesterDO(semester);
@@ -595,5 +592,27 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
             }
         }
         return true;
+    }
+
+    @Override
+    @Transactional
+    public void updateCoursesType(UpdateCoursesType updateCoursesType) {
+        List<Integer> courseIdList = updateCoursesType.getCourseIdList();
+        if(courseIdList==null||courseIdList.isEmpty())throw new UpdateException("请选择要更改类型的课程");
+        List<Integer> typeIdList = updateCoursesType.getTypeIdList();
+        if(typeIdList==null||typeIdList.isEmpty())throw new UpdateException("请选择要更改的类型");
+        for (Integer i : courseIdList) {
+            if(!courseMapper.exists(new QueryWrapper<CourseDO>().eq("id",i)))throw new QueryException("该课程已被删除");
+            courseTypeCourseMapper.delete(new QueryWrapper<CourseTypeCourseDO>().eq("course_id",i));
+            for (Integer integer : typeIdList) {
+                if(!courseTypeMapper.exists(new QueryWrapper<CourseTypeDO>().eq("id",integer)))throw new QueryException("该课程类型那个已被删除");
+                CourseTypeCourseDO courseTypeCourseDO = new CourseTypeCourseDO();
+                courseTypeCourseDO.setCourseId(i);
+                courseTypeCourseDO.setTypeId(integer);
+                courseTypeCourseDO.setUpdateTime(LocalDateTime.now());
+                courseTypeCourseDO.setCreateTime(LocalDateTime.now());
+                courseTypeCourseMapper.insert(courseTypeCourseDO);
+            }
+        }
     }
 }

@@ -44,4 +44,9 @@ public class CourseTypeEntity {
      */
     private Integer isDeleted;
 
+    /**
+     * 是否是默认数据
+     */
+    private Integer isDefault;
+
 }

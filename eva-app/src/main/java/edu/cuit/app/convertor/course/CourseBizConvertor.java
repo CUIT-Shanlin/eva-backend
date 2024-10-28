@@ -2,6 +2,7 @@ package edu.cuit.app.convertor.course;
 
 import edu.cuit.client.dto.clientobject.SimpleCourseResultCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
+import edu.cuit.client.dto.clientobject.SimpleSubjectResultCO;
 import edu.cuit.client.dto.clientobject.course.*;
 import edu.cuit.client.dto.clientobject.eva.EvaTeacherInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
@@ -36,16 +37,19 @@ public abstract class CourseBizConvertor {
     @Mappings({
             @Mapping(target = "name",expression = "java(entity.getSubjectEntity().getName())"),
             @Mapping(target = "id",expression = "java(entity.getId())"),
-            @Mapping(target = "teacherName",expression= "java(entity.getTeacher().getName())")
+            @Mapping(target = "teacherName",expression= "java(entity.getTeacher().getName())"),
+            @Mapping(target = "nature",expression= "java(entity.getSubjectEntity().getNature())"),
     })
     public abstract SimpleCourseResultCO toSimpleCourseResultCO(CourseEntity entity);
 
     @Mappings({
 
-            @Mapping(target = "id",expression = "java(entity.getId())")
+            @Mapping(target = "id",expression = "java(entity.getId())"),
+            @Mapping(target = "name",expression = "java(entity.getName())"),
+            @Mapping(target = "nature",expression = "java(entity.getNature())")
 
     })
-    public abstract SimpleResultCO toSimpleResultCO(SubjectEntity entity);
+    public abstract SimpleSubjectResultCO toSimpleSubjectResultCO(SubjectEntity entity);
     @Mappings({
 
             @Mapping(target = "id",expression = "java(entity.getId())")
@@ -54,7 +58,8 @@ public abstract class CourseBizConvertor {
     public abstract SimpleResultCO toSimpleResultCO(SelfTeachCourseCO entity);
     @Mappings({
 
-            @Mapping(target = "id",expression = "java(courseTypeEntity.getId())")
+            @Mapping(target = "id",expression = "java(courseTypeEntity.getId())"),
+            @Mapping(target = "isDefault",expression = "java(courseTypeEntity.getIsDefault())"),
 
     })
 

@@ -5,10 +5,7 @@ import edu.cuit.client.dto.clientobject.SemesterCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
 import edu.cuit.client.dto.clientobject.course.SubjectCO;
-import edu.cuit.client.dto.cmd.course.AlignTeacherCmd;
-import edu.cuit.client.dto.cmd.course.UpdateCourseCmd;
-import edu.cuit.client.dto.cmd.course.UpdateCoursesCmd;
-import edu.cuit.client.dto.cmd.course.UpdateSingleCourseCmd;
+import edu.cuit.client.dto.cmd.course.*;
 import edu.cuit.client.dto.data.Term;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
@@ -52,7 +49,7 @@ public interface CourseUpdateGateway {
     Map<String,List<Integer>> updateSingleCourse(String userName,Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd);
 
     /**
-     * 修改一节课的类型
+     * 修改一个课程类型
      *  @param courseType 修改课课程类型
      *
      * */
@@ -121,4 +118,10 @@ public interface CourseUpdateGateway {
      * */
     Boolean isImported(Integer type,Term term);
 
+    /**
+     * 批量修改课程对应类型的模型
+     *  @param updateCoursesType 课程id
+     *
+     * */
+    void updateCoursesType(UpdateCoursesType updateCoursesType);
 }
