@@ -326,7 +326,7 @@ public class CourseRecommendExce {
         List<List<Integer>> list=new ArrayList<>();
         //如果课程名称不为null
         List<CourseDO> listCourseDo=new ArrayList<>();
-        if(courseQuery.getKeyword()!=null){
+        if(courseQuery.getKeyword()!=null&&!courseQuery.getKeyword().isEmpty()){
             List<SubjectDO> subjectDO = subjectMapper.selectList(new QueryWrapper<SubjectDO>().like("name", courseQuery.getKeyword()));
             if(subjectDO.isEmpty())throw new QueryException("没有对应课程");
             listCourseDo=courseMapper.selectList(new QueryWrapper<CourseDO>().in("subject_id", subjectDO.stream().map(SubjectDO::getId).toList()).eq("semester_id",semesterDO.getId()));
@@ -339,8 +339,7 @@ public class CourseRecommendExce {
         if(!courseDo2.isEmpty()) list.add(courseDo2);
         //课程类型
         List<Integer> typeCourseList=new ArrayList<>();
-        if(courseQuery.getTypeId()!=null){
-
+        if(courseQuery.getTypeId()!=null&&courseQuery.getTypeId()>=0){
             CourseTypeDO courseTypeDO = courseTypeMapper.selectById(courseQuery.getTypeId());
             if(courseTypeDO==null)throw new QueryException("该课程类型不存在");
             List<CourseTypeCourseDO> courseTypeCourseDOS = courseTypeCourseMapper.selectList(new QueryWrapper<CourseTypeCourseDO>().eq("type_id", courseTypeDO.getId()));
@@ -388,11 +387,11 @@ public class CourseRecommendExce {
 
     private List<CourseDO> judeTeacherandDepartment(Integer semId, MobileCourseQuery courseQuery) {
         List<CourseDO> list=new ArrayList<>();
-        if(courseQuery.getTeacherId()!=null){
+        if(courseQuery.getTeacherId()!=null&&courseQuery.getTeacherId()>=0){
             List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", courseQuery.getTeacherId()).eq("semester_id", semId));
             list.addAll(courseDOS);
         }
-        if(courseQuery.getTeacherId()==null&&courseQuery.getDepartmentName()!=null){
+        if(courseQuery.getTeacherId()==null||courseQuery.getTeacherId()<0&&courseQuery.getDepartmentName()!=null&&!courseQuery.getDepartmentName().isEmpty()){
             List<SysUserDO> user = userMapper.selectList(new QueryWrapper<SysUserDO>().eq("department", courseQuery.getDepartmentName()));
             List<Integer> userIds = user.stream().map(SysUserDO::getId).toList();
             List<CourseDO> courseDOS =new ArrayList<>();
@@ -429,7 +428,6 @@ public class CourseRecommendExce {
 
             }
         } else if(courseQuery.getStartDay() != null&&courseQuery.getEndDay() == null){
-            System.out.println("进来了");
             CourseTime startTime = toGetCourseTime(semesterDO.getStartDate(), togetLocalDate(courseQuery.getStartDay()));
             courseInfQueryWrapper
                     .eq("week", startTime.getWeek())
