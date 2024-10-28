@@ -137,6 +137,9 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
                 }
             }
             List<Integer> courInfIds=newCourInfDOS.stream().map(CourInfDO::getId).toList();
+            if(CollectionUtil.isEmpty(courInfIds)){
+                throw new QueryException("并没有找到相关课程详情");
+            }
             List<CourInfDO> courInfDOS1=courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("id",courInfIds));
             List<Integer> courseIds1=courInfDOS1.stream().map(CourInfDO::getCourseId).toList();
             courseWrapper.in("id",courseIds1);
@@ -180,6 +183,9 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         pageTask=evaTaskMapper.selectPage(pageTask,evaTaskWrapper);
 
         List<Integer> userIds=pageTask.getRecords().stream().map(EvaTaskDO::getTeacherId).toList();
+        if(CollectionUtil.isEmpty(userIds)){
+            throw new QueryException("没有找到相关用户");
+        }
         List<SysUserDO> sysUserDOS=sysUserMapper.selectList(new QueryWrapper<SysUserDO>().in("id",userIds));
         List<UserEntity> userEntities=sysUserDOS.stream().map(sysUserDO->toUserEntity(sysUserDO.getId())).toList();
 
@@ -232,6 +238,9 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
 
         List<CourInfDO> courInfDOS=courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id",courseIds));
         List<Integer> courseInfoIds=courInfDOS.stream().map(CourInfDO::getId).toList();
+        if(CollectionUtil.isEmpty(courseInfoIds)){
+            throw new QueryException("没有找到相关课程详情信息");
+        }
         evaTaskWrapper.in("cour_inf_id",courseInfoIds);
 
         List<SingleCourseEntity> courseEntities=getListCurInfoEntities(courInfDOS);
@@ -729,6 +738,9 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         //SimpleEvaPercentCO evaQualifiedInfo  SimpleEvaPercentCO qualifiedInfo
         List<SysUserDO> teacher=sysUserMapper.selectList(null);
         List<Integer> teacherIdS=teacher.stream().map(SysUserDO::getId).toList();
+        if(CollectionUtil.isEmpty(teacherIdS)){
+            throw new QueryException("没有找到相关老师");
+        }
 
         Integer evaNum=0;
         Integer pastEvaNum=0;

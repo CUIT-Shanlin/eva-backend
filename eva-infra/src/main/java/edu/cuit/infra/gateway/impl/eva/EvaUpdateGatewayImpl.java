@@ -1,6 +1,7 @@
 package edu.cuit.infra.gateway.impl.eva;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -19,6 +20,7 @@ import edu.cuit.infra.dal.database.mapper.course.SemesterMapper;
 import edu.cuit.infra.dal.database.mapper.eva.*;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
+import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +29,7 @@ import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -34,7 +37,6 @@ import java.util.List;
 public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
     private final FormTemplateMapper formTemplateMapper;
     private final EvaTaskMapper evaTaskMapper;
-    private final EvaConvertor evaConvertor;
     private final FormRecordMapper formRecordMapper;
     private final CourInfMapper courInfMapper;
     private final CourseMapper courseMapper;
@@ -45,6 +47,16 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
     @Transactional
     public Void updateEvaTemplate(EvaTemplateCO evaTemplateCO) {
         DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        //检验是否那个模板prop有重复
+        if(evaTemplateCO.getProps()!=null) {
+            List<String> props= Arrays.stream(evaTemplateCO.getProps().split(",")).toList();
+            long count = props.stream().distinct().count();
+            if (props.size() != count) {
+                throw new UpdateException("由于你输入的指标中有重复数据，故不能修改");
+            }
+        }
+
         FormTemplateDO formTemplateDO=new FormTemplateDO();
         formTemplateDO.setDescription(evaTemplateCO.getDescription());
         formTemplateDO.setProps(evaTemplateCO.getProps());
@@ -54,6 +66,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         formTemplateDO.setUpdateTime(LocalDateTime.parse(evaTemplateCO.getUpdateTime(),df));
         formTemplateDO.setCreateTime(LocalDateTime.parse(evaTemplateCO.getCreateTime(),df));
         formTemplateMapper.update(formTemplateDO, new QueryWrapper<FormTemplateDO>().eq("id", evaTemplateCO.getId()));
+        LogUtils.logContent(formTemplateMapper.selectById(evaTemplateCO.getId()).getName() +" 评教模板");
         return null;
     }
     @Override
@@ -177,6 +190,15 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
     @Transactional
     public Void addEvaTemplate(EvaTemplateCO evaTemplateCO) throws ParseException {
         DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        //判断指标重复
+        if(evaTemplateCO.getProps()!=null) {
+            List<String> props= Arrays.stream(evaTemplateCO.getProps().split(",")).toList();
+            long count = props.stream().distinct().count();
+            if (props.size() != count) {
+                throw new UpdateException("由于你输入的指标中有重复数据，故不能增加");
+            }
+        }
+
         FormTemplateDO formTemplateDO=new FormTemplateDO();
         formTemplateDO.setDescription(evaTemplateCO.getDescription());
         formTemplateDO.setProps(evaTemplateCO.getProps());
@@ -187,6 +209,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         formTemplateDO.setUpdateTime(LocalDateTime.parse(evaTemplateCO.getUpdateTime(),df));
         formTemplateDO.setCreateTime(LocalDateTime.parse(evaTemplateCO.getCreateTime(),df));
         formTemplateMapper.insert(formTemplateDO);
+        LogUtils.logContent(formTemplateMapper.selectById(evaTemplateCO.getId()).getName() +" 评教模板");
         return null;
     }
 
