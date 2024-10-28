@@ -104,8 +104,8 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
         QueryUtils.fileTimeQuery(userQuery,queryObj,SysUserDO::getCreateTime,SysUserDO::getUpdateTime);
         String keyword = queryObj.getKeyword();
         userQuery
-                .like(SysUserDO::getName,keyword)
-                .or().like(SysUserDO::getUsername,keyword);
+                .like(keyword != null,SysUserDO::getName,keyword)
+                .or().like(keyword != null,SysUserDO::getUsername,keyword);
         Page<SysUserDO> usersPage = userMapper.selectPage(userPage, userQuery);
 
         //映射

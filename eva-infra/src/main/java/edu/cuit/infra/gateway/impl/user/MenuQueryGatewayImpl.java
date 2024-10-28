@@ -28,8 +28,8 @@ public class MenuQueryGatewayImpl implements MenuQueryGateway {
     public List<MenuEntity> getMenus(MenuConditionalQuery query) {
         LambdaQueryWrapper<SysMenuDO> menuQuery = Wrappers.lambdaQuery();
         menuQuery.eq(SysMenuDO::getParentId,0)
-                .like(SysMenuDO::getName,query.getKeyword())
-                .eq(SysMenuDO::getStatus,query.getStatus());
+                .like(query.getKeyword() != null,SysMenuDO::getName,query.getKeyword())
+                .eq(query.getStatus() != null,SysMenuDO::getStatus,query.getStatus());
         return menuMapper.selectList(menuQuery).stream()
                 .map(menuConvertor::toMenuEntity)
                 .peek(menuEntity -> {
