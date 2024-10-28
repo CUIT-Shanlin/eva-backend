@@ -56,7 +56,6 @@ public class NewUserCmd extends Command {
     /**
      * 状态，1为禁止，0为正常
      */
-    @NotNull(message = "状态不能为空")
     @ValidStatus(message = "状态值只能为0或1")
     private Integer status;
 
