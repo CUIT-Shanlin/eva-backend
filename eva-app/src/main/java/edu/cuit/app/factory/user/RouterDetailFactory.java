@@ -22,13 +22,13 @@ public class RouterDetailFactory {
         if ("admin".equals(user.getUsername())) {
             MenuQueryGateway menuQueryGateway = SpringUtil.getBean(MenuQueryGateway.class);
             userMenus = menuQueryGateway.getAllMenu()
-                    .stream().filter(menuEntity -> menuEntity.getParentId() == null)
+                    .stream().filter(menuEntity -> menuEntity.getParentId() == null || menuEntity.getParentId() == 0)
                     .toList();
         } else {
             userMenus = new ArrayList<>();
             for (RoleEntity role : user.getRoles()) {
                 userMenus.addAll(role.getMenus().stream()
-                        .filter(menuEntity -> menuEntity.getParentId() == null)
+                        .filter(menuEntity -> menuEntity.getParentId() == null || menuEntity.getParentId() == 0)
                         .toList());
             }
         }
