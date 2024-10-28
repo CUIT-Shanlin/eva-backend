@@ -8,6 +8,8 @@ services:
     restart: always
     networks:
       - eva-net
+    volumes:
+      - "eva-db:/var/lib/mysql"
     environment:
       MARIADB_ROOT_PASSWORD: eva-system
 
@@ -36,3 +38,6 @@ services:
 networks:
   eva-net:
     driver: bridge
+
+volumes:
+  eva-db:
