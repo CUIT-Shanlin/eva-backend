@@ -40,7 +40,6 @@ public class UserEvaServiceImpl implements IUserEvaService {
         }
         for (EvaRecordEntity evaRecordEntity : evaRecordEntities) {
             EvaRecordCO evaRecordCO = evaRecordBizConvertor.evaRecordEntityToCo(evaRecordEntity);
-
             evaRecordCO.setAverScore(evaQueryGateway.getScoreFromRecord(evaRecordEntity.getFormPropsValues()).orElse(0.0));
             evaRecordCOS.add(evaRecordCO);
         }

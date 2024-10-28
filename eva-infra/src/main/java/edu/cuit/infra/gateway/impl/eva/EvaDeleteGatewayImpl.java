@@ -69,7 +69,7 @@ public class EvaDeleteGatewayImpl implements EvaDeleteGateway {
                     throw new QueryException("并未找到找到相应模板");
                 }else{
                     //删除模板
-                    LogUtils.logContent(formTemplateMapper.selectById(id).getName() +" 的评教模板");
+                    LogUtils.logContent(formTemplateMapper.selectById(id).getName() +" 评教模板");
                     formTemplateMapper.delete(formTemplateWrapper);
                 }
             }else{
