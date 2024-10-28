@@ -2,7 +2,7 @@ variables:
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
   DOCKER_TLS_CERTDIR: ""
-  EVA_VERSION: 1.11-SNAPSHOT
+  EVA_VERSION: 1.12-SNAPSHOT
 
 stages:
   - sonarqube-check
@@ -43,9 +43,9 @@ build:
 
 publish:
   stage: publish
-  image: docker:23.0.2-alpine3.17
+  image: $HARBOR_URL/library/docker:23.0.2-alpine3.17
   services:
-    - name: docker:23.0.2-dind-alpine3.17
+    - name: $HARBOR_URL/library/docker:23.0.2-dind-alpine3.17
       command: [ "--tls=false" ]
       alias: docker
   before_script:
