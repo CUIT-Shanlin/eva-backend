@@ -126,7 +126,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
             if(courseDO1==null) throw new QueryException("并未找到相关课程");
             Integer subjectId =courseDO1 .getSubjectId();
             String name = subjectMapper.selectById(subjectId).getName();
-            LogUtils.logContent(name+"(ID:"+i+")课程模板被修改了");
+            LogUtils.logContent(name+"(ID:"+i+")课程模板");
         }
 
     }
@@ -196,7 +196,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                 +updateSingleCourseCmd.getTime().getWeek()+"周，星期"+updateSingleCourseCmd.getTime().getDay()
                 +"，第"+updateSingleCourseCmd.getTime().getStartTime()+"-"+updateSingleCourseCmd.getTime().getEndTime()+"节。教室："+
                 updateSingleCourseCmd.getLocation(),userList);
-        LogUtils.logContent(userName+"修改了"+name+"上课时间信息");
+        LogUtils.logContent(name+"上课时间信息");
         return map;
     }
 
@@ -274,7 +274,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         for (Integer i : alignTeacherCmd.getEvaTeacherIdList()) {
             SysUserDO userDO = userMapper.selectById(i);
             if(userDO==null)throw new QueryException("所分配老师中有人未在数据库中");
-            LogUtils.logContent(userDO.getName()+"老师去听，第"+courInfDO.getWeek()+"周，星期"
+            LogUtils.logContent(userDO.getName()+"老师去听的课：第"+courInfDO.getWeek()+"周，星期"
                     +courInfDO.getDay()+"，第"+courInfDO.getStartTime()+"-"+courInfDO.getEndTime()+"节，"+name+"课程。位置："+courInfDO.getLocation()+name+"课程");
         }
         return map;
@@ -282,7 +282,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
 
     private void judgeAlsoHasCourse(Integer semId,List<Integer> evaTeacherIdList, CourInfDO courInfDO) {
         List<Integer> list = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId).in(!evaTeacherIdList.isEmpty(),"teacher_id", evaTeacherIdList)).stream().map(CourseDO::getId).toList();
-       if(list.isEmpty())return;
+        if(list.isEmpty()) return;
         List<CourInfDO> courInfDOList = courInfMapper.selectList(new QueryWrapper<CourInfDO>()
                 .eq("week", courInfDO.getWeek())
                 .eq("day", courInfDO.getDay())

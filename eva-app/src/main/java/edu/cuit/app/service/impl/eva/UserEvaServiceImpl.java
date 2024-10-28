@@ -29,19 +29,19 @@ public class UserEvaServiceImpl implements IUserEvaService {
     @Override
     @CheckSemId
     public List<EvaRecordCO> getEvaLogInfo(Integer semId, String keyword) {
-        Integer userId=userQueryGateway.findIdByUsername(String.valueOf(StpUtil.getLoginId())).get();
+        Integer userId=userQueryGateway.findIdByUsername(String.valueOf(StpUtil.getLoginId())).orElseThrow(() -> new SysException("该用户名不存在"));
         List<EvaRecordCO> evaRecordCOS=new ArrayList<>();
         if(userId==null){
             throw new SysException("还没有登录，怎么查到这里的");
         }
         List<EvaRecordEntity> evaRecordEntities=evaQueryGateway.getEvaLogInfo(userId,semId,keyword);
-        if(evaRecordEntities.size()==0){
+        if(evaRecordEntities.isEmpty()){
             throw new QueryException("并没有找到相关的评教记录");
         }
         for (EvaRecordEntity evaRecordEntity : evaRecordEntities) {
             EvaRecordCO evaRecordCO = evaRecordBizConvertor.evaRecordEntityToCo(evaRecordEntity);
 
-            evaRecordCO.setAverScore(evaQueryGateway.getScoreFromRecord(evaRecordEntity.getFormPropsValues()).get());
+            evaRecordCO.setAverScore(evaQueryGateway.getScoreFromRecord(evaRecordEntity.getFormPropsValues()).orElse(0.0));
             evaRecordCOS.add(evaRecordCO);
         }
         return evaRecordCOS;
@@ -50,19 +50,19 @@ public class UserEvaServiceImpl implements IUserEvaService {
     @Override
     @CheckSemId
     public List<EvaRecordCO> getEvaLoggingInfo(Integer courseId, Integer semId) {
-        Integer userId=userQueryGateway.findIdByUsername(String.valueOf(StpUtil.getLoginId())).get();
+        Integer userId=userQueryGateway.findIdByUsername(String.valueOf(StpUtil.getLoginId())).orElseThrow(() -> new SysException("该用户名不存在"));
         if(userId==null){
             throw new SysException("还没有登录，怎么查到这里的");
         }
         List<EvaRecordEntity> evaRecordEntities=evaQueryGateway.getEvaEdLogInfo(userId,semId,courseId);
         List<EvaRecordCO> evaRecordCOS=new ArrayList<>();
-        if(evaRecordEntities.size()==0){
+        if(evaRecordEntities.isEmpty()){
             throw new QueryException("并没有找到相关的评教记录");
         }
         for (EvaRecordEntity evaRecordEntity : evaRecordEntities) {
             EvaRecordCO evaRecordCO = evaRecordBizConvertor.evaRecordEntityToCo(evaRecordEntity);
 
-            evaRecordCO.setAverScore(evaQueryGateway.getScoreFromRecord(evaRecordEntity.getFormPropsValues()).get());
+            evaRecordCO.setAverScore(evaQueryGateway.getScoreFromRecord(evaRecordEntity.getFormPropsValues()).orElse(0.0));
             evaRecordCOS.add(evaRecordCO);
         }
         return evaRecordCOS;
