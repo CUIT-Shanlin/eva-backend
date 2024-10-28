@@ -325,6 +325,10 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
             semesterDO=semesterDO1;
         }
         courseImportExce.addAll(courseExce, type,semesterDO.getId());
+        String typeName=null;
+        if(type==0)typeName="理论课";
+        else typeName="实验课";
+        LogUtils.logContent(semesterDO.getStartYear()+"-"+semesterDO.getEndYear()+"第"+semesterDO.getPeriod()+1+"学期"+typeName+"课程表");
         return null;
     }
 
