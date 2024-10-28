@@ -1,5 +1,6 @@
 package edu.cuit.infra.gateway.impl;
 
+import com.alibaba.cola.exception.BizException;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.cuit.client.dto.clientobject.SemesterCO;
 import edu.cuit.domain.gateway.SemesterGateway;
@@ -18,12 +19,14 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class SemesterGatewayImpl implements SemesterGateway {
+
     private final SemesterMapper semesterMapper;
     private final SemesterConverter semesterConverter;
+
     @Override
     public List<SemesterCO> getAll() {
         List<SemesterDO> semesterDOS = semesterMapper.selectList(null);
-        if(semesterDOS.isEmpty()) throw new NoSuchElementException("数据库中还没有学期数据");
+        if(semesterDOS.isEmpty()) throw new BizException("数据库中还没有学期数据");
         return semesterDOS.stream().map(semesterConverter::toSemesterCO).toList();
     }
 

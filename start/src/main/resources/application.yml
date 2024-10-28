@@ -16,12 +16,6 @@ spring:
       minIdle: 5
       maxPoolPreparedStatementPerConnectionSize: 20
 
-  ldap:
-    urls: ldap://littlestrange.site:40006
-    base: dc=3015,dc=cuit
-    username: cn=admin,dc=3015,dc=cuit
-    password: 30153015
-
 mybatis-plus:
   global-config:
     db-config:

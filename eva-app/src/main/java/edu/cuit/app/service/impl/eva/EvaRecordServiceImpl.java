@@ -1,5 +1,6 @@
 package edu.cuit.app.service.impl.eva;
 
+import com.alibaba.cola.exception.SysException;
 import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.PaginationBizConvertor;
 import edu.cuit.app.convertor.eva.EvaRecordBizConvertor;
@@ -15,6 +16,7 @@ import edu.cuit.domain.entity.eva.EvaRecordEntity;
 import edu.cuit.domain.gateway.eva.EvaDeleteGateway;
 import edu.cuit.domain.gateway.eva.EvaQueryGateway;
 import edu.cuit.domain.gateway.eva.EvaUpdateGateway;
+import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +40,7 @@ public class EvaRecordServiceImpl implements IEvaRecordService {
                 .map(evaRecordBizConvertor::evaRecordEntityToCo)
                 .toList();
         for(int i=0;i<results.size();i++){
-            results.get(i).setAverScore(evaQueryGateway.getScoreFromRecord(page.getRecords().get(i).getFormPropsValues()).get());
+            results.get(i).setAverScore(evaQueryGateway.getScoreFromRecord(page.getRecords().get(i).getFormPropsValues()).orElseThrow(()->new SysException("相关模板不存在")));
         }
         return paginationBizConvertor.toPaginationEntity(page,results);
     }

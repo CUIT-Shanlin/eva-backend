@@ -44,12 +44,10 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
     public void updateInfo(UpdateUserCmd cmd) {
         SysUserDO tmp = checkIdExistence(Math.toIntExact(cmd.getId()));
         SysUserDO userDO = userConverter.toUserDO(cmd);
-        if (userDO.getUsername().equals(tmp.getUsername())) {
-            throw new BizException("用户名不能与原来相同");
-        } else checkAdmin(Math.toIntExact(cmd.getId()));
-
-        if (checkUsernameExistence(cmd.getUsername())) {
-            throw new BizException("用户名已存在");
+        String oldUsername = userDO.getUsername();
+        checkAdmin(Math.toIntExact(cmd.getId()));
+        if (checkUsernameExistence(cmd.getUsername()) && !oldUsername.equals(cmd.getUsername())) {
+            throw new BizException("该用户名已存在");
         }
         if (cmd.getStatus() != null && cmd.getStatus() == 0) checkAdmin(Math.toIntExact(cmd.getId()));
         userMapper.updateById(userDO);

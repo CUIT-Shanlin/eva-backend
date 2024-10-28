@@ -1,0 +1,43 @@
+version: '3.1'
+
+services:
+
+  mariadb:
+    image: registry.littlestrange.site/eva-system/eva-mariadb
+    container_name: eva-mariadb
+    restart: always
+    networks:
+      - eva-net
+    volumes:
+      - "eva-db:/var/lib/mysql"
+    environment:
+      MARIADB_ROOT_PASSWORD: eva-system
+
+  server:
+    image: registry.littlestrange.site/eva-system/eva-server
+    container_name: eva-server
+    restart: always
+    depends_on:
+      - mariadb
+    volumes:
+      - "./data:/data"
+    ports:
+      - "38081:8080"
+    networks:
+      - eva-net
+
+  admin:
+    image: registry.littlestrange.site/eva-system/eva-management-frontend
+    container_name: eva-admin
+    restart: always
+    ports:
+      - "38080:80"
+    networks:
+      - eva-net
+
+networks:
+  eva-net:
+    driver: bridge
+
+volumes:
+  eva-db:
