@@ -65,6 +65,12 @@ public class MenuQueryGatewayImpl implements MenuQueryGateway {
     @Override
     public List<MenuEntity> getAllMenu() {
         List<SysMenuDO> sysMenuDOS = menuMapper.selectList(new LambdaQueryWrapper<>());
-        return sysMenuDOS.stream().map(menuConvertor::toMenuEntity).toList();
+        return sysMenuDOS.stream()
+                .map(menuConvertor::toMenuEntity)
+                .peek(menu -> {
+                    menu.setChildren(() -> new ArrayList<>(getChildrenMenus(menu.getId())));
+                    menu.setParent(() -> getOne(menu.getParentId()).orElse(null));
+                })
+                .toList();
     }
 }
