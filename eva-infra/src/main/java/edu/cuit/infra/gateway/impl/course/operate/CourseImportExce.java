@@ -2,7 +2,6 @@ package edu.cuit.infra.gateway.impl.course.operate;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.cuit.client.bo.CourseExcelBO;
-import edu.cuit.client.dto.clientobject.course.SubjectCO;
 import edu.cuit.infra.convertor.course.CourseConvertor;
 import edu.cuit.infra.dal.database.dataobject.course.*;
 import edu.cuit.infra.dal.database.dataobject.eva.CourOneEvaTemplateDO;
@@ -16,7 +15,6 @@ import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
-import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -53,7 +51,7 @@ public class CourseImportExce {
             }
         }
         if(!courseIds.isEmpty()){
-            courseMapper.delete(new QueryWrapper<CourseDO>().eq("semester_id", semId));
+            courseMapper.delete(new QueryWrapper<CourseDO>().eq("semester_id", semId).in("id", courseIds));
             //删除每节课
             List<Integer> courInfoIds = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in(true,"course_id", courseIds)).stream().map(CourInfDO::getId).toList();
             courInfMapper.delete(new QueryWrapper<CourInfDO>().in(!courseIds.isEmpty(),"course_id", courseIds));
@@ -77,7 +75,7 @@ public class CourseImportExce {
     public void addAll( Map<String, List<CourseExcelBO>> courseExce, Integer type,Integer semId){
         for (Map.Entry<String, List<CourseExcelBO>> stringListEntry : courseExce.entrySet()) {
             SubjectDO subjectDO1 = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("name", stringListEntry.getKey()).eq("nature",type));
-            Integer id = null;
+            Integer id;
             if(subjectDO1==null){
                 SubjectDO subjectDO = addSubject(stringListEntry.getKey(), type);
                 subjectMapper.insert(subjectDO);
@@ -98,9 +96,9 @@ public class CourseImportExce {
 
                //评教表单模版id
                 Integer evaTemplateId = getEvaTemplateId(type);
-                CourseDO courseDO = addCourse(courseExcelBO, id, userId, semId,evaTemplateId);
+                CourseDO courseDO = addCourse(id, userId, semId,evaTemplateId);
                 //根据subjectId和teacherId看数据库里是否有该课程
-                CourseDO courseDO1 = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("subject_id", courseDO.getSubjectId()).eq("teacher_id", courseDO.getTeacherId()));
+                CourseDO courseDO1 = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("subject_id", courseDO.getSubjectId()).eq("teacher_id", courseDO.getTeacherId()).eq("semester_id", courseDO.getSemesterId()));
                 if(courseDO1==null){
                     courseMapper.insert(courseDO);
                     //课程类型课程关联表
@@ -125,7 +123,7 @@ public class CourseImportExce {
         subjectDO.setUpdateTime(LocalDateTime.now());
         return subjectDO;
     }
-    private CourseDO addCourse(CourseExcelBO courseExcelBO, Integer subjectId, Integer userId,Integer semId,Integer evaTemplateId) {
+    private CourseDO addCourse(Integer subjectId, Integer userId, Integer semId, Integer evaTemplateId) {
       CourseDO courseDO=new CourseDO();
       courseDO.setSubjectId(subjectId);
       courseDO.setTeacherId(userId);

@@ -163,7 +163,7 @@ public class QueryCourseController {
     @PostMapping("/courses/query")
     public CommonResult<List<RecommendCourseCO>> getTimeCourse(
             @RequestParam(value = "semId",required = false) Integer semId,
-            @Valid  @RequestBody MobileCourseQuery courseQuery){
+             @RequestBody MobileCourseQuery courseQuery){
         return CommonResult.success(courseService.getTimeCourse(semId, courseQuery));
     }
 
