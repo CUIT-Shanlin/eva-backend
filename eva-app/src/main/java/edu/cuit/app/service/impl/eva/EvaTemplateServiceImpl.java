@@ -1,5 +1,6 @@
 package edu.cuit.app.service.impl.eva;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.cola.exception.SysException;
 import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.PaginationBizConvertor;
@@ -72,7 +73,7 @@ public class EvaTemplateServiceImpl implements IEvaTemplateService {
     @Override
     @CheckSemId
     public String evaTemplateByTaskId(Integer taskId, Integer semId) {
-        return evaQueryGateway.getTaskTemplate(taskId,semId).orElseThrow(()->new SysException("并没有找到相关模板"));
+        return evaQueryGateway.getTaskTemplate(taskId,semId).orElseGet(() -> JSONUtil.toJsonStr(List.of()));
     }
 
     @Override

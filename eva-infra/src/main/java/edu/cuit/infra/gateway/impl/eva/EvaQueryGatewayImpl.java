@@ -1100,10 +1100,16 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         }
 
         if(courOneEvaTemplateDO!=null){
+            if(courOneEvaTemplateDO.getFormTemplate()==null){
+                return Optional.empty();
+            }
             JSONObject jsonObject= new JSONObject(courOneEvaTemplateDO.getFormTemplate());
             String s=jsonObject.getStr("props");
             return Optional.of(s);
         }else {
+            if(formTemplateDO.getProps()==null){
+                return Optional.empty();
+            }
             return Optional.of(formTemplateDO.getProps());
         }
     }
