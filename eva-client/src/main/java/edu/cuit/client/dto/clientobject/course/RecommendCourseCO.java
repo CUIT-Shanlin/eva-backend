@@ -68,4 +68,9 @@ public class RecommendCourseCO extends ClientObject {
      */
     private Double typeSimilarity;
 
+    /**
+     * 课程性质(0:理论课,1:实验课,3:其他)
+     */
+    private Integer nature;
+
 }

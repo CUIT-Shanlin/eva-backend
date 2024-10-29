@@ -53,7 +53,7 @@ public class CourseImportExce {
             }
         }
         if(!courseIds.isEmpty()){
-            courseMapper.delete(new QueryWrapper<CourseDO>().eq("semester_id", semId));
+            courseMapper.delete(new QueryWrapper<CourseDO>().eq("semester_id", semId).in("id", courseIds));
             //删除每节课
             List<Integer> courInfoIds = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in(true,"course_id", courseIds)).stream().map(CourInfDO::getId).toList();
             courInfMapper.delete(new QueryWrapper<CourInfDO>().in(!courseIds.isEmpty(),"course_id", courseIds));
@@ -100,7 +100,7 @@ public class CourseImportExce {
                 Integer evaTemplateId = getEvaTemplateId(type);
                 CourseDO courseDO = addCourse(courseExcelBO, id, userId, semId,evaTemplateId);
                 //根据subjectId和teacherId看数据库里是否有该课程
-                CourseDO courseDO1 = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("subject_id", courseDO.getSubjectId()).eq("teacher_id", courseDO.getTeacherId()));
+                CourseDO courseDO1 = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("subject_id", courseDO.getSubjectId()).eq("teacher_id", courseDO.getTeacherId()).eq("semester_id", courseDO.getSemesterId()));
                 if(courseDO1==null){
                     courseMapper.insert(courseDO);
                     //课程类型课程关联表
