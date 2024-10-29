@@ -21,8 +21,6 @@ services:
       - mariadb
     volumes:
       - "./data:/data"
-    ports:
-      - "38081:8080"
     networks:
       - eva-net
 
@@ -30,6 +28,15 @@ services:
     image: registry.littlestrange.site/eva-system/eva-management-frontend
     container_name: eva-admin
     restart: always
+    networks:
+      - eva-net
+
+  nginx:
+    image: registry.littlestrange.site/eva-system/eva-nginx
+    container_name: eva-nginx
+    restart: always
+    volumes:
+      - "./nginx.conf:/etc/nginx/conf.d/default.conf"
     ports:
       - "38080:80"
     networks:

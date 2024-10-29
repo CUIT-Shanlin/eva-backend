@@ -158,11 +158,20 @@ public class UserServiceImpl implements IUserService {
         }
         String username = userQueryGateway.findUsernameById(Math.toIntExact(cmd.getId()))
                 .orElseThrow(() -> new BizException("用户ID不存在"));
-        if (cmd.getStatus() != null && cmd.getStatus() == 0) {
+
+        if (!userQueryGateway.getUserStatus(id).orElseThrow(() -> {
+            SysException e = new SysException("用户状态查找失败");
+            log.error("发生系统异常", e);
+            return e;
+        }).equals(cmd.getStatus())) {
             StpUtil.logout(username);
         }
         userUpdateGateway.updateInfo(cmd);
-        if (!StrUtil.isEmpty(cmd.getUsername())) {
+        if (!userQueryGateway.findUsernameById(id).orElseThrow(() -> {
+            SysException e = new SysException("用户名查找失败");
+            log.error("发生系统异常", e);
+            return e;
+        }).equals(cmd.getUsername())) {
             StpUtil.logout(username);
         }
 

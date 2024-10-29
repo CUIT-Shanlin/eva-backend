@@ -139,6 +139,14 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
                 .select(SysUserDO::getUsername).eq(SysUserDO::getUsername,username)) >= 1;
     }
 
+    @Override
+    public Optional<Integer> getUserStatus(Integer id) {
+        LambdaQueryWrapper<SysUserDO> userQuery = Wrappers.lambdaQuery();
+        userQuery.select(SysUserDO::getStatus)
+                .eq(SysUserDO::getId,id);
+        return Optional.ofNullable(userMapper.selectOne(userQuery).getStatus());
+    }
+
     /**
      * 填充UserEntity字段
      * @param userDO SysUserDO

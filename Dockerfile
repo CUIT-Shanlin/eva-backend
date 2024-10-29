@@ -7,6 +7,8 @@ ENV PARAMS=""
 
 ENV JVMOPTIONS="-Dspring.profiles.active=test -jar"
 
+RUN mkdir /data/avatar
+
 COPY ./start/target/eva-server.jar /app.jar
 
 #ENTRYPOINT ["java","$JVMOPTIONS","-jar","/app.jar","$PARAMS"]

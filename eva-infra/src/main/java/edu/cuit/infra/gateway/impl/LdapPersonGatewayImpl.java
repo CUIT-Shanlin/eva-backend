@@ -68,11 +68,11 @@ public class LdapPersonGatewayImpl implements LdapPersonGateway {
     @Override
     public void createUser(LdapPersonEntity user, String password) {
         LdapPersonDO personDO = ldapUserConvertor.ldapPersonEntityToLdapPersonDO(user);
-        personDO.setUserPassword(password);
         personDO.setId(EvaLdapUtils.getUserLdapNameId(personDO.getUsername()));
         personDO.setUidNumber(IdUtil.getSnowflakeNextIdStr());
         personDO.setHomeDirectory("/home/" + user.getUsername());
         ldapTemplate.create(personDO);
+        changePassword(user.getUsername(),password);
     }
 
     @Override
