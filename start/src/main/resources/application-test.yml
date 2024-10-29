@@ -16,6 +16,9 @@ spring:
     username: cn=admin,dc=3015,dc=cuit
     password: 30153015
 
+common:
+  print-illegal-arguments: true
+
 eva:
   avatar:
     #    directory: "/avatar"
