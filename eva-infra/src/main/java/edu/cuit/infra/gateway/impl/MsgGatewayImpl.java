@@ -102,7 +102,12 @@ public class MsgGatewayImpl implements MsgGateway {
 
     private MsgEntity getMsgEntity(MsgTipDO msgTipDO) {
         return msgConvertor.toMsgEntity(msgTipDO,
-                () -> userQueryGateway.findById(msgTipDO.getSenderId()).orElseThrow(() -> new BizException("发送者id不存在")),
+                () -> {
+                    if (msgTipDO.getSenderId() == null || msgTipDO.getSenderId() < 0) {
+                        return null;
+                    }
+                    return userQueryGateway.findById(msgTipDO.getSenderId()).orElseThrow(() -> new BizException("发送者id不存在"));
+                },
                 () -> userQueryGateway.findById(msgTipDO.getRecipientId()).orElseThrow(() -> new BizException("接受者id不存在")));
     }
 }

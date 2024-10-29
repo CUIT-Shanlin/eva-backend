@@ -26,8 +26,8 @@ public abstract class MsgBizConvertor {
 
     @Mappings({
             @Mapping(target = "recipientId", expression = "java(msg.getRecipient().getId())"),
-            @Mapping(target = "senderId", expression = "java(msg.getSender().getId())"),
-            @Mapping(target = "senderName", expression = "java(msg.getSender().getName())")
+            @Mapping(target = "senderId", expression = "java(msg.getSender() == null ? -1 : msg.getSender().getId())"),
+            @Mapping(target = "senderName", expression = "java(msg.getSender() == null ? \"\" : msg.getSender().getName())")
     })
     public abstract GenericResponseMsg toResponseMsg(MsgEntity msg);
 
@@ -41,8 +41,8 @@ public abstract class MsgBizConvertor {
 
     @Mappings({
             @Mapping(target = "recipientId", expression = "java(msg.getRecipient().getId())"),
-            @Mapping(target = "senderId", expression = "java(msg.getSender().getId())"),
-            @Mapping(target = "senderName", expression = "java(msg.getSender().getName())"),
+            @Mapping(target = "senderId", expression = "java(msg.getSender() == null ? -1 : msg.getSender().getId())"),
+            @Mapping(target = "senderName", expression = "java(msg.getSender() == null ? \"\" : msg.getSender().getName())"),
             @Mapping(target = "courseInfo", source = "singleCourseCO"),
             @Mapping(target = "id",source = "msg.id")
     })
