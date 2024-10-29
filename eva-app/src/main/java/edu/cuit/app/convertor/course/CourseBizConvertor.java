@@ -72,7 +72,7 @@ public abstract class CourseBizConvertor {
             @Mapping(target = "updateTime",source = "courseEntity.updateTime"),
             @Mapping(target = "name",expression="java(courseEntity.getSubjectEntity().getName())"),
             @Mapping(target = "templateMsg",expression="java(toEvaTemplateCO(formTemplateMapper.selectById(courseEntity.getTemplateId())))"),
-            @Mapping(target = "teacherInfoCO",expression="java(toTeacherInfoCO(courseEntity.getTeacher()))")
+            @Mapping(target = "teacherMsg",expression="java(toTeacherInfoCO(courseEntity.getTeacher()))")
     })
     public abstract CourseModelCO toCourseModelCO(CourseEntity courseEntity, List<String> classroomList);
 

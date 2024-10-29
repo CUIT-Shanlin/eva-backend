@@ -70,9 +70,9 @@ public interface CourseConvertor {
             @Mapping(target = "courseBaseMsg.createTime",source = "courInfo.createTime"),
             @Mapping(target = "courseBaseMsg.updateTime",source = "courInfo.updateTime"),
             @Mapping(target = "courseBaseMsg.templateMsg",source = "template"),
-            @Mapping(target = "courseBaseMsg.teacherInfoCO.id",source = "user.id"),
-            @Mapping(target = "courseBaseMsg.teacherInfoCO.name",source = "user.name"),
-            @Mapping(target = "courseBaseMsg.teacherInfoCO.department",source = "user.department")
+            @Mapping(target = "courseBaseMsg.teacherMsg.id",source = "user.id"),
+            @Mapping(target = "courseBaseMsg.teacherMsg.name",source = "user.name"),
+            @Mapping(target = "courseBaseMsg.teacherMsg.department",source = "user.department")
 
     })
     CourseDetailCO toCourseDetailCO(List<CourseType> typeList, List<CoursePeriod> dateList, SubjectDO courInfo
