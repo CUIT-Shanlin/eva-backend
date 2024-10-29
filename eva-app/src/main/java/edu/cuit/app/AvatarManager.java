@@ -68,6 +68,13 @@ public class AvatarManager {
 
     private File getUserAvatarFile(Integer userId) {
         File directory = new File(avatarProperties.getDirectory());
+        if (!directory.exists()) {
+            if (!directory.mkdir()) {
+                SysException e = new SysException("发生内部异常");
+                log.error("创建头像文件夹失败",e);
+                throw e;
+            }
+        }
         return new File(directory, userId + ".jpg");
     }
 
