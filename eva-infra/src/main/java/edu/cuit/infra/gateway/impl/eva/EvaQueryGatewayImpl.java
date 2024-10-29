@@ -588,9 +588,6 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         }
         //根据他们的form_props_values得到对应的数值
         List<String> strings=nowFormRecordDOS.stream().map(FormRecordDO::getFormPropsValues).toList();
-        if(CollectionUtil.isEmpty(strings)){
-            throw new QueryException("找不到模板对应的form_props_values");
-        }
         List<Double> numbers =new ArrayList<>();
         //低于 指定分数的数目
         double aScore = ((BigDecimal) score).doubleValue();
@@ -622,9 +619,6 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         }
         //根据他们的form_props_values得到对应的数值
         List<String> strings1=last1FormRecordDOS.stream().map(FormRecordDO::getFormPropsValues).toList();
-        if(CollectionUtil.isEmpty(strings1)){
-            throw new QueryException("找不到模板对应的form_props_values");
-        }
         List<Double> numbers1=new ArrayList<>();
         //低于 指定分数的数目
         Integer lowerNum1=0;
@@ -1084,7 +1078,13 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     public Optional<String> getTaskTemplate(Integer taskId, Integer semId) {
         //任务
         List<Integer> evaTaskIdS=getEvaTaskIdS(semId);
+        if(CollectionUtil.isEmpty(evaTaskIdS)){
+            throw new QueryException("并没有找到相关任务");
+        }
         EvaTaskDO evaTaskDO=evaTaskMapper.selectOne(new QueryWrapper<EvaTaskDO>().in("id",evaTaskIdS).eq("id",taskId));
+        if(evaTaskDO==null){
+            throw new QueryException("无法找到该任务");
+        }
         CourInfDO courInfDO=courInfMapper.selectById(evaTaskDO.getCourInfId());
         if(courInfDO==null){
             throw new QueryException("并没有找到相关课程详情");
