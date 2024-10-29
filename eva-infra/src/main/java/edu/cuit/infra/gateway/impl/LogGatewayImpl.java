@@ -71,6 +71,7 @@ public class LogGatewayImpl implements LogGateway {
         if (moduleId >= 0) {
             wrapper.eq("module_id", moduleId);
         }
+        wrapper.orderByDesc("create_time");
         Page<SysLogDO> logPage = logMapper.selectPage(page, wrapper);
         if (logPage.getRecords().isEmpty()) throw new QueryException("没有找到日志记录");
         List<SysLogDO> records = logPage.getRecords();
