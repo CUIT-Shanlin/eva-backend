@@ -42,11 +42,13 @@ import edu.cuit.infra.dal.database.dataobject.course.*;
 import edu.cuit.infra.dal.database.dataobject.eva.CourOneEvaTemplateDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO;
+import edu.cuit.infra.dal.database.dataobject.eva.FormTemplateDO;
 import edu.cuit.infra.dal.database.dataobject.user.*;
 import edu.cuit.infra.dal.database.mapper.course.*;
 import edu.cuit.infra.dal.database.mapper.eva.CourOneEvaTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
+import edu.cuit.infra.dal.database.mapper.eva.FormTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.user.*;
 import edu.cuit.infra.gateway.impl.course.operate.CourseRecommendExce;
 import edu.cuit.infra.util.QueryUtils;
@@ -86,6 +88,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     private final CourseRecommendExce courseRecommendExce;
     private final PaginationConverter paginationConverter;
     private final ObjectMapper objectMapper;
+    private final FormTemplateMapper formTemplateMapper;
 
     @Override
     public PaginationResultEntity<CourseEntity> page(PagingQuery<CourseConditionalQuery> courseQuery, Integer semId) {
@@ -96,11 +99,11 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         Page<CourseDO> pageCourse=new Page<>(courseQuery.getPage(),courseQuery.getSize());
         // 根据courseQuery中的departmentName以及courseQuery中的页数和一页显示数到userMapper中找对应数量的对应用户id，
         List<Integer> userIds=new ArrayList<>();
-        if(courseQuery.getQueryObj().getDepartmentName()!=null){
-            Page<SysUserDO> pageUser=new Page<>(courseQuery.getPage(),courseQuery.getSize());
-            pageUser=userMapper.selectPage(pageUser,new QueryWrapper<SysUserDO>().like("department",courseQuery.getQueryObj().getDepartmentName()));
-            if (pageUser.getRecords().isEmpty())return paginationConverter.toPaginationEntity(pageCourse, new ArrayList<>());
-            userIds=pageUser.getRecords().stream().map(SysUserDO::getId).toList();
+        if(courseQuery.getQueryObj().getDepartmentName()!=null&&!courseQuery.getQueryObj().getDepartmentName().isEmpty()){
+            List<SysUserDO> users = userMapper.selectList(new QueryWrapper<SysUserDO>().like("department", courseQuery.getQueryObj().getDepartmentName()));
+            if (users.isEmpty())return paginationConverter.toPaginationEntity(pageCourse, new ArrayList<>());
+
+            userIds=users.stream().map(SysUserDO::getId).toList();
         }
         //根据courseQuery中的create时间范围，和update时间范围查询semester_id为semId的CourseDO
 
@@ -144,6 +147,13 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
             } catch (JsonProcessingException e) {
                 throw new QueryException("formTemplate暂时为空");
             }
+        }
+        else{
+            evaTemplateCO=new EvaTemplateCO();
+            FormTemplateDO form = formTemplateMapper.selectOne(new QueryWrapper<FormTemplateDO>().eq("id", 1));
+            evaTemplateCO.setId(form.getId());
+            evaTemplateCO.setName(form.getName());
+            evaTemplateCO.setDescription(form.getDescription());
         }
         //根据courseDO中的subjectId来查询课程对应的科目信息
         SubjectDO subjectDO = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("id", courseDO.getSubjectId()));
@@ -336,7 +346,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
 
             // 收集排序后的列表
             return sortedStream.toList();
-        }else {
+        }else if(courseQuery.getSort()==2) {
             //时间降序排序
             // 时间升序排序
             Stream<RecommendCourseCO> stream = recommendCourseCOS.stream();
@@ -355,7 +365,12 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
 
             // 收集排序后的列表
             return sortedStream.toList();
+        }else if(courseQuery.getSort()==0){
+            return recommendCourseCOS.stream().sorted(Comparator.comparingDouble(RecommendCourseCO::getEvaNum)).toList();
+        }else{
+            return recommendCourseCOS;
         }
+
         }
 
 
