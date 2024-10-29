@@ -68,9 +68,26 @@ public class ExcelUtils {
                 result.add(Integer.parseInt(value[0]));
             } else {
                 int start = Integer.parseInt(value[0]);
-                int end = Integer.parseInt(value[1]);
-                for (int i = start; i <= end; i++) {
-                    result.add(i);
+                int end;
+                String endStr = value[1];
+                int length = endStr.length();
+                if (endStr.charAt(length - 1) == '单') {
+                    end = Integer.parseInt(endStr.substring(0,length - 1));
+                    for (int i = start; i <= end; i++) {
+                        if (i % 2 == 0) continue;
+                        result.add(i);
+                    }
+                } else if (endStr.charAt(length - 1) == '双') {
+                    end = Integer.parseInt(endStr.substring(0,length - 1));
+                    for (int i = start; i <= end; i++) {
+                        if (i % 2 != 0) continue;
+                        result.add(i);
+                    }
+                } else {
+                    end = Integer.parseInt(value[1]);
+                    for (int i = start; i <= end; i++) {
+                        result.add(i);
+                    }
                 }
             }
         }
