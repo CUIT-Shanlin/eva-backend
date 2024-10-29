@@ -1,6 +1,7 @@
 package edu.cuit.client.dto.cmd.user;
 
 import com.alibaba.cola.dto.Command;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -17,7 +18,7 @@ public class NewRoleCmd extends Command {
     /**
      * 角色名
      */
-    @NotNull(message = "角色名不能为空")
+    @NotBlank(message = "角色名不能为空")
     private String roleName;
 
     /**

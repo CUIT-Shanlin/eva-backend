@@ -55,7 +55,7 @@ public class RoleQueryGatewayImpl implements RoleQueryGateway {
         GenericConditionalQuery queryObj = query.getQueryObj();
         QueryUtils.fileTimeQuery(roleQuery,queryObj,SysRoleDO::getCreateTime,SysRoleDO::getUpdateTime);
 
-        roleQuery.like(SysRoleDO::getRoleName,queryObj.getKeyword());
+        roleQuery.like(queryObj.getKeyword() != null,SysRoleDO::getRoleName,queryObj.getKeyword());
         //查询
         Page<SysRoleDO> resultPage = roleMapper.selectPage(rolePage, roleQuery);
         return paginationConverter.toPaginationEntity(rolePage,resultPage.getRecords()
