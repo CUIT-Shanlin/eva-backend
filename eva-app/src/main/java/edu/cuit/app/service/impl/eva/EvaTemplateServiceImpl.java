@@ -56,7 +56,8 @@ public class EvaTemplateServiceImpl implements IEvaTemplateService {
     public List<SimpleResultCO> evaAllTemplate() {
         List<EvaTemplateEntity> evaTemplateEntities=evaQueryGateway.getAllTemplate();
         if(CollectionUtil.isEmpty(evaTemplateEntities)){
-            throw new QueryException("暂时还没有评教模板");
+            List list=new ArrayList();
+            return list;
         }
         List<SimpleResultCO> simpleResultCOS=new ArrayList<>();
         for(int i=0;i<evaTemplateEntities.size();i++){
