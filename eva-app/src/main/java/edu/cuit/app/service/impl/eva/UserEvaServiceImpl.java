@@ -36,7 +36,8 @@ public class UserEvaServiceImpl implements IUserEvaService {
         }
         List<EvaRecordEntity> evaRecordEntities=evaQueryGateway.getEvaLogInfo(userId,semId,keyword);
         if(evaRecordEntities.isEmpty()){
-            throw new QueryException("并没有找到相关的评教记录");
+            List list=new ArrayList();
+            return list;
         }
         for (EvaRecordEntity evaRecordEntity : evaRecordEntities) {
             EvaRecordCO evaRecordCO = evaRecordBizConvertor.evaRecordEntityToCo(evaRecordEntity);
@@ -56,7 +57,8 @@ public class UserEvaServiceImpl implements IUserEvaService {
         List<EvaRecordEntity> evaRecordEntities=evaQueryGateway.getEvaEdLogInfo(userId,semId,courseId);
         List<EvaRecordCO> evaRecordCOS=new ArrayList<>();
         if(evaRecordEntities.isEmpty()){
-            throw new QueryException("并没有找到相关的评教记录");
+            List list=new ArrayList();
+            return list;
         }
         for (EvaRecordEntity evaRecordEntity : evaRecordEntities) {
             EvaRecordCO evaRecordCO = evaRecordBizConvertor.evaRecordEntityToCo(evaRecordEntity);

@@ -334,153 +334,152 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     //zjok
     @Override
     public List<EvaTaskEntity> evaSelfTaskInfo(Integer userId,Integer id, String keyword){
-        //根据关键字来查询老师
-        QueryWrapper<SysUserDO> teacherWrapper =new QueryWrapper<>();
-        teacherWrapper.like("name",keyword);
-        List<Integer> teacherIds=sysUserMapper.selectList(teacherWrapper).stream().map(SysUserDO::getId).toList();
-        //关键字查询课程名称subject->课程->课程详情
-        QueryWrapper<SubjectDO> subjectWrapper =new QueryWrapper<>();
-        subjectWrapper.like("name",keyword);
-        List<Integer> subjectIds=subjectMapper.selectList(subjectWrapper).stream().map(SubjectDO::getId).toList();
+        List<CourseDO> courseDOS;
+        QueryWrapper<CourseDO> query=new QueryWrapper<CourseDO>();
+        if(keyword!=null) {
+            //根据关键字来查询老师
+            QueryWrapper<SysUserDO> teacherWrapper = new QueryWrapper<>();
+            teacherWrapper.like("name", keyword);
+            List<Integer> teacherIds = sysUserMapper.selectList(teacherWrapper).stream().map(SysUserDO::getId).toList();
+            //关键字查询课程名称subject->课程->课程详情
+            QueryWrapper<SubjectDO> subjectWrapper = new QueryWrapper<>();
+            subjectWrapper.like("name", keyword);
+            List<Integer> subjectIds = subjectMapper.selectList(subjectWrapper).stream().map(SubjectDO::getId).toList();
 
-        if(CollectionUtil.isNotEmpty(teacherIds)||CollectionUtil.isNotEmpty(subjectIds)){
+            if (CollectionUtil.isNotEmpty(teacherIds) || CollectionUtil.isNotEmpty(subjectIds)) {
+                if (CollectionUtil.isNotEmpty(teacherIds)) {
+                    query.in("teacher_id", teacherIds);
+                }
+                if (CollectionUtil.isNotEmpty(subjectIds)) {
+                    query.in("subject_id", subjectIds);
+                }
+            }
+        }
+        if (id != null) {
+            query.eq("semester_id", id);
+        }
+        courseDOS=courseMapper.selectList(query);
 
-            List<CourseDO> courseDOS;
-            QueryWrapper<CourseDO> query=new QueryWrapper<CourseDO>();
-            if(id!=null){
-                query.eq("semester_id",id);
-            }
-            if(CollectionUtil.isNotEmpty(teacherIds)){
-                query.in("teacher_id",teacherIds);
-            }
-            if(CollectionUtil.isNotEmpty(subjectIds)){
-                query.in("subject_id",subjectIds);
-            }
-            courseDOS=courseMapper.selectList(query);
-
-            //eva任务->课程详情表->课程表->学期id
-            List<Integer> courseIds=courseDOS.stream().map(CourseDO::getId).toList();
-            if(CollectionUtil.isEmpty(courseIds)){
-                List list=new ArrayList();
-                return list;
-            }
-            List<CourInfDO> courInfDOS;
-            if(CollectionUtil.isEmpty(courseIds)){
-                List list=new ArrayList();
-                return list;
-            }else {
-                courInfDOS=courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id",courseIds));
-            }
-            List<Integer> courInfIds=courInfDOS.stream().map(CourInfDO::getId).toList();
-            if(CollectionUtil.isEmpty(courInfIds)){
-                List list=new ArrayList();
-                return list;
-            }
-            List<EvaTaskDO> evaTaskDOS=null;
-            if(CollectionUtil.isEmpty(courInfIds)){
-                List list=new ArrayList();
-                return list;
-            }else {
-                evaTaskDOS = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id", courInfIds)
-                        //顺便选出没有完成的
-                        .eq("status", 0).eq("teacher_id", userId));
-            }
-            if(CollectionUtil.isEmpty(evaTaskDOS)){
-                List list=new ArrayList();
-                return list;
-            }
-            List<SingleCourseEntity> courseEntities=getListCurInfoEntities(courInfDOS);
-
-            SysUserDO teacher=sysUserMapper.selectById(userId);
-            List<SysUserDO> teachers=new ArrayList<>();
-            teachers.add(teacher);
-
-            List<UserEntity> userEntities=teachers.stream().map(sysUserDO->toUserEntity(sysUserDO.getId())).toList();
-
-            return getEvaTaskEntities(evaTaskDOS,userEntities,courseEntities);
-        }else{
+        //eva任务->课程详情表->课程表->学期id
+        List<Integer> courseIds=courseDOS.stream().map(CourseDO::getId).toList();
+        if(CollectionUtil.isEmpty(courseIds)){
             List list=new ArrayList();
             return list;
         }
+        List<CourInfDO> courInfDOS;
+        if(CollectionUtil.isEmpty(courseIds)){
+            List list=new ArrayList();
+            return list;
+        }else {
+            courInfDOS=courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id",courseIds));
+        }
+        List<Integer> courInfIds=courInfDOS.stream().map(CourInfDO::getId).toList();
+        if(CollectionUtil.isEmpty(courInfIds)){
+            List list=new ArrayList();
+            return list;
+        }
+        List<EvaTaskDO> evaTaskDOS=null;
+        if(CollectionUtil.isEmpty(courInfIds)){
+            List list=new ArrayList();
+            return list;
+        }else {
+            evaTaskDOS = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id", courInfIds)
+                    //顺便选出没有完成的
+                    .eq("status", 0).eq("teacher_id", userId));
+        }
+        if(CollectionUtil.isEmpty(evaTaskDOS)){
+            List list=new ArrayList();
+            return list;
+        }
+        List<SingleCourseEntity> courseEntities=getListCurInfoEntities(courInfDOS);
+        SysUserDO teacher=sysUserMapper.selectById(userId);
+        List<SysUserDO> teachers=new ArrayList<>();
+        teachers.add(teacher);
+
+        List<UserEntity> userEntities=teachers.stream().map(sysUserDO->toUserEntity(sysUserDO.getId())).toList();
+
+        return getEvaTaskEntities(evaTaskDOS,userEntities,courseEntities);
     }
     //zjok
     @Override
-    public List<EvaRecordEntity> getEvaLogInfo(Integer evaUserId,Integer id,String keyword) {
-        //根据关键字来查询相关的课程或者老师
-        QueryWrapper<SysUserDO> teacherWrapper =new QueryWrapper<>();
-        teacherWrapper.like("name",keyword);
-        List<Integer> teacherIds=sysUserMapper.selectList(teacherWrapper).stream().map(SysUserDO::getId).toList();
-        //关键字查询课程名称subject->课程->课程详情
-        QueryWrapper<SubjectDO> subjectWrapper =new QueryWrapper<>();
-        subjectWrapper.like("name",keyword);
-        List<Integer> subjectIds=subjectMapper.selectList(subjectWrapper).stream().map(SubjectDO::getId).toList();
+    public List<EvaRecordEntity> getEvaLogInfo(Integer evaUserId,Integer id,String keyword){
+        List<CourseDO> courseDOS;
+        QueryWrapper<CourseDO> query=new QueryWrapper<CourseDO>();
 
-        if(CollectionUtil.isNotEmpty(teacherIds)||CollectionUtil.isNotEmpty(subjectIds)){
-            //评教记录-》评教任务-》课程详情表->课程表->学期id
-            List<CourseDO> courseDOS;
-            QueryWrapper<CourseDO> query=new QueryWrapper<CourseDO>();
-            System.out.println(id);
-            if(id!=null){
-                query.eq("semester_id",id);
-            }
-            if(CollectionUtil.isNotEmpty(teacherIds)) {
-                query.in( "teacher_id", teacherIds);
-            }
-            if(CollectionUtil.isNotEmpty(subjectIds)) {
-                query.in( "subject_id", subjectIds);
-            }
-            courseDOS=courseMapper.selectList(query);
+        if(keyword!=null) {
+            //根据关键字来查询相关的课程或者老师
+            QueryWrapper<SysUserDO> teacherWrapper = new QueryWrapper<>();
+            teacherWrapper.like("name", keyword);
+            List<Integer> teacherIds = sysUserMapper.selectList(teacherWrapper).stream().map(SysUserDO::getId).toList();
+            //关键字查询课程名称subject->课程->课程详情
+            QueryWrapper<SubjectDO> subjectWrapper = new QueryWrapper<>();
+            subjectWrapper.like("name", keyword);
+            List<Integer> subjectIds = subjectMapper.selectList(subjectWrapper).stream().map(SubjectDO::getId).toList();
 
-            //eva任务->课程详情表->课程表->学期id
-            List<Integer> courseIds=courseDOS.stream().map(CourseDO::getId).toList();
-            if(CollectionUtil.isEmpty(courseIds)){
+            if (CollectionUtil.isNotEmpty(teacherIds) || CollectionUtil.isNotEmpty(subjectIds)) {
+                //评教记录-》评教任务-》课程详情表->课程表->学期id
+                if (CollectionUtil.isNotEmpty(teacherIds)) {
+                    query.in("teacher_id", teacherIds);
+                }
+                if (CollectionUtil.isNotEmpty(subjectIds)) {
+                    query.in("subject_id", subjectIds);
+                }
+            }else{
                 List list=new ArrayList();
                 return list;
             }
-            List<CourInfDO> courInfDOS;
-            if(CollectionUtil.isEmpty(courseIds)){
-                List list=new ArrayList();
-                return list;
-            }else {
-                courInfDOS = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", courseIds));
-            }
-            List<Integer> courInfIds=courInfDOS.stream().map(CourInfDO::getId).toList();
-            List<EvaTaskDO> evaTaskDOS;
-            if(CollectionUtil.isEmpty(courInfIds)){
-                List list=new ArrayList();
-                return list;
-            }else {
-                evaTaskDOS = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id", courInfIds).eq("teacher_id", evaUserId));
-            }
-            List<Integer> evaTaskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
-            List<FormRecordDO> formRecordDOS;
-            if(CollectionUtil.isEmpty(evaTaskDOS)){
-                List list=new ArrayList();
-                return list;
-            }else {
-                formRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIds));
-            }
+        }
+        if(id!=null){
+            query.eq("semester_id",id);
+        }
+        courseDOS=courseMapper.selectList(query);
 
-            if(CollectionUtil.isEmpty(formRecordDOS)){
-                List list=new ArrayList();
-                return list;
-            }
-            List<SingleCourseEntity> courseEntities=courInfDOS.stream().map(courInfDO -> courseConvertor.toSingleCourseEntity(
-                    ()->toCourseEntity(courInfDO.getCourseId(),courseMapper.selectById(courInfDO.getCourseId()).getSemesterId()),courInfDO)).toList();
-
-            SysUserDO teacher=sysUserMapper.selectById(evaUserId);
-            List<SysUserDO> teachers=new ArrayList<>();
-            teachers.add(teacher);
-
-            List<UserEntity> userEntities=teachers.stream().map(sysUserDO->toUserEntity(sysUserDO.getId())).toList();
-
-            List<EvaTaskEntity> evaTaskEntityList=getEvaTaskEntities(evaTaskDOS,userEntities,courseEntities);
-
-            return getRecordEntities(formRecordDOS,evaTaskEntityList);
-        }else{
+        //eva任务->课程详情表->课程表->学期id
+        List<Integer> courseIds=courseDOS.stream().map(CourseDO::getId).toList();
+        if(CollectionUtil.isEmpty(courseIds)){
             List list=new ArrayList();
             return list;
         }
+        List<CourInfDO> courInfDOS;
+        if(CollectionUtil.isEmpty(courseIds)){
+            List list=new ArrayList();
+            return list;
+        }else {
+            courInfDOS = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", courseIds));
+        }
+        List<Integer> courInfIds=courInfDOS.stream().map(CourInfDO::getId).toList();
+        List<EvaTaskDO> evaTaskDOS;
+        if(CollectionUtil.isEmpty(courInfIds)){
+            List list=new ArrayList();
+            return list;
+        }else {
+            evaTaskDOS = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id", courInfIds).eq("teacher_id", evaUserId));
+        }
+        List<Integer> evaTaskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
+        List<FormRecordDO> formRecordDOS;
+        if(CollectionUtil.isEmpty(evaTaskDOS)){
+            List list=new ArrayList();
+            return list;
+        }else {
+            formRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIds));
+        }
+
+        if(CollectionUtil.isEmpty(formRecordDOS)){
+            List list=new ArrayList();
+            return list;
+        }
+        List<SingleCourseEntity> courseEntities=courInfDOS.stream().map(courInfDO -> courseConvertor.toSingleCourseEntity(
+                ()->toCourseEntity(courInfDO.getCourseId(),courseMapper.selectById(courInfDO.getCourseId()).getSemesterId()),courInfDO)).toList();
+
+        SysUserDO teacher=sysUserMapper.selectById(evaUserId);
+        List<SysUserDO> teachers=new ArrayList<>();
+        teachers.add(teacher);
+
+        List<UserEntity> userEntities=teachers.stream().map(sysUserDO->toUserEntity(sysUserDO.getId())).toList();
+
+        List<EvaTaskEntity> evaTaskEntityList=getEvaTaskEntities(evaTaskDOS,userEntities,courseEntities);
+
+        return getRecordEntities(formRecordDOS,evaTaskEntityList);
     }
     //zjok
     @Override
