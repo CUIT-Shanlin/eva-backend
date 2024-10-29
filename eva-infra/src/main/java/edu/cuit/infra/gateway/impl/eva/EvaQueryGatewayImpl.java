@@ -1095,6 +1095,10 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         CourseDO courseDO=courseMapper.selectById(courInfDO.getCourseId());
         FormTemplateDO formTemplateDO=formTemplateMapper.selectOne(new QueryWrapper<FormTemplateDO>().eq("id",courseDO.getTemplateId()));
 
+        if(courOneEvaTemplateDO==null&&formTemplateDO==null){
+            throw new QueryException("快照模板和评教模板都没有相关数据");
+        }
+
         if(courOneEvaTemplateDO!=null){
             JSONObject jsonObject= new JSONObject(courOneEvaTemplateDO.getFormTemplate());
             String s=jsonObject.getStr("props");
