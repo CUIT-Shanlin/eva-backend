@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -54,8 +55,16 @@ public class AvatarManager {
         File userAvatarFile = getUserAvatarFile(userId);
         try {
             BufferedImage readImage = ImageIO.read(imageInputStream);
-            boolean jpg = ImageIO.write(readImage, "jpg", userAvatarFile);
-            System.out.println(jpg);
+            int width = readImage.getWidth();
+            int height = readImage.getHeight();
+
+            BufferedImage bfImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+            bfImage.getGraphics().drawImage(readImage.getScaledInstance(width, height, Image.SCALE_SMOOTH), 0, 0, null);
+
+            BufferedImage whiteImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+            whiteImage.createGraphics().drawImage(bfImage, 0, 0, Color.WHITE, null);
+
+            ImageIO.write(whiteImage, "jpg", userAvatarFile);
         } catch (IOException e) {
             log.error("读取用户图片失败",e);
             throw new SysException("用户头像读取失败，请联系管理员");
