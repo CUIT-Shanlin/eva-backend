@@ -29,7 +29,7 @@ public interface CourseUpdateGateway {
      *@param updateCourseCmd 修改课程信息
      *
      * */
-    String updateCourse(Integer semId, UpdateCourseCmd updateCourseCmd);
+    Map<String,List<Integer>> updateCourse(Integer semId, UpdateCourseCmd updateCourseCmd);
 
     /**
      * 批量修改课程的模板
