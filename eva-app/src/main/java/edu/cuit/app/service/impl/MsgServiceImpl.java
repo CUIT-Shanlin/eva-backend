@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -139,8 +140,8 @@ public class MsgServiceImpl implements IMsgService {
                             log.error("查找发送者用户信息失败，请联系管理员",e);
                             return e;
                         });
-            } else senderName = "系统";
-        }
+            } else senderName = "";
+        } else senderName = "匿名用户";
         GenericRequestMsg requestMsg = msgBizConvertor.toRequestMsg(msg);
         GenericResponseMsg responseMsg = msgBizConvertor.toResponseMsg(requestMsg, senderName);
         // 判断是否为广播消息
@@ -152,12 +153,13 @@ public class MsgServiceImpl implements IMsgService {
                     cloneMsg.setRecipientId(id);
                     msgGateway.insertMessage(cloneMsg);
                 }
+                responseMsg.setCreateTime(LocalDateTime.now());
                 websocketManager.broadcastMessage(responseMsg);
             },executor);
 
         } else {
-            websocketManager.sendMessage(userQueryGateway.findUsernameById(msg.getRecipientId()).orElse(null),responseMsg);
             msgGateway.insertMessage(requestMsg);
+            websocketManager.sendMessage(userQueryGateway.findUsernameById(msg.getRecipientId()).orElse(null),responseMsg);
         }
     }
 
