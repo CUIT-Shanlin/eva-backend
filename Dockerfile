@@ -5,9 +5,10 @@ MAINTAINER  "LittleStrange"
 
 ENV PARAMS=""
 
-ENV JVMOPTIONS="-Dspring.profiles.active=test -jar"
+ENV JVMOPTIONS="-Duser.timezone=GMT+08 -Dspring.profiles.active=test -jar"
 
 RUN mkdir -p /data/avatar
+RUN echo Asia/Shanghai > /etc/timezone
 
 COPY ./start/target/eva-server.jar /app.jar
 
