@@ -162,7 +162,8 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
             for (int i = 0; i < evaCourInfDOList.size(); i++) {
                 if (courInfDO.getWeek().equals(evaCourInfDOList.get(i).getWeek())) {
                     if (courInfDO.getDay().equals(evaCourInfDOList.get(i).getDay())) {
-                        if (courInfDO.getStartTime() >= evaCourInfDOList.get(i).getEndTime() || courInfDO.getEndTime() <= evaCourInfDOList.get(i).getStartTime()) {
+                        if ((courInfDO.getStartTime() <= evaCourInfDOList.get(i).getEndTime() && courInfDO.getEndTime() >= evaCourInfDOList.get(i).getStartTime())
+                        ||(evaCourInfDOList.get(i).getStartTime()<=courInfDO.getEndTime()&&evaCourInfDOList.get(i).getEndTime()>=courInfDO.getStartTime())){
                             throw new UpdateException("与你其他任务所上课程冲突");
                         }
                     }
@@ -178,7 +179,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         evaTaskDO.setIsDeleted(0);
         evaTaskMapper.insert(evaTaskDO);
 
-        Integer taskId=evaTaskMapper.selectOne(new QueryWrapper<EvaTaskDO>().eq("teacher_id",addTaskCO.getTeacherId()).eq("cour_inf_id",addTaskCO.getCourInfId())).getId();
+        Integer taskId=evaTaskMapper.selectOne(new QueryWrapper<EvaTaskDO>().eq("teacher_id",addTaskCO.getTeacherId()).eq("cour_inf_id",addTaskCO.getCourInfId()).eq("status",0)).getId();
 
         if(taskId==null){
             throw new QueryException("没有找到你的id");
