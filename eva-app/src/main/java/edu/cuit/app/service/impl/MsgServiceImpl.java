@@ -140,8 +140,8 @@ public class MsgServiceImpl implements IMsgService {
                             log.error("查找发送者用户信息失败，请联系管理员",e);
                             return e;
                         });
-            } else senderName = "系统";
-        }
+            } else senderName = "";
+        } else senderName = "匿名用户";
         GenericRequestMsg requestMsg = msgBizConvertor.toRequestMsg(msg);
         GenericResponseMsg responseMsg = msgBizConvertor.toResponseMsg(requestMsg, senderName);
         // 判断是否为广播消息
