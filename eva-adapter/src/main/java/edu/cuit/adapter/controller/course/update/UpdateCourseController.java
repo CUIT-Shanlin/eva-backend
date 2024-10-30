@@ -11,6 +11,7 @@ import edu.cuit.client.dto.cmd.course.*;
 import edu.cuit.client.dto.data.Term;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.common.enums.LogModule;
+import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import edu.cuit.zhuyimeng.framework.logging.aspect.annotation.OperateLog;
 import edu.cuit.zhuyimeng.framework.logging.aspect.enums.OperateLogType;
@@ -183,6 +184,7 @@ public class UpdateCourseController {
     @PutMapping("/course/my/info/date")
     public CommonResult<Void> updateSelfCourse(
             @Valid @RequestBody UpdateCourseInfoAndTime updateCourseInfoAndTime){
+        if(updateCourseInfoAndTime==null)throw new QueryException("请传入完整的课程及时间段信息");
         userCourseService.updateSelfCourse(updateCourseInfoAndTime.getCourseInfo(), updateCourseInfoAndTime.getDateArr());
         return CommonResult.success(null);
     }

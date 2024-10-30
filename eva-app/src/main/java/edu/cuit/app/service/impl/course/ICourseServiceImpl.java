@@ -19,6 +19,7 @@ import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.gateway.course.CourseDeleteGateway;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.domain.gateway.course.CourseUpdateGateway;
+import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,7 @@ public class ICourseServiceImpl implements ICourseService {
     private final CourseUpdateGateway courseUpdateGateway;
     private final CourseDeleteGateway courseDeleteGateway;
     private final CourseBizConvertor courseConvertor;
+    private final UserQueryGateway userQueryGateway;
     private final MsgResult msgResult;
     @CheckSemId
     @Override
@@ -82,8 +84,8 @@ public class ICourseServiceImpl implements ICourseService {
     public void updateSingleCourse(Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd) {
         String userName =String.valueOf(StpUtil.getLoginId()) ;
         Map<String, List<Integer>> map = courseUpdateGateway.updateSingleCourse(userName, semId, updateSingleCourseCmd);
-
-        msgResult.toSendMsg(map);
+        Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
+        msgResult.toSendMsg(map, userId.orElseThrow(() -> new QueryException("请先登录")));
 
     }
 
@@ -91,7 +93,8 @@ public class ICourseServiceImpl implements ICourseService {
     @Override
     public void allocateTeacher(Integer semId, AlignTeacherCmd alignTeacherCmd) {
         Map<String, List<Integer>> map = courseUpdateGateway.assignTeacher(semId, alignTeacherCmd);
-       msgResult.toSendMsg(map);
+        Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
+        msgResult.toSendMsg(map, userId.orElseThrow(() -> new QueryException("请先登录")));
 
     }
 
@@ -99,7 +102,8 @@ public class ICourseServiceImpl implements ICourseService {
     @Override
     public void deleteCourses(Integer semId, Integer id, CoursePeriod coursePeriod) {
         Map<String, List<Integer>> map = courseDeleteGateway.deleteCourses(semId, id, coursePeriod);
-        msgResult.toSendMsg(map);
+        Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
+        msgResult.toSendMsg(map, userId.orElseThrow(() -> new QueryException("请先登录")));
 
     }
 

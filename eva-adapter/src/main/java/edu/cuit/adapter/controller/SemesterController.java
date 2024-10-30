@@ -46,6 +46,7 @@ public class SemesterController {
      */
     @GetMapping("/semester/{id}")
     public CommonResult<SemesterCO> semesterInfo(@PathVariable Integer id) {
+        System.out.println("jingru");
         return CommonResult.success(semesterService.semesterInfo(id));
     }
 

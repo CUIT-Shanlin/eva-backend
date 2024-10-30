@@ -1,5 +1,6 @@
 package edu.cuit.app.service.impl.course;
 
+import cn.dev33.satoken.stp.StpUtil;
 import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.PaginationBizConvertor;
 import edu.cuit.app.convertor.course.CourseBizConvertor;
@@ -25,6 +26,7 @@ import edu.cuit.domain.entity.course.SubjectEntity;
 import edu.cuit.domain.gateway.course.CourseDeleteGateway;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.domain.gateway.course.CourseUpdateGateway;
+import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +42,7 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     private final CourseQueryGateway courseQueryGateway;
     private final CourseUpdateGateway courseUpdateGateway;
     private final CourseDeleteGateway courseDeleteGateway;
+    private final UserQueryGateway userQueryGateway;
     private final CourseBizConvertor courseBizConvertor;
     private final PaginationBizConvertor pagenConvertor;
     private final MsgServiceImpl msgService;
@@ -86,11 +90,10 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     @CheckSemId
     @Override
     public void updateCourse(Integer semId, UpdateCourseCmd updateCourseCmd) {
-        String msg = courseUpdateGateway.updateCourse(semId, updateCourseCmd);
-        msgService.sendMessage(new MessageBO().setMsg(msg)
-                .setMode(0).setIsShowName(1)
-                .setRecipientId(null).setSenderId(null)
-                .setType(1));
+        Map<String, List<Integer>> map = courseUpdateGateway.updateCourse(semId, updateCourseCmd);
+        Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
+        msgResult.toSendMsg(map, userId.orElseThrow(() -> new QueryException("请先登录")));
+
     }
 
     @CheckSemId
@@ -108,8 +111,8 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     @CheckSemId
     @Override
     public void delete(Integer semId, Integer id) {
-
         Map<String, List<Integer>> map = courseDeleteGateway.deleteCourse(semId, id);
-       msgResult.toSendMsg(map);
+        Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
+        msgResult.toSendMsg(map, userId.orElseThrow(() -> new QueryException("请先登录")));
     }
 }
