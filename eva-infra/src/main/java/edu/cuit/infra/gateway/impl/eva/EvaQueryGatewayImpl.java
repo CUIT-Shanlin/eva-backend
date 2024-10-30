@@ -203,7 +203,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             evaTaskWrapper.in(query.getQueryObj().getEvaTeacherIds()!=null,"teacher_id",query.getQueryObj().getEvaTeacherIds());
         }
         if(query.getQueryObj().getStartEvaluateTime()!=null&&StringUtils.isNotBlank(query.getQueryObj().getStartEvaluateTime())){
-            evaTaskWrapper.ge(query.getQueryObj().getStartEvaluateTime()!=null,"start_time",query.getQueryObj().getStartEvaluateTime());
+            evaTaskWrapper.ge(query.getQueryObj().getStartEvaluateTime()!=null,"create_time",query.getQueryObj().getStartEvaluateTime());
         }
 
         List<SingleCourseEntity> courseEntities=getListCurInfoEntities(courInfDOS);
@@ -232,7 +232,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         formRecordWrapper.in("task_id",evaTaskDOList.stream().map(EvaTaskDO::getId).toList());
 
         if(query.getQueryObj().getEndEvaluateTime()!=null){
-            formRecordWrapper.le(query.getQueryObj().getEndEvaluateTime()!=null,"start_time",query.getQueryObj().getEndEvaluateTime());
+            formRecordWrapper.le(query.getQueryObj().getEndEvaluateTime()!=null,"create_time",query.getQueryObj().getEndEvaluateTime());
         }
 
 
@@ -1016,9 +1016,16 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
                 records.add(unqualifiedUserInfoCO);
             }
         }
+        List<UnqualifiedUserInfoCO> k=new ArrayList<>();
+        for(int i=(query.getPage()-1)*query.getSize();i< query.getPage()* query.getSize();i++){
+            if(i>(records.size()-1)){
+                break;
+            }
+            k.add(records.get(i));
+        }
         Page<UnqualifiedUserInfoCO> pageUnqualifiedUserInfoCO=new Page<>(query.getPage(), query.getSize(),records.size());
 
-        return paginationConverter.toPaginationEntity(pageUnqualifiedUserInfoCO,records);
+        return paginationConverter.toPaginationEntity(pageUnqualifiedUserInfoCO,k);
     }
     @Override
     public PaginationResultEntity<UnqualifiedUserInfoCO> pageBeEvaUnqualifiedUserInfo(Integer semId,PagingQuery<UnqualifiedUserConditionalQuery> query,Integer target){
@@ -1055,9 +1062,16 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
                 records.add(unqualifiedUserInfoCO);
             }
         }
+        List<UnqualifiedUserInfoCO> k=new ArrayList<>();
+        for(int i=(query.getPage()-1)*query.getSize();i< query.getPage()* query.getSize();i++){
+            if(i>(records.size()-1)){
+                break;
+            }
+            k.add(records.get(i));
+        }
         Page<UnqualifiedUserInfoCO> pageUnqualifiedUserInfoCO=new Page<>(query.getPage(), query.getSize(),records.size());
 
-        return paginationConverter.toPaginationEntity(pageUnqualifiedUserInfoCO,records);
+        return paginationConverter.toPaginationEntity(pageUnqualifiedUserInfoCO,k);
     }
 
     @Override
