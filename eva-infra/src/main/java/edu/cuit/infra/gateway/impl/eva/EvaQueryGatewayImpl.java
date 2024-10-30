@@ -231,7 +231,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         }
         formRecordWrapper.in("task_id",evaTaskDOList.stream().map(EvaTaskDO::getId).toList());
 
-        if(query.getQueryObj().getEndEvaluateTime()!=null){
+        if(query.getQueryObj().getEndEvaluateTime()!=null&&StringUtils.isNotBlank(query.getQueryObj().getEndEvaluateTime())){
             formRecordWrapper.le(query.getQueryObj().getEndEvaluateTime()!=null,"create_time",query.getQueryObj().getEndEvaluateTime());
         }
 
