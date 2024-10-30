@@ -44,9 +44,8 @@ public class SemesterController {
      * 获取一个学期的信息
      * @param id 学期id
      */
-    @GetMapping("/semester/{id}")
+    @GetMapping("/{id}")
     public CommonResult<SemesterCO> semesterInfo(@PathVariable Integer id) {
-        System.out.println("jingru");
         return CommonResult.success(semesterService.semesterInfo(id));
     }
 
