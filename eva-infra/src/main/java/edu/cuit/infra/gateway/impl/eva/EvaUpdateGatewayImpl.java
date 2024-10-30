@@ -5,6 +5,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import edu.cuit.client.dto.clientobject.eva.AddTaskCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskFormCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
@@ -49,7 +50,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
         //检验是否那个模板prop有重复
-        if(evaTemplateCO.getProps()!=null) {
+        if(evaTemplateCO.getProps()!=null&&StringUtils.isNotBlank(evaTemplateCO.getProps())) {
             List<String> props= Arrays.stream(evaTemplateCO.getProps().split(",")).toList();
             long count = props.stream().distinct().count();
             if (props.size() != count) {
