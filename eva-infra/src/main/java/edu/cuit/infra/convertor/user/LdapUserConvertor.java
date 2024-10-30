@@ -43,7 +43,6 @@ public interface LdapUserConvertor {
             @Mapping(target = "homeDirectory", ignore = true),
             @Mapping(target = "id", ignore = true),
             @Mapping(target = "uidNumber", ignore = true),
-            @Mapping(target = "userPassword", ignore = true)
     })
     LdapPersonDO ldapPersonEntityToLdapPersonDO(LdapPersonEntity ldapPersonEntity);
 

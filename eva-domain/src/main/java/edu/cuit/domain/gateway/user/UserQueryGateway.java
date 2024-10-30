@@ -81,4 +81,11 @@ public interface UserQueryGateway {
      * @return 是否存在
      */
     Boolean isUsernameExist(String username);
+
+    /**
+     * 获取用户状态
+     * @param id 用户id
+     * @return 用户状态
+     */
+    Optional<Integer> getUserStatus(Integer id);
 }

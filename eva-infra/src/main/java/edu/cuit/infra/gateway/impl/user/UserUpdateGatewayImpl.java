@@ -121,7 +121,10 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
         SysUserDO userDO = userConverter.toUserDO(cmd);
         LdapPersonEntity ldapPerson = ldapUserConvertor.userDOToLdapPersonEntity(userDO);
         userMapper.insert(userDO);
-        assignRole(userDO.getId(),List.of(roleQueryGateway.getDefaultRoleId()));
+        SysUserRoleDO sysUserRoleDO = new SysUserRoleDO()
+                .setRoleId(roleQueryGateway.getDefaultRoleId())
+                .setUserId(userDO.getId());
+        userRoleMapper.insert(sysUserRoleDO);
         ldapPersonGateway.createUser(ldapPerson,cmd.getPassword());
     }
 
