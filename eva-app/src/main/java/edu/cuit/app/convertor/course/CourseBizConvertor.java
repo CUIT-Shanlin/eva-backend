@@ -105,7 +105,8 @@ public abstract class CourseBizConvertor {
             @Mapping(target = "id",expression = "java(singleCourseEntity.getCourseEntity().getId())"),
             @Mapping(target = "name",expression = "java(singleCourseEntity.getCourseEntity().getSubjectEntity().getName())"),
             @Mapping(target = "teacherName",expression = "java(singleCourseEntity.getCourseEntity().getTeacher().getName())"),
-            @Mapping(target = "evaNum",expression = "java(size)")
+            @Mapping(target = "evaNum",expression = "java(size)"),
+            @Mapping(target = "time",expression = "java(toCourseTime(singleCourseEntity))")
     })
     public abstract SingleCourseCO toSingleCourseCO(SingleCourseEntity singleCourseEntity,Integer size);
 
