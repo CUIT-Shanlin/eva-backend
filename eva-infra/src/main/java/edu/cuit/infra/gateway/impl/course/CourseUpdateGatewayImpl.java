@@ -411,7 +411,6 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                 evaTaskMapper.delete(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId()));
             }
             for (CourInfDO courInfDO : difference) {
-//                if(courInfMapper.exists(new QueryWrapper<CourInfDO>().eq("course_id",courInfDO.getCourseId())))continue;
                 for(CourseDO course : courseDOList){
                     QueryWrapper<CourInfDO> wrapper = new QueryWrapper<CourInfDO>()
                             .eq("week", courInfDO.getWeek())
@@ -426,16 +425,26 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                 }
 
                 //评教
+                if(!courInfoIds.isEmpty()){
+                    QueryWrapper<CourInfDO> wrapper = new QueryWrapper<CourInfDO>()
+                            .eq("week", courInfDO.getWeek())
+                            .eq("day", courInfDO.getDay())
+                            .le("start_time", courInfDO.getEndTime())
+                            .ge("end_time", courInfDO.getStartTime())
+                            .in(true,"course_id", courInfoIds);
+                    if(!courInfMapper.selectList(wrapper).isEmpty()){
+                        throw new UpdateException("该时间段你有要去评教的课程");
+                    }
+                }
+
+
+
+                //判断对应时间段的教室是否被占用
                 QueryWrapper<CourInfDO> wrapper = new QueryWrapper<CourInfDO>()
                         .eq("week", courInfDO.getWeek())
                         .eq("day", courInfDO.getDay())
                         .le("start_time", courInfDO.getEndTime())
-                        .ge("end_time", courInfDO.getStartTime())
-                        .in(!courInfoIds.isEmpty(),"course_id", courInfoIds);
-                    if(!courInfMapper.selectList(wrapper).isEmpty()){
-                        throw new UpdateException("该时间段你有要去评教的课程");
-                    }
-                //判断对应时间段的教室是否被占用
+                        .ge("end_time", courInfDO.getStartTime());
                 wrapper.eq("location", courInfDO.getLocation());
                 if(courInfMapper.selectOne(wrapper)!=null){
                     //被占用了，抛出异常

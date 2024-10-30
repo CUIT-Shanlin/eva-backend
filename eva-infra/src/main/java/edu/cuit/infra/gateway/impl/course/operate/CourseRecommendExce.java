@@ -147,6 +147,7 @@ public class CourseRecommendExce {
         int evaTeacherNum=0;
         List<RecommendCourseCO> recommendCourseCOS=new ArrayList<>();
         for (CourseDO courseDO : list) {
+            int EvaNum=0;
             SubjectDO subjectDO = subjectMapper.selectById(courseDO.getSubjectId());
             Map<List<CourseType>, Double> course = getCourseTypeAndSimilarity(courseDO,slefCourseDo);
             List<CourInfDO> courInfo = courInfMapper.selectList( new QueryWrapper<CourInfDO>()
@@ -174,10 +175,17 @@ public class CourseRecommendExce {
                 Long num = evaTaskMapper.selectCount( new QueryWrapper<EvaTaskDO>()
                         .eq("cour_inf_id", courInfDO.getId())
                         .and(wrapper -> wrapper.eq("status", 1).or().eq("status", 0)));
-                recommend.setEvaNum(Math.toIntExact(num));
+                EvaNum+=Math.toIntExact(num);
                 evaTeacherNum+=Math.toIntExact(num);
                 recommendCourseCOS.add(recommend);
             }
+            int finalEvaNum = EvaNum;
+            recommendCourseCOS.forEach(recommendCourseCO -> {
+                if(recommendCourseCO.getName().equals(subjectDO.getName())){
+                    recommendCourseCO.setEvaNum(finalEvaNum);
+                }
+            });
+
 
         }
         int finalEvaTeacherNum = evaTeacherNum;
@@ -252,6 +260,7 @@ public class CourseRecommendExce {
         int evaTeacherNum=0;
         List<RecommendCourseCO> recommendCourseCOS=new ArrayList<>();
         for (CourseDO courseDO : list) {
+            int EvaNum=0;
             Integer id=courseDO.getId();
             SubjectDO subjectDO = subjectMapper.selectById(courseDO.getSubjectId());
             Map<List<CourseType>, Double> course = getCourseTypeAndSimilarity(courseDO,slefCourseDo);
@@ -299,10 +308,16 @@ public class CourseRecommendExce {
                 Long num = evaTaskMapper.selectCount( new QueryWrapper<EvaTaskDO>()
                         .eq("cour_inf_id", courInfDO.getId())
                         .and(wrapper -> wrapper.eq("status", 1).or().eq("status", 0)));
-                recommend.setEvaNum(Math.toIntExact(num));
+                EvaNum+=Math.toIntExact(num);
                 evaTeacherNum+=Math.toIntExact(num);
                 recommendCourseCOS.add(recommend);
             }
+            int finalEvaNum = EvaNum;
+            recommendCourseCOS.forEach(recommendCourseCO -> {
+                if(recommendCourseCO.getName().equals(subjectDO.getName())){
+                    recommendCourseCO.setEvaNum(finalEvaNum);
+                }
+            });
 
         }
         int finalEvaTeacherNum = evaTeacherNum;
@@ -315,6 +330,7 @@ public class CourseRecommendExce {
         int evaTeacherNum=0;
         List<RecommendCourseCO> recommendCourseCOS=new ArrayList<>();
         for (CourseDO courseDO : list) {
+            int EvaNum=0;
             SubjectDO subjectDO = subjectMapper.selectById(courseDO.getSubjectId());
             Map<List<CourseType>, Double> course = getCourseTypeAndSimilarity(courseDO,slefCourseDo);
             List<CourInfDO> courInfo = courInfMapper.selectList( new QueryWrapper<CourInfDO>()
@@ -343,10 +359,16 @@ public class CourseRecommendExce {
                 Long num = evaTaskMapper.selectCount( new QueryWrapper<EvaTaskDO>()
                         .eq("cour_inf_id", courInfDO.getId())
                         .and(wrapper -> wrapper.eq("status", 1).or().eq("status", 0)));
-                recommend.setEvaNum(Math.toIntExact(num));
+                EvaNum+=Math.toIntExact(num);
                 evaTeacherNum+=Math.toIntExact(num);
                 recommendCourseCOS.add(recommend);
             }
+            int finalEvaNum = EvaNum;
+            recommendCourseCOS.forEach(recommendCourseCO -> {
+                if(recommendCourseCO.getName().equals(subjectDO.getName())){
+                    recommendCourseCO.setEvaNum(finalEvaNum);
+                }
+            });
 
         }
         int finalEvaTeacherNum = evaTeacherNum;
