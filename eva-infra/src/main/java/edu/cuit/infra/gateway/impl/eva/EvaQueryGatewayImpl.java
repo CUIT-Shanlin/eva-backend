@@ -8,6 +8,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.cola.exception.SysException;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import edu.cuit.client.dto.clientobject.DateEvaNumCO;
 import edu.cuit.client.dto.clientobject.SimpleEvaPercentCO;
@@ -162,7 +163,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             courseWrapper.in("id",courseIds1);
         }
 
-        if(query.getQueryObj().getDepartmentName()!=null){
+        if(query.getQueryObj().getDepartmentName()!=null&&StringUtils.isNotBlank(query.getQueryObj().getDepartmentName())){
             List<Integer> sysUserIds=sysUserMapper.selectList(new QueryWrapper<SysUserDO>().eq(query.getQueryObj().getKeyword()!=null,"department",query.getQueryObj().getDepartmentName()))
                     .stream().map(SysUserDO::getId).toList();
             if(CollectionUtil.isEmpty(sysUserIds)){
@@ -198,10 +199,10 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         }
         evaTaskWrapper.in("cour_inf_id",courseInfoIds);
 
-        if(query.getQueryObj().getEvaTeacherIds()!=null){
+        if(CollectionUtil.isNotEmpty(query.getQueryObj().getEvaTeacherIds())){
             evaTaskWrapper.in(query.getQueryObj().getEvaTeacherIds()!=null,"teacher_id",query.getQueryObj().getEvaTeacherIds());
         }
-        if(query.getQueryObj().getStartEvaluateTime()!=null){
+        if(query.getQueryObj().getStartEvaluateTime()!=null&&StringUtils.isNotBlank(query.getQueryObj().getStartEvaluateTime())){
             evaTaskWrapper.ge(query.getQueryObj().getStartEvaluateTime()!=null,"start_time",query.getQueryObj().getStartEvaluateTime());
         }
 
@@ -290,7 +291,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
 
         List<SingleCourseEntity> courseEntities=getListCurInfoEntities(courInfDOS);
         //未完成的任务
-        if(taskQuery.getQueryObj().getTaskStatus()!=null) {
+        if(taskQuery.getQueryObj().getTaskStatus()!=null&&taskQuery.getQueryObj().getTaskStatus()>=0) {
             evaTaskWrapper.eq("status", taskQuery.getQueryObj().getTaskStatus());
         }
         QueryUtils.fileCreateTimeQuery(evaTaskWrapper,taskQuery.getQueryObj());
@@ -315,7 +316,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         Page<FormTemplateDO> page =new Page<>(query.getPage(),query.getSize());
         QueryWrapper<FormTemplateDO> queryWrapper = new QueryWrapper<>();
         QueryUtils.fileTimeQuery(queryWrapper,query.getQueryObj());
-        if(query.getQueryObj().getKeyword()!=null){
+        if(query.getQueryObj().getKeyword()!=null&&StringUtils.isNotBlank(query.getQueryObj().getKeyword())){
             queryWrapper.like(query.getQueryObj().getKeyword()!=null,"name",query.getQueryObj().getKeyword());
         }
         Page<FormTemplateDO> formTemplateDOPage = formTemplateMapper.selectPage(page, queryWrapper);
@@ -333,7 +334,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     public List<EvaTaskEntity> evaSelfTaskInfo(Integer userId,Integer id, String keyword){
         List<CourseDO> courseDOS;
         QueryWrapper<CourseDO> query=new QueryWrapper<CourseDO>();
-        if(keyword!=null) {
+        if(keyword!=null&&StringUtils.isNotBlank(keyword)) {
             //根据关键字来查询老师
             QueryWrapper<SysUserDO> teacherWrapper = new QueryWrapper<>();
             teacherWrapper.like("name", keyword);
@@ -403,7 +404,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         List<CourseDO> courseDOS;
         QueryWrapper<CourseDO> query=new QueryWrapper<CourseDO>();
 
-        if(keyword!=null) {
+        if(keyword!=null&&StringUtils.isNotBlank(keyword)) {
             //根据关键字来查询相关的课程或者老师
             QueryWrapper<SysUserDO> teacherWrapper = new QueryWrapper<>();
             teacherWrapper.like("name", keyword);
@@ -483,7 +484,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     public List<EvaRecordEntity> getEvaEdLogInfo(Integer userId, Integer semId, Integer courseId) {
         //课程id ->课程->courInfo->evaTask->record
         List<CourInfDO> courInfDOs=new ArrayList<>();
-        if(courseId!=null&&courseId>=0){
+        if(courseId!=null&&courseId>0){
             courInfDOs=courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id",courseId));
         }else{
             QueryWrapper<CourseDO> courseDOQueryWrapper=new QueryWrapper<CourseDO>();
@@ -983,17 +984,16 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     @Override
     public PaginationResultEntity<UnqualifiedUserInfoCO> pageEvaUnqualifiedUserInfo(Integer semId,PagingQuery<UnqualifiedUserConditionalQuery> query, Integer target){
         List<Integer> userIds=new ArrayList<>();
-        Page<SysUserDO> pageUser=new Page<>(query.getPage(),query.getSize());
         QueryWrapper<SysUserDO> queryWrapper = new QueryWrapper<>();
-        if(query.getQueryObj().getDepartment()!=null){
+        if(query.getQueryObj().getDepartment()!=null&& StringUtils.isNotBlank(query.getQueryObj().getDepartment())){
             queryWrapper.eq("department",query.getQueryObj().getDepartment());
         }
-        if(query.getQueryObj().getKeyword()!=null){
+        if(query.getQueryObj().getKeyword()!=null&& StringUtils.isNotBlank(query.getQueryObj().getKeyword())){
             queryWrapper.like("name",query.getQueryObj().getKeyword());
         }
 
-        pageUser=sysUserMapper.selectPage(pageUser,queryWrapper);
-        userIds=pageUser.getRecords().stream().map(SysUserDO::getId).toList();
+        List<SysUserDO> sysUserDOS=sysUserMapper.selectList(queryWrapper);
+        userIds=sysUserDOS.stream().map(SysUserDO::getId).toList();
 
         if(CollectionUtil.isEmpty(userIds)){
             List list=new ArrayList();
@@ -1010,7 +1010,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
                 UnqualifiedUserInfoCO unqualifiedUserInfoCO=new UnqualifiedUserInfoCO();
                 unqualifiedUserInfoCO.setId(userIds.get(i));
                 unqualifiedUserInfoCO.setNum(k);
-                unqualifiedUserInfoCO.setDepartment(query.getQueryObj().getDepartment());
+                unqualifiedUserInfoCO.setDepartment(sysUserMapper.selectById(userIds.get(i)).getDepartment());
                 unqualifiedUserInfoCO.setName(sysUserMapper.selectById(userIds.get(i)).getName());
 
                 records.add(unqualifiedUserInfoCO);
@@ -1024,17 +1024,16 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     public PaginationResultEntity<UnqualifiedUserInfoCO> pageBeEvaUnqualifiedUserInfo(Integer semId,PagingQuery<UnqualifiedUserConditionalQuery> query,Integer target){
 
         List<Integer> userIds=new ArrayList<>();
-        Page<SysUserDO> pageUser=new Page<>(query.getPage(),query.getSize());
         QueryWrapper<SysUserDO> queryWrapper = new QueryWrapper<>();
-        if(query.getQueryObj().getDepartment()!=null){
+        if(query.getQueryObj().getDepartment()!=null&& StringUtils.isNotBlank(query.getQueryObj().getDepartment())){
             queryWrapper.eq("department",query.getQueryObj().getDepartment());
         }
-        if(query.getQueryObj().getKeyword()!=null){
+        if(query.getQueryObj().getKeyword()!=null&& StringUtils.isNotBlank(query.getQueryObj().getKeyword())){
             queryWrapper.like("name",query.getQueryObj().getKeyword());
         }
 
-        pageUser=sysUserMapper.selectPage(pageUser,queryWrapper);
-        userIds=pageUser.getRecords().stream().map(SysUserDO::getId).toList();
+        List<SysUserDO> sysUserDOS=sysUserMapper.selectList(queryWrapper);
+        userIds=sysUserDOS.stream().map(SysUserDO::getId).toList();
         if(CollectionUtil.isEmpty(userIds)){
             List list=new ArrayList();
             Page<UnqualifiedUserInfoCO> pageUnqualifiedUserInfoCO=new Page<>(query.getPage(), query.getSize(),0);
@@ -1050,7 +1049,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
                 UnqualifiedUserInfoCO unqualifiedUserInfoCO=new UnqualifiedUserInfoCO();
                 unqualifiedUserInfoCO.setId(userIds.get(i));
                 unqualifiedUserInfoCO.setNum(k);
-                unqualifiedUserInfoCO.setDepartment(query.getQueryObj().getDepartment());
+                unqualifiedUserInfoCO.setDepartment(sysUserMapper.selectById(userIds.get(i)).getDepartment());
                 unqualifiedUserInfoCO.setName(sysUserMapper.selectById(userIds.get(i)).getName());
 
                 records.add(unqualifiedUserInfoCO);
