@@ -12,14 +12,14 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class MsgResult {
     public final IMsgService msgService;
-   public void toSendMsg(Map<String, List<Integer>> map){
+   public void toSendMsg(Map<String, List<Integer>> map,Integer userId){
        for (Map.Entry<String, List<Integer>> entry : map.entrySet()) {
            for (Integer i : entry.getValue()) {
                msgService.sendMessage(new MessageBO()
                        .setMsg(entry.getKey())
                        .setType(1)
                        .setMode(0)
-                       .setSenderId(null)
+                       .setSenderId(userId)
                        .setRecipientId(i)
                        .setIsShowName(1));
            }

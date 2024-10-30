@@ -72,7 +72,8 @@ public interface CourseConvertor {
             @Mapping(target = "courseBaseMsg.templateMsg",source = "template"),
             @Mapping(target = "courseBaseMsg.teacherMsg.id",source = "user.id"),
             @Mapping(target = "courseBaseMsg.teacherMsg.name",source = "user.name"),
-            @Mapping(target = "courseBaseMsg.teacherMsg.department",source = "user.department")
+            @Mapping(target = "courseBaseMsg.teacherMsg.department",source = "user.department"),
+            @Mapping(target = "courseBaseMsg.nature",source = "courInfo.nature"),
 
     })
     CourseDetailCO toCourseDetailCO(List<CourseType> typeList, List<CoursePeriod> dateList, SubjectDO courInfo

@@ -27,6 +27,8 @@ import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.gateway.course.CourseDeleteGateway;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.domain.gateway.course.CourseUpdateGateway;
+import edu.cuit.domain.gateway.user.UserQueryGateway;
+import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -44,6 +46,7 @@ public class IUserCourseServiceImpl implements IUserCourseService {
     private final CourseBizConvertor courseConvertor;
     private final UserCourseDetailQueryExec userCourseDetailQueryExec;
     private final MsgServiceImpl msgService;
+    private final UserQueryGateway userQueryGateway;
     private final MsgResult msgResult;
 
     private final ObjectMapper objectMapper;
@@ -125,28 +128,28 @@ public class IUserCourseServiceImpl implements IUserCourseService {
     @Override
     public Void deleteSelfCourse(Integer courseId) {
         Map<String, List<Integer>> map = courseDeleteGateway.deleteSelfCourse(String.valueOf(StpUtil.getLoginId()), courseId);
-        msgResult.toSendMsg(map);
+        Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
+        msgResult.toSendMsg(map, userId.orElseThrow(() -> new QueryException("请先登录")));
         return null;
     }
 
     @Override
     public Void updateSelfCourse(SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeCO> timeList) {
         Map<String, Map<Integer, Integer>> mapMsg = courseUpdateGateway.updateSelfCourse(String.valueOf(StpUtil.getLoginId()), selfTeachCourseCO, timeList);
+        Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
         for (Map.Entry<String, Map<Integer, Integer>> stringMapEntry : mapMsg.entrySet()) {
-            SendMessageCmd sendMessageCmd=new SendMessageCmd();
-//            sendMessageCmd.setMsg(stringMapEntry.getValue().toString());
-            sendMessageCmd.setMsg(stringMapEntry.getKey());
+            MessageBO messageBO = new MessageBO();
+            messageBO.setMsg(stringMapEntry.getKey());
             for (Map.Entry<Integer, Integer> mapEntry : stringMapEntry.getValue().entrySet()) {
-                sendMessageCmd.setTaskId(mapEntry.getKey()).setMode(0)
+                messageBO.setTaskId(mapEntry.getKey()).setMode(0)
                         .setRecipientId(mapEntry.getValue())
                         .setType(1)
-                        .setIsShowName(1);
-                msgService.handleUserSendMessage(sendMessageCmd);
+                        .setIsShowName(1)
+                        .setSenderId(userId.orElseThrow(()->new QueryException("请先登录")));
+                msgService.sendMessage(messageBO);
             }
         }
 
-
-//        msgService.handleUserSendMessage();
         return null;
     }
 

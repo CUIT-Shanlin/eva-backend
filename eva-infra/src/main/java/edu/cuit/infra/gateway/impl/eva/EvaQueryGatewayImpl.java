@@ -101,7 +101,6 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         //课程
         Page<FormRecordDO> pageLog=new Page<>(query.getPage(),query.getSize());
 
-        Page<CourseDO> pageCourse=new Page<>(query.getPage(),query.getSize());
         QueryWrapper<CourseDO> courseWrapper=new QueryWrapper<CourseDO>();
         if(CollectionUtil.isNotEmpty(subjectMapper.selectList(new QueryWrapper<SubjectDO>().like(query.getQueryObj().getKeyword()!=null,"name",query.getQueryObj().getKeyword())))){
             List<SubjectDO> subjectDOS=subjectMapper.selectList(new QueryWrapper<SubjectDO>().like("name",query.getQueryObj().getKeyword()));
@@ -181,15 +180,14 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         if(CollectionUtil.isNotEmpty(query.getQueryObj().getTeacherIds())){
             courseWrapper.in(query.getQueryObj().getKeyword()!=null,"teacher_id",query.getQueryObj().getTeacherIds());
         }
-        pageCourse=courseMapper.selectPage(pageCourse,courseWrapper);
+        List<CourseDO> courseDOList=courseMapper.selectList(courseWrapper);
 
-        List<Integer> courseIds=pageCourse.getRecords().stream().map(CourseDO::getId).toList();
+        List<Integer> courseIds=courseDOList.stream().map(CourseDO::getId).toList();
         if(CollectionUtil.isEmpty(courseIds)){
             List list=new ArrayList();
             return paginationConverter.toPaginationEntity(pageLog,list);
         }
         //任务
-        Page<EvaTaskDO> pageTask=new Page<>(query.getPage(),query.getSize());
 
         QueryWrapper<EvaTaskDO> evaTaskWrapper=new QueryWrapper<EvaTaskDO>();
         List<CourInfDO> courInfDOS=courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id",courseIds));
@@ -209,9 +207,9 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
 
         List<SingleCourseEntity> courseEntities=getListCurInfoEntities(courInfDOS);
 
-        pageTask=evaTaskMapper.selectPage(pageTask,evaTaskWrapper);
+        List<EvaTaskDO> evaTaskDOList=evaTaskMapper.selectList(evaTaskWrapper);
 
-        List<Integer> userIds=pageTask.getRecords().stream().map(EvaTaskDO::getTeacherId).toList();
+        List<Integer> userIds=evaTaskDOList.stream().map(EvaTaskDO::getTeacherId).toList();
         if(CollectionUtil.isEmpty(userIds)){
             List list=new ArrayList();
             return paginationConverter.toPaginationEntity(pageLog,list);
@@ -223,14 +221,14 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         }
         List<UserEntity> userEntities=sysUserDOS.stream().map(sysUserDO->toUserEntity(sysUserDO.getId())).toList();
 
-        List<EvaTaskEntity> evaTaskEntities=getEvaTaskEntities(pageTask.getRecords(),userEntities,courseEntities);
+        List<EvaTaskEntity> evaTaskEntities=getEvaTaskEntities(evaTaskDOList,userEntities,courseEntities);
 
         QueryWrapper<FormRecordDO> formRecordWrapper=new QueryWrapper<FormRecordDO>();
-        if(CollectionUtil.isEmpty(pageTask.getRecords().stream().map(EvaTaskDO::getId).toList())){
+        if(CollectionUtil.isEmpty(evaTaskDOList.stream().map(EvaTaskDO::getId).toList())){
             List list=new ArrayList();
             return paginationConverter.toPaginationEntity(pageLog,list);
         }
-        formRecordWrapper.in("task_id",pageTask.getRecords().stream().map(EvaTaskDO::getId).toList());
+        formRecordWrapper.in("task_id",evaTaskDOList.stream().map(EvaTaskDO::getId).toList());
 
         if(query.getQueryObj().getEndEvaluateTime()!=null){
             formRecordWrapper.le(query.getQueryObj().getEndEvaluateTime()!=null,"start_time",query.getQueryObj().getEndEvaluateTime());
@@ -251,7 +249,6 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         Page<EvaTaskDO> pageTask=new Page<>(taskQuery.getPage(),taskQuery.getSize());
         //再整课程
         List<Integer> courseIds=null;
-        Page<CourseDO> pageCourse=new Page<>(taskQuery.getPage(),taskQuery.getSize());
         QueryWrapper<CourseDO> courseWrapper=new QueryWrapper<CourseDO>();
         if(CollectionUtil.isNotEmpty(subjectMapper.selectList(new QueryWrapper<SubjectDO>().like("name",taskQuery.getQueryObj().getKeyword())))){
             List<SubjectDO> subjectDOS=subjectMapper.selectList(new QueryWrapper<SubjectDO>().like(taskQuery.getQueryObj().getKeyword()!=null,"name",taskQuery.getQueryObj().getKeyword()));
@@ -270,8 +267,8 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             courseWrapper.eq("semester_id",semId);
         }
 
-        pageCourse=courseMapper.selectPage(pageCourse,courseWrapper);
-        courseIds=pageCourse.getRecords().stream().map(CourseDO::getId).toList();
+        List<CourseDO> courseDOList=courseMapper.selectList(courseWrapper);
+        courseIds=courseDOList.stream().map(CourseDO::getId).toList();
         if(CollectionUtil.isEmpty(courseIds)){
             List list=new ArrayList();
             return paginationConverter.toPaginationEntity(pageTask,list);
@@ -1095,11 +1092,21 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         CourseDO courseDO=courseMapper.selectById(courInfDO.getCourseId());
         FormTemplateDO formTemplateDO=formTemplateMapper.selectOne(new QueryWrapper<FormTemplateDO>().eq("id",courseDO.getTemplateId()));
 
+        if(courOneEvaTemplateDO==null&&formTemplateDO==null){
+            throw new QueryException("快照模板和评教模板都没有相关数据");
+        }
+
         if(courOneEvaTemplateDO!=null){
+            if(courOneEvaTemplateDO.getFormTemplate()==null){
+                return Optional.empty();
+            }
             JSONObject jsonObject= new JSONObject(courOneEvaTemplateDO.getFormTemplate());
             String s=jsonObject.getStr("props");
             return Optional.of(s);
         }else {
+            if(formTemplateDO.getProps()==null){
+                return Optional.empty();
+            }
             return Optional.of(formTemplateDO.getProps());
         }
     }

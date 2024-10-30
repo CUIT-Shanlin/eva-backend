@@ -33,6 +33,7 @@ public class MsgGatewayImpl implements MsgGateway {
         msgQuery.eq(MsgTipDO::getRecipientId,userId);
         if (type != null && type >= 0) msgQuery.eq(MsgTipDO::getType,type);
         if (mode != null && mode >= 0) msgQuery.eq(MsgTipDO::getMode,mode);
+        msgQuery.orderByDesc(MsgTipDO::getCreateTime);
         return msgTipMapper.selectList(msgQuery).stream()
                 .map(this::getMsgEntity)
                 .toList();
@@ -44,6 +45,7 @@ public class MsgGatewayImpl implements MsgGateway {
         msgQuery.eq(MsgTipDO::getRecipientId,userId);
         if (type != null && type >= 0) msgQuery.eq(MsgTipDO::getType,type);
         if (num != null && num >= 0) msgQuery.last("limit " + num);
+        msgQuery.orderByDesc(MsgTipDO::getCreateTime);
         return msgTipMapper.selectList(msgQuery).stream()
                 .map(this::getMsgEntity)
                 .toList();
