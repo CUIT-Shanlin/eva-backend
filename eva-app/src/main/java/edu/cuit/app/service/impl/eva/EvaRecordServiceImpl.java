@@ -63,9 +63,8 @@ public class EvaRecordServiceImpl implements IEvaRecordService {
     @Override
     public Void putEvaTemplate(EvaTaskFormCO evaTaskFormCO) {
         evaUpdateGateway.putEvaTemplate(evaTaskFormCO);
-        //要删除对应的两种消息 “该任务的待办评教消息” “该任务的系统逾期提醒消息”
-        msgService.deleteEvaMsg(evaTaskFormCO.getTaskId(),0);
-        msgService.deleteEvaMsg(evaTaskFormCO.getTaskId(),2);
+        //删除所有相关消息
+        msgService.deleteEvaMsg(evaTaskFormCO.getTaskId(),null);
         return null;
     }
 }
