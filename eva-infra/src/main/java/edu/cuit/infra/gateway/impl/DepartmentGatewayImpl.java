@@ -17,7 +17,6 @@ public class DepartmentGatewayImpl implements DepartmentGateway {
     @Override
     public List<String> getAll() {
         List<SysUserDO> sysUserDOS = userMapper.selectList(null);
-        if(sysUserDOS.isEmpty())throw new QueryException("没有专业信息");
         //根据角色的院系进行分类(去重)
         return sysUserDOS.stream().map(SysUserDO::getDepartment)
                 .filter(Objects::nonNull)
