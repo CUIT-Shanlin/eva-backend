@@ -76,21 +76,31 @@ public class MsgServiceImpl implements IMsgService {
     @Transactional
     public List<EvaResponseMsg> getUserSelfEvaMsg(Integer type) {
         List<MsgEntity> msgEntities = msgGateway.queryMsg(checkAndGetUserId(), type, 1);
-        return msgEntities.stream().map(msgEntity -> evaQueryGateway.oneEvaTaskInfo(msgEntity.getTaskId()).map(taskEntity -> {
+        return msgEntities.stream().map(this::toEvaResponseMsg).toList();
+    }
+
+    private EvaResponseMsg toEvaResponseMsg(MsgEntity msgEntity) {
+        return evaQueryGateway.oneEvaTaskInfo(msgEntity.getTaskId()).map(taskEntity -> {
             // 获取评教信息对应课程
             SingleCourseEntity courInf = taskEntity.getCourInf();
             // 转换为课程对象
             SingleCourseCO singleCourseCO = courseBizConvertor.toSingleCourseCO(courInf,
                     evaQueryGateway.getEvaNumByCourInfo(courInf.getId()).orElse(0));
             return msgBizConvertor.toEvaResponseMsg(msgEntity,singleCourseCO);
-        }).orElseThrow(() -> new BizException("获取评教信息失败"))).toList();
+        }).orElseThrow(() -> new BizException("获取评教信息失败"));
     }
 
     @Override
     @Transactional
     public List<GenericResponseMsg> getUserTargetAmountAndTypeMsg(Integer num, Integer type) {
-        return msgGateway.queryTargetAmountMsg(checkAndGetUserId(),num,type).stream()
-                .map(msgBizConvertor::toResponseMsg).toList();
+        List<GenericResponseMsg> result = new ArrayList<>();
+        List<MsgEntity> msgEntities = msgGateway.queryTargetAmountMsg(checkAndGetUserId(), num, type);
+        msgEntities.forEach(msgEntity -> {
+                    if (msgEntity.getMode() == 1) {
+                        result.add(toEvaResponseMsg(msgEntity));
+                    } else result.add(msgBizConvertor.toResponseMsg(msgEntity));
+                });
+        return result;
     }
 
     @Override
