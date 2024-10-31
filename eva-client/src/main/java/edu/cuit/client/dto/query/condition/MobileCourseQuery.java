@@ -7,6 +7,8 @@ import jakarta.validation.constraints.Min;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDateTime;
+
 /**
  * 针对于“获取某个指定时间段的课程”接口衍生的条件接受类
  */
@@ -40,12 +42,12 @@ public class MobileCourseQuery extends Query {
     /**
      * 开始日期
      */
-    private String startDay;
+    private LocalDateTime startDay;
 
     /**
      * 结束日期
      */
-    private String endDay;
+    private LocalDateTime endDay;
 
     /**
      * 课程类型id

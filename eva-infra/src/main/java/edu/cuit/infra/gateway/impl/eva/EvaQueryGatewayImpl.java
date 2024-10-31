@@ -59,19 +59,15 @@ import edu.cuit.infra.util.QueryUtils;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
 
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
 
 import java.math.BigDecimal;
-import java.sql.Time;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Supplier;
@@ -707,7 +703,6 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         List<DateEvaNumCO> list=new ArrayList<>();
         for(int i=0;i<7;i++){
             DateEvaNumCO dateEvaNumCO=new DateEvaNumCO();
-            //Date dateNew1 = Date.from(date.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
             dateEvaNumCO.setDate(LocalDate.now().minusDays(i));
             dateEvaNumCO.setMoreEvaNum(getEvaNumByDate(i,semId));
             list.add(dateEvaNumCO);
@@ -811,7 +806,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         //根据semId找到
         List<Integer> evaTaskIdS=getEvaTaskIdS(semId);
 
-        LocalDate timeEnd=LocalDate.now();
+        LocalDateTime timeEnd=LocalDateTime.now();
         LocalDate timeStart=LocalDate.now().minusDays((long)num);
 
         LocalDate lastStart=LocalDate.now().minusDays((long)2*num);
@@ -831,7 +826,12 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         List<DateEvaNumCO> dataArr=new ArrayList<>();
 
         for(int i=1;i<=num;i++){
-            List<FormRecordDO> formRecordDOS3=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIdS).between("create_time",LocalDate.now().minusDays((long)num-i+1),LocalDate.now().minusDays((long)num-i)));
+            List<FormRecordDO> formRecordDOS3;
+            if(i==num){
+                formRecordDOS3=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIdS).between("create_time",LocalDate.now().minusDays((long)num-i),LocalDateTime.now()));
+            }else {
+                formRecordDOS3 = formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id", evaTaskIdS).between("create_time", LocalDate.now().minusDays((long) num - i), LocalDate.now().minusDays((long) num - i - 1)));
+            }
             DateEvaNumCO dateEvaNumCO=new DateEvaNumCO();
             dateEvaNumCO.setDate(LocalDate.now().minusDays((long)num-i));
             dateEvaNumCO.setMoreEvaNum(formRecordDOS3.size());
@@ -1242,7 +1242,6 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     private Double stringToSumAver(String s) {
         Double score=0.0;
         JSONArray jsonArray;
-        System.out.println(s);
         try {
             jsonArray = JSONUtil.parseArray(s, JSONConfig.create()
                     .setIgnoreError(true));
@@ -1283,12 +1282,10 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         for(int i=0;i<strings.size();i++){
             //整个方法把单个text整到平均分
             numbers.add(stringToSumAver(strings.get(i)));
-            System.out.println(numbers.get(i));
             if(score<numbers.get(i)){
                 higherNum++;
             }
         }
-        System.out.println(higherNum);
         Double percent;
         if(totalNum==0){
             percent=100.0;

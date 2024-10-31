@@ -681,13 +681,14 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         if(semesterDO==null){
             throw new  QueryException("学期不合理");
         }
-        LocalDate now=LocalDate.now();
+        LocalDateTime now=LocalDateTime.now();
+        int start=courseRecommendExce.toGetStartTime(now);
         long diff = ChronoUnit.DAYS.between(semesterDO.getStartDate(), now);
         // 计算当前周数
         int currentWeek = (int) (diff / 7) + 1;
         //计算当前星期几
         int currentDayOfWeek = now.getDayOfWeek().getValue();
-        return new CourseTime().setWeek(currentWeek).setDay(currentDayOfWeek);
+        return new CourseTime().setWeek(currentWeek).setDay(currentDayOfWeek).setStartTime(start);
 
 
     }
