@@ -5,7 +5,7 @@ import edu.cuit.infra.util.EvaLdapUtils;
 /**
  * Ldap相关常量
  */
-public class LdapConstant {
+public class LdapConstants {
 
     // 用户存储域
     public static final String USER_BASE_DN;

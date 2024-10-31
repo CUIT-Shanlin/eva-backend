@@ -204,14 +204,9 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         FormTemplateDO formTemplateDO=new FormTemplateDO();
         formTemplateDO.setDescription(evaTemplateCO.getDescription());
         formTemplateDO.setProps(evaTemplateCO.getProps());
-        formTemplateDO.setIsDefault(evaTemplateCO.getIsDefault());
-        formTemplateDO.setId(evaTemplateCO.getId());
-        formTemplateDO.setIsDeleted(0);
         formTemplateDO.setName(evaTemplateCO.getName());
-        formTemplateDO.setUpdateTime(LocalDateTime.parse(evaTemplateCO.getUpdateTime(),df));
-        formTemplateDO.setCreateTime(LocalDateTime.parse(evaTemplateCO.getCreateTime(),df));
         formTemplateMapper.insert(formTemplateDO);
-        LogUtils.logContent(formTemplateMapper.selectById(evaTemplateCO.getId()).getName() +" 评教模板");
+        LogUtils.logContent(evaTemplateCO.getName() +" 评教模板");
         return null;
     }
 

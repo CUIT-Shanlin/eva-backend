@@ -1,6 +1,5 @@
 package edu.cuit.infra.dal.ldap.dataobject;
 
-import edu.cuit.infra.enums.LdapConstant;
 import lombok.Data;
 import org.springframework.ldap.odm.annotations.Attribute;
 import org.springframework.ldap.odm.annotations.Entry;
