@@ -155,7 +155,7 @@ public class CourseRecommendExce {
 //        Map<Integer, List<CourseDO>> map2 = existCourse.stream().collect(Collectors.groupingBy(CourseDO::getTeacherId));
 
         for (Map.Entry<Integer, List<CourseDO>> entry : map.entrySet()) {
-            Integer l = Math.toIntExact(courseMapper.selectCount(new QueryWrapper<CourseDO>().eq("teacher_id", entry.getKey()).eq("semester_id", semId)));
+            int l = Math.toIntExact(courseMapper.selectCount(new QueryWrapper<CourseDO>().eq("teacher_id", entry.getKey()).eq("semester_id", semId)));
             if(entry.getValue().size()>=l){
               //该老师的课程还没有被评教过，优先级priority: 5
               recommendList.addAll(createRecommentList(entry.getValue(), 5, courseDOS1,courseTime,courInfDOS));
@@ -631,11 +631,11 @@ public class CourseRecommendExce {
         int result=0;
         int hour = inStartDate.getHour();
         int minute = inStartDate.getMinute();
-        if(hour<=8||(hour<=8&&minute<=20))result=1;
-        else if(hour <= 10||(hour<=10&&minute<=20))result=3;
+        if(hour<=8|(hour<=8&&minute<=20))result=1;
+        else if(hour <= 10|(hour<=10&&minute<=20))result=3;
         else if(hour<=14)result=5;
         else if (hour<=16)result=7;
-        else if(hour<19||(hour<=19&&minute<=30))result=9;
+        else if(hour<19|(hour<=19&&minute<=30))result=9;
         else result=11;
         return result;
     }
