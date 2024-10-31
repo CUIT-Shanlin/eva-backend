@@ -61,18 +61,18 @@ public class LogGatewayImpl implements LogGateway {
     private final Executor executor;
 
     @Override
-    public PaginationResultEntity<SysLogEntity> page(PagingQuery<GenericConditionalQuery> query,Integer moduleId) {
-        QueryWrapper<SysLogDO> wrapper=new QueryWrapper<>();
-        QueryUtils.fileTimeQuery(wrapper,query.getQueryObj());
-        if(query.getQueryObj().getKeyword()!=null){
-            wrapper.like("content",query.getQueryObj().getKeyword());
+    public PaginationResultEntity<SysLogEntity> page(PagingQuery<GenericConditionalQuery> query, Integer moduleId) {
+        QueryWrapper<SysLogDO> wrapper = new QueryWrapper<>();
+        QueryUtils.fileCreateTimeQuery(wrapper, query.getQueryObj());
+        if (query.getQueryObj().getKeyword() != null) {
+            wrapper.like("content", query.getQueryObj().getKeyword());
         }
-        Page<SysLogDO> page=new Page<>(query.getPage(),query.getSize());
+        Page<SysLogDO> page = new Page<>(query.getPage(), query.getSize());
         if (moduleId >= 0) {
-            wrapper.eq("moduleId",moduleId);
+            wrapper.eq("module_id", moduleId);
         }
+        wrapper.orderByDesc("create_time");
         Page<SysLogDO> logPage = logMapper.selectPage(page, wrapper);
-       if(logPage.getRecords().isEmpty())throw new QueryException("没有找到日志记录");
         List<SysLogDO> records = logPage.getRecords();
         List<SysLogEntity> logEntities = new ArrayList<>();
         for (SysLogDO record : records) {
@@ -84,11 +84,11 @@ public class LogGatewayImpl implements LogGateway {
     @Override
     public Optional<SysLogModuleEntity> getModuleByName(String name) {
         LambdaQueryWrapper<SysLogModuleDO> moduleQuery = Wrappers.lambdaQuery();
-        moduleQuery.eq(SysLogModuleDO::getName,name);
+        moduleQuery.eq(SysLogModuleDO::getName, name);
         SysLogModuleDO sysLogModuleDO = logModuleMapper.selectOne(moduleQuery);
         if (sysLogModuleDO == null) {
             SysException e = new SysException(name + " 日志模块不存在，请联系管理员");
-            log.error("发生系统异常",e);
+            log.error("发生系统异常", e);
             throw e;
         }
         return Optional.of(logConverter.toModuleEntity(sysLogModuleDO));
@@ -97,28 +97,28 @@ public class LogGatewayImpl implements LogGateway {
     @Override
     public List<SysLogModuleEntity> getModules() {
         List<SysLogModuleDO> sysLogModuleDOS = logModuleMapper.selectList(null);
-        if(sysLogModuleDOS.isEmpty())throw new QueryException("日志模块中暂时还没有信息");
         return sysLogModuleDOS.stream().map(logConverter::toModuleEntity).toList();
     }
 
     @Override
     public void insertLog(SysLogBO logBO) {
         CompletableFuture.runAsync(() -> {
-            SysLogDO logDO = logConverter.toLogDO(logBO,userQueryGateway.findIdByUsername(logBO.getUserId()).orElse(null));
+            SysLogDO logDO = logConverter.toLogDO(logBO, userQueryGateway.findIdByUsername(logBO.getUserId()).orElse(null));
             logMapper.insert(logDO);
-        },executor);
+        }, executor);
     }
 
-    private SysLogEntity toSysLogEntity(SysLogDO logDO){
+    private SysLogEntity toSysLogEntity(SysLogDO logDO) {
         SysLogModuleDO sysLogModuleDO = logModuleMapper.selectById(logDO.getModuleId());
-        if(sysLogModuleDO==null)throw new QueryException("日志模块不存在");
+        if (sysLogModuleDO == null) throw new QueryException("日志模块不存在");
         SysLogModuleEntity moduleEntity = logConverter.toModuleEntity(sysLogModuleDO);
         SysUserDO sysUserDO = userMapper.selectById(logDO.getUserId());
-        Stream<Integer> roleIds = userRoleMapper.selectList(new QueryWrapper<SysUserRoleDO>().eq("user_id", logDO.getUserId())).stream().map(SysUserRoleDO::getRoleId);
-        List<SysRoleDO> roleList = roleMapper.selectList(new QueryWrapper<SysRoleDO>().in("id", roleIds));
+        List<Integer> roleIds = userRoleMapper.selectList(new QueryWrapper<SysUserRoleDO>().eq("user_id", logDO.getUserId()))
+                .stream().map(SysUserRoleDO::getRoleId).toList();
+        List<SysRoleDO> roleList = roleIds.isEmpty() ? List.of() : roleMapper.selectList(new QueryWrapper<SysRoleDO>().in("id", roleIds));
         List<RoleEntity> roleEntities = roleList.stream().map(roleConverter::toRoleEntity).toList();
-        UserEntity userEntity = userConverter.toUserEntity(sysUserDO,()-> roleEntities);
-        return logConverter.toLogEntity(logDO,moduleEntity,userEntity);
+        UserEntity userEntity = userConverter.toUserEntity(sysUserDO, () -> roleEntities);
+        return logConverter.toLogEntity(logDO, moduleEntity, userEntity);
 
     }
 }

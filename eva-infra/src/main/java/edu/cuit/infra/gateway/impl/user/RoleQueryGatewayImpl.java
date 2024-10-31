@@ -55,7 +55,7 @@ public class RoleQueryGatewayImpl implements RoleQueryGateway {
         GenericConditionalQuery queryObj = query.getQueryObj();
         QueryUtils.fileTimeQuery(roleQuery,queryObj,SysRoleDO::getCreateTime,SysRoleDO::getUpdateTime);
 
-        roleQuery.or().like(SysRoleDO::getRoleName,queryObj.getKeyword());
+        roleQuery.like(queryObj.getKeyword() != null,SysRoleDO::getRoleName,queryObj.getKeyword());
         //查询
         Page<SysRoleDO> resultPage = roleMapper.selectPage(rolePage, roleQuery);
         return paginationConverter.toPaginationEntity(rolePage,resultPage.getRecords()
@@ -76,6 +76,19 @@ public class RoleQueryGatewayImpl implements RoleQueryGateway {
                 .innerJoin(SysRoleMenuDO.class,on -> on.eq(SysRoleMenuDO::getRoleId,roleId))
                 .eq(SysMenuDO::getId,SysRoleMenuDO::getMenuId);
         return menuMapper.selectList(menuQuery).stream().map(SysMenuDO::getId).toList();
+    }
+
+    @Override
+    public Integer getDefaultRoleId() {
+        LambdaQueryWrapper<SysRoleDO> roleQuery = Wrappers.lambdaQuery();
+        roleQuery.select(SysRoleDO::getId).eq(SysRoleDO::getIsDefault,1);
+        SysRoleDO sysRoleDO = roleMapper.selectOne(roleQuery);
+        if (sysRoleDO == null) {
+            SysException e = new SysException("未找到默认角色，请联系管理员");
+            log.error("发生系统异常",e);
+            throw e;
+        }
+        return sysRoleDO.getId();
     }
 
     /**

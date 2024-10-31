@@ -51,13 +51,11 @@ public class NewMenuCmd extends ClientObject {
      * 状态(0:禁止,1:正常)
      */
     @ValidStatus(message = "菜单状态只能为0或1")
-    @NotNull(message = "状态不能为空")
     private Integer status;
 
     /**
      * 父菜单id
      */
-    @NotNull(message = "父菜单id不能为空")
     private Integer parentId;
 
     /**

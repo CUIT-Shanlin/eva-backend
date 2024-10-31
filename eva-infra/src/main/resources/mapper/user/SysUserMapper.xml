@@ -25,4 +25,9 @@
         create_time,update_time,is_deleted,
         email,phone,status
     </sql>
+    <select id="findIdByUsername" resultMap="BaseResultMap">
+        select id
+        from sys_user
+        where username = #{username}
+    </select>
 </mapper>

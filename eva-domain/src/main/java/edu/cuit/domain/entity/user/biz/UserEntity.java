@@ -1,6 +1,7 @@
 package edu.cuit.domain.entity.user.biz;
 
 import com.alibaba.cola.domain.Entity;
+import edu.cuit.domain.gateway.user.MenuQueryGateway;
 import edu.cuit.domain.gateway.user.UserUpdateGateway;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -87,6 +88,9 @@ public class UserEntity {
     @Getter(AccessLevel.NONE)
     private List<RoleEntity> rolesCache = null;
 
+    @Getter(AccessLevel.NONE)
+    private List<String> perms = null;
+
     public synchronized List<RoleEntity> getRoles() {
         if (rolesCache == null) {
             rolesCache = roles.get();
@@ -95,15 +99,30 @@ public class UserEntity {
     }
 
     private final UserUpdateGateway userUpdateGateway;
+    private final MenuQueryGateway menuQueryGateway;
 
     public List<String> getPerms() {
-        List<String> perms = new ArrayList<>();
-        for (RoleEntity role : getRoles()) {
-            perms.addAll(role.getMenus().stream()
-                    .filter(menuEntity -> menuEntity.getType() == 2)
-                    .map(MenuEntity::getPerms)
-                    .toList());
+
+        if (perms == null) {
+            List<String> permList;
+
+            if ("admin".equals(username)) {
+                permList = menuQueryGateway.getAllMenu().stream()
+                        .filter(menuEntity -> menuEntity.getType() == 2 && menuEntity.getPerms() != null)
+                        .map(MenuEntity::getPerms)
+                        .toList();
+            } else {
+                permList = new ArrayList<>();
+                for (RoleEntity role : getRoles()) {
+                    permList.addAll(role.getMenus().stream()
+                            .filter(menuEntity -> menuEntity.getType() == 2 && menuEntity.getPerms() != null)
+                            .map(MenuEntity::getPerms)
+                            .toList());
+                }
+            }
+            perms = permList;
         }
+
         return perms;
     }
 

@@ -62,10 +62,10 @@ public class EvaQueryController {
      * @param semId 学期id
      * @param keyword 模糊查询课程名称或教学老师姓名
      */
-    @GetMapping("/evaluate/tasks/{keyword}")
+    @GetMapping("/evaluate/tasks")
     public CommonResult<List<EvaTaskDetailInfoCO>> evaSelfTaskInfo(
             @RequestParam(value = "semId",required = false) Integer semId,
-            @PathVariable ("keyword") String keyword){
+            @RequestParam(value = "keyword",required = false) String keyword){
         return CommonResult.success(iEvaTaskService.evaSelfTaskInfo(semId,keyword));
     }
     /**
@@ -117,7 +117,7 @@ public class EvaQueryController {
     @GetMapping("/evaluate/records")
     public CommonResult<List<EvaRecordCO>> getEvaLogInfo(
             @RequestParam(value = "semId",required = false) Integer semId,
-            @PathVariable ("keyword") String keyword){
+            @RequestParam(value = "keyword",required = false) String keyword){
         return CommonResult.success(iUserEvaService.getEvaLogInfo(semId,keyword));
     }
     /**

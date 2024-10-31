@@ -32,15 +32,15 @@ public class DeleteCourseController {
     /**
      * 连带删除一门课程
      *  @param semId 学期id
-     *  @param id 对应课程编号
+     *  @param courseId 对应课程编号
      * */
     @DeleteMapping("/course")
     @OperateLog(module = LogModule.COURSE,type = OperateLogType.DELETE)
     @SaCheckPermission("course.tabulation.delete")
     public CommonResult<Void> delete(
-            @RequestParam(value = "id",required = true) Integer id,
+            @RequestParam(value = "courseId",required = true) Integer courseId,
             @RequestParam(value = "semId",required = false) Integer semId){
-        courseDetailService.delete(semId,id);
+        courseDetailService.delete(semId,courseId);
        return CommonResult.success(null);
     }
 

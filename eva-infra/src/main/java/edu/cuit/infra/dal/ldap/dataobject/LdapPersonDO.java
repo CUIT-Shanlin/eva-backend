@@ -86,10 +86,5 @@ public class LdapPersonDO {
     @Attribute(name = "cn")
     private String commonName;
 
-    /**
-     * 密码，只用于新增用户
-     */
-    private String userPassword;
-
 
 }

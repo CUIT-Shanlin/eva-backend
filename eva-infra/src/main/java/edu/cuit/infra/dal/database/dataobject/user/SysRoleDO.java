@@ -56,6 +56,12 @@ public class SysRoleDO implements Serializable {
     private LocalDateTime updateTime;
 
     /**
+     * 是否为默认角色
+     */
+    @TableField(value = "is_default")
+    private Integer isDefault;
+
+    /**
      * 实现逻辑删除（0:不可用 1:可用）
      */
     @TableField(value = "is_deleted")

@@ -7,6 +7,7 @@ import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 
+import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,7 +60,7 @@ public interface IEvaTemplateService {
      * 新建评教模板
      * @param evaTemplateCO 评教模板dto
      */
-    Void addEvaTemplate(EvaTemplateCO evaTemplateCO);
+    Void addEvaTemplate(EvaTemplateCO evaTemplateCO) throws ParseException;
 
 
 }

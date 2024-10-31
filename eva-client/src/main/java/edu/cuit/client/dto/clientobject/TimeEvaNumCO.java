@@ -5,15 +5,13 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
-/**
- * 数据模型EvaSituationCO 需要
- * 这一天内评教次数的统计数据
- */
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 @EqualsAndHashCode(callSuper = false)
 @Data
 @Accessors(chain = true)
 public class TimeEvaNumCO extends ClientObject{
-
     /**
      * 新增评教数目
      */

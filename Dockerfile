@@ -1,14 +1,16 @@
-FROM eclipse-temurin:17-jre
+FROM registry.littlestrange.site/library/eclipse-temurin:17-jre
 
-LABEL authors="XiaoMo"
-MAINTAINER  "XiaoMo"
+LABEL authors="LittleStrange"
+MAINTAINER  "LittleStrange"
 
 ENV PARAMS=""
 
-ENV JVMOPTIONS=""
+ENV JVMOPTIONS="-Duser.timezone=GMT+08 -Dspring.profiles.active=test -jar"
+
+RUN mkdir -p /data/avatar
+RUN cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
 COPY ./start/target/eva-server.jar /app.jar
 
 #ENTRYPOINT ["java","$JVMOPTIONS","-jar","/app.jar","$PARAMS"]
-#-dspring.profiles.active=prod
-CMD java ${JVMOPTIONS} -jar /app.jar ${PARAMS}
+CMD java ${JVMOPTIONS} /app.jar ${PARAMS}

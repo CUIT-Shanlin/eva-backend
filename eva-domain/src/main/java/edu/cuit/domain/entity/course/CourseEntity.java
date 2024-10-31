@@ -2,10 +2,7 @@ package edu.cuit.domain.entity.course;
 
 import com.alibaba.cola.domain.Entity;
 import edu.cuit.domain.entity.user.biz.UserEntity;
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.function.Supplier;
@@ -15,7 +12,8 @@ import java.util.function.Supplier;
  */
 @Entity
 @Data
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
+@NoArgsConstructor
 public class CourseEntity {
 
     /**

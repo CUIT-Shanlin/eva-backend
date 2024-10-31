@@ -1,5 +1,6 @@
 package edu.cuit.infra.gateway.impl.user;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import edu.cuit.client.dto.query.condition.MenuConditionalQuery;
@@ -26,9 +27,9 @@ public class MenuQueryGatewayImpl implements MenuQueryGateway {
     @Override
     public List<MenuEntity> getMenus(MenuConditionalQuery query) {
         LambdaQueryWrapper<SysMenuDO> menuQuery = Wrappers.lambdaQuery();
-        menuQuery.isNull(SysMenuDO::getParentId)
-                .like(SysMenuDO::getName,query.getKeyword())
-                .or().eq(SysMenuDO::getStatus,query.getStatus());
+        menuQuery.eq(SysMenuDO::getParentId,0)
+                .like(query.getKeyword() != null,SysMenuDO::getName,query.getKeyword())
+                .eq(query.getStatus() != null,SysMenuDO::getStatus,query.getStatus());
         return menuMapper.selectList(menuQuery).stream()
                 .map(menuConvertor::toMenuEntity)
                 .peek(menuEntity -> {
@@ -59,5 +60,17 @@ public class MenuQueryGatewayImpl implements MenuQueryGateway {
             menuEntity.setParent(() -> getOne(menuEntity.getParentId()).orElse(null));
         }
         return menuEntities;
+    }
+
+    @Override
+    public List<MenuEntity> getAllMenu() {
+        List<SysMenuDO> sysMenuDOS = menuMapper.selectList(new LambdaQueryWrapper<>());
+        return sysMenuDOS.stream()
+                .map(menuConvertor::toMenuEntity)
+                .peek(menu -> {
+                    menu.setChildren(() -> new ArrayList<>(getChildrenMenus(menu.getId())));
+                    menu.setParent(() -> getOne(menu.getParentId()).orElse(null));
+                })
+                .toList();
     }
 }

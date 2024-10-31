@@ -6,7 +6,7 @@
 
     <resultMap id="BaseResultMap" type="edu.cuit.infra.dal.database.dataobject.MsgTipDO">
             <id property="id" column="id" jdbcType="INTEGER"/>
-            <result property="senderId" column="sender _id" jdbcType="INTEGER"/>
+            <result property="senderId" column="sender_id" jdbcType="INTEGER"/>
             <result property="taskId" column="task_id" jdbcType="INTEGER"/>
             <result property="msg" column="msg" jdbcType="VARCHAR"/>
             <result property="type" column="type" jdbcType="TINYINT"/>

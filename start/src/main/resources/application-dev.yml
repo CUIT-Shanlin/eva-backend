@@ -14,11 +14,21 @@ spring:
     druid:
       keep-alive: true
 
+  ldap:
+    urls: ldap://littlestrange.site:40006
+    base: dc=3015,dc=cuit
+    username: cn=admin,dc=3015,dc=cuit
+    password: 30153015
+
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
 
 eva:
   avatar:
 #    directory: "/avatar"
     directory: "D:\\Programming\\Java\\Projects\\eva-backend\\avatar"
+
+common:
+  print-illegal-arguments: true

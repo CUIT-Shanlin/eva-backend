@@ -12,6 +12,7 @@ import edu.cuit.domain.gateway.user.MenuQueryGateway;
 import edu.cuit.domain.gateway.user.MenuUpdateGateway;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -25,32 +26,38 @@ public class MenuServiceImpl implements IMenuService {
     private final MenuBizConvertor menuBizConvertor;
 
     @Override
+    @Transactional
     public List<MenuCO> mainMenu(MenuConditionalQuery query) {
         return menuQueryGateway.getMenus(query).stream()
                 .map(menuBizConvertor::menuEntityToMenuCO).toList();
     }
 
     @Override
+    @Transactional
     public GenericMenuSectionCO one(Integer id) {
         return menuQueryGateway.getOne(id).map(menuBizConvertor::menuEntityToMenuCO).orElseThrow(() -> new BizException("该菜单不存在"));
     }
 
     @Override
+    @Transactional
     public void update(UpdateMenuCmd updateMenuCmd) {
         menuUpdateGateway.updateMenuInfo(updateMenuCmd);
     }
 
     @Override
+    @Transactional
     public void create(NewMenuCmd newMenuCmd) {
         menuUpdateGateway.createMenu(newMenuCmd);
     }
 
     @Override
+    @Transactional
     public void delete(Integer menuId) {
         menuUpdateGateway.deleteMenu(menuId);
     }
 
     @Override
+    @Transactional
     public void multipleDelete(List<Integer> ids) {
         menuUpdateGateway.deleteMultipleMenu(ids);
     }

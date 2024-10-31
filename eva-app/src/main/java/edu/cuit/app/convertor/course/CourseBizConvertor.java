@@ -2,6 +2,7 @@ package edu.cuit.app.convertor.course;
 
 import edu.cuit.client.dto.clientobject.SimpleCourseResultCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
+import edu.cuit.client.dto.clientobject.SimpleSubjectResultCO;
 import edu.cuit.client.dto.clientobject.course.*;
 import edu.cuit.client.dto.clientobject.eva.EvaTeacherInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
@@ -35,28 +36,59 @@ public abstract class CourseBizConvertor {
 
     @Mappings({
             @Mapping(target = "name",expression = "java(entity.getSubjectEntity().getName())"),
-            @Mapping(target = "id",source = "id"),
-            @Mapping(target = "teacherName",expression= "java(entity.getTeacher().getUsername())"),
+            @Mapping(target = "id",expression = "java(entity.getId())"),
+            @Mapping(target = "teacherName",expression= "java(entity.getTeacher().getName())"),
+            @Mapping(target = "nature",expression= "java(entity.getSubjectEntity().getNature())"),
     })
     public abstract SimpleCourseResultCO toSimpleCourseResultCO(CourseEntity entity);
 
-    public abstract SimpleResultCO toSimpleResultCO(SubjectEntity entity);
+    @Mappings({
+
+            @Mapping(target = "id",expression = "java(entity.getId())"),
+            @Mapping(target = "name",expression = "java(entity.getName())"),
+            @Mapping(target = "nature",expression = "java(entity.getNature())")
+
+    })
+    public abstract SimpleSubjectResultCO toSimpleSubjectResultCO(SubjectEntity entity);
+    @Mappings({
+
+            @Mapping(target = "id",expression = "java(entity.getId())")
+
+    })
     public abstract SimpleResultCO toSimpleResultCO(SelfTeachCourseCO entity);
+    @Mappings({
+
+            @Mapping(target = "id",expression = "java(courseTypeEntity.getId())"),
+            @Mapping(target = "isDefault",expression = "java(courseTypeEntity.getIsDefault())"),
+
+    })
 
     public abstract CourseType toCourseType(CourseTypeEntity courseTypeEntity);
 
     @Mappings({
-            @Mapping(target = "id",source = "courseEntity.id"),
+            @Mapping(target = "id",expression = "java(courseEntity.getId())"),
             @Mapping(target = "classroomList",source = "classroomList"),
             @Mapping(target = "createTime",source = "courseEntity.createTime"),
             @Mapping(target = "updateTime",source = "courseEntity.updateTime"),
             @Mapping(target = "name",expression="java(courseEntity.getSubjectEntity().getName())"),
             @Mapping(target = "templateMsg",expression="java(toEvaTemplateCO(formTemplateMapper.selectById(courseEntity.getTemplateId())))"),
-            @Mapping(target = "teacherInfoCO",expression="java(toTeacherInfoCO(courseEntity.getTeacher()))")
+            @Mapping(target = "teacherMsg",expression="java(toTeacherInfoCO(courseEntity.getTeacher()))")
     })
     public abstract CourseModelCO toCourseModelCO(CourseEntity courseEntity, List<String> classroomList);
 
+    @Mappings({
+
+            @Mapping(target = "id",expression = "java(formTemplateDO.getId())"),
+            @Mapping(target = "isDefault",expression = "java(formTemplateDO.getIsDefault())"),
+
+    })
     public abstract EvaTemplateCO toEvaTemplateCO(FormTemplateDO formTemplateDO);
+    @Mappings({
+
+            @Mapping(target = "id",expression = "java(userEntity.getId())"),
+
+
+    })
     public abstract TeacherInfoCO toTeacherInfoCO(UserEntity userEntity);
     @Mappings({
             @Mapping(target = "location",source = "singleCourseEntity.location"),
@@ -72,11 +104,19 @@ public abstract class CourseBizConvertor {
     @Mappings({
             @Mapping(target = "id",expression = "java(singleCourseEntity.getCourseEntity().getId())"),
             @Mapping(target = "name",expression = "java(singleCourseEntity.getCourseEntity().getSubjectEntity().getName())"),
-            @Mapping(target = "teacherName",expression = "java(singleCourseEntity.getCourseEntity().getTeacher().getUsername())"),
-            @Mapping(target = "evaNum",source = "size")
+            @Mapping(target = "teacherName",expression = "java(singleCourseEntity.getCourseEntity().getTeacher().getName())"),
+            @Mapping(target = "evaNum",expression = "java(size)"),
+            @Mapping(target = "time",expression = "java(toCourseTime(singleCourseEntity))")
     })
     public abstract SingleCourseCO toSingleCourseCO(SingleCourseEntity singleCourseEntity,Integer size);
 
+
+    @Mappings({
+            @Mapping(target = "week",expression = "java(singleCourseEntity.getWeek())"),
+            @Mapping(target = "day",expression = "java(singleCourseEntity.getDay())"),
+            @Mapping(target = "startTime",expression = "java(singleCourseEntity.getStartTime())"),
+            @Mapping(target = "endTime",expression = "java(singleCourseEntity.getEndTime())")
+    })
     public abstract CourseTime toCourseTime(SingleCourseEntity singleCourseEntity);
 
 }

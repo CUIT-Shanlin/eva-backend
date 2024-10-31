@@ -2,11 +2,13 @@ variables:
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
   DOCKER_TLS_CERTDIR: ""
+  EVA_VERSION: 1.24-SNAPSHOT
 
 stages:
   - sonarqube-check
   - build
   - publish
+  - recreate
 
 sonarqube-check:
   image: $HARBOR_URL/library/maven:3-eclipse-temurin-17
@@ -27,6 +29,7 @@ sonarqube-check:
 build:
   image: $HARBOR_URL/library/maven:3-eclipse-temurin-17
   stage: build
+  retry: 2
   cache:
     key: "${CI_PROJECT_ID}"
     paths:
@@ -42,16 +45,28 @@ build:
 
 publish:
   stage: publish
-  image: docker:23.0.2-alpine3.17
+  image: $HARBOR_URL/library/docker:23.0.2-alpine3.17
+  retry: 2
   services:
-    - name: docker:23.0.2-dind-alpine3.17
+    - name: $HARBOR_URL/library/docker:23.0.2-dind-alpine3.17
       command: [ "--tls=false" ]
       alias: docker
   before_script:
     - until docker info; do sleep 5s; done
   script:
     - docker login -u $HARBOR_USER -p $HARBOR_PASSWORD $HARBOR_URL
-    - docker build -t $HARBOR_URL/eva-system/eva-server:1.0.1-SNAPSHOT .
-    - docker push $HARBOR_URL/eva-system/eva-server:1.0.1-SNAPSHOT
+    - docker build -t eva-server:$EVA_VERSION .
+    - docker tag eva-server:$EVA_VERSION $HARBOR_URL/eva-system/eva-server:$EVA_VERSION
+    - docker push $HARBOR_URL/eva-system/eva-server:$EVA_VERSION
+    - docker tag eva-server:$EVA_VERSION $HARBOR_URL/eva-system/eva-server
+    - docker push $HARBOR_URL/eva-system/eva-server
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'master'
+
+recreate:
+  image: $HARBOR_URL/library/curl:8.9.1
+  stage: recreate
+  script:
+    - curl -X POST $PORTAINER_UPDATE_URL
   rules:
     - if: $CI_COMMIT_BRANCH == 'master'

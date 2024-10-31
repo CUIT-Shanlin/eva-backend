@@ -1,6 +1,7 @@
 package edu.cuit.client.dto.clientobject.eva;
 
 import com.alibaba.cola.dto.ClientObject;
+import edu.cuit.client.dto.clientobject.DateEvaNumCO;
 import edu.cuit.client.dto.clientobject.TimeEvaNumCO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,10 +17,6 @@ import java.util.List;
 @Data
 @Accessors(chain = true)
 public class EvaSituationCO extends ClientObject{
-    /**
-     * id
-     */
-    private Long id;
     /**
      * evaNum 已评教个数
      */
@@ -39,5 +36,5 @@ public class EvaSituationCO extends ClientObject{
     /**
      * evaNumArr 7天内每日新增评教数目
      */
-    private List<TimeEvaNumCO> evaNumArr;
+    private List<DateEvaNumCO> evaNumArr;
 }

@@ -5,10 +5,7 @@ import edu.cuit.client.dto.clientobject.SemesterCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
 import edu.cuit.client.dto.clientobject.course.SubjectCO;
-import edu.cuit.client.dto.cmd.course.AlignTeacherCmd;
-import edu.cuit.client.dto.cmd.course.UpdateCourseCmd;
-import edu.cuit.client.dto.cmd.course.UpdateCoursesCmd;
-import edu.cuit.client.dto.cmd.course.UpdateSingleCourseCmd;
+import edu.cuit.client.dto.cmd.course.*;
 import edu.cuit.client.dto.data.Term;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
@@ -32,7 +29,7 @@ public interface CourseUpdateGateway {
      *@param updateCourseCmd 修改课程信息
      *
      * */
-    String updateCourse(Integer semId, UpdateCourseCmd updateCourseCmd);
+    Map<String,Map<Integer,Integer>> updateCourse(Integer semId, UpdateCourseCmd updateCourseCmd);
 
     /**
      * 批量修改课程的模板
@@ -49,10 +46,10 @@ public interface CourseUpdateGateway {
      *@param userName 用户名
      *
      * */
-    Map<String,List<Integer>> updateSingleCourse(String userName,Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd);
+    Map<String,Map<Integer,Integer>> updateSingleCourse(String userName,Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd);
 
     /**
-     * 修改一节课的类型
+     * 修改一个课程类型
      *  @param courseType 修改课课程类型
      *
      * */
@@ -79,7 +76,7 @@ public interface CourseUpdateGateway {
      *  @param alignTeacherCmd 内涵课程id，以及听课老师集合
      *
      * */
-    Map<String,List<Integer>> assignTeacher(Integer semId, AlignTeacherCmd alignTeacherCmd);
+    Map<String,Map<Integer,Integer>> assignTeacher(Integer semId, AlignTeacherCmd alignTeacherCmd);
 
     /**
      * 导入课表文件
@@ -115,10 +112,16 @@ public interface CourseUpdateGateway {
     void addNotExistCoursesDetails(Integer semId,Integer teacherId, UpdateCourseCmd courseInfo,  List<SelfTeachCourseTimeCO> dateArr);
 
     /**
-     * 删除自己的一门课程
+     * 判断某学期是否已经导入过课表文件
      *  @param type 用于确定是导入实验课表还是理论课表，0：理论课，1：实验课
      *  @param term 学期类
      * */
     Boolean isImported(Integer type,Term term);
 
+    /**
+     * 批量修改课程对应类型的模型
+     *  @param updateCoursesType 课程id
+     *
+     * */
+    void updateCoursesType(UpdateCoursesType updateCoursesType);
 }

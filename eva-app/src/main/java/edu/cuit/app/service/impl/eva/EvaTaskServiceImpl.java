@@ -1,5 +1,7 @@
 package edu.cuit.app.service.impl.eva;
 import cn.dev33.satoken.stp.StpUtil;
+import com.alibaba.cola.exception.BizException;
+import com.alibaba.cola.exception.SysException;
 import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.PaginationBizConvertor;
 import edu.cuit.app.convertor.eva.EvaTaskBizConvertor;
@@ -7,6 +9,7 @@ import edu.cuit.app.service.impl.MsgServiceImpl;
 import edu.cuit.client.api.eva.IEvaTaskService;
 import edu.cuit.client.bo.MessageBO;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
+import edu.cuit.client.dto.clientobject.eva.AddTaskCO;
 import edu.cuit.client.dto.clientobject.eva.EvaInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskBaseInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskDetailInfoCO;
@@ -23,9 +26,11 @@ import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -50,7 +55,7 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
     @Override
     @CheckSemId
     public List<EvaTaskDetailInfoCO> evaSelfTaskInfo(Integer semId, String keyword) {
-        Integer useId=userQueryGateway.findIdByUsername(String.valueOf(StpUtil.getLoginId())).get();
+        Integer useId=userQueryGateway.findIdByUsername(String.valueOf(StpUtil.getLoginId())).orElseThrow(()->new SysException("并没有找到该用户id"));
         List<EvaTaskEntity> evaTaskEntities=evaQueryGateway.evaSelfTaskInfo(useId,semId,keyword);
         List<EvaTaskDetailInfoCO> evaTaskDetailInfoCOS=new ArrayList<>();
         for (EvaTaskEntity evaTaskEntity : evaTaskEntities) {
@@ -63,35 +68,38 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
 
     @Override
     public EvaTaskDetailInfoCO oneEvaTaskInfo(Integer id) {
-        EvaTaskEntity evaTaskEntity=evaQueryGateway.oneEvaTaskInfo(id).get();
+        EvaTaskEntity evaTaskEntity=evaQueryGateway.oneEvaTaskInfo(id).orElseThrow(()->new SysException("并没有找到相关任务信息"));
         SingleCourseEntity singleCourseEntity=evaTaskEntity.getCourInf();
         return evaTaskBizConvertor.evaTaskEntityToTaskDetailCO(evaTaskEntity,singleCourseEntity);
     }
     //发起任务之后，要同时发送该任务的评教待办消息
     @Override
-    public Void postEvaTask(EvaInfoCO evaInfoCO) {
-        String msg=evaUpdateGateway.postEvaTask(evaInfoCO);
-        msgService.sendMessage(new MessageBO().setMsg(msg)
+    @Transactional
+    public Void postEvaTask(AddTaskCO addTaskCO) {
+        Integer taskId=evaUpdateGateway.postEvaTask(addTaskCO);
+        msgService.sendMessage(new MessageBO().setMsg("")
                 .setMode(1).setIsShowName(1)
-                .setRecipientId(evaInfoCO.getTeacherId()).setSenderId(evaInfoCO.getTeacherId())
-                .setType(0).setTaskId(evaInfoCO.getId()));
+                .setRecipientId(addTaskCO.getTeacherId()).setSenderId(addTaskCO.getTeacherId())
+                .setType(0).setTaskId(taskId));
         return null;
     }
 
     @Override
     public Void cancelEvaTask(Integer id) {
+        LogUtils.logContent(evaQueryGateway.getNameByTaskId(id).orElseThrow(() -> new BizException("该任务id不存在")) + "任务ID为 "+id+" 的评教任务");
         evaUpdateGateway.cancelEvaTaskById(id);
-        LogUtils.logContent(evaQueryGateway.getNameByTaskId(id).get()+"任务ID为"+id+"的评教任务");
+        msgService.deleteEvaMsg(id,null);
         return null;
     }
     @Override
     public Void cancelMyEvaTask(Integer id) {
-        Integer useId=userQueryGateway.findIdByUsername(String.valueOf(StpUtil.getLoginId())).get();
-        EvaTaskEntity evaTaskEntity=evaQueryGateway.oneEvaTaskInfo(id).get();
-        if(evaTaskEntity.getTeacher().getId()!=useId){
+        Integer useId=userQueryGateway.findIdByUsername(String.valueOf(StpUtil.getLoginId())).orElseThrow(() -> new SysException("用户未找到"));
+        EvaTaskEntity evaTaskEntity=evaQueryGateway.oneEvaTaskInfo(id).orElseThrow(() -> new BizException("该任务不存在"));
+        if(!Objects.equals(evaTaskEntity.getTeacher().getId(), useId)){
             throw new QueryException("不能删去不是自己评教的任务");
         }else{
             evaUpdateGateway.cancelEvaTaskById(id);
+            msgService.deleteEvaMsg(id,null);
         }
         return null;
     }

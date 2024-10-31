@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
@@ -16,8 +17,9 @@ public class DepartmentGatewayImpl implements DepartmentGateway {
     @Override
     public List<String> getAll() {
         List<SysUserDO> sysUserDOS = userMapper.selectList(null);
-        if(sysUserDOS.isEmpty())throw new QueryException("暂时还没有用院系信息");
         //根据角色的院系进行分类(去重)
-        return sysUserDOS.stream().map(SysUserDO::getDepartment).distinct().toList();
+        return sysUserDOS.stream().map(SysUserDO::getDepartment)
+                .filter(Objects::nonNull)
+                .distinct().toList();
     }
 }

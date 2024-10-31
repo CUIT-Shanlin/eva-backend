@@ -41,7 +41,7 @@ public class CourseModelCO extends ClientObject {
     /**
      *教学老师信息
      */
-    private TeacherInfoCO teacherInfoCO;
+    private TeacherInfoCO teacherMsg;
 
     /**
      * 创建时间
@@ -52,5 +52,10 @@ public class CourseModelCO extends ClientObject {
      * 更新时间
      */
     private LocalDateTime updateTime;
+
+    /**
+     * 课程性质(0:理论课,1:实验课,3:其他)
+     */
+    private Integer nature;
 
 }

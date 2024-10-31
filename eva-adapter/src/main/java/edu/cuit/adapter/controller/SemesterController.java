@@ -1,6 +1,7 @@
 package edu.cuit.adapter.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import edu.cuit.client.api.ISemesterService;
 import edu.cuit.client.dto.clientobject.SemesterCO;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import lombok.RequiredArgsConstructor;
@@ -21,12 +22,14 @@ import java.util.List;
 @RequestMapping("/semester")
 public class SemesterController {
 
+    private final ISemesterService semesterService;
+
     /**
      * 获取所有已有的学期
      */
     @GetMapping("/all")
     public CommonResult<List<SemesterCO>> all() {
-        return null;
+        return CommonResult.success(semesterService.all());
     }
 
     /**
@@ -34,16 +37,16 @@ public class SemesterController {
      */
     @GetMapping("/now")
     public CommonResult<SemesterCO> now() {
-        return null;
+        return CommonResult.success(semesterService.now());
     }
 
     /**
      * 获取一个学期的信息
      * @param id 学期id
      */
-    @GetMapping("/semester/{id}")
+    @GetMapping("/{id}")
     public CommonResult<SemesterCO> semesterInfo(@PathVariable Integer id) {
-        return null;
+        return CommonResult.success(semesterService.semesterInfo(id));
     }
 
 }

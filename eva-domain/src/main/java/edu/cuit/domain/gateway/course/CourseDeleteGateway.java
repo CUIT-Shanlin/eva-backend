@@ -18,14 +18,14 @@ public interface CourseDeleteGateway {
      *  @param id 对应课程编号
      *  @param coursePeriod 课程的一段时间模型
      * */
-    Map<String,List<Integer>> deleteCourses(Integer semId, Integer id, CoursePeriod coursePeriod);
+    Map<String,Map<Integer,Integer>> deleteCourses(Integer semId, Integer id, CoursePeriod coursePeriod);
 
     /**
      * 连带删除一门课程
      *  @param semId 学期id
      *  @param id 对应课程编号
      * */
-    Map<String,List<Integer>> deleteCourse(Integer semId, Integer id);
+    Map<String,Map<Integer,Integer>> deleteCourse(Integer semId, Integer id);
 
     /**
      * 删除一个课程类型/批量删除课程类型
@@ -38,5 +38,5 @@ public interface CourseDeleteGateway {
      *  @param courseId 课程id
      *  @param userName 用户名
      * */
-    Map<String,List<Integer>> deleteSelfCourse(String userName,Integer courseId);
+    Map<String,Map<Integer,Integer>> deleteSelfCourse(String userName,Integer courseId);
 }

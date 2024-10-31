@@ -1,5 +1,6 @@
 package edu.cuit.app.service.impl.course;
 
+import cn.dev33.satoken.stp.StpUtil;
 import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.PaginationBizConvertor;
 import edu.cuit.app.convertor.course.CourseBizConvertor;
@@ -10,6 +11,7 @@ import edu.cuit.client.bo.MessageBO;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.SimpleCourseResultCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
+import edu.cuit.client.dto.clientobject.SimpleSubjectResultCO;
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.client.dto.clientobject.course.CourseModelCO;
 import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
@@ -24,13 +26,12 @@ import edu.cuit.domain.entity.course.SubjectEntity;
 import edu.cuit.domain.gateway.course.CourseDeleteGateway;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.domain.gateway.course.CourseUpdateGateway;
+import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +39,7 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     private final CourseQueryGateway courseQueryGateway;
     private final CourseUpdateGateway courseUpdateGateway;
     private final CourseDeleteGateway courseDeleteGateway;
+    private final UserQueryGateway userQueryGateway;
     private final CourseBizConvertor courseBizConvertor;
     private final PaginationBizConvertor pagenConvertor;
     private final MsgServiceImpl msgService;
@@ -62,10 +64,9 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
 
     }
 
-    @CheckSemId
     @Override
-    public List<CourseScoreCO> evaResult(Integer id, Integer semId) {
-        return courseQueryGateway.findEvaScore(id, semId);
+    public List<CourseScoreCO> evaResult(Integer id) {
+        return courseQueryGateway.findEvaScore(id);
     }
 
     @CheckSemId
@@ -78,19 +79,17 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     }
 
     @Override
-    public List<SimpleResultCO> allSubjectInfo() {
+    public List<SimpleSubjectResultCO> allSubjectInfo() {
         List<SubjectEntity> subject = courseQueryGateway.findSubjectInfo();
-        return subject.stream().map(courseBizConvertor::toSimpleResultCO).toList();
+        return subject.stream().map(courseBizConvertor::toSimpleSubjectResultCO).toList();
     }
 
     @CheckSemId
     @Override
     public void updateCourse(Integer semId, UpdateCourseCmd updateCourseCmd) {
-        String msg = courseUpdateGateway.updateCourse(semId, updateCourseCmd);
-        msgService.sendMessage(new MessageBO().setMsg(msg)
-                .setMode(0).setIsShowName(1)
-                .setRecipientId(null).setSenderId(null)
-                .setType(1));
+        Map<String, Map<Integer,Integer>> map = courseUpdateGateway.updateCourse(semId, updateCourseCmd);
+        Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
+        msgResult.SendMsgToAll(map, userId.orElseThrow(() -> new QueryException("请先登录")));
     }
 
     @CheckSemId
@@ -108,8 +107,18 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     @CheckSemId
     @Override
     public void delete(Integer semId, Integer id) {
+        Map<String, Map<Integer,Integer>> map = courseDeleteGateway.deleteCourse(semId, id);
+        Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
+        for (Map.Entry<String, Map<Integer, Integer>> stringListEntry : map.entrySet()) {
+           Map<String,Map<Integer,Integer>> temMap=new HashMap<>();
+            if(stringListEntry.getValue()==null){
+                temMap.put(stringListEntry.getKey(),null);
+                msgResult.SendMsgToAll(temMap,userId.orElseThrow(() -> new QueryException("请先登录")));
+            }else{
+                temMap.put(stringListEntry.getKey(),stringListEntry.getValue());
+                msgResult.toSendMsg(temMap,userId.orElseThrow(() -> new QueryException("请先登录")));
+            }
+        }
 
-        Map<String, List<Integer>> map = courseDeleteGateway.deleteCourse(semId, id);
-       msgResult.toSendMsg(map);
     }
 }

@@ -11,6 +11,7 @@ import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.UnqualifiedUserConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.gateway.eva.EvaQueryGateway;
+import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,19 +25,19 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
     @Override
     @CheckSemId
     public EvaScoreInfoCO evaScoreStatisticsInfo(Integer semId, Number score) {
-        return evaQueryGateway.evaScoreStatisticsInfo(semId,score).get();
+        return evaQueryGateway.evaScoreStatisticsInfo(semId,score).orElseThrow(()->new SysException("没有相关数据"));
     }
 
     @Override
     @CheckSemId
     public EvaSituationCO evaTemplateSituation(Integer semId) {
-        return evaQueryGateway.evaTemplateSituation(semId).get();
+        return evaQueryGateway.evaTemplateSituation(semId).orElseThrow(()->new SysException("没有相关数据"));
     }
 
     @Override
     @CheckSemId
     public OneDayAddEvaDataCO evaOneDayInfo(Integer day, Integer num, Integer semId) {
-        return evaQueryGateway.evaOneDayInfo(day,num,semId).get();
+        return evaQueryGateway.evaOneDayInfo(day,num,semId).orElseThrow(()->new SysException("未找到相关数据"));
     }
 
     @Override
@@ -53,16 +54,16 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
     @Override
     @CheckSemId
     public PastTimeEvaDetailCO getEvaData(Integer semId, Integer num, Integer target, Integer evaTarget) {
-        return evaQueryGateway.getEvaData(semId,num,target,evaTarget).get();
+        return evaQueryGateway.getEvaData(semId,num,target,evaTarget).orElseThrow(()->new SysException("没有找到相关数据"));
     }
 
     @Override
     @CheckSemId
     public PaginationQueryResultCO<UnqualifiedUserInfoCO> pageUnqualifiedUser(Integer semId,Integer type, Integer target, PagingQuery<UnqualifiedUserConditionalQuery> query) {
-        if(type==1){
+        if(type==0){
             PaginationResultEntity<UnqualifiedUserInfoCO> page=evaQueryGateway.pageEvaUnqualifiedUserInfo(semId,query,target);
             return paginationBizConvertor.toPaginationEntity(page,page.getRecords());
-        } else if(type==0){
+        } else if(type==1){
             PaginationResultEntity<UnqualifiedUserInfoCO> page=evaQueryGateway.pageBeEvaUnqualifiedUserInfo(semId,query,target);
             return paginationBizConvertor.toPaginationEntity(page,page.getRecords());
         }else {
@@ -76,10 +77,10 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
     public UnqualifiedUserResultCO getTargetAmountUnqualifiedUser(Integer semId,Integer type, Integer num, Integer target) {
 
         UnqualifiedUserResultCO unqualifiedUserResultCO=null;
-        if(type==1){
-            unqualifiedUserResultCO=evaQueryGateway.getEvaTargetAmountUnqualifiedUser(semId,null,num,target).get();
-        } else if(type==0){
-            unqualifiedUserResultCO=evaQueryGateway.getBeEvaTargetAmountUnqualifiedUser(semId,null,num,target).get();
+        if(type==0){
+            unqualifiedUserResultCO=evaQueryGateway.getEvaTargetAmountUnqualifiedUser(semId,num,target).orElseThrow(()->new SysException("并没有找到相关数据"));
+        } else if(type==1){
+            unqualifiedUserResultCO=evaQueryGateway.getBeEvaTargetAmountUnqualifiedUser(semId,num,target).orElseThrow(()->new SysException("并没有找到相关数据"));
         }else {
             throw new SysException("type是10以外的值");
         }

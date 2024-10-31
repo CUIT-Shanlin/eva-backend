@@ -40,4 +40,9 @@ public interface RoleQueryGateway {
      */
     List<Integer> getRoleMenuIds(Integer roleId);
 
+    /**
+     * 获取默认角色id
+     */
+    Integer getDefaultRoleId();
+
 }

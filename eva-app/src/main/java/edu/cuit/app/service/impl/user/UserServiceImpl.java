@@ -32,6 +32,7 @@ import edu.cuit.domain.gateway.user.UserUpdateGateway;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -56,6 +57,7 @@ public class UserServiceImpl implements IUserService {
     private final PaginationBizConvertor paginationBizConvertor;
 
     @Override
+    @Transactional
     public UserInfoCO getOneUserInfo(Integer id) {
         UserEntity user = userQueryGateway.findById(id)
                 .orElseThrow(() -> new BizException("该用户不存在"));
@@ -63,6 +65,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     public PaginationQueryResultCO<UserInfoCO> pageUserInfo(PagingQuery<GenericConditionalQuery> query) {
         PaginationResultEntity<UserEntity> userEntityPage = userQueryGateway.page(query);
         List<UserInfoCO> results = userEntityPage.getRecords().stream()
@@ -72,6 +75,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     public List<UserSingleCourseScoreCO> getOneUserScore(Integer userId, Integer semId) {
         List<SelfTeachCourseCO> courseInfoList = courseQueryGateway.getSelfCourseInfo(userQueryGateway.findUsernameById(userId)
                 .orElseThrow(() -> new SysException("找不到用户名")), semId);
@@ -79,7 +83,7 @@ public class UserServiceImpl implements IUserService {
         List<UserSingleCourseScoreCO> resultList = new ArrayList<>();
 
         for (SelfTeachCourseCO course : courseInfoList) {
-            List<CourseScoreCO> evaScore = courseQueryGateway.findEvaScore(course.getId(), semId);
+            List<CourseScoreCO> evaScore = courseQueryGateway.findEvaScore(course.getId());
             double score = 0;
             for (CourseScoreCO courseScoreCO : evaScore) {
                 score += courseScoreCO.getAverScore();
@@ -97,11 +101,13 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     public List<SimpleResultCO> getAllUserInfo() {
         return userQueryGateway.allUser();
     }
 
     @Override
+    @Transactional
     public UserInfoCO getSelfUserInfo() {
         String username = (String) StpUtil.getLoginId();
         return getUserInfo(userQueryGateway.findByUsername(username)
@@ -113,30 +119,36 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     public Integer getIdByUsername(String username) {
         return userQueryGateway.findIdByUsername(username).orElseThrow(() -> new BizException("用户名未找到"));
     }
 
     @Override
+    @Transactional
     public byte[] getUserAvatar(Integer id) {
         return avatarManager.getUserAvatarBytes(id);
     }
 
     @Override
+    @Transactional
     public Boolean isUsernameExist(String username) {
         return userQueryGateway.isUsernameExist(username);
     }
 
     @Override
+    @Transactional
     public void uploadUserAvatar(Integer userId, InputStream inputStream) {
         avatarManager.uploadUserAvatar(userId,inputStream);
     }
 
     @Override
+    @Transactional
     public void updateInfo(Boolean isUpdatePwd, UpdateUserCmd cmd) {
         int id = Math.toIntExact(cmd.getId());
         if (isUpdatePwd) {
             String password = cmd.getPassword();
+            if (StrUtil.isBlank(password)) throw new BizException("密码不能为空");
             ldapPersonGateway.changePassword(userQueryGateway.findUsernameById(id)
                     .orElseThrow(() -> {
                         SysException e = new SysException("找不到用户名，请联系管理员");
@@ -146,17 +158,27 @@ public class UserServiceImpl implements IUserService {
         }
         String username = userQueryGateway.findUsernameById(Math.toIntExact(cmd.getId()))
                 .orElseThrow(() -> new BizException("用户ID不存在"));
-        if (cmd.getStatus() == 0) {
+
+        if (!userQueryGateway.getUserStatus(id).orElseThrow(() -> {
+            SysException e = new SysException("用户状态查找失败");
+            log.error("发生系统异常", e);
+            return e;
+        }).equals(cmd.getStatus())) {
             StpUtil.logout(username);
         }
         userUpdateGateway.updateInfo(cmd);
-        if (!StrUtil.isEmpty(cmd.getUsername())) {
+        if (!userQueryGateway.findUsernameById(id).orElseThrow(() -> {
+            SysException e = new SysException("用户名查找失败");
+            log.error("发生系统异常", e);
+            return e;
+        }).equals(cmd.getUsername())) {
             StpUtil.logout(username);
         }
 
     }
 
     @Override
+    @Transactional
     public void updateOwnInfo(UpdateUserCmd cmd) {
         Optional<Integer> id = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
         cmd.setId(Long.valueOf(id.orElseThrow(() -> {
@@ -168,6 +190,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     public void changePassword(Integer userId, UpdatePasswordCmd cmd) {
         String username = userQueryGateway.findUsernameById(userId)
                 .orElseThrow(() -> new BizException("用户不存在"));
@@ -177,10 +200,14 @@ public class UserServiceImpl implements IUserService {
         if (StrUtil.isBlank(cmd.getPassword())) {
             throw new BizException("新密码不能为空");
         }
+        if (cmd.getOldPassword().equals(cmd.getPassword())) {
+            throw new BizException("新密码和旧密码不能相同");
+        }
         ldapPersonGateway.changePassword(username,cmd.getPassword());
     }
 
     @Override
+    @Transactional
     public void updateStatus(Integer userId, Integer status) {
         userUpdateGateway.updateStatus(userId,status);
         if (status == 0) {
@@ -190,28 +217,35 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     public void delete(Integer userId) {
         userUpdateGateway.deleteUser(userId);
     }
 
     @Override
+    @Transactional
     public void assignRole(AssignRoleCmd cmd) {
         userUpdateGateway.assignRole(cmd.getUserId(),cmd.getRoleIdList());
     }
 
     @Override
+    @Transactional
     public void create(NewUserCmd cmd) {
         userUpdateGateway.createUser(cmd);
     }
 
     @Override
+    @Transactional
     public void syncLdap() {
         List<NewUserCmd> cmdList = ldapPersonGateway.findAll().stream()
                 .map(userBizConvertor::toNewUserCmd).toList();
         Set<String> usernameSet = new HashSet<>(userQueryGateway.findAllUsername());
         for (NewUserCmd newUserCmd : cmdList) {
             if (usernameSet.contains(newUserCmd.getUsername())) continue;
-            userUpdateGateway.createUser(newUserCmd);
+            try {
+                userUpdateGateway.createUser(newUserCmd);
+            } catch (BizException ignored) {
+            }
         }
     }
 

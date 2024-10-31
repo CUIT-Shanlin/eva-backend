@@ -22,7 +22,9 @@ import edu.cuit.domain.gateway.user.UserQueryGateway;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -46,12 +48,14 @@ public class MsgServiceImpl implements IMsgService {
     private final Executor executor;
 
     @Override
+    @Transactional
     public List<GenericResponseMsg> getUserSelfNormalMsg(Integer type) {
         return  msgGateway.queryMsg(checkAndGetUserId(), type, 0).stream()
                 .map(msgBizConvertor::toResponseMsg).toList();
     }
 
     @Override
+    @Transactional
     public List<GenericResponseMsg> getUserTargetTypeMsg(Integer type, Integer mode) {
         List<GenericResponseMsg> result;
         if (mode == null || mode < 0) {
@@ -70,45 +74,62 @@ public class MsgServiceImpl implements IMsgService {
     }
 
     @Override
+    @Transactional
     public List<EvaResponseMsg> getUserSelfEvaMsg(Integer type) {
         List<MsgEntity> msgEntities = msgGateway.queryMsg(checkAndGetUserId(), type, 1);
-        return msgEntities.stream().map(msgEntity -> evaQueryGateway.oneEvaTaskInfo(msgEntity.getTaskId()).map(taskEntity -> {
+        return msgEntities.stream().map(this::toEvaResponseMsg).toList();
+    }
+
+    private EvaResponseMsg toEvaResponseMsg(MsgEntity msgEntity) {
+        return evaQueryGateway.oneEvaTaskInfo(msgEntity.getTaskId()).map(taskEntity -> {
             // 获取评教信息对应课程
             SingleCourseEntity courInf = taskEntity.getCourInf();
             // 转换为课程对象
             SingleCourseCO singleCourseCO = courseBizConvertor.toSingleCourseCO(courInf,
                     evaQueryGateway.getEvaNumByCourInfo(courInf.getId()).orElse(0));
             return msgBizConvertor.toEvaResponseMsg(msgEntity,singleCourseCO);
-        }).orElseThrow(() -> new BizException("获取评教信息失败"))).toList();
+        }).orElseThrow(() -> new BizException("获取评教信息失败"));
     }
 
     @Override
+    @Transactional
     public List<GenericResponseMsg> getUserTargetAmountAndTypeMsg(Integer num, Integer type) {
-        return msgGateway.queryTargetAmountMsg(checkAndGetUserId(),num,type).stream()
-                .map(msgBizConvertor::toResponseMsg).toList();
+        List<GenericResponseMsg> result = new ArrayList<>();
+        List<MsgEntity> msgEntities = msgGateway.queryTargetAmountMsg(checkAndGetUserId(), num, type);
+        msgEntities.forEach(msgEntity -> {
+                    if (msgEntity.getMode() == 1) {
+                        result.add(toEvaResponseMsg(msgEntity));
+                    } else result.add(msgBizConvertor.toResponseMsg(msgEntity));
+                });
+        return result;
     }
 
     @Override
+    @Transactional
     public void updateMsgDisplay(Integer id, Integer isDisplayed) {
         msgGateway.updateMsgDisplay(checkAndGetUserId(),id,isDisplayed);
     }
 
     @Override
+    @Transactional
     public void updateMsgRead(Integer id, Integer isRead) {
         msgGateway.updateMsgRead(checkAndGetUserId(),id,isRead);
     }
 
     @Override
+    @Transactional
     public void updateMultipleMsgRead(Integer mode) {
         msgGateway.updateMultipleMsgRead(checkAndGetUserId(),mode);
     }
 
     @Override
+    @Transactional
     public void deleteEvaMsg(Integer taskId, Integer type) {
         msgGateway.deleteMessage(taskId,type);
     }
 
     @Override
+    @Transactional
     public void sendMessage(MessageBO msg) {
         String senderName = null;
         if (msg.getIsShowName() == 1) {
@@ -119,8 +140,8 @@ public class MsgServiceImpl implements IMsgService {
                             log.error("查找发送者用户信息失败，请联系管理员",e);
                             return e;
                         });
-            } else senderName = "系统";
-        }
+            } else senderName = "";
+        } else senderName = "匿名用户";
         GenericRequestMsg requestMsg = msgBizConvertor.toRequestMsg(msg);
         GenericResponseMsg responseMsg = msgBizConvertor.toResponseMsg(requestMsg, senderName);
         // 判断是否为广播消息
@@ -132,22 +153,24 @@ public class MsgServiceImpl implements IMsgService {
                     cloneMsg.setRecipientId(id);
                     msgGateway.insertMessage(cloneMsg);
                 }
+                responseMsg.setCreateTime(LocalDateTime.now());
                 websocketManager.broadcastMessage(responseMsg);
             },executor);
 
         } else {
-            websocketManager.sendMessage(msg.getRecipientId(),responseMsg);
             msgGateway.insertMessage(requestMsg);
+            websocketManager.sendMessage(userQueryGateway.findUsernameById(msg.getRecipientId()).orElse(null),responseMsg);
         }
     }
 
     @Override
+    @Transactional
     public void handleUserSendMessage(SendMessageCmd cmd) {
         sendMessage(msgBizConvertor.toMessageBO(cmd,checkAndGetUserId()));
     }
 
     private Integer checkAndGetUserId() {
-        if (StpUtil.isLogin()) {
+        if (!StpUtil.isLogin()) {
             throw new BizException("用户未登录");
         }
         String loginId = (String) StpUtil.getLoginId();

@@ -1,9 +1,11 @@
 package edu.cuit.client.api.course;
 
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
+import edu.cuit.client.dto.cmd.course.UpdateCoursesType;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -25,7 +27,7 @@ public interface ICourseTypeService {
     List<CourseType> allCourseType();
 
     /**
-     * 修改一节课的类型
+     * 修改一个课程类型
      *  @param courseType 修改课课程类型
      *
      * */
@@ -50,4 +52,11 @@ public interface ICourseTypeService {
      *  @param ids 课程数组
      * */
     void deleteCoursesType(List<Integer> ids);
+
+    /**
+     * 批量修改课程对应类型的模型
+     *  @param updateCoursesType 课程id
+     *
+     * */
+    Void updateCoursesType( UpdateCoursesType updateCoursesType);
 }

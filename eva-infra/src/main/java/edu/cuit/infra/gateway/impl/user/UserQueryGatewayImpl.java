@@ -1,5 +1,6 @@
 package edu.cuit.infra.gateway.impl.user;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.cola.exception.SysException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -28,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -100,9 +102,10 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
         //查询
         LambdaQueryWrapper<SysUserDO> userQuery = Wrappers.lambdaQuery();
         QueryUtils.fileTimeQuery(userQuery,queryObj,SysUserDO::getCreateTime,SysUserDO::getUpdateTime);
+        String keyword = queryObj.getKeyword();
         userQuery
-                .or().like(SysUserDO::getName,queryObj.getKeyword())
-                .or().like(SysUserDO::getUsername,queryObj.getKeyword());
+                .like(keyword != null,SysUserDO::getName,keyword)
+                .or().like(keyword != null,SysUserDO::getUsername,keyword);
         Page<SysUserDO> usersPage = userMapper.selectPage(userPage, userQuery);
 
         //映射
@@ -136,6 +139,14 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
                 .select(SysUserDO::getUsername).eq(SysUserDO::getUsername,username)) >= 1;
     }
 
+    @Override
+    public Optional<Integer> getUserStatus(Integer id) {
+        LambdaQueryWrapper<SysUserDO> userQuery = Wrappers.lambdaQuery();
+        userQuery.select(SysUserDO::getStatus)
+                .eq(SysUserDO::getId,id);
+        return Optional.ofNullable(userMapper.selectOne(userQuery).getStatus());
+    }
+
     /**
      * 填充UserEntity字段
      * @param userDO SysUserDO
@@ -143,8 +154,15 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
     private UserEntity fileUserEntity(SysUserDO userDO) {
         //查询角色
         LambdaQueryWrapper<SysRoleDO> roleQuery = new LambdaQueryWrapper<>();
-        roleQuery.in(SysRoleDO::getId, getUserRoleIds(userDO.getId()));
-        Supplier<List<RoleEntity>> userRoles = () -> roleMapper.selectList(roleQuery).stream()
+        List<Integer> userRoleIds = getUserRoleIds(userDO.getId());
+        List<SysRoleDO> roles;
+        if (userRoleIds.isEmpty()) {
+            roles = List.of();
+        } else {
+            roleQuery.in(SysRoleDO::getId, userRoleIds);
+            roles = roleMapper.selectList(roleQuery);
+        }
+        Supplier<List<RoleEntity>> userRoles = () -> roles.stream()
                 .map(roleDo -> {
 
                     //查询角色权限菜单

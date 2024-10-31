@@ -6,6 +6,9 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import edu.cuit.client.dto.cmd.user.NewUserCmd;
 import edu.cuit.client.dto.cmd.user.UpdateUserCmd;
+import edu.cuit.domain.entity.user.LdapPersonEntity;
+import edu.cuit.domain.gateway.user.LdapPersonGateway;
+import edu.cuit.domain.gateway.user.RoleQueryGateway;
 import edu.cuit.domain.gateway.user.UserUpdateGateway;
 import edu.cuit.infra.convertor.user.LdapUserConvertor;
 import edu.cuit.infra.convertor.user.UserConverter;
@@ -21,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @Component
@@ -30,6 +34,9 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
     private final SysUserRoleMapper userRoleMapper;
     private final LdapPersonRepo ldapPersonRepo;
 
+    private final LdapPersonGateway ldapPersonGateway;
+    private final RoleQueryGateway roleQueryGateway;
+
     private final UserConverter userConverter;
     private final LdapUserConvertor ldapUserConvertor;
 
@@ -37,15 +44,15 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
     public void updateInfo(UpdateUserCmd cmd) {
         SysUserDO tmp = checkIdExistence(Math.toIntExact(cmd.getId()));
         SysUserDO userDO = userConverter.toUserDO(cmd);
-        if (userDO.getUsername().equals(cmd.getUsername())) {
-            throw new BizException("用户名不能与原来相同");
+        String oldUsername = userDO.getUsername();
+        checkAdmin(Math.toIntExact(cmd.getId()));
+        if (checkUsernameExistence(cmd.getUsername()) && !oldUsername.equals(cmd.getUsername())) {
+            throw new BizException("该用户名已存在");
         }
-        if (checkUsernameExistence(cmd.getUsername())) {
-            throw new BizException("用户名已存在");
-        }
-        LdapPersonDO personDO = ldapUserConvertor.userDOToLdapPersonDO(userDO);
+        if (cmd.getStatus() != null && cmd.getStatus() == 0) checkAdmin(Math.toIntExact(cmd.getId()));
         userMapper.updateById(userDO);
-        ldapPersonRepo.save(personDO);
+        LdapPersonEntity ldapPersonEntity = ldapUserConvertor.userDOToLdapPersonEntity(userDO);
+        ldapPersonGateway.saveUser(ldapPersonEntity);
 
         LogUtils.logContent(tmp.getName() + " 用户(id:" + tmp.getId() + ")的信息");
     }
@@ -53,8 +60,9 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
     @Override
     public void updateStatus(Integer userId, Integer status) {
         SysUserDO tmp = checkIdExistence(userId);
+        checkAdmin(userId);
         LambdaUpdateWrapper<SysUserDO> userUpdate = Wrappers.lambdaUpdate();
-        userUpdate.set(SysUserDO::getStatus,status).eq(SysUserDO::getId,userUpdate);
+        userUpdate.set(SysUserDO::getStatus,status).eq(SysUserDO::getId,userId);
         userMapper.update(userUpdate);
 
         LogUtils.logContent(tmp.getName() + " 用户(id:" + tmp.getId() + ")的状态为 " + status);
@@ -63,6 +71,7 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
     @Override
     public void deleteUser(Integer userId) {
         SysUserDO tmp = checkIdExistence(userId);
+        checkAdmin(userId);
         userMapper.deleteById(userId);
         ldapPersonRepo.deleteById(EvaLdapUtils.getUserLdapNameId(getUsername(userId)));
         userRoleMapper.delete(Wrappers.lambdaQuery(SysUserRoleDO.class).eq(SysUserRoleDO::getUserId,userId));
@@ -73,13 +82,23 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
     @Override
     public void assignRole(Integer userId, List<Integer> roleId) {
         SysUserDO tmp = checkIdExistence(userId);
+
+        checkAdmin(userId);
+
+        Integer defaultRoleId = roleQueryGateway.getDefaultRoleId();
+        List<Integer> roleIdList = roleId.stream()
+                .distinct()
+                .filter(id -> !Objects.equals(id, defaultRoleId))
+                .toList();
+
         //删除原来的
-        LambdaUpdateWrapper<SysUserRoleDO> userRoleUpdate = Wrappers.lambdaUpdate();
-        userRoleUpdate.eq(SysUserRoleDO::getUserId,userId);
-        userRoleMapper.delete(userRoleUpdate);
+        LambdaQueryWrapper<SysUserRoleDO> userRoleQuery = Wrappers.lambdaQuery();
+        userRoleQuery.eq(SysUserRoleDO::getUserId,userId)
+                .ne(SysUserRoleDO::getRoleId,defaultRoleId);
+        userRoleMapper.delete(userRoleQuery);
 
         //插入新的
-        for (Integer id : roleId) {
+        for (Integer id : roleIdList) {
             userRoleMapper.insert(new SysUserRoleDO()
                     .setUserId(userId)
                     .setRoleId(id));
@@ -93,10 +112,27 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
         if (checkUsernameExistence(cmd.getUsername())) {
             throw new BizException("用户名已存在");
         }
+
+        SysUserDO existedUsername = userMapper.findIdByUsername(cmd.getUsername());
+        if (existedUsername != null) {
+            throw new BizException("该用户名已存在于归档的用户（数据库逻辑删除）中");
+        }
+
         SysUserDO userDO = userConverter.toUserDO(cmd);
-        LdapPersonDO personDO = ldapUserConvertor.userDOToLdapPersonDO(userDO);
+        LdapPersonEntity ldapPerson = ldapUserConvertor.userDOToLdapPersonEntity(userDO);
         userMapper.insert(userDO);
-        ldapPersonRepo.save(personDO);
+        SysUserRoleDO sysUserRoleDO = new SysUserRoleDO()
+                .setRoleId(roleQueryGateway.getDefaultRoleId())
+                .setUserId(userDO.getId());
+        userRoleMapper.insert(sysUserRoleDO);
+        ldapPersonGateway.createUser(ldapPerson,cmd.getPassword());
+    }
+
+    private void checkAdmin(Integer userId) {
+        String username = getUsername(userId);
+        if ("admin".equalsIgnoreCase(username)) {
+            throw new BizException("初始管理员账户不允许此操作");
+        }
     }
 
     /**

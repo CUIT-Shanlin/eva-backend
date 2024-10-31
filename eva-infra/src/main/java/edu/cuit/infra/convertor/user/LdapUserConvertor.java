@@ -14,8 +14,7 @@ import org.mapstruct.*;
 public interface LdapUserConvertor {
 
     @Mappings({
-            @Mapping(target = "name", expression = "java(ldapPersonDO.getCommonName())"),
-            @Mapping(target = "isAdmin", ignore = true)
+            @Mapping(target = "name", expression = "java(ldapPersonDO.getCommonName())")
     })
     LdapPersonEntity ldapPersonDoToLdapPersonEntity(LdapPersonDO ldapPersonDO);
 
@@ -25,18 +24,13 @@ public interface LdapUserConvertor {
     }
 
     @Mappings({
-            @Mapping(target = "commonName", source = "userDO.name"),
-            @Mapping(target = "gidNumber", ignore = true),
-            @Mapping(target = "homeDirectory", ignore = true),
-            @Mapping(target = "id", ignore = true),
-            @Mapping(target = "uidNumber", ignore = true),
-            @Mapping(target = "userPassword", ignore = true),
+            @Mapping(target = "name", source = "userDO.name"),
             @Mapping(target = "givenName", expression = "java(userDO.getName().substring(1))"),
             @Mapping(target = "school", source = "userDO.department"),
             @Mapping(target = "surname", expression = "java(userDO.getName().substring(0,1))"),
             @Mapping(target = "title", source = "userDO.profTitle")
     })
-    LdapPersonDO userDOToLdapPersonDO(SysUserDO userDO);
+    LdapPersonEntity userDOToLdapPersonEntity(SysUserDO userDO);
 
     @AfterMapping
     default void afterPersonDoToPersonEntity(SysUserDO userDO, @MappingTarget LdapPersonDO personDO) {
@@ -49,7 +43,6 @@ public interface LdapUserConvertor {
             @Mapping(target = "homeDirectory", ignore = true),
             @Mapping(target = "id", ignore = true),
             @Mapping(target = "uidNumber", ignore = true),
-            @Mapping(target = "userPassword", ignore = true)
     })
     LdapPersonDO ldapPersonEntityToLdapPersonDO(LdapPersonEntity ldapPersonEntity);
 

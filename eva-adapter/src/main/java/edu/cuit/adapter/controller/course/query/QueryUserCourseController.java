@@ -77,8 +77,9 @@ public class QueryUserCourseController {
             @RequestParam(value = "semId",required = false)Integer semId,
             @RequestBody(required = true)CourseTime courseTime){
         String date = courseService.getDate(semId, courseTime.getWeek(), courseTime.getDay());
+        String dateTime = date + " 00:00";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        LocalDateTime localDateTime = LocalDateTime.parse(date, formatter);
+        LocalDateTime localDateTime = LocalDateTime.parse(dateTime, formatter);
         return CommonResult.success(CalculateClassTime.calculateClassTime(localDateTime, courseTime.getStartTime()));
     }
 

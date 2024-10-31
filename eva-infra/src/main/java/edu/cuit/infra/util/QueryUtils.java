@@ -17,42 +17,63 @@ public class QueryUtils {
                                                                            SFunction<T,?> createTimeProp,
                                                                            SFunction<T,?> updateTimeProp) {
         if (query.getStartCreateTime() != null) {
-            queryWrapper.or().gt(createTimeProp,query.getStartCreateTime())
-                    .or().eq(createTimeProp,query.getStartCreateTime());
+            queryWrapper.and(queryWrp -> {
+               queryWrp.gt(createTimeProp,query.getStartCreateTime())
+                       .or().eq(createTimeProp,query.getStartCreateTime());
+            });
         }
         if (query.getEndCreateTime() != null) {
-            queryWrapper.or().lt(createTimeProp,query.getEndCreateTime())
-                    .or().eq(createTimeProp,query.getEndCreateTime());
+            queryWrapper.and(queryWrp -> {
+                queryWrp.lt(createTimeProp,query.getEndCreateTime())
+                        .or().eq(createTimeProp,query.getEndCreateTime());
+            });
         }
         if (query.getStartUpdateTime() != null) {
-            queryWrapper.or().gt(updateTimeProp,query.getStartUpdateTime())
-                    .or().eq(updateTimeProp,query.getStartUpdateTime());
+            queryWrapper.and(queryWrp -> {
+                queryWrp.gt(updateTimeProp,query.getStartUpdateTime())
+                        .or().eq(updateTimeProp,query.getStartUpdateTime());
+            });
         }
         if (query.getEndUpdateTime() != null) {
-            queryWrapper.or().lt(updateTimeProp,query.getEndUpdateTime())
-                    .or().eq(updateTimeProp,query.getEndUpdateTime());
+            queryWrapper.and(queryWrp -> {
+                queryWrp.lt(updateTimeProp,query.getEndUpdateTime())
+                        .or().eq(updateTimeProp,query.getEndUpdateTime());
+            });
         }
     }
 
     public static <T,R extends GenericConditionalQuery> void fileTimeQuery(QueryWrapper<T> queryWrapper, R query) {
-        if (query.getStartCreateTime() != null) {
-            queryWrapper.or().gt("createTime",query.getStartCreateTime())
-                    .or().eq("createTime",query.getStartCreateTime());
-        }
-        if (query.getEndCreateTime() != null) {
-            queryWrapper.or().lt("createTime",query.getEndCreateTime())
-                    .or().eq("createTime",query.getEndCreateTime());
-        }
+        fileCreateTimeQuery(queryWrapper,query);
         if (query.getStartUpdateTime() != null) {
-            queryWrapper.or().gt("updateTime",query.getStartUpdateTime())
-                    .or().eq("updateTime",query.getStartUpdateTime());
+            queryWrapper.and(queryWrp -> {
+                queryWrp.gt("update_time",query.getStartUpdateTime())
+                        .or().eq("update_time",query.getStartUpdateTime());
+            });
 
         }
         if (query.getEndUpdateTime() != null) {
-            queryWrapper.or().lt("updateTime",query.getEndUpdateTime())
-                    .or().eq("updateTime",query.getEndUpdateTime());
+            queryWrapper.and(queryWrp -> {
+                queryWrp.lt("update_time",query.getEndUpdateTime())
+                        .or().eq("update_time",query.getEndUpdateTime());
+            });
 
         }
+    }
+
+    public static <T,R extends GenericConditionalQuery> void fileCreateTimeQuery(QueryWrapper<T> queryWrapper,R query) {
+        if (query.getStartCreateTime() != null) {
+            queryWrapper.and(queryWrp -> {
+                queryWrp.gt("create_time",query.getStartCreateTime())
+                        .or().eq("create_time",query.getStartCreateTime());
+            });
+        }
+        if (query.getEndCreateTime() != null) {
+            queryWrapper.and(queryWrp -> {
+                queryWrp.lt("create_time",query.getEndCreateTime())
+                        .or().eq("create_time",query.getEndCreateTime());
+            });
+        }
+
     }
 
     public static <T> Page<T> createPage(PagingQuery<?> pageQuery) {

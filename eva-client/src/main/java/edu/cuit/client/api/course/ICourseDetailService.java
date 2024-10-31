@@ -3,6 +3,7 @@ package edu.cuit.client.api.course;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.SimpleCourseResultCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
+import edu.cuit.client.dto.clientobject.SimpleSubjectResultCO;
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.client.dto.clientobject.course.CourseModelCO;
 import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
@@ -18,6 +19,7 @@ import java.util.List;
  * 一门课相关业务接口
  */
 public interface ICourseDetailService {
+
 
     /**
      * 分页获取课程列表
@@ -38,10 +40,9 @@ public interface ICourseDetailService {
     /**
      * 一门课程的评教统计
      *
-     * @param semId 学期id
      * @param id ID编号
      */
-    List<CourseScoreCO> evaResult(Integer id,Integer semId);
+    List<CourseScoreCO> evaResult(Integer id);
 
     /**
      * 获取所有的课程的基础信息
@@ -56,7 +57,7 @@ public interface ICourseDetailService {
      *
      *
      */
-    List<SimpleResultCO> allSubjectInfo();
+    List<SimpleSubjectResultCO> allSubjectInfo();
 
     /**
      * 修改一门课程

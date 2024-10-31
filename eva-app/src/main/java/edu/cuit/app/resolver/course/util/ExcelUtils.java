@@ -1,15 +1,19 @@
 package edu.cuit.app.resolver.course.util;
 
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.cola.exception.BizException;
 import edu.cuit.client.bo.CourseExcelBO;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -64,9 +68,26 @@ public class ExcelUtils {
                 result.add(Integer.parseInt(value[0]));
             } else {
                 int start = Integer.parseInt(value[0]);
-                int end = Integer.parseInt(value[1]);
-                for (int i = start; i <= end; i++) {
-                    result.add(i);
+                int end;
+                String endStr = value[1];
+                int length = endStr.length();
+                if (endStr.charAt(length - 1) == '单') {
+                    end = Integer.parseInt(endStr.substring(0,length - 1));
+                    for (int i = start; i <= end; i++) {
+                        if (i % 2 == 0) continue;
+                        result.add(i);
+                    }
+                } else if (endStr.charAt(length - 1) == '双') {
+                    end = Integer.parseInt(endStr.substring(0,length - 1));
+                    for (int i = start; i <= end; i++) {
+                        if (i % 2 != 0) continue;
+                        result.add(i);
+                    }
+                } else {
+                    end = Integer.parseInt(value[1]);
+                    for (int i = start; i <= end; i++) {
+                        result.add(i);
+                    }
                 }
             }
         }
@@ -87,20 +108,22 @@ public class ExcelUtils {
             return cell.getStringCellValue();
         } else if (cellType == CellType.BLANK) {
             return null;
-        }else {
+        } else {
             throw new BizException("表格数据异常：存在不是字符串或数字的单元格数据");
         }
     }
 
     /**
-     * 合并两节课的结束，需要先自行判断相邻，合并到course1
-     * @param course1 课程1
-     * @param course2 课程2
+     * 计算公式的值
+     * @param sheet sheet
+     * @param cell 单元格
+     * @return 公式的字符串值
      */
-    public static void mergeTwoCourse(CourseExcelBO course2,CourseExcelBO course1) {
-        if (course1.getStartTime() > course2.getEndTime()) {
-            course1.setStartTime(course2.getStartTime());
-        } else course1.setEndTime(course2.getEndTime());
+    public static String getExcelFormulaEvaString(Sheet sheet, Cell cell) {
+        Object cellValue = "";
+        FormulaEvaluator evaluator = sheet.getWorkbook().getCreationHelper().createFormulaEvaluator();
+        cell = evaluator.evaluateInCell(cell);
+        return getCellStringValue(cell);
     }
 
 }

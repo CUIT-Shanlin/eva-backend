@@ -4,6 +4,7 @@ import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.cola.exception.BizException;
 import com.alibaba.cola.exception.SysException;
+import edu.cuit.app.resolver.course.util.ExcelCourseUtils;
 import edu.cuit.app.resolver.course.util.ExcelUtils;
 import edu.cuit.client.bo.CourseExcelBO;
 import lombok.extern.slf4j.Slf4j;
@@ -49,21 +50,24 @@ public class ExperimentalCourseResolver extends CourseExcelResolverStrategy{
     }
 
     private List<CourseExcelBO> read() {
-        Map<CourseExcelBO,CourseExcelBO> results = new HashMap<>();
+        Map<CourseExcelBO,List<CourseExcelBO>> courses = new HashMap<>();
         for (int x = 0; x < timeTable.size(); x++) {
             Pair<Integer, Integer> timePeriod = timeTable.get(x);
             for (int i = timePeriod.getKey(); i <= timePeriod.getValue(); i++) {
                 List<CourseExcelBO> lineResults = readLine(i,x * 2 + 1);
                 for (CourseExcelBO lineResult : lineResults) {
-                    CourseExcelBO existedCourse = results.get(lineResult);
-                    if (existedCourse != null && lineResult.isAdjoin(existedCourse)) {
-                        ExcelUtils.mergeTwoCourse(existedCourse,lineResult);
-                    }
-                    results.put(lineResult,lineResult);
+                    courses.putIfAbsent(lineResult,new ArrayList<>());
+                    courses.get(lineResult).add(lineResult);
                 }
             }
         }
-        return new ArrayList<>(results.values());
+
+        List<CourseExcelBO> results = new ArrayList<>();
+        for (List<CourseExcelBO> courseList : courses.values()) {
+            results.addAll(ExcelCourseUtils.mergeMultipleCourses(courseList));
+        }
+
+        return results;
     }
 
     private List<CourseExcelBO> readLine(int rowIndex,int startTime) {
@@ -81,7 +85,7 @@ public class ExperimentalCourseResolver extends CourseExcelResolverStrategy{
                 String teacherName = ExcelUtils.getCellStringValue(row.getCell(i + 1));
                 String courseClass = ExcelUtils.getCellStringValue(row.getCell(i + 2));
                 String courseName = ExcelUtils.getCellStringValue(row.getCell(i + 3));
-                String classroom = ExcelUtils.getCellStringValue(classRoomRow.getCell(startCol));
+                String classroom = ExcelUtils.getCellStringValue(classRoomRow.getCell(i));
                 CourseExcelBO courseExcelBO = new CourseExcelBO()
                         .setTeacherName(teacherName)
                         .setCourseClass(courseClass)
@@ -140,7 +144,7 @@ public class ExperimentalCourseResolver extends CourseExcelResolverStrategy{
         int count;
         for (count = 0;count < 6;count++) {
             CellRangeAddress cra = ExcelUtils.getMergerCellRegionRow(sheet, 0, dayTable.get(count));
-            if (cra == null) throw new BizException("理论课程表格格式有误");
+            if (cra == null) throw new BizException("实验课程表格格式有误");
             dayTable.add(cra.getLastColumn() + 1);
         }
         CellRangeAddress cra = ExcelUtils.getMergerCellRegionRow(sheet, 0, dayTable.get(6));

@@ -113,20 +113,18 @@ public interface EvaQueryGateway {
     /**
      * 获取指定数量评教任务未达标用户信息
      * @param semId 学期id
-     * @param query 查询对象
      * @param num 前几个用户数据
      * @param target 评教的目标 数目，大于等于该数目则达标，小于则未达标
      */
-    Optional<UnqualifiedUserResultCO> getEvaTargetAmountUnqualifiedUser(Integer semId,UnqualifiedUserConditionalQuery query, Integer num, Integer target);
+    Optional<UnqualifiedUserResultCO> getEvaTargetAmountUnqualifiedUser(Integer semId, Integer num, Integer target);
 
     /**
      * 获取指定数量被评教任务未达标用户信息
      * @param semId 学期id
-     * @param query 查询对象
      * @param num 前几个用户数据
      * @param target 被评教的目标 数目，大于等于该数目则达标，小于则未达标
      */
-    Optional<UnqualifiedUserResultCO> getBeEvaTargetAmountUnqualifiedUser(Integer semId,UnqualifiedUserConditionalQuery query,Integer num,Integer target);
+    Optional<UnqualifiedUserResultCO> getBeEvaTargetAmountUnqualifiedUser(Integer semId,Integer num,Integer target);
 
     /**
      * 分页获取评教未达标用户
