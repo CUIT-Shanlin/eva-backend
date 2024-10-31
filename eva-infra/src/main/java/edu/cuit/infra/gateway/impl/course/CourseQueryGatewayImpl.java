@@ -337,36 +337,49 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
 
             // 如果 week 相同，则按 time 的 day 属性进行升序排序
             Comparator<RecommendCourseCO> dayComparator = Comparator.comparing(course -> course.getTime().getDay());
+            Comparator<RecommendCourseCO> startComparator = Comparator.comparing(course -> course.getTime().getStartTime());
 
             // 组合比较器
             Comparator<RecommendCourseCO> combinedComparator = weekComparator.thenComparing(dayComparator);
+            Comparator<RecommendCourseCO> starttoComparator = combinedComparator.thenComparing(startComparator);
 
             // 排序
-            Stream<RecommendCourseCO> sortedStream = stream.sorted(combinedComparator);
+            Stream<RecommendCourseCO> sortedStream = stream.sorted(starttoComparator);
 
             // 收集排序后的列表
             return sortedStream.toList();
         }else if(courseQuery.getSort()==2) {
             //时间降序排序
-            // 时间升序排序
+            // 时间降序排序
             Stream<RecommendCourseCO> stream = recommendCourseCOS.stream();
 
             // 按照 time 的 week 属性进行升序排序
             Comparator<RecommendCourseCO> weekComparator = Comparator.comparing(RecommendCourseCO::getTime, Comparator.comparing(CourseTime::getWeek)).reversed();
 
-            // 如果 week 相同，则按 time 的 day 属性进行升序排序
+            // 如果 week 相同，则按 time 的 day 属性进行降序排序
             Comparator<RecommendCourseCO> dayComparator = Comparator.comparing(RecommendCourseCO::getTime, Comparator.comparing(CourseTime::getDay)).reversed();
+            Comparator<RecommendCourseCO> startComparator = Comparator.comparing(RecommendCourseCO::getTime, Comparator.comparing(CourseTime::getStartTime)).reversed();
 
             // 组合比较器
             Comparator<RecommendCourseCO> combinedComparator = weekComparator.thenComparing(dayComparator);
+            Comparator<RecommendCourseCO> starttoComparator = combinedComparator.thenComparing(startComparator);
 
             // 排序
-            Stream<RecommendCourseCO> sortedStream = stream.sorted(combinedComparator);
+            Stream<RecommendCourseCO> sortedStream = stream.sorted(starttoComparator);
 
             // 收集排序后的列表
             return sortedStream.toList();
         }else if(courseQuery.getSort()==0){
-            return recommendCourseCOS.stream().sorted(Comparator.comparingDouble(RecommendCourseCO::getEvaNum)).toList();
+            Stream<RecommendCourseCO> stream = recommendCourseCOS.stream();
+            Comparator<RecommendCourseCO> priorityComparator = Comparator.comparing(RecommendCourseCO::getEvaNum);
+            Comparator<RecommendCourseCO> weekComparator = Comparator.comparing(course -> course.getTime().getWeek());
+            Comparator<RecommendCourseCO> dayComparator = Comparator.comparing(course -> course.getTime().getDay());
+            Comparator<RecommendCourseCO> startComparator = Comparator.comparing(course -> course.getTime().getStartTime());
+            Comparator<RecommendCourseCO> recommendCourseCOComparator = priorityComparator.thenComparing(weekComparator);
+            Comparator<RecommendCourseCO> recommendCourseCOComparator1 = recommendCourseCOComparator.thenComparing(dayComparator);
+            Comparator<RecommendCourseCO> recommendCourseCOComparator2 = recommendCourseCOComparator1.thenComparing(startComparator);
+
+            return stream.sorted(recommendCourseCOComparator2).toList();
         }else{
             return recommendCourseCOS;
         }
