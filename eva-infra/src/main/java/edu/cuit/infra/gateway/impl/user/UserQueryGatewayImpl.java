@@ -103,9 +103,10 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
         LambdaQueryWrapper<SysUserDO> userQuery = Wrappers.lambdaQuery();
         QueryUtils.fileTimeQuery(userQuery,queryObj,SysUserDO::getCreateTime,SysUserDO::getUpdateTime);
         String keyword = queryObj.getKeyword();
-        userQuery
-                .like(keyword != null,SysUserDO::getName,keyword)
-                .or().like(keyword != null,SysUserDO::getUsername,keyword);
+        userQuery.and(queryWrp -> {
+                    queryWrp.like(keyword != null,SysUserDO::getName,keyword)
+                            .or().like(keyword != null,SysUserDO::getUsername,keyword);
+                });
         Page<SysUserDO> usersPage = userMapper.selectPage(userPage, userQuery);
 
         //映射
