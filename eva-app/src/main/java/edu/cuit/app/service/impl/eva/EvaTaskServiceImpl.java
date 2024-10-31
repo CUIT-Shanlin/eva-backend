@@ -88,6 +88,7 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
     public Void cancelEvaTask(Integer id) {
         LogUtils.logContent(evaQueryGateway.getNameByTaskId(id).orElseThrow(() -> new BizException("该任务id不存在")) + "任务ID为 "+id+" 的评教任务");
         evaUpdateGateway.cancelEvaTaskById(id);
+        msgService.deleteEvaMsg(id,null);
         return null;
     }
     @Override
@@ -98,6 +99,7 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
             throw new QueryException("不能删去不是自己评教的任务");
         }else{
             evaUpdateGateway.cancelEvaTaskById(id);
+            msgService.deleteEvaMsg(id,null);
         }
         return null;
     }
