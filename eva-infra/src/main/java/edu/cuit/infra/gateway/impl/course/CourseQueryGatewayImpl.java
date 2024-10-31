@@ -287,26 +287,23 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId).in(!list.isEmpty(),"id",list));
         List<SingleCourseCO> singleCourseCOList = new ArrayList<>();
         //遍历courseDo组装SingleCourseCo
-        for (CourseDO courseDO : courseDOS) {
+        for (CourInfDO courInfDO : courInfDOS) {
+            CourseDO courseDO = getCourseInfo(courInfDO, courseDOS);
             SingleCourseCO singleCourseCO = new SingleCourseCO();
-            CourInfDO courseInfo = getCourseInfo(courseDO, courInfDOS);
-            if(courseInfo==null)throw new QueryException("该课程还没有对应的课");
-            singleCourseCO.setId(courseInfo.getId());
-            singleCourseCO.setLocation(courseInfo.getLocation());
+            singleCourseCO.setId(courInfDO.getId());
+            singleCourseCO.setLocation(courInfDO.getLocation());
             CourseTime courseTime = new CourseTime().setWeek(courseQuery.getWeek()).setDay(courseQuery.getDay()).setStartTime(courseQuery.getNum());
             if(courseQuery.getNum()!=null){
                 courseTime.setEndTime(courseQuery.getNum()+1);
             }
             singleCourseCO.setTime(courseTime);
+            assert courseDO != null;
             singleCourseCO.setTeacherName(userMapper.selectById(courseDO.getTeacherId()).getName());
             singleCourseCO.setName(subjectMapper.selectById(courseDO.getSubjectId()).getName());
             //根据课程id到评教任务表中统计数量
-            singleCourseCO.setEvaNum(Math.toIntExact(evaTaskMapper.selectCount(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courseInfo.getId()))));
+            singleCourseCO.setEvaNum(Math.toIntExact(evaTaskMapper.selectCount(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId()))));
             singleCourseCOList.add(singleCourseCO);
         }
-
-
-
         return singleCourseCOList;
     }
 
@@ -616,10 +613,10 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         return finalResult;
 
     }
-    private CourInfDO getCourseInfo( CourseDO course,List<CourInfDO> list){
-        for (CourInfDO courInfDO : list) {
-            if(courInfDO.getCourseId().equals(course.getId())){
-                return courInfDO;
+    private CourseDO getCourseInfo( CourInfDO courInfDO,List<CourseDO> list){
+        for (CourseDO course : list) {
+            if(course.getId().equals(courInfDO.getCourseId())){
+                return course;
             }
         }
         return null;
