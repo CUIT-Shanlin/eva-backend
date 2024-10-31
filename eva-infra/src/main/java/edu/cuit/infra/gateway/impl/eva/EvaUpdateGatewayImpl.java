@@ -10,7 +10,6 @@ import edu.cuit.client.dto.clientobject.eva.AddTaskCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskFormCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
 import edu.cuit.domain.gateway.eva.EvaUpdateGateway;
-import edu.cuit.infra.convertor.eva.EvaConvertor;
 import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.course.SemesterDO;
@@ -19,8 +18,10 @@ import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.SemesterMapper;
 import edu.cuit.infra.dal.database.mapper.eva.*;
+import edu.cuit.infra.gateway.impl.eva.util.CalculateClassTime;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
+import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -116,7 +117,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         SemesterDO semesterDO = semesterMapper.selectById(courseDO.getSemesterId());
         LocalDate localDate = semesterDO.getStartDate().plusDays((courInfDO.getWeek()-1) * 7L + courInfDO.getDay() - 1);
 
-        Integer f=2;//判断是不是课程快临近结束或已经结束 1冲0无
+        Integer f=2;//判断是不是课程快已经结束 1冲0无
         if(localDate.getYear()>=LocalDate.now().getYear()){
             if(localDate.getYear()==LocalDate.now().getYear()){
                 if(localDate.getMonthValue()<LocalDate.now().getMonthValue()){
@@ -127,7 +128,19 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
                     if(localDate.getDayOfMonth()>LocalDate.now().getDayOfMonth()){
                         f=0;
                     }else {
-                        f=1;
+                        if(localDate.getDayOfMonth()==LocalDate.now().getDayOfMonth()) {
+                            String dateTime = localDate + "00:00";
+                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                            LocalDateTime localDateTime = LocalDateTime.parse(dateTime, formatter);
+                            if (CalculateClassTime.calculateClassTime(localDateTime, courInfDO.getStartTime()).isBefore(LocalDateTime.now())) {
+                                f = 1;
+                            } else {
+                                f = 0;
+                            }
+                        }
+                        if(localDate.getDayOfMonth()<LocalDate.now().getDayOfMonth()) {
+                            f = 1;
+                        }
                     }
                 }
             }else{
@@ -137,7 +150,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
             f=1;
         }
         if(f==1){
-            throw new UpdateException("课程快临近结束或已经结束");
+            throw new UpdateException("课程已经开始了哦");
         }
         //看看是否和老师自己的课有冲突
         List<CourseDO> courseDOList=courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id",addTaskCO.getTeacherId()));
