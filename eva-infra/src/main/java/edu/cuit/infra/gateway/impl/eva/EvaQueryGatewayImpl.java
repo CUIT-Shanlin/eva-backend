@@ -806,7 +806,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         //根据semId找到
         List<Integer> evaTaskIdS=getEvaTaskIdS(semId);
 
-        LocalDate timeEnd=LocalDate.now();
+        LocalDateTime timeEnd=LocalDateTime.now();
         LocalDate timeStart=LocalDate.now().minusDays((long)num);
 
         LocalDate lastStart=LocalDate.now().minusDays((long)2*num);
@@ -826,7 +826,12 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         List<DateEvaNumCO> dataArr=new ArrayList<>();
 
         for(int i=1;i<=num;i++){
-            List<FormRecordDO> formRecordDOS3=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIdS).between("create_time",LocalDate.now().minusDays((long)num-i+1),LocalDate.now().minusDays((long)num-i)));
+            List<FormRecordDO> formRecordDOS3;
+            if(i==num){
+                formRecordDOS3=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIdS).between("create_time",LocalDate.now().minusDays((long)num-i),LocalDateTime.now()));
+            }else {
+                formRecordDOS3 = formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id", evaTaskIdS).between("create_time", LocalDate.now().minusDays((long) num - i), LocalDate.now().minusDays((long) num - i - 1)));
+            }
             DateEvaNumCO dateEvaNumCO=new DateEvaNumCO();
             dateEvaNumCO.setDate(LocalDate.now().minusDays((long)num-i));
             dateEvaNumCO.setMoreEvaNum(formRecordDOS3.size());
