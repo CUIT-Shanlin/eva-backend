@@ -29,7 +29,7 @@ public interface CourseUpdateGateway {
      *@param updateCourseCmd 修改课程信息
      *
      * */
-    Map<String,List<Integer>> updateCourse(Integer semId, UpdateCourseCmd updateCourseCmd);
+    Map<String,Map<Integer,Integer>> updateCourse(Integer semId, UpdateCourseCmd updateCourseCmd);
 
     /**
      * 批量修改课程的模板
@@ -46,7 +46,7 @@ public interface CourseUpdateGateway {
      *@param userName 用户名
      *
      * */
-    Map<String,List<Integer>> updateSingleCourse(String userName,Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd);
+    Map<String,Map<Integer,Integer>> updateSingleCourse(String userName,Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd);
 
     /**
      * 修改一个课程类型
@@ -76,7 +76,7 @@ public interface CourseUpdateGateway {
      *  @param alignTeacherCmd 内涵课程id，以及听课老师集合
      *
      * */
-    Map<String,List<Integer>> assignTeacher(Integer semId, AlignTeacherCmd alignTeacherCmd);
+    Map<String,Map<Integer,Integer>> assignTeacher(Integer semId, AlignTeacherCmd alignTeacherCmd);
 
     /**
      * 导入课表文件

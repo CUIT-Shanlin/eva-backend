@@ -127,9 +127,20 @@ public class IUserCourseServiceImpl implements IUserCourseService {
 
     @Override
     public Void deleteSelfCourse(Integer courseId) {
-        Map<String, List<Integer>> map = courseDeleteGateway.deleteSelfCourse(String.valueOf(StpUtil.getLoginId()), courseId);
+        Map<String, Map<Integer,Integer>> map = courseDeleteGateway.deleteSelfCourse(String.valueOf(StpUtil.getLoginId()), courseId);
         Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
-        msgResult.toSendMsg(map, userId.orElseThrow(() -> new QueryException("请先登录")));
+        for (Map.Entry<String, Map<Integer, Integer>> stringMapEntry : map.entrySet()) {
+            Map<String,Map<Integer,Integer>> map1=new HashMap<>();
+            map1.put(stringMapEntry.getKey(),stringMapEntry.getValue());
+            if(stringMapEntry.getValue()==null){
+                msgResult.SendMsgToAll(map1, userId.orElseThrow(() -> new QueryException("请先登录")));
+            } else if (!stringMapEntry.getValue().isEmpty()) {
+                msgResult.toSendMsg(map1, userId.orElseThrow(() -> new QueryException("请先登录")));
+            }
+
+        }
+
+
         return null;
     }
 
@@ -138,16 +149,25 @@ public class IUserCourseServiceImpl implements IUserCourseService {
         Map<String, Map<Integer, Integer>> mapMsg = courseUpdateGateway.updateSelfCourse(String.valueOf(StpUtil.getLoginId()), selfTeachCourseCO, timeList);
         Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
         for (Map.Entry<String, Map<Integer, Integer>> stringMapEntry : mapMsg.entrySet()) {
-            MessageBO messageBO = new MessageBO();
-            messageBO.setMsg(stringMapEntry.getKey());
+            Map<String,Map<Integer,Integer>> map=new HashMap<>();
+            map.put(stringMapEntry.getKey(),stringMapEntry.getValue());
+            if(stringMapEntry.getValue()==null&&stringMapEntry.getKey()!=null){
+
+                msgResult.SendMsgToAll(map, userId.orElseThrow(() -> new QueryException("请先登录")));
+            }else if(!Objects.equals(stringMapEntry.getKey(), "")){
+                MessageBO messageBO=new MessageBO();
+                messageBO.setMsg(stringMapEntry.getKey());
             for (Map.Entry<Integer, Integer> mapEntry : stringMapEntry.getValue().entrySet()) {
                 messageBO.setTaskId(mapEntry.getKey()).setMode(0)
+                        .setTaskId(mapEntry.getKey())
                         .setRecipientId(mapEntry.getValue())
                         .setType(1)
                         .setIsShowName(1)
                         .setSenderId(userId.orElseThrow(()->new QueryException("请先登录")));
                 msgService.sendMessage(messageBO);
             }
+            }
+
         }
 
         return null;
