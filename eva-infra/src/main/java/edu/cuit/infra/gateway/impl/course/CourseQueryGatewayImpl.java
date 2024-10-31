@@ -301,7 +301,13 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
             singleCourseCO.setTeacherName(userMapper.selectById(courseDO.getTeacherId()).getName());
             singleCourseCO.setName(subjectMapper.selectById(courseDO.getSubjectId()).getName());
             //根据课程id到评教任务表中统计数量
-            singleCourseCO.setEvaNum(Math.toIntExact(evaTaskMapper.selectCount(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId()))));
+            singleCourseCO.setEvaNum(Math.toIntExact(evaTaskMapper.selectCount(new QueryWrapper<EvaTaskDO>()
+                    .eq("cour_inf_id", courInfDO.getId())
+                    .eq("status",0)
+                    .or()
+                    .eq("status",1)
+                    .eq("cour_inf_id",courInfDO.getId())
+            )));
             singleCourseCOList.add(singleCourseCO);
         }
         return singleCourseCOList;
@@ -619,7 +625,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
                 return course;
             }
         }
-        return null;
+        return new CourseDO();
     }
     private CourseEntity toCourseEntity(Integer courseId,Integer semId){
         //构造semester
