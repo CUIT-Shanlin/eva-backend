@@ -326,7 +326,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     @Override
     public List<RecommendCourseCO> getPeriodCourse(Integer semId, MobileCourseQuery courseQuery,String userName) {
         List<RecommendCourseCO> recommendCourseCOS = courseRecommendExce.togetPeriodCourse(semId, courseQuery, userName);
-        if(courseQuery.getSort()==null||courseQuery.getSort()<0) return recommendCourseCOS;
+
         if(courseQuery.getSort()==1){
             //时间升序排序
             // 创建流
