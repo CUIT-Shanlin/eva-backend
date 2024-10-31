@@ -108,7 +108,8 @@ public class CourseImportExce {
                 }
                 for (Integer week : courseExcelBO.getWeeks()) {
                     CourInfDO courInfDO = courseConvertor.toCourInfDO(courseDO.getId(), week, courseExcelBO, LocalDateTime.now());
-                    courInfMapper.insert(courInfDO);
+                    if(!courInfMapper.exists(new QueryWrapper<CourInfDO>().eq("course_id", courInfDO.getCourseId()).eq("week", courInfDO.getWeek()).eq("day", courInfDO.getDay()).eq("start_time", courInfDO.getStartTime()).eq("location",courseExcelBO.getClassroom())))
+                        courInfMapper.insert(courInfDO);
                 }
 
             }
