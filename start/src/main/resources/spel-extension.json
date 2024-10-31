@@ -1,0 +1,65 @@
+{
+  "edu.cuit.zhuyimeng.framework.cache.aspect.annotation.local.LocalCached@key": {
+    "prefix": "#{",
+    "suffix": "}",
+    "method": {
+      "result": false,
+      "resultName": "result",
+      "parameters": true
+    }
+  },
+  "edu.cuit.zhuyimeng.framework.cache.aspect.annotation.local.LocalCached@condition": {
+    "prefix": "#{",
+    "suffix": "}",
+    "method": {
+      "result": true,
+      "resultName": "result",
+      "parameters": true
+    }
+  },
+  "edu.cuit.zhuyimeng.framework.cache.aspect.annotation.local.LocalCacheUpdate@key": {
+    "prefix": "#{",
+    "suffix": "}",
+    "method": {
+      "result": true,
+      "resultName": "result",
+      "parameters": true
+    }
+  },
+  "edu.cuit.zhuyimeng.framework.cache.aspect.annotation.local.LocalCacheUpdate@value": {
+    "prefix": "#{",
+    "suffix": "}",
+    "method": {
+      "result": true,
+      "resultName": "result",
+      "parameters": true
+    }
+  },
+  "edu.cuit.zhuyimeng.framework.cache.aspect.annotation.local.LocalCacheUpdate@condition": {
+    "prefix": "#{",
+    "suffix": "}",
+    "method": {
+      "result": true,
+      "resultName": "result",
+      "parameters": true
+    }
+  },
+  "edu.cuit.zhuyimeng.framework.cache.aspect.annotation.local.LocalCacheInvalidate@key": {
+    "prefix": "#{",
+    "suffix": "}",
+    "method": {
+      "result": false,
+      "resultName": "result",
+      "parameters": true
+    }
+  },
+  "edu.cuit.zhuyimeng.framework.cache.aspect.annotation.local.LocalCacheInvalidate@condition": {
+    "prefix": "#{",
+    "suffix": "}",
+    "method": {
+      "result": true,
+      "resultName": "result",
+      "parameters": true
+    }
+  }
+}
