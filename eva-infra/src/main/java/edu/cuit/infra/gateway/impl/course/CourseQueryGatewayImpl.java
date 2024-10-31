@@ -277,7 +277,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         //先根据courseQuery中的信息来查询courInfoDO列表(课程详情表)
 
         List<CourInfDO> courInfDOS = courInfMapper.selectList(wrapper);
-        if(courInfDOS.isEmpty())throw new QueryException("暂时还没有该课程信息");
+//        if(courInfDOS.isEmpty())throw new QueryException("暂时还没有该课程信息");
         //根据courseInfDo中的课程id和semid来筛选课程实体
         List<Integer> list = courInfDOS.stream().map(CourInfDO::getCourseId).toList();
         List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId).in(!list.isEmpty(),"id",list));
