@@ -31,10 +31,7 @@ import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -90,10 +87,9 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     @CheckSemId
     @Override
     public void updateCourse(Integer semId, UpdateCourseCmd updateCourseCmd) {
-        Map<String, List<Integer>> map = courseUpdateGateway.updateCourse(semId, updateCourseCmd);
+        Map<String, Map<Integer,Integer>> map = courseUpdateGateway.updateCourse(semId, updateCourseCmd);
         Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
-        msgResult.toSendMsg(map, userId.orElseThrow(() -> new QueryException("请先登录")));
-
+        msgResult.SendMsgToAll(map, userId.orElseThrow(() -> new QueryException("请先登录")));
     }
 
     @CheckSemId
@@ -111,8 +107,18 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     @CheckSemId
     @Override
     public void delete(Integer semId, Integer id) {
-        Map<String, List<Integer>> map = courseDeleteGateway.deleteCourse(semId, id);
+        Map<String, Map<Integer,Integer>> map = courseDeleteGateway.deleteCourse(semId, id);
         Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
-        msgResult.toSendMsg(map, userId.orElseThrow(() -> new QueryException("请先登录")));
+        for (Map.Entry<String, Map<Integer, Integer>> stringListEntry : map.entrySet()) {
+           Map<String,Map<Integer,Integer>> temMap=new HashMap<>();
+            if(stringListEntry.getValue()==null){
+                temMap.put(stringListEntry.getKey(),null);
+                msgResult.SendMsgToAll(temMap,userId.orElseThrow(() -> new QueryException("请先登录")));
+            }else{
+                temMap.put(stringListEntry.getKey(),stringListEntry.getValue());
+                msgResult.toSendMsg(temMap,userId.orElseThrow(() -> new QueryException("请先登录")));
+            }
+        }
+
     }
 }

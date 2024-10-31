@@ -9,6 +9,7 @@ import edu.cuit.domain.gateway.user.MenuQueryGateway;
 import edu.cuit.infra.convertor.user.MenuConvertor;
 import edu.cuit.infra.dal.database.dataobject.user.SysMenuDO;
 import edu.cuit.infra.dal.database.mapper.user.SysMenuMapper;
+import edu.cuit.zhuyimeng.framework.cache.aspect.annotation.local.LocalCached;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -40,6 +41,7 @@ public class MenuQueryGatewayImpl implements MenuQueryGateway {
     }
 
     @Override
+    @LocalCached(key = "#{@cacheConstants.ONE_MENU + #id}")
     public Optional<MenuEntity> getOne(Integer id) {
         Optional<MenuEntity> menuEntity = Optional.ofNullable(menuConvertor.toMenuEntity(menuMapper.selectById(id)));
         menuEntity.ifPresent(menu -> menu.setChildren(() -> new ArrayList<>(getChildrenMenus(menu.getId()))));
@@ -47,6 +49,7 @@ public class MenuQueryGatewayImpl implements MenuQueryGateway {
     }
 
     @Override
+    @LocalCached(key = "#{@cacheConstants.MENU_CHILDREN + #parentMenuId}")
     public List<MenuEntity> getChildrenMenus(Integer parentMenuId) {
         LambdaQueryWrapper<SysMenuDO> menuQuery = Wrappers.lambdaQuery();
         // 查询直接子菜单

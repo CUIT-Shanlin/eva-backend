@@ -73,7 +73,6 @@ public class LogGatewayImpl implements LogGateway {
         }
         wrapper.orderByDesc("create_time");
         Page<SysLogDO> logPage = logMapper.selectPage(page, wrapper);
-        if (logPage.getRecords().isEmpty()) throw new QueryException("没有找到日志记录");
         List<SysLogDO> records = logPage.getRecords();
         List<SysLogEntity> logEntities = new ArrayList<>();
         for (SysLogDO record : records) {
@@ -98,7 +97,6 @@ public class LogGatewayImpl implements LogGateway {
     @Override
     public List<SysLogModuleEntity> getModules() {
         List<SysLogModuleDO> sysLogModuleDOS = logModuleMapper.selectList(null);
-        if (sysLogModuleDOS.isEmpty()) throw new QueryException("日志模块中暂时还没有信息");
         return sysLogModuleDOS.stream().map(logConverter::toModuleEntity).toList();
     }
 

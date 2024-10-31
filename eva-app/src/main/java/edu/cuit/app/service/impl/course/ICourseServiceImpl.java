@@ -24,10 +24,7 @@ import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -83,16 +80,23 @@ public class ICourseServiceImpl implements ICourseService {
     @Override
     public void updateSingleCourse(Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd) {
         String userName =String.valueOf(StpUtil.getLoginId()) ;
-        Map<String, List<Integer>> map = courseUpdateGateway.updateSingleCourse(userName, semId, updateSingleCourseCmd);
+        Map<String,Map<Integer,Integer>> map = courseUpdateGateway.updateSingleCourse(userName, semId, updateSingleCourseCmd);
         Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
-        msgResult.toSendMsg(map, userId.orElseThrow(() -> new QueryException("请先登录")));
-
+        for (Map.Entry<String, Map<Integer, Integer>> stringListEntry : map.entrySet()) {
+            Map<String,Map<Integer,Integer>> map1=new HashMap<>();
+            map1.put(stringListEntry.getKey(),stringListEntry.getValue());
+            if(stringListEntry.getValue()==null){
+                msgResult.SendMsgToAll(map1,userId.orElseThrow(() -> new QueryException("请先登录")));
+            }else if(!stringListEntry.getValue().isEmpty()){
+                msgResult.toSendMsg(map1,userId.orElseThrow(() -> new QueryException("请先登录")));
+            }
+        }
     }
 
     @CheckSemId
     @Override
     public void allocateTeacher(Integer semId, AlignTeacherCmd alignTeacherCmd) {
-        Map<String, List<Integer>> map = courseUpdateGateway.assignTeacher(semId, alignTeacherCmd);
+        Map<String, Map<Integer,Integer>> map = courseUpdateGateway.assignTeacher(semId, alignTeacherCmd);
         Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
         msgResult.toSendMsg(map, userId.orElseThrow(() -> new QueryException("请先登录")));
 
@@ -101,9 +105,17 @@ public class ICourseServiceImpl implements ICourseService {
     @CheckSemId
     @Override
     public void deleteCourses(Integer semId, Integer id, CoursePeriod coursePeriod) {
-        Map<String, List<Integer>> map = courseDeleteGateway.deleteCourses(semId, id, coursePeriod);
+        Map<String, Map<Integer,Integer>> map = courseDeleteGateway.deleteCourses(semId, id, coursePeriod);
         Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
-        msgResult.toSendMsg(map, userId.orElseThrow(() -> new QueryException("请先登录")));
+        for (Map.Entry<String, Map<Integer, Integer>> stringMapEntry : map.entrySet()) {
+            Map<String,Map<Integer,Integer>> map1=new HashMap<>();
+            map1.put(stringMapEntry.getKey(),stringMapEntry.getValue());
+            if(stringMapEntry.getValue()==null){
+                msgResult.SendMsgToAll(map1, userId.orElseThrow(() -> new QueryException("请先登录")));
+            }else if(!stringMapEntry.getValue().isEmpty()){
+                msgResult.toSendMsg(map1, userId.orElseThrow(() -> new QueryException("请先登录")));
+            }
+        }
 
     }
 

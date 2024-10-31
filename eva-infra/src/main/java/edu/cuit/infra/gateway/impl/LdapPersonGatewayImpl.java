@@ -12,7 +12,7 @@ import edu.cuit.infra.dal.ldap.dataobject.LdapGroupDO;
 import edu.cuit.infra.dal.ldap.dataobject.LdapPersonDO;
 import edu.cuit.infra.dal.ldap.repo.LdapGroupRepo;
 import edu.cuit.infra.dal.ldap.repo.LdapPersonRepo;
-import edu.cuit.infra.enums.LdapConstant;
+import edu.cuit.infra.enums.LdapConstants;
 import edu.cuit.infra.util.EvaLdapUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ldap.core.LdapTemplate;
@@ -37,7 +37,7 @@ public class LdapPersonGatewayImpl implements LdapPersonGateway {
     @Override
     public boolean authenticate(String username, String password) {
         EqualsFilter equalsFilter = new EqualsFilter("uid",username);
-        return ldapTemplate.authenticate(LdapConstant.USER_BASE_DN,equalsFilter.encode(),password);
+        return ldapTemplate.authenticate(LdapConstants.USER_BASE_DN,equalsFilter.encode(),password);
     }
 
     @Override

@@ -14,6 +14,7 @@ import edu.cuit.infra.dal.database.mapper.MsgTipMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,6 +34,7 @@ public class MsgGatewayImpl implements MsgGateway {
         msgQuery.eq(MsgTipDO::getRecipientId,userId);
         if (type != null && type >= 0) msgQuery.eq(MsgTipDO::getType,type);
         if (mode != null && mode >= 0) msgQuery.eq(MsgTipDO::getMode,mode);
+        msgQuery.orderByDesc(MsgTipDO::getCreateTime);
         return msgTipMapper.selectList(msgQuery).stream()
                 .map(this::getMsgEntity)
                 .toList();
@@ -44,6 +46,7 @@ public class MsgGatewayImpl implements MsgGateway {
         msgQuery.eq(MsgTipDO::getRecipientId,userId);
         if (type != null && type >= 0) msgQuery.eq(MsgTipDO::getType,type);
         if (num != null && num >= 0) msgQuery.last("limit " + num);
+        msgQuery.orderByDesc(MsgTipDO::getCreateTime);
         return msgTipMapper.selectList(msgQuery).stream()
                 .map(this::getMsgEntity)
                 .toList();
@@ -80,7 +83,10 @@ public class MsgGatewayImpl implements MsgGateway {
 
     @Override
     public void insertMessage(GenericRequestMsg msg) {
-        msgTipMapper.insert(msgConvertor.toMsgDO(msg));
+        MsgTipDO msgDO = msgConvertor.toMsgDO(msg);
+        msgTipMapper.insert(msgDO);
+        msg.setId(msgDO.getId());
+        msg.setCreateTime(LocalDateTime.now());
     }
 
     @Override

@@ -24,7 +24,11 @@ mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
+
 eva:
   avatar:
 #    directory: "/avatar"
     directory: "D:\\Programming\\Java\\Projects\\eva-backend\\avatar"
+
+common:
+  print-illegal-arguments: true
