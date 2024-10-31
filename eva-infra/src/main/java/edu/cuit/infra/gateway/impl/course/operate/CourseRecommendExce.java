@@ -321,17 +321,20 @@ public class CourseRecommendExce {
             Map<List<CourseType>, Double> course = getCourseTypeAndSimilarity(courseDO,slefCourseDo);
             QueryWrapper<CourInfDO> courseInfQueryWrapper = new QueryWrapper<>();
 //            courseInfQueryWrapper.eq("course_id", courseDO.getId());
-            if (Objects.equals(startTime.getWeek(), endTime.getWeek())) {
+            if (startTime.getWeek().equals(endTime.getWeek())) {
                 // 当周数相同时，直接比较星期几
                 courseInfQueryWrapper
                         .eq("course_id", courseDO.getId())
-                        .and(wrapper->wrapper.eq("day",startTime.getDay())
+                        .eq("week", startTime.getWeek())
+                        .and(wrapper->wrapper
+                                .eq("day",startTime.getDay())
                                 .ge("start_time",startTime.getStartTime())
                                 .or()
                                 .eq("day",endTime.getDay())
-                                .le("start_time",endTime.getStartTime()))
-                        .gt("day", startTime.getDay())
-                        .lt("day", endTime.getDay());
+                                .le("start_time",endTime.getStartTime())
+                                .or()
+                                .gt("day", startTime.getDay())
+                                .lt("day", endTime.getDay()));
             } else {
                 // 当周数不同时，分开处理
                 courseInfQueryWrapper
@@ -456,6 +459,7 @@ public class CourseRecommendExce {
         QueryWrapper<CourInfDO> courseInfQueryWrapper = new QueryWrapper<>();
         if(semesterDO==null)throw new QueryException("学期不存在");
         toJudgeTime(semesterDO,courseQuery,courseInfQueryWrapper);
+
         //课程时间
         List<CourInfDO> courInfDOS = courInfMapper.selectList(courseInfQueryWrapper);
         //得到courinfDOs中的courseId并去重
@@ -496,9 +500,9 @@ public class CourseRecommendExce {
         List<Integer> intersection = new ArrayList<>(courseDo1);
         for (List<Integer> sublist : list) {
             intersection.retainAll(sublist);
-            if(intersection.isEmpty()){
+           /* if(intersection.isEmpty()){
                 throw new QueryException("在该时段内没有符合条件的课程");
-            }
+            }*/
         }
         //交集
 //        List<Integer> courseList=getInnerList(list);
@@ -556,12 +560,21 @@ public class CourseRecommendExce {
         if(courseQuery.getStartDay()!=null&&courseQuery.getEndDay()!=null){
             CourseTime startTime = toGetCourseTime(semesterDO.getStartDate(), courseQuery.getStartDay());
             CourseTime endTime = toGetCourseTime(semesterDO.getStartDate(), courseQuery.getEndDay());
-            if (Objects.equals(startTime.getWeek(), endTime.getWeek())) {
+            if (startTime.getWeek().equals(endTime.getWeek())) {
                 // 当周数相同时，直接比较星期几
                 courseInfQueryWrapper
-                        .ge("day", startTime.getDay())
-                        .ge("start_time", startTime.getStartTime())
-                        .and(courInfDOQueryWrapper -> courInfDOQueryWrapper.le("day", endTime.getDay()).le("start_time", endTime.getStartTime()));
+                        .eq("week",startTime.getWeek())
+                        .eq("day",startTime.getDay())
+                        .ge("start_time",startTime.getStartTime())
+                        .or()
+                        .eq("week", startTime.getWeek())
+                        .gt("day",startTime.getDay())
+                        .lt("day",endTime.getDay())
+                        .or()
+                        .eq("week", startTime.getWeek())
+                        .eq("day",endTime.getDay())
+                        .le("end_time",endTime.getStartTime());
+
 
             } else {
                 // 当周数不同时，分开处理
