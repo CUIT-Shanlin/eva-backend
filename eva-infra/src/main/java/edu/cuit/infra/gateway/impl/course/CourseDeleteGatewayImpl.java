@@ -62,12 +62,18 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         List<Integer> list = courInfMapper.selectList(courseWrapper).stream().map(CourInfDO::getId).toList();
         courInfMapper.delete(courseWrapper);
         //找出所有要评教这节课的老师
-        List<EvaTaskDO> tasks = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in(!list.isEmpty(),"cour_inf_id", list));
+        List<EvaTaskDO> tasks;
+        if(!list.isEmpty()){
+            tasks = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id", list));
+            evaTaskMapper.delete(new QueryWrapper<EvaTaskDO>().in("cour_inf_id", list));
+        }else{
+            tasks = new ArrayList<>();
+        }
+
         Map<Integer,Integer> mapEva=new HashMap<>();
         for (EvaTaskDO task : tasks) {
             mapEva.put(task.getId(),task.getTeacherId());
         }
-        evaTaskMapper.delete(new QueryWrapper<EvaTaskDO>().in(!list.isEmpty(),"cour_inf_id", list));
         Map<String,Map<Integer,Integer>> map=new HashMap<>();
         map.put(name+"课程的一些课程已被删除",null);
         map.put("你所评教的上课时间在第"+coursePeriod.getStartWeek()+"周，星期"+coursePeriod.getDay()
@@ -92,6 +98,7 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
            courseWrapper.eq("semester_id",semId);
        }
         CourseDO courseDO = courseMapper.selectOne(courseWrapper);
+       if(courseDO==null)throw new QueryException("课程已经被删除，或者不存在");
         String name = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("id", courseDO.getSubjectId())).getName();
         int delete = courseMapper.delete(courseWrapper);
        if(delete==0){
@@ -103,15 +110,21 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         List<Integer> list = courInfMapper.selectList(courInfoWrapper).stream().map(CourInfDO::getId).toList();
         courInfMapper.delete(courInfoWrapper);
         //删除评教任务数据
-        QueryWrapper<EvaTaskDO> evaTaskWrapper=new QueryWrapper<>();
-        evaTaskWrapper.in("cour_inf_id",list).eq("status",0);
-        List<EvaTaskDO> taskDOList = evaTaskMapper.selectList(evaTaskWrapper);
+        List<EvaTaskDO> taskDOList;
+        if(!list.isEmpty()){
+            QueryWrapper<EvaTaskDO> evaTaskWrapper=new QueryWrapper<>();
+            evaTaskWrapper.in("cour_inf_id",list);
+            taskDOList = evaTaskMapper.selectList(evaTaskWrapper);
+        }else{
+            taskDOList = new ArrayList<>();
+        }
+
         List<Integer> taskIds = taskDOList.stream().map(EvaTaskDO::getId).toList();
-//        List<Integer> teacherIds = evaTaskMapper.selectList(evaTaskWrapper).stream().map(EvaTaskDO::getTeacherId).toList();
-        evaTaskMapper.delete(new QueryWrapper<EvaTaskDO>().in("id",taskIds));
+        List<EvaTaskDO> list1 = taskDOList.stream().filter(taskDO -> taskDO.getStatus() == 0).toList();
+        if(!taskIds.isEmpty())evaTaskMapper.delete(new QueryWrapper<EvaTaskDO>().in("id",taskIds));
         Map<String,Map<Integer,Integer>> map=new HashMap<>();
         Map<Integer,Integer> evaTaskMap=new HashMap<>();
-        for (EvaTaskDO taskDO : taskDOList) {
+        for (EvaTaskDO taskDO : list1) {
             evaTaskMap.put(taskDO.getId(),taskDO.getTeacherId());
         }
 
