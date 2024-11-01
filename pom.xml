@@ -51,11 +51,6 @@
       </dependency>
       <dependency>
         <groupId>edu.cuit.zhuyimeng</groupId>
-        <artifactId>zym-spring-boot-starter-swagger</artifactId>
-        <version>1.1</version>
-      </dependency>
-      <dependency>
-        <groupId>edu.cuit.zhuyimeng</groupId>
         <artifactId>zym-spring-boot-starter-logging</artifactId>
         <version>1.5</version>
       </dependency>
@@ -152,6 +147,7 @@
         <plugin>
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-maven-plugin</artifactId>
+          <version>${spring-boot-maven-plugin.version}</version>
           <configuration>
             <finalName>eva-server</finalName>
             <mainClass>edu.cuit.Application</mainClass>

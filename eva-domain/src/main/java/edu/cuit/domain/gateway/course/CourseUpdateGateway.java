@@ -10,8 +10,8 @@ import edu.cuit.client.dto.data.Term;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import jakarta.validation.Valid;
-import org.springframework.stereotype.Component;/*
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.stereotype.Component;
+/*import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;*/
 
 import java.io.InputStream;
