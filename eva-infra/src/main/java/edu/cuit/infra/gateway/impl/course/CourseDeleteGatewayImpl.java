@@ -60,7 +60,7 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         courseWrapper.eq("course_id",id);
         isEmptiy(courseWrapper,coursePeriod);
         List<Integer> list = courInfMapper.selectList(courseWrapper).stream().map(CourInfDO::getId).toList();
-        int delete = courInfMapper.delete(courseWrapper);
+        courInfMapper.delete(courseWrapper);
         //找出所有要评教这节课的老师
         List<EvaTaskDO> tasks = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in(!list.isEmpty(),"cour_inf_id", list));
         Map<Integer,Integer> mapEva=new HashMap<>();
@@ -207,7 +207,7 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
             if(coursePeriod.getStartTime()!=null){
                 wrapper.eq("start_time", coursePeriod.getStartTime());
             }
-        if(coursePeriod.getEndTime()!=null){
+            if(coursePeriod.getEndTime()!=null){
             wrapper.eq("end_time", coursePeriod.getEndTime());
         }
     }
