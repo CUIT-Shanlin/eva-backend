@@ -544,7 +544,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         }
         EvaTaskDO evaTaskDO=evaTaskMapper.selectOne(new QueryWrapper<EvaTaskDO>().eq("id",id));
         if(evaTaskDO==null){
-            throw new QueryException("并没有找到相应的任务");
+            return Optional.empty();
         }
         //老师
         Supplier<UserEntity> teacher=()->toUserEntity(evaTaskDO.getTeacherId());
@@ -913,7 +913,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             }
         }
         if(CollectionUtil.isEmpty(dataArr)){
-            throw new QueryException("数据故障，显示为0");
+            return Optional.empty();
         }
         //给收集的信息co排个序
         for(int i=0;i<dataArr.size()-1;i++){
@@ -959,7 +959,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             }
         }
         if(CollectionUtil.isEmpty(dataArr)){
-            throw new QueryException("数据故障，显示为0");
+            return Optional.empty();
         }
         //给收集的信息co排个序
         for(int i=0;i<dataArr.size()-1;i++){

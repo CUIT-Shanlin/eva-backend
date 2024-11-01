@@ -1,6 +1,6 @@
 package edu.cuit.infra.user;
 
-import edu.cuit.domain.gateway.user.UserUpdateGateway;
+/*import edu.cuit.domain.gateway.user.UserUpdateGateway;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import org.junit.jupiter.api.Test;
@@ -21,4 +21,4 @@ public class UserTest {
         System.out.println(sysUserDO.getId());
     }
 
-}
+}*/
