@@ -349,11 +349,12 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
 
     @Override
     @Transactional
-    public Void importCourseFile(Map<String, List<CourseExcelBO>> courseExce, SemesterCO semester, Integer type) {
+    public Map<String,List<Integer>> importCourseFile(Map<String, List<CourseExcelBO>> courseExce, SemesterCO semester, Integer type) {
         SemesterDO semesterDO = semesterMapper.selectOne(new QueryWrapper<SemesterDO>().eq("start_year", semester.getStartYear()).eq("period", semester.getPeriod()));
+        List<Integer> evaTaskIds=new ArrayList<>();
         if(semesterDO!=null){
             //执行已有学期的删除添加逻辑
-            courseImportExce.deleteCourse(semester.getId(),type);
+            evaTaskIds=courseImportExce.deleteCourse(semester.getId(),type);
         }else{
             //直接插入学期
             SemesterDO semesterDO1 = courseConvertor.toSemesterDO(semester);
@@ -365,7 +366,9 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         if(type==0)typeName="理论课";
         else typeName="实验课";
         LogUtils.logContent(semesterDO.getStartYear()+"-"+semesterDO.getEndYear()+"第"+semesterDO.getPeriod()+1+"学期"+typeName+"课程表");
-        return null;
+        Map<String,List<Integer>> map=new HashMap<>();
+        map.put(semesterDO.getStartYear()+"-"+semesterDO.getEndYear()+"第"+semesterDO.getPeriod()+1+"学期"+typeName+"课程表被覆盖",evaTaskIds);
+        return map;
     }
 
     @Override
@@ -426,7 +429,9 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                         .eq("week", courInfDO.getWeek()).eq("day", courInfDO.getDay())
                         .eq("start_time", courInfDO.getStartTime()).eq("end_time",courInfDO.getEndTime()));
                 evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId())).forEach(evaTaskDO -> taskMap.put(evaTaskDO.getId(),evaTaskDO.getTeacherId()));
-                evaTaskMapper.delete(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId()));
+                EvaTaskDO evaTaskDO=new EvaTaskDO();
+                evaTaskDO.setStatus(2);
+                evaTaskMapper.update(evaTaskDO,new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId()));
             }
             if(taskMap.isEmpty()) return "";
             else return msg+selfTeachCourseCO.getName()+"课程的上课时间被修改了,"+"因而取消您对该课程的评教任务";
@@ -437,7 +442,9 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                         .eq("week", courInfDO.getWeek()).eq("day", courInfDO.getDay())
                         .eq("start_time", courInfDO.getStartTime()).eq("end_time",courInfDO.getEndTime()));
                 evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId())).forEach(evaTaskDO -> taskMap.put(evaTaskDO.getId(),evaTaskDO.getTeacherId()));
-                evaTaskMapper.delete(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId()));
+                EvaTaskDO evaTaskDO=new EvaTaskDO();
+                evaTaskDO.setStatus(2);
+                evaTaskMapper.update(evaTaskDO,new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId()));
             }
             for (CourInfDO courInfDO : difference) {
                 for(CourseDO course : courseDOList){

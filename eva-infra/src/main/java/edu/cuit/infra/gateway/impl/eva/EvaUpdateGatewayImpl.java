@@ -87,6 +87,17 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         formRecordDO.setCreateTime(LocalDateTime.now());
         formRecordDO.setIsDeleted(0);
 
+        //判断是不是任务已经取消了
+        if(evaTaskDO==null){
+            throw new UpdateException("该任务不存在");
+        }
+        if(evaTaskDO.getStatus()==1||evaTaskDO.getStatus()==2){
+            throw new UpdateException("该任务已经被取消或删去,不能提交");
+        }
+        if(courInfDO==null){
+            throw new UpdateException("该任务对应的课程信息不存在，不能提交哦");
+        }
+
         formRecordDO.setFormPropsValues(JSONUtil.toJsonStr(evaTaskFormCO.getFormPropsValues()));
         formRecordMapper.insert(formRecordDO);
 
@@ -112,6 +123,9 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
     public Integer postEvaTask(AddTaskCO addTaskCO) {
         //同时发送该任务的评教待办消息;
         CourInfDO courInfDO=courInfMapper.selectById(addTaskCO.getCourInfId());
+        if(courInfDO==null){
+            throw new UpdateException("并没有找到相关课程");
+        }
         CourseDO courseDO=courseMapper.selectById(courInfDO.getCourseId());
         //选中的课程是否已经上完
         SemesterDO semesterDO = semesterMapper.selectById(courseDO.getSemesterId());
@@ -129,7 +143,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
                         f=0;
                     }else {
                         if(localDate.getDayOfMonth()==LocalDate.now().getDayOfMonth()) {
-                            String dateTime = localDate + "00:00";
+                            String dateTime = localDate + " 00:00";//因为少了一个空格而不能满足格式而报错
                             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
                             LocalDateTime localDateTime = LocalDateTime.parse(dateTime, formatter);
                             if (CalculateClassTime.calculateClassTime(localDateTime, courInfDO.getStartTime()).isBefore(LocalDateTime.now())) {

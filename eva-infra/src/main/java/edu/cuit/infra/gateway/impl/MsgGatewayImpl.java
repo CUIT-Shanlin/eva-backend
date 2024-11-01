@@ -93,7 +93,7 @@ public class MsgGatewayImpl implements MsgGateway {
     public void deleteMessage(Integer taskId, Integer type) {
         LambdaQueryWrapper<MsgTipDO> msgQuery = Wrappers.lambdaQuery();
         msgQuery.eq(MsgTipDO::getTaskId,taskId);
-        if (type >= 0) {
+        if (type!=null&&type >= 0) {
             msgQuery.eq(MsgTipDO::getType,type);
         }
         msgTipMapper.delete(msgQuery);

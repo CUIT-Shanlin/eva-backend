@@ -37,6 +37,7 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
     private final SysUserMapper userMapper;
 
 
+
     /**
      * 批量删除某节课
      *  @param semId 学期id
@@ -60,21 +61,13 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         isEmptiy(courseWrapper,coursePeriod);
         List<Integer> list = courInfMapper.selectList(courseWrapper).stream().map(CourInfDO::getId).toList();
         int delete = courInfMapper.delete(courseWrapper);
-        if(delete==0){
-            throw new UpdateException("该课程在对应时间段没有课");
-        }
         //找出所有要评教这节课的老师
         List<EvaTaskDO> tasks = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in(!list.isEmpty(),"cour_inf_id", list));
         Map<Integer,Integer> mapEva=new HashMap<>();
         for (EvaTaskDO task : tasks) {
             mapEva.put(task.getId(),task.getTeacherId());
         }
-        EvaTaskDO evaTaskDO = new EvaTaskDO();
-        evaTaskDO.setStatus(2);
-        evaTaskMapper.update(evaTaskDO,new QueryWrapper<EvaTaskDO>().in(!list.isEmpty(),"cour_inf_id", list));
-        List<Integer> list1 = tasks.stream().map(EvaTaskDO::getId).toList();
-
-
+        evaTaskMapper.delete(new QueryWrapper<EvaTaskDO>().in(!list.isEmpty(),"cour_inf_id", list));
         Map<String,Map<Integer,Integer>> map=new HashMap<>();
         map.put(name+"课程的一些课程已被删除",null);
         map.put("你所评教的上课时间在第"+coursePeriod.getStartWeek()+"周，星期"+coursePeriod.getDay()
@@ -109,22 +102,13 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         courInfoWrapper.eq("course_id",id);
         List<Integer> list = courInfMapper.selectList(courInfoWrapper).stream().map(CourInfDO::getId).toList();
         courInfMapper.delete(courInfoWrapper);
-        /*//得到科目id
-        Integer subjectId = courseMapper.selectOne(courseWrapper).getSubjectId();
-        //删除科目数据
-        UpdateWrapper<SubjectDO> subjectWrapper=new UpdateWrapper<>();
-        subjectWrapper.eq("id",subjectId);
-        subjectMapper.delete(subjectWrapper);*/
         //删除评教任务数据
         QueryWrapper<EvaTaskDO> evaTaskWrapper=new QueryWrapper<>();
         evaTaskWrapper.in("cour_inf_id",list).eq("status",0);
         List<EvaTaskDO> taskDOList = evaTaskMapper.selectList(evaTaskWrapper);
         List<Integer> taskIds = taskDOList.stream().map(EvaTaskDO::getId).toList();
 //        List<Integer> teacherIds = evaTaskMapper.selectList(evaTaskWrapper).stream().map(EvaTaskDO::getTeacherId).toList();
-        EvaTaskDO evaTaskDO = new EvaTaskDO();
-        evaTaskDO.setStatus(2);
-        evaTaskMapper.update(evaTaskDO,new QueryWrapper<EvaTaskDO>().in("id",taskIds));
-
+        evaTaskMapper.delete(new QueryWrapper<EvaTaskDO>().in("id",taskIds));
         Map<String,Map<Integer,Integer>> map=new HashMap<>();
         Map<Integer,Integer> evaTaskMap=new HashMap<>();
         for (EvaTaskDO taskDO : taskDOList) {
@@ -197,13 +181,11 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         }
         List<Integer> list1 = courInfoIds.stream().map(CourInfDO::getId).toList();
         if(!list1.isEmpty()){
-            EvaTaskDO evaTaskDO = new EvaTaskDO();
-            evaTaskDO.setStatus(2);
-            evaTaskMapper.update(evaTaskDO,new UpdateWrapper<EvaTaskDO>().in(true,"cour_inf_id", list1));
+            evaTaskMapper.delete(new UpdateWrapper<EvaTaskDO>().in(true,"cour_inf_id", list1));
         }
         Map<Integer,Integer> mapEva=new HashMap<>();
         for (EvaTaskDO i : taskDOList) {
-            mapEva.put(i.getTeacherId(),i.getId());
+            mapEva.put(i.getId(),i.getTeacherId());
         }
         Map<String,Map<Integer,Integer>> map=new HashMap<>();
         map.put("你所要评教的"+name+"课程被删除，已取消评教任务",mapEva);

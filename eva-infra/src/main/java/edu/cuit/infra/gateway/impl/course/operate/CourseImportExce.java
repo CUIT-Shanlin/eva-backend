@@ -39,7 +39,8 @@ public class CourseImportExce {
     private final SysUserMapper userMapper;
     private final FormTemplateMapper formTemplateMapper;
     //删除这学期所有的课程
-    public void deleteCourse(Integer semId,Integer type) {
+    public List<Integer> deleteCourse(Integer semId, Integer type) {
+        List<Integer> evaTaskIds=new ArrayList<>();
         //先找出所有的课程
         List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId));
         //过滤出courseIdList中对应subject的nature等于type的课程ID集合
@@ -61,6 +62,7 @@ public class CourseImportExce {
             }
             //删除评教任务
             List<EvaTaskDO> taskDOList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in(!courInfoIds.isEmpty(),"cour_inf_id", courInfoIds));
+            evaTaskIds=taskDOList.stream().map(EvaTaskDO::getId).toList();
             if(!taskDOList.isEmpty()) {
                 List<Integer> taskIds = taskDOList.stream().map(EvaTaskDO::getId).toList();
                 evaTaskMapper.deleteBatchIds(taskIds);
@@ -70,6 +72,7 @@ public class CourseImportExce {
                 courOneEvaTemplateMapper.delete(new QueryWrapper<CourOneEvaTemplateDO>().in(!courseIds.isEmpty(),"course_id", courseIds));
             }
         }
+        return evaTaskIds;
 
     }
     public void addAll( Map<String, List<CourseExcelBO>> courseExce, Integer type,Integer semId){
