@@ -288,10 +288,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
             SingleCourseCO singleCourseCO = new SingleCourseCO();
             singleCourseCO.setId(courInfDO.getId());
             singleCourseCO.setLocation(courInfDO.getLocation());
-            CourseTime courseTime = new CourseTime().setWeek(courseQuery.getWeek()).setDay(courseQuery.getDay()).setStartTime(courseQuery.getNum());
-            if(courseQuery.getNum()!=null){
-                courseTime.setEndTime(courseQuery.getNum()+1);
-            }
+            CourseTime courseTime = new CourseTime().setWeek(courseQuery.getWeek()).setDay(courseQuery.getDay()).setStartTime(courInfDO.getStartTime()).setEndTime(courInfDO.getEndTime());
             singleCourseCO.setTime(courseTime);
             singleCourseCO.setTeacherName(userMapper.selectById(courseDO.getTeacherId()).getName());
             singleCourseCO.setName(subjectMapper.selectById(courseDO.getSubjectId()).getName());
