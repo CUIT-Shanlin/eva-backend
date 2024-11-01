@@ -1,4 +1,5 @@
 package edu.cuit.app.service.impl.eva;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.cola.exception.SysException;
 import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.PaginationBizConvertor;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 @Service
 @RequiredArgsConstructor
@@ -77,10 +79,12 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
     public UnqualifiedUserResultCO getTargetAmountUnqualifiedUser(Integer semId,Integer type, Integer num, Integer target) {
 
         UnqualifiedUserResultCO unqualifiedUserResultCO=null;
+        UnqualifiedUserResultCO error=new UnqualifiedUserResultCO();
+        error.setTotal(0).setDataArr(List.of());
         if(type==0){
-            unqualifiedUserResultCO=evaQueryGateway.getEvaTargetAmountUnqualifiedUser(semId,num,target).orElseThrow(()->new SysException("并没有找到相关数据"));
+            unqualifiedUserResultCO=evaQueryGateway.getEvaTargetAmountUnqualifiedUser(semId,num,target).orElseGet(()->error);
         } else if(type==1){
-            unqualifiedUserResultCO=evaQueryGateway.getBeEvaTargetAmountUnqualifiedUser(semId,num,target).orElseThrow(()->new SysException("并没有找到相关数据"));
+            unqualifiedUserResultCO=evaQueryGateway.getBeEvaTargetAmountUnqualifiedUser(semId,num,target).orElseGet(()->error);
         }else {
             throw new SysException("type是10以外的值");
         }
