@@ -92,7 +92,14 @@ public class IUserCourseServiceImpl implements IUserCourseService {
         }else{
             throw new BizException("课表类型转换错误");
         }
-        courseUpdateGateway.importCourseFile(FileImportExec.courseExce, semesterCO,type);
+        Map<String, List<Integer>> map = courseUpdateGateway.importCourseFile(FileImportExec.courseExce, semesterCO, type);
+        Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
+        for (Map.Entry<String, List<Integer>> stringListEntry : map.entrySet()) {
+            Map<String, Map<Integer, Integer> > temMap=new HashMap<>();
+            temMap.put(stringListEntry.getKey(), new HashMap<>());
+            msgResult.SendMsgToAll(temMap,userId.orElseThrow(() -> new QueryException("请先登录")));
+            stringListEntry.getValue().forEach(k->msgService.deleteEvaMsg(k,null));
+        }
 
     }
 
@@ -136,6 +143,7 @@ public class IUserCourseServiceImpl implements IUserCourseService {
                 msgResult.SendMsgToAll(map1, userId.orElseThrow(() -> new QueryException("请先登录")));
             } else if (!stringMapEntry.getValue().isEmpty()) {
                 msgResult.toSendMsg(map1, userId.orElseThrow(() -> new QueryException("请先登录")));
+                stringMapEntry.getValue().forEach((k,v)->msgService.deleteEvaMsg(k,null));
             }
 
         }
@@ -165,6 +173,7 @@ public class IUserCourseServiceImpl implements IUserCourseService {
                         .setIsShowName(1)
                         .setSenderId(userId.orElseThrow(()->new QueryException("请先登录")));
                 msgService.sendMessage(messageBO);
+                msgService.deleteEvaMsg(mapEntry.getKey(),null);
             }
             }
 
