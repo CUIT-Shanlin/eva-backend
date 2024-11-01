@@ -114,7 +114,7 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
             if(stringListEntry.getValue()==null){
                 temMap.put(stringListEntry.getKey(),null);
                 msgResult.SendMsgToAll(temMap,userId.orElseThrow(() -> new QueryException("请先登录")));
-            }else{
+            }else if(!stringListEntry.getValue().isEmpty()){
                 temMap.put(stringListEntry.getKey(),stringListEntry.getValue());
                 msgResult.toSendMsg(temMap,userId.orElseThrow(() -> new QueryException("请先登录")));
                 stringListEntry.getValue().forEach((k,v)->msgService.deleteEvaMsg(k,null));
