@@ -168,8 +168,8 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             }
             courseWrapper.in("teacher_id",sysUserIds);
         }
-        if(CollectionUtil.isNotEmpty(query.getQueryObj().getCourseIds())){
-            courseWrapper.in("id",query.getQueryObj().getCourseIds());
+        if(CollectionUtil.isNotEmpty(query.getQueryObj().getCourseIds())){//课程id变成科目id
+            courseWrapper.in("subject_id",query.getQueryObj().getCourseIds());
         }
         if(semId!=null){
             courseWrapper.eq("semester_id",semId);
