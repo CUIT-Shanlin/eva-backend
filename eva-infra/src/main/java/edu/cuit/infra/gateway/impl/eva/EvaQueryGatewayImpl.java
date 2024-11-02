@@ -341,12 +341,21 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             List<Integer> subjectIds = subjectMapper.selectList(subjectWrapper).stream().map(SubjectDO::getId).toList();
 
             if (CollectionUtil.isNotEmpty(teacherIds) || CollectionUtil.isNotEmpty(subjectIds)) {
-                if (CollectionUtil.isNotEmpty(teacherIds)) {
+                if(CollectionUtil.isNotEmpty(teacherIds) && CollectionUtil.isNotEmpty(subjectIds)){
                     query.in("teacher_id", teacherIds);
-                }
-                if (CollectionUtil.isNotEmpty(subjectIds)) {
+                    query.or();
                     query.in("subject_id", subjectIds);
+                }else {
+                    if (CollectionUtil.isNotEmpty(teacherIds)) {
+                        query.in("teacher_id", teacherIds);
+                    }
+                    if (CollectionUtil.isNotEmpty(subjectIds)) {
+                        query.in("subject_id", subjectIds);
+                    }
                 }
+            }else {
+                List list=new ArrayList();
+                return list;
             }
         }
         if (id != null) {
@@ -411,12 +420,18 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             List<Integer> subjectIds = subjectMapper.selectList(subjectWrapper).stream().map(SubjectDO::getId).toList();
 
             if (CollectionUtil.isNotEmpty(teacherIds) || CollectionUtil.isNotEmpty(subjectIds)) {
-                //评教记录-》评教任务-》课程详情表->课程表->学期id
-                if (CollectionUtil.isNotEmpty(teacherIds)) {
+                if(CollectionUtil.isNotEmpty(teacherIds) && CollectionUtil.isNotEmpty(subjectIds)) {
                     query.in("teacher_id", teacherIds);
-                }
-                if (CollectionUtil.isNotEmpty(subjectIds)) {
+                    query.or();
                     query.in("subject_id", subjectIds);
+                }else {
+                    //评教记录-》评教任务-》课程详情表->课程表->学期id
+                    if (CollectionUtil.isNotEmpty(teacherIds)) {
+                        query.in("teacher_id", teacherIds);
+                    }
+                    if (CollectionUtil.isNotEmpty(subjectIds)) {
+                        query.in("subject_id", subjectIds);
+                    }
                 }
             }else{
                 List list=new ArrayList();
