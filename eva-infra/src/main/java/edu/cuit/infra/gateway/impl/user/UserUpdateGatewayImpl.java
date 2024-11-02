@@ -125,7 +125,9 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
                 .setRoleId(roleQueryGateway.getDefaultRoleId())
                 .setUserId(userDO.getId());
         userRoleMapper.insert(sysUserRoleDO);
-        ldapPersonGateway.createUser(ldapPerson,cmd.getPassword());
+        if (ldapPersonGateway.findByUsername(cmd.getUsername()).isEmpty()) {
+            ldapPersonGateway.createUser(ldapPerson,cmd.getPassword());
+        }
     }
 
     private void checkAdmin(Integer userId) {
