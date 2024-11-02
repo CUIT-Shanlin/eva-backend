@@ -83,6 +83,10 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                     sujectDo.setCreateTime(LocalDateTime.now());
                     subjectMapper.insert(sujectDo);
                     courseDO.setSubjectId(sujectDo.getId());
+                    //查看是否要删除subject
+                if(courseMapper.selectCount(new QueryWrapper<CourseDO>().eq("subject_id",subjectDO.getId()))==1){
+                    subjectMapper.delete(new QueryWrapper<SubjectDO>().eq("id",subjectDO.getId()));
+                }
             }
 
         }

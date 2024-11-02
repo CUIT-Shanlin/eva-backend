@@ -183,7 +183,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
             }
         }
         //看看是否和老师其他评教任务有冲突
-        List<EvaTaskDO> evaTaskDOList=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id",addTaskCO.getTeacherId()));
+        List<EvaTaskDO> evaTaskDOList=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id",addTaskCO.getTeacherId()).eq("status",0));
         List<Integer> courInfoIds=evaTaskDOList.stream().map(EvaTaskDO::getCourInfId).toList();
         if(CollectionUtil.isNotEmpty(courInfoIds)) {
             List<CourInfDO> evaCourInfDOList = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("id", courInfoIds));
