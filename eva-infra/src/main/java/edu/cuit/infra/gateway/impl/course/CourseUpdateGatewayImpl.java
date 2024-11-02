@@ -64,7 +64,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         if(courseDO==null){
             throw new QueryException("没有该课程");
         }
-
+        SysUserDO userDO = userMapper.selectById(courseDO.getTeacherId());
         if(updateCourseCmd.getIsUpdate()){
 
             Integer subjectId = courseDO.getSubjectId();
@@ -114,7 +114,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
 
         List<Integer> list1 = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id", list).eq("status", 0)).stream().map(EvaTaskDO::getTeacherId).toList();*/
        Map<String,Map<Integer,Integer>> map=new HashMap<>();
-       map.put( updateCourseCmd.getSubjectMsg().getName()+"课程的信息被修改了",null);
+       map.put( userDO.getName()+"的"+updateCourseCmd.getSubjectMsg().getName()+"课程的信息被修改了",null);
         return map;
 
     }

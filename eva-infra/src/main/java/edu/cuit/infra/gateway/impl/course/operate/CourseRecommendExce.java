@@ -491,7 +491,7 @@ public class CourseRecommendExce {
             CourseTypeDO courseTypeDO = courseTypeMapper.selectById(courseQuery.getTypeId());
             if(courseTypeDO==null)throw new QueryException("该课程类型不存在");
             List<CourseTypeCourseDO> courseTypeCourseDOS = courseTypeCourseMapper.selectList(new QueryWrapper<CourseTypeCourseDO>().eq("type_id", courseTypeDO.getId()));
-            typeCourseList=courseTypeCourseDOS.stream().map(CourseTypeCourseDO::getCourseId).toList();
+            typeCourseList=courseTypeCourseDOS.stream().map(CourseTypeCourseDO::getCourseId).distinct().toList();
              list.add(typeCourseList);
         }
 
@@ -500,13 +500,13 @@ public class CourseRecommendExce {
         List<Integer> intersection = new ArrayList<>(courseDo1);
         for (List<Integer> sublist : list) {
             intersection.retainAll(sublist);
-           /* if(intersection.isEmpty()){
-                throw new QueryException("在该时段内没有符合条件的课程");
-            }*/
         }
-        //交集
-//        List<Integer> courseList=getInnerList(list);
-        return courseMapper.selectList(new QueryWrapper<CourseDO>().in("id", intersection));
+        if(intersection.isEmpty()){
+            return new ArrayList<>();
+        }else{
+            return courseMapper.selectList(new QueryWrapper<CourseDO>().in("id", intersection));
+        }
+
     }
 
     private List<Integer> getInnerList(List<List<Integer>> list) {
