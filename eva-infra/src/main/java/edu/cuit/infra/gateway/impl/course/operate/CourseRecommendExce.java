@@ -500,13 +500,16 @@ public class CourseRecommendExce {
         List<Integer> intersection = new ArrayList<>(courseDo1);
         for (List<Integer> sublist : list) {
             intersection.retainAll(sublist);
-           /* if(intersection.isEmpty()){
+          /*  if(intersection.isEmpty()){
                 throw new QueryException("在该时段内没有符合条件的课程");
             }*/
         }
-        //交集
-//        List<Integer> courseList=getInnerList(list);
-        return courseMapper.selectList(new QueryWrapper<CourseDO>().in("id", intersection));
+        if(intersection.isEmpty()){
+            return new ArrayList<>();
+        }else{
+            return courseMapper.selectList(new QueryWrapper<CourseDO>().in("id", intersection));
+        }
+
     }
 
     private List<Integer> getInnerList(List<List<Integer>> list) {
