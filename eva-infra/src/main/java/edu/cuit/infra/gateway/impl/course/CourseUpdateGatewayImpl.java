@@ -354,13 +354,13 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         List<Integer> evaTaskIds=new ArrayList<>();
         if(semesterDO!=null){
             //执行已有学期的删除添加逻辑
-            evaTaskIds=courseImportExce.deleteCourse(semester.getId(),type);
-        }else{
+            evaTaskIds=courseImportExce. deleteCourse(semester.getId(),type);
+        }
             //直接插入学期
             SemesterDO semesterDO1 = courseConvertor.toSemesterDO(semester);
             semesterMapper.insert(semesterDO1);
             semesterDO=semesterDO1;
-        }
+
         courseImportExce.addAll(courseExce, type,semesterDO.getId());
         String typeName=null;
         if(type==0)typeName="理论课";

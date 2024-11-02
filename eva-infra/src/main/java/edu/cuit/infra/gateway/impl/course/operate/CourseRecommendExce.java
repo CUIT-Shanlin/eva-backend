@@ -566,14 +566,11 @@ public class CourseRecommendExce {
                         .eq("week",startTime.getWeek())
                         .eq("day",startTime.getDay())
                         .ge("start_time",startTime.getStartTime())
+                        .and(wrapper->wrapper.eq("week",startTime.getWeek()).eq("day",endTime.getDay()).le("end_time",endTime.getStartTime()))
                         .or()
                         .eq("week", startTime.getWeek())
                         .gt("day",startTime.getDay())
-                        .lt("day",endTime.getDay())
-                        .or()
-                        .eq("week", startTime.getWeek())
-                        .eq("day",endTime.getDay())
-                        .le("end_time",endTime.getStartTime());
+                        .lt("day",endTime.getDay());
 
 
             } else {
