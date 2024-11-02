@@ -89,7 +89,8 @@ public class ICourseServiceImpl implements ICourseService {
             if(stringListEntry.getValue()==null){
                 msgResult.SendMsgToAll(map1,userId.orElseThrow(() -> new QueryException("请先登录")));
             }else if(!stringListEntry.getValue().isEmpty()){
-                msgResult.toSendMsg(map1,userId.orElseThrow(() -> new QueryException("请先登录")));
+                msgResult.toNormalMsg(map1,userId.orElseThrow(() -> new QueryException("请先登录")));
+                stringListEntry.getValue().forEach((k,v)->msgService.deleteEvaMsg(k,null));
             }
         }
     }
@@ -113,7 +114,7 @@ public class ICourseServiceImpl implements ICourseService {
             if(stringMapEntry.getValue()==null){
                 msgResult.SendMsgToAll(map1, userId.orElseThrow(() -> new QueryException("请先登录")));
             }else if(!stringMapEntry.getValue().isEmpty()){
-                msgResult.toSendMsg(map1, userId.orElseThrow(() -> new QueryException("请先登录")));
+                msgResult.toNormalMsg(map1, userId.orElseThrow(() -> new QueryException("请先登录")));
                 stringMapEntry.getValue().forEach((k,v)->msgService.deleteEvaMsg(k,null));
             }
         }
