@@ -54,6 +54,8 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         if(courseDO==null){
             throw new QueryException("课程不存在");
         }
+        SysUserDO userDO = userMapper.selectById(courseDO.getTeacherId());
+        if(userDO==null)throw new QueryException("对应老师不存在");
         String name=subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("id", courseDO.getSubjectId())).getName();
         //id来找出课程数据
         QueryWrapper<CourInfDO> courseWrapper=new QueryWrapper<>();
@@ -75,10 +77,10 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
             mapEva.put(task.getId(),task.getTeacherId());
         }
         Map<String,Map<Integer,Integer>> map=new HashMap<>();
-        map.put(name+"课程的一些课程已被删除",null);
-        map.put("你所评教的上课时间在第"+coursePeriod.getStartWeek()+"周，星期"+coursePeriod.getDay()
+        map.put(userDO.getName()+"老师-"+name+"课程的一些课程已被删除",null);
+        map.put("你所评教的"+userDO.getName()+"老师的"+"上课时间在第"+coursePeriod.getStartWeek()+"周，星期"+coursePeriod.getDay()
                 +"，第"+coursePeriod.getStartTime()+"-"+coursePeriod.getEndTime()+"节，"+name+"课程已经被删除，故已取消您对该课程的评教任务",mapEva);
-        LogUtils.logContent(name+"(课程ID:"+id+")的一些课");
+        LogUtils.logContent(userDO.getName()+"老师-"+name+"(课程ID:"+id+")的一些课");
         return map;
     }
 
