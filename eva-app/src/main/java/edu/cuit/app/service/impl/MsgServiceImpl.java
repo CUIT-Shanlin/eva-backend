@@ -168,6 +168,18 @@ public class MsgServiceImpl implements IMsgService {
         }
     }
 
+    @Override
+    @Transactional
+    public void handleUserSendMessage(SendMessageCmd cmd) {
+        sendMessage(msgBizConvertor.toMessageBO(cmd,checkAndGetUserId()));
+    }
+
+    @Override
+    @Transactional
+    public void deleteUserSelfTargetTypeMsg(Integer type, Integer mode) {
+        msgGateway.deleteTargetTypeMessage(checkAndGetUserId(),mode,type);
+    }
+
     private SingleCourseCO getSingleCourseByTaskId(Integer taskId) {
         return evaQueryGateway.oneEvaTaskInfo(taskId).map(taskEntity -> {
             // 获取评教信息对应课程
@@ -176,12 +188,6 @@ public class MsgServiceImpl implements IMsgService {
             return courseBizConvertor.toSingleCourseCO(courInf,
                     evaQueryGateway.getEvaNumByCourInfo(courInf.getId()).orElse(0));
         }).orElse(null);
-    }
-
-    @Override
-    @Transactional
-    public void handleUserSendMessage(SendMessageCmd cmd) {
-        sendMessage(msgBizConvertor.toMessageBO(cmd,checkAndGetUserId()));
     }
 
     private Integer checkAndGetUserId() {
@@ -196,4 +202,5 @@ public class MsgServiceImpl implements IMsgService {
                     return sysException;
                 });
     }
+
 }

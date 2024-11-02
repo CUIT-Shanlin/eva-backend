@@ -63,4 +63,12 @@ public interface MsgGateway {
      * @param type 消息类型（0：待办，1：通知，2：提醒，3：警告；null或者负数：全部）
      */
     void deleteMessage(Integer taskId,Integer type);
+
+    /**
+     * 删除指定类型的消息
+     * @param userId 用户id
+     * @param mode 确定是普通消息还是评教消息，0: 普通消息；1：评教消息，负数：全部
+     * @param type 消息类型（0：待办，1：通知，2：提醒，3：警告；null或者负数：全部）
+     */
+    void deleteTargetTypeMessage(Integer userId,Integer mode,Integer type);
 }
