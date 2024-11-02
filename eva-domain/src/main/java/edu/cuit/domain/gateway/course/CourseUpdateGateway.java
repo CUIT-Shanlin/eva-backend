@@ -40,7 +40,7 @@ public interface CourseUpdateGateway {
     void updateCourses(Integer semId, UpdateCoursesCmd updateCoursesCmd);
 
     /**
-     * 修改一节课程
+     * 修改一节课
      *@param semId 学期id
      *@param updateSingleCourseCmd 修改课程信息
      *@param userName 用户名
@@ -85,7 +85,7 @@ public interface CourseUpdateGateway {
      *  @param semester 学期
      *
      * */
-    Void importCourseFile( Map<String, List<CourseExcelBO>> courseExce, SemesterCO semester, Integer type);
+    Map<String,List<Integer>> importCourseFile( Map<String, List<CourseExcelBO>> courseExce, SemesterCO semester, Integer type);
 
     /**
      * 修改自己的一门课程信息及其课程时段

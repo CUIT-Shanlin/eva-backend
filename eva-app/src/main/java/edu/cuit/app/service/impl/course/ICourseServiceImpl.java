@@ -35,6 +35,7 @@ public class ICourseServiceImpl implements ICourseService {
     private final CourseBizConvertor courseConvertor;
     private final UserQueryGateway userQueryGateway;
     private final MsgResult msgResult;
+    private  final MsgServiceImpl msgService;
     @CheckSemId
     @Override
     public List<List<Integer>> courseNum(Integer semId, Integer week) {
@@ -88,7 +89,8 @@ public class ICourseServiceImpl implements ICourseService {
             if(stringListEntry.getValue()==null){
                 msgResult.SendMsgToAll(map1,userId.orElseThrow(() -> new QueryException("请先登录")));
             }else if(!stringListEntry.getValue().isEmpty()){
-                msgResult.toSendMsg(map1,userId.orElseThrow(() -> new QueryException("请先登录")));
+                msgResult.toNormalMsg(map1,userId.orElseThrow(() -> new QueryException("请先登录")));
+                stringListEntry.getValue().forEach((k,v)->msgService.deleteEvaMsg(k,null));
             }
         }
     }
@@ -98,8 +100,7 @@ public class ICourseServiceImpl implements ICourseService {
     public void allocateTeacher(Integer semId, AlignTeacherCmd alignTeacherCmd) {
         Map<String, Map<Integer,Integer>> map = courseUpdateGateway.assignTeacher(semId, alignTeacherCmd);
         Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
-        msgResult.toSendMsg(map, userId.orElseThrow(() -> new QueryException("请先登录")));
-
+        msgResult.sendMsgtoTeacher(map, userId.orElseThrow(() -> new QueryException("请先登录")));
     }
 
     @CheckSemId
@@ -113,7 +114,8 @@ public class ICourseServiceImpl implements ICourseService {
             if(stringMapEntry.getValue()==null){
                 msgResult.SendMsgToAll(map1, userId.orElseThrow(() -> new QueryException("请先登录")));
             }else if(!stringMapEntry.getValue().isEmpty()){
-                msgResult.toSendMsg(map1, userId.orElseThrow(() -> new QueryException("请先登录")));
+                msgResult.toNormalMsg(map1, userId.orElseThrow(() -> new QueryException("请先登录")));
+                stringMapEntry.getValue().forEach((k,v)->msgService.deleteEvaMsg(k,null));
             }
         }
 

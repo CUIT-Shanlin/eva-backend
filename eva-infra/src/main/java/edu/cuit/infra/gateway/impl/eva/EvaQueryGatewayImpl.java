@@ -168,8 +168,8 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             }
             courseWrapper.in("teacher_id",sysUserIds);
         }
-        if(CollectionUtil.isNotEmpty(query.getQueryObj().getCourseIds())){
-            courseWrapper.in("id",query.getQueryObj().getCourseIds());
+        if(CollectionUtil.isNotEmpty(query.getQueryObj().getCourseIds())){//课程id变成科目id
+            courseWrapper.in("subject_id",query.getQueryObj().getCourseIds());
         }
         if(semId!=null){
             courseWrapper.eq("semester_id",semId);
@@ -341,12 +341,21 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             List<Integer> subjectIds = subjectMapper.selectList(subjectWrapper).stream().map(SubjectDO::getId).toList();
 
             if (CollectionUtil.isNotEmpty(teacherIds) || CollectionUtil.isNotEmpty(subjectIds)) {
-                if (CollectionUtil.isNotEmpty(teacherIds)) {
+                if(CollectionUtil.isNotEmpty(teacherIds) && CollectionUtil.isNotEmpty(subjectIds)){
                     query.in("teacher_id", teacherIds);
-                }
-                if (CollectionUtil.isNotEmpty(subjectIds)) {
+                    query.or();
                     query.in("subject_id", subjectIds);
+                }else {
+                    if (CollectionUtil.isNotEmpty(teacherIds)) {
+                        query.in("teacher_id", teacherIds);
+                    }
+                    if (CollectionUtil.isNotEmpty(subjectIds)) {
+                        query.in("subject_id", subjectIds);
+                    }
                 }
+            }else {
+                List list=new ArrayList();
+                return list;
             }
         }
         if (id != null) {
@@ -411,12 +420,18 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             List<Integer> subjectIds = subjectMapper.selectList(subjectWrapper).stream().map(SubjectDO::getId).toList();
 
             if (CollectionUtil.isNotEmpty(teacherIds) || CollectionUtil.isNotEmpty(subjectIds)) {
-                //评教记录-》评教任务-》课程详情表->课程表->学期id
-                if (CollectionUtil.isNotEmpty(teacherIds)) {
+                if(CollectionUtil.isNotEmpty(teacherIds) && CollectionUtil.isNotEmpty(subjectIds)) {
                     query.in("teacher_id", teacherIds);
-                }
-                if (CollectionUtil.isNotEmpty(subjectIds)) {
+                    query.or();
                     query.in("subject_id", subjectIds);
+                }else {
+                    //评教记录-》评教任务-》课程详情表->课程表->学期id
+                    if (CollectionUtil.isNotEmpty(teacherIds)) {
+                        query.in("teacher_id", teacherIds);
+                    }
+                    if (CollectionUtil.isNotEmpty(subjectIds)) {
+                        query.in("subject_id", subjectIds);
+                    }
                 }
             }else{
                 List list=new ArrayList();
@@ -544,7 +559,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         }
         EvaTaskDO evaTaskDO=evaTaskMapper.selectOne(new QueryWrapper<EvaTaskDO>().eq("id",id));
         if(evaTaskDO==null){
-            throw new QueryException("并没有找到相应的任务");
+            return Optional.empty();
         }
         //老师
         Supplier<UserEntity> teacher=()->toUserEntity(evaTaskDO.getTeacherId());
@@ -913,7 +928,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             }
         }
         if(CollectionUtil.isEmpty(dataArr)){
-            throw new QueryException("数据故障，显示为0");
+            return Optional.empty();
         }
         //给收集的信息co排个序
         for(int i=0;i<dataArr.size()-1;i++){
@@ -959,7 +974,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             }
         }
         if(CollectionUtil.isEmpty(dataArr)){
-            throw new QueryException("数据故障，显示为0");
+            return Optional.empty();
         }
         //给收集的信息co排个序
         for(int i=0;i<dataArr.size()-1;i++){

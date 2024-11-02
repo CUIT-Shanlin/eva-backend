@@ -269,19 +269,15 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     @Override
     public List<SingleCourseCO> getPeriodInfo(Integer semId, CourseQuery courseQuery) {
         QueryWrapper<CourInfDO> wrapper = new QueryWrapper<>();
-        if(courseQuery.getDay()!=null){
-            wrapper.eq("day", courseQuery.getDay());
-        }
-        if(courseQuery.getNum()!=null){
-            wrapper.eq("start_time", courseQuery.getNum());
-        }
-        if(courseQuery.getWeek()!=null){
-            wrapper.eq("week", courseQuery.getWeek());
-        }
+        wrapper.eq("week",courseQuery.getWeek())
+                .eq("day",courseQuery.getDay())
+                .and(wrapper1->wrapper1.eq("start_time",courseQuery.getNum())
+                        .or()
+                        .eq("start_time",courseQuery.getNum()+1));
         //先根据courseQuery中的信息来查询courInfoDO列表(课程详情表)
 
         List<CourInfDO> courInfDOS = courInfMapper.selectList(wrapper);
-        if(courInfDOS.isEmpty())throw new QueryException("暂时还没有该课程信息");
+//        if(courInfDOS.isEmpty())throw new QueryException("暂时还没有该课程信息");
         //根据courseInfDo中的课程id和semid来筛选课程实体
         List<Integer> list = courInfDOS.stream().map(CourInfDO::getCourseId).toList();
         List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId).in(!list.isEmpty(),"id",list));
@@ -292,16 +288,18 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
             SingleCourseCO singleCourseCO = new SingleCourseCO();
             singleCourseCO.setId(courInfDO.getId());
             singleCourseCO.setLocation(courInfDO.getLocation());
-            CourseTime courseTime = new CourseTime().setWeek(courseQuery.getWeek()).setDay(courseQuery.getDay()).setStartTime(courseQuery.getNum());
-            if(courseQuery.getNum()!=null){
-                courseTime.setEndTime(courseQuery.getNum()+1);
-            }
+            CourseTime courseTime = new CourseTime().setWeek(courseQuery.getWeek()).setDay(courseQuery.getDay()).setStartTime(courInfDO.getStartTime()).setEndTime(courInfDO.getEndTime());
             singleCourseCO.setTime(courseTime);
-            assert courseDO != null;
             singleCourseCO.setTeacherName(userMapper.selectById(courseDO.getTeacherId()).getName());
             singleCourseCO.setName(subjectMapper.selectById(courseDO.getSubjectId()).getName());
             //根据课程id到评教任务表中统计数量
-            singleCourseCO.setEvaNum(Math.toIntExact(evaTaskMapper.selectCount(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId()))));
+            singleCourseCO.setEvaNum(Math.toIntExact(evaTaskMapper.selectCount(new QueryWrapper<EvaTaskDO>()
+                    .eq("cour_inf_id", courInfDO.getId())
+                    .eq("status",0)
+                    .or()
+                    .eq("status",1)
+                    .eq("cour_inf_id",courInfDO.getId())
+            )));
             singleCourseCOList.add(singleCourseCO);
         }
         return singleCourseCOList;
@@ -619,7 +617,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
                 return course;
             }
         }
-        return null;
+        return new CourseDO();
     }
     private CourseEntity toCourseEntity(Integer courseId,Integer semId){
         //构造semester
