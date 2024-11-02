@@ -31,7 +31,16 @@ public abstract class MsgBizConvertor {
     })
     public abstract GenericResponseMsg toResponseMsg(MsgEntity msg);
 
+    @Mappings({
+            @Mapping(target = "senderName", expression = "java(msg.getIsShowName() == null ? senderName : (msg.getIsShowName() == 1 ? senderName : \"匿名用户\"))")
+    })
     public abstract GenericResponseMsg toResponseMsg(GenericRequestMsg msg,String senderName);
+
+    @Mappings({
+            @Mapping(target = "courseInfo",source = "singleCourseCO"),
+            @Mapping(target = "senderName", expression = "java(msg.getIsShowName() == null ? senderName : (msg.getIsShowName() == 1 ? senderName : \"匿名用户\"))")
+    })
+    public abstract EvaResponseMsg toEvaResponseMsg(GenericRequestMsg msg,String senderName,SingleCourseCO singleCourseCO);
 
     @Mappings({
             @Mapping(target = "isDisplayed", constant = "0"),

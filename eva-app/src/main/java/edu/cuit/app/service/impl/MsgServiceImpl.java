@@ -143,7 +143,12 @@ public class MsgServiceImpl implements IMsgService {
             } else senderName = "";
         } else senderName = "匿名用户";
         GenericRequestMsg requestMsg = msgBizConvertor.toRequestMsg(msg);
-        GenericResponseMsg responseMsg = msgBizConvertor.toResponseMsg(requestMsg, senderName);
+        GenericResponseMsg responseMsg;
+        if (msg.getMode() != null && msg.getMode() == 1) {
+            responseMsg = msgBizConvertor.toEvaResponseMsg(requestMsg,senderName,getSingleCourseByTaskId(msg.getTaskId()));
+        } else {
+            responseMsg = msgBizConvertor.toResponseMsg(requestMsg, senderName);
+        }
         // 判断是否为广播消息
         if (msg.getRecipientId() == null || msg.getRecipientId() < 0) {
             // 异步处理
@@ -161,6 +166,16 @@ public class MsgServiceImpl implements IMsgService {
             msgGateway.insertMessage(requestMsg);
             websocketManager.sendMessage(userQueryGateway.findUsernameById(msg.getRecipientId()).orElse(null),responseMsg);
         }
+    }
+
+    private SingleCourseCO getSingleCourseByTaskId(Integer taskId) {
+        return evaQueryGateway.oneEvaTaskInfo(taskId).map(taskEntity -> {
+            // 获取评教信息对应课程
+            SingleCourseEntity courInf = taskEntity.getCourInf();
+            // 转换为课程对象
+            return courseBizConvertor.toSingleCourseCO(courInf,
+                    evaQueryGateway.getEvaNumByCourInfo(courInf.getId()).orElse(0));
+        }).orElse(null);
     }
 
     @Override
