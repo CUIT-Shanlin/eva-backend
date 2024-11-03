@@ -41,7 +41,7 @@ public class MenuQueryGatewayImpl implements MenuQueryGateway {
     }
 
     @Override
-    @LocalCached(key = "#{@cacheConstants.ONE_MENU + #id}")
+    @LocalCached(key = "#{@userCacheConstants.ONE_MENU + #id}")
     public Optional<MenuEntity> getOne(Integer id) {
         Optional<MenuEntity> menuEntity = Optional.ofNullable(menuConvertor.toMenuEntity(menuMapper.selectById(id)));
         menuEntity.ifPresent(menu -> menu.setChildren(() -> new ArrayList<>(getChildrenMenus(menu.getId()))));
@@ -49,7 +49,7 @@ public class MenuQueryGatewayImpl implements MenuQueryGateway {
     }
 
     @Override
-    @LocalCached(key = "#{@cacheConstants.MENU_CHILDREN + #parentMenuId}")
+    @LocalCached(key = "#{@userCacheConstants.MENU_CHILDREN + #parentMenuId}")
     public List<MenuEntity> getChildrenMenus(Integer parentMenuId) {
         LambdaQueryWrapper<SysMenuDO> menuQuery = Wrappers.lambdaQuery();
         // 查询直接子菜单

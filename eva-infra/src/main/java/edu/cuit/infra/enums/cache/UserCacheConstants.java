@@ -5,8 +5,8 @@ import org.springframework.stereotype.Component;
 /**
  * 缓存键常量
  */
-@Component("cacheConstants")
-public class CacheConstants {
+@Component("userCacheConstants")
+public class UserCacheConstants {
 
     // 单个菜单
     public final String ONE_MENU = "menu.one.";
