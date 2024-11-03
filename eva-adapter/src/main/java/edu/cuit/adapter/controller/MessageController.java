@@ -96,4 +96,17 @@ public class MessageController {
         msgService.handleUserSendMessage(msg);
         return CommonResult.success();
     }
+
+    /**
+     * 删除自己指定类型的所有消息，指定type指定mode
+     * @param mode 确定是普通消息还是评教消息，0: 普通消息；1：评教消息，负数：全部
+     * @param type 消息类型（0：待办，1：通知，2：提醒，3：警告；null或者负数：全部）
+     */
+    @DeleteMapping("/tips/{mode}/{type}")
+    @SaCheckLogin
+    public CommonResult<Void> deleteSelfTargetTypeMsg(@PathVariable("mode") Integer mode,
+                                                      @PathVariable("type") Integer type) {
+        msgService.deleteUserSelfTargetTypeMsg(type,mode);
+        return CommonResult.success();
+    }
 }
