@@ -67,7 +67,7 @@
       <dependency>
         <groupId>edu.cuit.zhuyimeng</groupId>
         <artifactId>zym-spring-boot-starter-cache</artifactId>
-        <version>1.3.5</version>
+        <version>1.3.6</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
