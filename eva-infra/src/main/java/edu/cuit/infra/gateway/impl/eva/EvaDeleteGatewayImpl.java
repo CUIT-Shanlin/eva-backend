@@ -12,6 +12,8 @@ import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
+import edu.cuit.infra.enums.cache.EvaCacheConstants;
+import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
@@ -30,6 +32,8 @@ public class EvaDeleteGatewayImpl implements EvaDeleteGateway {
     private final CourOneEvaTemplateMapper courOneEvaTemplateMapper;
     private final CourseMapper courseMapper;
     private final SysUserMapper sysUserMapper;
+    private final EvaCacheConstants evaCacheConstants;
+    private final LocalCacheManager localCacheManager;
     @Override
     @Transactional
     public Void deleteEvaRecord(List<Integer> ids) {
@@ -43,6 +47,8 @@ public class EvaDeleteGatewayImpl implements EvaDeleteGateway {
                 LogUtils.logContent(sysUserMapper.selectById(evaTaskMapper.selectById(formRecordDO.getTaskId()).getTeacherId()).getName()
                         +" 用户评教任务ID为"+formRecordDO.getTaskId()+"的评教记录");
                 formRecordMapper.delete(formRecordWrapper);
+                //删除缓存
+                localCacheManager.invalidateCache(evaCacheConstants.ONE_LOG+id);
             }
         }
         return null;
@@ -71,6 +77,8 @@ public class EvaDeleteGatewayImpl implements EvaDeleteGateway {
                     //删除模板
                     LogUtils.logContent(formTemplateMapper.selectById(id).getName() +" 评教模板");
                     formTemplateMapper.delete(formTemplateWrapper);
+                    //删除缓存
+                    localCacheManager.invalidateCache(evaCacheConstants.ONE_TEMPLATE+id);
                 }
             }else{
                 throw new UpdateException("该模板已经被课程分配，无法再进行删除");
