@@ -24,12 +24,14 @@ import edu.cuit.infra.dal.database.dataobject.user.SysRoleDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserRoleDO;
 import edu.cuit.infra.dal.database.mapper.user.*;
+import edu.cuit.infra.enums.cache.UserCacheConstants;
 import edu.cuit.infra.util.QueryUtils;
+import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
+import edu.cuit.zhuyimeng.framework.cache.aspect.annotation.local.LocalCached;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -49,13 +51,18 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
     private final RoleConverter roleConverter;
     private final PaginationConverter paginationConverter;
 
+    private final LocalCacheManager cacheManager;
+    private final UserCacheConstants userCacheConstants;
+
     @Override
+    @LocalCached(key = "#{@userCacheConstants.ONE_USER_ID + id}")
     public Optional<UserEntity> findById(Integer id) {
         SysUserDO userDO = userMapper.selectById(id);
         return Optional.ofNullable(fileUserEntity(userDO));
     }
 
     @Override
+    @LocalCached(key = "#{@userCacheConstants.ONE_USER_USERNAME + username}")
     public Optional<UserEntity> findByUsername(String username) {
         //查询用户
         LambdaQueryWrapper<SysUserDO> userQuery = Wrappers.lambdaQuery();
@@ -66,6 +73,13 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
 
     @Override
     public Optional<Integer> findIdByUsername(String username) {
+
+        Optional<UserEntity> cachedUser = cacheManager.getCache(userCacheConstants.ONE_USER_USERNAME + username);
+
+        if (cachedUser != null && cachedUser.isPresent()) {
+            return Optional.ofNullable(cachedUser.get().getId());
+        }
+
         LambdaQueryWrapper<SysUserDO> userQuery = Wrappers.lambdaQuery();
         userQuery.select(SysUserDO::getId)
                 .eq(SysUserDO::getUsername,username);
@@ -74,6 +88,13 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
 
     @Override
     public Optional<String> findUsernameById(Integer id) {
+
+        Optional<UserEntity> cachedUser = cacheManager.getCache(userCacheConstants.ONE_USER_ID + id);
+
+        if (cachedUser != null && cachedUser.isPresent()) {
+            return Optional.ofNullable(cachedUser.get().getUsername());
+        }
+
         LambdaQueryWrapper<SysUserDO> userQuery = Wrappers.lambdaQuery();
         userQuery.select(SysUserDO::getUsername)
                 .eq(SysUserDO::getId,id);
@@ -81,6 +102,7 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
     }
 
     @Override
+    @LocalCached(key = "#{@userCacheConstants.ALL_USER_ID}")
     public List<Integer> findAllUserId() {
         LambdaQueryWrapper<SysUserDO> userQuery = Wrappers.lambdaQuery();
         userQuery.select(SysUserDO::getId);
@@ -88,6 +110,7 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
     }
 
     @Override
+    @LocalCached(key = "#{@userCacheConstants.ALL_USER_USERNAME}")
     public List<String> findAllUsername() {
         LambdaQueryWrapper<SysUserDO> userQuery = Wrappers.lambdaQuery();
         userQuery.select(SysUserDO::getUsername);
@@ -116,6 +139,7 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
     }
 
     @Override
+    @LocalCached(key = "#{@userCacheConstants.ALL_USER}")
     public List<SimpleResultCO> allUser() {
         LambdaQueryWrapper<SysUserDO> userQuery = Wrappers.lambdaQuery();
         userQuery.select(SysUserDO::getId,SysUserDO::getName);
@@ -123,6 +147,7 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
     }
 
     @Override
+    @LocalCached(key = "#{@userCacheConstants.USER_ROLE + userId}")
     public List<Integer> getUserRoleIds(Integer userId) {
         MPJLambdaWrapper<SysRoleDO> roleQuery = MPJWrappers.lambdaJoin();
         roleQuery
@@ -136,12 +161,24 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
 
     @Override
     public Boolean isUsernameExist(String username) {
-        return userMapper.selectCount(Wrappers.lambdaQuery(SysUserDO.class)
-                .select(SysUserDO::getUsername).eq(SysUserDO::getUsername,username)) >= 1;
+
+        Optional<UserEntity> cachedUser = cacheManager.getCache(userCacheConstants.ONE_USER_USERNAME + username);
+        if (cachedUser != null && cachedUser.isPresent()) {
+            return true;
+        }
+
+        return userMapper.exists(Wrappers.lambdaQuery(SysUserDO.class)
+                .select(SysUserDO::getUsername).eq(SysUserDO::getUsername,username));
     }
 
     @Override
     public Optional<Integer> getUserStatus(Integer id) {
+
+        Optional<UserEntity> cachedUser = cacheManager.getCache(userCacheConstants.ONE_USER_ID + id);
+        if (cachedUser != null && cachedUser.isPresent()) {
+            return Optional.ofNullable(cachedUser.get().getStatus());
+        }
+
         LambdaQueryWrapper<SysUserDO> userQuery = Wrappers.lambdaQuery();
         userQuery.select(SysUserDO::getStatus)
                 .eq(SysUserDO::getId,id);
