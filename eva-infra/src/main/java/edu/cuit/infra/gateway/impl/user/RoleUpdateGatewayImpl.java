@@ -16,6 +16,8 @@ import edu.cuit.infra.dal.database.dataobject.user.SysUserRoleDO;
 import edu.cuit.infra.dal.database.mapper.user.SysRoleMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysRoleMenuMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserRoleMapper;
+import edu.cuit.infra.enums.cache.UserCacheConstants;
+import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -36,12 +38,16 @@ public class RoleUpdateGatewayImpl implements RoleUpdateGateway {
 
     private final RoleConverter roleConverter;
 
+    private final LocalCacheManager cacheManager;
+    private final UserCacheConstants userCacheConstants;
+
     @Override
     public void updateRoleInfo(UpdateRoleCmd cmd) {
         SysRoleDO tmp = checkRoleId(Math.toIntExact(cmd.getId()));
         if (cmd.getStatus() == 0) checkDefaultRole(Math.toIntExact(cmd.getId()));
         SysRoleDO roleDO = roleConverter.toRoleDO(cmd);
         roleMapper.updateById(roleDO);
+        handleRoleUpdateCache(Math.toIntExact(cmd.getId()));
         LogUtils.logContent(tmp.getRoleName() + "角色(" + tmp.getId() + ")的信息");
     }
 
@@ -52,6 +58,7 @@ public class RoleUpdateGatewayImpl implements RoleUpdateGateway {
         LambdaUpdateWrapper<SysRoleDO> roleUpdate = Wrappers.lambdaUpdate();
         roleUpdate.set(SysRoleDO::getStatus,status).eq(SysRoleDO::getId,roleId);
         roleMapper.update(roleUpdate);
+        handleRoleUpdateCache(roleId);
         LogUtils.logContent(tmp.getRoleName() + " 角色(" + tmp.getId() + ")的状态");
     }
 
@@ -63,6 +70,8 @@ public class RoleUpdateGatewayImpl implements RoleUpdateGateway {
         userRoleMapper.delete(Wrappers.lambdaQuery(SysUserRoleDO.class).eq(SysUserRoleDO::getRoleId,roleId));
         roleMenuMapper.delete(Wrappers.lambdaQuery(SysRoleMenuDO.class).eq(SysRoleMenuDO::getRoleId,roleId));
 
+        handleRoleUpdateCache(roleId);
+
         LogUtils.logContent(tmp.getRoleName() + "角色(" + tmp.getId() + ")");
     }
 
@@ -71,14 +80,15 @@ public class RoleUpdateGatewayImpl implements RoleUpdateGateway {
         List<SysRoleDO> tmp = new ArrayList<>();
         for (Integer id : ids) {
             checkDefaultRole(id);
-            tmp.add(checkRoleId(id));
+            SysRoleDO roleTmp = checkRoleId(id);
+            tmp.add(roleTmp);
+            handleRoleUpdateCache(roleTmp.getId());
         }
         for (Integer id : ids) {
             roleMapper.deleteById(id);
             userRoleMapper.delete(Wrappers.lambdaQuery(SysUserRoleDO.class).eq(SysUserRoleDO::getRoleId,id));
             roleMenuMapper.delete(Wrappers.lambdaQuery(SysRoleMenuDO.class).eq(SysRoleMenuDO::getRoleId,id));
         }
-
         LogUtils.logContent(tmp + " 角色");
     }
 
@@ -96,7 +106,7 @@ public class RoleUpdateGatewayImpl implements RoleUpdateGateway {
                     .setMenuId(id)
                     .setRoleId(roleId));
         }
-
+        cacheManager.invalidateCache(userCacheConstants.ROLE_MENU + roleId);
         LogUtils.logContent(tmp.getRoleName() + " 角色(" + tmp.getId() + ")的权限");
     }
 
@@ -105,6 +115,13 @@ public class RoleUpdateGatewayImpl implements RoleUpdateGateway {
         SysRoleDO roleDO = roleConverter.toRoleDO(cmd);
         if (isRoleNameExisted(cmd.getRoleName())) throw new BizException("角色名称已存在");
         roleMapper.insert(roleDO);
+        handleRoleUpdateCache(roleDO.getId());
+    }
+
+    private void handleRoleUpdateCache(Integer roleId) {
+        cacheManager.invalidateCache(userCacheConstants.ALL_ROLE);
+        cacheManager.invalidateCache(userCacheConstants.ONE_ROLE + roleId);
+        cacheManager.invalidateCache(userCacheConstants.ROLE_MENU + roleId);
     }
 
     private boolean isRoleNameExisted(String roleName) {

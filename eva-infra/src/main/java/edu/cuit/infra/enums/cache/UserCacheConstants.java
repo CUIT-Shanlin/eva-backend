@@ -8,7 +8,9 @@ import org.springframework.stereotype.Component;
 @Component("userCacheConstants")
 public class UserCacheConstants {
 
-    // 单个菜单
+//    权限相关
+
+    // 单个菜单(ID)
     public final String ONE_MENU = "menu.one.";
 
     // 某id菜单的子菜单
@@ -16,4 +18,36 @@ public class UserCacheConstants {
 
     // 角色权限
     public final String ROLE_MENU = "role.perm.";
+
+//    角色相关
+
+    // 单个角色(ID)
+    public final String ONE_ROLE = "role.one.";
+
+    // 所有角色
+    public final String ALL_ROLE = "role.all";
+
+    // 默认角色
+    public final String DEFAULT_ROLE = "role.default.";
+
+    // 用户角色
+    public final String USER_ROLE = "user.role.";
+
+//    用户相关
+
+    // 单个用户(ID)
+    public final String ONE_USER_ID = "user.one.id.";
+
+    // 单个用户(ID)
+    public final String ONE_USER_USERNAME = "user.one.username.";
+
+    // 所有用户id
+    public final String ALL_USER_ID = "user.all.id";
+
+    // 所有用户用户名
+    public final String ALL_USER_USERNAME = "user.all.username";
+
+    // 所有用户
+    public final String ALL_USER = "user.all";
+
 }
