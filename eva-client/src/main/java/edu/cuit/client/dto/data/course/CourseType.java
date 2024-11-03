@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 @Accessors(chain = true)
 public class CourseType extends DTO {
     /**
-     * 课程id
+     * id
      */
     private Integer id;
 
