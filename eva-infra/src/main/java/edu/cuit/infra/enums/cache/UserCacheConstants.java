@@ -50,4 +50,7 @@ public class UserCacheConstants {
     // 所有用户
     public final String ALL_USER = "user.all";
 
+    // 所有专业
+    public final String ALL_DEPARTMENT = "department.all";
+
 }

@@ -163,6 +163,7 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
         cacheManager.invalidateCache(userCacheConstants.ALL_USER);
         cacheManager.invalidateCache(userCacheConstants.ALL_USER_USERNAME);
         cacheManager.invalidateCache(userCacheConstants.USER_ROLE + userId);
+        cacheManager.invalidateCache(userCacheConstants.ALL_DEPARTMENT);
     }
 
     /**
