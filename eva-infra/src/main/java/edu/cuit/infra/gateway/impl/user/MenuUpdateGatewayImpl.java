@@ -13,7 +13,7 @@ import edu.cuit.infra.dal.database.dataobject.user.SysMenuDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysRoleMenuDO;
 import edu.cuit.infra.dal.database.mapper.user.SysMenuMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysRoleMenuMapper;
-import edu.cuit.infra.enums.CacheConstants;
+import edu.cuit.infra.enums.cache.CacheConstants;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.cache.aspect.annotation.local.LocalCacheInvalidate;
 import edu.cuit.zhuyimeng.framework.cache.aspect.annotation.local.LocalCacheInvalidateContainer;

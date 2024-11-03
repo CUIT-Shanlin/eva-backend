@@ -1,4 +1,4 @@
-package edu.cuit.infra.enums;
+package edu.cuit.infra.enums.cache;
 
 import org.springframework.stereotype.Component;
 
