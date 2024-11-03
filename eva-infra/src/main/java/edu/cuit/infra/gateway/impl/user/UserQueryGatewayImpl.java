@@ -30,6 +30,8 @@ import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.cache.aspect.annotation.local.LocalCached;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -40,6 +42,10 @@ import java.util.function.Supplier;
 @RequiredArgsConstructor
 @Slf4j
 public class UserQueryGatewayImpl implements UserQueryGateway {
+
+    @Autowired
+    @Lazy
+    private UserQueryGateway userQueryGateway;
 
     private final SysUserMapper userMapper;
     private final SysRoleMapper roleMapper;
@@ -55,14 +61,14 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
     private final UserCacheConstants userCacheConstants;
 
     @Override
-    @LocalCached(key = "#{@userCacheConstants.ONE_USER_ID + id}")
+    @LocalCached(key = "#{@userCacheConstants.ONE_USER_ID + #id}")
     public Optional<UserEntity> findById(Integer id) {
         SysUserDO userDO = userMapper.selectById(id);
         return Optional.ofNullable(fileUserEntity(userDO));
     }
 
     @Override
-    @LocalCached(key = "#{@userCacheConstants.ONE_USER_USERNAME + username}")
+    @LocalCached(key = "#{@userCacheConstants.ONE_USER_USERNAME + #username}")
     public Optional<UserEntity> findByUsername(String username) {
         //查询用户
         LambdaQueryWrapper<SysUserDO> userQuery = Wrappers.lambdaQuery();
@@ -147,7 +153,7 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
     }
 
     @Override
-    @LocalCached(key = "#{@userCacheConstants.USER_ROLE + userId}")
+    @LocalCached(key = "#{@userCacheConstants.USER_ROLE + #userId}")
     public List<Integer> getUserRoleIds(Integer userId) {
         MPJLambdaWrapper<SysRoleDO> roleQuery = MPJWrappers.lambdaJoin();
         roleQuery
@@ -192,7 +198,7 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
     private UserEntity fileUserEntity(SysUserDO userDO) {
         //查询角色
         LambdaQueryWrapper<SysRoleDO> roleQuery = new LambdaQueryWrapper<>();
-        List<Integer> userRoleIds = getUserRoleIds(userDO.getId());
+        List<Integer> userRoleIds = userQueryGateway.getUserRoleIds(userDO.getId());
         List<SysRoleDO> roles;
         if (userRoleIds.isEmpty()) {
             roles = List.of();

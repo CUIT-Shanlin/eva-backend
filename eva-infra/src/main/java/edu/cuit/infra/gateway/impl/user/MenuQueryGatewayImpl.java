@@ -11,6 +11,8 @@ import edu.cuit.infra.dal.database.dataobject.user.SysMenuDO;
 import edu.cuit.infra.dal.database.mapper.user.SysMenuMapper;
 import edu.cuit.zhuyimeng.framework.cache.aspect.annotation.local.LocalCached;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -20,6 +22,10 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class MenuQueryGatewayImpl implements MenuQueryGateway {
+
+    @Autowired
+    @Lazy
+    private MenuQueryGateway menuQueryGateway;
 
     private final SysMenuMapper menuMapper;
 
@@ -34,7 +40,7 @@ public class MenuQueryGatewayImpl implements MenuQueryGateway {
         return menuMapper.selectList(menuQuery).stream()
                 .map(menuConvertor::toMenuEntity)
                 .peek(menuEntity -> {
-                    menuEntity.setChildren(() -> new ArrayList<>(getChildrenMenus(menuEntity.getId())));
+                    menuEntity.setChildren(() -> new ArrayList<>(menuQueryGateway.getChildrenMenus(menuEntity.getId())));
                     menuEntity.setParent(() -> getOne(menuEntity.getParentId()).orElse(null));
                 })
                 .toList();
@@ -44,7 +50,7 @@ public class MenuQueryGatewayImpl implements MenuQueryGateway {
     @LocalCached(key = "#{@userCacheConstants.ONE_MENU + #id}")
     public Optional<MenuEntity> getOne(Integer id) {
         Optional<MenuEntity> menuEntity = Optional.ofNullable(menuConvertor.toMenuEntity(menuMapper.selectById(id)));
-        menuEntity.ifPresent(menu -> menu.setChildren(() -> new ArrayList<>(getChildrenMenus(menu.getId()))));
+        menuEntity.ifPresent(menu -> menu.setChildren(() -> new ArrayList<>(menuQueryGateway.getChildrenMenus(menu.getId()))));
         return menuEntity;
     }
 
@@ -59,19 +65,20 @@ public class MenuQueryGatewayImpl implements MenuQueryGateway {
                 .stream().map(menuConvertor::toMenuEntity).toList();
         //递归填充子菜单
         for (MenuEntity menuEntity : menuEntities) {
-            menuEntity.setChildren(() -> new ArrayList<>(getChildrenMenus(menuEntity.getId())));
+            menuEntity.setChildren(() -> new ArrayList<>(menuQueryGateway.getChildrenMenus(menuEntity.getId())));
             menuEntity.setParent(() -> getOne(menuEntity.getParentId()).orElse(null));
         }
         return menuEntities;
     }
 
     @Override
+    @LocalCached(key = "#{@userCacheConstants.ALL_MENU}")
     public List<MenuEntity> getAllMenu() {
         List<SysMenuDO> sysMenuDOS = menuMapper.selectList(new LambdaQueryWrapper<>());
         return sysMenuDOS.stream()
                 .map(menuConvertor::toMenuEntity)
                 .peek(menu -> {
-                    menu.setChildren(() -> new ArrayList<>(getChildrenMenus(menu.getId())));
+                    menu.setChildren(() -> new ArrayList<>(menuQueryGateway.getChildrenMenus(menu.getId())));
                     menu.setParent(() -> getOne(menu.getParentId()).orElse(null));
                 })
                 .toList();
