@@ -21,8 +21,11 @@ import edu.cuit.infra.dal.database.dataobject.user.SysRoleMenuDO;
 import edu.cuit.infra.dal.database.mapper.user.SysMenuMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysRoleMapper;
 import edu.cuit.infra.util.QueryUtils;
+import edu.cuit.zhuyimeng.framework.cache.aspect.annotation.local.LocalCached;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -33,6 +36,10 @@ import java.util.Optional;
 @Slf4j
 public class RoleQueryGatewayImpl implements RoleQueryGateway {
 
+    @Autowired
+    @Lazy
+    private RoleQueryGateway roleQueryGateway;
+
     private final SysRoleMapper roleMapper;
     private final SysMenuMapper menuMapper;
 
@@ -42,6 +49,7 @@ public class RoleQueryGatewayImpl implements RoleQueryGateway {
     private final PaginationConverter paginationConverter;
 
     @Override
+    @LocalCached(key = "#{@userCacheConstants.ONE_ROLE + #roleId}")
     public Optional<RoleEntity> getById(Integer roleId) {
         Optional<RoleEntity> roleEntity = Optional.ofNullable(roleConverter.toRoleEntity(roleMapper.selectById(roleId)));
         roleEntity.ifPresent(this::fillRoleEntity);
@@ -63,6 +71,7 @@ public class RoleQueryGatewayImpl implements RoleQueryGateway {
     }
 
     @Override
+    @LocalCached(key = "#{@userCacheConstants.ALL_ROLE}")
     public List<SimpleRoleInfoCO> allRole() {
         LambdaQueryWrapper<SysRoleDO> roleQuery = Wrappers.lambdaQuery();
         roleQuery.select(SysRoleDO::getId,SysRoleDO::getDescription,SysRoleDO::getRoleName);
@@ -70,6 +79,7 @@ public class RoleQueryGatewayImpl implements RoleQueryGateway {
     }
 
     @Override
+    @LocalCached(key = "#{@userCacheConstants.ROLE_MENU + #roleId}")
     public List<Integer> getRoleMenuIds(Integer roleId) {
         MPJLambdaWrapper<SysMenuDO> menuQuery = MPJWrappers.lambdaJoin();
         menuQuery.select(SysMenuDO::getId)
@@ -79,6 +89,7 @@ public class RoleQueryGatewayImpl implements RoleQueryGateway {
     }
 
     @Override
+    @LocalCached(key = "#{@userCacheConstants.DEFAULT_ROLE}")
     public Integer getDefaultRoleId() {
         LambdaQueryWrapper<SysRoleDO> roleQuery = Wrappers.lambdaQuery();
         roleQuery.select(SysRoleDO::getId).eq(SysRoleDO::getIsDefault,1);
@@ -95,7 +106,7 @@ public class RoleQueryGatewayImpl implements RoleQueryGateway {
      * 填充roleEntity字段
      */
     private void fillRoleEntity(RoleEntity roleEntity) {
-        roleEntity.setMenus(() -> getRoleMenuIds(roleEntity.getId())
+        roleEntity.setMenus(() -> roleQueryGateway.getRoleMenuIds(roleEntity.getId())
                 .stream().map(menuId -> menuQueryGateway.getOne(menuId).orElseThrow(() -> {
                     SysException sysException = new SysException("菜单查询异常，请联系管理员");
                     log.error("菜单查询异常，请联系管理员",sysException);

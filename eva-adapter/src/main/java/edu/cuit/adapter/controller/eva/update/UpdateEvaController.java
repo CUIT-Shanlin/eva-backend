@@ -63,7 +63,6 @@ public class UpdateEvaController {
     @PostMapping("/evaluate/task")
     public CommonResult<Void> postEvaTask(
             @Valid @RequestBody AddTaskCO addTaskCO){
-        System.out.println(addTaskCO);
         iEvaTaskService.postEvaTask(addTaskCO);
         return CommonResult.success(null);
     }
