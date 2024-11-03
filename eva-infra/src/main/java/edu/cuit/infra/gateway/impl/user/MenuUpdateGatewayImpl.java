@@ -52,6 +52,7 @@ public class MenuUpdateGatewayImpl implements MenuUpdateGateway {
         }
         menuMapper.updateById(menuDO);
 
+        localCacheManager.invalidateCache(userCacheConstants.ALL_MENU);
         LogUtils.logContent(tmp.getName() + " 权限的信息");
     }
 
@@ -61,6 +62,7 @@ public class MenuUpdateGatewayImpl implements MenuUpdateGateway {
         roleMenuMapper.delete(Wrappers.lambdaQuery(SysRoleMenuDO.class).eq(SysRoleMenuDO::getMenuId,menuId));
         deleteMenuAndChildren(menuId);
 
+        localCacheManager.invalidateCache(userCacheConstants.ALL_MENU);
         LogUtils.logContent(tmp.getName() + " 权限");
     }
 
@@ -74,6 +76,7 @@ public class MenuUpdateGatewayImpl implements MenuUpdateGateway {
             deleteMenuAndChildren(menuId);
         }
 
+        localCacheManager.invalidateCache(userCacheConstants.ALL_MENU);
         LogUtils.logContent(tmp + " 权限");
     }
 
@@ -84,6 +87,7 @@ public class MenuUpdateGatewayImpl implements MenuUpdateGateway {
             throw new BizException("父菜单ID: " + cmd.getParentId() + " 不存在");
         SysMenuDO menuDO = menuConvertor.toMenuDO(cmd);
         menuMapper.insert(menuDO);
+        localCacheManager.invalidateCache(userCacheConstants.ALL_MENU);
 
     }
 
