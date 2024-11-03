@@ -18,7 +18,9 @@ import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.course.*;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
+import edu.cuit.infra.enums.cache.CourseCacheConstants;
 import edu.cuit.infra.gateway.impl.course.operate.CourseImportExce;
+import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
@@ -47,6 +49,8 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     private final EvaTaskMapper evaTaskMapper;
     private final SysUserMapper userMapper;
     private final CourseImportExce courseImportExce;
+    private final LocalCacheManager localCacheManager;
+    private final CourseCacheConstants courseCacheConstants;
 
 
     /**
@@ -66,12 +70,11 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         }
         SysUserDO userDO = userMapper.selectById(courseDO.getTeacherId());
         if(updateCourseCmd.getIsUpdate()){
-
             Integer subjectId = courseDO.getSubjectId();
             //再根据subjectId更新对应科目表
             subjectMapper.update(courseConvertor.toSubjectDO(updateCourseCmd.getSubjectMsg()),new QueryWrapper<SubjectDO>().eq("id",subjectId));
-
             courseIdList.add(courseDO.getId());
+            localCacheManager.invalidateCache(courseCacheConstants.SUBJECT_LIST);
         }else{
             courseIdList.add(updateCourseCmd.getId());
             SubjectDO subjectDO = subjectMapper.selectById(courseDO.getSubjectId());
@@ -87,6 +90,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                 if(courseMapper.selectCount(new QueryWrapper<CourseDO>().eq("subject_id",subjectDO.getId()))==1){
                     subjectMapper.delete(new QueryWrapper<SubjectDO>().eq("id",subjectDO.getId()));
                 }
+                localCacheManager.invalidateCache(courseCacheConstants.SUBJECT_LIST);
             }
 
         }
@@ -119,6 +123,8 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         List<Integer> list1 = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id", list).eq("status", 0)).stream().map(EvaTaskDO::getTeacherId).toList();*/
        Map<String,Map<Integer,Integer>> map=new HashMap<>();
        map.put( userDO.getName()+"的"+updateCourseCmd.getSubjectMsg().getName()+"课程的信息被修改了",null);
+       //清缓存
+        localCacheManager.invalidateCache(courseCacheConstants.COURSE_LIST_BY_SEM+semId);
         return map;
 
     }
@@ -145,6 +151,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
             String name = subjectMapper.selectById(subjectId).getName();
             LogUtils.logContent(name+"(ID:"+i+")课程模板");
         }
+        localCacheManager.invalidateCache(courseCacheConstants.COURSE_LIST_BY_SEM+semId);
 
     }
 
@@ -238,7 +245,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         courseTypeDO.setUpdateTime(LocalDateTime.now());
         courseTypeMapper.update(courseTypeDO,new QueryWrapper<CourseTypeDO>().eq("id",courseType.getId()));
         LogUtils.logContent(courseType.getName()+"课程类型");
-
+        localCacheManager.invalidateCache(courseCacheConstants.COURSE_TYPE_LIST);
         return null;
     }
 
@@ -253,6 +260,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
             courseTypeDO.setName(courseType.getName());
             courseTypeDO.setDescription(courseType.getDescription());
             courseTypeMapper.insert(courseTypeDO);
+            localCacheManager.invalidateCache(courseCacheConstants.COURSE_TYPE_LIST);
         }else {
             throw new UpdateException("该课程类型已存在");
         }
@@ -394,7 +402,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         courseDOS.removeIf(aDo -> aDo.getId().equals(selfTeachCourseCO.getId()));
         SubjectDO subjectDO = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("id", courseDO.getSubjectId()));
         if(subjectDO==null)throw new QueryException("该课程对应的科目不存在");
-        msg=toJudge(subjectDO,selfTeachCourseCO);
+        msg=toJudge(courseDO,subjectDO,selfTeachCourseCO);
         //课程类型
         msg+=JudgeCourseType(courseDO,selfTeachCourseCO);
         //课程时间段
@@ -546,7 +554,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
 
     }
 
-    private String toJudge(SubjectDO subjectDO, SelfTeachCourseCO selfTeachCourseCO) {
+    private String toJudge(CourseDO courseDO,SubjectDO subjectDO, SelfTeachCourseCO selfTeachCourseCO) {
         String msg="";
         String name = subjectDO.getName();
         //0: 理论课相关默认；1: 实验课相关默认；
@@ -562,7 +570,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
            CourseDO course=new CourseDO();
            course.setSubjectId(subject.getId());
            courseMapper.update(course, new QueryWrapper<CourseDO>().eq("id", selfTeachCourseCO.getId()));
-
+            localCacheManager.invalidateCache(courseCacheConstants.SUBJECT_LIST,courseCacheConstants.COURSE_LIST_BY_SEM+courseDO.getSemesterId());
                 return msg+name+"课程的名称被改成了"+subjectDO.getName()+"，类型是"+natureExp+"。";
         }
         return "";
@@ -616,12 +624,14 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
             //向subject表插入数据并返回主键ID
             subjectMapper.insert(subjectDO);
             subjectId=subjectDO.getId();
+            localCacheManager.invalidateCache(courseCacheConstants.SUBJECT_LIST);
         }else {
             subjectId=subjectDO1.getId();
         }
         //向course表中插入数据
         CourseDO courseDO = courseConvertor.toCourseDO(courseInfo, subjectId, teacherId, semId);
         courseMapper.insert(courseDO);
+        localCacheManager.invalidateCache(courseCacheConstants.COURSE_LIST_BY_SEM+semId);
         //再根据teacherId和subjectId又将他查出来
        Integer courseDOId = courseDO.getId();
         //插入课程类型

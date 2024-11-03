@@ -12,6 +12,8 @@ import edu.cuit.infra.dal.database.mapper.course.*;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
+import edu.cuit.infra.enums.cache.CourseCacheConstants;
+import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
@@ -33,8 +35,9 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
     private final CourseTypeMapper courseTypeMapper;
     private final SubjectMapper subjectMapper;
     private final EvaTaskMapper evaTaskMapper;
-    private final FormRecordMapper formRecordMapper;
     private final SysUserMapper userMapper;
+    private final LocalCacheManager localCacheManager;
+    private final CourseCacheConstants courseCacheConstants;
 
 
 
@@ -102,10 +105,15 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         CourseDO courseDO = courseMapper.selectOne(courseWrapper);
        if(courseDO==null)throw new QueryException("课程已经被删除，或者不存在");
         String name = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("id", courseDO.getSubjectId())).getName();
+        if(courseMapper.selectCount(new QueryWrapper<CourseDO>().eq("semester_id",semId).eq("subject_id",courseDO.getSubjectId()))==1){
+            subjectMapper.delete(new QueryWrapper<SubjectDO>().eq("id",courseDO.getSubjectId()));
+            localCacheManager.invalidateCache(courseCacheConstants.SUBJECT_LIST);
+        }
         int delete = courseMapper.delete(courseWrapper);
        if(delete==0){
            throw new UpdateException("该课程不存在");
        }
+       localCacheManager.invalidateCache(courseCacheConstants.COURSE_LIST_BY_SEM+semId);
         //删除课程详情表
         UpdateWrapper<CourInfDO> courInfoWrapper=new UpdateWrapper<>();
         courInfoWrapper.eq("course_id",id);
@@ -163,6 +171,7 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         List<CourseTypeDO> courseTypeDOS = courseTypeMapper.selectList(courseTypeWrapper);
         courseTypeMapper.delete(courseTypeWrapper);
         courseTypeDOS.forEach(courseType->LogUtils.logContent(courseType.getName()+"课程类型"));
+        localCacheManager.invalidateCache(courseCacheConstants.COURSE_TYPE_LIST);
         return null;
     }
 
@@ -205,7 +214,7 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         Map<String,Map<Integer,Integer>> map=new HashMap<>();
         map.put("你所要评教的"+name+"课程被删除，已取消评教任务",mapEva);
         map.put(name+"课程已被删除",null);
-
+        localCacheManager.invalidateCache(courseCacheConstants.COURSE_LIST_BY_SEM+courseDO.getSemesterId());
         return map;
     }
 

@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.benmanes.caffeine.cache.Cache;
 import edu.cuit.client.bo.EvaProp;
 
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
@@ -50,12 +51,19 @@ import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.user.*;
+import edu.cuit.infra.enums.cache.CourseCacheConstants;
 import edu.cuit.infra.gateway.impl.course.operate.CourseRecommendExce;
 import edu.cuit.infra.util.QueryUtils;
+import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
+import edu.cuit.zhuyimeng.framework.cache.aspect.annotation.local.LocalCached;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.stereotype.Component;
+
+
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -89,12 +97,22 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     private final PaginationConverter paginationConverter;
     private final ObjectMapper objectMapper;
     private final FormTemplateMapper formTemplateMapper;
+    private final LocalCacheManager cacheManager;
+    private final CourseCacheConstants courseCacheConstants;
 
     @Override
     public PaginationResultEntity<CourseEntity> page(PagingQuery<CourseConditionalQuery> courseQuery, Integer semId) {
         if(courseQuery==null){
-            //获取所有的课程的基础信息
-            return getCourseList(semId);
+            PaginationResultEntity<CourseEntity> getCache = cacheManager.getCache(courseCacheConstants.COURSE_LIST_BY_SEM+semId);
+            if(getCache==null){
+                //获取所有的课程的基础信息
+                PaginationResultEntity<CourseEntity> courseList = getCourseList(semId);
+                //将courseList放入缓存中
+                cacheManager.putCache(courseCacheConstants.COURSE_LIST_BY_SEM+semId,courseList);
+               return courseList;
+            }else {
+                return getCache;
+            }
         }
         Page<CourseDO> pageCourse=new Page<>(courseQuery.getPage(),courseQuery.getSize());
         // 根据courseQuery中的departmentName以及courseQuery中的页数和一页显示数到userMapper中找对应数量的对应用户id，
@@ -228,6 +246,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     }
 
     @Override
+    @LocalCached(key = "#{@courseCacheConstants.SUBJECT_LIST}")
     public List<SubjectEntity> findSubjectInfo() {
         // 查询所有课程基础信息
         List<SubjectDO> subjectDOS = subjectMapper.selectList(null);
@@ -385,8 +404,16 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     @Override
     public PaginationResultEntity<CourseTypeEntity> pageCourseType(PagingQuery<GenericConditionalQuery> courseQuery) {
         if(courseQuery==null){
-            List<CourseTypeDO> courseTypeDOS = courseTypeMapper.selectList(null);
-            return paginationConverter.toPaginationEntity(new Page<>(1,courseTypeDOS.size()),courseTypeDOS.stream().map(courseConvertor::toCourseTypeEntity).toList());
+            PaginationResultEntity<CourseTypeEntity> getCache=cacheManager.getCache(courseCacheConstants.COURSE_TYPE_LIST);
+            if(getCache==null){
+                List<CourseTypeDO> courseTypeDOS = courseTypeMapper.selectList(null);
+                PaginationResultEntity<CourseTypeEntity> paginationEntity = paginationConverter
+                        .toPaginationEntity(new Page<>(1, courseTypeDOS.size()), courseTypeDOS.stream().map(courseConvertor::toCourseTypeEntity).toList());
+                cacheManager.putCache(courseCacheConstants.COURSE_TYPE_LIST,paginationEntity);
+                return paginationEntity;
+            }else{
+                return getCache;
+            }
         }
         Page<CourseTypeDO> page =new Page<>(courseQuery.getPage(),courseQuery.getSize());
 //        QueryWrapper<CourseTypeDO> queryWrapper = new QueryWrapper<>();
