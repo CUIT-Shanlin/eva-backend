@@ -1397,10 +1397,9 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
                 if (CollectionUtil.isEmpty(evaTaskDOS)) {
                     throw new QueryException("并未找到相关评教任务");
                 }
-                List<Integer> evaTaskIdS = evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
                 localCacheManager.putCache(evaCacheConstants.TASK_LIST_BY_SEM+semId,evaTaskDOS);
                 getCached=localCacheManager.getCache(evaCacheConstants.TASK_LIST_BY_SEM+semId);
-                return evaTaskIdS;
+                return getCached.stream().map(EvaTaskDO::getId).toList();
             }
         }else {
             return getCached.stream().map(EvaTaskDO::getId).toList();
@@ -1457,13 +1456,17 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         if(CollectionUtil.isEmpty(evaIds)){
             return 0;
         }
-        // TODO
-        List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id",teacherId).in("id",evaIds));
 
-        if(CollectionUtil.isEmpty(evaTaskDOS)){
+        List<EvaTaskDO> getCached=localCacheManager.getCache(evaCacheConstants.TASK_LIST_BY_TEACH+sysUserMapper.selectById(teacherId).getName());
+        if(CollectionUtil.isEmpty(getCached)) {
+            List<EvaTaskDO> evaTaskDOS = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id", teacherId).in("id", evaIds));
+            localCacheManager.putCache(evaCacheConstants.TASK_LIST_BY_TEACH+sysUserMapper.selectById(teacherId).getName(),evaTaskDOS);
+            getCached=localCacheManager.getCache(evaCacheConstants.TASK_LIST_BY_TEACH+sysUserMapper.selectById(teacherId).getName());
+        }
+        if(CollectionUtil.isEmpty(getCached)){
             return 0;
         }
-        List<Integer> taskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
+        List<Integer> taskIds=getCached.stream().map(EvaTaskDO::getId).toList();
         if(CollectionUtil.isEmpty(taskIds)){
             return 0;
         }
@@ -1514,9 +1517,13 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         return recordIds.size();
     }
     private Integer getEvaNumByTeacherIdAndLocalTime(Integer teacherId,Integer num1,Integer num2){
-        // TODO
-        List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id",teacherId));
-        List<Integer> taskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
+        List<EvaTaskDO> getCached=localCacheManager.getCache(evaCacheConstants.TASK_LIST_BY_TEACH+sysUserMapper.selectById(teacherId).getName());
+        if(CollectionUtil.isEmpty(getCached)) {
+            List<EvaTaskDO> evaTaskDOS = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id", teacherId));
+            localCacheManager.putCache(evaCacheConstants.TASK_LIST_BY_TEACH+sysUserMapper.selectById(teacherId).getName(),evaTaskDOS);
+            getCached=localCacheManager.getCache(evaCacheConstants.TASK_LIST_BY_TEACH+sysUserMapper.selectById(teacherId).getName());
+        }
+        List<Integer> taskIds=getCached.stream().map(EvaTaskDO::getId).toList();
         if(CollectionUtil.isEmpty(taskIds)){
             return 0;
         }
