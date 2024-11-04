@@ -20,5 +20,9 @@ public class UpdateTest {
         roleMapper.updateById(sysRoleDO);
         System.out.println(sysRoleDO.toString());
     }
+    @Test
+    public void testUpdate2() {
+//        String str="{\"name\":\"实验课默认模板\",\"description\":\"实验课通用的默认评教模板\",\"props\":\"[\\\"教学目标和教学计划的合理性\\\",\\\"团队合作与项目管理的引导\\\",\\\"课程资源的丰富性和可用性\\\",\\\"教学目标和教学计划的合理性(1)\\"]}"
+    }
 
 }

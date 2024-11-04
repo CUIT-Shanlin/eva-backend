@@ -58,4 +58,9 @@ public class CourseModelCO extends ClientObject {
      */
     private Integer nature;
 
+    /**
+     * 科目id
+     */
+    private Integer subjectId;
+
 }
