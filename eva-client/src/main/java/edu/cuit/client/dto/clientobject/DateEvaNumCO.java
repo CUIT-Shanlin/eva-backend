@@ -17,9 +17,9 @@ import java.time.LocalDate;
 public class DateEvaNumCO extends ClientObject{
 
     /**
-     * 新增评教数目
+     * 新增评教数目moreEvaNum
      */
-    private Integer moreEvaNum;
+    private Integer value;
     /**
      * 当前时间点
      */
