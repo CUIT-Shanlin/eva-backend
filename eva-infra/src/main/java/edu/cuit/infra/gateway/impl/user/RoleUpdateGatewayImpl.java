@@ -6,9 +6,9 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import edu.cuit.client.dto.cmd.user.NewRoleCmd;
 import edu.cuit.client.dto.cmd.user.UpdateRoleCmd;
-import edu.cuit.domain.entity.user.biz.RoleEntity;
 import edu.cuit.domain.gateway.user.RoleQueryGateway;
 import edu.cuit.domain.gateway.user.RoleUpdateGateway;
+import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.infra.convertor.user.RoleConverter;
 import edu.cuit.infra.dal.database.dataobject.user.SysRoleDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysRoleMenuDO;
@@ -35,6 +35,7 @@ public class RoleUpdateGatewayImpl implements RoleUpdateGateway {
     private final SysUserRoleMapper userRoleMapper;
 
     private final RoleQueryGateway roleQueryGateway;
+    private final UserQueryGateway userQueryGateway;
 
     private final RoleConverter roleConverter;
 
@@ -106,7 +107,15 @@ public class RoleUpdateGatewayImpl implements RoleUpdateGateway {
                     .setMenuId(id)
                     .setRoleId(roleId));
         }
-        cacheManager.invalidateCache(userCacheConstants.ROLE_MENU + roleId);
+        handleRoleUpdateCache(roleId);
+
+        LambdaQueryWrapper<SysUserRoleDO> userRoleQuery = Wrappers.lambdaQuery();
+        userRoleQuery.eq(SysUserRoleDO::getRoleId,roleId);
+        userRoleMapper.selectList(userRoleQuery).forEach(userRole -> {
+            cacheManager.invalidateCache(userCacheConstants.ONE_USER_ID, String.valueOf(userRole.getUserId()));
+            cacheManager.invalidateCache(userCacheConstants.ONE_USER_USERNAME,userQueryGateway.findUsernameById(userRole.getUserId()).orElse(null));
+        });
+        cacheManager.invalidateCache(null,userCacheConstants.ONE_USER_ID);
         LogUtils.logContent(tmp.getRoleName() + " 角色(" + tmp.getId() + ")的权限");
     }
 
@@ -119,9 +128,9 @@ public class RoleUpdateGatewayImpl implements RoleUpdateGateway {
     }
 
     private void handleRoleUpdateCache(Integer roleId) {
-        cacheManager.invalidateCache(userCacheConstants.ALL_ROLE);
-        cacheManager.invalidateCache(userCacheConstants.ONE_ROLE + roleId);
-        cacheManager.invalidateCache(userCacheConstants.ROLE_MENU + roleId);
+        cacheManager.invalidateCache(null,userCacheConstants.ALL_ROLE);
+        cacheManager.invalidateCache(userCacheConstants.ONE_ROLE , String.valueOf(roleId));
+        cacheManager.invalidateCache(userCacheConstants.ROLE_MENU , String.valueOf(roleId));
     }
 
     private boolean isRoleNameExisted(String roleName) {
