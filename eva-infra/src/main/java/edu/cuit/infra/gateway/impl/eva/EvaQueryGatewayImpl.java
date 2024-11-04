@@ -9,10 +9,7 @@ import com.alibaba.cola.exception.SysException;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import edu.cuit.client.dto.clientobject.DateEvaNumCO;
-import edu.cuit.client.dto.clientobject.SimpleEvaPercentCO;
-import edu.cuit.client.dto.clientobject.SimplePercentCO;
-import edu.cuit.client.dto.clientobject.TimeEvaNumCO;
+import edu.cuit.client.dto.clientobject.*;
 import edu.cuit.client.dto.clientobject.eva.*;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
@@ -863,7 +860,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         }else {
             totalEvaInfo.setMorePercent(null);
         }
-        List<DateEvaNumCO> dataArr=new ArrayList<>();
+        List<MoreDateEvaNumCO> dataArr=new ArrayList<>();
 
         for(int i=1;i<=num;i++){
             List<FormRecordDO> formRecordDOS3;
@@ -872,9 +869,9 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             }else {
                 formRecordDOS3 = formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id", evaTaskIdS).between("create_time", LocalDate.now().minusDays((long) num - i), LocalDate.now().minusDays((long) num - i - 1)));
             }
-            DateEvaNumCO dateEvaNumCO=new DateEvaNumCO();
+            MoreDateEvaNumCO dateEvaNumCO=new MoreDateEvaNumCO();
             dateEvaNumCO.setDate(LocalDate.now().minusDays((long)num-i));
-            dateEvaNumCO.setValue(formRecordDOS3.size());
+            dateEvaNumCO.setMoreEvaNum(formRecordDOS3.size());
             dataArr.add(dateEvaNumCO);
         }
         //SimpleEvaPercentCO evaQualifiedInfo  SimpleEvaPercentCO qualifiedInfo
