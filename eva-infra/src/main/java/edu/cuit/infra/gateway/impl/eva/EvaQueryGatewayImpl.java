@@ -744,7 +744,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         for(int i=0;i<7;i++){
             DateEvaNumCO dateEvaNumCO=new DateEvaNumCO();
             dateEvaNumCO.setDate(LocalDate.now().minusDays(i));
-            dateEvaNumCO.setMoreEvaNum(getEvaNumByDate(i,semId));
+            dateEvaNumCO.setValue(getEvaNumByDate(i,semId));
             list.add(dateEvaNumCO);
         }
 
@@ -874,7 +874,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             }
             DateEvaNumCO dateEvaNumCO=new DateEvaNumCO();
             dateEvaNumCO.setDate(LocalDate.now().minusDays((long)num-i));
-            dateEvaNumCO.setMoreEvaNum(formRecordDOS3.size());
+            dateEvaNumCO.setValue(formRecordDOS3.size());
             dataArr.add(dateEvaNumCO);
         }
         //SimpleEvaPercentCO evaQualifiedInfo  SimpleEvaPercentCO qualifiedInfo
