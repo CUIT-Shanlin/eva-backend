@@ -136,6 +136,7 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
                     queryWrp.like(keyword != null,SysUserDO::getName,keyword)
                             .or().like(keyword != null,SysUserDO::getUsername,keyword);
                 });
+        userQuery.orderByDesc(SysUserDO::getCreateTime);
         Page<SysUserDO> usersPage = userMapper.selectPage(userPage, userQuery);
 
         //映射
