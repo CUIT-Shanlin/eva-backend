@@ -165,7 +165,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
             try {
                 evaTemplateCO = objectMapper.readValue(courOneEvaTemplateDO.getFormTemplate(), EvaTemplateCO.class);
             } catch (JsonProcessingException e) {
-                throw new QueryException("formTemplate暂时为空");
+                throw new QueryException("类型转换错误");
             }
         }
         else{
@@ -203,16 +203,16 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     public List<CourseScoreCO> findEvaScore(Integer id) {
         //根据课程ID找到全部courInfoDo信息
         List<Integer> courInfos = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", id)).stream().map(CourInfDO::getId).toList();
-        if(courInfos.isEmpty()) throw new QueryException("该课程没有课程信息");
+        if(courInfos.isEmpty()) return new ArrayList<>();
         //根据courInfos来找到评教任务id
         QueryWrapper<EvaTaskDO> evaTaskWrapper = new QueryWrapper<>();
         evaTaskWrapper.in(true,"cour_inf_id", courInfos);
         List<Integer> evaTaskDOIds = evaTaskMapper.selectList(evaTaskWrapper).stream().map(EvaTaskDO::getId).toList();
-        if(evaTaskDOIds.isEmpty())throw new QueryException("暂时还没有该课程的评教任务");
+        if(evaTaskDOIds.isEmpty())return new ArrayList<>();
         //根据评教任务id来找到评教表单记录数据中的form_props_values
         List<String> taskProps = formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id", evaTaskDOIds))
                 .stream().map(FormRecordDO::getFormPropsValues).toList();
-        if(taskProps.isEmpty())throw new QueryException("暂时还没有该课程的评教统计");
+        if(taskProps.isEmpty())return new ArrayList<>();
         //将json形式的字符串转化成EvaProp对象
         List<EvaProp> evaPropList = new ArrayList<>();
         for (String taskProp : taskProps) {
@@ -605,7 +605,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         queryWrapper.eq("course_id", id);
         // 执行查询
         List<CourInfDO> resultList = courInfMapper.selectList(queryWrapper);
-        if(resultList.isEmpty())throw new QueryException("还没有该课程对应的授课");
+
         // 处理查询结果
         Map<Integer, List<CourInfDO>> groupedByDay = resultList.stream()
                 .collect(Collectors.groupingBy(CourInfDO::getDay));
