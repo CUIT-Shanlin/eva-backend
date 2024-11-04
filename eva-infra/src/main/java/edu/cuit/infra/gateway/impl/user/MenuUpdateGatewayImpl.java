@@ -8,11 +8,15 @@ import edu.cuit.client.dto.cmd.user.UpdateMenuCmd;
 import edu.cuit.domain.entity.user.biz.MenuEntity;
 import edu.cuit.domain.gateway.user.MenuQueryGateway;
 import edu.cuit.domain.gateway.user.MenuUpdateGateway;
+import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.infra.convertor.user.MenuConvertor;
 import edu.cuit.infra.dal.database.dataobject.user.SysMenuDO;
+import edu.cuit.infra.dal.database.dataobject.user.SysRoleDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysRoleMenuDO;
+import edu.cuit.infra.dal.database.dataobject.user.SysUserRoleDO;
 import edu.cuit.infra.dal.database.mapper.user.SysMenuMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysRoleMenuMapper;
+import edu.cuit.infra.dal.database.mapper.user.SysUserRoleMapper;
 import edu.cuit.infra.enums.cache.UserCacheConstants;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.cache.aspect.annotation.local.LocalCacheInvalidate;
@@ -30,8 +34,10 @@ public class MenuUpdateGatewayImpl implements MenuUpdateGateway {
 
     private final SysMenuMapper menuMapper;
     private final SysRoleMenuMapper roleMenuMapper;
+    private final SysUserRoleMapper userRoleMapper;
 
     private final MenuQueryGateway menuQueryGateway;
+    private final UserQueryGateway userQueryGateway;
 
     private final MenuConvertor menuConvertor;
 
@@ -52,7 +58,7 @@ public class MenuUpdateGatewayImpl implements MenuUpdateGateway {
         }
         menuMapper.updateById(menuDO);
 
-        localCacheManager.invalidateCache(null,userCacheConstants.ALL_MENU);
+        handleUserMenuCache(cmd.getId());
         LogUtils.logContent(tmp.getName() + " 权限的信息");
     }
 
@@ -62,7 +68,7 @@ public class MenuUpdateGatewayImpl implements MenuUpdateGateway {
         roleMenuMapper.delete(Wrappers.lambdaQuery(SysRoleMenuDO.class).eq(SysRoleMenuDO::getMenuId,menuId));
         deleteMenuAndChildren(menuId);
 
-        localCacheManager.invalidateCache(null,userCacheConstants.ALL_MENU);
+        handleUserMenuCache(menuId);
         LogUtils.logContent(tmp.getName() + " 权限");
     }
 
@@ -76,7 +82,6 @@ public class MenuUpdateGatewayImpl implements MenuUpdateGateway {
             deleteMenuAndChildren(menuId);
         }
 
-        localCacheManager.invalidateCache(null,userCacheConstants.ALL_MENU);
         LogUtils.logContent(tmp + " 权限");
     }
 
@@ -88,7 +93,25 @@ public class MenuUpdateGatewayImpl implements MenuUpdateGateway {
         SysMenuDO menuDO = menuConvertor.toMenuDO(cmd);
         menuMapper.insert(menuDO);
         localCacheManager.invalidateCache(null,userCacheConstants.ALL_MENU);
+    }
 
+    private void handleUserMenuCache(Integer menuId) {
+        localCacheManager.invalidateCache(null,userCacheConstants.ALL_MENU);
+
+        LambdaQueryWrapper<SysRoleMenuDO> roleQuery = Wrappers.lambdaQuery();
+        roleQuery.eq(SysRoleMenuDO::getMenuId,menuId)
+                .select(SysRoleMenuDO::getRoleId);
+        roleMenuMapper.selectList(roleQuery).forEach(roleMenu -> {
+            localCacheManager.invalidateCache(userCacheConstants.ONE_ROLE, String.valueOf(roleMenu.getRoleId()));
+
+            LambdaQueryWrapper<SysUserRoleDO> userRoleQuery = Wrappers.lambdaQuery();
+            userRoleQuery.eq(SysUserRoleDO::getRoleId,roleMenu.getRoleId())
+                    .select(SysUserRoleDO::getUserId);
+            userRoleMapper.selectList(userRoleQuery).forEach(userRole -> {
+                localCacheManager.invalidateCache(userCacheConstants.ONE_USER_ID ,String.valueOf(userRole.getUserId()));
+                localCacheManager.invalidateCache(userCacheConstants.ONE_USER_USERNAME,userQueryGateway.findUsernameById(userRole.getUserId()).orElse(null));
+            });
+        });
     }
 
     private void deleteMenuAndChildren(Integer menuId) {
@@ -101,6 +124,7 @@ public class MenuUpdateGatewayImpl implements MenuUpdateGateway {
         menuMapper.deleteById(menuId);
         localCacheManager.invalidateCache(userCacheConstants.MENU_CHILDREN , String.valueOf(tmp.getParentId()));
         localCacheManager.invalidateCache(userCacheConstants.ONE_MENU, String.valueOf(tmp.getId()));
+        handleUserMenuCache(menuId);
         deleteRoleMenu(menuId);
     }
 

@@ -108,14 +108,6 @@ public class RoleUpdateGatewayImpl implements RoleUpdateGateway {
                     .setRoleId(roleId));
         }
         handleRoleUpdateCache(roleId);
-
-        LambdaQueryWrapper<SysUserRoleDO> userRoleQuery = Wrappers.lambdaQuery();
-        userRoleQuery.eq(SysUserRoleDO::getRoleId,roleId);
-        userRoleQuery.select(SysUserRoleDO::getUserId);
-        userRoleMapper.selectList(userRoleQuery).forEach(userRole -> {
-            cacheManager.invalidateCache(userCacheConstants.ONE_USER_ID, String.valueOf(userRole.getUserId()));
-            cacheManager.invalidateCache(userCacheConstants.ONE_USER_USERNAME,userQueryGateway.findUsernameById(userRole.getUserId()).orElse(null));
-        });
         LogUtils.logContent(tmp.getRoleName() + " 角色(" + tmp.getId() + ")的权限");
     }
 
@@ -131,6 +123,13 @@ public class RoleUpdateGatewayImpl implements RoleUpdateGateway {
         cacheManager.invalidateCache(null,userCacheConstants.ALL_ROLE);
         cacheManager.invalidateCache(userCacheConstants.ONE_ROLE , String.valueOf(roleId));
         cacheManager.invalidateCache(userCacheConstants.ROLE_MENU , String.valueOf(roleId));
+        LambdaQueryWrapper<SysUserRoleDO> userRoleQuery = Wrappers.lambdaQuery();
+        userRoleQuery.eq(SysUserRoleDO::getRoleId,roleId);
+        userRoleQuery.select(SysUserRoleDO::getUserId);
+        userRoleMapper.selectList(userRoleQuery).forEach(userRole -> {
+            cacheManager.invalidateCache(userCacheConstants.ONE_USER_ID, String.valueOf(userRole.getUserId()));
+            cacheManager.invalidateCache(userCacheConstants.ONE_USER_USERNAME,userQueryGateway.findUsernameById(userRole.getUserId()).orElse(null));
+        });
     }
 
     private boolean isRoleNameExisted(String roleName) {
