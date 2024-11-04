@@ -12,9 +12,11 @@ import edu.cuit.domain.gateway.course.CourseUpdateGateway;
 import edu.cuit.infra.convertor.course.CourseConvertor;
 import edu.cuit.infra.dal.database.dataobject.course.*;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
+import edu.cuit.infra.dal.database.dataobject.eva.FormTemplateDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.course.*;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
+import edu.cuit.infra.dal.database.mapper.eva.FormTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.infra.enums.cache.CourseCacheConstants;
 import edu.cuit.infra.gateway.impl.course.operate.CourseImportExce;
@@ -45,6 +47,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     private final CourseImportExce courseImportExce;
     private final LocalCacheManager localCacheManager;
     private final CourseCacheConstants courseCacheConstants;
+    private final FormTemplateMapper formTemplateMapper;
 
 
     /**
@@ -623,10 +626,24 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         }
         //向course表中插入数据
         CourseDO courseDO = courseConvertor.toCourseDO(courseInfo, subjectId, teacherId, semId);
+        Integer type=null;
+        if(courseDO.getTemplateId()==null&&(courseInfo.getSubjectMsg().getNature()==1|| courseInfo.getSubjectMsg().getNature()==0)){
+            Integer id = formTemplateMapper.selectOne(new QueryWrapper<FormTemplateDO>().eq("is_default", courseInfo.getSubjectMsg().getNature())).getId();
+            courseDO.setTemplateId(id);
+             type = courseTypeMapper.selectOne(new QueryWrapper<CourseTypeDO>().eq("is_default", courseInfo.getSubjectMsg().getNature())).getId();
+        }
         courseMapper.insert(courseDO);
         localCacheManager.invalidateCache(courseCacheConstants.COURSE_LIST_BY_SEM+semId);
         //再根据teacherId和subjectId又将他查出来
        Integer courseDOId = courseDO.getId();
+       if(type!=null&&!courseInfo.getTypeIdList().contains(type)){
+           CourseTypeCourseDO courseTypeCourseDO = new CourseTypeCourseDO();
+           courseTypeCourseDO.setCourseId(courseDOId);
+           courseTypeCourseDO.setTypeId(type);
+           courseTypeCourseDO.setCreateTime(courseInfo.getCreateTime());
+           courseTypeCourseDO.setUpdateTime(courseInfo.getUpdateTime());
+           courseTypeCourseMapper.insert(courseTypeCourseDO);
+       }
         //插入课程类型
         for (Integer i : courseInfo.getTypeIdList()) {
             CourseTypeCourseDO courseTypeCourseDO = new CourseTypeCourseDO();
