@@ -1,5 +1,6 @@
 package edu.cuit.client.dto.clientobject;
 
+import java.time.LocalDate;
 import com.alibaba.cola.dto.ClientObject;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,12 +15,11 @@ import java.time.LocalDate;
 @EqualsAndHashCode(callSuper = false)
 @Data
 @Accessors(chain = true)
-public class DateEvaNumCO extends ClientObject{
-
+public class MoreDateEvaNumCO extends ClientObject{
     /**
-     * 新增评教数目
+     * 新增评教数目moreEvaNum
      */
-    private Integer value;
+    private Integer moreEvaNum;
     /**
      * 当前时间点
      */
