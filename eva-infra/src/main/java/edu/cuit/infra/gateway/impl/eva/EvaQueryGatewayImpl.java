@@ -1,7 +1,6 @@
 package edu.cuit.infra.gateway.impl.eva;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.collection.ListUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONConfig;
 import cn.hutool.json.JSONObject;
@@ -55,7 +54,10 @@ import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.user.*;
+import edu.cuit.infra.enums.cache.EvaCacheConstants;
+import edu.cuit.infra.enums.cache.UserCacheConstants;
 import edu.cuit.infra.util.QueryUtils;
+import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
 
@@ -92,6 +94,9 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     private final FormRecordMapper formRecordMapper;
     private final FormTemplateMapper formTemplateMapper;
     private final CourOneEvaTemplateMapper courOneEvaTemplateMapper;
+    private final EvaCacheConstants evaCacheConstants;
+    private final LocalCacheManager localCacheManager;
+    private final UserCacheConstants userCacheConstants;
 
     @Override
     public PaginationResultEntity<EvaRecordEntity> pageEvaRecord(Integer semId, PagingQuery<EvaLogConditionalQuery> query) {
@@ -554,26 +559,46 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     //zjok
     @Override
     public Optional<EvaTaskEntity> oneEvaTaskInfo(Integer id) {
-        if(id==null){
-            throw new QueryException("id为空不能查询");
-        }
-        EvaTaskDO evaTaskDO=evaTaskMapper.selectOne(new QueryWrapper<EvaTaskDO>().eq("id",id));
-        if(evaTaskDO==null){
-            return Optional.empty();
-        }
-        //老师
-        Supplier<UserEntity> teacher=()->toUserEntity(evaTaskDO.getTeacherId());
-        //课程信息
-        CourInfDO courInfDO=courInfMapper.selectById(evaTaskDO.getCourInfId());
-        if(courInfDO==null){
-            throw new QueryException("并没有找到相关课程信息");
-        }
-        CourseDO courseDO=courseMapper.selectById(courInfDO.getCourseId());
-        Supplier<CourseEntity> course=()->toCourseEntity(courInfDO.getCourseId(),courseDO.getSemesterId());
-        Supplier<SingleCourseEntity> oneCourse=()->courseConvertor.toSingleCourseEntity(course,courInfDO);
+        EvaTaskDO getCached=localCacheManager.getCache(evaCacheConstants.ONE_TASK+id);
+        if(getCached==null) {
+            if (id == null) {
+                throw new QueryException("id为空不能查询");
+            }
+            EvaTaskDO evaTaskDO = evaTaskMapper.selectOne(new QueryWrapper<EvaTaskDO>().eq("id", id));
+            localCacheManager.putCache(evaCacheConstants.ONE_TASK+id,evaTaskDO);
+            getCached=localCacheManager.getCache(evaCacheConstants.ONE_TASK+id);
+            if (evaTaskDO == null) {
+                return Optional.empty();
+            }
+            //老师
+            Supplier<UserEntity> teacher = () -> toUserEntity(evaTaskDO.getTeacherId());
+            //课程信息
+            CourInfDO courInfDO = courInfMapper.selectById(evaTaskDO.getCourInfId());
+            if (courInfDO == null) {
+                throw new QueryException("并没有找到相关课程信息");
+            }
+            CourseDO courseDO = courseMapper.selectById(courInfDO.getCourseId());
+            Supplier<CourseEntity> course = () -> toCourseEntity(courInfDO.getCourseId(), courseDO.getSemesterId());
+            Supplier<SingleCourseEntity> oneCourse = () -> courseConvertor.toSingleCourseEntity(course, courInfDO);
 
-        EvaTaskEntity evaTaskEntity=evaConvertor.ToEvaTaskEntity(evaTaskDO,teacher,oneCourse);
-        return Optional.of(evaTaskEntity);
+            EvaTaskEntity evaTaskEntity = evaConvertor.ToEvaTaskEntity(evaTaskDO, teacher, oneCourse);
+            return Optional.of(evaTaskEntity);
+        }else {
+            //老师
+            EvaTaskDO finalGetCached = getCached;
+            Supplier<UserEntity> teacher = () -> toUserEntity(finalGetCached.getTeacherId());
+            //课程信息
+            CourInfDO courInfDO = courInfMapper.selectById(getCached.getCourInfId());
+            if (courInfDO == null) {
+                throw new QueryException("并没有找到相关课程信息");
+            }
+            CourseDO courseDO = courseMapper.selectById(courInfDO.getCourseId());
+            Supplier<CourseEntity> course = () -> toCourseEntity(courInfDO.getCourseId(), courseDO.getSemesterId());
+            Supplier<SingleCourseEntity> oneCourse = () -> courseConvertor.toSingleCourseEntity(course, courInfDO);
+
+            EvaTaskEntity evaTaskEntity = evaConvertor.ToEvaTaskEntity(getCached, teacher, oneCourse);
+            return Optional.of(evaTaskEntity);
+        }
     }
 //zjok
     @Override
@@ -853,9 +878,14 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             dataArr.add(dateEvaNumCO);
         }
         //SimpleEvaPercentCO evaQualifiedInfo  SimpleEvaPercentCO qualifiedInfo
-        List<SysUserDO> teacher=sysUserMapper.selectList(null);
-        List<Integer> teacherIdS=teacher.stream().map(SysUserDO::getId).toList();
-        if(CollectionUtil.isEmpty(teacherIdS)){
+        List<Integer> getCached=localCacheManager.getCache(userCacheConstants.ALL_USER_ID);
+        if(CollectionUtil.isEmpty(getCached)) {
+            List<SysUserDO> teacher = sysUserMapper.selectList(null);
+            List<Integer> teacherIdS = teacher.stream().map(SysUserDO::getId).toList();
+            localCacheManager.putCache(userCacheConstants.ALL_USER_ID,teacherIdS);
+            getCached=localCacheManager.getCache(userCacheConstants.ALL_USER_ID);
+        }
+        if(CollectionUtil.isEmpty(getCached)){
             throw new QueryException("没有找到相关老师");
         }
 
@@ -863,11 +893,11 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         Integer pastEvaNum=0;
         Integer evaEdNum=0;
         Integer pastEvaEdNum=0;
-        for(int i=0;i<teacherIdS.size();i++){
-            Integer n1=getEvaNumByTeacherIdAndLocalTime(teacherIdS.get(i),num,0);
-            Integer n2=getEvaEdNumByTeacherIdAndLocalTime(teacherIdS.get(i),num,0);
-            Integer m1=getEvaNumByTeacherIdAndLocalTime(teacherIdS.get(i),num*2,num);
-            Integer m2=getEvaEdNumByTeacherIdAndLocalTime(teacherIdS.get(i),num*2,num);
+        for(int i=0;i<getCached.size();i++){
+            Integer n1=getEvaNumByTeacherIdAndLocalTime(getCached.get(i),num,0);
+            Integer n2=getEvaEdNumByTeacherIdAndLocalTime(getCached.get(i),num,0);
+            Integer m1=getEvaNumByTeacherIdAndLocalTime(getCached.get(i),num*2,num);
+            Integer m2=getEvaEdNumByTeacherIdAndLocalTime(getCached.get(i),num*2,num);
             if(n1>=target){
                 evaNum++;
             }
@@ -905,24 +935,26 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     }
     @Override
     public Optional<UnqualifiedUserResultCO> getEvaTargetAmountUnqualifiedUser(Integer semId, Integer num, Integer target){
-
-        List<SysUserDO> teacher=sysUserMapper.selectList(null);
-
-        List<Integer> teacherIdS=teacher.stream().map(SysUserDO::getId).toList();
-
-        if(CollectionUtil.isEmpty(teacherIdS)){
+        List<Integer> getCached=localCacheManager.getCache(userCacheConstants.ALL_USER_ID);
+        if(CollectionUtil.isEmpty(getCached)) {
+            List<SysUserDO> teacher = sysUserMapper.selectList(null);
+            List<Integer> teacherIdS = teacher.stream().map(SysUserDO::getId).toList();
+            localCacheManager.putCache(userCacheConstants.ALL_USER_ID,teacherIdS);
+            getCached=localCacheManager.getCache(userCacheConstants.ALL_USER_ID);
+        }
+        if(CollectionUtil.isEmpty(getCached)){
             throw new QueryException("找不到相关的老师");
         }
 
         List<UnqualifiedUserInfoCO> dataArr=new ArrayList<>();
         //根据
-        for(int i=0;i<teacherIdS.size();i++){
-            Integer n=getEvaNumByTeacherId(teacherIdS.get(i),semId);
+        for(int i=0;i<getCached.size();i++){
+            Integer n=getEvaNumByTeacherId(getCached.get(i),semId);
             if(n<target){
                 UnqualifiedUserInfoCO unqualifiedUserInfoCO=new UnqualifiedUserInfoCO();
-                unqualifiedUserInfoCO.setDepartment(sysUserMapper.selectById(teacherIdS.get(i)).getDepartment());
-                unqualifiedUserInfoCO.setId(teacherIdS.get(i));
-                unqualifiedUserInfoCO.setName(sysUserMapper.selectById(teacherIdS.get(i)).getName());
+                unqualifiedUserInfoCO.setDepartment(sysUserMapper.selectById(getCached.get(i)).getDepartment());
+                unqualifiedUserInfoCO.setId(getCached.get(i));
+                unqualifiedUserInfoCO.setName(sysUserMapper.selectById(getCached.get(i)).getName());
                 unqualifiedUserInfoCO.setNum(n);
                 dataArr.add(unqualifiedUserInfoCO);
             }
@@ -952,23 +984,28 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     @Override
     public Optional<UnqualifiedUserResultCO> getBeEvaTargetAmountUnqualifiedUser(Integer semId,Integer num,Integer target){
         //根据系查老师
-        List<SysUserDO> teacher=sysUserMapper.selectList(null);
-        List<Integer> teacherIdS=teacher.stream().map(SysUserDO::getId).toList();
+        List<Integer> getCached=localCacheManager.getCache(userCacheConstants.ALL_USER_ID);
+        if(CollectionUtil.isEmpty(getCached)) {
+            List<SysUserDO> teacher = sysUserMapper.selectList(null);
+            List<Integer> teacherIdS = teacher.stream().map(SysUserDO::getId).toList();
+            localCacheManager.putCache(userCacheConstants.ALL_USER_ID,teacherIdS);
+            getCached=localCacheManager.getCache(userCacheConstants.ALL_USER_ID);
+        }
 
-        if(CollectionUtil.isEmpty(teacherIdS)){
+        if(CollectionUtil.isEmpty(getCached)){
             throw new QueryException("找不到相关的老师");
         }
 
         List<UnqualifiedUserInfoCO> dataArr=new ArrayList<>();
 
         //任务-》课程详情-》课程-》老师
-        for(int i=0;i<teacherIdS.size();i++){
-            Integer n=getEvaEdNumByTeacherId(teacherIdS.get(i),semId);
+        for(int i=0;i<getCached.size();i++){
+            Integer n=getEvaEdNumByTeacherId(getCached.get(i),semId);
             if(n<target){
                 UnqualifiedUserInfoCO unqualifiedUserInfoCO=new UnqualifiedUserInfoCO();
-                unqualifiedUserInfoCO.setDepartment(sysUserMapper.selectById(teacherIdS.get(i)).getDepartment());
-                unqualifiedUserInfoCO.setId(teacherIdS.get(i));
-                unqualifiedUserInfoCO.setName(sysUserMapper.selectById(teacherIdS.get(i)).getName());
+                unqualifiedUserInfoCO.setDepartment(sysUserMapper.selectById(getCached.get(i)).getDepartment());
+                unqualifiedUserInfoCO.setId(getCached.get(i));
+                unqualifiedUserInfoCO.setName(sysUserMapper.selectById(getCached.get(i)).getName());
                 unqualifiedUserInfoCO.setNum(n);
                 dataArr.add(unqualifiedUserInfoCO);
             }
@@ -1142,8 +1179,13 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     @Override
     public List<ScoreRangeCourseCO> scoreRangeCourseInfo(Integer num, Integer interval) {
         //得到全部记录数据
-        List<FormRecordDO> formRecordDOS=formRecordMapper.selectList(null);
-        List<String> strings=formRecordDOS.stream().map(FormRecordDO::getFormPropsValues).toList();
+        List<FormRecordDO> getCached=localCacheManager.getCache(evaCacheConstants.LOG_LIST);
+        if(CollectionUtil.isEmpty(getCached)) {
+            List<FormRecordDO> formRecordDOS = formRecordMapper.selectList(null);
+            localCacheManager.putCache(evaCacheConstants.LOG_LIST,formRecordDOS);
+            getCached=localCacheManager.getCache(evaCacheConstants.LOG_LIST);
+        }
+        List<String> strings=getCached.stream().map(FormRecordDO::getFormPropsValues).toList();
         if(CollectionUtil.isEmpty(strings)){
             List list=new ArrayList();
             return list;
@@ -1173,13 +1215,20 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
 
     @Override
     public List<EvaTemplateEntity> getAllTemplate() {
-        List<FormTemplateDO> formTemplateDOS=formTemplateMapper.selectList(null);
-        if(CollectionUtil.isEmpty(formTemplateDOS)){
-            List list=new ArrayList();
-            return list;
+        List<FormTemplateDO> getCached=localCacheManager.getCache(evaCacheConstants.TEMPLATE_LIST);
+        if(CollectionUtil.isEmpty(getCached)) {
+            List<FormTemplateDO> formTemplateDOS = formTemplateMapper.selectList(null);
+            localCacheManager.putCache(evaCacheConstants.TEMPLATE_LIST,formTemplateDOS);
+            getCached=localCacheManager.getCache(evaCacheConstants.TEMPLATE_LIST);
+            if (CollectionUtil.isEmpty(formTemplateDOS)) {
+                List list = new ArrayList();
+                return list;
+            }
+            List<EvaTemplateEntity> evaTemplateEntities = formTemplateDOS.stream().map(formTemplateDO -> evaConvertor.ToEvaTemplateEntity(formTemplateDO)).toList();
+            return evaTemplateEntities;
+        }else {
+            return getCached.stream().map(formTemplateDO -> evaConvertor.ToEvaTemplateEntity(formTemplateDO)).toList();
         }
-        List<EvaTemplateEntity> evaTemplateEntities=formTemplateDOS.stream().map(formTemplateDO->evaConvertor.ToEvaTemplateEntity(formTemplateDO)).toList();
-        return evaTemplateEntities;
     }
 
     @Override
@@ -1315,38 +1364,46 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     }
     //根据传来的学期id返回evaTaskIdS
     private List<Integer> getEvaTaskIdS(Integer semId){
-        if(semId==null){
-            List<EvaTaskDO> evaTaskDOS = evaTaskMapper.selectList(null);
-            if(CollectionUtil.isEmpty(evaTaskDOS)){
-                throw new QueryException("并未找到相关任务");
+        List<EvaTaskDO> getCached=localCacheManager.getCache(evaCacheConstants.TASK_LIST_BY_SEM+semId);
+        if(getCached==null) {
+            if (semId == null) {
+                List<EvaTaskDO> evaTaskDOS = evaTaskMapper.selectList(null);
+                localCacheManager.putCache(evaCacheConstants.TASK_LIST_BY_SEM+semId,evaTaskDOS);
+                getCached=localCacheManager.getCache(evaCacheConstants.TASK_LIST_BY_SEM+semId);
+                if (CollectionUtil.isEmpty(evaTaskDOS)) {
+                    throw new QueryException("并未找到相关任务");
+                }
+                List<Integer> evaTaskIdS = evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
+                return evaTaskIdS;
+            } else {
+                List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId));
+
+                if (CollectionUtil.isEmpty(courseDOS)) {
+                    throw new QueryException("并未找到相关课程");
+                }
+                List<Integer> courseIdS = courseDOS.stream().map(CourseDO::getId).toList();
+
+                if (CollectionUtil.isEmpty(courseIdS)) {
+                    throw new QueryException("并未找到相关课程");
+                }
+
+                List<CourInfDO> courInfDOS = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", courseIdS));
+                List<Integer> courInfoIdS = courInfDOS.stream().map(CourInfDO::getId).toList();
+                if (CollectionUtil.isEmpty(courInfoIdS)) {
+                    throw new QueryException("并未找到相关课程");
+                }
+                List<EvaTaskDO> evaTaskDOS = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id", courInfoIdS));
+
+                if (CollectionUtil.isEmpty(evaTaskDOS)) {
+                    throw new QueryException("并未找到相关评教任务");
+                }
+                List<Integer> evaTaskIdS = evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
+                localCacheManager.putCache(evaCacheConstants.TASK_LIST_BY_SEM+semId,evaTaskDOS);
+                getCached=localCacheManager.getCache(evaCacheConstants.TASK_LIST_BY_SEM+semId);
+                return evaTaskIdS;
             }
-            List<Integer> evaTaskIdS = evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
-            return evaTaskIdS;
         }else {
-            List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId));
-
-            if (CollectionUtil.isEmpty(courseDOS)) {
-                throw new QueryException("并未找到相关课程");
-            }
-            List<Integer> courseIdS = courseDOS.stream().map(CourseDO::getId).toList();
-
-            if(CollectionUtil.isEmpty(courseIdS)){
-                throw new QueryException("并未找到相关课程");
-            }
-
-            List<CourInfDO> courInfDOS = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", courseIdS));
-            List<Integer> courInfoIdS = courInfDOS.stream().map(CourInfDO::getId).toList();
-            if(CollectionUtil.isEmpty(courInfoIdS)){
-                throw new QueryException("并未找到相关课程");
-            }
-            List<EvaTaskDO> evaTaskDOS = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id", courInfoIdS));
-
-            if (CollectionUtil.isEmpty(evaTaskDOS)) {
-                throw new QueryException("并未找到相关评教任务");
-            }
-            List<Integer> evaTaskIdS = evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
-
-            return evaTaskIdS;
+            return getCached.stream().map(EvaTaskDO::getId).toList();
         }
     }
     //获得几天前的新增评教数
@@ -1400,6 +1457,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         if(CollectionUtil.isEmpty(evaIds)){
             return 0;
         }
+        // TODO
         List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id",teacherId).in("id",evaIds));
 
         if(CollectionUtil.isEmpty(evaTaskDOS)){
@@ -1456,6 +1514,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         return recordIds.size();
     }
     private Integer getEvaNumByTeacherIdAndLocalTime(Integer teacherId,Integer num1,Integer num2){
+        // TODO
         List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id",teacherId));
         List<Integer> taskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
         if(CollectionUtil.isEmpty(taskIds)){
