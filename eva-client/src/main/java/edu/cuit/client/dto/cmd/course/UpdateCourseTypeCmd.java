@@ -1,6 +1,7 @@
 package edu.cuit.client.dto.cmd.course;
 
 import com.alibaba.cola.dto.ClientObject;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -17,6 +18,7 @@ public class UpdateCourseTypeCmd extends ClientObject {
     /**
      * id
      */
+    @NotNull(message = "课程类型id不能为空")
     private Integer id;
 
     /**
