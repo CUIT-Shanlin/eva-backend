@@ -229,13 +229,18 @@ public class CourseRecommendExce {
                 }
                 CourseTime courestime = courseConvertor.toCourseTime(courInfDO);
                 recommend.setTime(courestime);
-                Long num = evaTaskMapper.selectCount( new QueryWrapper<EvaTaskDO>()
+               /* Long num = evaTaskMapper.selectCount( new QueryWrapper<EvaTaskDO>()
                         .eq("cour_inf_id", courInfDO.getId())
                         .and(wrapper -> wrapper.eq("status", 1).or().eq("status", 0)));
-                EvaNum+=Math.toIntExact(num);
+                EvaNum+=Math.toIntExact(num);*/
 //                evaTeacherNum+=Math.toIntExact(num);
                 recommendCourseCOS.add(recommend);
             }
+            List<Integer> list1 = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseDO.getId())).stream().map(CourInfDO::getId).toList();
+            if(!list1.isEmpty())
+             EvaNum =Math.toIntExact(evaTaskMapper.selectCount( new QueryWrapper<EvaTaskDO>()
+                    .in("cour_inf_id",list1)
+                    .and(wrapper -> wrapper.eq("status", 1).or().eq("status", 0))));
             int finalEvaNum = EvaNum;
             recommendCourseCOS.forEach(recommendCourseCO -> {
                 if(recommendCourseCO.getName().equals(subjectDO.getName())){
@@ -380,13 +385,14 @@ public class CourseRecommendExce {
                 }
                 CourseTime courestime = courseConvertor.toCourseTime(courInfDO);
                 recommend.setTime(courestime);
-                Long num = evaTaskMapper.selectCount( new QueryWrapper<EvaTaskDO>()
-                        .eq("cour_inf_id", courInfDO.getId())
-                        .and(wrapper -> wrapper.eq("status", 1).or().eq("status", 0)));
-                EvaNum+=Math.toIntExact(num);
 //                evaTeacherNum+=Math.toIntExact(num);
                 recommendCourseCOS.add(recommend);
             }
+            List<Integer> list1 = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseDO.getId())).stream().map(CourInfDO::getId).toList();
+            if(!list1.isEmpty())
+                EvaNum =Math.toIntExact(evaTaskMapper.selectCount( new QueryWrapper<EvaTaskDO>()
+                        .in("cour_inf_id",list1)
+                        .and(wrapper -> wrapper.eq("status", 1).or().eq("status", 0))));
             int finalEvaNum = EvaNum;
             recommendCourseCOS.forEach(recommendCourseCO -> {
                 if(recommendCourseCO.getName().equals(subjectDO.getName())){
@@ -435,13 +441,15 @@ public class CourseRecommendExce {
                 }
                 CourseTime courestime = courseConvertor.toCourseTime(courInfDO);
                 recommend.setTime(courestime);
-                Long num = evaTaskMapper.selectCount( new QueryWrapper<EvaTaskDO>()
-                        .eq("cour_inf_id", courInfDO.getId())
-                        .and(wrapper -> wrapper.eq("status", 1).or().eq("status", 0)));
-                EvaNum+=Math.toIntExact(num);
+
 //                evaTeacherNum+=Math.toIntExact(num);
                 recommendCourseCOS.add(recommend);
             }
+            List<Integer> list1 = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseDO.getId())).stream().map(CourInfDO::getId).toList();
+            if(!list1.isEmpty())
+                EvaNum =Math.toIntExact(evaTaskMapper.selectCount( new QueryWrapper<EvaTaskDO>()
+                        .in("cour_inf_id",list1)
+                        .and(wrapper -> wrapper.eq("status", 1).or().eq("status", 0))));
             int finalEvaNum = EvaNum;
             recommendCourseCOS.forEach(recommendCourseCO -> {
                 if(recommendCourseCO.getName().equals(subjectDO.getName())){
