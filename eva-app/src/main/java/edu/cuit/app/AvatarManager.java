@@ -66,8 +66,10 @@ public class AvatarManager {
 
             ImageIO.write(whiteImage, "jpg", userAvatarFile);
         } catch (IOException e) {
-            log.error("读取用户图片失败",e);
-            throw new SysException("用户头像读取失败，请联系管理员");
+            log.error("上传用户图片失败",e);
+            throw new SysException("用户头像上传失败，请联系管理员");
+        } catch (NullPointerException e) {
+            throw new BizException("图片格式暂不支持");
         }
     }
 
