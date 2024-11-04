@@ -1,9 +1,8 @@
 package edu.cuit.client.api.course;
 
-import edu.cuit.client.dto.clientobject.SimpleResultCO;
+import edu.cuit.client.dto.clientobject.SimpleSubjectResultCO;
 import edu.cuit.client.dto.clientobject.course.*;
 import edu.cuit.client.dto.data.Term;
-import jakarta.validation.Valid;
 
 
 import java.io.InputStream;
@@ -16,9 +15,10 @@ public interface IUserCourseService {
 
     /**
      * 获取用户自己的教学的课程基础信息
-     *  @param semId 学期id
-     * */
-    List<SimpleResultCO> getUserCourseInfo( Integer semId);
+     *
+     * @param semId 学期id
+     */
+    List<SimpleSubjectResultCO> getUserCourseInfo(Integer semId);
 
     /**
      * 获取单个用户的教学课程的详细信息
