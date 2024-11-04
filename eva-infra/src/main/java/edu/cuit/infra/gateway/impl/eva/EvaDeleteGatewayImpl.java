@@ -48,8 +48,8 @@ public class EvaDeleteGatewayImpl implements EvaDeleteGateway {
                         +" 用户评教任务ID为"+formRecordDO.getTaskId()+"的评教记录");
                 formRecordMapper.delete(formRecordWrapper);
                 //删除缓存
-                localCacheManager.invalidateCache(evaCacheConstants.ONE_LOG+id);
-                localCacheManager.invalidateCache(evaCacheConstants.LOG_LIST);
+                localCacheManager.invalidateCache(evaCacheConstants.ONE_LOG, String.valueOf(id));
+                localCacheManager.invalidateCache(null,evaCacheConstants.LOG_LIST);
             }
         }
         return null;
@@ -79,8 +79,8 @@ public class EvaDeleteGatewayImpl implements EvaDeleteGateway {
                     LogUtils.logContent(formTemplateMapper.selectById(id).getName() +" 评教模板");
                     formTemplateMapper.delete(formTemplateWrapper);
                     //删除缓存
-                    localCacheManager.invalidateCache(evaCacheConstants.ONE_TEMPLATE+id);
-                    localCacheManager.invalidateCache(evaCacheConstants.TEMPLATE_LIST);
+                    localCacheManager.invalidateCache(evaCacheConstants.ONE_TEMPLATE, String.valueOf(id));
+                    localCacheManager.invalidateCache(null,evaCacheConstants.TEMPLATE_LIST);
                 }
             }else{
                 throw new UpdateException("该模板已经被课程分配，无法再进行删除");

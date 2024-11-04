@@ -45,8 +45,9 @@ public class EvaTemplateCO extends ClientObject {
      */
     private String updateTime;
     /**
-     * 是否是默认数据(-1非默认数据)
+     * 判断该数据是否是默认数据，0: 理论课相关默认；1: 实验课相关默认；-1：非默认数据
      */
     private Integer isDefault;
+
 
 }

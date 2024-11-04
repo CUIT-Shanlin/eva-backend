@@ -49,4 +49,9 @@ public class EvaTemplateEntity {
      */
     private Integer isDeleted;
 
+    /**
+     * 判断该数据是否是默认数据，0: 理论课相关默认；1: 实验课相关默认；-1：非默认数据
+     */
+    private Integer isDefault;
+
 }
