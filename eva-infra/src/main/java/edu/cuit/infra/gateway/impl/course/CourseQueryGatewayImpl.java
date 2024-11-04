@@ -56,6 +56,7 @@ import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.user.*;
 import edu.cuit.infra.enums.cache.CourseCacheConstants;
+import edu.cuit.infra.gateway.impl.course.operate.CourseFormat;
 import edu.cuit.infra.gateway.impl.course.operate.CourseRecommendExce;
 import edu.cuit.infra.util.QueryUtils;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
@@ -166,28 +167,8 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         EvaTemplateCO evaTemplateCO=null;
         if(courOneEvaTemplateDO!=null&&courOneEvaTemplateDO.getFormTemplate()!=null){
             try {
-                /*String str = courOneEvaTemplateDO.getFormTemplate().replace("\\\"", "\"");
-
-                JSONObject jsonObject = JSONUtil.parseObj(str);
-                 String props = jsonObject.getStr("props");
-                if (props != null && props.startsWith("[\"") && props.endsWith("\"]")) {
-                    props = props.substring(1, props.length() - 1);
-                    props = props.replace("\\\"", "\"");
-                    jsonObject.put("props", props);
-                }
-                 evaTemplateCO = JSONUtil.toBean(jsonObject, EvaTemplateCO.class);*/
-                String str=courOneEvaTemplateDO.getFormTemplate();
-                //遍历str在[后遇到的每个"之前都加上\遇到]为止
-                StringBuffer string = new StringBuffer();
-                int flag=0;
-                for (char c : str.toCharArray()) {
-                    if(c=='[') flag=1;
-                    if(c==']') flag=0;
-                    if(flag==1&&c=='"') string.append("\\");
-                    string.append(c);
-                }
-                System.out.println(string);
-                evaTemplateCO = objectMapper.readValue(string.toString(), EvaTemplateCO.class);
+                String format = CourseFormat.toFormat(courOneEvaTemplateDO.getFormTemplate());
+                evaTemplateCO = objectMapper.readValue(format, EvaTemplateCO.class);
             } catch (JsonProcessingException e /*RuntimeException e*/) {
                 throw new QueryException("类型转换错误");
             }
