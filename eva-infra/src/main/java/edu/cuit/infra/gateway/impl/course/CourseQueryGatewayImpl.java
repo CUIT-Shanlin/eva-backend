@@ -513,7 +513,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         if(courseList.isEmpty())return new ArrayList<>();
         List<SelfTeachCourseCO> list = new ArrayList<>();
         for (CourseDO courseDO : courseList) {
-
+            List<Integer> courINfos = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseDO.getId())).stream().map(CourInfDO::getId).toList();
             //先拿到subjectDO
             SubjectDO subjectDO = subjectMapper.selectById(courseDO.getSubjectId());
             if (subjectDO==null)throw new QueryException("未找到对应科目");
@@ -524,7 +524,9 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
             List<CourseTypeDO> typeList = courseTypeIds.stream().map(courseTypeMapper::selectById).toList();
             List<CourseType> TPList = typeList.stream().map(courseConvertor::toCourseType).toList();
             //统计评教数
-            Long courInfId = evaTaskMapper.selectCount(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courseDO.getId()));
+            Long courInfId;
+            if(courINfos.isEmpty())courInfId=0L;
+            else courInfId = evaTaskMapper.selectCount(new QueryWrapper<EvaTaskDO>().in("cour_inf_id",courINfos));
             //添加到selfteachCourseCO中
             SelfTeachCourseCO selfTeachCourseCO = new SelfTeachCourseCO();
             selfTeachCourseCO.setId(courseDO.getId())
