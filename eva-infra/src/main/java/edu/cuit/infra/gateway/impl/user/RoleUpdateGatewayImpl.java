@@ -111,11 +111,11 @@ public class RoleUpdateGatewayImpl implements RoleUpdateGateway {
 
         LambdaQueryWrapper<SysUserRoleDO> userRoleQuery = Wrappers.lambdaQuery();
         userRoleQuery.eq(SysUserRoleDO::getRoleId,roleId);
+        userRoleQuery.select(SysUserRoleDO::getUserId);
         userRoleMapper.selectList(userRoleQuery).forEach(userRole -> {
             cacheManager.invalidateCache(userCacheConstants.ONE_USER_ID, String.valueOf(userRole.getUserId()));
             cacheManager.invalidateCache(userCacheConstants.ONE_USER_USERNAME,userQueryGateway.findUsernameById(userRole.getUserId()).orElse(null));
         });
-        cacheManager.invalidateCache(null,userCacheConstants.ONE_USER_ID);
         LogUtils.logContent(tmp.getRoleName() + " 角色(" + tmp.getId() + ")的权限");
     }
 
