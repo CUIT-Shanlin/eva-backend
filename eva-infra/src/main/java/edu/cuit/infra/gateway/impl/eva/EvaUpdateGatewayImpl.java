@@ -15,10 +15,12 @@ import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.course.SemesterDO;
 import edu.cuit.infra.dal.database.dataobject.eva.*;
+import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.SemesterMapper;
 import edu.cuit.infra.dal.database.mapper.eva.*;
+import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
 import edu.cuit.infra.gateway.impl.eva.util.CalculateClassTime;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
@@ -49,6 +51,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
     private final CourseMapper courseMapper;
     private final CourOneEvaTemplateMapper courOneEvaTemplateMapper;
     private final SemesterMapper semesterMapper;
+    private final SysUserMapper sysUserMapper;
     private final EvaCacheConstants evaCacheConstants;
     private final LocalCacheManager localCacheManager;
     @Override
@@ -116,7 +119,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         evaTaskDO.setStatus(1);
         evaTaskDO.setUpdateTime(LocalDateTime.now());
         evaTaskMapper.update(evaTaskDO,new QueryWrapper<EvaTaskDO>().eq("id",evaTaskFormCO.getTaskId()));
-
+        localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_TEACH+sysUserMapper.selectById(evaTaskDO.getTeacherId()).getName());
         //检验是否有快照模板，没有就建一个
         if(courOneEvaTemplateDO==null){
             CourOneEvaTemplateDO courOneEvaTemplateDO1=new CourOneEvaTemplateDO();
@@ -125,8 +128,6 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
             String s="{\"name\":\""+formTemplateDO.getName()+"\",\"description\":\""+formTemplateDO.getDescription()+"\",\"props\":\""+formTemplateDO.getProps()+"\"}";
             courOneEvaTemplateDO1.setFormTemplate(s);
             courOneEvaTemplateMapper.insert(courOneEvaTemplateDO1);
-            //加缓存
-            localCacheManager.invalidateCache(evaCacheConstants.COUR_TEMPLATE);
         }
         return null;
     }
@@ -221,7 +222,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         evaTaskMapper.insert(evaTaskDO);
         //加缓存
         localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM+courseDO.getSemesterId());
-
+        localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_TEACH+sysUserMapper.selectById(evaTaskDO.getTeacherId()).getName());
         Integer taskId=evaTaskMapper.selectOne(new QueryWrapper<EvaTaskDO>().eq("teacher_id",addTaskCO.getTeacherId()).eq("cour_inf_id",addTaskCO.getCourInfId()).eq("status",0)).getId();
 
         if(taskId==null){
@@ -264,6 +265,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         EvaTaskDO evaTaskDO=evaTaskMapper.selectById(id);
         evaTaskDO.setStatus(2);
         evaTaskMapper.update(evaTaskDO,evaTaskWrapper);
+        localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_TEACH+sysUserMapper.selectById(evaTaskDO.getTeacherId()).getName());
         return null;
     }
 }
