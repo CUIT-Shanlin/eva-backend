@@ -5,10 +5,12 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.cola.exception.BizException;
 import com.alibaba.cola.exception.SysException;
 import edu.cuit.app.AvatarManager;
+import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.PaginationBizConvertor;
 import edu.cuit.app.convertor.user.RoleBizConvertor;
 import edu.cuit.app.convertor.user.UserBizConvertor;
 import edu.cuit.app.factory.user.RouterDetailFactory;
+import edu.cuit.client.api.course.ICourseService;
 import edu.cuit.client.api.user.IUserService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
@@ -50,6 +52,8 @@ public class UserServiceImpl implements IUserService {
     private final CourseQueryGateway courseQueryGateway;
     private final EvaQueryGateway evaQueryGateway;
 
+    private final ICourseService courseService;
+
     private final AvatarManager avatarManager;
 
     private final UserBizConvertor userBizConvertor;
@@ -71,11 +75,12 @@ public class UserServiceImpl implements IUserService {
         List<UserInfoCO> results = userEntityPage.getRecords().stream()
                 .map(this::getUserInfo)
                 .toList();
-        return paginationBizConvertor.toPaginationEntity(userEntityPage,results);
+        return paginationBizConvertor.toPaginationEntity(userEntityPage, results);
     }
 
     @Override
     @Transactional
+    @CheckSemId
     public List<UserSingleCourseScoreCO> getOneUserScore(Integer userId, Integer semId) {
         List<SelfTeachCourseCO> courseInfoList = courseQueryGateway.getSelfCourseInfo(userQueryGateway.findUsernameById(userId)
                 .orElseThrow(() -> new SysException("找不到用户名")), semId);
@@ -84,14 +89,22 @@ public class UserServiceImpl implements IUserService {
 
         for (SelfTeachCourseCO course : courseInfoList) {
             List<CourseScoreCO> evaScore = courseQueryGateway.findEvaScore(course.getId());
+            if (evaScore.isEmpty()) {
+                UserSingleCourseScoreCO courseScoreCO = new UserSingleCourseScoreCO();
+                courseScoreCO.setScore(0.0)
+                        .setEvaNum(0)
+                        .setCourseName(course.getName());
+                resultList.add(courseScoreCO);
+                continue;
+            }
             double score = 0;
             for (CourseScoreCO courseScoreCO : evaScore) {
                 score += courseScoreCO.getAverScore();
             }
             UserSingleCourseScoreCO courseScoreCO = new UserSingleCourseScoreCO();
             courseScoreCO.setScore(new BigDecimal(score)
-                    .divide(new BigDecimal(evaScore.size()),2, RoundingMode.HALF_UP)
-                    .doubleValue())
+                            .divide(new BigDecimal(evaScore.size()), 2, RoundingMode.HALF_UP)
+                            .doubleValue())
                     .setCourseName(course.getName())
                     .setEvaNum(evaQueryGateway.getEvaNumByCourse(course.getId())
                             .orElse(0));
@@ -113,7 +126,7 @@ public class UserServiceImpl implements IUserService {
         return getUserInfo(userQueryGateway.findByUsername(username)
                 .orElseThrow(() -> {
                     SysException e = new SysException("用户数据查找失败，请联系管理员");
-                    log.error("系统异常",e);
+                    log.error("系统异常", e);
                     return e;
                 }));
     }
@@ -139,7 +152,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     @Transactional
     public void uploadUserAvatar(Integer userId, InputStream inputStream) {
-        avatarManager.uploadUserAvatar(userId,inputStream);
+        avatarManager.uploadUserAvatar(userId, inputStream);
     }
 
     @Override
@@ -152,9 +165,9 @@ public class UserServiceImpl implements IUserService {
             ldapPersonGateway.changePassword(userQueryGateway.findUsernameById(id)
                     .orElseThrow(() -> {
                         SysException e = new SysException("找不到用户名，请联系管理员");
-                        log.error("发生系统异常",e);
+                        log.error("发生系统异常", e);
                         return e;
-                    }),password);
+                    }), password);
         }
         String username = userQueryGateway.findUsernameById(Math.toIntExact(cmd.getId()))
                 .orElseThrow(() -> new BizException("用户ID不存在"));
@@ -183,10 +196,10 @@ public class UserServiceImpl implements IUserService {
         Optional<Integer> id = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
         cmd.setId(Long.valueOf(id.orElseThrow(() -> {
             SysException e = new SysException("用户id查询失败");
-            log.error("发生系统异常",e);
+            log.error("发生系统异常", e);
             return e;
         })));
-        updateInfo(false,cmd);
+        updateInfo(false, cmd);
     }
 
     @Override
@@ -203,13 +216,13 @@ public class UserServiceImpl implements IUserService {
         if (cmd.getOldPassword().equals(cmd.getPassword())) {
             throw new BizException("新密码和旧密码不能相同");
         }
-        ldapPersonGateway.changePassword(username,cmd.getPassword());
+        ldapPersonGateway.changePassword(username, cmd.getPassword());
     }
 
     @Override
     @Transactional
     public void updateStatus(Integer userId, Integer status) {
-        userUpdateGateway.updateStatus(userId,status);
+        userUpdateGateway.updateStatus(userId, status);
         if (status == 0) {
             StpUtil.logout(userQueryGateway.findUsernameById(Math.toIntExact(userId))
                     .orElseThrow(() -> new BizException("用户ID不存在")));
@@ -225,7 +238,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     @Transactional
     public void assignRole(AssignRoleCmd cmd) {
-        userUpdateGateway.assignRole(cmd.getUserId(),cmd.getRoleIdList());
+        userUpdateGateway.assignRole(cmd.getUserId(), cmd.getRoleIdList());
     }
 
     @Override
