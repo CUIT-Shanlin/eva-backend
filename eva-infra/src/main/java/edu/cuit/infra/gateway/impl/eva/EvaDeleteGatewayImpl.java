@@ -49,6 +49,7 @@ public class EvaDeleteGatewayImpl implements EvaDeleteGateway {
                 formRecordMapper.delete(formRecordWrapper);
                 //删除缓存
                 localCacheManager.invalidateCache(evaCacheConstants.ONE_LOG+id);
+                localCacheManager.invalidateCache(evaCacheConstants.LOG_LIST);
             }
         }
         return null;
@@ -79,6 +80,7 @@ public class EvaDeleteGatewayImpl implements EvaDeleteGateway {
                     formTemplateMapper.delete(formTemplateWrapper);
                     //删除缓存
                     localCacheManager.invalidateCache(evaCacheConstants.ONE_TEMPLATE+id);
+                    localCacheManager.invalidateCache(evaCacheConstants.TEMPLATE_LIST);
                 }
             }else{
                 throw new UpdateException("该模板已经被课程分配，无法再进行删除");

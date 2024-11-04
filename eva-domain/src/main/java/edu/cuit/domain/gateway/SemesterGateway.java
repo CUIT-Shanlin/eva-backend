@@ -32,4 +32,10 @@ public interface SemesterGateway {
      */
     SemesterCO getSemesterInfo( Integer id) ;
 
+    /**
+     * 查询一个学期的信息
+     * @param id 学期id
+     */
+    SemesterCO selectSemester( Integer id) ;
+
 }

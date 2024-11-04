@@ -78,7 +78,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         formTemplateDO.setUpdateTime(LocalDateTime.parse(evaTemplateCO.getUpdateTime(),df));
         formTemplateDO.setCreateTime(LocalDateTime.parse(evaTemplateCO.getCreateTime(),df));
         formTemplateMapper.update(formTemplateDO, new QueryWrapper<FormTemplateDO>().eq("id", evaTemplateCO.getId()));
-
+        localCacheManager.invalidateCache(evaCacheConstants.TEMPLATE_LIST);
         LogUtils.logContent(formTemplateMapper.selectById(evaTemplateCO.getId()).getName() +" 评教模板");
         return null;
     }
@@ -265,6 +265,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         EvaTaskDO evaTaskDO=evaTaskMapper.selectById(id);
         evaTaskDO.setStatus(2);
         evaTaskMapper.update(evaTaskDO,evaTaskWrapper);
+        localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM+courseMapper.selectById(courInfMapper.selectById(evaTaskDO.getCourInfId()).getCourseId()).getSemesterId());
         localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_TEACH+sysUserMapper.selectById(evaTaskDO.getTeacherId()).getName());
         return null;
     }
