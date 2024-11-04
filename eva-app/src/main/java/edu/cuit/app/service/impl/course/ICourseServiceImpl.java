@@ -38,8 +38,8 @@ public class ICourseServiceImpl implements ICourseService {
     private  final MsgServiceImpl msgService;
     @CheckSemId
     @Override
-    public List<List<Integer>> courseNum(Integer semId, Integer week) {
-       return courseQueryGateway.getWeekCourses(week,semId);
+    public List<List<Integer>> courseNum(Integer week, Integer semId) {
+       return courseQueryGateway.getWeekCourses(semId,week);
 
     }
 
