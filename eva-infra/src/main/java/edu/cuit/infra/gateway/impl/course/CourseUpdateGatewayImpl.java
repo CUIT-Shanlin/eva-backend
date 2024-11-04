@@ -1,12 +1,10 @@
 package edu.cuit.infra.gateway.impl.course;
 
-import cn.hutool.log.Log;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.cuit.client.bo.CourseExcelBO;
 import edu.cuit.client.dto.clientobject.SemesterCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
-import edu.cuit.client.dto.clientobject.course.SubjectCO;
 import edu.cuit.client.dto.cmd.course.*;
 import edu.cuit.client.dto.data.Term;
 import edu.cuit.client.dto.data.course.CourseType;
@@ -28,13 +26,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.InputStream;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
@@ -235,14 +229,13 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
 
     @Override
     @Transactional
-    public Void updateCourseType(CourseType courseType) {
+    public Void updateCourseType(UpdateCourseTypeCmd courseType) {
         //判断课程类型是否存在
         CourseTypeDO courseTypeDO = courseTypeMapper.selectById(courseType.getId());
         if(courseTypeDO==null)throw new QueryException("该课程类型不存在");
         //根据id更新课程类型
         courseTypeDO.setName(courseType.getName());
         courseTypeDO.setDescription(courseType.getDescription());
-        courseTypeDO.setUpdateTime(LocalDateTime.now());
         courseTypeMapper.update(courseTypeDO,new QueryWrapper<CourseTypeDO>().eq("id",courseType.getId()));
         LogUtils.logContent(courseType.getName()+"课程类型");
         localCacheManager.invalidateCache(courseCacheConstants.COURSE_TYPE_LIST);
@@ -682,10 +675,10 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
 
     @Override
     @Transactional
-    public void updateCoursesType(UpdateCoursesType updateCoursesType) {
-        List<Integer> courseIdList = updateCoursesType.getCourseIdList();
+    public void updateCoursesType(UpdateCoursesToTypeCmd updateCoursesToTypeCmd) {
+        List<Integer> courseIdList = updateCoursesToTypeCmd.getCourseIdList();
         if(courseIdList==null||courseIdList.isEmpty())throw new UpdateException("请选择要更改类型的课程");
-        List<Integer> typeIdList = updateCoursesType.getTypeIdList();
+        List<Integer> typeIdList = updateCoursesToTypeCmd.getTypeIdList();
         if(typeIdList==null||typeIdList.isEmpty())throw new UpdateException("请选择要更改的类型");
         for (Integer i : courseIdList) {
             if(!courseMapper.exists(new QueryWrapper<CourseDO>().eq("id",i)))throw new QueryException("该课程已被删除");

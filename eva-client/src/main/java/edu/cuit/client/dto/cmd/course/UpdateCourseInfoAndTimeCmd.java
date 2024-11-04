@@ -16,7 +16,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class UpdateCourseInfoAndTime extends ClientObject {
+public class UpdateCourseInfoAndTimeCmd extends ClientObject {
 
     /**
      * 这门课程的新信息

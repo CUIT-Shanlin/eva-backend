@@ -14,7 +14,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class AddCoursesAndCourInfo extends ClientObject {
+public class AddCoursesAndCourInfoCmd extends ClientObject {
     /**
      * 一门课程的可修改信息
      */

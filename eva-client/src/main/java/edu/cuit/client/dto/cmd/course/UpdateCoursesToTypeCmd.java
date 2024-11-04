@@ -13,7 +13,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class UpdateCoursesType extends ClientObject {
+public class UpdateCoursesToTypeCmd extends ClientObject {
 
     /**
      * 课程id数组
