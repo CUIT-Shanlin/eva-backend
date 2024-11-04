@@ -61,5 +61,23 @@
       "resultName": "result",
       "parameters": true
     }
+  },
+  "edu.cuit.zhuyimeng.framework.cache.aspect.annotation.local.LocalCacheInvalidateArea@condition": {
+    "prefix": "#{",
+    "suffix": "}",
+    "method": {
+      "result": true,
+      "resultName": "result",
+      "parameters": true
+    }
+  },
+  "edu.cuit.zhuyimeng.framework.cache.aspect.annotation.local.LocalCacheInvalidateArea@area": {
+    "prefix": "#{",
+    "suffix": "}",
+    "method": {
+      "result": false,
+      "resultName": "result",
+      "parameters": true
+    }
   }
 }
