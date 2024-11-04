@@ -9,6 +9,8 @@ import edu.cuit.client.api.eva.IEvaTemplateService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
+import edu.cuit.client.dto.cmd.eva.EvaTemplateCmd;
+import edu.cuit.client.dto.cmd.eva.NewEvaTemplateCmd;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
@@ -42,12 +44,13 @@ public class EvaTemplateServiceImpl implements IEvaTemplateService {
         for(int i=0;i<page.getRecords().size();i++){
             EvaTemplateCO evaTemplateCO=new EvaTemplateCO();
             evaTemplateCO.setId(page.getRecords().get(i).getId());
-            evaTemplateCO.setIsDefault(page.getRecords().get(i).getIsDeleted());
             evaTemplateCO.setName(page.getRecords().get(i).getName());
             evaTemplateCO.setDescription(page.getRecords().get(i).getDescription());
             evaTemplateCO.setUpdateTime(page.getRecords().get(i).getUpdateTime().format(fmt));
             evaTemplateCO.setCreateTime(page.getRecords().get(i).getCreateTime().format(fmt));
             evaTemplateCO.setProps(page.getRecords().get(i).getProps());
+            evaTemplateCO.setIsDefault(page.getRecords().get(i).getIsDefault());
+
             results.add(evaTemplateCO);
         }
         return paginationBizConvertor.toPaginationEntity(page,results);
@@ -91,14 +94,14 @@ public class EvaTemplateServiceImpl implements IEvaTemplateService {
     }
 
     @Override
-    public Void updateEvaTemplate(EvaTemplateCO evaTemplateCO) {
-        evaUpdateGateway.updateEvaTemplate(evaTemplateCO);
+    public Void updateEvaTemplate(EvaTemplateCmd evaTemplateCmd) {
+        evaUpdateGateway.updateEvaTemplate(evaTemplateCmd);
         return null;
     }
 
     @Override
-    public Void addEvaTemplate(EvaTemplateCO evaTemplateCO) throws ParseException {
-        evaUpdateGateway.addEvaTemplate(evaTemplateCO);
+    public Void addEvaTemplate(NewEvaTemplateCmd newEvaTemplateCmd) throws ParseException {
+        evaUpdateGateway.addEvaTemplate(newEvaTemplateCmd);
         return null;
     }
 }

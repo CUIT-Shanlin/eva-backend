@@ -1,8 +1,8 @@
 package edu.cuit.client.dto.cmd.course;
 
 import com.alibaba.cola.dto.ClientObject;
-import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -10,21 +10,21 @@ import lombok.experimental.Accessors;
 import java.util.List;
 
 /**
- * 针对于“修改自己的一门课程信息及其课程时段”
- * 接口的接受类
+ *针对于“批量新建多节课(新课程)”
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-public class UpdateCourseInfoAndTime extends ClientObject {
-
+public class AddCoursesAndCourInfoCmd extends ClientObject {
     /**
-     * 这门课程的新信息
+     * 一门课程的可修改信息
      */
-    private SelfTeachCourseCO courseInfo;
+    @NotNull(message = "新课程信息不能为空")
+    private UpdateCourseCmd courseInfo;
 
     /**
-     * 新的课程时段
+     * 自己教学的一门课程的一个课程时段模型
      */
     private List<SelfTeachCourseTimeCO> dateArr;
+
 }

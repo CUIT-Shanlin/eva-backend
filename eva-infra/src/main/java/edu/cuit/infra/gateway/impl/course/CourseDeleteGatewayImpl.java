@@ -13,6 +13,7 @@ import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.infra.enums.cache.CourseCacheConstants;
+import edu.cuit.infra.enums.cache.EvaCacheConstants;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
@@ -38,6 +39,8 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
     private final SysUserMapper userMapper;
     private final LocalCacheManager localCacheManager;
     private final CourseCacheConstants courseCacheConstants;
+    private final FormRecordMapper formRecordMapper;
+    private final EvaCacheConstants evaCacheConstants;
 
 
 
@@ -74,7 +77,10 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         }else{
             tasks = new ArrayList<>();
         }
-
+        //删除评教记录
+        if(!tasks.isEmpty()){
+            formRecordMapper.delete(new QueryWrapper<FormRecordDO>().in("task_id", tasks.stream().map(EvaTaskDO::getId).toList()));
+        }
         Map<Integer,Integer> mapEva=new HashMap<>();
         for (EvaTaskDO task : tasks) {
             mapEva.put(task.getId(),task.getTeacherId());
@@ -84,6 +90,8 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         map.put("你所评教的"+userDO.getName()+"老师的"+"上课时间在第"+coursePeriod.getStartWeek()+"周，星期"+coursePeriod.getDay()
                 +"，第"+coursePeriod.getStartTime()+"-"+coursePeriod.getEndTime()+"节，"+name+"课程已经被删除，故已取消您对该课程的评教任务",mapEva);
         LogUtils.logContent(userDO.getName()+"老师-"+name+"(课程ID:"+id+")的一些课");
+        localCacheManager.invalidateCache(null,evaCacheConstants.LOG_LIST);
+        localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM,String.valueOf(semId));
         return map;
     }
 
@@ -104,16 +112,16 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
        }
         CourseDO courseDO = courseMapper.selectOne(courseWrapper);
        if(courseDO==null)throw new QueryException("课程已经被删除，或者不存在");
-        String name = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("id", courseDO.getSubjectId())).getName();
+       String name = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("id", courseDO.getSubjectId())).getName();
         if(courseMapper.selectCount(new QueryWrapper<CourseDO>().eq("semester_id",semId).eq("subject_id",courseDO.getSubjectId()))==1){
             subjectMapper.delete(new QueryWrapper<SubjectDO>().eq("id",courseDO.getSubjectId()));
-            localCacheManager.invalidateCache(courseCacheConstants.SUBJECT_LIST);
+            localCacheManager.invalidateCache(null,courseCacheConstants.SUBJECT_LIST);
         }
         int delete = courseMapper.delete(courseWrapper);
        if(delete==0){
            throw new UpdateException("该课程不存在");
        }
-       localCacheManager.invalidateCache(courseCacheConstants.COURSE_LIST_BY_SEM+semId);
+       localCacheManager.invalidateCache(courseCacheConstants.COURSE_LIST_BY_SEM, String.valueOf(semId));
         //删除课程详情表
         UpdateWrapper<CourInfDO> courInfoWrapper=new UpdateWrapper<>();
         courInfoWrapper.eq("course_id",id);
@@ -131,7 +139,11 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
 
         List<Integer> taskIds = taskDOList.stream().map(EvaTaskDO::getId).toList();
         List<EvaTaskDO> list1 = taskDOList.stream().filter(taskDO -> taskDO.getStatus() == 0).toList();
-        if(!taskIds.isEmpty())evaTaskMapper.delete(new QueryWrapper<EvaTaskDO>().in("id",taskIds));
+        if(!taskIds.isEmpty()){
+            evaTaskMapper.delete(new QueryWrapper<EvaTaskDO>().in("id",taskIds));
+            formRecordMapper.delete(new QueryWrapper<FormRecordDO>().in("task_id", taskIds));
+        }
+
         Map<String,Map<Integer,Integer>> map=new HashMap<>();
         Map<Integer,Integer> evaTaskMap=new HashMap<>();
         for (EvaTaskDO taskDO : list1) {
@@ -141,6 +153,8 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         map.put(name+"课程被删除",null);
         map.put("因为"+name+"课程已被删除，"+"故已取消您对该课程的评教任务,和评教记录",evaTaskMap);
         LogUtils.logContent(name+"(课程ID:"+id+")这门课");
+        localCacheManager.invalidateCache(null,evaCacheConstants.LOG_LIST);
+        localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(semId));
         return map;
     }
 
@@ -171,7 +185,7 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         List<CourseTypeDO> courseTypeDOS = courseTypeMapper.selectList(courseTypeWrapper);
         courseTypeMapper.delete(courseTypeWrapper);
         courseTypeDOS.forEach(courseType->LogUtils.logContent(courseType.getName()+"课程类型"));
-        localCacheManager.invalidateCache(courseCacheConstants.COURSE_TYPE_LIST);
+        localCacheManager.invalidateCache(null,courseCacheConstants.COURSE_TYPE_LIST);
         return null;
     }
 
@@ -203,9 +217,12 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         if(!list.isEmpty()){
              taskDOList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in(true,"cour_inf_id",list));
         }
+        if(!taskDOList.isEmpty()){
+            formRecordMapper.delete(new QueryWrapper<FormRecordDO>().in(true,"task_id", list));
+        }
         List<Integer> list1 = courInfoIds.stream().map(CourInfDO::getId).toList();
         if(!list1.isEmpty()){
-            evaTaskMapper.delete(new UpdateWrapper<EvaTaskDO>().in(true,"cour_inf_id", list1));
+            evaTaskMapper.delete(new UpdateWrapper<EvaTaskDO>().in("cour_inf_id", taskDOList.stream().map(EvaTaskDO::getId).toList()));
         }
         Map<Integer,Integer> mapEva=new HashMap<>();
         for (EvaTaskDO i : taskDOList) {
@@ -214,7 +231,9 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         Map<String,Map<Integer,Integer>> map=new HashMap<>();
         map.put("你所要评教的"+name+"课程被删除，已取消评教任务",mapEva);
         map.put(name+"课程已被删除",null);
-        localCacheManager.invalidateCache(courseCacheConstants.COURSE_LIST_BY_SEM+courseDO.getSemesterId());
+        localCacheManager.invalidateCache(courseCacheConstants.COURSE_LIST_BY_SEM, String.valueOf(courseDO.getSemesterId()));
+        localCacheManager.invalidateCache(null,evaCacheConstants.LOG_LIST);
+        localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(courseDO.getSemesterId()));
         return map;
     }
 

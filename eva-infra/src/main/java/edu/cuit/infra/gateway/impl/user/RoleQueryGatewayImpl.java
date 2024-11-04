@@ -49,7 +49,7 @@ public class RoleQueryGatewayImpl implements RoleQueryGateway {
     private final PaginationConverter paginationConverter;
 
     @Override
-    @LocalCached(key = "#{@userCacheConstants.ONE_ROLE + #roleId}")
+    @LocalCached(area = "#{@userCacheConstants.ONE_ROLE}", key = "#roleId")
     public Optional<RoleEntity> getById(Integer roleId) {
         Optional<RoleEntity> roleEntity = Optional.ofNullable(roleConverter.toRoleEntity(roleMapper.selectById(roleId)));
         roleEntity.ifPresent(this::fillRoleEntity);
@@ -64,6 +64,7 @@ public class RoleQueryGatewayImpl implements RoleQueryGateway {
         QueryUtils.fileTimeQuery(roleQuery,queryObj,SysRoleDO::getCreateTime,SysRoleDO::getUpdateTime);
 
         roleQuery.like(queryObj.getKeyword() != null,SysRoleDO::getRoleName,queryObj.getKeyword());
+        roleQuery.orderByDesc(SysRoleDO::getCreateTime);
         //查询
         Page<SysRoleDO> resultPage = roleMapper.selectPage(rolePage, roleQuery);
         return paginationConverter.toPaginationEntity(rolePage,resultPage.getRecords()
@@ -79,7 +80,7 @@ public class RoleQueryGatewayImpl implements RoleQueryGateway {
     }
 
     @Override
-    @LocalCached(key = "#{@userCacheConstants.ROLE_MENU + #roleId}")
+    @LocalCached(area = "#{@userCacheConstants.ROLE_MENU}", key = "#roleId")
     public List<Integer> getRoleMenuIds(Integer roleId) {
         MPJLambdaWrapper<SysMenuDO> menuQuery = MPJWrappers.lambdaJoin();
         menuQuery.select(SysMenuDO::getId)

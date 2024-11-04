@@ -61,14 +61,14 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
     private final UserCacheConstants userCacheConstants;
 
     @Override
-    @LocalCached(key = "#{@userCacheConstants.ONE_USER_ID + #id}")
+    @LocalCached(area = "#{@userCacheConstants.ONE_USER_ID}",key = "#id")
     public Optional<UserEntity> findById(Integer id) {
         SysUserDO userDO = userMapper.selectById(id);
         return Optional.ofNullable(fileUserEntity(userDO));
     }
 
     @Override
-    @LocalCached(key = "#{@userCacheConstants.ONE_USER_USERNAME + #username}")
+    @LocalCached(area = "#{@userCacheConstants.ONE_USER_USERNAME}",key = "#username")
     public Optional<UserEntity> findByUsername(String username) {
         //查询用户
         LambdaQueryWrapper<SysUserDO> userQuery = Wrappers.lambdaQuery();
@@ -80,7 +80,7 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
     @Override
     public Optional<Integer> findIdByUsername(String username) {
 
-        Optional<UserEntity> cachedUser = cacheManager.getCache(userCacheConstants.ONE_USER_USERNAME + username);
+        Optional<UserEntity> cachedUser = cacheManager.getCache(userCacheConstants.ONE_USER_USERNAME ,username);
 
         if (cachedUser != null && cachedUser.isPresent()) {
             return Optional.ofNullable(cachedUser.get().getId());
@@ -95,7 +95,7 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
     @Override
     public Optional<String> findUsernameById(Integer id) {
 
-        Optional<UserEntity> cachedUser = cacheManager.getCache(userCacheConstants.ONE_USER_ID + id);
+        Optional<UserEntity> cachedUser = cacheManager.getCache(userCacheConstants.ONE_USER_ID , String.valueOf(id));
 
         if (cachedUser != null && cachedUser.isPresent()) {
             return Optional.ofNullable(cachedUser.get().getUsername());
@@ -136,6 +136,7 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
                     queryWrp.like(keyword != null,SysUserDO::getName,keyword)
                             .or().like(keyword != null,SysUserDO::getUsername,keyword);
                 });
+        userQuery.orderByDesc(SysUserDO::getCreateTime);
         Page<SysUserDO> usersPage = userMapper.selectPage(userPage, userQuery);
 
         //映射
@@ -153,7 +154,7 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
     }
 
     @Override
-    @LocalCached(key = "#{@userCacheConstants.USER_ROLE + #userId}")
+    @LocalCached(area = "#{@userCacheConstants.USER_ROLE}",key = "#userId")
     public List<Integer> getUserRoleIds(Integer userId) {
         MPJLambdaWrapper<SysRoleDO> roleQuery = MPJWrappers.lambdaJoin();
         roleQuery
@@ -168,7 +169,7 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
     @Override
     public Boolean isUsernameExist(String username) {
 
-        Optional<UserEntity> cachedUser = cacheManager.getCache(userCacheConstants.ONE_USER_USERNAME + username);
+        Optional<UserEntity> cachedUser = cacheManager.getCache(userCacheConstants.ONE_USER_USERNAME ,username);
         if (cachedUser != null && cachedUser.isPresent()) {
             return true;
         }
@@ -180,7 +181,7 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
     @Override
     public Optional<Integer> getUserStatus(Integer id) {
 
-        Optional<UserEntity> cachedUser = cacheManager.getCache(userCacheConstants.ONE_USER_ID + id);
+        Optional<UserEntity> cachedUser = cacheManager.getCache(userCacheConstants.ONE_USER_ID , String.valueOf(id));
         if (cachedUser != null && cachedUser.isPresent()) {
             return Optional.ofNullable(cachedUser.get().getStatus());
         }

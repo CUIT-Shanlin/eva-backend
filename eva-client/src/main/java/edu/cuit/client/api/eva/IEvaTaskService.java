@@ -5,6 +5,7 @@ import edu.cuit.client.dto.clientobject.eva.AddTaskCO;
 import edu.cuit.client.dto.clientobject.eva.EvaInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskBaseInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskDetailInfoCO;
+import edu.cuit.client.dto.cmd.eva.NewEvaTaskCmd;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.EvaTaskConditionalQuery;
 
@@ -38,9 +39,9 @@ public interface IEvaTaskService {
 
     /**
      * 发起评教任务
-     *@param addTaskCO 增加评教dto
+     *@param newEvaTaskCmd 增加评教dto
      */
-    Void postEvaTask(AddTaskCO addTaskCO);
+    Void postEvaTask(NewEvaTaskCmd newEvaTaskCmd);
 
     /**
      * 任意取消一个评教任务

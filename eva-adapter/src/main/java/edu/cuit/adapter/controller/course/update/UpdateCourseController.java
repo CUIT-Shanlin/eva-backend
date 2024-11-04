@@ -5,7 +5,6 @@ import edu.cuit.app.service.impl.course.ICourseDetailServiceImpl;
 import edu.cuit.app.service.impl.course.ICourseServiceImpl;
 import edu.cuit.app.service.impl.course.ICourseTypeServiceImpl;
 import edu.cuit.app.service.impl.course.IUserCourseServiceImpl;
-import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
 import edu.cuit.client.dto.cmd.course.*;
 import edu.cuit.client.dto.data.Term;
@@ -95,7 +94,7 @@ public class UpdateCourseController {
     @OperateLog(module = LogModule.COURSE,type = OperateLogType.UPDATE)
     @SaCheckPermission("course.type.update")
     public CommonResult<Void> updateCourseType(
-            @Valid @RequestBody CourseType courseType){
+            @Valid @RequestBody UpdateCourseTypeCmd courseType){
         courseTypeService.updateCourseType(courseType);
         return CommonResult.success(null);
     }
@@ -179,13 +178,13 @@ public class UpdateCourseController {
 
     /**
     * 修改自己的一门课程信息及其课程时段
-     *@param updateCourseInfoAndTime 内含有课程信息，课程时段信息
+     *@param updateCourseInfoAndTimeCmd 内含有课程信息，课程时段信息
     * */
     @PutMapping("/course/my/info/date")
     public CommonResult<Void> updateSelfCourse(
-            @Valid @RequestBody UpdateCourseInfoAndTime updateCourseInfoAndTime){
-        if(updateCourseInfoAndTime==null)throw new QueryException("请传入完整的课程及时间段信息");
-        userCourseService.updateSelfCourse(updateCourseInfoAndTime.getCourseInfo(), updateCourseInfoAndTime.getDateArr());
+            @Valid @RequestBody UpdateCourseInfoAndTimeCmd updateCourseInfoAndTimeCmd){
+        if(updateCourseInfoAndTimeCmd ==null)throw new QueryException("请传入完整的课程及时间段信息");
+        userCourseService.updateSelfCourse(updateCourseInfoAndTimeCmd.getCourseInfo(), updateCourseInfoAndTimeCmd.getDateArr());
         return CommonResult.success(null);
     }
 
@@ -219,7 +218,7 @@ public class UpdateCourseController {
     public CommonResult<Void> addNotExistCoursesDetails(
           @RequestParam(value = "semId",required = false) Integer semId,
           @RequestParam(value = "teacherId",required = true) Integer teacherId,
-          @Valid @RequestBody AddCoursesAndCourInfo addcourse){
+          @Valid @RequestBody AddCoursesAndCourInfoCmd addcourse){
         courseService.addNotExistCoursesDetails(semId, teacherId, addcourse.getCourseInfo(), addcourse.getDateArr());
 
         return CommonResult.success(null,()-> LogUtils.logContent("教师ID为"+teacherId+"的"+addcourse.getCourseInfo().getSubjectMsg().getName()+"课程"));
@@ -227,13 +226,13 @@ public class UpdateCourseController {
 
     /**
      * 批量修改课程对应类型的模型
-     *  @param updateCoursesType 课程id
+     *  @param updateCoursesToTypeCmd 课程id
      *
      * */
     @PutMapping("/courses/type")
     @SaCheckPermission("course.template.update")
-    public CommonResult<Void> updateCoursesType(@Valid @RequestBody UpdateCoursesType updateCoursesType){
-        courseTypeService.updateCoursesType(updateCoursesType);
+    public CommonResult<Void> updateCoursesType(@Valid @RequestBody UpdateCoursesToTypeCmd updateCoursesToTypeCmd){
+        courseTypeService.updateCoursesType(updateCoursesToTypeCmd);
         return CommonResult.success(null);
     }
 

@@ -2,6 +2,7 @@ package edu.cuit.client.dto.cmd.course;
 
 import com.alibaba.cola.dto.ClientObject;
 import edu.cuit.client.dto.clientobject.course.SubjectCO;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -24,6 +25,7 @@ public class UpdateCourseCmd extends ClientObject {
         /**
          * 科目信息
          */
+        @NotNull(message = "所传科目信息不能为null")
         private SubjectCO subjectMsg;
 
         /**

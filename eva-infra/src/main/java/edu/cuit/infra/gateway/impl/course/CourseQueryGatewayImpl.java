@@ -105,12 +105,12 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     @Override
     public PaginationResultEntity<CourseEntity> page(PagingQuery<CourseConditionalQuery> courseQuery, Integer semId) {
         if(courseQuery==null){
-            PaginationResultEntity<CourseEntity> getCache = cacheManager.getCache(courseCacheConstants.COURSE_LIST_BY_SEM+semId);
+            PaginationResultEntity<CourseEntity> getCache = cacheManager.getCache(courseCacheConstants.COURSE_LIST_BY_SEM, String.valueOf(semId));
             if(getCache==null){
                 //获取所有的课程的基础信息
                 PaginationResultEntity<CourseEntity> courseList = getCourseList(semId);
                 //将courseList放入缓存中
-                cacheManager.putCache(courseCacheConstants.COURSE_LIST_BY_SEM+semId,courseList);
+                cacheManager.putCache(courseCacheConstants.COURSE_LIST_BY_SEM, String.valueOf(semId),courseList);
                return courseList;
             }else {
                 return getCache;
@@ -143,6 +143,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
             listSubject.addAll(subjectDOS.stream().map(SubjectDO::getId).toList());
         }
         courseWrapper.in(!listSubject.isEmpty(),"subject_id",listSubject);
+        courseWrapper.orderByDesc("create_time");
         pageCourse = courseMapper.selectPage(pageCourse,courseWrapper);
         //将paginationEntity中的records类型转化成CourseEntity
         List<CourseDO> records = pageCourse.getRecords();
@@ -165,7 +166,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
             try {
                 evaTemplateCO = objectMapper.readValue(courOneEvaTemplateDO.getFormTemplate(), EvaTemplateCO.class);
             } catch (JsonProcessingException e) {
-                throw new QueryException("formTemplate暂时为空");
+                throw new QueryException("类型转换错误");
             }
         }
         else{
@@ -203,16 +204,16 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     public List<CourseScoreCO> findEvaScore(Integer id) {
         //根据课程ID找到全部courInfoDo信息
         List<Integer> courInfos = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", id)).stream().map(CourInfDO::getId).toList();
-        if(courInfos.isEmpty()) throw new QueryException("该课程没有课程信息");
+        if(courInfos.isEmpty()) return new ArrayList<>();
         //根据courInfos来找到评教任务id
         QueryWrapper<EvaTaskDO> evaTaskWrapper = new QueryWrapper<>();
         evaTaskWrapper.in(true,"cour_inf_id", courInfos);
         List<Integer> evaTaskDOIds = evaTaskMapper.selectList(evaTaskWrapper).stream().map(EvaTaskDO::getId).toList();
-        if(evaTaskDOIds.isEmpty())throw new QueryException("暂时还没有该课程的评教任务");
+        if(evaTaskDOIds.isEmpty())return new ArrayList<>();
         //根据评教任务id来找到评教表单记录数据中的form_props_values
         List<String> taskProps = formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id", evaTaskDOIds))
                 .stream().map(FormRecordDO::getFormPropsValues).toList();
-        if(taskProps.isEmpty())throw new QueryException("暂时还没有该课程的评教统计");
+        if(taskProps.isEmpty())return new ArrayList<>();
         //将json形式的字符串转化成EvaProp对象
         List<EvaProp> evaPropList = new ArrayList<>();
         for (String taskProp : taskProps) {
@@ -410,12 +411,12 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     @Override
     public PaginationResultEntity<CourseTypeEntity> pageCourseType(PagingQuery<GenericConditionalQuery> courseQuery) {
         if(courseQuery==null){
-            PaginationResultEntity<CourseTypeEntity> getCache=cacheManager.getCache(courseCacheConstants.COURSE_TYPE_LIST);
+            PaginationResultEntity<CourseTypeEntity> getCache=cacheManager.getCache(null,courseCacheConstants.COURSE_TYPE_LIST);
             if(getCache==null){
                 List<CourseTypeDO> courseTypeDOS = courseTypeMapper.selectList(null);
                 PaginationResultEntity<CourseTypeEntity> paginationEntity = paginationConverter
                         .toPaginationEntity(new Page<>(1, courseTypeDOS.size()), courseTypeDOS.stream().map(courseConvertor::toCourseTypeEntity).toList());
-                cacheManager.putCache(courseCacheConstants.COURSE_TYPE_LIST,paginationEntity);
+                cacheManager.putCache(null,courseCacheConstants.COURSE_TYPE_LIST,paginationEntity);
                 return paginationEntity;
             }else{
                 return getCache;
@@ -431,6 +432,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         QueryUtils.fileTimeQuery(queryWrapper,courseQuery.getQueryObj(),CourseTypeDO::getCreateTime,CourseTypeDO::getUpdateTime);
 
         //分页查询
+        queryWrapper.orderByDesc(CourseTypeDO::getCreateTime);
         Page<CourseTypeDO> courseTypeDOPage = courseTypeMapper.selectPage(page, queryWrapper);
         List<CourseTypeDO> records = courseTypeDOPage.getRecords();
         List<CourseTypeEntity> list = records.stream().map(courseConvertor::toCourseTypeEntity).toList();
@@ -605,7 +607,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         queryWrapper.eq("course_id", id);
         // 执行查询
         List<CourInfDO> resultList = courInfMapper.selectList(queryWrapper);
-        if(resultList.isEmpty())throw new QueryException("还没有该课程对应的授课");
+
         // 处理查询结果
         Map<Integer, List<CourInfDO>> groupedByDay = resultList.stream()
                 .collect(Collectors.groupingBy(CourInfDO::getDay));
