@@ -9,6 +9,6 @@ import org.springframework.stereotype.Component;
 public class CourseCacheConstants {
 
     public final String COURSE_TYPE_LIST = "course.list.type";
-    public final String COURSE_LIST_BY_SEM = "course.list.sem.";
+    public final String COURSE_LIST_BY_SEM = "course.list.sem";
     public final String SUBJECT_LIST = "subject.list";
 }

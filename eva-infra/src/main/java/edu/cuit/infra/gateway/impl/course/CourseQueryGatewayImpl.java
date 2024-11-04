@@ -105,12 +105,12 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     @Override
     public PaginationResultEntity<CourseEntity> page(PagingQuery<CourseConditionalQuery> courseQuery, Integer semId) {
         if(courseQuery==null){
-            PaginationResultEntity<CourseEntity> getCache = cacheManager.getCache(courseCacheConstants.COURSE_LIST_BY_SEM+semId);
+            PaginationResultEntity<CourseEntity> getCache = cacheManager.getCache(courseCacheConstants.COURSE_LIST_BY_SEM, String.valueOf(semId));
             if(getCache==null){
                 //获取所有的课程的基础信息
                 PaginationResultEntity<CourseEntity> courseList = getCourseList(semId);
                 //将courseList放入缓存中
-                cacheManager.putCache(courseCacheConstants.COURSE_LIST_BY_SEM+semId,courseList);
+                cacheManager.putCache(courseCacheConstants.COURSE_LIST_BY_SEM, String.valueOf(semId),courseList);
                return courseList;
             }else {
                 return getCache;
@@ -143,6 +143,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
             listSubject.addAll(subjectDOS.stream().map(SubjectDO::getId).toList());
         }
         courseWrapper.in(!listSubject.isEmpty(),"subject_id",listSubject);
+        courseWrapper.orderByDesc("create_time");
         pageCourse = courseMapper.selectPage(pageCourse,courseWrapper);
         //将paginationEntity中的records类型转化成CourseEntity
         List<CourseDO> records = pageCourse.getRecords();
@@ -410,12 +411,12 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     @Override
     public PaginationResultEntity<CourseTypeEntity> pageCourseType(PagingQuery<GenericConditionalQuery> courseQuery) {
         if(courseQuery==null){
-            PaginationResultEntity<CourseTypeEntity> getCache=cacheManager.getCache(courseCacheConstants.COURSE_TYPE_LIST);
+            PaginationResultEntity<CourseTypeEntity> getCache=cacheManager.getCache(null,courseCacheConstants.COURSE_TYPE_LIST);
             if(getCache==null){
                 List<CourseTypeDO> courseTypeDOS = courseTypeMapper.selectList(null);
                 PaginationResultEntity<CourseTypeEntity> paginationEntity = paginationConverter
                         .toPaginationEntity(new Page<>(1, courseTypeDOS.size()), courseTypeDOS.stream().map(courseConvertor::toCourseTypeEntity).toList());
-                cacheManager.putCache(courseCacheConstants.COURSE_TYPE_LIST,paginationEntity);
+                cacheManager.putCache(null,courseCacheConstants.COURSE_TYPE_LIST,paginationEntity);
                 return paginationEntity;
             }else{
                 return getCache;
@@ -431,6 +432,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         QueryUtils.fileTimeQuery(queryWrapper,courseQuery.getQueryObj(),CourseTypeDO::getCreateTime,CourseTypeDO::getUpdateTime);
 
         //分页查询
+        queryWrapper.orderByDesc(CourseTypeDO::getCreateTime);
         Page<CourseTypeDO> courseTypeDOPage = courseTypeMapper.selectPage(page, queryWrapper);
         List<CourseTypeDO> records = courseTypeDOPage.getRecords();
         List<CourseTypeEntity> list = records.stream().map(courseConvertor::toCourseTypeEntity).toList();
