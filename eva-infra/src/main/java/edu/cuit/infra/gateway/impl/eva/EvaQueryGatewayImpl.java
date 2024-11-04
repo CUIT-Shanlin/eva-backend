@@ -53,6 +53,7 @@ import edu.cuit.infra.dal.database.mapper.eva.FormTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.user.*;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
 import edu.cuit.infra.enums.cache.UserCacheConstants;
+import edu.cuit.infra.gateway.impl.course.operate.CourseFormat;
 import edu.cuit.infra.util.QueryUtils;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
@@ -1166,8 +1167,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             if(courOneEvaTemplateDO.getFormTemplate()==null){
                 return Optional.empty();
             }
-            JSONObject jsonObject= new JSONObject(courOneEvaTemplateDO.getFormTemplate());
-            String s=jsonObject.getStr("props");
+            String s = CourseFormat.toFormat(courOneEvaTemplateDO.getFormTemplate());
             return Optional.of(s);
         }else {
             if(formTemplateDO.getProps()==null){
