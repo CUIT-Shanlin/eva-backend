@@ -90,6 +90,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         EvaTaskDO evaTaskDO=evaTaskMapper.selectById(cmd.getTaskId());
         CourInfDO courInfDO=courInfMapper.selectById(evaTaskDO.getCourInfId());
         CourseDO courseDO=courseMapper.selectById(courInfDO.getCourseId());
+
         CourOneEvaTemplateDO courOneEvaTemplateDO=courOneEvaTemplateMapper.selectOne(new QueryWrapper<CourOneEvaTemplateDO>().eq("course_id",courseDO.getId()));
         FormTemplateDO formTemplateDO=formTemplateMapper.selectById(courseDO.getTemplateId());
         //把评教的具体数据传进去给评教记录
