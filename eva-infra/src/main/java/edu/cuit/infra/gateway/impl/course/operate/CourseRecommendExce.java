@@ -457,7 +457,6 @@ public class CourseRecommendExce {
     private List<CourseDO> judeTimetoGetCourse(SemesterDO semesterDO, MobileCourseQuery courseQuery) {
 
         QueryWrapper<CourInfDO> courseInfQueryWrapper = new QueryWrapper<>();
-        if(semesterDO==null)throw new QueryException("学期不存在");
         toJudgeTime(semesterDO,courseQuery,courseInfQueryWrapper);
 
         //课程时间

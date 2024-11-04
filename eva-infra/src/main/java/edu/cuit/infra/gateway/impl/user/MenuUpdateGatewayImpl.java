@@ -40,19 +40,19 @@ public class MenuUpdateGatewayImpl implements MenuUpdateGateway {
 
     @Override
     @LocalCacheInvalidateContainer({
-            @LocalCacheInvalidate(key = "#{@userCacheConstants.ONE_MENU + #cmd.id}"),
-            @LocalCacheInvalidate(key = "#{@userCacheConstants.MENU_CHILDREN + #cmd.parentId}")
+            @LocalCacheInvalidate(area = "#{@userCacheConstants.ONE_MENU}",key = "#cmd.id"),
+            @LocalCacheInvalidate(area = "#{@userCacheConstants.MENU_CHILDREN}",key = "#cmd.parentId")
     })
     public void updateMenuInfo(UpdateMenuCmd cmd) {
         SysMenuDO tmp = checkMenuId(cmd.getId());
         SysMenuDO menuDO = menuConvertor.toMenuDO(cmd);
 
         if (tmp.getParentId() != null && !tmp.getParentId().equals(cmd.getParentId())) {
-            localCacheManager.invalidateCache(userCacheConstants.MENU_CHILDREN + tmp.getParentId());
+            localCacheManager.invalidateCache(userCacheConstants.MENU_CHILDREN, String.valueOf(tmp.getParentId()));
         }
         menuMapper.updateById(menuDO);
 
-        localCacheManager.invalidateCache(userCacheConstants.ALL_MENU);
+        localCacheManager.invalidateCache(null,userCacheConstants.ALL_MENU);
         LogUtils.logContent(tmp.getName() + " 权限的信息");
     }
 
@@ -62,7 +62,7 @@ public class MenuUpdateGatewayImpl implements MenuUpdateGateway {
         roleMenuMapper.delete(Wrappers.lambdaQuery(SysRoleMenuDO.class).eq(SysRoleMenuDO::getMenuId,menuId));
         deleteMenuAndChildren(menuId);
 
-        localCacheManager.invalidateCache(userCacheConstants.ALL_MENU);
+        localCacheManager.invalidateCache(null,userCacheConstants.ALL_MENU);
         LogUtils.logContent(tmp.getName() + " 权限");
     }
 
@@ -76,18 +76,18 @@ public class MenuUpdateGatewayImpl implements MenuUpdateGateway {
             deleteMenuAndChildren(menuId);
         }
 
-        localCacheManager.invalidateCache(userCacheConstants.ALL_MENU);
+        localCacheManager.invalidateCache(null,userCacheConstants.ALL_MENU);
         LogUtils.logContent(tmp + " 权限");
     }
 
     @Override
-    @LocalCacheInvalidate(key = "#{@userCacheConstants.MENU_CHILDREN + #cmd.parentId}")
+    @LocalCacheInvalidate(area = "#{@userCacheConstants.MENU_CHILDREN}", key = "#cmd.parentId")
     public void createMenu(NewMenuCmd cmd) {
         if (cmd.getParentId() != null && cmd.getParentId() != 0 && menuQueryGateway.getOne(cmd.getParentId()).isEmpty())
             throw new BizException("父菜单ID: " + cmd.getParentId() + " 不存在");
         SysMenuDO menuDO = menuConvertor.toMenuDO(cmd);
         menuMapper.insert(menuDO);
-        localCacheManager.invalidateCache(userCacheConstants.ALL_MENU);
+        localCacheManager.invalidateCache(null,userCacheConstants.ALL_MENU);
 
     }
 
@@ -99,8 +99,8 @@ public class MenuUpdateGatewayImpl implements MenuUpdateGateway {
         SysMenuDO tmp = checkMenuId(menuId);
 
         menuMapper.deleteById(menuId);
-        localCacheManager.invalidateCache(userCacheConstants.MENU_CHILDREN + tmp.getParentId());
-        localCacheManager.invalidateCache(userCacheConstants.ONE_MENU + tmp.getId());
+        localCacheManager.invalidateCache(userCacheConstants.MENU_CHILDREN , String.valueOf(tmp.getParentId()));
+        localCacheManager.invalidateCache(userCacheConstants.ONE_MENU, String.valueOf(tmp.getId()));
         deleteRoleMenu(menuId);
     }
 
@@ -111,7 +111,7 @@ public class MenuUpdateGatewayImpl implements MenuUpdateGateway {
         roleMenuMapper.delete(roleMenuQuery);
 
         for (SysRoleMenuDO sysRoleMenuDO : sysRoleMenuList) {
-            localCacheManager.invalidateCache(userCacheConstants.ROLE_MENU + sysRoleMenuDO.getRoleId());
+            localCacheManager.invalidateCache(userCacheConstants.ROLE_MENU , String.valueOf(sysRoleMenuDO.getRoleId()));
         }
     }
 

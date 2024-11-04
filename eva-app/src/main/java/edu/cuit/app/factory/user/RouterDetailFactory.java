@@ -34,14 +34,14 @@ public class RouterDetailFactory {
         }
 
         return userMenus.stream()
-                .map(RouterDetailFactory::toRouterDetailCO)
+                .map((menu) -> toRouterDetailCO(menu,getUserMenus(user).stream()
+                        .map(MenuEntity::getId)
+                        .toList()))
                 .toList();
 
     }
 
-
-
-    private static RouterDetailCO toRouterDetailCO(MenuEntity menuEntity) {
+    private static RouterDetailCO toRouterDetailCO(MenuEntity menuEntity,List<Integer> userMenuIds) {
         RouterDetailCO routerDetailCO = new RouterDetailCO();
         routerDetailCO
                 .setPath(menuEntity.getPath())
@@ -52,9 +52,19 @@ public class RouterDetailFactory {
                         .setIcon(menuEntity.getIcon())
                         .setName(menuEntity.getName()))
                 .setChildren(menuEntity.getChildren().stream()
-                        .map(RouterDetailFactory::toRouterDetailCO)
+                        .filter(menu -> userMenuIds.contains(menu.getId()))
+                        .map((menu) -> toRouterDetailCO(menu,userMenuIds))
                         .toList());
         return routerDetailCO;
+    }
+
+    private static List<MenuEntity> getUserMenus(UserEntity user) {
+        List<MenuEntity> userMenus = new ArrayList<>();
+        for (RoleEntity role : user.getRoles()) {
+            userMenus.addAll(role.getMenus().stream()
+                    .toList());
+        }
+        return userMenus;
     }
 
 }

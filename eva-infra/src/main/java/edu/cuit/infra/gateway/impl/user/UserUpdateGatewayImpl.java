@@ -18,6 +18,7 @@ import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserRoleMapper;
 import edu.cuit.infra.dal.ldap.dataobject.LdapPersonDO;
 import edu.cuit.infra.dal.ldap.repo.LdapPersonRepo;
+import edu.cuit.infra.enums.cache.CourseCacheConstants;
 import edu.cuit.infra.enums.cache.UserCacheConstants;
 import edu.cuit.infra.util.EvaLdapUtils;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
@@ -44,6 +45,7 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
 
     private final LocalCacheManager cacheManager;
     private final UserCacheConstants userCacheConstants;
+    private final CourseCacheConstants courseCacheConstants;
 
     @Override
     public void updateInfo(UpdateUserCmd cmd) {
@@ -158,12 +160,13 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
     }
 
     private void handleUserUpdateCache(Integer userId,String username) {
-        cacheManager.invalidateCache(userCacheConstants.ONE_USER_ID + userId);
-        cacheManager.invalidateCache(userCacheConstants.ONE_USER_USERNAME + username);
-        cacheManager.invalidateCache(userCacheConstants.ALL_USER);
-        cacheManager.invalidateCache(userCacheConstants.ALL_USER_USERNAME);
-        cacheManager.invalidateCache(userCacheConstants.USER_ROLE + userId);
-        cacheManager.invalidateCache(userCacheConstants.ALL_DEPARTMENT);
+        cacheManager.invalidateCache(userCacheConstants.ONE_USER_ID , String.valueOf(userId));
+        cacheManager.invalidateCache(userCacheConstants.ONE_USER_USERNAME ,username);
+        cacheManager.invalidateCache(null,userCacheConstants.ALL_USER);
+        cacheManager.invalidateCache(null,userCacheConstants.ALL_USER_USERNAME);
+        cacheManager.invalidateCache(userCacheConstants.USER_ROLE , String.valueOf(userId));
+        cacheManager.invalidateCache(null,userCacheConstants.ALL_DEPARTMENT);
+        cacheManager.invalidateArea(courseCacheConstants.COURSE_LIST_BY_SEM);
     }
 
     /**

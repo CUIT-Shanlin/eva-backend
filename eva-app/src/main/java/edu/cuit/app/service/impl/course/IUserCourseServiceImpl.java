@@ -16,12 +16,11 @@ import edu.cuit.app.service.operate.course.update.FileImportExec;
 import edu.cuit.client.api.course.IUserCourseService;
 import edu.cuit.client.bo.MessageBO;
 import edu.cuit.client.dto.clientobject.SemesterCO;
-import edu.cuit.client.dto.clientobject.SimpleResultCO;
+import edu.cuit.client.dto.clientobject.SimpleSubjectResultCO;
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.client.dto.clientobject.course.RecommendCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
-import edu.cuit.client.dto.cmd.SendMessageCmd;
 import edu.cuit.client.dto.data.Term;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.gateway.course.CourseDeleteGateway;
@@ -54,7 +53,7 @@ public class IUserCourseServiceImpl implements IUserCourseService {
 
     @CheckSemId
     @Override
-    public List<SimpleResultCO> getUserCourseInfo( Integer semId) {
+    public List<SimpleSubjectResultCO> getUserCourseInfo(Integer semId) {
         String userName = String.valueOf(StpUtil.getLoginId());
         List<SelfTeachCourseCO> selfCourseInfo = courseQueryGateway.getSelfCourseInfo(userName, semId);
 
