@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 /**
  * 评教缓存键常量
  */
-@Component("EvaCacheConstants")
+@Component("evaCacheConstants")
 public class EvaCacheConstants {
     //任务相关
     //单个任务
