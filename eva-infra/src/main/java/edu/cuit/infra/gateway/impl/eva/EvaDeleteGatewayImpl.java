@@ -43,6 +43,7 @@ public class EvaDeleteGatewayImpl implements EvaDeleteGateway {
     @Override
     @Transactional
     public Void deleteEvaRecord(List<Integer> ids) {
+
         for (Integer id : ids) {
             QueryWrapper<FormRecordDO> formRecordWrapper = new QueryWrapper<>();
             formRecordWrapper.eq("id", id);
@@ -50,13 +51,13 @@ public class EvaDeleteGatewayImpl implements EvaDeleteGateway {
                 throw new QueryException("并未找到找到相应评教记录");
             }else {
                 FormRecordDO formRecordDO=formRecordMapper.selectById(id);
+                CourseDO courseDO=courseMapper.selectById(courInfMapper.selectById(evaTaskMapper.selectById(formRecordMapper.selectById(id).getTaskId()).getCourInfId()).getCourseId());
                 LogUtils.logContent(sysUserMapper.selectById(evaTaskMapper.selectById(formRecordDO.getTaskId()).getTeacherId()).getName()
                         +" 用户评教任务ID为"+formRecordDO.getTaskId()+"的评教记录");
                 formRecordMapper.delete(formRecordWrapper);
 
                 //看看相关课程有没有泡脚记录
                 Integer f=0;//0是没有，1是有
-                CourseDO courseDO=courseMapper.selectById(courInfMapper.selectById(evaTaskMapper.selectById(formRecordMapper.selectById(id).getTaskId()).getCourInfId()).getCourseId());
                 List<CourInfDO> courInfDOS=courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id",courseDO.getId()));
                 List<Integer> courInfIds=courInfDOS.stream().map(CourInfDO::getId).toList();
                 if(CollectionUtil.isEmpty(courInfIds)){
