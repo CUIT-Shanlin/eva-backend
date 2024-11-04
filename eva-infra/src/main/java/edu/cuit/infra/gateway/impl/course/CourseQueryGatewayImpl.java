@@ -590,7 +590,6 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         SemesterDO semesterDO=null;
         if(semId!=null){
             semesterDO= semesterMapper.selectById(semId);
-            if(semesterDO==null)throw new QueryException("学期不存在");
             return courseConvertor.toSemesterEntity(semesterDO);
         }
         return null;
