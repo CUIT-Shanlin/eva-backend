@@ -51,7 +51,16 @@ public class EvaDeleteGatewayImpl implements EvaDeleteGateway {
                 throw new QueryException("并未找到找到相应评教记录");
             }else {
                 FormRecordDO formRecordDO=formRecordMapper.selectById(id);
+                if(evaTaskMapper.selectById(formRecordMapper.selectById(id).getTaskId())==null){
+                    throw new QueryException("并未找到找到相应评教任务");
+                }
+                if(courInfMapper.selectById(evaTaskMapper.selectById(formRecordMapper.selectById(id).getTaskId()).getCourInfId()).getCourseId()==null){
+                    throw new QueryException("并未找到找到相应课程信息");
+                }
                 CourseDO courseDO=courseMapper.selectById(courInfMapper.selectById(evaTaskMapper.selectById(formRecordMapper.selectById(id).getTaskId()).getCourInfId()).getCourseId());
+                if(courseDO==null){
+                    throw new QueryException("没有找到相关课程");
+                }
                 LogUtils.logContent(sysUserMapper.selectById(evaTaskMapper.selectById(formRecordDO.getTaskId()).getTeacherId()).getName()
                         +" 用户评教任务ID为"+formRecordDO.getTaskId()+"的评教记录");
                 formRecordMapper.delete(formRecordWrapper);
