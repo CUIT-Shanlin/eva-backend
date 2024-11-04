@@ -50,6 +50,9 @@ public interface EvaConvertor {
             @Mapping(target = "isDeleted",source = "formRecordDO.isDeleted")
     })
     EvaRecordEntity ToEvaRecordEntity(FormRecordDO formRecordDO, Supplier<EvaTaskEntity> task);
+    @Mappings({
+            @Mapping(target = "isDefault",source = "formTemplateDO.isDefault"),
+    })
     EvaTemplateEntity ToEvaTemplateEntity(FormTemplateDO formTemplateDO);
 
 

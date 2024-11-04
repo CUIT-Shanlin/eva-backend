@@ -233,7 +233,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             formRecordWrapper.le(query.getQueryObj().getEndEvaluateTime()!=null,"create_time",query.getQueryObj().getEndEvaluateTime());
         }
 
-
+        formRecordWrapper.orderByDesc("create_time");
         pageLog = formRecordMapper.selectPage(pageLog,formRecordWrapper);
         List<FormRecordDO> records = pageLog.getRecords();
         List<EvaRecordEntity> list = records.stream().map(formRecordDO->evaConvertor.ToEvaRecordEntity(formRecordDO,
@@ -294,6 +294,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         }
         QueryUtils.fileCreateTimeQuery(evaTaskWrapper,taskQuery.getQueryObj());
 
+        evaTaskWrapper.orderByDesc("create_time");
         pageTask=evaTaskMapper.selectPage(pageTask,evaTaskWrapper);
 
         List<SysUserDO> sysUserDOS=sysUserMapper.selectList(null);
@@ -317,13 +318,16 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         if(query.getQueryObj().getKeyword()!=null&&StringUtils.isNotBlank(query.getQueryObj().getKeyword())){
             queryWrapper.like(query.getQueryObj().getKeyword()!=null,"name",query.getQueryObj().getKeyword());
         }
+        queryWrapper.orderByDesc("create_time");
         Page<FormTemplateDO> formTemplateDOPage = formTemplateMapper.selectPage(page, queryWrapper);
         if(CollectionUtil.isEmpty(formTemplateDOPage.getRecords())){
             List list=new ArrayList();
             return paginationConverter.toPaginationEntity(page,list);
         }
+
         List<EvaTemplateEntity> evaTemplateEntities=formTemplateDOPage.getRecords().stream().map(pageEvaTemplateDO -> evaConvertor.ToEvaTemplateEntity(pageEvaTemplateDO)).toList();
         return paginationConverter.toPaginationEntity(page,evaTemplateEntities);
+
     }
 
 
