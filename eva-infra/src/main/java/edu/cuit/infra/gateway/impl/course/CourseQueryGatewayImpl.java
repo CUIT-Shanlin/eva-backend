@@ -3,6 +3,7 @@ package edu.cuit.infra.gateway.impl.course;
 
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -10,6 +11,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.benmanes.caffeine.cache.Cache;
 import edu.cuit.client.bo.EvaProp;
@@ -164,8 +166,29 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         EvaTemplateCO evaTemplateCO=null;
         if(courOneEvaTemplateDO!=null&&courOneEvaTemplateDO.getFormTemplate()!=null){
             try {
-                evaTemplateCO = objectMapper.readValue(courOneEvaTemplateDO.getFormTemplate(), EvaTemplateCO.class);
-            } catch (JsonProcessingException e) {
+                /*String str = courOneEvaTemplateDO.getFormTemplate().replace("\\\"", "\"");
+
+                JSONObject jsonObject = JSONUtil.parseObj(str);
+                 String props = jsonObject.getStr("props");
+                if (props != null && props.startsWith("[\"") && props.endsWith("\"]")) {
+                    props = props.substring(1, props.length() - 1);
+                    props = props.replace("\\\"", "\"");
+                    jsonObject.put("props", props);
+                }
+                 evaTemplateCO = JSONUtil.toBean(jsonObject, EvaTemplateCO.class);*/
+                String str=courOneEvaTemplateDO.getFormTemplate();
+                //遍历str在[后遇到的每个"之前都加上\遇到]为止
+                StringBuffer string = new StringBuffer();
+                int flag=0;
+                for (char c : str.toCharArray()) {
+                    if(c=='[') flag=1;
+                    if(c==']') flag=0;
+                    if(flag==1&&c=='"') string.append("\\");
+                    string.append(c);
+                }
+                System.out.println(string);
+                evaTemplateCO = objectMapper.readValue(string.toString(), EvaTemplateCO.class);
+            } catch (JsonProcessingException e /*RuntimeException e*/) {
                 throw new QueryException("类型转换错误");
             }
         }
