@@ -116,7 +116,7 @@ public class CourseImportExce {
                     //课程类型课程关联表
                     toInsert(courseDO.getId(), type);
                 }else{
-                    courseDO=courseDO1;
+                    courseMapper.update(courseDO, new QueryWrapper<CourseDO>().eq("id", courseDO1.getId()));
                 }
                 for (Integer week : courseExcelBO.getWeeks()) {
                     CourInfDO courInfDO = courseConvertor.toCourInfDO(courseDO.getId(), week, courseExcelBO, LocalDateTime.now());
