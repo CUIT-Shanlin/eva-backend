@@ -370,21 +370,22 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     @Override
     @Transactional
     public Map<String,Map<Integer,Integer>> importCourseFile(Map<String, List<CourseExcelBO>> courseExce, SemesterCO semester, Integer type) {
-        Boolean imported = isImported(type, toTerm(semester));
         SemesterDO semesterDO = semesterMapper.selectOne(new QueryWrapper<SemesterDO>().eq("start_year", semester.getStartYear()).eq("period", semester.getPeriod()));
         Map<String,Map<Integer,Integer>> map=new HashMap<>();
         String typeName=null;
         if(type==0)typeName="理论课";
         else typeName="实验课";
         Map<Integer,Integer> evaTaskIds=new HashMap<>();
-        if(imported){
+        if(semesterDO!=null){
+            Boolean imported = isImported(type, toTerm(semester));
             //执行已有学期的删除添加逻辑
             if(semester.getStartDate()!=null){
                 semesterDO.setStartDate(semester.getStartDate());
                 semesterMapper.update(semesterDO,new QueryWrapper<SemesterDO>().eq("id",semesterDO.getId()));
             }
             evaTaskIds=courseImportExce.deleteCourse(semesterDO.getId(),type);
-            map.put(semesterDO.getStartYear()+"-"+semesterDO.getEndYear()+"第"+(semesterDO.getPeriod()+1)+"学期"+typeName+"课程表被覆盖",null);
+            if(imported)map.put(semesterDO.getStartYear()+"-"+semesterDO.getEndYear()+"第"+(semesterDO.getPeriod()+1)+"学期"+typeName+"课程表被覆盖",null);
+            else  map.put(semesterDO.getStartYear()+"-"+semesterDO.getEndYear()+"第"+(semesterDO.getPeriod()+1)+"学期"+typeName+"课程表被导入",evaTaskIds);
             map.put("因为"+semesterDO.getStartYear()+"-"+semesterDO.getEndYear()+"第"+(semesterDO.getPeriod()+1)+"学期"+typeName+"课程表被覆盖"+",故而取消您该学期的评教任务",evaTaskIds);
         }else{
             //直接插入学期
