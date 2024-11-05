@@ -1,16 +1,10 @@
 package edu.cuit.infra.gateway.impl.eva;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.alicp.jetcache.anno.CacheInvalidate;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.google.protobuf.StringValue;
-import edu.cuit.client.dto.clientobject.eva.AddTaskCO;
-import edu.cuit.client.dto.clientobject.eva.EvaTaskFormCO;
-import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
 import edu.cuit.client.dto.cmd.eva.EvaTemplateCmd;
 import edu.cuit.client.dto.cmd.eva.NewEvaLogCmd;
 import edu.cuit.client.dto.cmd.eva.NewEvaTaskCmd;
@@ -20,7 +14,6 @@ import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.course.SemesterDO;
 import edu.cuit.infra.dal.database.dataobject.eva.*;
-import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.SemesterMapper;
