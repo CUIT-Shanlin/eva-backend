@@ -471,7 +471,9 @@ public class CourseRecommendExce {
         List<CourInfDO> courInfDOS = courInfMapper.selectList(courseInfQueryWrapper);
         //得到courinfDOs中的courseId并去重
         List<Integer> courseDo1 = courInfDOS.stream().map(CourInfDO::getCourseId).distinct().toList();
-        List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semesterDO.getId()).in("id", courseDo1));
+        List<CourseDO> courseDOS;
+        if(courseDo1.isEmpty())courseDOS=new ArrayList<>();
+         else courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semesterDO.getId()).in("id", courseDo1));
         courseDo1=courseDOS.stream().map(CourseDO::getId).toList();
         //
         List<List<Integer>> list=new ArrayList<>();
