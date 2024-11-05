@@ -29,6 +29,7 @@ public class UserCourseDetailQueryExec {
         CourseModelCO courseModelCO=null;
         if(!singleCourseEntities.isEmpty()){
              typeList = courseQueryGateway.getCourseType(singleCourseEntities.get(0).getCourseEntity().getId());
+//             List<String> location=si
              courseModelCO = courseConvertor.toCourseModelCO(singleCourseEntities.get(0).getCourseEntity(), courseQueryGateway.getLocation(singleCourseEntities.get(0).getCourseEntity().getId()));
         }
 

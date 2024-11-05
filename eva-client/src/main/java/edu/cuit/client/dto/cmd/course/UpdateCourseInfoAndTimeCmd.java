@@ -3,6 +3,7 @@ package edu.cuit.client.dto.cmd.course;
 import com.alibaba.cola.dto.ClientObject;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
+import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeInfoCO;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -29,5 +30,5 @@ public class UpdateCourseInfoAndTimeCmd extends ClientObject {
      * 新的课程时段
      */
     @NotNull(message = "课程时段信息不能为空")
-    private List<SelfTeachCourseTimeCO> dateArr;
+    private List<SelfTeachCourseTimeInfoCO> dateArr;
 }

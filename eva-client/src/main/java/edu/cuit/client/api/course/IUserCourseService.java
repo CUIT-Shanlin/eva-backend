@@ -51,7 +51,7 @@ public interface IUserCourseService {
      * 获取自己教学的一门课程的课程时段
      * @param courseId 课程id
      * */
-    List<SelfTeachCourseTimeCO> selfCourseTime(Integer courseId);
+    List<SelfTeachCourseTimeInfoCO> selfCourseTime(Integer courseId);
 
     /**
      * 删除自己的一门课程
@@ -64,7 +64,7 @@ public interface IUserCourseService {
      *@param selfTeachCourseCO 用于确定是导入实验课表还是理论课表，0：理论课，1：实验课
      *  @param timeList 课表文件
      * */
-   Void updateSelfCourse(SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeCO> timeList);
+   Void updateSelfCourse(SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeInfoCO> timeList);
 
     /**
      * 删除自己的一门课程

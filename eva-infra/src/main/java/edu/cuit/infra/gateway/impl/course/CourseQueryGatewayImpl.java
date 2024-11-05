@@ -449,7 +449,6 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
 
         //构造semester
         SemesterEntity semesterEntity = getSemester(semId);
-        if(semesterEntity==null)throw new QueryException("未找到对应学期");
         //构造courseDo
         List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>()
                 .eq("teacher_id", id)
@@ -467,8 +466,8 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         for (Map.Entry<CourseDO, List<CourInfDO>> courseDOListEntry : map.entrySet()) {
             List<SingleCourseEntity> temp = new ArrayList<>();
             SubjectEntity subjectEntity = courseConvertor.toSubjectEntity(subjectMapper.selectById(courseDOListEntry.getKey().getSubjectId()));
+            CourseEntity courseEntity = courseConvertor.toCourseEntity(courseDOListEntry.getKey(), () -> subjectEntity, () -> userEntity, () -> semesterEntity);
             for (CourInfDO courInfDO : courseDOListEntry.getValue()) {
-                CourseEntity courseEntity = courseConvertor.toCourseEntity(courseDOListEntry.getKey(), () -> subjectEntity, () -> userEntity, () -> semesterEntity);
                 SingleCourseEntity singleCourseEntity = courseConvertor.toSingleCourseEntity(() -> courseEntity, courInfDO);
                 temp.add(singleCourseEntity);
             }
@@ -507,7 +506,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
             //统计评教数
             Long courInfId;
             if(courINfos.isEmpty())courInfId=0L;
-            else courInfId = evaTaskMapper.selectCount(new QueryWrapper<EvaTaskDO>().in("cour_inf_id",courINfos));
+            else courInfId = evaTaskMapper.selectCount(new QueryWrapper<EvaTaskDO>().in("cour_inf_id",courINfos).and(wrapper->wrapper.eq("status",0).or().eq("status",1)));
             //添加到selfteachCourseCO中
             SelfTeachCourseCO selfTeachCourseCO = new SelfTeachCourseCO();
             selfTeachCourseCO.setId(courseDO.getId())
@@ -539,7 +538,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         CourseEntity courseEntity = toCourseEntity(id,courseDO.getSemesterId());
         //根据id来查出CourInfoDo集合
         List<CourInfDO> courInfDOS = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", id));
-        if(courInfDOS.isEmpty())throw new QueryException("未找到对应课程信息");
+        if(courInfDOS.isEmpty())return new ArrayList<>();
         //转化成SingleCourseEntity
         return courInfDOS.stream().map(courInfDO -> courseConvertor.toSingleCourseEntity(()->courseEntity, courInfDO)).toList();
     }
