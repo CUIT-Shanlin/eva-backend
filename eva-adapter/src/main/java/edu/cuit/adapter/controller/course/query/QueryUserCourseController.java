@@ -7,6 +7,7 @@ import edu.cuit.app.service.impl.course.ICourseServiceImpl;
 import edu.cuit.app.service.impl.course.ICourseTypeServiceImpl;
 import edu.cuit.app.service.impl.course.IUserCourseServiceImpl;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
+import edu.cuit.client.dto.clientobject.SimpleSubjectResultCO;
 import edu.cuit.client.dto.clientobject.course.*;
 import edu.cuit.client.dto.data.course.CourseTime;
 import edu.cuit.client.dto.query.condition.MobileCourseQuery;
@@ -39,7 +40,7 @@ public class QueryUserCourseController {
      *
      * */
     @GetMapping("/courses")
-    public CommonResult<List<SimpleResultCO>> getUserCourseInfo(
+    public CommonResult<List<SimpleSubjectResultCO>> getUserCourseInfo(
             @RequestParam(value = "semId",required = false) Integer semId){
         return CommonResult.success(userCourseService.getUserCourseInfo(semId));
     }
@@ -98,7 +99,7 @@ public class QueryUserCourseController {
      * @param courseId 课程id
      * */
     @GetMapping("/course/my/date/{courseId}")
-    public CommonResult<List<SelfTeachCourseTimeCO>> selfCourseTime(
+    public CommonResult<List<SelfTeachCourseTimeInfoCO>> selfCourseTime(
             @PathVariable(value = "courseId",required = true) Integer courseId){
         return CommonResult.success(userCourseService.selfCourseTime(courseId));
     }

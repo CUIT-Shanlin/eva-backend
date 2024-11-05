@@ -13,6 +13,8 @@ import edu.cuit.client.dto.clientobject.eva.AddTaskCO;
 import edu.cuit.client.dto.clientobject.eva.EvaInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskBaseInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskDetailInfoCO;
+import edu.cuit.client.dto.cmd.eva.NewEvaLogCmd;
+import edu.cuit.client.dto.cmd.eva.NewEvaTaskCmd;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.EvaTaskConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
@@ -20,9 +22,11 @@ import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.entity.eva.CourOneEvaTemplateEntity;
 import edu.cuit.domain.entity.eva.EvaTaskEntity;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
+import edu.cuit.domain.gateway.eva.EvaDeleteGateway;
 import edu.cuit.domain.gateway.eva.EvaQueryGateway;
 import edu.cuit.domain.gateway.eva.EvaUpdateGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
+import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +42,7 @@ import java.util.Objects;
 public class EvaTaskServiceImpl implements IEvaTaskService {
     private final EvaUpdateGateway evaUpdateGateway;
     private final EvaQueryGateway evaQueryGateway;
+    private final EvaDeleteGateway evaDeleteGateway;
     private final UserQueryGateway userQueryGateway;
     private final CourseQueryGateway courseQueryGateway;
     private final EvaTaskBizConvertor evaTaskBizConvertor;
@@ -76,11 +81,11 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
     //发起任务之后，要同时发送该任务的评教待办消息
     @Override
     @Transactional
-    public Void postEvaTask(AddTaskCO addTaskCO) {
-        Integer taskId=evaUpdateGateway.postEvaTask(addTaskCO);
+    public Void postEvaTask(NewEvaTaskCmd newEvaTaskCmd) {
+        Integer taskId=evaUpdateGateway.postEvaTask(newEvaTaskCmd);
         msgService.sendMessage(new MessageBO().setMsg("")
                 .setMode(1).setIsShowName(1)
-                .setRecipientId(addTaskCO.getTeacherId()).setSenderId(addTaskCO.getTeacherId())
+                .setRecipientId(newEvaTaskCmd.getTeacherId()).setSenderId(newEvaTaskCmd.getTeacherId())
                 .setType(0).setTaskId(taskId));
         return null;
     }
@@ -101,6 +106,17 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
         }else{
             evaUpdateGateway.cancelEvaTaskById(id);
             msgService.deleteEvaMsg(id,null);
+        }
+        return null;
+    }
+
+    @Override
+    public Void deleteAllTaskByTea(Integer teacherId) {
+        List<Integer> evaTaskDOIds=evaDeleteGateway.deleteAllTaskByTea(teacherId);
+        if(evaTaskDOIds.size()!=0) {
+            for (int i = 0; i < evaTaskDOIds.size(); i++) {
+                msgService.deleteEvaMsg(evaTaskDOIds.get(i), null);
+            }
         }
         return null;
     }

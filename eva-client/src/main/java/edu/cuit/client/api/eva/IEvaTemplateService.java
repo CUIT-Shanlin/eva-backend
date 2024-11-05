@@ -4,6 +4,8 @@ import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskFormCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
+import edu.cuit.client.dto.cmd.eva.EvaTemplateCmd;
+import edu.cuit.client.dto.cmd.eva.NewEvaTemplateCmd;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 
@@ -52,15 +54,15 @@ public interface IEvaTemplateService {
 
     /**
      * 修改评教模板，注：只有在该评教模板没有分配在课程中 且 评教记录中也没使用过该模板 才可以进行删除或修改！
-     * @param evaTemplateCO 评教模板dto
+     * @param evaTemplateCmd 评教模板dto
      */
-    Void updateEvaTemplate(EvaTemplateCO evaTemplateCO);
+    Void updateEvaTemplate(EvaTemplateCmd evaTemplateCmd);
 
     /**
      * 新建评教模板
-     * @param evaTemplateCO 评教模板dto
+     * @param newEvaTemplateCmd 评教模板dto
      */
-    Void addEvaTemplate(EvaTemplateCO evaTemplateCO) throws ParseException;
+    Void addEvaTemplate(NewEvaTemplateCmd newEvaTemplateCmd) throws ParseException;
 
 
 }

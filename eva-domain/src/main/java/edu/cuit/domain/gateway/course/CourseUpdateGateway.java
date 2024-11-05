@@ -4,17 +4,14 @@ import edu.cuit.client.bo.CourseExcelBO;
 import edu.cuit.client.dto.clientobject.SemesterCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
-import edu.cuit.client.dto.clientobject.course.SubjectCO;
+import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeInfoCO;
 import edu.cuit.client.dto.cmd.course.*;
 import edu.cuit.client.dto.data.Term;
 import edu.cuit.client.dto.data.course.CourseType;
-import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
-import jakarta.validation.Valid;
 import org.springframework.stereotype.Component;
 /*import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;*/
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -53,7 +50,7 @@ public interface CourseUpdateGateway {
      *  @param courseType 修改课课程类型
      *
      * */
-    Void updateCourseType(CourseType courseType);
+    Void updateCourseType(UpdateCourseTypeCmd courseType);
 
     /**
      * 新建一个课程类型
@@ -93,7 +90,7 @@ public interface CourseUpdateGateway {
      *  @param timeList 课表文件
      *  @param userName 用户名
      * */
-    Map<String,Map<Integer,Integer>> updateSelfCourse(String userName,SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeCO> timeList);
+    Map<String,Map<Integer,Integer>> updateSelfCourse(String userName,SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeInfoCO> timeList);
 
     /**
      * 批量新建多节课(已有课程)
@@ -120,8 +117,8 @@ public interface CourseUpdateGateway {
 
     /**
      * 批量修改课程对应类型的模型
-     *  @param updateCoursesType 课程id
+     *  @param updateCoursesToTypeCmd 课程id
      *
      * */
-    void updateCoursesType(UpdateCoursesType updateCoursesType);
+    void updateCoursesType(UpdateCoursesToTypeCmd updateCoursesToTypeCmd);
 }

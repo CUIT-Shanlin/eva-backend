@@ -16,6 +16,7 @@ import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.infra.enums.cache.CourseCacheConstants;
+import edu.cuit.infra.enums.cache.EvaCacheConstants;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,7 @@ public class CourseImportExce {
     private final FormTemplateMapper formTemplateMapper;
     private final LocalCacheManager cacheManager;
     private final CourseCacheConstants courseCacheConstants;
+    private final EvaCacheConstants evaCacheConstants;
     //删除这学期所有的课程
     public List<Integer> deleteCourse(Integer semId, Integer type) {
         List<Integer> evaTaskIds=new ArrayList<>();
@@ -57,7 +59,7 @@ public class CourseImportExce {
         }
         if(!courseIds.isEmpty()){
             courseMapper.delete(new QueryWrapper<CourseDO>().eq("semester_id", semId).in("id", courseIds));
-            cacheManager.invalidateCache(courseCacheConstants.COURSE_LIST_BY_SEM+semId);
+            cacheManager.invalidateCache(courseCacheConstants.COURSE_LIST_BY_SEM, String.valueOf(semId));
             //删除每节课
             List<Integer> courInfoIds = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in(true,"course_id", courseIds)).stream().map(CourInfDO::getId).toList();
             courInfMapper.delete(new QueryWrapper<CourInfDO>().in(!courseIds.isEmpty(),"course_id", courseIds));
@@ -77,6 +79,8 @@ public class CourseImportExce {
                 courOneEvaTemplateMapper.delete(new QueryWrapper<CourOneEvaTemplateDO>().in(!courseIds.isEmpty(),"course_id", courseIds));
             }
         }
+        cacheManager.invalidateCache(null,evaCacheConstants.LOG_LIST);
+        cacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(semId));
         return evaTaskIds;
 
     }

@@ -1,9 +1,8 @@
 package edu.cuit.client.api.course;
 
-import edu.cuit.client.dto.clientobject.SimpleResultCO;
+import edu.cuit.client.dto.clientobject.SimpleSubjectResultCO;
 import edu.cuit.client.dto.clientobject.course.*;
 import edu.cuit.client.dto.data.Term;
-import jakarta.validation.Valid;
 
 
 import java.io.InputStream;
@@ -16,9 +15,10 @@ public interface IUserCourseService {
 
     /**
      * 获取用户自己的教学的课程基础信息
-     *  @param semId 学期id
-     * */
-    List<SimpleResultCO> getUserCourseInfo( Integer semId);
+     *
+     * @param semId 学期id
+     */
+    List<SimpleSubjectResultCO> getUserCourseInfo(Integer semId);
 
     /**
      * 获取单个用户的教学课程的详细信息
@@ -51,7 +51,7 @@ public interface IUserCourseService {
      * 获取自己教学的一门课程的课程时段
      * @param courseId 课程id
      * */
-    List<SelfTeachCourseTimeCO> selfCourseTime(Integer courseId);
+    List<SelfTeachCourseTimeInfoCO> selfCourseTime(Integer courseId);
 
     /**
      * 删除自己的一门课程
@@ -64,7 +64,7 @@ public interface IUserCourseService {
      *@param selfTeachCourseCO 用于确定是导入实验课表还是理论课表，0：理论课，1：实验课
      *  @param timeList 课表文件
      * */
-   Void updateSelfCourse(SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeCO> timeList);
+   Void updateSelfCourse(SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeInfoCO> timeList);
 
     /**
      * 删除自己的一门课程
@@ -72,6 +72,13 @@ public interface IUserCourseService {
      *  @param term 学期类
      * */
     Boolean isImported(Integer type,Term term);
+
+    /**
+     * 获取用户教学所有课程信息
+     *  @param semId 学期ID
+     *  @param userId 用户ID
+     * */
+    List<Integer> getUserCourses(Integer semId,Integer userId);
 
 
 

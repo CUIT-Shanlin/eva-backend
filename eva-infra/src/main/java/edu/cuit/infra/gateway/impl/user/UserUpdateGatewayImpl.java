@@ -18,7 +18,10 @@ import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserRoleMapper;
 import edu.cuit.infra.dal.ldap.dataobject.LdapPersonDO;
 import edu.cuit.infra.dal.ldap.repo.LdapPersonRepo;
+import edu.cuit.infra.enums.cache.CourseCacheConstants;
+import edu.cuit.infra.enums.cache.UserCacheConstants;
 import edu.cuit.infra.util.EvaLdapUtils;
+import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -40,6 +43,10 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
     private final UserConverter userConverter;
     private final LdapUserConvertor ldapUserConvertor;
 
+    private final LocalCacheManager cacheManager;
+    private final UserCacheConstants userCacheConstants;
+    private final CourseCacheConstants courseCacheConstants;
+
     @Override
     public void updateInfo(UpdateUserCmd cmd) {
         SysUserDO tmp = checkIdExistence(Math.toIntExact(cmd.getId()));
@@ -54,6 +61,8 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
         LdapPersonEntity ldapPersonEntity = ldapUserConvertor.userDOToLdapPersonEntity(userDO);
         ldapPersonGateway.saveUser(ldapPersonEntity);
 
+        handleUserUpdateCache(Math.toIntExact(cmd.getId()));
+
         LogUtils.logContent(tmp.getName() + " 用户(id:" + tmp.getId() + ")的信息");
     }
 
@@ -65,6 +74,8 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
         userUpdate.set(SysUserDO::getStatus,status).eq(SysUserDO::getId,userId);
         userMapper.update(userUpdate);
 
+        handleUserUpdateCache(userId);
+
         LogUtils.logContent(tmp.getName() + " 用户(id:" + tmp.getId() + ")的状态为 " + status);
     }
 
@@ -75,6 +86,8 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
         userMapper.deleteById(userId);
         ldapPersonRepo.deleteById(EvaLdapUtils.getUserLdapNameId(getUsername(userId)));
         userRoleMapper.delete(Wrappers.lambdaQuery(SysUserRoleDO.class).eq(SysUserRoleDO::getUserId,userId));
+
+        handleUserUpdateCache(userId,tmp.getUsername());
 
         LogUtils.logContent(tmp.getName() + " 用户(id:" + tmp.getId() + ")");
     }
@@ -104,6 +117,8 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
                     .setRoleId(id));
         }
 
+        handleUserUpdateCache(userId);
+
         LogUtils.logContent(tmp.getName() + " 用户(id:" + tmp.getId() + ")的角色信息");
     }
 
@@ -125,7 +140,11 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
                 .setRoleId(roleQueryGateway.getDefaultRoleId())
                 .setUserId(userDO.getId());
         userRoleMapper.insert(sysUserRoleDO);
-        ldapPersonGateway.createUser(ldapPerson,cmd.getPassword());
+        if (ldapPersonGateway.findByUsername(cmd.getUsername()).isEmpty()) {
+            ldapPersonGateway.createUser(ldapPerson,cmd.getPassword());
+        }
+
+        handleUserUpdateCache(userDO.getId(),cmd.getUsername());
     }
 
     private void checkAdmin(Integer userId) {
@@ -133,6 +152,21 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
         if ("admin".equalsIgnoreCase(username)) {
             throw new BizException("初始管理员账户不允许此操作");
         }
+    }
+
+    private void handleUserUpdateCache(Integer userId) {
+        String username = getUsername(userId);
+        handleUserUpdateCache(userId,username);
+    }
+
+    private void handleUserUpdateCache(Integer userId,String username) {
+        cacheManager.invalidateCache(userCacheConstants.ONE_USER_ID , String.valueOf(userId));
+        cacheManager.invalidateCache(userCacheConstants.ONE_USER_USERNAME ,username);
+        cacheManager.invalidateCache(null,userCacheConstants.ALL_USER);
+        cacheManager.invalidateCache(null,userCacheConstants.ALL_USER_USERNAME);
+        cacheManager.invalidateCache(userCacheConstants.USER_ROLE , String.valueOf(userId));
+        cacheManager.invalidateCache(null,userCacheConstants.ALL_DEPARTMENT);
+        cacheManager.invalidateArea(courseCacheConstants.COURSE_LIST_BY_SEM);
     }
 
     /**

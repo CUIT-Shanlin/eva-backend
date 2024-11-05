@@ -22,26 +22,29 @@ public class RouterDetailFactory {
         if ("admin".equals(user.getUsername())) {
             MenuQueryGateway menuQueryGateway = SpringUtil.getBean(MenuQueryGateway.class);
             userMenus = menuQueryGateway.getAllMenu()
-                    .stream().filter(menuEntity -> menuEntity.getParentId() == null || menuEntity.getParentId() == 0)
+                    .stream()
+                    .filter(menuEntity -> menuEntity.getParentId() == null || menuEntity.getParentId() == 0)
                     .toList();
         } else {
             userMenus = new ArrayList<>();
             for (RoleEntity role : user.getRoles()) {
+                if (role.getStatus() == 0) continue;
                 userMenus.addAll(role.getMenus().stream()
                         .filter(menuEntity -> menuEntity.getParentId() == null || menuEntity.getParentId() == 0)
+                        .filter(menuEntity -> menuEntity.getStatus() == 1)
                         .toList());
             }
         }
 
         return userMenus.stream()
-                .map(RouterDetailFactory::toRouterDetailCO)
+                .map((menu) -> toRouterDetailCO(menu,getUserMenus(user).stream()
+                        .map(MenuEntity::getId)
+                        .toList(),user.getName()))
                 .toList();
 
     }
 
-
-
-    private static RouterDetailCO toRouterDetailCO(MenuEntity menuEntity) {
+    private static RouterDetailCO toRouterDetailCO(MenuEntity menuEntity,List<Integer> userMenuIds,String username) {
         RouterDetailCO routerDetailCO = new RouterDetailCO();
         routerDetailCO
                 .setPath(menuEntity.getPath())
@@ -52,9 +55,21 @@ public class RouterDetailFactory {
                         .setIcon(menuEntity.getIcon())
                         .setName(menuEntity.getName()))
                 .setChildren(menuEntity.getChildren().stream()
-                        .map(RouterDetailFactory::toRouterDetailCO)
+                        .filter(menu -> userMenuIds.contains(menu.getId()))
+                        .filter(menu -> menu.getStatus() == 1 || "admin".equals(username))
+                        .map(menu -> toRouterDetailCO(menu,userMenuIds,username))
                         .toList());
         return routerDetailCO;
+    }
+
+    private static List<MenuEntity> getUserMenus(UserEntity user) {
+        List<MenuEntity> userMenus = new ArrayList<>();
+        for (RoleEntity role : user.getRoles()) {
+            if (!"admin".equals(user.getName()) && role.getStatus() == 0) continue;
+            userMenus.addAll(role.getMenus().stream()
+                    .toList());
+        }
+        return userMenus;
     }
 
 }

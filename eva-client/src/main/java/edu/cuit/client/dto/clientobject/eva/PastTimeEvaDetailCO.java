@@ -2,6 +2,7 @@ package edu.cuit.client.dto.clientobject.eva;
 
 import com.alibaba.cola.dto.ClientObject;
 import edu.cuit.client.dto.clientobject.DateEvaNumCO;
+import edu.cuit.client.dto.clientobject.MoreDateEvaNumCO;
 import edu.cuit.client.dto.clientobject.SimpleEvaPercentCO;
 import edu.cuit.client.dto.clientobject.TimeEvaNumCO;
 import lombok.Data;
@@ -29,5 +30,5 @@ public class PastTimeEvaDetailCO extends ClientObject{
     /**
      * 指定时间段内每天的新增评教数目
      */
-    private List<DateEvaNumCO> dataArr;
+    private List<MoreDateEvaNumCO> dataArr;
 }

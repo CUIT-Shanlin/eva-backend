@@ -52,10 +52,11 @@ public abstract class CourseBizConvertor {
     public abstract SimpleSubjectResultCO toSimpleSubjectResultCO(SubjectEntity entity);
     @Mappings({
 
-            @Mapping(target = "id",expression = "java(entity.getId())")
+            @Mapping(target = "id",expression = "java(entity.getId())"),
+            @Mapping(target = "nature",expression = "java(entity.getNature())")
 
     })
-    public abstract SimpleResultCO toSimpleResultCO(SelfTeachCourseCO entity);
+    public abstract SimpleSubjectResultCO toSimpleResultCO(SelfTeachCourseCO entity);
     @Mappings({
 
             @Mapping(target = "id",expression = "java(courseTypeEntity.getId())"),
@@ -72,9 +73,22 @@ public abstract class CourseBizConvertor {
             @Mapping(target = "updateTime",source = "courseEntity.updateTime"),
             @Mapping(target = "name",expression="java(courseEntity.getSubjectEntity().getName())"),
             @Mapping(target = "templateMsg",expression="java(toEvaTemplateCO(formTemplateMapper.selectById(courseEntity.getTemplateId())))"),
-            @Mapping(target = "teacherMsg",expression="java(toTeacherInfoCO(courseEntity.getTeacher()))")
+            @Mapping(target = "teacherMsg",expression="java(toTeacherInfoCO(courseEntity.getTeacher()))"),
+            @Mapping(target = "nature",expression="java(courseEntity.getSubjectEntity().getNature())"),
+            @Mapping(target = "subjectId",expression="java(courseEntity.getSubjectEntity().getId())")
     })
     public abstract CourseModelCO toCourseModelCO(CourseEntity courseEntity, List<String> classroomList);
+    @Mappings({
+            @Mapping(target = "id",expression = "java(courseEntity.getId())"),
+            @Mapping(target = "classroomList",source = "classroomList"),
+            @Mapping(target = "createTime",source = "courseEntity.createTime"),
+            @Mapping(target = "updateTime",source = "courseEntity.updateTime"),
+            @Mapping(target = "name",expression="java(courseEntity.getSubjectEntity().getName())"),
+            @Mapping(target = "teacherMsg",expression="java(toTeacherInfoCO(courseEntity.getTeacher()))"),
+            @Mapping(target = "nature",expression="java(courseEntity.getSubjectEntity().getNature())"),
+            @Mapping(target = "subjectId",expression="java(courseEntity.getSubjectEntity().getId())")
+    })
+    public abstract CourseModelCO toCourseModelCO2(CourseEntity courseEntity, List<String> classroomList);
 
     @Mappings({
 

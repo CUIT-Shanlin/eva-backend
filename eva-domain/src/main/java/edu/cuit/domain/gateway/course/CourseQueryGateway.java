@@ -67,7 +67,7 @@ public interface CourseQueryGateway {
      *  @param week 哪一周?
      *  @return List<List<Integer>>
      * */
-    List<List<Integer>> getWeekCourses(Integer week,Integer semId);
+    List<List<Integer>> getWeekCourses(Integer semId,Integer week);
 
     /**
      * 获取一个课程时间段的课程信息
@@ -166,7 +166,10 @@ public interface CourseQueryGateway {
      * */
     List<EvaTeacherInfoCO> getEvaUsers(Integer courseId);
 
-
-
-
+    /**
+     * 获取用户教学所有课程
+     *  @param semId 学期ID
+     *  @param userId 用户ID
+     * */
+    List<Integer> getUserCourses(Integer semId,Integer userId);
 }

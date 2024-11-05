@@ -53,4 +53,10 @@ public class SemesterGatewayImpl implements SemesterGateway {
         if(semesterDO==null)throw new QueryException("学期不存在");
         return semesterConverter.toSemesterCO(semesterDO);
     }
+
+    @Override
+    public SemesterCO selectSemester(Integer id) {
+        SemesterDO semesterDO = semesterMapper.selectById(id);
+        return semesterConverter.toSemesterCO(semesterDO);
+    }
 }

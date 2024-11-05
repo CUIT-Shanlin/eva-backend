@@ -15,6 +15,7 @@ import edu.cuit.client.dto.clientobject.SimpleSubjectResultCO;
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.client.dto.clientobject.course.CourseModelCO;
 import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
+import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
 import edu.cuit.client.dto.cmd.SendMessageCmd;
 import edu.cuit.client.dto.cmd.course.UpdateCourseCmd;
 import edu.cuit.client.dto.cmd.course.UpdateCoursesCmd;
@@ -27,6 +28,7 @@ import edu.cuit.domain.gateway.course.CourseDeleteGateway;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.domain.gateway.course.CourseUpdateGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
+import edu.cuit.infra.gateway.impl.course.operate.CourseFormat;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -44,6 +46,7 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     private final PaginationBizConvertor pagenConvertor;
     private final MsgServiceImpl msgService;
    private final MsgResult msgResult;
+   private final CourseFormat courseFormat;
     @CheckSemId
     @Override
     public PaginationQueryResultCO<CourseModelCO> pageCoursesInfo(Integer semId, PagingQuery<CourseConditionalQuery> courseQuery) {
@@ -52,7 +55,15 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
         List<CourseModelCO> list=new ArrayList<>();
         for (CourseEntity record : records) {
             List<String> location = courseQueryGateway.getLocation(record.getId());
-            list.add(courseBizConvertor.toCourseModelCO(record, location));
+            EvaTemplateCO evaTemplateCO = courseFormat.selectCourOneEvaTemplateDO(semId, record.getId());
+            if(evaTemplateCO==null) {
+                list.add(courseBizConvertor.toCourseModelCO(record, location));
+            }
+            else{
+                CourseModelCO courseModelCO2 = courseBizConvertor.toCourseModelCO2(record, location);
+                courseModelCO2.setTemplateMsg(evaTemplateCO);
+                list.add(courseModelCO2);
+            }
         }
         return pagenConvertor.toPaginationEntity(page, list);
     }

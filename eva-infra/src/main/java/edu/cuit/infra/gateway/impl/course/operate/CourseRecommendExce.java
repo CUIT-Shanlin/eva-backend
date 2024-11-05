@@ -229,13 +229,18 @@ public class CourseRecommendExce {
                 }
                 CourseTime courestime = courseConvertor.toCourseTime(courInfDO);
                 recommend.setTime(courestime);
-                Long num = evaTaskMapper.selectCount( new QueryWrapper<EvaTaskDO>()
+               /* Long num = evaTaskMapper.selectCount( new QueryWrapper<EvaTaskDO>()
                         .eq("cour_inf_id", courInfDO.getId())
                         .and(wrapper -> wrapper.eq("status", 1).or().eq("status", 0)));
-                EvaNum+=Math.toIntExact(num);
+                EvaNum+=Math.toIntExact(num);*/
 //                evaTeacherNum+=Math.toIntExact(num);
                 recommendCourseCOS.add(recommend);
             }
+            List<Integer> list1 = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseDO.getId())).stream().map(CourInfDO::getId).toList();
+            if(!list1.isEmpty())
+             EvaNum =Math.toIntExact(evaTaskMapper.selectCount( new QueryWrapper<EvaTaskDO>()
+                    .in("cour_inf_id",list1)
+                    .and(wrapper -> wrapper.eq("status", 1).or().eq("status", 0))));
             int finalEvaNum = EvaNum;
             recommendCourseCOS.forEach(recommendCourseCO -> {
                 if(recommendCourseCO.getName().equals(subjectDO.getName())){
@@ -380,13 +385,14 @@ public class CourseRecommendExce {
                 }
                 CourseTime courestime = courseConvertor.toCourseTime(courInfDO);
                 recommend.setTime(courestime);
-                Long num = evaTaskMapper.selectCount( new QueryWrapper<EvaTaskDO>()
-                        .eq("cour_inf_id", courInfDO.getId())
-                        .and(wrapper -> wrapper.eq("status", 1).or().eq("status", 0)));
-                EvaNum+=Math.toIntExact(num);
 //                evaTeacherNum+=Math.toIntExact(num);
                 recommendCourseCOS.add(recommend);
             }
+            List<Integer> list1 = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseDO.getId())).stream().map(CourInfDO::getId).toList();
+            if(!list1.isEmpty())
+                EvaNum =Math.toIntExact(evaTaskMapper.selectCount( new QueryWrapper<EvaTaskDO>()
+                        .in("cour_inf_id",list1)
+                        .and(wrapper -> wrapper.eq("status", 1).or().eq("status", 0))));
             int finalEvaNum = EvaNum;
             recommendCourseCOS.forEach(recommendCourseCO -> {
                 if(recommendCourseCO.getName().equals(subjectDO.getName())){
@@ -435,13 +441,15 @@ public class CourseRecommendExce {
                 }
                 CourseTime courestime = courseConvertor.toCourseTime(courInfDO);
                 recommend.setTime(courestime);
-                Long num = evaTaskMapper.selectCount( new QueryWrapper<EvaTaskDO>()
-                        .eq("cour_inf_id", courInfDO.getId())
-                        .and(wrapper -> wrapper.eq("status", 1).or().eq("status", 0)));
-                EvaNum+=Math.toIntExact(num);
+
 //                evaTeacherNum+=Math.toIntExact(num);
                 recommendCourseCOS.add(recommend);
             }
+            List<Integer> list1 = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseDO.getId())).stream().map(CourInfDO::getId).toList();
+            if(!list1.isEmpty())
+                EvaNum =Math.toIntExact(evaTaskMapper.selectCount( new QueryWrapper<EvaTaskDO>()
+                        .in("cour_inf_id",list1)
+                        .and(wrapper -> wrapper.eq("status", 1).or().eq("status", 0))));
             int finalEvaNum = EvaNum;
             recommendCourseCOS.forEach(recommendCourseCO -> {
                 if(recommendCourseCO.getName().equals(subjectDO.getName())){
@@ -457,13 +465,14 @@ public class CourseRecommendExce {
     private List<CourseDO> judeTimetoGetCourse(SemesterDO semesterDO, MobileCourseQuery courseQuery) {
 
         QueryWrapper<CourInfDO> courseInfQueryWrapper = new QueryWrapper<>();
-        if(semesterDO==null)throw new QueryException("学期不存在");
         toJudgeTime(semesterDO,courseQuery,courseInfQueryWrapper);
 
         //课程时间
         List<CourInfDO> courInfDOS = courInfMapper.selectList(courseInfQueryWrapper);
         //得到courinfDOs中的courseId并去重
         List<Integer> courseDo1 = courInfDOS.stream().map(CourInfDO::getCourseId).distinct().toList();
+        List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semesterDO.getId()).in("id", courseDo1));
+        courseDo1=courseDOS.stream().map(CourseDO::getId).toList();
         //
         List<List<Integer>> list=new ArrayList<>();
 //        list.add(courseDo1);
@@ -491,7 +500,8 @@ public class CourseRecommendExce {
             CourseTypeDO courseTypeDO = courseTypeMapper.selectById(courseQuery.getTypeId());
             if(courseTypeDO==null)throw new QueryException("该课程类型不存在");
             List<CourseTypeCourseDO> courseTypeCourseDOS = courseTypeCourseMapper.selectList(new QueryWrapper<CourseTypeCourseDO>().eq("type_id", courseTypeDO.getId()));
-            typeCourseList=courseTypeCourseDOS.stream().map(CourseTypeCourseDO::getCourseId).distinct().toList();
+            List<Integer> list1 = courseTypeCourseDOS.stream().map(CourseTypeCourseDO::getCourseId).distinct().toList();
+            typeCourseList = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semesterDO.getId()).in("id", list1)).stream().map(CourseDO::getId).toList();
              list.add(typeCourseList);
         }
 
@@ -547,7 +557,7 @@ public class CourseRecommendExce {
             List<Integer> userIds = user.stream().map(SysUserDO::getId).toList();
             if(userIds.isEmpty())throw new QueryException("该院系没有老师");
             List<CourseDO> courseDOS =new ArrayList<>();
-            courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().in(true, "teacher_id", userIds));
+            courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().in(true, "teacher_id", userIds).eq("semester_id", semId));
             if (courseDOS.isEmpty())throw new QueryException("该院系教师还没有分配对应时间段课程");
             list.addAll(courseDOS);
             return list;

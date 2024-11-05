@@ -19,7 +19,7 @@ public class DateEvaNumCO extends ClientObject{
     /**
      * 新增评教数目
      */
-    private Integer moreEvaNum;
+    private Integer value;
     /**
      * 当前时间点
      */

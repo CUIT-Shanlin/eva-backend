@@ -14,14 +14,11 @@ import edu.cuit.app.service.operate.course.MsgResult;
 import edu.cuit.app.service.operate.course.query.UserCourseDetailQueryExec;
 import edu.cuit.app.service.operate.course.update.FileImportExec;
 import edu.cuit.client.api.course.IUserCourseService;
+import edu.cuit.client.bo.CourseExcelBO;
 import edu.cuit.client.bo.MessageBO;
 import edu.cuit.client.dto.clientobject.SemesterCO;
-import edu.cuit.client.dto.clientobject.SimpleResultCO;
-import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
-import edu.cuit.client.dto.clientobject.course.RecommendCourseCO;
-import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
-import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
-import edu.cuit.client.dto.cmd.SendMessageCmd;
+import edu.cuit.client.dto.clientobject.SimpleSubjectResultCO;
+import edu.cuit.client.dto.clientobject.course.*;
 import edu.cuit.client.dto.data.Term;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.gateway.course.CourseDeleteGateway;
@@ -54,7 +51,7 @@ public class IUserCourseServiceImpl implements IUserCourseService {
 
     @CheckSemId
     @Override
-    public List<SimpleResultCO> getUserCourseInfo( Integer semId) {
+    public List<SimpleSubjectResultCO> getUserCourseInfo(Integer semId) {
         String userName = String.valueOf(StpUtil.getLoginId());
         List<SelfTeachCourseCO> selfCourseInfo = courseQueryGateway.getSelfCourseInfo(userName, semId);
 
@@ -85,14 +82,15 @@ public class IUserCourseServiceImpl implements IUserCourseService {
         } catch (JsonProcessingException e) {
             throw new UpdateException("学期类型转换错误");
         }
+        Map<String, List<CourseExcelBO>> courseExce;
         if(type==0){
-            FileImportExec.importCourse(CourseExcelResolver.resolveData(CourseExcelResolver.Strategy.THEORY_COURSE, fileStream));
+            courseExce = FileImportExec.importCourse(CourseExcelResolver.resolveData(CourseExcelResolver.Strategy.THEORY_COURSE, fileStream));
         }else if(type==1){
-            FileImportExec.importCourse(CourseExcelResolver.resolveData(CourseExcelResolver.Strategy.EXPERIMENTAL_COURSE, fileStream));
+            courseExce = FileImportExec.importCourse(CourseExcelResolver.resolveData(CourseExcelResolver.Strategy.EXPERIMENTAL_COURSE, fileStream));
         }else{
             throw new BizException("课表类型转换错误");
         }
-        Map<String, List<Integer>> map = courseUpdateGateway.importCourseFile(FileImportExec.courseExce, semesterCO, type);
+        Map<String, List<Integer>> map = courseUpdateGateway.importCourseFile(courseExce, semesterCO, type);
         Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
         for (Map.Entry<String, List<Integer>> stringListEntry : map.entrySet()) {
             Map<String, Map<Integer, Integer> > temMap=new HashMap<>();
@@ -111,22 +109,24 @@ public class IUserCourseServiceImpl implements IUserCourseService {
     }
 
     @Override
-    public List<SelfTeachCourseTimeCO> selfCourseTime(Integer courseId) {
+    public List<SelfTeachCourseTimeInfoCO> selfCourseTime(Integer courseId) {
         List<SingleCourseEntity> selfCourseTime = courseQueryGateway.getSelfCourseTime(courseId);
        //根据SingleCourseEntity中的day和starTime来分组
         Map<String, List<SingleCourseEntity>> map = selfCourseTime.stream().collect(Collectors.groupingBy(course -> course.getDay() + "-" + course.getStartTime()+"-"+course.getEndTime()));
-        List<SelfTeachCourseTimeCO> list=new ArrayList<>();
+        List<SelfTeachCourseTimeInfoCO> list=new ArrayList<>();
         for (Map.Entry<String, List<SingleCourseEntity>> entry : map.entrySet()) {
-            SelfTeachCourseTimeCO time=new SelfTeachCourseTimeCO();
+            SelfTeachCourseTimeInfoCO time=new SelfTeachCourseTimeInfoCO();
             time.setDay(entry.getValue().get(0).getDay());
             time.setStartTime(entry.getValue().get(0).getStartTime());
             time.setEndTime(entry.getValue().get(0).getEndTime());
-            time.setClassroom(entry.getValue().get(0).getLocation());
+            List<String> location = entry.getValue().stream().map(SingleCourseEntity::getLocation).distinct().toList();
+            time.setClassroom(location);
+//            time.setClassroom(entry.getValue().get(0).getLocation());
             List<Integer> week=new ArrayList<>();
             for (SingleCourseEntity courseTime : entry.getValue()) {
                 week.add(courseTime.getWeek());
             }
-            time.setWeeks(week);
+            time.setWeeks(week.stream().distinct().toList());
             list.add(time);
         }
         return list;
@@ -153,7 +153,7 @@ public class IUserCourseServiceImpl implements IUserCourseService {
     }
 
     @Override
-    public Void updateSelfCourse(SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeCO> timeList) {
+    public Void updateSelfCourse(SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeInfoCO> timeList) {
         Map<String, Map<Integer, Integer>> mapMsg = courseUpdateGateway.updateSelfCourse(String.valueOf(StpUtil.getLoginId()), selfTeachCourseCO, timeList);
         Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
         for (Map.Entry<String, Map<Integer, Integer>> stringMapEntry : mapMsg.entrySet()) {
@@ -186,5 +186,10 @@ public class IUserCourseServiceImpl implements IUserCourseService {
     public Boolean isImported(Integer type, Term term) {
 
         return courseUpdateGateway.isImported(type, term);
+    }
+
+    @Override
+    public List<Integer> getUserCourses(Integer semId, Integer userId) {
+        return courseQueryGateway.getUserCourses(semId, userId);
     }
 }

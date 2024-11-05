@@ -1,6 +1,8 @@
 package edu.cuit.app.aop;
 
+import edu.cuit.client.dto.clientobject.SemesterCO;
 import edu.cuit.domain.gateway.SemesterGateway;
+import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -27,8 +29,13 @@ public class AspectConfig {
                     if(paramNames[i].equals("semId")){
                         if(args[i]==null||(Integer) args[i]<0) {
                             Integer id = semesterGateway.getNow().getId();
-
                             args[i]=id;
+                        }else{
+                             if(semesterGateway.selectSemester((Integer) args[i])==null){
+                                 Integer id = semesterGateway.getNow().getId();
+                                 args[i]=id;
+                                 CommonResult.setContextCode(202,"参数semId不存在");
+                             }
                         }
 
                     }
