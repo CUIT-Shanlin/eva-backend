@@ -369,14 +369,14 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
 
     @Override
     @Transactional
-    public Map<String,List<Integer>> importCourseFile(Map<String, List<CourseExcelBO>> courseExce, SemesterCO semester, Integer type) {
+    public Map<String,Map<Integer,Integer>> importCourseFile(Map<String, List<CourseExcelBO>> courseExce, SemesterCO semester, Integer type) {
         Boolean imported = isImported(type, toTerm(semester));
         SemesterDO semesterDO = semesterMapper.selectOne(new QueryWrapper<SemesterDO>().eq("start_year", semester.getStartYear()).eq("period", semester.getPeriod()));
-        Map<String,List<Integer>> map=new HashMap<>();
+        Map<String,Map<Integer,Integer>> map=new HashMap<>();
         String typeName=null;
         if(type==0)typeName="理论课";
         else typeName="实验课";
-        List<Integer> evaTaskIds=new ArrayList<>();
+        Map<Integer,Integer> evaTaskIds=new HashMap<>();
         if(imported){
             //执行已有学期的删除添加逻辑
             if(semester.getStartDate()!=null){

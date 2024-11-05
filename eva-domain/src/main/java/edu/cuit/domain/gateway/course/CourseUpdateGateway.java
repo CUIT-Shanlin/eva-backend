@@ -82,7 +82,7 @@ public interface CourseUpdateGateway {
      *  @param semester 学期
      *
      * */
-    Map<String,List<Integer>> importCourseFile( Map<String, List<CourseExcelBO>> courseExce, SemesterCO semester, Integer type);
+    Map<String,Map<Integer,Integer>> importCourseFile( Map<String, List<CourseExcelBO>> courseExce, SemesterCO semester, Integer type);
 
     /**
      * 修改自己的一门课程信息及其课程时段

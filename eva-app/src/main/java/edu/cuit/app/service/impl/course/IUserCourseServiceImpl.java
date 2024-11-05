@@ -90,13 +90,20 @@ public class IUserCourseServiceImpl implements IUserCourseService {
         }else{
             throw new BizException("课表类型转换错误");
         }
-        Map<String, List<Integer>> map = courseUpdateGateway.importCourseFile(courseExce, semesterCO, type);
+        Map<String, Map<Integer,Integer>> map = courseUpdateGateway.importCourseFile(courseExce, semesterCO, type);
         Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
-        for (Map.Entry<String, List<Integer>> stringListEntry : map.entrySet()) {
+        for (Map.Entry<String, Map<Integer, Integer>> stringListEntry : map.entrySet()) {
             Map<String, Map<Integer, Integer> > temMap=new HashMap<>();
-            temMap.put(stringListEntry.getKey(), new HashMap<>());
-            msgResult.SendMsgToAll(temMap,userId.orElseThrow(() -> new QueryException("请先登录")));
-            stringListEntry.getValue().forEach(k->msgService.deleteEvaMsg(k,null));
+            temMap.put(stringListEntry.getKey(), stringListEntry.getValue());
+            if(stringListEntry.getValue()!=null&&!stringListEntry.getValue().isEmpty()){
+                msgResult.sendMsgtoTeacher(temMap,userId.orElseThrow(() -> new QueryException("请先登录")));
+            }else{
+                msgResult.SendMsgToAll(temMap,userId.orElseThrow(() -> new QueryException("请先登录")));
+                for (Map.Entry<Integer, Integer> k : stringListEntry.getValue().entrySet()) {
+                    msgService.deleteEvaMsg(k.getKey(),null);
+                }
+            }
+
         }
 
     }
