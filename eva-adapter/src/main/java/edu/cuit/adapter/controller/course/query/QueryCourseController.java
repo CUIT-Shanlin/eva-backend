@@ -187,4 +187,6 @@ public class QueryCourseController {
     public CommonResult<List<CourseType>> allCourseType(){
         return CommonResult.success(courseTypeService.allCourseType());
     }
+
+
 }
