@@ -78,6 +78,17 @@ public abstract class CourseBizConvertor {
             @Mapping(target = "subjectId",expression="java(courseEntity.getSubjectEntity().getId())")
     })
     public abstract CourseModelCO toCourseModelCO(CourseEntity courseEntity, List<String> classroomList);
+    @Mappings({
+            @Mapping(target = "id",expression = "java(courseEntity.getId())"),
+            @Mapping(target = "classroomList",source = "classroomList"),
+            @Mapping(target = "createTime",source = "courseEntity.createTime"),
+            @Mapping(target = "updateTime",source = "courseEntity.updateTime"),
+            @Mapping(target = "name",expression="java(courseEntity.getSubjectEntity().getName())"),
+            @Mapping(target = "teacherMsg",expression="java(toTeacherInfoCO(courseEntity.getTeacher()))"),
+            @Mapping(target = "nature",expression="java(courseEntity.getSubjectEntity().getNature())"),
+            @Mapping(target = "subjectId",expression="java(courseEntity.getSubjectEntity().getId())")
+    })
+    public abstract CourseModelCO toCourseModelCO2(CourseEntity courseEntity, List<String> classroomList);
 
     @Mappings({
 

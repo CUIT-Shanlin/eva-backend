@@ -93,7 +93,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     private final SemesterMapper semesterMapper;
     private final SubjectMapper subjectMapper;
     private final SysUserMapper userMapper;
-    private final CourOneEvaTemplateMapper CourOneEvaTemplateMapper;
+    private final CourOneEvaTemplateMapper courOneEvaTemplateMapper;
     private final EvaTaskMapper evaTaskMapper;
     private final FormRecordMapper formRecordMapper;
     private final SysRoleMapper roleMapper;
@@ -162,13 +162,14 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
             throw new QueryException("该课程不存在");
         }
         //根据id和semId来查询评教快照信息
-        CourOneEvaTemplateDO courOneEvaTemplateDO = CourOneEvaTemplateMapper.selectOne(new QueryWrapper<CourOneEvaTemplateDO>().eq("course_id", id).eq("semester_id", semId));
+        CourOneEvaTemplateDO courOneEvaTemplateDO = courOneEvaTemplateMapper.selectOne(new QueryWrapper<CourOneEvaTemplateDO>().eq("course_id", id).eq("semester_id", semId));
         //将courOneEvaTemplateDO中的formtemplate(json)字符串，转换为EvaTemplateCO
         EvaTemplateCO evaTemplateCO=null;
         if(courOneEvaTemplateDO!=null&&courOneEvaTemplateDO.getFormTemplate()!=null){
             try {
                 String format = CourseFormat.toFormat(courOneEvaTemplateDO.getFormTemplate());
                 evaTemplateCO = objectMapper.readValue(format, EvaTemplateCO.class);
+                evaTemplateCO.setId(-1);
             } catch (JsonProcessingException e /*RuntimeException e*/) {
                 throw new QueryException("类型转换错误");
             }
