@@ -1,5 +1,6 @@
 package edu.cuit.infra.gateway.impl.course;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.cuit.client.bo.CourseExcelBO;
 import edu.cuit.client.dto.clientobject.SemesterCO;
@@ -456,7 +457,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
 //               courInfDO.setLocation(selfTeachCourseTimeCO.getClassroom());
                 for (String s : selfTeachCourseTimeCO.getClassroom()) {
                     courInfDO.setLocation(s);
-                    courseChangeList.add(courInfDO);
+                    courseChangeList.add(ObjectUtil.clone(courInfDO));
                 }
             }
         }

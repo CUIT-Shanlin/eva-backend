@@ -16,7 +16,7 @@ import lombok.Data;
  */
 @TableName(value ="cour_inf")
 @Data
-public class CourInfDO implements Serializable {
+public class CourInfDO implements Serializable,Cloneable {
     /**
      * id
      */
@@ -80,4 +80,16 @@ public class CourInfDO implements Serializable {
     @TableField(exist = false)
     @Serial
     private static final long serialVersionUID = 1L;
+
+    @Override
+    protected Object clone()  {
+        CourInfDO courInfDO = new CourInfDO();
+        courInfDO.setCourseId(courseId);
+        courInfDO.setWeek(week);
+        courInfDO.setStartTime(startTime);
+        courInfDO.setEndTime(endTime);
+        courInfDO.setLocation(location);
+        courInfDO.setDay(day);
+        return courInfDO;
+    }
 }
