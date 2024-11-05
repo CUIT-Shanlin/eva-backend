@@ -95,8 +95,9 @@ public class IUserCourseServiceImpl implements IUserCourseService {
         for (Map.Entry<String, Map<Integer, Integer>> stringListEntry : map.entrySet()) {
             Map<String, Map<Integer, Integer> > temMap=new HashMap<>();
             temMap.put(stringListEntry.getKey(), stringListEntry.getValue());
-            if(stringListEntry.getValue()!=null&&!stringListEntry.getValue().isEmpty()){
-                msgResult.sendMsgtoTeacher(temMap,userId.orElseThrow(() -> new QueryException("请先登录")));
+            if(stringListEntry.getValue()!=null){
+                if(!stringListEntry.getValue().isEmpty())
+                msgResult.toNormalMsg(temMap,userId.orElseThrow(() -> new QueryException("请先登录")));
             }else{
                 msgResult.SendMsgToAll(temMap,userId.orElseThrow(() -> new QueryException("请先登录")));
                 for (Map.Entry<Integer, Integer> k : stringListEntry.getValue().entrySet()) {

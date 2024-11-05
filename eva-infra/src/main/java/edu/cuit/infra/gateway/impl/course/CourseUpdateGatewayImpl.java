@@ -385,14 +385,14 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
             }
             evaTaskIds=courseImportExce.deleteCourse(semesterDO.getId(),type);
             if(imported)map.put(semesterDO.getStartYear()+"-"+semesterDO.getEndYear()+"第"+(semesterDO.getPeriod()+1)+"学期"+typeName+"课程表被覆盖",null);
-            else  map.put(semesterDO.getStartYear()+"-"+semesterDO.getEndYear()+"第"+(semesterDO.getPeriod()+1)+"学期"+typeName+"课程表被导入",evaTaskIds);
+            else  map.put(semesterDO.getStartYear()+"-"+semesterDO.getEndYear()+"第"+(semesterDO.getPeriod()+1)+"学期"+typeName+"课程表被导入",null);
             map.put("因为"+semesterDO.getStartYear()+"-"+semesterDO.getEndYear()+"第"+(semesterDO.getPeriod()+1)+"学期"+typeName+"课程表被覆盖"+",故而取消您该学期的评教任务",evaTaskIds);
         }else{
             //直接插入学期
             SemesterDO semesterDO1 = courseConvertor.toSemesterDO(semester);
             semesterMapper.insert(semesterDO1);
             semesterDO=semesterDO1;
-            map.put(semesterDO.getStartYear()+"-"+semesterDO.getEndYear()+"第"+(semesterDO.getPeriod()+1)+"学期"+typeName+"课程表被导入",evaTaskIds);
+            map.put(semesterDO.getStartYear()+"-"+semesterDO.getEndYear()+"第"+(semesterDO.getPeriod()+1)+"学期"+typeName+"课程表被导入",null);
         }
         courseImportExce.addAll(courseExce, type,semesterDO.getId());
         localCacheManager.invalidateCache(null,classroomCacheConstants.ALL_CLASSROOM);
