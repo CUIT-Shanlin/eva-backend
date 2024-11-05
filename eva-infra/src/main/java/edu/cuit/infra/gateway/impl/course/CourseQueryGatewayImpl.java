@@ -507,7 +507,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
             //统计评教数
             Long courInfId;
             if(courINfos.isEmpty())courInfId=0L;
-            else courInfId = evaTaskMapper.selectCount(new QueryWrapper<EvaTaskDO>().in("cour_inf_id",courINfos));
+            else courInfId = evaTaskMapper.selectCount(new QueryWrapper<EvaTaskDO>().in("cour_inf_id",courINfos).and(wrapper->wrapper.eq("status",0).or().eq("status",1)));
             //添加到selfteachCourseCO中
             SelfTeachCourseCO selfTeachCourseCO = new SelfTeachCourseCO();
             selfTeachCourseCO.setId(courseDO.getId())
