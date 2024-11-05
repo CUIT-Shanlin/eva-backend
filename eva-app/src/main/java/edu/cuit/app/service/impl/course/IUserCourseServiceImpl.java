@@ -187,7 +187,7 @@ public class IUserCourseServiceImpl implements IUserCourseService {
     }
 
     @Override
-    public Void getUserCourses(Integer semId, Integer userId) {
-        return null;
+    public List<Integer> getUserCourses(Integer semId, Integer userId) {
+        return courseQueryGateway.getUserCourses(semId, userId);
     }
 }

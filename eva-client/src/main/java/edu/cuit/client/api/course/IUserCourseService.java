@@ -78,7 +78,7 @@ public interface IUserCourseService {
      *  @param semId 学期ID
      *  @param userId 用户ID
      * */
-    Void getUserCourses(Integer semId,Integer userId);
+    List<Integer> getUserCourses(Integer semId,Integer userId);
 
 
 
