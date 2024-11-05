@@ -299,9 +299,11 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
 
     @Override
     public List<SingleCourseCO> getPeriodInfo(Integer semId, CourseQuery courseQuery) {
+        List<Integer> list1 = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId)).stream().map(CourseDO::getId).toList();
         QueryWrapper<CourInfDO> wrapper = new QueryWrapper<>();
         wrapper.eq("week",courseQuery.getWeek())
                 .eq("day",courseQuery.getDay())
+                .in(true,"course_id",list1)
                 .and(wrapper1->wrapper1.eq("start_time",courseQuery.getNum())
                         .or()
                         .eq("start_time",courseQuery.getNum()+1));
