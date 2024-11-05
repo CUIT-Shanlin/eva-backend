@@ -14,6 +14,7 @@ import edu.cuit.app.service.operate.course.MsgResult;
 import edu.cuit.app.service.operate.course.query.UserCourseDetailQueryExec;
 import edu.cuit.app.service.operate.course.update.FileImportExec;
 import edu.cuit.client.api.course.IUserCourseService;
+import edu.cuit.client.bo.CourseExcelBO;
 import edu.cuit.client.bo.MessageBO;
 import edu.cuit.client.dto.clientobject.SemesterCO;
 import edu.cuit.client.dto.clientobject.SimpleSubjectResultCO;
@@ -81,14 +82,15 @@ public class IUserCourseServiceImpl implements IUserCourseService {
         } catch (JsonProcessingException e) {
             throw new UpdateException("学期类型转换错误");
         }
+        Map<String, List<CourseExcelBO>> courseExce;
         if(type==0){
-            FileImportExec.importCourse(CourseExcelResolver.resolveData(CourseExcelResolver.Strategy.THEORY_COURSE, fileStream));
+            courseExce = FileImportExec.importCourse(CourseExcelResolver.resolveData(CourseExcelResolver.Strategy.THEORY_COURSE, fileStream));
         }else if(type==1){
-            FileImportExec.importCourse(CourseExcelResolver.resolveData(CourseExcelResolver.Strategy.EXPERIMENTAL_COURSE, fileStream));
+            courseExce = FileImportExec.importCourse(CourseExcelResolver.resolveData(CourseExcelResolver.Strategy.EXPERIMENTAL_COURSE, fileStream));
         }else{
             throw new BizException("课表类型转换错误");
         }
-        Map<String, List<Integer>> map = courseUpdateGateway.importCourseFile(FileImportExec.courseExce, semesterCO, type);
+        Map<String, List<Integer>> map = courseUpdateGateway.importCourseFile(courseExce, semesterCO, type);
         Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
         for (Map.Entry<String, List<Integer>> stringListEntry : map.entrySet()) {
             Map<String, Map<Integer, Integer> > temMap=new HashMap<>();

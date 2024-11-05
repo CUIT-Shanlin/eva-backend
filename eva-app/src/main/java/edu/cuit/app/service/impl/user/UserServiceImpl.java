@@ -10,9 +10,14 @@ import edu.cuit.app.convertor.PaginationBizConvertor;
 import edu.cuit.app.convertor.user.RoleBizConvertor;
 import edu.cuit.app.convertor.user.UserBizConvertor;
 import edu.cuit.app.factory.user.RouterDetailFactory;
+import edu.cuit.client.api.ISemesterService;
+import edu.cuit.client.api.course.ICourseDetailService;
 import edu.cuit.client.api.course.ICourseService;
+import edu.cuit.client.api.course.IUserCourseService;
+import edu.cuit.client.api.eva.IEvaTaskService;
 import edu.cuit.client.api.user.IUserService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
+import edu.cuit.client.dto.clientobject.SemesterCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
@@ -52,7 +57,10 @@ public class UserServiceImpl implements IUserService {
     private final CourseQueryGateway courseQueryGateway;
     private final EvaQueryGateway evaQueryGateway;
 
-    private final ICourseService courseService;
+    private final ISemesterService semesterService;
+    private final ICourseDetailService courseDetailService;
+    private final IUserCourseService userCourseService;
+    private final IEvaTaskService evaTaskService;
 
     private final AvatarManager avatarManager;
 
@@ -232,6 +240,14 @@ public class UserServiceImpl implements IUserService {
     @Override
     @Transactional
     public void delete(Integer userId) {
+        List<Integer> semIds = semesterService.all().stream().map(SemesterCO::getId).toList();
+        for (Integer semId : semIds) {
+            List<Integer> userCourses = userCourseService.getUserCourses(semId, userId);
+            for (Integer courseId : userCourses) {
+                courseDetailService.delete(semId,courseId);
+            }
+        }
+        evaTaskService.deleteAllTaskByTea(userId);
         userUpdateGateway.deleteUser(userId);
     }
 
