@@ -310,7 +310,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         List<CourInfDO> courInfDOS = courInfMapper.selectList(wrapper);
 //        if(courInfDOS.isEmpty())throw new QueryException("暂时还没有该课程信息");
         //根据courseInfDo中的课程id和semid来筛选课程实体
-        List<Integer> list = courInfDOS.stream().map(CourInfDO::getCourseId).toList();
+        List<Integer> list = courInfDOS.stream().map(CourInfDO::getCourseId).distinct().toList();
         List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId).in(!list.isEmpty(),"id",list));
         List<SingleCourseCO> singleCourseCOList = new ArrayList<>();
         //遍历courseDo组装SingleCourseCo
@@ -573,6 +573,13 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         if (taskDOList.isEmpty())return new ArrayList<>();
         List<Integer> userList = taskDOList.stream().map(EvaTaskDO::getTeacherId).toList();
         return userMapper.selectList(new QueryWrapper<SysUserDO>().in(!userList.isEmpty(),"id", userList)).stream().map(courseConvertor::toEvaTeacherInfoCO).toList();
+    }
+
+    @Override
+    public List<Integer> getUserCourses(Integer semId, Integer userId) {
+        List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", userId).eq("semester_id", semId));
+
+        return courseDOS.stream().map(CourseDO::getId).toList();
     }
 
     @Override

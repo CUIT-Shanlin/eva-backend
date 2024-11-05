@@ -185,4 +185,9 @@ public class IUserCourseServiceImpl implements IUserCourseService {
 
         return courseUpdateGateway.isImported(type, term);
     }
+
+    @Override
+    public List<Integer> getUserCourses(Integer semId, Integer userId) {
+        return courseQueryGateway.getUserCourses(semId, userId);
+    }
 }

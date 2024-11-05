@@ -166,7 +166,10 @@ public interface CourseQueryGateway {
      * */
     List<EvaTeacherInfoCO> getEvaUsers(Integer courseId);
 
-
-
-
+    /**
+     * 获取用户教学所有课程
+     *  @param semId 学期ID
+     *  @param userId 用户ID
+     * */
+    List<Integer> getUserCourses(Integer semId,Integer userId);
 }
