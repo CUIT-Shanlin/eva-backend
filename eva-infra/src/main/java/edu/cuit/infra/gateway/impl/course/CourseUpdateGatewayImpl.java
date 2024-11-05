@@ -19,6 +19,7 @@ import edu.cuit.infra.dal.database.mapper.course.*;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
+import edu.cuit.infra.enums.cache.ClassroomCacheConstants;
 import edu.cuit.infra.enums.cache.CourseCacheConstants;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
 import edu.cuit.infra.gateway.impl.course.operate.CourseImportExce;
@@ -51,6 +52,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     private final CourseCacheConstants courseCacheConstants;
     private final FormTemplateMapper formTemplateMapper;
     private final EvaCacheConstants evaCacheConstants;
+    private final ClassroomCacheConstants classroomCacheConstants;
 
 
     /**
@@ -126,6 +128,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
        //清缓存
         localCacheManager.invalidateCache(courseCacheConstants.COURSE_LIST_BY_SEM, String.valueOf(semId));
         localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(semId));
+        localCacheManager.invalidateCache(null,classroomCacheConstants.ALL_CLASSROOM);
         return map;
 
     }
@@ -234,6 +237,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         LogUtils.logContent(name+"上课时间信息");
         localCacheManager.invalidateCache(null,evaCacheConstants.LOG_LIST);
         localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM,String.valueOf(semId));
+        localCacheManager.invalidateCache(null,classroomCacheConstants.ALL_CLASSROOM);
         return map;
     }
 
@@ -378,6 +382,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
             semesterDO=semesterDO1;
 
         courseImportExce.addAll(courseExce, type,semesterDO.getId());
+        localCacheManager.invalidateCache(null,classroomCacheConstants.ALL_CLASSROOM);
         String typeName=null;
         if(type==0)typeName="理论课";
         else typeName="实验课";
@@ -416,6 +421,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         Map<String,Map<Integer,Integer>> map=new HashMap<>();
         map.put(msg,null);
         map.put(msgEva,taskMap);
+        localCacheManager.invalidateCache(null,classroomCacheConstants.ALL_CLASSROOM);
         return map;
     }
 
@@ -607,7 +613,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         SubjectDO subjectDO = subjectMapper.selectById(courseDO.getSubjectId());
         if(subjectDO==null)throw  new QueryException("不存在对应的课程的科目");
         LogUtils.logContent(subjectDO.getName()+"(ID:"+courseDO.getId()+")的课程的课数");
-
+        localCacheManager.invalidateCache(null,classroomCacheConstants.ALL_CLASSROOM);
         return null;
     }
 
@@ -683,6 +689,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                 courInfMapper.insert(courInfDO);
             }
         }
+        localCacheManager.invalidateCache(null,classroomCacheConstants.ALL_CLASSROOM);
 
     }
 

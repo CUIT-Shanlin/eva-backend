@@ -12,6 +12,7 @@ import edu.cuit.infra.dal.database.mapper.course.*;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
+import edu.cuit.infra.enums.cache.ClassroomCacheConstants;
 import edu.cuit.infra.enums.cache.CourseCacheConstants;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
@@ -41,6 +42,7 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
     private final CourseCacheConstants courseCacheConstants;
     private final FormRecordMapper formRecordMapper;
     private final EvaCacheConstants evaCacheConstants;
+    private final ClassroomCacheConstants classroomCacheConstants;
 
 
 
@@ -92,6 +94,7 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         LogUtils.logContent(userDO.getName()+"老师-"+name+"(课程ID:"+id+")的一些课");
         localCacheManager.invalidateCache(null,evaCacheConstants.LOG_LIST);
         localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM,String.valueOf(semId));
+        localCacheManager.invalidateCache(null,classroomCacheConstants.ALL_CLASSROOM);
         return map;
     }
 
@@ -155,6 +158,7 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         LogUtils.logContent(name+"(课程ID:"+id+")这门课");
         localCacheManager.invalidateCache(null,evaCacheConstants.LOG_LIST);
         localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(semId));
+        localCacheManager.invalidateCache(null,classroomCacheConstants.ALL_CLASSROOM);
         return map;
     }
 
@@ -234,6 +238,7 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         localCacheManager.invalidateCache(courseCacheConstants.COURSE_LIST_BY_SEM, String.valueOf(courseDO.getSemesterId()));
         localCacheManager.invalidateCache(null,evaCacheConstants.LOG_LIST);
         localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(courseDO.getSemesterId()));
+        localCacheManager.invalidateCache(null,classroomCacheConstants.ALL_CLASSROOM);
         return map;
     }
 
