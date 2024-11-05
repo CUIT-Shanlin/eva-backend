@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,8 +46,8 @@ public class CourseImportExce {
     private final CourseCacheConstants courseCacheConstants;
     private final EvaCacheConstants evaCacheConstants;
     //删除这学期所有的课程
-    public List<Integer> deleteCourse(Integer semId, Integer type) {
-        List<Integer> evaTaskIds=new ArrayList<>();
+    public Map<Integer,Integer> deleteCourse(Integer semId, Integer type) {
+        Map<Integer,Integer> evaTaskIds=new HashMap<>();
         //先找出所有的课程
         List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId));
         //过滤出courseIdList中对应subject的nature等于type的课程ID集合
@@ -69,7 +70,8 @@ public class CourseImportExce {
             }
             //删除评教任务
             List<EvaTaskDO> taskDOList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in(!courInfoIds.isEmpty(),"cour_inf_id", courInfoIds));
-            evaTaskIds=taskDOList.stream().map(EvaTaskDO::getId).toList();
+//            evaTaskIds=taskDOList.stream().map(EvaTaskDO::getId).toList();
+            taskDOList.forEach(taskDO -> evaTaskIds.put(taskDO.getId(),taskDO.getTeacherId()));
             if(!taskDOList.isEmpty()) {
                 List<Integer> taskIds = taskDOList.stream().map(EvaTaskDO::getId).toList();
                 evaTaskMapper.deleteBatchIds(taskIds);
