@@ -55,5 +55,9 @@ public interface IEvaTaskService {
      */
     Void cancelMyEvaTask(Integer id);
 
-
+    /**
+     * 传老师id删除所有对应评教任务
+     * @param teacherId 老师id
+     */
+    Void deleteAllTaskByTea(Integer teacherId);
 }

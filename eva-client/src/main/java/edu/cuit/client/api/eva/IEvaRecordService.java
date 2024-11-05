@@ -40,5 +40,4 @@ public interface IEvaRecordService {
      * @param newEvaLogCmd 评教表单评价分值dto//返回数据类型原来没有刚建的
      */
     Void putEvaTemplate(NewEvaLogCmd newEvaLogCmd);
-
 }
