@@ -576,6 +576,13 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     }
 
     @Override
+    public List<Integer> getUserCourses(Integer semId, Integer userId) {
+        List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", userId).eq("semester_id", semId));
+
+        return courseDOS.stream().map(CourseDO::getId).toList();
+    }
+
+    @Override
     public Optional<CourseEntity> getCourseByInfo(Integer courInfId) {
         CourInfDO courInfDO=courInfMapper.selectById(courInfId);
         CourseDO courseDO=courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id",courInfId));

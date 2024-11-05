@@ -73,6 +73,13 @@ public interface IUserCourseService {
      * */
     Boolean isImported(Integer type,Term term);
 
+    /**
+     * 获取用户教学所有课程信息
+     *  @param semId 学期ID
+     *  @param userId 用户ID
+     * */
+    Void getUserCourses(Integer semId,Integer userId);
+
 
 
 }
