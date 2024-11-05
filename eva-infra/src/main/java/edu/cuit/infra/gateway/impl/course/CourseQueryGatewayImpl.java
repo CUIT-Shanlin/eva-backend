@@ -169,6 +169,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
             try {
                 String format = CourseFormat.toFormat(courOneEvaTemplateDO.getFormTemplate());
                 evaTemplateCO = objectMapper.readValue(format, EvaTemplateCO.class);
+                evaTemplateCO.setId(-1);
             } catch (JsonProcessingException e /*RuntimeException e*/) {
                 throw new QueryException("类型转换错误");
             }
