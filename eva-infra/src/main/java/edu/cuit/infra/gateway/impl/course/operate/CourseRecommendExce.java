@@ -243,7 +243,7 @@ public class CourseRecommendExce {
                     .and(wrapper -> wrapper.eq("status", 1).or().eq("status", 0))));
             int finalEvaNum = EvaNum;
             recommendCourseCOS.forEach(recommendCourseCO -> {
-                if(recommendCourseCO.getName().equals(subjectDO.getName())){
+                if(recommendCourseCO.getName().equals(subjectDO.getName())&&recommendCourseCO.getNature().equals(subjectDO.getNature())){
                     recommendCourseCO.setEvaNum(finalEvaNum);
                 }
             });
@@ -395,7 +395,7 @@ public class CourseRecommendExce {
                         .and(wrapper -> wrapper.eq("status", 1).or().eq("status", 0))));
             int finalEvaNum = EvaNum;
             recommendCourseCOS.forEach(recommendCourseCO -> {
-                if(recommendCourseCO.getName().equals(subjectDO.getName())){
+                if(recommendCourseCO.getName().equals(subjectDO.getName())&&recommendCourseCO.getNature().equals(subjectDO.getNature())){
                     recommendCourseCO.setEvaNum(finalEvaNum);
                 }
             });
@@ -452,7 +452,7 @@ public class CourseRecommendExce {
                         .and(wrapper -> wrapper.eq("status", 1).or().eq("status", 0))));
             int finalEvaNum = EvaNum;
             recommendCourseCOS.forEach(recommendCourseCO -> {
-                if(recommendCourseCO.getName().equals(subjectDO.getName())){
+                if(recommendCourseCO.getName().equals(subjectDO.getName())&&recommendCourseCO.getNature().equals(subjectDO.getNature())){
                     recommendCourseCO.setEvaNum(finalEvaNum);
                 }
             });
@@ -496,7 +496,6 @@ public class CourseRecommendExce {
              list.add(courseDo2);
         }
         //课程类型
-
         if(courseQuery.getTypeId()!=null&&courseQuery.getTypeId()>=0){
             List<Integer> typeCourseList=new ArrayList<>();
             CourseTypeDO courseTypeDO = courseTypeMapper.selectById(courseQuery.getTypeId());
