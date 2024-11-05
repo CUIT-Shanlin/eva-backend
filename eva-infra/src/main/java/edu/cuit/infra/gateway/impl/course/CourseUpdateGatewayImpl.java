@@ -371,6 +371,10 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     @Transactional
     public Map<String,List<Integer>> importCourseFile(Map<String, List<CourseExcelBO>> courseExce, SemesterCO semester, Integer type) {
         SemesterDO semesterDO = semesterMapper.selectOne(new QueryWrapper<SemesterDO>().eq("start_year", semester.getStartYear()).eq("period", semester.getPeriod()));
+        Map<String,List<Integer>> map=new HashMap<>();
+        String typeName=null;
+        if(type==0)typeName="理论课";
+        else typeName="实验课";
         List<Integer> evaTaskIds=new ArrayList<>();
         if(semesterDO!=null){
             //执行已有学期的删除添加逻辑
@@ -378,21 +382,21 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                 semesterDO.setStartDate(semester.getStartDate());
                 semesterMapper.update(semesterDO,new QueryWrapper<SemesterDO>().eq("id",semesterDO.getId()));
             }
+            map.put(semesterDO.getStartYear()+"-"+semesterDO.getEndYear()+"第"+(semesterDO.getPeriod()+1)+"学期"+typeName+"课程表被覆盖",evaTaskIds);
             evaTaskIds=courseImportExce.deleteCourse(semesterDO.getId(),type);
         }else{
             //直接插入学期
             SemesterDO semesterDO1 = courseConvertor.toSemesterDO(semester);
             semesterMapper.insert(semesterDO1);
             semesterDO=semesterDO1;
+            map.put(semesterDO.getStartYear()+"-"+semesterDO.getEndYear()+"第"+(semesterDO.getPeriod()+1)+"学期"+typeName+"课程表被导入",evaTaskIds);
         }
         courseImportExce.addAll(courseExce, type,semesterDO.getId());
         localCacheManager.invalidateCache(null,classroomCacheConstants.ALL_CLASSROOM);
-        String typeName=null;
-        if(type==0)typeName="理论课";
-        else typeName="实验课";
+
         LogUtils.logContent(semesterDO.getStartYear()+"-"+semesterDO.getEndYear()+"第"+semesterDO.getPeriod()+1+"学期"+typeName+"课程表");
-        Map<String,List<Integer>> map=new HashMap<>();
-        map.put(semesterDO.getStartYear()+"-"+semesterDO.getEndYear()+"第"+semesterDO.getPeriod()+1+"学期"+typeName+"课程表被覆盖",evaTaskIds);
+
+
         return map;
     }
 
