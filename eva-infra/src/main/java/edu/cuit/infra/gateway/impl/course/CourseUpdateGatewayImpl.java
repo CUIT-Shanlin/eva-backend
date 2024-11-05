@@ -434,6 +434,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         Map<Integer,Integer> taskMap=new HashMap<>();
         String msgEva="";
         msgEva=JudgeCourseTime(courseDO,timeList,courseDOS,selfTeachCourseCO,taskMap);
+        if(msgEva=="")msg+=","+msgEva;
         Map<String,Map<Integer,Integer>> map=new HashMap<>();
         map.put(msg,null);
         map.put(msgEva,taskMap);
