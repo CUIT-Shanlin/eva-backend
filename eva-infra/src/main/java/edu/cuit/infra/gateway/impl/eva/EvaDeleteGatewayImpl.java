@@ -130,4 +130,15 @@ public class EvaDeleteGatewayImpl implements EvaDeleteGateway {
         }
         return null;
     }
+
+    @Override
+    public List<Integer> deleteAllTaskByTea(Integer teacherId) {
+        List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id",teacherId));
+        List<Integer> evaTaskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
+        if(CollectionUtil.isEmpty(evaTaskDOS)){
+            return List.of();
+        }
+        evaTaskMapper.delete(new QueryWrapper<EvaTaskDO>().eq("teacher_id",teacherId));
+        return evaTaskIds;
+    }
 }
