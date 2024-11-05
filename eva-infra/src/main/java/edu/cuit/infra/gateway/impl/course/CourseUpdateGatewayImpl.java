@@ -370,20 +370,22 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     @Override
     @Transactional
     public Map<String,List<Integer>> importCourseFile(Map<String, List<CourseExcelBO>> courseExce, SemesterCO semester, Integer type) {
+        Boolean imported = isImported(type, toTerm(semester));
         SemesterDO semesterDO = semesterMapper.selectOne(new QueryWrapper<SemesterDO>().eq("start_year", semester.getStartYear()).eq("period", semester.getPeriod()));
         Map<String,List<Integer>> map=new HashMap<>();
         String typeName=null;
         if(type==0)typeName="理论课";
         else typeName="实验课";
         List<Integer> evaTaskIds=new ArrayList<>();
-        if(semesterDO!=null){
+        if(imported){
             //执行已有学期的删除添加逻辑
             if(semester.getStartDate()!=null){
                 semesterDO.setStartDate(semester.getStartDate());
                 semesterMapper.update(semesterDO,new QueryWrapper<SemesterDO>().eq("id",semesterDO.getId()));
             }
-            map.put(semesterDO.getStartYear()+"-"+semesterDO.getEndYear()+"第"+(semesterDO.getPeriod()+1)+"学期"+typeName+"课程表被覆盖",evaTaskIds);
             evaTaskIds=courseImportExce.deleteCourse(semesterDO.getId(),type);
+            map.put(semesterDO.getStartYear()+"-"+semesterDO.getEndYear()+"第"+(semesterDO.getPeriod()+1)+"学期"+typeName+"课程表被覆盖",null);
+            map.put("因为"+semesterDO.getStartYear()+"-"+semesterDO.getEndYear()+"第"+(semesterDO.getPeriod()+1)+"学期"+typeName+"课程表被覆盖"+",故而取消您该学期的评教任务",evaTaskIds);
         }else{
             //直接插入学期
             SemesterDO semesterDO1 = courseConvertor.toSemesterDO(semester);
@@ -398,6 +400,10 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
 
 
         return map;
+    }
+
+    private Term toTerm(SemesterCO semester) {
+        return new Term().setStartYear(semester.getStartYear()).setEndYear(semester.getEndYear()).setPeriod(semester.getPeriod());
     }
 
     @Override
@@ -515,7 +521,8 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                         .eq("week", courInfDO.getWeek())
                         .eq("day", courInfDO.getDay())
                         .le("start_time", courInfDO.getEndTime())
-                        .ge("end_time", courInfDO.getStartTime());
+                        .ge("end_time", courInfDO.getStartTime())
+                        .and(courseWrapper->courseWrapper.ne("course_id",courseDO.getId()));
                 wrapper.eq("location", courInfDO.getLocation());
                 if(courInfMapper.selectOne(wrapper)!=null){
                     //被占用了，抛出异常
