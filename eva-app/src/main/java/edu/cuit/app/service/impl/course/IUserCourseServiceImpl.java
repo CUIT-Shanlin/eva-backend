@@ -151,7 +151,7 @@ public class IUserCourseServiceImpl implements IUserCourseService {
     }
 
     @Override
-    public Void updateSelfCourse(SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeCO> timeList) {
+    public Void updateSelfCourse(SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeInfoCO> timeList) {
         Map<String, Map<Integer, Integer>> mapMsg = courseUpdateGateway.updateSelfCourse(String.valueOf(StpUtil.getLoginId()), selfTeachCourseCO, timeList);
         Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
         for (Map.Entry<String, Map<Integer, Integer>> stringMapEntry : mapMsg.entrySet()) {

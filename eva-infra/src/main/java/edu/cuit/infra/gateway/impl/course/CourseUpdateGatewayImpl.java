@@ -5,6 +5,7 @@ import edu.cuit.client.bo.CourseExcelBO;
 import edu.cuit.client.dto.clientobject.SemesterCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
+import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeInfoCO;
 import edu.cuit.client.dto.cmd.course.*;
 import edu.cuit.client.dto.data.Term;
 import edu.cuit.client.dto.data.course.CourseType;
@@ -388,7 +389,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
 
     @Override
     @Transactional
-    public Map<String,Map<Integer,Integer>> updateSelfCourse(String userName, SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeCO> timeList) {
+    public Map<String,Map<Integer,Integer>> updateSelfCourse(String userName, SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeInfoCO> timeList) {
         String msg=null;
 
         SysUserDO userDO = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("username", userName));
@@ -418,12 +419,12 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         return map;
     }
 
-    private String JudgeCourseTime(CourseDO courseDO, List<SelfTeachCourseTimeCO> timeList,List<CourseDO> courseDOList,SelfTeachCourseCO selfTeachCourseCO,Map<Integer,Integer> taskMap) {
+    private String JudgeCourseTime(CourseDO courseDO, List<SelfTeachCourseTimeInfoCO> timeList,List<CourseDO> courseDOList,SelfTeachCourseCO selfTeachCourseCO,Map<Integer,Integer> taskMap) {
         String msg="";
         List<Integer> courInfoIds = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id", courseDO.getTeacherId()).eq("status",0)).stream().map(EvaTaskDO::getCourInfId).toList();
         List<CourInfDO> courInfoList = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseDO.getId()));
         List<CourInfDO> courseChangeList=new ArrayList<>();
-        for (SelfTeachCourseTimeCO selfTeachCourseTimeCO : timeList) {
+        for (SelfTeachCourseTimeInfoCO selfTeachCourseTimeCO : timeList) {
             for (Integer week : selfTeachCourseTimeCO.getWeeks()) {
                CourInfDO courInfDO=new CourInfDO();
                courInfDO.setCourseId(courseDO.getId());
@@ -431,8 +432,11 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                courInfDO.setDay(selfTeachCourseTimeCO.getDay());
                courInfDO.setStartTime(selfTeachCourseTimeCO.getStartTime());
                courInfDO.setEndTime(selfTeachCourseTimeCO.getEndTime());
-               courInfDO.setLocation(selfTeachCourseTimeCO.getClassroom());
-               courseChangeList.add(courInfDO);
+//               courInfDO.setLocation(selfTeachCourseTimeCO.getClassroom());
+                for (String s : selfTeachCourseTimeCO.getClassroom()) {
+                    courInfDO.setLocation(s);
+                    courseChangeList.add(courInfDO);
+                }
             }
         }
         List<CourInfDO> difference = getDifference(courseChangeList, courInfoList);
@@ -448,6 +452,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                 evaTaskDO.setStatus(2);
                 evaTaskMapper.update(evaTaskDO,new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId()));
             }
+            localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(courseDO.getSemesterId()));
             if(taskMap.isEmpty()) return "";
             else return msg+selfTeachCourseCO.getName()+"课程的上课时间被修改了,"+"因而取消您对该课程的评教任务";
         }else{
@@ -461,6 +466,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                 evaTaskDO.setStatus(2);
                 evaTaskMapper.update(evaTaskDO,new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId()));
             }
+            localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(courseDO.getSemesterId()));
             for (CourInfDO courInfDO : difference) {
                 for(CourseDO course : courseDOList){
                     QueryWrapper<CourInfDO> wrapper = new QueryWrapper<CourInfDO>()
@@ -512,7 +518,8 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                         .noneMatch(courInfo -> Objects.equals(courseChange.getWeek(), courInfo.getWeek())
                                 && Objects.equals(courseChange.getDay(), courInfo.getDay())
                                 && Objects.equals(courseChange.getStartTime(), courInfo.getStartTime())
-                                && Objects.equals(courseChange.getEndTime(), courInfo.getEndTime())))
+                                && Objects.equals(courseChange.getEndTime(), courInfo.getEndTime())
+                                &&Objects.equals(courseChange.getLocation(), courInfo.getLocation())))
                 .collect(Collectors.toList());
     }
 

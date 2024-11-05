@@ -4,6 +4,7 @@ import edu.cuit.client.bo.CourseExcelBO;
 import edu.cuit.client.dto.clientobject.SemesterCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
+import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeInfoCO;
 import edu.cuit.client.dto.cmd.course.*;
 import edu.cuit.client.dto.data.Term;
 import edu.cuit.client.dto.data.course.CourseType;
@@ -89,7 +90,7 @@ public interface CourseUpdateGateway {
      *  @param timeList 课表文件
      *  @param userName 用户名
      * */
-    Map<String,Map<Integer,Integer>> updateSelfCourse(String userName,SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeCO> timeList);
+    Map<String,Map<Integer,Integer>> updateSelfCourse(String userName,SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeInfoCO> timeList);
 
     /**
      * 批量新建多节课(已有课程)
