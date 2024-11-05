@@ -178,7 +178,8 @@ public class CourseRecommendExce {
         List<RecommendCourseCO> returnList = new ArrayList<>();
         for (Map.Entry<String, List<RecommendCourseCO>> entry : result.entrySet()) {
             int evaTeacher=0;
-            Map<String, List<RecommendCourseCO>> collect2 = entry.getValue().stream().collect(Collectors.groupingBy(RecommendCourseCO::getName));
+            //根据课程名和nature进行分组
+            Map<String, List<RecommendCourseCO>> collect2 = entry.getValue().stream().collect(Collectors.groupingBy(course->course.getName()+course.getNature()));
             for (Map.Entry<String, List<RecommendCourseCO>> entry2 : collect2.entrySet()) {
                 evaTeacher+=entry2.getValue().get(0).getEvaNum();
             }
@@ -243,7 +244,7 @@ public class CourseRecommendExce {
                     .and(wrapper -> wrapper.eq("status", 1).or().eq("status", 0))));
             int finalEvaNum = EvaNum;
             recommendCourseCOS.forEach(recommendCourseCO -> {
-                if(recommendCourseCO.getName().equals(subjectDO.getName())){
+                if(recommendCourseCO.getName().equals(subjectDO.getName())&&recommendCourseCO.getNature().equals(subjectDO.getNature())){
                     recommendCourseCO.setEvaNum(finalEvaNum);
                 }
             });
@@ -395,7 +396,7 @@ public class CourseRecommendExce {
                         .and(wrapper -> wrapper.eq("status", 1).or().eq("status", 0))));
             int finalEvaNum = EvaNum;
             recommendCourseCOS.forEach(recommendCourseCO -> {
-                if(recommendCourseCO.getName().equals(subjectDO.getName())){
+                if(recommendCourseCO.getName().equals(subjectDO.getName())&&recommendCourseCO.getNature().equals(subjectDO.getNature())){
                     recommendCourseCO.setEvaNum(finalEvaNum);
                 }
             });
@@ -452,7 +453,7 @@ public class CourseRecommendExce {
                         .and(wrapper -> wrapper.eq("status", 1).or().eq("status", 0))));
             int finalEvaNum = EvaNum;
             recommendCourseCOS.forEach(recommendCourseCO -> {
-                if(recommendCourseCO.getName().equals(subjectDO.getName())){
+                if(recommendCourseCO.getName().equals(subjectDO.getName())&&recommendCourseCO.getNature().equals(subjectDO.getNature())){
                     recommendCourseCO.setEvaNum(finalEvaNum);
                 }
             });
@@ -471,7 +472,9 @@ public class CourseRecommendExce {
         List<CourInfDO> courInfDOS = courInfMapper.selectList(courseInfQueryWrapper);
         //得到courinfDOs中的courseId并去重
         List<Integer> courseDo1 = courInfDOS.stream().map(CourInfDO::getCourseId).distinct().toList();
-        List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semesterDO.getId()).in("id", courseDo1));
+        List<CourseDO> courseDOS;
+        if(courseDo1.isEmpty())courseDOS=new ArrayList<>();
+         else courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semesterDO.getId()).in("id", courseDo1));
         courseDo1=courseDOS.stream().map(CourseDO::getId).toList();
         //
         List<List<Integer>> list=new ArrayList<>();
@@ -494,7 +497,6 @@ public class CourseRecommendExce {
              list.add(courseDo2);
         }
         //课程类型
-
         if(courseQuery.getTypeId()!=null&&courseQuery.getTypeId()>=0){
             List<Integer> typeCourseList=new ArrayList<>();
             CourseTypeDO courseTypeDO = courseTypeMapper.selectById(courseQuery.getTypeId());

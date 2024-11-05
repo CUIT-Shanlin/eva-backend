@@ -98,12 +98,13 @@ public class IUserCourseServiceImpl implements IUserCourseService {
             if(stringListEntry.getValue()!=null){
                 if(!stringListEntry.getValue().isEmpty()) {
                     msgResult.toNormalMsg(temMap, userId.orElseThrow(() -> new QueryException("请先登录")));
+                    for (Map.Entry<Integer, Integer> k : stringListEntry.getValue().entrySet()) {
+                        msgService.deleteEvaMsg(k.getKey(),null);
+                    }
                 }
                 }else{
                 msgResult.SendMsgToAll(temMap,userId.orElseThrow(() -> new QueryException("请先登录")));
-                for (Map.Entry<Integer, Integer> k : stringListEntry.getValue().entrySet()) {
-                    msgService.deleteEvaMsg(k.getKey(),null);
-                }
+
             }
 
         }
@@ -168,8 +169,7 @@ public class IUserCourseServiceImpl implements IUserCourseService {
         for (Map.Entry<String, Map<Integer, Integer>> stringMapEntry : mapMsg.entrySet()) {
             Map<String,Map<Integer,Integer>> map=new HashMap<>();
             map.put(stringMapEntry.getKey(),stringMapEntry.getValue());
-            if(stringMapEntry.getValue()==null&&stringMapEntry.getKey()!=null){
-
+            if(stringMapEntry.getValue()==null&&stringMapEntry.getKey()!=null&& !stringMapEntry.getKey().isEmpty()){
                 msgResult.SendMsgToAll(map, userId.orElseThrow(() -> new QueryException("请先登录")));
             }else if(!Objects.equals(stringMapEntry.getKey(), "")){
                 MessageBO messageBO=new MessageBO();
