@@ -99,7 +99,7 @@ public class QueryUserCourseController {
      * @param courseId 课程id
      * */
     @GetMapping("/course/my/date/{courseId}")
-    public CommonResult<List<SelfTeachCourseTimeCO>> selfCourseTime(
+    public CommonResult<List<SelfTeachCourseTimeInfoCO>> selfCourseTime(
             @PathVariable(value = "courseId",required = true) Integer courseId){
         return CommonResult.success(userCourseService.selfCourseTime(courseId));
     }

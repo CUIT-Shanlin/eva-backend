@@ -17,10 +17,7 @@ import edu.cuit.client.api.course.IUserCourseService;
 import edu.cuit.client.bo.MessageBO;
 import edu.cuit.client.dto.clientobject.SemesterCO;
 import edu.cuit.client.dto.clientobject.SimpleSubjectResultCO;
-import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
-import edu.cuit.client.dto.clientobject.course.RecommendCourseCO;
-import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
-import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
+import edu.cuit.client.dto.clientobject.course.*;
 import edu.cuit.client.dto.data.Term;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.gateway.course.CourseDeleteGateway;
@@ -110,22 +107,24 @@ public class IUserCourseServiceImpl implements IUserCourseService {
     }
 
     @Override
-    public List<SelfTeachCourseTimeCO> selfCourseTime(Integer courseId) {
+    public List<SelfTeachCourseTimeInfoCO> selfCourseTime(Integer courseId) {
         List<SingleCourseEntity> selfCourseTime = courseQueryGateway.getSelfCourseTime(courseId);
        //根据SingleCourseEntity中的day和starTime来分组
         Map<String, List<SingleCourseEntity>> map = selfCourseTime.stream().collect(Collectors.groupingBy(course -> course.getDay() + "-" + course.getStartTime()+"-"+course.getEndTime()));
-        List<SelfTeachCourseTimeCO> list=new ArrayList<>();
+        List<SelfTeachCourseTimeInfoCO> list=new ArrayList<>();
         for (Map.Entry<String, List<SingleCourseEntity>> entry : map.entrySet()) {
-            SelfTeachCourseTimeCO time=new SelfTeachCourseTimeCO();
+            SelfTeachCourseTimeInfoCO time=new SelfTeachCourseTimeInfoCO();
             time.setDay(entry.getValue().get(0).getDay());
             time.setStartTime(entry.getValue().get(0).getStartTime());
             time.setEndTime(entry.getValue().get(0).getEndTime());
-            time.setClassroom(entry.getValue().get(0).getLocation());
+            List<String> location = entry.getValue().stream().map(SingleCourseEntity::getLocation).distinct().toList();
+            time.setClassroom(location);
+//            time.setClassroom(entry.getValue().get(0).getLocation());
             List<Integer> week=new ArrayList<>();
             for (SingleCourseEntity courseTime : entry.getValue()) {
                 week.add(courseTime.getWeek());
             }
-            time.setWeeks(week);
+            time.setWeeks(week.stream().distinct().toList());
             list.add(time);
         }
         return list;

@@ -51,7 +51,7 @@ public interface IUserCourseService {
      * 获取自己教学的一门课程的课程时段
      * @param courseId 课程id
      * */
-    List<SelfTeachCourseTimeCO> selfCourseTime(Integer courseId);
+    List<SelfTeachCourseTimeInfoCO> selfCourseTime(Integer courseId);
 
     /**
      * 删除自己的一门课程
