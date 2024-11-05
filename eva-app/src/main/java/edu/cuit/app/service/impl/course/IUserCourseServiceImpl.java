@@ -100,7 +100,7 @@ public class IUserCourseServiceImpl implements IUserCourseService {
             }else{
                 msgResult.SendMsgToAll(temMap,userId.orElseThrow(() -> new QueryException("请先登录")));
                 for (Map.Entry<Integer, Integer> k : stringListEntry.getValue().entrySet()) {
-                    msgService.deleteEvaMsg(k.getKey(),null)
+                    msgService.deleteEvaMsg(k.getKey(),null);
                 }
             }
 
