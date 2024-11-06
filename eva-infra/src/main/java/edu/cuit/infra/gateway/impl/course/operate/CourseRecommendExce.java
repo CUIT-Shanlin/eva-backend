@@ -52,6 +52,9 @@ public class CourseRecommendExce {
         if(user==null)throw new QueryException("用户不存在");
         //查询user授课程集合
         List<CourseDO> courseDOS1 = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", user.getId()).eq("semester_id", semId));
+        List<Integer> list1=new ArrayList<>();
+        if(!courseDOS1.isEmpty())
+         list1= courInfMapper.selectList(new QueryWrapper<CourInfDO>().in(true, "course_id", courseDOS1.stream().map(CourseDO::getId).toList())).stream().map(CourInfDO::getId).toList();
         List<Integer> courseIds = courseDOS1.stream().map(CourseDO::getId).toList();
         //找出老师所要评教的课程
         List<EvaTaskDO> taskDOList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id", user.getId()).and(wrapper -> wrapper.eq("status", 1).or().eq("status",0)));
@@ -71,13 +74,22 @@ public class CourseRecommendExce {
         //找出评教次数大于等于8次的课程ID集合
         List<EvaTaskDO> taskList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("status", 1).or().eq("status", 0));
         List<Integer> courInfoList = taskList.stream().map(EvaTaskDO::getCourInfId).toList();
+        List<Integer> tmpList = list1;
+        if(!list1.isEmpty()){
+            courInfoList= courInfoList.stream().filter(i -> !tmpList.contains(i)).toList();
+        }
         List<CourInfDO> courseDOS=new ArrayList<>();
         if(!courInfoList.isEmpty()){
             for (Integer i : courInfoList) {
                 courseDOS.add(courInfMapper.selectById(i));
             }
         }
-        Map<Integer, List<CourInfDO>> collect = courseDOS.stream().collect(Collectors.groupingBy(CourInfDO::getCourseId));
+        Map<Integer, List<CourInfDO>> collect=new HashMap<>();
+//        Map<Integer, List<CourInfDO>> collect = courseDOS.stream().collect(Collectors.groupingBy(CourInfDO::getCourseId));
+        for (CourInfDO courseDO : courseDOS) {
+            collect.putIfAbsent(courseDO.getCourseId(),new ArrayList<>());
+            collect.get(courseDO.getCourseId()).add(courseDO);
+        }
         Map<Integer,Map<Integer,List<CourInfDO>>> teacherMap= new HashMap<>();
         for (Map.Entry<Integer, List<CourInfDO>> entry : collect.entrySet()) {
             Integer teacherId = courseMapper.selectById(entry.getKey()).getTeacherId();
@@ -178,7 +190,8 @@ public class CourseRecommendExce {
         List<RecommendCourseCO> returnList = new ArrayList<>();
         for (Map.Entry<String, List<RecommendCourseCO>> entry : result.entrySet()) {
             int evaTeacher=0;
-            Map<String, List<RecommendCourseCO>> collect2 = entry.getValue().stream().collect(Collectors.groupingBy(RecommendCourseCO::getName));
+            //根据课程名和nature进行分组
+            Map<String, List<RecommendCourseCO>> collect2 = entry.getValue().stream().collect(Collectors.groupingBy(course->course.getName()+course.getNature()));
             for (Map.Entry<String, List<RecommendCourseCO>> entry2 : collect2.entrySet()) {
                 evaTeacher+=entry2.getValue().get(0).getEvaNum();
             }

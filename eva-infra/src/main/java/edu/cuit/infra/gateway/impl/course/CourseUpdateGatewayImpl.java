@@ -412,7 +412,6 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     @Transactional
     public Map<String,Map<Integer,Integer>> updateSelfCourse(String userName, SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeInfoCO> timeList) {
         String msg=null;
-
         SysUserDO userDO = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("username", userName));
         if(userDO==null){
             throw new QueryException("用户不存在");
@@ -434,6 +433,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         Map<Integer,Integer> taskMap=new HashMap<>();
         String msgEva="";
         msgEva=JudgeCourseTime(courseDO,timeList,courseDOS,selfTeachCourseCO,taskMap);
+        if(!msgEva.isEmpty())msg+=selfTeachCourseCO.getName()+"课程的上课时间被修改了。";
         Map<String,Map<Integer,Integer>> map=new HashMap<>();
         map.put(msg,null);
         map.put(msgEva,taskMap);
@@ -468,11 +468,12 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                 courInfMapper.delete(new QueryWrapper<CourInfDO>()
                         .eq("course_id", courInfDO.getCourseId())
                         .eq("week", courInfDO.getWeek()).eq("day", courInfDO.getDay())
-                        .eq("start_time", courInfDO.getStartTime()).eq("end_time",courInfDO.getEndTime()));
+                        .eq("start_time", courInfDO.getStartTime()).eq("end_time",courInfDO.getEndTime())
+                        .eq("location", courInfDO.getLocation()));
                 evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId())).forEach(evaTaskDO -> taskMap.put(evaTaskDO.getId(),evaTaskDO.getTeacherId()));
-                EvaTaskDO evaTaskDO=new EvaTaskDO();
-                evaTaskDO.setStatus(2);
-                evaTaskMapper.update(evaTaskDO,new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId()));
+               /* EvaTaskDO evaTaskDO=new EvaTaskDO();
+                evaTaskDO.setStatus(2);*/
+                evaTaskMapper.delete(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId()));
             }
             localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(courseDO.getSemesterId()));
             if(taskMap.isEmpty()) return "";
@@ -482,11 +483,12 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                 courInfMapper.delete(new QueryWrapper<CourInfDO>()
                         .eq("course_id", courInfDO.getCourseId())
                         .eq("week", courInfDO.getWeek()).eq("day", courInfDO.getDay())
-                        .eq("start_time", courInfDO.getStartTime()).eq("end_time",courInfDO.getEndTime()));
+                        .eq("start_time", courInfDO.getStartTime()).eq("end_time",courInfDO.getEndTime())
+                        .eq("location", courInfDO.getLocation()));
                 evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId())).forEach(evaTaskDO -> taskMap.put(evaTaskDO.getId(),evaTaskDO.getTeacherId()));
-                EvaTaskDO evaTaskDO=new EvaTaskDO();
-                evaTaskDO.setStatus(2);
-                evaTaskMapper.update(evaTaskDO,new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId()));
+           /*     EvaTaskDO evaTaskDO=new EvaTaskDO();
+                evaTaskDO.setStatus(2);*/
+                evaTaskMapper.delete(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId()));
             }
             localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(courseDO.getSemesterId()));
             for (CourInfDO courInfDO : difference) {
