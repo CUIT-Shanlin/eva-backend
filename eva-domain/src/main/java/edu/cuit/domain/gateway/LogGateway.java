@@ -40,4 +40,9 @@ public interface LogGateway {
      * @param logBO 日志BO
      */
     void insertLog(SysLogBO logBO);
+
+    /**
+     * 清除超过一周的日志
+     */
+    void clearOldLog();
 }

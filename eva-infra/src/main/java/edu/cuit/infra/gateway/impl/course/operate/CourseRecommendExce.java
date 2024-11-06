@@ -57,7 +57,7 @@ public class CourseRecommendExce {
          list1= courInfMapper.selectList(new QueryWrapper<CourInfDO>().in(true, "course_id", courseDOS1.stream().map(CourseDO::getId).toList())).stream().map(CourInfDO::getId).toList();
         List<Integer> courseIds = courseDOS1.stream().map(CourseDO::getId).toList();
         //找出老师所要评教的课程
-        List<EvaTaskDO> taskDOList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id", user.getId()).and(wrapper -> wrapper.eq("status", 1).or().eq("status",0)));
+        List<EvaTaskDO> taskDOList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id", user.getId()).and(wrapper -> wrapper/*.eq("status", 1).or()*/.eq("status",0)));
         List<CourInfDO> evaCourInfo;
         Set<Integer> evaCourInfoSet;
         if(!taskDOList.isEmpty()) {
