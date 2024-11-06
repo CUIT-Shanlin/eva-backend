@@ -330,12 +330,12 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         if(list.isEmpty()) return;
         for (Integer i : list) {
 
-            CourInfDO courInfDO1 = courInfMapper.selectOne(new QueryWrapper<CourInfDO>().eq("week", courInfDO.getWeek())
+            boolean hasCourses = courInfMapper.exists(new QueryWrapper<CourInfDO>().eq("week", courInfDO.getWeek())
                     .eq("day", courInfDO.getDay())
                     .le("start_time", courInfDO.getEndTime())
                     .ge("end_time", courInfDO.getStartTime())
                     .eq(true, "course_id", i));
-            if(courInfDO1!=null){
+            if(hasCourses){
                 CourseDO courseDO = courseMapper.selectById(i);
                 SysUserDO userDO = userMapper.selectById(courseDO.getTeacherId());
                 throw new UpdateException(userDO.getName()+"老师"+"该时间段已有课程");
