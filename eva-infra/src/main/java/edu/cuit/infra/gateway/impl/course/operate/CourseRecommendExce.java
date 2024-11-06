@@ -55,10 +55,11 @@ public class CourseRecommendExce {
         List<Integer> list1=new ArrayList<>();
         if(!courseDOS1.isEmpty())
          list1= courInfMapper.selectList(new QueryWrapper<CourInfDO>().in(true, "course_id", courseDOS1.stream().map(CourseDO::getId).toList())).stream().map(CourInfDO::getId).toList();
+        //TODO
         List<Integer> courseIds = courseDOS1.stream().map(CourseDO::getId).toList();
         //找出老师所要评教的课程
-        List<EvaTaskDO> taskDOList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id", user.getId()).and(wrapper -> wrapper/*.eq("status", 1).or()*/.eq("status",0)));
-        List<CourInfDO> evaCourInfo;
+        List<EvaTaskDO> taskDOList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id", user.getId()).and(wrapper -> wrapper.eq("status",0)));
+        List<CourInfDO> evaCourInfo=new ArrayList<>();
         Set<Integer> evaCourInfoSet;
         if(!taskDOList.isEmpty()) {
             List<Integer> evaCourInfoList = taskDOList.stream().map(EvaTaskDO::getCourInfId).toList();
@@ -69,6 +70,8 @@ public class CourseRecommendExce {
         } else {
             evaCourInfoSet = new HashSet<>();
         }
+        //TODO
+        List<Integer> list2 = evaCourInfo.stream().map(CourInfDO::getId).toList();
         //包含了所有教学课程和评教课程
         evaCourInfoSet.addAll(courseIds);
         //找出评教次数大于等于8次的课程ID集合
@@ -142,14 +145,19 @@ public class CourseRecommendExce {
         // 排序
         Stream<RecommendCourseCO> sortedStream = stream.sorted(recommendResult);
         List<RecommendCourseCO> result = sortedStream.toList();
+        //过滤出reCourseList中id不在List，和list2中的RecommendCourseCO的集合
+        List<Integer> finalList = list1;
+        List<RecommendCourseCO> collect2 = result.stream().filter(recommendCourseCO -> !list2.contains(recommendCourseCO.getId())).toList();
+        List<RecommendCourseCO> resultCO = collect2.stream().filter(recommendCourseCO -> !finalList.contains(recommendCourseCO.getId())).toList();
         //过滤出前三周的，如果不够25条就往后延迟一周，直到有25条记录，如果都小于25就返回当前的就行
-        List<RecommendCourseCO> reCourseList = result.stream().filter(recommendCourseCO -> recommendCourseCO.getTime().getWeek() <= courseTime.getWeek() + 3).toList();
+        List<RecommendCourseCO> reCourseList = resultCO.stream().filter(recommendCourseCO -> recommendCourseCO.getTime().getWeek() <= courseTime.getWeek() + 3).toList();
+
         int i=4;
-       while (reCourseList.size()<5){
+        while (reCourseList.size()<5){
            int finalI = i;
-           reCourseList = result.stream().filter(recommendCourseCO -> recommendCourseCO.getTime().getWeek() <= courseTime.getWeek() + finalI).toList();
+           reCourseList = resultCO.stream().filter(recommendCourseCO -> recommendCourseCO.getTime().getWeek() <= courseTime.getWeek() + finalI).toList();
            i++;
-           if(reCourseList.size()==result.size()){
+           if(reCourseList.size()==resultCO.size()){
                break;
            }
        }
