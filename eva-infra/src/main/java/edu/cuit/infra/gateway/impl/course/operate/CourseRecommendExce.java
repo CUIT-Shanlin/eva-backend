@@ -53,9 +53,12 @@ public class CourseRecommendExce {
         //查询user授课程集合
         List<CourseDO> courseDOS1 = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", user.getId()).eq("semester_id", semId));
         List<Integer> list1=new ArrayList<>();
-        if(!courseDOS1.isEmpty())
-         list1= courInfMapper.selectList(new QueryWrapper<CourInfDO>().in(true, "course_id", courseDOS1.stream().map(CourseDO::getId).toList())).stream().map(CourInfDO::getId).toList();
-        //TODO
+        List<CourInfDO> courINfoList=new ArrayList<>();
+        if(!courseDOS1.isEmpty()){
+            courINfoList=courInfMapper.selectList(new QueryWrapper<CourInfDO>().in(true, "course_id", courseDOS1.stream().map(CourseDO::getId).toList()));
+            list1= courINfoList.stream().map(CourInfDO::getId).toList();
+        }
+
         List<Integer> courseIds = courseDOS1.stream().map(CourseDO::getId).toList();
         //找出老师所要评教的课程
         List<EvaTaskDO> taskDOList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id", user.getId()).and(wrapper -> wrapper.eq("status",0)));
@@ -70,8 +73,8 @@ public class CourseRecommendExce {
         } else {
             evaCourInfoSet = new HashSet<>();
         }
-        //TODO
-        List<Integer> list2 = evaCourInfo.stream().map(CourInfDO::getId).toList();
+
+//        List<Integer> list2 = evaCourInfo.stream().map(CourInfDO::getId).toList();
         //包含了所有教学课程和评教课程
         evaCourInfoSet.addAll(courseIds);
         //找出评教次数大于等于8次的课程ID集合
@@ -146,9 +149,7 @@ public class CourseRecommendExce {
         Stream<RecommendCourseCO> sortedStream = stream.sorted(recommendResult);
         List<RecommendCourseCO> result = sortedStream.toList();
         //过滤出reCourseList中id不在List，和list2中的RecommendCourseCO的集合
-        List<Integer> finalList = list1;
-        List<RecommendCourseCO> collect2 = result.stream().filter(recommendCourseCO -> !list2.contains(recommendCourseCO.getId())).toList();
-        List<RecommendCourseCO> resultCO = collect2.stream().filter(recommendCourseCO -> !finalList.contains(recommendCourseCO.getId())).toList();
+        List<RecommendCourseCO>resultCO=toFilterList(courINfoList,evaCourInfo,result);
         //过滤出前三周的，如果不够25条就往后延迟一周，直到有25条记录，如果都小于25就返回当前的就行
         List<RecommendCourseCO> reCourseList = resultCO.stream().filter(recommendCourseCO -> recommendCourseCO.getTime().getWeek() <= courseTime.getWeek() + 3).toList();
 
@@ -163,6 +164,29 @@ public class CourseRecommendExce {
        }
         //如果result长度大于25，则返回前25个，反之全部返回
         return reCourseList.size()>25?reCourseList.subList(0,25):reCourseList;
+    }
+
+    private List<RecommendCourseCO> toFilterList(List<CourInfDO> courINfoList, List<CourInfDO> evaCourInfo, List<RecommendCourseCO> result) {
+        List<RecommendCourseCO> returnList=new ArrayList<>();
+        for (RecommendCourseCO recommendCourseCO : result) {
+            if(!courINfoList.isEmpty()&&!toCompare(courINfoList,recommendCourseCO))
+                continue;
+            if(!evaCourInfo.isEmpty()&&!toCompare(evaCourInfo,recommendCourseCO))
+                continue;
+            returnList.add(recommendCourseCO);
+
+        }
+        return returnList;
+    }
+
+    private boolean toCompare(List<CourInfDO> courINfoList, RecommendCourseCO recommendCourseCO) {
+        for (CourInfDO courInfDO : courINfoList) {
+            if(toCompareTime(courInfDO,recommendCourseCO))return false;
+        }
+        return true;
+    }
+    private boolean toCompareTime(CourInfDO courInfDO,RecommendCourseCO recommendCourseCO){
+        return courInfDO.getWeek().equals(recommendCourseCO.getTime().getWeek()) && courInfDO.getDay().equals(recommendCourseCO.getTime().getDay()) && courInfDO.getEndTime() >= recommendCourseCO.getTime().getStartTime() && courInfDO.getStartTime() <= recommendCourseCO.getTime().getEndTime();
     }
 
     private List<RecommendCourseCO> getRecommendCourse(List<Integer> leList,List<CourseDO> list, List<CourseDO> courseDOS1,CourseTime courseTime,Integer semId,List<CourInfDO> courInfDOS){
