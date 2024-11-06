@@ -171,7 +171,7 @@ public class IUserCourseServiceImpl implements IUserCourseService {
             map.put(stringMapEntry.getKey(),stringMapEntry.getValue());
             if(stringMapEntry.getValue()==null&&stringMapEntry.getKey()!=null&& !stringMapEntry.getKey().isEmpty()){
                 msgResult.SendMsgToAll(map, userId.orElseThrow(() -> new QueryException("请先登录")));
-            }else if(!Objects.equals(stringMapEntry.getKey(), "")){
+            }else if(!Objects.equals(stringMapEntry.getKey(), "")&&!stringMapEntry.getValue().isEmpty()){
                 MessageBO messageBO=new MessageBO();
                 messageBO.setMsg(stringMapEntry.getKey());
             for (Map.Entry<Integer, Integer> mapEntry : stringMapEntry.getValue().entrySet()) {
