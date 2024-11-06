@@ -471,9 +471,9 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                         .eq("start_time", courInfDO.getStartTime()).eq("end_time",courInfDO.getEndTime())
                         .eq("location", courInfDO.getLocation()));
                 evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId())).forEach(evaTaskDO -> taskMap.put(evaTaskDO.getId(),evaTaskDO.getTeacherId()));
-                EvaTaskDO evaTaskDO=new EvaTaskDO();
-                evaTaskDO.setStatus(2);
-                evaTaskMapper.update(evaTaskDO,new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId()));
+               /* EvaTaskDO evaTaskDO=new EvaTaskDO();
+                evaTaskDO.setStatus(2);*/
+                evaTaskMapper.delete(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId()));
             }
             localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(courseDO.getSemesterId()));
             if(taskMap.isEmpty()) return "";
@@ -486,9 +486,9 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                         .eq("start_time", courInfDO.getStartTime()).eq("end_time",courInfDO.getEndTime())
                         .eq("location", courInfDO.getLocation()));
                 evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId())).forEach(evaTaskDO -> taskMap.put(evaTaskDO.getId(),evaTaskDO.getTeacherId()));
-                EvaTaskDO evaTaskDO=new EvaTaskDO();
-                evaTaskDO.setStatus(2);
-                evaTaskMapper.update(evaTaskDO,new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId()));
+           /*     EvaTaskDO evaTaskDO=new EvaTaskDO();
+                evaTaskDO.setStatus(2);*/
+                evaTaskMapper.delete(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId()));
             }
             localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(courseDO.getSemesterId()));
             for (CourInfDO courInfDO : difference) {
