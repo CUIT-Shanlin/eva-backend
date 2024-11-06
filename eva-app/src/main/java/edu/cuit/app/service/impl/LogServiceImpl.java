@@ -44,6 +44,7 @@ public class LogServiceImpl implements ILogService {
                                 log.error("发生系统异常",e);
                                 return e;
                             })));
+            logGateway.clearOldLog();
         });
     }
 
