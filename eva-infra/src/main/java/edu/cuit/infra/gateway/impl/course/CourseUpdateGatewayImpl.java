@@ -468,7 +468,8 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                 courInfMapper.delete(new QueryWrapper<CourInfDO>()
                         .eq("course_id", courInfDO.getCourseId())
                         .eq("week", courInfDO.getWeek()).eq("day", courInfDO.getDay())
-                        .eq("start_time", courInfDO.getStartTime()).eq("end_time",courInfDO.getEndTime()));
+                        .eq("start_time", courInfDO.getStartTime()).eq("end_time",courInfDO.getEndTime())
+                        .eq("location", courInfDO.getLocation()));
                 evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId())).forEach(evaTaskDO -> taskMap.put(evaTaskDO.getId(),evaTaskDO.getTeacherId()));
                 EvaTaskDO evaTaskDO=new EvaTaskDO();
                 evaTaskDO.setStatus(2);
@@ -482,7 +483,8 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                 courInfMapper.delete(new QueryWrapper<CourInfDO>()
                         .eq("course_id", courInfDO.getCourseId())
                         .eq("week", courInfDO.getWeek()).eq("day", courInfDO.getDay())
-                        .eq("start_time", courInfDO.getStartTime()).eq("end_time",courInfDO.getEndTime()));
+                        .eq("start_time", courInfDO.getStartTime()).eq("end_time",courInfDO.getEndTime())
+                        .eq("location", courInfDO.getLocation()));
                 evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId())).forEach(evaTaskDO -> taskMap.put(evaTaskDO.getId(),evaTaskDO.getTeacherId()));
                 EvaTaskDO evaTaskDO=new EvaTaskDO();
                 evaTaskDO.setStatus(2);
