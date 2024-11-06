@@ -116,7 +116,7 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         CourseDO courseDO = courseMapper.selectOne(courseWrapper);
        if(courseDO==null)throw new QueryException("课程已经被删除，或者不存在");
        String name = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("id", courseDO.getSubjectId())).getName();
-        if(courseMapper.selectCount(new QueryWrapper<CourseDO>().eq("semester_id",semId).eq("subject_id",courseDO.getSubjectId()))==1){
+        if(courseMapper.selectCount(new QueryWrapper<CourseDO>().eq("subject_id",courseDO.getSubjectId()))==1){
             subjectMapper.delete(new QueryWrapper<SubjectDO>().eq("id",courseDO.getSubjectId()));
             localCacheManager.invalidateCache(null,courseCacheConstants.SUBJECT_LIST);
         }
@@ -211,7 +211,10 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         }
         String name = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("id", courseDO.getSubjectId())).getName();
         courseMapper.delete(new UpdateWrapper<CourseDO>().eq("id", courseId).eq("teacher_id", userId));
-
+        if(courseMapper.selectCount(new QueryWrapper<CourseDO>().eq("subject_id",courseDO.getSubjectId()))==1){
+            subjectMapper.delete(new QueryWrapper<SubjectDO>().eq("id",courseDO.getSubjectId()));
+            localCacheManager.invalidateCache(null,courseCacheConstants.SUBJECT_LIST);
+        }
         List<CourInfDO> courInfoIds = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseId));
         courInfMapper.delete(new UpdateWrapper<CourInfDO>().eq("course_id", courseId));
         courseTypeCourseMapper.delete(new UpdateWrapper<CourseTypeCourseDO>().eq("course_id", courseId));
