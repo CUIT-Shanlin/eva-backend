@@ -200,10 +200,11 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
             throw new QueryException("请先登录");
         }
         //先根据userName来找到用户id
-        Integer userId = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("username", userName)).getId();
-        if(userId==null){
+        SysUserDO userDO = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("username", userName));
+        if(userDO==null){
             throw new QueryException("你已经被删除了");
         }
+        Integer userId =userDO.getId();
         //根据userId和courseId来删除课程表
         CourseDO courseDO = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", courseId).eq("teacher_id", userId));
         if(courseDO==null){
@@ -211,7 +212,7 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         }
         String name = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("id", courseDO.getSubjectId())).getName();
         courseMapper.delete(new UpdateWrapper<CourseDO>().eq("id", courseId).eq("teacher_id", userId));
-        if(courseMapper.selectCount(new QueryWrapper<CourseDO>().eq("subject_id",courseDO.getSubjectId()))==1){
+        if(courseMapper.selectCount(new QueryWrapper<CourseDO>().eq("subject_id",courseDO.getSubjectId()))==0){
             subjectMapper.delete(new QueryWrapper<SubjectDO>().eq("id",courseDO.getSubjectId()));
             localCacheManager.invalidateCache(null,courseCacheConstants.SUBJECT_LIST);
         }
@@ -237,7 +238,7 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         }
         Map<String,Map<Integer,Integer>> map=new HashMap<>();
         map.put("你所要评教的"+name+"课程被删除，已取消评教任务",mapEva);
-        map.put(name+"课程已被删除",null);
+        map.put(userDO.getName()+name+"课程已被删除",null);
         localCacheManager.invalidateCache(courseCacheConstants.COURSE_LIST_BY_SEM, String.valueOf(courseDO.getSemesterId()));
         localCacheManager.invalidateCache(null,evaCacheConstants.LOG_LIST);
         localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(courseDO.getSemesterId()));
