@@ -109,7 +109,7 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
     @Transactional
     public Map<String, Map<Integer, Integer>> deleteCourse(Integer semId, Integer id) {
         //删除课程表
-        UpdateWrapper<CourseDO> courseWrapper = new UpdateWrapper<>();
+        QueryWrapper<CourseDO> courseWrapper = new QueryWrapper<>();
         courseWrapper.eq("id", id);
         if (semId != null) {
             courseWrapper.eq("semester_id", semId);
