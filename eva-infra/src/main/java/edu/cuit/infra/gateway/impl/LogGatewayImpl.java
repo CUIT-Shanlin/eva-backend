@@ -35,6 +35,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -106,6 +107,13 @@ public class LogGatewayImpl implements LogGateway {
             SysLogDO logDO = logConverter.toLogDO(logBO, userQueryGateway.findIdByUsername(logBO.getUserId()).orElse(null));
             logMapper.insert(logDO);
         }, executor);
+    }
+
+    @Override
+    public void clearOldLog() {
+        LambdaQueryWrapper<SysLogDO> logQuery = Wrappers.lambdaQuery();
+        logQuery.lt(SysLogDO::getCreateTime, LocalDateTime.now().minusWeeks(1));
+        logMapper.delete(logQuery);
     }
 
     private SysLogEntity toSysLogEntity(SysLogDO logDO) {

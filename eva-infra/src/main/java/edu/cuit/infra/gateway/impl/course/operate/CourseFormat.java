@@ -37,4 +37,7 @@ public class CourseFormat {
         }
         return evaTemplateCO;
     }
+    public static String getNatureName(Integer nature){
+        return nature==1?"实验课":"理论课";
+    }
 }
