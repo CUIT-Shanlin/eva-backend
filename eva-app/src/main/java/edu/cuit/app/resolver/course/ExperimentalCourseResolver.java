@@ -124,7 +124,7 @@ public class ExperimentalCourseResolver extends CourseExcelResolverStrategy{
         for (count = 0;count < 6;count++) {
             CellRangeAddress cra = ExcelUtils.getMergerCellRegionRow(sheet, tmpStartRow, 0);
             if (cra == null)
-                throw new BizException("理论课程表格格式有误");
+                throw new BizException("实验课程表格格式有误");
             timeTable.add(Pair.of(tmpStartRow,cra.getLastRow()));
             CellRangeAddress blankCra = ExcelUtils.getMergerCellRegionRow(sheet, cra.getLastRow() + 1, 0);
 
