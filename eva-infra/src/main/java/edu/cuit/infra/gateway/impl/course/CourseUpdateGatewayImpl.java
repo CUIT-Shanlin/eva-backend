@@ -430,15 +430,12 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         if(subjectDO==null)throw new QueryException("该课程对应的科目不存在");
         msg=toJudge(courseDO,subjectDO,selfTeachCourseCO);
         //课程类型
-        if(msg.isEmpty()){
-           msg=userDO.getName()+"老师的"+selfTeachCourseCO.getName();
-        }
-        msg+=JudgeCourseType(courseDO,selfTeachCourseCO);
+        msg+=JudgeCourseType(userDO.getName()+"老师的"+selfTeachCourseCO.getName(),courseDO,selfTeachCourseCO);
         //课程时间段
         Map<Integer,Integer> taskMap=new HashMap<>();
         String msgEva="";
         msgEva=JudgeCourseTime(courseDO,timeList,courseDOS,selfTeachCourseCO,taskMap);
-        if(!msgEva.isEmpty())msg+=userDO.getName()+"老师的"+selfTeachCourseCO.getName()+"课程的上课时间被修改了。";
+        if(!msgEva.isEmpty())msg+=userDO.getName()+"老师的"+selfTeachCourseCO.getName()+"课程的上课时间（教室）被修改了。";
         Map<String,Map<Integer,Integer>> map=new HashMap<>();
         map.put(msg,null);
         map.put(msgEva,taskMap);
@@ -483,7 +480,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
             }
             localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(courseDO.getSemesterId()));
             if(taskMap.isEmpty()) return "";
-            else return msg+userDO.getName()+"老师的"+selfTeachCourseCO.getName()+"课程的上课时间被修改了,"+"因而取消您对该课程的评教任务";
+            else return msg+userDO.getName()+"老师的"+selfTeachCourseCO.getName()+"课程的上课时间（教室）被修改了,"+"因而取消您对该课程的评教任务";
         }else{
             for (CourInfDO courInfDO : difference2) {
                 courInfMapper.delete(new QueryWrapper<CourInfDO>()
@@ -540,7 +537,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                 }
                 courInfMapper.insert(courInfDO);
             }
-            return msg+userDO.getName()+"老师的"+selfTeachCourseCO.getName()+"课程的上课时间被修改了,"+"因而取消您对该课程的评教任务";
+            return msg+userDO.getName()+"老师的"+selfTeachCourseCO.getName()+"课程的上课时间（教室）被修改了,"+"因而取消您对该课程的评教任务";
         }
     }
     public  List<CourInfDO> getDifference(List<CourInfDO> courseChangeList, List<CourInfDO> courInfoList) {
@@ -554,7 +551,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                 .collect(Collectors.toList());
     }
 
-    private String JudgeCourseType(CourseDO courseDO,SelfTeachCourseCO selfTeachCourseCO) {
+    private String JudgeCourseType(String info,CourseDO courseDO,SelfTeachCourseCO selfTeachCourseCO) {
         String msg="";
         // 获取课程类型ID
         List<Integer> typeIdDo = courseTypeCourseMapper.selectList(new QueryWrapper<CourseTypeCourseDO>().eq("course_id", courseDO.getId()))
@@ -590,7 +587,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                 courseTypeCourseMapper.insert(courseTypeCourseDO);
             });
 
-            return msg+"课程类型被修改为:"+String.join(",", typeName)+"。";
+            return msg+info+"课程类型被修改为:"+String.join(",", typeName)+"。";
         }
 
     }
