@@ -181,6 +181,7 @@ public class UpdateCourseController {
      *@param updateCourseInfoAndTimeCmd 内含有课程信息，课程时段信息
     * */
     @PutMapping("/course/my/info/date")
+    @SaCheckPermission("course.tabulation.update")
     public CommonResult<Void> updateSelfCourse(
             @Valid @RequestBody UpdateCourseInfoAndTimeCmd updateCourseInfoAndTimeCmd){
         if(updateCourseInfoAndTimeCmd ==null)throw new QueryException("请传入完整的课程及时间段信息");
