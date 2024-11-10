@@ -6,6 +6,7 @@ import edu.cuit.client.dto.data.course.CourseTime;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.client.dto.query.CourseQuery;
 import edu.cuit.client.dto.query.condition.MobileCourseQuery;
+import edu.cuit.domain.gateway.DynamicConfigGateway;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.infra.convertor.course.CourseConvertor;
 import edu.cuit.infra.dal.database.dataobject.course.*;
@@ -43,6 +44,7 @@ public class CourseRecommendExce {
     private final EvaTaskMapper evaTaskMapper;
     private final SysUserMapper userMapper;
     private final SemesterMapper semesterMapper;
+    private final DynamicConfigGateway dynamicConfigGateway;
 
 
     public List<RecommendCourseCO> RecommendCourse(Integer semId, String userName,CourseTime courseTime){
@@ -114,7 +116,7 @@ public class CourseRecommendExce {
             for (Map.Entry<Integer, List<CourInfDO>> entry : integerMapEntry.getValue().entrySet()) {
                 for (CourInfDO courInfDO : entry.getValue()) sum++;
             }
-            if(sum>=8){
+            if(sum>=dynamicConfigGateway.toGetMaxEvaNum()){
                 //从collet中找出大于8次的
                 for (Map.Entry<Integer, List<CourInfDO>> entry : integerMapEntry.getValue().entrySet()) {
                     collect1.add(entry.getKey());
