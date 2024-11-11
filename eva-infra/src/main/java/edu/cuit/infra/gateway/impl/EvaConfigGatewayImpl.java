@@ -7,8 +7,8 @@ import com.alibaba.cola.exception.SysException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.cuit.client.dto.data.EvaConfig;
-import edu.cuit.domain.entity.DynamicConfigEntity;
-import edu.cuit.domain.gateway.DynamicConfigGateway;
+import edu.cuit.domain.entity.eva.EvaConfigEntity;
+import edu.cuit.domain.gateway.eva.EvaConfigGateway;
 import edu.cuit.infra.property.StaticConfigProperties;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -23,14 +23,14 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class DynamicConfigGatewayImpl implements DynamicConfigGateway {
+public class EvaConfigGatewayImpl implements EvaConfigGateway {
 
     private final StaticConfigProperties staticConfigProperties;
 
     private final ObjectMapper objectMapper;
 
     private File evaConfigFile;
-    private DynamicConfigEntity configCache = null;
+    private EvaConfigEntity configCache = null;
 
     @PostConstruct
     public void initConfig() {
@@ -46,7 +46,7 @@ public class DynamicConfigGatewayImpl implements DynamicConfigGateway {
     }
 
     @Override
-    public Integer toGetMaxEvaNum() {
+    public Integer getMaxBeEvaNum() {
         return configCache.getMaxBeEvaNum();
     }
 
@@ -61,7 +61,7 @@ public class DynamicConfigGatewayImpl implements DynamicConfigGateway {
     }
 
     @Override
-    public DynamicConfigEntity getEvaConfig() {
+    public EvaConfigEntity getEvaConfig() {
         return configCache.clone();
     }
 
@@ -86,7 +86,7 @@ public class DynamicConfigGatewayImpl implements DynamicConfigGateway {
         BufferedInputStream inputStream = FileUtil.getInputStream(evaConfigFile);
         try {
             JsonNode jsonNode = objectMapper.readTree(inputStream);
-            configCache = SpringUtil.getBean(DynamicConfigEntity.class);
+            configCache = SpringUtil.getBean(EvaConfigEntity.class);
             configCache.setMinEvaNum(jsonNode.get("minEvaNum").intValue());
             configCache.setMinBeEvaNum(jsonNode.get("minBeEvaNum").intValue());
             configCache.setMaxBeEvaNum(jsonNode.get("maxBeEvaNum").intValue());

@@ -1,19 +1,19 @@
-package edu.cuit.domain.gateway;
+package edu.cuit.domain.gateway.eva;
 
 import edu.cuit.client.dto.data.EvaConfig;
-import edu.cuit.domain.entity.DynamicConfigEntity;
+import edu.cuit.domain.entity.eva.EvaConfigEntity;
 import org.springframework.stereotype.Component;
 
 /**
  * 动态配置相关数据门面
  */
 @Component
-public interface DynamicConfigGateway {
+public interface EvaConfigGateway {
 
     /**
      * 获取最大被评教额次数
      * */
-    Integer toGetMaxEvaNum();
+    Integer getMaxBeEvaNum();
 
     /**
      * 获取最小被评教次数
@@ -28,7 +28,7 @@ public interface DynamicConfigGateway {
     /**
      * 获取评教配置
      */
-    DynamicConfigEntity getEvaConfig();
+    EvaConfigEntity getEvaConfig();
 
     /**
      * 修改评教配置

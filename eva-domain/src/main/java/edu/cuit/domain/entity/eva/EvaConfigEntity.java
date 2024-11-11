@@ -1,4 +1,4 @@
-package edu.cuit.domain.entity;
+package edu.cuit.domain.entity.eva;
 
 import cn.hutool.extra.spring.SpringUtil;
 import com.alibaba.cola.domain.Entity;
@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 @Entity
 @Data
 @RequiredArgsConstructor
-public class DynamicConfigEntity implements Cloneable{
+public class EvaConfigEntity implements Cloneable{
 
     /**
      * 最小评教次数
@@ -26,8 +26,8 @@ public class DynamicConfigEntity implements Cloneable{
     private Integer maxBeEvaNum = 8;
 
     @Override
-    public DynamicConfigEntity clone() {
-        DynamicConfigEntity config = SpringUtil.getBean(DynamicConfigEntity.class);
+    public EvaConfigEntity clone() {
+        EvaConfigEntity config = SpringUtil.getBean(EvaConfigEntity.class);
         config.setMaxBeEvaNum(maxBeEvaNum);
         config.setMinEvaNum(minEvaNum);
         config.setMinBeEvaNum(minBeEvaNum);

@@ -4,25 +4,18 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.cuit.client.dto.clientobject.course.RecommendCourseCO;
 import edu.cuit.client.dto.data.course.CourseTime;
 import edu.cuit.client.dto.data.course.CourseType;
-import edu.cuit.client.dto.query.CourseQuery;
 import edu.cuit.client.dto.query.condition.MobileCourseQuery;
-import edu.cuit.domain.gateway.DynamicConfigGateway;
-import edu.cuit.domain.gateway.course.CourseQueryGateway;
+import edu.cuit.domain.gateway.eva.EvaConfigGateway;
 import edu.cuit.infra.convertor.course.CourseConvertor;
 import edu.cuit.infra.dal.database.dataobject.course.*;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.course.*;
-import edu.cuit.infra.dal.database.mapper.eva.CourOneEvaTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
-import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
-import edu.cuit.infra.dal.database.mapper.eva.FormTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
-import edu.cuit.infra.gateway.impl.course.CourseQueryGatewayImpl;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
-import net.bytebuddy.description.type.TypeList;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -44,7 +37,7 @@ public class CourseRecommendExce {
     private final EvaTaskMapper evaTaskMapper;
     private final SysUserMapper userMapper;
     private final SemesterMapper semesterMapper;
-    private final DynamicConfigGateway dynamicConfigGateway;
+    private final EvaConfigGateway evaConfigGateway;
 
 
     public List<RecommendCourseCO> RecommendCourse(Integer semId, String userName,CourseTime courseTime){
@@ -116,7 +109,7 @@ public class CourseRecommendExce {
             for (Map.Entry<Integer, List<CourInfDO>> entry : integerMapEntry.getValue().entrySet()) {
                 for (CourInfDO courInfDO : entry.getValue()) sum++;
             }
-            if(sum>=dynamicConfigGateway.toGetMaxEvaNum()){
+            if(sum>= evaConfigGateway.getMaxBeEvaNum()){
                 //从collet中找出大于8次的
                 for (Map.Entry<Integer, List<CourInfDO>> entry : integerMapEntry.getValue().entrySet()) {
                     collect1.add(entry.getKey());
