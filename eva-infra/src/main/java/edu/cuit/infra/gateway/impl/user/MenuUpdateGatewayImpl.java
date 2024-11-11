@@ -86,7 +86,10 @@ public class MenuUpdateGatewayImpl implements MenuUpdateGateway {
     }
 
     @Override
-    @LocalCacheInvalidate(area = "#{@userCacheConstants.MENU_CHILDREN}", key = "#cmd.parentId")
+    @LocalCacheInvalidateContainer({
+            @LocalCacheInvalidate(area = "#{@userCacheConstants.MENU_CHILDREN}", key = "#cmd.parentId"),
+            @LocalCacheInvalidate(area = "#{@userCacheConstants.ONE_MENU}", key = "#cmd.parentId")
+    })
     public void createMenu(NewMenuCmd cmd) {
         if (cmd.getParentId() != null && cmd.getParentId() != 0 && menuQueryGateway.getOne(cmd.getParentId()).isEmpty())
             throw new BizException("父菜单ID: " + cmd.getParentId() + " 不存在");
