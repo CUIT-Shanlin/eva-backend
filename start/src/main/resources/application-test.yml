@@ -20,6 +20,8 @@ common:
   print-illegal-arguments: true
 
 eva:
+  config:
+    directory: "/data/config"
   avatar:
     #    directory: "/avatar"
     directory: "/data/avatar"
