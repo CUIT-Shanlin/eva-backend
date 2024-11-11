@@ -21,6 +21,7 @@ import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.entity.eva.CourOneEvaTemplateEntity;
 import edu.cuit.domain.entity.eva.EvaTaskEntity;
+import edu.cuit.domain.gateway.DynamicConfigGateway;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.domain.gateway.eva.EvaDeleteGateway;
 import edu.cuit.domain.gateway.eva.EvaQueryGateway;
@@ -45,6 +46,7 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
     private final EvaDeleteGateway evaDeleteGateway;
     private final UserQueryGateway userQueryGateway;
     private final CourseQueryGateway courseQueryGateway;
+    private final DynamicConfigGateway dynamicConfigGateway;
     private final EvaTaskBizConvertor evaTaskBizConvertor;
     private final PaginationBizConvertor paginationBizConvertor;
     private final MsgServiceImpl msgService;
@@ -82,7 +84,8 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
     @Override
     @Transactional
     public Void postEvaTask(NewEvaTaskCmd newEvaTaskCmd) {
-        Integer taskId=evaUpdateGateway.postEvaTask(newEvaTaskCmd);
+        Integer maxTaskNum=dynamicConfigGateway.toGetMaxEvaNum();
+        Integer taskId=evaUpdateGateway.postEvaTask(newEvaTaskCmd,maxTaskNum);
         msgService.sendMessage(new MessageBO().setMsg("")
                 .setMode(1).setIsShowName(1)
                 .setRecipientId(newEvaTaskCmd.getTeacherId()).setSenderId(newEvaTaskCmd.getTeacherId())

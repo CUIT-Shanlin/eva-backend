@@ -1,6 +1,7 @@
 package edu.cuit.infra.gateway.impl.eva;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.Week;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONConfig;
 import cn.hutool.json.JSONObject;
@@ -65,6 +66,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -795,49 +797,46 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     }
 //zjok
     @Override
-    public Optional<OneDayAddEvaDataCO> evaOneDayInfo(Integer day, Integer num, Integer semId) {
-        if(num<1){
-            throw new QueryException("请返回大于1的数据");
+    public Optional<EvaWeekAddCO> evaWeekAdd(Integer week,Integer semId) {
+        //得到前week周的数据
+        LocalDate start=LocalDate.now().minusWeeks(week).with(DayOfWeek.MONDAY);
+        LocalDateTime st=LocalDateTime.of(start.getYear(),start.getMonth(),start.getDayOfMonth(),0,0);
+        LocalDate end=start.plusDays(7);
+        LocalDateTime et=LocalDateTime.of(end.getYear(),end.getMonth(),end.getDayOfMonth(),0,0);
+
+        List<Integer> taskIds=getEvaTaskIdS(semId);
+        if(CollectionUtil.isEmpty(taskIds)){
+            return Optional.empty();
         }
-        DateTimeFormatter sf = DateTimeFormatter.ofPattern("HH:mm");
-        DecimalFormat df=new DecimalFormat("#.#");
+        Integer moreNum=0;
+        List<FormRecordDO> recordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",taskIds).between("create_time",st,et));
+        if(CollectionUtil.isNotEmpty(recordDOS)){
+            moreNum=recordDOS.size();
+        }
 
-        LocalDateTime time =LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonthValue(),LocalDateTime.now().getDayOfMonth(),0,0);
-        List<TimeEvaNumCO> timeEvaNumCOS=new ArrayList<>();
+        Integer lastMoreNum=0;
+        List<FormRecordDO> lastRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",taskIds).between("create_time",st.minusDays(7),et.minusDays(7)));
+        if(CollectionUtil.isNotEmpty(lastRecordDOS)){
+            lastMoreNum=lastRecordDOS.size();
+        }
 
-        TimeEvaNumCO timeEvaNumCO1=new TimeEvaNumCO();
-        timeEvaNumCO1.setTime(sf.format(LocalTime.of(0,0)));
-        timeEvaNumCO1.setMoreEvaNum(0);
-        timeEvaNumCOS.add(timeEvaNumCO1);
-        for(int i=0;i<num;i++){
-            LocalDateTime start=time.minusDays(day).plusHours((24/num)*i);
+        Double percent=0.0;
+        if(moreNum!=0&&lastMoreNum!=0) {//TODO
+            percent = (moreNum - lastMoreNum) / Double.valueOf(lastMoreNum) * 100;
+        }
+        List<Integer> weekAdd=new ArrayList<>();
+        for(int i=0;i<7;i++){
+            LocalDateTime s=st.plusDays(i);
+            LocalDateTime e=st.plusDays(i+1);
 
-            List<Integer> evaTaskIds=getEvaTaskIdS(semId);
-            if(CollectionUtil.isEmpty(evaTaskIds)){
-                throw new QueryException("没有找到相关任务");
+            Integer num=0;
+            List<FormRecordDO> recordDO=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",taskIds).between("create_time",s,e));
+            if(CollectionUtil.isNotEmpty(recordDO)){
+                num=recordDO.size();
             }
-            List<FormRecordDO> formRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIds)
-                    .between("create_time",start,start.plusHours(24/num)));
-            TimeEvaNumCO timeEvaNumCO=new TimeEvaNumCO();
-
-            if(i==num-1){
-                timeEvaNumCO.setTime(sf.format(LocalTime.of(23,59)));
-            }else {
-                LocalTime t = LocalTime.of(start.plusHours(24 / num).getHour(), start.plusHours(24 / num).getMinute());
-                timeEvaNumCO.setTime(sf.format(t));
-            }
-            timeEvaNumCO.setMoreEvaNum(formRecordDOS.size());
-            timeEvaNumCOS.add(timeEvaNumCO);
+            weekAdd.add(i,num);
         }
-        OneDayAddEvaDataCO oneDayAddEvaDataCO=new OneDayAddEvaDataCO();
-        oneDayAddEvaDataCO.setMoreNum(getEvaNumByDate(day,semId));
-        if(getEvaNumByDate(day+1,semId)==0){
-            oneDayAddEvaDataCO.setMorePercent(100);
-        }else {
-            oneDayAddEvaDataCO.setMorePercent(Double.parseDouble(df.format(((getEvaNumByDate(day, semId) / getEvaNumByDate(day + 1, semId)) * 100))));
-        }
-        oneDayAddEvaDataCO.setEvaNumArr(timeEvaNumCOS);
-        return Optional.of(oneDayAddEvaDataCO);
+        return Optional.of(new EvaWeekAddCO().setMoreNum(moreNum).setMorePercent(percent).setEvaNumArr(weekAdd));
     }
 
     //zjok
@@ -1272,6 +1271,30 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     @Override
     public Optional<String> getNameByTaskId(Integer taskId) {
         return Optional.of(sysUserMapper.selectById(evaTaskMapper.selectById(taskId).getTeacherId()).getName());
+    }
+
+    @Override
+    public List<EvaRecordEntity> getRecordByCourse(Integer courseId) {
+        List<CourInfDO> courInfDOS=courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id",courseId));
+        if(CollectionUtil.isNotEmpty(courInfDOS)){
+            return List.of();
+        }
+        List<Integer> courInfoIds=courInfDOS.stream().map(CourInfDO::getId).toList();
+        List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id",courInfoIds));
+        if(CollectionUtil.isNotEmpty(evaTaskDOS)){
+            return List.of();
+        }
+        List<Integer> evaTaskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
+        List<FormRecordDO> formRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIds));
+        if(CollectionUtil.isNotEmpty(formRecordDOS)){
+            return List.of();
+        }
+        List<UserEntity> userEntities=new ArrayList<>();
+        userEntities.add(toUserEntity(courseMapper.selectById(courseId).getTeacherId()));
+        List<SingleCourseEntity> singleCourseEntities=getListCurInfoEntities(courInfDOS);
+        List<EvaTaskEntity> evaTaskEntities=getEvaTaskEntities(evaTaskDOS,userEntities,singleCourseEntities);
+        List<EvaRecordEntity> evaRecordEntities=getRecordEntities(formRecordDOS,evaTaskEntities);
+        return evaRecordEntities;
     }
 
     //简便方法
