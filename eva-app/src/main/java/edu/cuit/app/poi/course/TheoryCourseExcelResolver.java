@@ -1,10 +1,10 @@
-package edu.cuit.app.resolver.course;
+package edu.cuit.app.poi.course;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.cola.exception.BizException;
-import edu.cuit.app.resolver.course.util.ExcelCourseUtils;
+import edu.cuit.app.poi.course.util.ExcelCourseUtils;
+import edu.cuit.app.poi.course.util.ExcelUtils;
 import edu.cuit.client.bo.CourseExcelBO;
-import edu.cuit.app.resolver.course.util.ExcelUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
