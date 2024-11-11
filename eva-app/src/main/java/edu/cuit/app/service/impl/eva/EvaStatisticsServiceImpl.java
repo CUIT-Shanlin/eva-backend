@@ -1,5 +1,4 @@
 package edu.cuit.app.service.impl.eva;
-import cn.hutool.json.JSONUtil;
 import com.alibaba.cola.exception.SysException;
 import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.PaginationBizConvertor;
@@ -12,12 +11,10 @@ import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.UnqualifiedUserConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.gateway.eva.EvaQueryGateway;
-import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 @Service
 @RequiredArgsConstructor
@@ -38,8 +35,8 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
 
     @Override
     @CheckSemId
-    public OneDayAddEvaDataCO evaOneDayInfo(Integer day, Integer num, Integer semId) {
-        return evaQueryGateway.evaOneDayInfo(day,num,semId).orElseThrow(()->new SysException("未找到相关数据"));
+    public EvaWeekAddCO evaWeekAdd(Integer week, Integer semId) {
+        return evaQueryGateway.evaWeekAdd(week,semId).orElseThrow(()->new SysException("未找到相关数据"));
     }
 
     @Override

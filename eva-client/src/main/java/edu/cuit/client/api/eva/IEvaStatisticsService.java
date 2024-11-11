@@ -6,7 +6,6 @@ import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.UnqualifiedUserConditionalQuery;
-import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -28,12 +27,11 @@ public interface IEvaStatisticsService {
     EvaSituationCO evaTemplateSituation(Integer semId);
 
     /**
-     * 获取指定某一天的详细评教统计数据
-     * @param day 指定的这一天和今天相差多少天，eg：0 =》 今天，-1 =》 昨天
-     * @param num 要将这一天的24小时分几段时间进行数据的统计
+     * 获取指定某一周内的详细评教统计数据
+     * @param week 距离周数
      * @param semId 学期id
      */
-    OneDayAddEvaDataCO evaOneDayInfo(Integer day, Integer num, Integer semId);
+    EvaWeekAddCO evaWeekAdd(Integer week, Integer semId);
 
     /**
      * 获取各个分数段中 课程的数目情况

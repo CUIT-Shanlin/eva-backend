@@ -48,18 +48,16 @@ public class EvaStatisticsController {
     // 评教看板相关
 
     /**
-     * 获取指定某一天的详细评教统计数据
-     * @param day 指定的这一天和今天相差多少天，eg：0 =》 今天，-1 =》 昨天
-     * @param num 要将这一天的24小时分几段时间进行数据的统计
+     * 获取指定某一周内的详细评教统计数据
+     * @param week 距离周数
      * @param semId 学期id
      */
-    @GetMapping("/evaluate/moreCount/{day}/{num}")
+    @GetMapping("/evaluate/moreCount")
     @SaCheckPermission("evaluate.board.query")
-    public CommonResult<OneDayAddEvaDataCO> evaOneDayInfo(
-            @PathVariable ("day") Integer day,
-            @PathVariable ("num") Integer num,
+    public CommonResult<EvaWeekAddCO> evaWeekAdd(
+            @RequestParam (value = "week",required = false) Integer week,
             @RequestParam (value = "semId",required = false) Integer semId){
-        return CommonResult.success(iEvaStatisticsService.evaOneDayInfo(day, num, semId));
+        return CommonResult.success(iEvaStatisticsService.evaWeekAdd(week,semId));
     }
     /**
      * 获取各个分数段中 课程的数目情况
