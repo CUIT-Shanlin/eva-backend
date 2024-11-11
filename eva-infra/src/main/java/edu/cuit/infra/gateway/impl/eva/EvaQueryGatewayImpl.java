@@ -1273,6 +1273,30 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         return Optional.of(sysUserMapper.selectById(evaTaskMapper.selectById(taskId).getTeacherId()).getName());
     }
 
+    @Override
+    public List<EvaRecordEntity> getRecordByCourse(Integer courseId) {
+        List<CourInfDO> courInfDOS=courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id",courseId));
+        if(CollectionUtil.isNotEmpty(courInfDOS)){
+            return List.of();
+        }
+        List<Integer> courInfoIds=courInfDOS.stream().map(CourInfDO::getId).toList();
+        List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id",courInfoIds));
+        if(CollectionUtil.isNotEmpty(evaTaskDOS)){
+            return List.of();
+        }
+        List<Integer> evaTaskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
+        List<FormRecordDO> formRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIds));
+        if(CollectionUtil.isNotEmpty(formRecordDOS)){
+            return List.of();
+        }
+        List<UserEntity> userEntities=new ArrayList<>();
+        userEntities.add(toUserEntity(courseMapper.selectById(courseId).getTeacherId()));
+        List<SingleCourseEntity> singleCourseEntities=getListCurInfoEntities(courInfDOS);
+        List<EvaTaskEntity> evaTaskEntities=getEvaTaskEntities(evaTaskDOS,userEntities,singleCourseEntities);
+        List<EvaRecordEntity> evaRecordEntities=getRecordEntities(formRecordDOS,evaTaskEntities);
+        return evaRecordEntities;
+    }
+
     //简便方法
     private UserEntity toUserEntity(Integer userId){
         //得到uer对象

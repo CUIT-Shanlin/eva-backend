@@ -182,4 +182,8 @@ public interface EvaQueryGateway {
      * 通过任务id返回评教老师名字
      */
     Optional<String> getNameByTaskId(Integer taskId);
+    /**
+     * 通过课程id得到该节课所有课程评教记录
+     */
+    List<EvaRecordEntity> getRecordByCourse(Integer courseId);
 }
