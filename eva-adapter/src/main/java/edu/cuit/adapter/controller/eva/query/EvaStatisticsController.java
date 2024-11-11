@@ -82,16 +82,13 @@ public class EvaStatisticsController {
     /**
      * 获取指定过去一段时间内的详细评教统计数据
      * @param num 获取从今天开始往过去看 num 天（含今天）中，每天的新增评教数目
-     * @param target 被评教的目标次数，大于等于该数目则达标，小于则未达标
-     * @param evaTarget 评教的目标次数，大于等于该数目则达标，小于则未达标
      * @param semId 学期id
      */
-    @GetMapping("/evaluate/moreCounts/{num}/{target}/{evaTarget}")
+    @GetMapping("/evaluate/moreCounts/{num}")
+    @SaCheckPermission("evaluate.board.query")
     public CommonResult<PastTimeEvaDetailCO> getEvaData(
             @RequestParam(value = "semId",required = false) Integer semId,
-            @PathVariable ("num") Integer num,
-            @PathVariable ("target") Integer target,
-            @PathVariable ("evaTarget") Integer evaTarget){
-        return CommonResult.success(iEvaStatisticsService.getEvaData(semId, num, target, evaTarget));
+            @PathVariable ("num") Integer num){
+        return CommonResult.success(iEvaStatisticsService.getEvaData(semId, num));
     }
 }
