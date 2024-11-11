@@ -1,19 +1,17 @@
-package edu.cuit.app.poi.course.util;
+package edu.cuit.app.poi.util;
 
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.cola.exception.BizException;
-import edu.cuit.client.bo.CourseExcelBO;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.FormulaEvaluator;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.RegionUtil;
+import org.apache.poi.xssf.usermodel.*;
 
+import java.awt.Color;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -124,6 +122,58 @@ public class ExcelUtils {
         FormulaEvaluator evaluator = sheet.getWorkbook().getCreationHelper().createFormulaEvaluator();
         cell = evaluator.evaluateInCell(cell);
         return getCellStringValue(cell);
+    }
+
+    /**
+     * 创建header单元格样式
+     * @param workbook HSSFWorkbook
+     */
+    public static CellStyle getHeaderStyle(XSSFWorkbook workbook) {
+        XSSFCellStyle cellStyle = (XSSFCellStyle) getContentStyle(workbook);
+
+        cellStyle.setFillForegroundColor(IndexedColors.PALE_BLUE.getIndex());
+        cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+        XSSFFont font = workbook.createFont();
+        font.setBold(true);
+        font.setFontHeight(16);
+
+        return cellStyle;
+    }
+
+    public static CellStyle getContentStyle(XSSFWorkbook workbook) {
+        XSSFCellStyle cellStyle = workbook.createCellStyle();
+
+        cellStyle.setBorderBottom(BorderStyle.THIN);
+        cellStyle.setBorderLeft(BorderStyle.THIN);
+        cellStyle.setBorderRight(BorderStyle.THIN);
+        cellStyle.setBorderTop(BorderStyle.THIN);
+
+        cellStyle.setAlignment(HorizontalAlignment.CENTER);
+        cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+        cellStyle.setWrapText(true);
+
+        return cellStyle;
+    }
+
+    /**
+     * 创建合并单元格
+     * @param startRow 开始行
+     * @param lastRow 结束行
+     * @param startCol 开始列
+     * @param lastCol 结束列
+     * @param sheet sheet
+     */
+    public static void createRegion(int startRow,int lastRow,int startCol,int lastCol,Sheet sheet) {
+        if ((lastRow - startRow) + (lastCol - startCol) == 0) return;
+        CellRangeAddress cellAddresses = new CellRangeAddress(startRow, lastRow, startCol, lastCol);
+        sheet.addMergedRegion(cellAddresses);
+        RegionUtil.setBorderTop(BorderStyle.THIN,cellAddresses,sheet);
+        RegionUtil.setBorderBottom(BorderStyle.THIN,cellAddresses,sheet);
+        RegionUtil.setBorderLeft(BorderStyle.THIN,cellAddresses,sheet);
+        RegionUtil.setBorderRight(BorderStyle.THIN,cellAddresses,sheet);
+
     }
 
 }

@@ -6,6 +6,8 @@ import edu.cuit.client.dto.clientobject.eva.ScoreRangeCourseCO;
 import edu.cuit.client.dto.clientobject.eva.*;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -90,5 +92,17 @@ public class EvaStatisticsController {
             @RequestParam(value = "semId",required = false) Integer semId,
             @PathVariable ("num") Integer num){
         return CommonResult.success(iEvaStatisticsService.getEvaData(semId, num));
+    }
+
+    /**
+     * 导出某学期的评教记录统计文件
+     * @param semId 学期id
+     * @return excel文件二进制数据，content-type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+     */
+    @GetMapping(value = "/evaluate/export",produces = {"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"})
+    @SaCheckPermission("evaluate.record.export")
+    public ResponseEntity<byte[]> exportEvaStatics(@RequestParam(value = "semId",required = false) Integer semId) {
+        byte[] data = iEvaStatisticsService.exportEvaStatistics(semId);
+        return new ResponseEntity<>(data, HttpStatus.OK);
     }
 }

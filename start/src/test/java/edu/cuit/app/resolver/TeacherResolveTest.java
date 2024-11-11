@@ -1,6 +1,6 @@
 package edu.cuit.app.resolver;
 
-import edu.cuit.app.poi.course.util.ExcelUtils;
+import edu.cuit.app.poi.util.ExcelUtils;
 import edu.cuit.domain.entity.user.LdapPersonEntity;
 import edu.cuit.domain.gateway.user.LdapPersonGateway;
 import org.apache.poi.ss.usermodel.*;
