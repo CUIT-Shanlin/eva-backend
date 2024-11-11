@@ -11,7 +11,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 @Data
 @Accessors(chain = true)
-public class OneDayAddEvaDataCO extends ClientObject{
+public class EvaWeekAddCO extends ClientObject{
     /**
      * 新增数目
      */
@@ -19,9 +19,9 @@ public class OneDayAddEvaDataCO extends ClientObject{
     /**
      * 新增百分比率
      */
-    private Number morePercent;
+    private Double morePercent;
     /**
      *这一天内评教次数的统计数据
      */
-    private List<TimeEvaNumCO> evaNumArr;
+    private List<Integer> evaNumArr;
 }
