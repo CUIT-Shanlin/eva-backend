@@ -186,4 +186,8 @@ public interface EvaQueryGateway {
      * 通过课程id得到该节课所有课程评教记录
      */
     List<EvaRecordEntity> getRecordByCourse(Integer courseId);
+    /**
+     * 通过string指标传平均分数
+     */
+    Optional<Double> getScoreByProp(String prop);
 }

@@ -1297,6 +1297,28 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         return evaRecordEntities;
     }
 
+    @Override
+    public Optional<Double> getScoreByProp(String prop) {
+        Double score=0.0;
+        JSONArray jsonArray;
+        try {
+            jsonArray = JSONUtil.parseArray(prop, JSONConfig.create()
+                    .setIgnoreError(true));
+        }catch (Exception e){
+            throw new SysException("jsonObject 数据对象转化失败");
+        }
+        Iterator<Object> iterator = jsonArray.iterator();
+        if(jsonArray.size()==0){
+            return Optional.of(-1.0);
+        }
+        while(iterator.hasNext()){
+            JSONObject jsonObject = (JSONObject) iterator.next();
+            // 处理jsonObject
+            score=score+Double.parseDouble(jsonObject.get("score").toString());
+        }
+        return Optional.of(score/jsonArray.size());
+    }
+
     //简便方法
     private UserEntity toUserEntity(Integer userId){
         //得到uer对象
