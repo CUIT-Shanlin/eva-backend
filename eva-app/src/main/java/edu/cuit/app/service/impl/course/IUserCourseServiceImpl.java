@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.cuit.app.aop.CheckSemId;
 
 import edu.cuit.app.convertor.course.CourseBizConvertor;
-import edu.cuit.app.resolver.course.CourseExcelResolver;
+import edu.cuit.app.poi.course.CourseExcelResolver;
 
 import edu.cuit.app.service.impl.MsgServiceImpl;
 import edu.cuit.app.service.operate.course.MsgResult;

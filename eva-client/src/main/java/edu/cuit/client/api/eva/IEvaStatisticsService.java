@@ -68,4 +68,11 @@ public interface IEvaStatisticsService {
      * @param target 评教或被评教的目标 数目，大于等于该数目则达标，小于则未达标
      */
     UnqualifiedUserResultCO getTargetAmountUnqualifiedUser(Integer semId,Integer type, Integer num,Integer target);
+
+    /**
+     * 导出某学期的评教记录统计文件
+     * @param semId 学期id
+     * @return excel文件二进制数据，content-type: application/vnd.ms-excel
+     */
+    byte[] exportEvaStatistics(Integer semId);
 }

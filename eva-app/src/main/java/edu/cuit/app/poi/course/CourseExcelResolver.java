@@ -1,4 +1,4 @@
-package edu.cuit.app.resolver.course;
+package edu.cuit.app.poi.course;
 
 import com.alibaba.cola.exception.BizException;
 import com.alibaba.cola.exception.SysException;
