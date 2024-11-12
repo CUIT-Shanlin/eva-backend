@@ -1299,6 +1299,9 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
 
     @Override
     public Optional<Double> getScoreByProp(String prop) {
+        if(prop==null){
+            return Optional.of(-1.0);
+        }
         Double score=0.0;
         JSONArray jsonArray;
         try {
