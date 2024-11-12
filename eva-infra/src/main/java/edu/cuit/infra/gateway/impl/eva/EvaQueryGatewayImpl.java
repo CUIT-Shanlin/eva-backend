@@ -1322,6 +1322,14 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         return Optional.of(score/jsonArray.size());
     }
 
+    @Override
+    public List<Integer> getCountAbEva(Integer semId, Integer userId) {
+        List k=new ArrayList();
+        k.add(getEvaNumByTeacherId(userId,semId));
+        k.add(getEvaEdNumByTeacherId(userId,semId));
+        return k;
+    }
+
     //简便方法
     private UserEntity toUserEntity(Integer userId){
         //得到uer对象

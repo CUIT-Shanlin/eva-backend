@@ -14,6 +14,7 @@ import edu.cuit.domain.entity.eva.EvaTaskEntity;
 import edu.cuit.domain.entity.eva.EvaTemplateEntity;
 import org.springframework.stereotype.Component;
 
+import javax.swing.*;
 import java.util.List;
 import java.util.Optional;
 
@@ -193,6 +194,6 @@ public interface EvaQueryGateway {
     /**
      * 通过用户id，semId 得到评教次数和被评教次数
      */
-    
+    List<Integer> getCountAbEva(Integer semId,Integer userId);
 
 }
