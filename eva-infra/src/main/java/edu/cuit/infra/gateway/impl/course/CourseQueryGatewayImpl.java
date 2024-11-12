@@ -237,8 +237,8 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         for (Map.Entry<String, List<EvaProp>> stringListEntry : evaPropMap.entrySet()) {
             CourseScoreCO courseScoreCO=new CourseScoreCO();
             Double sum=0.0;
-            Double max=0.0;
-            Double min=0.0;
+            Double max= Double.valueOf(stringListEntry.getValue().get(0).getScore());
+            Double min=Double.valueOf(stringListEntry.getValue().get(0).getScore());
             courseScoreCO.setProp(stringListEntry.getKey());
             for (EvaProp evaProp : stringListEntry.getValue()) {
                 sum+=evaProp.getScore();

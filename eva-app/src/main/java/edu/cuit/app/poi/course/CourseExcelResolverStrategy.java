@@ -1,4 +1,4 @@
-package edu.cuit.app.resolver.course;
+package edu.cuit.app.poi.course;
 
 import edu.cuit.client.bo.CourseExcelBO;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;

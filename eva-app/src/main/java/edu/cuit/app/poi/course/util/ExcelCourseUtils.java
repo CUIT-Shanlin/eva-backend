@@ -1,4 +1,4 @@
-package edu.cuit.app.resolver.course.util;
+package edu.cuit.app.poi.course.util;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;

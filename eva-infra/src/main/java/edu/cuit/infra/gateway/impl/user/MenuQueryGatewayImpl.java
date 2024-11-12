@@ -41,7 +41,7 @@ public class MenuQueryGatewayImpl implements MenuQueryGateway {
                 .map(menuConvertor::toMenuEntity)
                 .peek(menuEntity -> {
                     menuEntity.setChildren(() -> new ArrayList<>(menuQueryGateway.getChildrenMenus(menuEntity.getId())));
-                    menuEntity.setParent(() -> getOne(menuEntity.getParentId()).orElse(null));
+                    menuEntity.setParent(() -> menuQueryGateway.getOne(menuEntity.getParentId()).orElse(null));
                 })
                 .toList();
     }

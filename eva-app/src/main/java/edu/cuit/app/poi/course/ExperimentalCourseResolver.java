@@ -1,11 +1,11 @@
-package edu.cuit.app.resolver.course;
+package edu.cuit.app.poi.course;
 
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.cola.exception.BizException;
 import com.alibaba.cola.exception.SysException;
-import edu.cuit.app.resolver.course.util.ExcelCourseUtils;
-import edu.cuit.app.resolver.course.util.ExcelUtils;
+import edu.cuit.app.poi.course.util.ExcelCourseUtils;
+import edu.cuit.app.poi.util.ExcelUtils;
 import edu.cuit.client.bo.CourseExcelBO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;

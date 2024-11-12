@@ -10,7 +10,7 @@ import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.UnqualifiedUserConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
-import edu.cuit.domain.gateway.DynamicConfigGateway;
+import edu.cuit.domain.gateway.eva.EvaConfigGateway;
 import edu.cuit.domain.gateway.eva.EvaQueryGateway;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ import java.util.List;
 public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
     private final EvaQueryGateway evaQueryGateway;
     private final PaginationBizConvertor paginationBizConvertor;
-    private final DynamicConfigGateway dynamicConfigGateway;
+    private final EvaConfigGateway evaConfigGateway;
     @Override
     @CheckSemId
     public EvaScoreInfoCO evaScoreStatisticsInfo(Integer semId, Number score) {
@@ -55,8 +55,8 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
     @Override
     @CheckSemId
     public PastTimeEvaDetailCO getEvaData(Integer semId, Integer num) {
-        Integer target=dynamicConfigGateway.getMinEvaNum();
-        Integer evaTarget=dynamicConfigGateway.getMinBeEvaNum();
+        Integer target= evaConfigGateway.getMinEvaNum();
+        Integer evaTarget= evaConfigGateway.getMinBeEvaNum();
         return evaQueryGateway.getEvaData(semId,num,target,evaTarget).orElseThrow(()->new SysException("没有找到相关数据"));
     }
 
@@ -90,5 +90,11 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
             throw new SysException("type是10以外的值");
         }
         return unqualifiedUserResultCO;
+    }
+
+    @Override
+    @CheckSemId
+    public byte[] exportEvaStatistics(Integer semId) {
+        return new byte[0];
     }
 }
