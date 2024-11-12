@@ -14,11 +14,9 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ResourceUtils;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
 @Component
 @RequiredArgsConstructor
@@ -39,7 +37,14 @@ public class EvaConfigGatewayImpl implements EvaConfigGateway {
         if (!file.exists()) file.mkdir();
         evaConfigFile = new File(configPath + File.separatorChar + "eva-config.json");
         if (!evaConfigFile.exists()) {
-            File defaultConfig = new File(ResourceUtil.getResource("eva-config.json").getPath());
+
+            File defaultConfig = null;
+            try {
+                defaultConfig = ResourceUtils.getFile("classpath:eva-config.json");
+            } catch (FileNotFoundException e) {
+                log.error("eva-config.json未找到",e);
+                throw new SysException("读取配置失败");
+            }
             FileUtil.copy(defaultConfig,evaConfigFile,false);
         }
         readConfig();
