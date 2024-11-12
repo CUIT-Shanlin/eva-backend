@@ -12,6 +12,8 @@ import edu.cuit.infra.property.StaticConfigProperties;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 
@@ -23,6 +25,8 @@ import java.io.*;
 public class EvaConfigGatewayImpl implements EvaConfigGateway {
 
     private final StaticConfigProperties staticConfigProperties;
+
+    private final ApplicationContext applicationContext;
 
     private final ObjectMapper objectMapper;
 
@@ -37,14 +41,13 @@ public class EvaConfigGatewayImpl implements EvaConfigGateway {
         evaConfigFile = new File(configPath + File.separatorChar + "eva-config.json");
         if (!evaConfigFile.exists()) {
 
-            File defaultConfig = null;
+            Resource defaultConfigResource = applicationContext.getResource("classpath:eva-config.json");
             try {
-                defaultConfig = ResourceUtils.getFile("classpath:eva-config.json");
-            } catch (FileNotFoundException e) {
-                log.error("eva-config.json未找到",e);
+                FileUtil.writeFromStream(defaultConfigResource.getInputStream(),evaConfigFile);
+            } catch (IOException e) {
+                log.error("读取配置失败",e);
                 throw new SysException("读取配置失败");
             }
-            FileUtil.copy(defaultConfig,evaConfigFile,false);
         }
         readConfig();
     }
