@@ -14,6 +14,7 @@ import edu.cuit.domain.entity.eva.EvaTaskEntity;
 import edu.cuit.domain.entity.eva.EvaTemplateEntity;
 import org.springframework.stereotype.Component;
 
+import javax.swing.*;
 import java.util.List;
 import java.util.Optional;
 
@@ -93,12 +94,11 @@ public interface EvaQueryGateway {
      */
     List<Integer> getMonthEvaNUmber(Integer semId);
     /**
-     * 获取指定某一天的详细评教统计数据
-     * @param day 指定的这一天和今天相差多少天，eg：0 =》 今天，-1 =》 昨天
-     * @param num 要将这一天的24小时分几段时间进行数据的统计
+     * 获取指定某一周内的详细评教统计数据
+     * @param week 距离周数
      * @param semId 学期id
      */
-    Optional<OneDayAddEvaDataCO> evaOneDayInfo(Integer day, Integer num, Integer semId);
+    Optional<EvaWeekAddCO> evaWeekAdd(Integer week, Integer semId);
 
     /**
      * 获取指定过去一段时间内的详细评教统计数据
@@ -183,4 +183,17 @@ public interface EvaQueryGateway {
      * 通过任务id返回评教老师名字
      */
     Optional<String> getNameByTaskId(Integer taskId);
+    /**
+     * 通过课程id得到该节课所有课程评教记录
+     */
+    List<EvaRecordEntity> getRecordByCourse(Integer courseId);
+    /**
+     * 通过string指标传平均分数
+     */
+    Optional<Double> getScoreByProp(String prop);
+    /**
+     * 通过用户id，semId 得到评教次数和被评教次数
+     */
+    List<Integer> getCountAbEva(Integer semId,Integer userId);
+
 }

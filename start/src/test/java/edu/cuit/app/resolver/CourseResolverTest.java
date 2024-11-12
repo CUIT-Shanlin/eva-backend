@@ -1,6 +1,6 @@
 package edu.cuit.app.resolver;
 
-import edu.cuit.app.resolver.course.CourseExcelResolver;
+import edu.cuit.app.poi.course.CourseExcelResolver;
 import edu.cuit.client.bo.CourseExcelBO;
 import org.junit.jupiter.api.Test;
 

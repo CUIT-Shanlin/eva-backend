@@ -6,7 +6,6 @@ import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.UnqualifiedUserConditionalQuery;
-import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -28,12 +27,11 @@ public interface IEvaStatisticsService {
     EvaSituationCO evaTemplateSituation(Integer semId);
 
     /**
-     * 获取指定某一天的详细评教统计数据
-     * @param day 指定的这一天和今天相差多少天，eg：0 =》 今天，-1 =》 昨天
-     * @param num 要将这一天的24小时分几段时间进行数据的统计
+     * 获取指定某一周内的详细评教统计数据
+     * @param week 距离周数
      * @param semId 学期id
      */
-    OneDayAddEvaDataCO evaOneDayInfo(Integer day, Integer num, Integer semId);
+    EvaWeekAddCO evaWeekAdd(Integer week, Integer semId);
 
     /**
      * 获取各个分数段中 课程的数目情况
@@ -50,12 +48,10 @@ public interface IEvaStatisticsService {
 
     /**
      * 获取指定过去一段时间内的详细评教统计数据
-     * @param num 获取从今天开始往过去看 num 天（含今天）中，每天的新增评教数目
-     * @param target 被评教的目标次数，大于等于该数目则达标，小于则未达标
-     * @param evaTarget 评教的目标次数，大于等于该数目则达标，小于则未达标
+     * @param num 获取从今天开始往过去看 num 天（含今天）中，每天的新增评教数
      * @param semId 学期id
      */
-    PastTimeEvaDetailCO getEvaData(Integer semId, Integer num, Integer target, Integer evaTarget);
+    PastTimeEvaDetailCO getEvaData(Integer semId, Integer num);
     /**
      * 分页获取未达标用户
      * @param type 0：获取评教未达标的用户、1：获取被评教次数未达标的用户
@@ -72,4 +68,11 @@ public interface IEvaStatisticsService {
      * @param target 评教或被评教的目标 数目，大于等于该数目则达标，小于则未达标
      */
     UnqualifiedUserResultCO getTargetAmountUnqualifiedUser(Integer semId,Integer type, Integer num,Integer target);
+
+    /**
+     * 导出某学期的评教记录统计文件
+     * @param semId 学期id
+     * @return excel文件二进制数据，content-type: application/vnd.ms-excel
+     */
+    byte[] exportEvaStatistics(Integer semId);
 }

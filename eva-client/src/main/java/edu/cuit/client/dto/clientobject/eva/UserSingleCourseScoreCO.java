@@ -14,6 +14,11 @@ import lombok.experimental.Accessors;
 public class UserSingleCourseScoreCO extends ClientObject {
 
     /**
+     * 课程id
+     */
+    private Integer courseId;
+
+    /**
      * 课程名称
      */
     private String courseName;

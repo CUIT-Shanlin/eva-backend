@@ -1,8 +1,8 @@
 package edu.cuit.app.service.impl.eva;
-import cn.hutool.json.JSONUtil;
 import com.alibaba.cola.exception.SysException;
 import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.PaginationBizConvertor;
+import edu.cuit.app.poi.eva.EvaStatisticsExcelFactory;
 import edu.cuit.client.api.eva.IEvaStatisticsService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.eva.*;
@@ -11,19 +11,19 @@ import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.UnqualifiedUserConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
+import edu.cuit.domain.gateway.eva.EvaConfigGateway;
 import edu.cuit.domain.gateway.eva.EvaQueryGateway;
-import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 @Service
 @RequiredArgsConstructor
 public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
     private final EvaQueryGateway evaQueryGateway;
     private final PaginationBizConvertor paginationBizConvertor;
+    private final EvaConfigGateway evaConfigGateway;
     @Override
     @CheckSemId
     public EvaScoreInfoCO evaScoreStatisticsInfo(Integer semId, Number score) {
@@ -38,8 +38,8 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
 
     @Override
     @CheckSemId
-    public OneDayAddEvaDataCO evaOneDayInfo(Integer day, Integer num, Integer semId) {
-        return evaQueryGateway.evaOneDayInfo(day,num,semId).orElseThrow(()->new SysException("未找到相关数据"));
+    public EvaWeekAddCO evaWeekAdd(Integer week, Integer semId) {
+        return evaQueryGateway.evaWeekAdd(week,semId).orElseThrow(()->new SysException("未找到相关数据"));
     }
 
     @Override
@@ -55,7 +55,9 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
 
     @Override
     @CheckSemId
-    public PastTimeEvaDetailCO getEvaData(Integer semId, Integer num, Integer target, Integer evaTarget) {
+    public PastTimeEvaDetailCO getEvaData(Integer semId, Integer num) {
+        Integer target= evaConfigGateway.getMinEvaNum();
+        Integer evaTarget= evaConfigGateway.getMinBeEvaNum();
         return evaQueryGateway.getEvaData(semId,num,target,evaTarget).orElseThrow(()->new SysException("没有找到相关数据"));
     }
 
@@ -89,5 +91,11 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
             throw new SysException("type是10以外的值");
         }
         return unqualifiedUserResultCO;
+    }
+
+    @Override
+    @CheckSemId
+    public byte[] exportEvaStatistics(Integer semId) {
+        return EvaStatisticsExcelFactory.createExcelData(semId);
     }
 }

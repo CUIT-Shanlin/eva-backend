@@ -91,6 +91,7 @@ public class DeleteCourseController {
      *  @param courseId 课程id
      * */
     @DeleteMapping("/course/my/{courseId}")
+    @SaCheckPermission("course.tabulation.delete")
     @OperateLog(module = LogModule.COURSE,type = OperateLogType.DELETE)
     public CommonResult<Void> deleteSelfCourse(
            @PathVariable(value = "courseId") Integer courseId){
