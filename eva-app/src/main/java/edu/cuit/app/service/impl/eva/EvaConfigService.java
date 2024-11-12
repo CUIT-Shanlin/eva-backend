@@ -6,8 +6,9 @@ import edu.cuit.client.dto.data.EvaConfig;
 import edu.cuit.domain.gateway.eva.EvaConfigGateway;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 @RequiredArgsConstructor
 public class EvaConfigService implements IEvaConfigService {
 
