@@ -2,6 +2,7 @@ package edu.cuit.app.service.impl.eva;
 import com.alibaba.cola.exception.SysException;
 import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.PaginationBizConvertor;
+import edu.cuit.app.poi.eva.EvaStatisticsExcelFactory;
 import edu.cuit.client.api.eva.IEvaStatisticsService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.eva.*;
@@ -95,6 +96,6 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
     @Override
     @CheckSemId
     public byte[] exportEvaStatistics(Integer semId) {
-        return new byte[0];
+        return EvaStatisticsExcelFactory.createExcelData(semId);
     }
 }

@@ -14,7 +14,7 @@ public class ExcelExporterTest {
 
         File file = new File("D:\\Programming\\Java\\Projects\\evaluate-system\\评教数据.xlsx");
         BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file));
-        EvaStatisticsExcelFactory.createExcelData(1).write(out);
+        out.write(EvaStatisticsExcelFactory.createExcelData(1));
         out.close();
     }
 

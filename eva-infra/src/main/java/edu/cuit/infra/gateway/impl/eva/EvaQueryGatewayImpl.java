@@ -1276,17 +1276,17 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     @Override
     public List<EvaRecordEntity> getRecordByCourse(Integer courseId) {
         List<CourInfDO> courInfDOS=courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id",courseId));
-        if(CollectionUtil.isNotEmpty(courInfDOS)){
+        if(CollectionUtil.isEmpty(courInfDOS)){
             return List.of();
         }
         List<Integer> courInfoIds=courInfDOS.stream().map(CourInfDO::getId).toList();
         List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id",courInfoIds));
-        if(CollectionUtil.isNotEmpty(evaTaskDOS)){
+        if(CollectionUtil.isEmpty(evaTaskDOS)){
             return List.of();
         }
         List<Integer> evaTaskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
         List<FormRecordDO> formRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIds));
-        if(CollectionUtil.isNotEmpty(formRecordDOS)){
+        if(CollectionUtil.isEmpty(formRecordDOS)){
             return List.of();
         }
         List<UserEntity> userEntities=new ArrayList<>();
