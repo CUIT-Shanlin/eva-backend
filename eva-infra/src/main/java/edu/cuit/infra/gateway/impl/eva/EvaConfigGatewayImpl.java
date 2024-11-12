@@ -1,7 +1,6 @@
 package edu.cuit.infra.gateway.impl.eva;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.alibaba.cola.exception.SysException;
 import com.fasterxml.jackson.databind.JsonNode;
