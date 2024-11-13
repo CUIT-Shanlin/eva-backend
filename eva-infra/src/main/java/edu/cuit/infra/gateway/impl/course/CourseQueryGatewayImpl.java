@@ -217,12 +217,13 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         //根据courInfos来找到评教任务id
         QueryWrapper<EvaTaskDO> evaTaskWrapper = new QueryWrapper<>();
         evaTaskWrapper.in(true,"cour_inf_id", courInfos);
+        evaTaskWrapper.eq("status",1);
         List<Integer> evaTaskDOIds = evaTaskMapper.selectList(evaTaskWrapper).stream().map(EvaTaskDO::getId).toList();
         if(evaTaskDOIds.isEmpty())return courseImportExce.getCourseScore(courseDO.getTemplateId());
         //根据评教任务id来找到评教表单记录数据中的form_props_values
         List<String> taskProps = formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id", evaTaskDOIds))
                 .stream().map(FormRecordDO::getFormPropsValues).toList();
-        if(taskProps.isEmpty())return new ArrayList<>();
+        if(taskProps.isEmpty())return courseImportExce.getCourseScore(courseDO.getTemplateId());
         //将json形式的字符串转化成EvaProp对象
         List<EvaProp> evaPropList = new ArrayList<>();
         for (String taskProp : taskProps) {

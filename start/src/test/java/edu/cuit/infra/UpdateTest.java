@@ -1,10 +1,16 @@
 package edu.cuit.infra;
 
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONUtil;
+import edu.cuit.client.bo.EvaProp;
 import edu.cuit.infra.dal.database.dataobject.user.SysRoleDO;
 import edu.cuit.infra.dal.database.mapper.user.SysRoleMapper;
+import edu.cuit.infra.gateway.impl.course.operate.CourseFormat;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.List;
 
 @SpringBootTest
 public class UpdateTest {
@@ -22,7 +28,12 @@ public class UpdateTest {
     }
     @Test
     public void testUpdate2() {
-//        String str="{\"name\":\"实验课默认模板\",\"description\":\"实验课通用的默认评教模板\",\"props\":\"[\\\"教学目标和教学计划的合理性\\\",\\\"团队合作与项目管理的引导\\\",\\\"课程资源的丰富性和可用性\\\",\\\"教学目标和教学计划的合理性(1)\\"]}"
+        String str="[\"教学目标和教学计划的合理性\",\"技术内容的准确性和前沿性\",\"教学过程的设计和组织能力\",\"团队合作与项目管理的引导\",\"课程资源的丰富性和可用性\",\"对学生未来职业发展的指导\"]";
+        JSONArray jsonArray = JSONUtil.parseArray(str);
+        List<String> list = jsonArray.toList(String.class);
+        System.out.println(list);
+
+
     }
 
 }
