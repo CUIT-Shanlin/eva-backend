@@ -1,5 +1,6 @@
 package edu.cuit.adapter.controller.course.query;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import edu.cuit.app.service.impl.course.ICourseDetailServiceImpl;
 import edu.cuit.app.service.impl.course.ICourseServiceImpl;
@@ -148,6 +149,7 @@ public class QueryCourseController {
      *@param day 星期几
      * */
     @GetMapping("/course/date")
+    @SaCheckLogin
     public CommonResult<String> getDate(
             @RequestParam(value = "semId",required = false) Integer semId,
             @RequestParam(value = "week",required = true) Integer week,
@@ -161,6 +163,7 @@ public class QueryCourseController {
      * @param courseQuery 课程查询条件
      */
     @PostMapping("/courses/query")
+    @SaCheckLogin
     public CommonResult<List<RecommendCourseCO>> getTimeCourse(
             @RequestParam(value = "semId",required = false) Integer semId,
              @RequestBody MobileCourseQuery courseQuery){
