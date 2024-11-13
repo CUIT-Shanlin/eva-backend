@@ -28,19 +28,19 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
     @Override
     @CheckSemId
     public EvaScoreInfoCO evaScoreStatisticsInfo(Integer semId, Number score) {
-        return evaQueryGateway.evaScoreStatisticsInfo(semId,score).orElseThrow(()->new SysException("没有相关数据"));
+        return evaQueryGateway.evaScoreStatisticsInfo(semId,score).orElseGet(()->new EvaScoreInfoCO());
     }
 
     @Override
     @CheckSemId
     public EvaSituationCO evaTemplateSituation(Integer semId) {
-        return evaQueryGateway.evaTemplateSituation(semId).orElseThrow(()->new SysException("没有相关数据"));
+        return evaQueryGateway.evaTemplateSituation(semId).orElseGet(()->new EvaSituationCO());
     }
 
     @Override
     @CheckSemId
     public EvaWeekAddCO evaWeekAdd(Integer week, Integer semId) {
-        return evaQueryGateway.evaWeekAdd(week,semId).orElseThrow(()->new SysException("未找到相关数据"));
+        return evaQueryGateway.evaWeekAdd(week,semId).orElseGet(()->new EvaWeekAddCO());
     }
 
     @Override
@@ -59,7 +59,7 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
     public PastTimeEvaDetailCO getEvaData(Integer semId, Integer num) {
         Integer target= evaConfigGateway.getMinEvaNum();
         Integer evaTarget= evaConfigGateway.getMinBeEvaNum();
-        return evaQueryGateway.getEvaData(semId,num,target,evaTarget).orElseThrow(()->new SysException("没有找到相关数据"));
+        return evaQueryGateway.getEvaData(semId,num,target,evaTarget).orElseGet(()->new PastTimeEvaDetailCO());
     }
 
     @Override

@@ -692,10 +692,10 @@ public class CourseRecommendExce {
         int result=0;
         int hour = inStartDate.getHour();
         int minute = inStartDate.getMinute();
-        if(hour<=8|(hour<=8&&minute<=20))result=1;
-        else if(hour <= 10|(hour<=10&&minute<=20))result=3;
-        else if(hour<=14)result=5;
-        else if (hour<=16)result=7;
+        if(hour<8|(hour<=8&&minute<=20))result=1;
+        else if(hour < 10|(hour<=10&&minute<=20))result=3;
+        else if(hour<14)result=5;
+        else if (hour<16)result=7;
         else if(hour<19|(hour<=19&&minute<=30))result=9;
         else result=11;
         return result;
