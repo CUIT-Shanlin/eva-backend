@@ -1292,8 +1292,17 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         List<UserEntity> userEntities=new ArrayList<>();
         userEntities.add(toUserEntity(courseMapper.selectById(courseId).getTeacherId()));
         List<SingleCourseEntity> singleCourseEntities=getListCurInfoEntities(courInfDOS);
+        if(CollectionUtil.isEmpty(singleCourseEntities)) {
+            return List.of();
+        }
         List<EvaTaskEntity> evaTaskEntities=getEvaTaskEntities(evaTaskDOS,userEntities,singleCourseEntities);
-        List<EvaRecordEntity> evaRecordEntities=getRecordEntities(formRecordDOS,evaTaskEntities);
+        if(CollectionUtil.isEmpty(evaTaskEntities)) {
+            return List.of();
+        }
+        List<EvaRecordEntity> evaRecordEntities = getRecordEntities(formRecordDOS, evaTaskEntities);
+        if(CollectionUtil.isEmpty(evaRecordEntities)){
+            return List.of();
+        }
         return evaRecordEntities;
     }
 
@@ -1495,7 +1504,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
                 ()->courseEntities.stream().filter(courInfDO->courInfDO.getId()
                         .equals(evaTaskDO.getCourInfId())).findFirst().get())).toList();
         if(evaTaskEntityList==null){
-            throw new QueryException("未找到相关的任务");
+            return List.of();
         }
         return evaTaskEntityList;
     }
