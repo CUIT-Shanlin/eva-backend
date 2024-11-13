@@ -169,16 +169,6 @@ public class UserServiceImpl implements IUserService {
     @Transactional
     public void updateInfo(Boolean isUpdatePwd, UpdateUserCmd cmd) {
         int id = Math.toIntExact(cmd.getId());
-        if (isUpdatePwd) {
-            String password = cmd.getPassword();
-            if (StrUtil.isBlank(password)) throw new BizException("密码不能为空");
-            ldapPersonGateway.changePassword(userQueryGateway.findUsernameById(id)
-                    .orElseThrow(() -> {
-                        SysException e = new SysException("找不到用户名，请联系管理员");
-                        log.error("发生系统异常", e);
-                        return e;
-                    }), password);
-        }
         String username = userQueryGateway.findUsernameById(Math.toIntExact(cmd.getId()))
                 .orElseThrow(() -> new BizException("用户ID不存在"));
 
@@ -189,7 +179,23 @@ public class UserServiceImpl implements IUserService {
         }).equals(cmd.getStatus())) {
             StpUtil.logout(username);
         }
-        userUpdateGateway.updateInfo(cmd);
+        if (isUpdatePwd) {
+            String password = cmd.getPassword();
+            if (StrUtil.isBlank(password)) throw new BizException("密码不能为空");
+            ldapPersonGateway.changePassword(userQueryGateway.findUsernameById(id)
+                    .orElseThrow(() -> {
+                        SysException e = new SysException("找不到用户名，请联系管理员");
+                        log.error("发生系统异常", e);
+                        return e;
+                    }), password);
+        }
+        if (isUpdatePwd) {
+            try {
+                userUpdateGateway.updateInfo(cmd);
+            } catch (BizException e) {
+                throw new BizException(e.getMessage() + " (但是密码已成功修改)");
+            }
+        } else userUpdateGateway.updateInfo(cmd);
         if (!userQueryGateway.findUsernameById(id).orElseThrow(() -> {
             SysException e = new SysException("用户名查找失败");
             log.error("发生系统异常", e);
