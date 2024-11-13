@@ -197,7 +197,12 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
             List<CourInfDO> evaCourInfoDOs = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", evaCourseIds));
             if(CollectionUtil.isNotEmpty(evaCourInfoDOs)) {
                 List<Integer> evaCourInfoIds = evaCourInfoDOs.stream().map(CourInfDO::getId).toList();
-                List<EvaTaskDO> evaTaskDOList1=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id",evaCourInfoIds).eq("status",0).or().eq("status",1));
+                List<EvaTaskDO> evaTaskDOList1=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>()
+                        .in("cour_inf_id",evaCourInfoIds)
+                        .eq("status",0)
+                        .or()
+                        .eq("status",1)
+                        .in("cour_inf_id",evaCourInfoIds));
                 if(evaTaskDOList1.size()>=maxNum){
                     throw new QueryException("任务发起失败，该老师本学期的被评教次数已达上限，不可再进行评教！");
                 }
