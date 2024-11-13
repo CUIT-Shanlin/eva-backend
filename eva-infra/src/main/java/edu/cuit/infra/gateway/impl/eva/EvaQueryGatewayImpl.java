@@ -1257,12 +1257,12 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         List<CourInfDO> courInfDOS=courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id",courseDO.getId()));
         List<Integer> courInfoIds=courInfDOS.stream().map(CourInfDO::getId).toList();
         if(CollectionUtil.isEmpty(courInfoIds)){
-            throw new QueryException("并没有找到相关课程详情");
+            return Optional.of(0);
         }
         List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id",courInfoIds));
         List<Integer> evaTaskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
         if(CollectionUtil.isEmpty(evaTaskIds)){
-            throw new QueryException("并没有找到相关任务");
+            return Optional.of(0);
         }
         List<FormRecordDO> formRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIds));
         return Optional.of(formRecordDOS.size());
