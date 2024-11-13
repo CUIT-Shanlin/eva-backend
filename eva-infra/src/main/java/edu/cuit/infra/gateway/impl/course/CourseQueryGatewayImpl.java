@@ -57,6 +57,7 @@ import edu.cuit.infra.dal.database.mapper.eva.FormTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.user.*;
 import edu.cuit.infra.enums.cache.CourseCacheConstants;
 import edu.cuit.infra.gateway.impl.course.operate.CourseFormat;
+import edu.cuit.infra.gateway.impl.course.operate.CourseImportExce;
 import edu.cuit.infra.gateway.impl.course.operate.CourseRecommendExce;
 import edu.cuit.infra.util.QueryUtils;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
@@ -104,6 +105,7 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     private final FormTemplateMapper formTemplateMapper;
     private final LocalCacheManager cacheManager;
     private final CourseCacheConstants courseCacheConstants;
+    private final CourseImportExce courseImportExce;
 
     @Override
     public PaginationResultEntity<CourseEntity> page(PagingQuery<CourseConditionalQuery> courseQuery, Integer semId) {
@@ -207,14 +209,16 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
 
     @Override
     public List<CourseScoreCO> findEvaScore(Integer id) {
+        CourseDO courseDO = courseMapper.selectById(id);
+        if(courseDO==null)throw new QueryException("课程已经不存在");
         //根据课程ID找到全部courInfoDo信息
         List<Integer> courInfos = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", id)).stream().map(CourInfDO::getId).toList();
-        if(courInfos.isEmpty()) return new ArrayList<>();
+        if(courInfos.isEmpty()) return courseImportExce.getCourseScore(courseDO.getTemplateId());
         //根据courInfos来找到评教任务id
         QueryWrapper<EvaTaskDO> evaTaskWrapper = new QueryWrapper<>();
         evaTaskWrapper.in(true,"cour_inf_id", courInfos);
         List<Integer> evaTaskDOIds = evaTaskMapper.selectList(evaTaskWrapper).stream().map(EvaTaskDO::getId).toList();
-        if(evaTaskDOIds.isEmpty())return new ArrayList<>();
+        if(evaTaskDOIds.isEmpty())return courseImportExce.getCourseScore(courseDO.getTemplateId());
         //根据评教任务id来找到评教表单记录数据中的form_props_values
         List<String> taskProps = formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id", evaTaskDOIds))
                 .stream().map(FormRecordDO::getFormPropsValues).toList();
