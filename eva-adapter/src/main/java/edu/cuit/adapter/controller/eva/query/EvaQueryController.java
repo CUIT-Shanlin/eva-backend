@@ -1,5 +1,6 @@
 package edu.cuit.adapter.controller.eva.query;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import edu.cuit.client.api.eva.IEvaRecordService;
 import edu.cuit.client.api.eva.IEvaTaskService;
@@ -63,6 +64,7 @@ public class EvaQueryController {
      * @param keyword 模糊查询课程名称或教学老师姓名
      */
     @GetMapping("/evaluate/tasks")
+    @SaCheckLogin
     public CommonResult<List<EvaTaskDetailInfoCO>> evaSelfTaskInfo(
             @RequestParam(value = "semId",required = false) Integer semId,
             @RequestParam(value = "keyword",required = false) String keyword){
@@ -73,6 +75,7 @@ public class EvaQueryController {
      * @param id 任务id
      */
     @GetMapping("/evaluate/task/{id}")
+    @SaCheckLogin
     public CommonResult<EvaTaskDetailInfoCO> oneEvaTaskInfo(
             @PathVariable ("id") Integer id){
         return CommonResult.success(iEvaTaskService.oneEvaTaskInfo(id));
@@ -94,6 +97,7 @@ public class EvaQueryController {
      * 获取所有模板的基础信息，仅包含名称和id信息
      */
     @GetMapping("/evaluate/template/all")
+    @SaCheckLogin
     public CommonResult<List<SimpleResultCO>> evaAllTemplate (){
         return CommonResult.success(iEvaTemplateService.evaAllTemplate());
     }
@@ -103,6 +107,7 @@ public class EvaQueryController {
      * @param semId 学期id
      */
     @GetMapping("/evaluate/template/{taskId}")
+    @SaCheckLogin
     public CommonResult<String> getTaskTemplate(
             @PathVariable ("taskId") Integer taskId,
             @RequestParam(value = "semId",required = false) Integer semId){
@@ -115,6 +120,7 @@ public class EvaQueryController {
      * @param keyword 模糊查询的关键字，模糊查询课程名称或教学老师姓名
      */
     @GetMapping("/evaluate/records")
+    @SaCheckLogin
     public CommonResult<List<EvaRecordCO>> getEvaLogInfo(
             @RequestParam(value = "semId",required = false) Integer semId,
             @RequestParam(value = "keyword",required = false) String keyword){
@@ -126,6 +132,7 @@ public class EvaQueryController {
      * @param semId 学期id
      */
     @GetMapping("/evaluate/records/opposite")
+    @SaCheckLogin
     public CommonResult<List<EvaRecordCO>> getEvaLoggingInfo(
             @RequestParam(value = "courseId",required = false) Integer courseId,
             @RequestParam(value = "semId",required = false) Integer semId){

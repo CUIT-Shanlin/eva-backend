@@ -1257,12 +1257,12 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         List<CourInfDO> courInfDOS=courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id",courseDO.getId()));
         List<Integer> courInfoIds=courInfDOS.stream().map(CourInfDO::getId).toList();
         if(CollectionUtil.isEmpty(courInfoIds)){
-            throw new QueryException("并没有找到相关课程详情");
+            return Optional.of(0);
         }
         List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id",courInfoIds));
         List<Integer> evaTaskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
         if(CollectionUtil.isEmpty(evaTaskIds)){
-            throw new QueryException("并没有找到相关任务");
+            return Optional.of(0);
         }
         List<FormRecordDO> formRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIds));
         return Optional.of(formRecordDOS.size());
@@ -1292,8 +1292,17 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         List<UserEntity> userEntities=new ArrayList<>();
         userEntities.add(toUserEntity(courseMapper.selectById(courseId).getTeacherId()));
         List<SingleCourseEntity> singleCourseEntities=getListCurInfoEntities(courInfDOS);
+        if(CollectionUtil.isEmpty(singleCourseEntities)) {
+            return List.of();
+        }
         List<EvaTaskEntity> evaTaskEntities=getEvaTaskEntities(evaTaskDOS,userEntities,singleCourseEntities);
-        List<EvaRecordEntity> evaRecordEntities=getRecordEntities(formRecordDOS,evaTaskEntities);
+        if(CollectionUtil.isEmpty(evaTaskEntities)) {
+            return List.of();
+        }
+        List<EvaRecordEntity> evaRecordEntities = getRecordEntities(formRecordDOS, evaTaskEntities);
+        if(CollectionUtil.isEmpty(evaRecordEntities)){
+            return List.of();
+        }
         return evaRecordEntities;
     }
 
@@ -1495,7 +1504,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
                 ()->courseEntities.stream().filter(courInfDO->courInfDO.getId()
                         .equals(evaTaskDO.getCourInfId())).findFirst().get())).toList();
         if(evaTaskEntityList==null){
-            throw new QueryException("未找到相关的任务");
+            return List.of();
         }
         return evaTaskEntityList;
     }

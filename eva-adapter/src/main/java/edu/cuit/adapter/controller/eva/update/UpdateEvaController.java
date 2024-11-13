@@ -1,5 +1,6 @@
 package edu.cuit.adapter.controller.eva.update;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import edu.cuit.client.api.eva.IEvaRecordService;
 import edu.cuit.client.api.eva.IEvaTaskService;
@@ -55,6 +56,7 @@ public class UpdateEvaController {
      * @param newEvaLogCmd 评教表单评价分值dto//返回数据类型原来没有刚建的
      */
     @PutMapping("/evaluate/task/form")
+    @SaCheckLogin
     public CommonResult<Void> putEvaTemplate(
             @Valid @RequestBody NewEvaLogCmd newEvaLogCmd){
         iEvaRecordService.putEvaTemplate(newEvaLogCmd);
@@ -65,6 +67,7 @@ public class UpdateEvaController {
      *@param newEvaTaskCmd 评教信息dto
      */
     @PostMapping("/evaluate/task")
+    @SaCheckLogin
     public CommonResult<Void> postEvaTask(
             @Valid @RequestBody NewEvaTaskCmd newEvaTaskCmd){
         iEvaTaskService.postEvaTask(newEvaTaskCmd);
@@ -76,6 +79,7 @@ public class UpdateEvaController {
      */
     @PostMapping("/evaluate/template")
     @OperateLog(module = LogModule.EVA,type = OperateLogType.CREATE)
+    @SaCheckLogin
     public CommonResult<Void> addEvaTemplate(
             @Valid @RequestBody NewEvaTemplateCmd newEvaTemplateCmd) throws ParseException {
         iEvaTemplateService.addEvaTemplate(newEvaTemplateCmd);
@@ -100,6 +104,7 @@ public class UpdateEvaController {
      */
     @PutMapping("/evaluate/task/cancel/my/{id}")
     @OperateLog(module = LogModule.EVA,type = OperateLogType.DELETE)
+    @SaCheckLogin
     public CommonResult<Void> cancelMyEvaTask(
             @PathVariable ("id") Integer id){
         iEvaTaskService.cancelMyEvaTask(id);
