@@ -1,5 +1,6 @@
 package edu.cuit.adapter.controller.eva.query;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import edu.cuit.client.api.eva.IEvaStatisticsService;
 import edu.cuit.client.dto.clientobject.eva.ScoreRangeCourseCO;
@@ -67,6 +68,7 @@ public class EvaStatisticsController {
      * @param interval 间隔，分数段之间的默认间隔，如果按照该间隔，无法达到 num 个有数据的分数段，则将间隔减少0.2分，直到达到 num 个分数段
      */
     @GetMapping("/evaluate/score/count/{num}/{interval}")
+    @SaCheckLogin
     public CommonResult<List<ScoreRangeCourseCO>> scoreRangeCourseInfo(
             @PathVariable ("num") Integer num,
             @PathVariable ("interval") Integer interval){
@@ -77,6 +79,7 @@ public class EvaStatisticsController {
      * @param semId 学期id
      */
     @GetMapping("/evaluate/month/count")
+    @SaCheckLogin
     public CommonResult<List<Integer>> getMonthEvaNUmber(
             @RequestParam(value = "semId",required = false) Integer semId){
         return CommonResult.success(iEvaStatisticsService.getMonthEvaNUmber(semId));
