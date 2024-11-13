@@ -55,19 +55,17 @@ public interface IEvaStatisticsService {
     /**
      * 分页获取未达标用户
      * @param type 0：获取评教未达标的用户、1：获取被评教次数未达标的用户
-     * @param target 评教或被评教的目标 数目，大于等于该数目则达标，小于则未达标
      * @param query 查询对象
      */
-    PaginationQueryResultCO<UnqualifiedUserInfoCO> pageUnqualifiedUser(Integer semId,Integer type, Integer target, PagingQuery<UnqualifiedUserConditionalQuery> query);
+    PaginationQueryResultCO<UnqualifiedUserInfoCO> pageUnqualifiedUser(Integer semId,Integer type, PagingQuery<UnqualifiedUserConditionalQuery> query);
 
 
     /**
      * 获取指定数目未达标的用户信息
      * @param type 0：获取 评教 未达标的用户、1：获取 被评教 次数未达标的用户
      * @param num 加载前几个用户数据
-     * @param target 评教或被评教的目标 数目，大于等于该数目则达标，小于则未达标
      */
-    UnqualifiedUserResultCO getTargetAmountUnqualifiedUser(Integer semId,Integer type, Integer num,Integer target);
+    UnqualifiedUserResultCO getTargetAmountUnqualifiedUser(Integer semId,Integer type, Integer num);
 
     /**
      * 导出某学期的评教记录统计文件

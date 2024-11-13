@@ -61,33 +61,29 @@ public class UserQueryController {
     /**
      * 分页获取未达标用户
      * @param type 0：获取评教未达标的用户、1：获取被评教次数未达标的用户
-     * @param target 评教或被评教的目标 数目，大于等于该数目则达标，小于则未达标
      * @param query 查询对象
      */
-    @PostMapping("/users/unqualified/{type}/{target}")
+    @PostMapping("/users/unqualified/{type}")
     @SaCheckPermission("system.user.query")
     public CommonResult<PaginationQueryResultCO<UnqualifiedUserInfoCO>> pageUnqualifiedUser(
             @PathVariable("type") Integer type,
-            @PathVariable("target") Integer target,
             @RequestBody @Valid PagingQuery<UnqualifiedUserConditionalQuery> query,
             @RequestParam(value = "semId",required = false) Integer semId) {
-        return CommonResult.success(evaStatisticsService.pageUnqualifiedUser(semId,type,target,query));
+        return CommonResult.success(evaStatisticsService.pageUnqualifiedUser(semId,type,query));
     }
 
     /**
      * 获取指定数目未达标的用户信息
      * @param type 0：获取 评教 未达标的用户、1：获取 被评教 次数未达标的用户
      * @param num 加载前几个用户数据
-     * @param target 评教或被评教的目标 数目，大于等于该数目则达标，小于则未达标
      * @param semId 学期id
      */
-    @GetMapping("/users/unqualified/{type}/{num}/{target}")
+    @GetMapping("/users/unqualified/{type}/{num}")
     @SaCheckPermission("system.user.query")
     public CommonResult<UnqualifiedUserResultCO> getTargetAmountUnqualifiedUser(@PathVariable("type") Integer type,
                                                                          @PathVariable("num") Integer num,
-                                                                         @PathVariable("target") Integer target,
                                                                          @RequestParam(value = "semId",required = false) Integer semId) {
-        return CommonResult.success(evaStatisticsService.getTargetAmountUnqualifiedUser(semId,type, num, target));
+        return CommonResult.success(evaStatisticsService.getTargetAmountUnqualifiedUser(semId,type, num));
     }
 
     /**
