@@ -14,6 +14,7 @@ import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.course.SemesterDO;
 import edu.cuit.infra.dal.database.dataobject.eva.*;
+import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.SemesterMapper;
@@ -126,7 +127,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
 
     @Override
     @Transactional
-    public Integer postEvaTask(NewEvaTaskCmd cmd) {
+    public Integer postEvaTask(NewEvaTaskCmd cmd,Integer maxNum) {
         //同时发送该任务的评教待办消息;
         CourInfDO courInfDO=courInfMapper.selectById(cmd.getCourInfId());
         if(courInfDO==null){
@@ -188,7 +189,27 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
                 }
             }
         }
-        //看看是否和老师其他评教任务有冲突
+        //判定是否超过最大评教次数
+        SysUserDO teacher=sysUserMapper.selectById(courseDO.getTeacherId());
+        List<CourseDO> evaCourseDOS=courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id",teacher.getId()));
+        List<Integer> evaCourseIds=evaCourseDOS.stream().map(CourseDO::getId).toList();
+        if(CollectionUtil.isNotEmpty(evaCourseIds)) {
+            List<CourInfDO> evaCourInfoDOs = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", evaCourseIds));
+            if(CollectionUtil.isNotEmpty(evaCourInfoDOs)) {
+                List<Integer> evaCourInfoIds = evaCourInfoDOs.stream().map(CourInfDO::getId).toList();
+                List<EvaTaskDO> evaTaskDOList1=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>()
+                        .in("cour_inf_id",evaCourInfoIds)
+                        .eq("status",0)
+                        .or()
+                        .eq("status",1)
+                        .in("cour_inf_id",evaCourInfoIds));
+                if(evaTaskDOList1.size()>=maxNum){
+                    throw new QueryException("任务发起失败，该老师本学期的被评教次数已达上限，不可再进行评教！");
+                }
+            }
+        }
+
+                //看看是否和老师其他评教任务有冲突
         List<EvaTaskDO> evaTaskDOList=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id",cmd.getTeacherId()).eq("status",0));
         List<Integer> courInfoIds=evaTaskDOList.stream().map(EvaTaskDO::getCourInfId).toList();
         if(CollectionUtil.isNotEmpty(courInfoIds)) {
@@ -204,6 +225,8 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
                 }
             }
         }
+
+
         EvaTaskDO evaTaskDO=new EvaTaskDO();
         evaTaskDO.setCreateTime(LocalDateTime.now());
         evaTaskDO.setUpdateTime(LocalDateTime.now());

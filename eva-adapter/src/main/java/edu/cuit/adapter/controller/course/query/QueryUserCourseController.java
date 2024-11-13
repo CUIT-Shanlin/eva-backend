@@ -1,5 +1,6 @@
 package edu.cuit.adapter.controller.course.query;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import edu.cuit.adapter.controller.course.util.CalculateClassTime;
 import edu.cuit.app.service.impl.course.ICourseDetailServiceImpl;
@@ -40,6 +41,7 @@ public class QueryUserCourseController {
      *
      * */
     @GetMapping("/courses")
+    @SaCheckLogin
     public CommonResult<List<SimpleSubjectResultCO>> getUserCourseInfo(
             @RequestParam(value = "semId",required = false) Integer semId){
         return CommonResult.success(userCourseService.getUserCourseInfo(semId));
@@ -63,6 +65,7 @@ public class QueryUserCourseController {
      * @param semId 学期id
      */
     @GetMapping("/courses/suggestion")
+    @SaCheckLogin
     public CommonResult<List<RecommendCourseCO>> getSelfCourse(
             @RequestParam(value = "semId",required = false) Integer semId){
         return CommonResult.success(userCourseService.getSelfCourse(semId));
@@ -74,6 +77,7 @@ public class QueryUserCourseController {
      *  @param courseTime 课程时间模型
      * */
     @PostMapping("/course/time")
+    @SaCheckLogin
     public CommonResult<LocalDateTime> getCourseTime(
             @RequestParam(value = "semId",required = false)Integer semId,
             @RequestBody(required = true)CourseTime courseTime){
@@ -89,6 +93,7 @@ public class QueryUserCourseController {
      * @param semId 学期id
      * */
     @GetMapping("/courses/my/all/detail")
+    @SaCheckLogin
     public CommonResult<List<SelfTeachCourseCO>> selfCourseDetail(
             @RequestParam(value = "semId",required = true)Integer semId){
         return CommonResult.success(userCourseService.selfCourseDetail(semId));
@@ -99,6 +104,7 @@ public class QueryUserCourseController {
      * @param courseId 课程id
      * */
     @GetMapping("/course/my/date/{courseId}")
+    @SaCheckLogin
     public CommonResult<List<SelfTeachCourseTimeInfoCO>> selfCourseTime(
             @PathVariable(value = "courseId",required = true) Integer courseId){
         return CommonResult.success(userCourseService.selfCourseTime(courseId));

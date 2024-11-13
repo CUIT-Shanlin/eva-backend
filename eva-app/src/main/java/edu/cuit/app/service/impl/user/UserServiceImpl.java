@@ -101,6 +101,7 @@ public class UserServiceImpl implements IUserService {
                 UserSingleCourseScoreCO courseScoreCO = new UserSingleCourseScoreCO();
                 courseScoreCO.setScore(0.0)
                         .setEvaNum(0)
+                        .setCourseId(course.getId())
                         .setCourseName(course.getName());
                 resultList.add(courseScoreCO);
                 continue;
@@ -110,6 +111,7 @@ public class UserServiceImpl implements IUserService {
                 score += courseScoreCO.getAverScore();
             }
             UserSingleCourseScoreCO courseScoreCO = new UserSingleCourseScoreCO();
+            courseScoreCO.setCourseId(course.getId());
             courseScoreCO.setScore(new BigDecimal(score)
                             .divide(new BigDecimal(evaScore.size()), 2, RoundingMode.HALF_UP)
                             .doubleValue())

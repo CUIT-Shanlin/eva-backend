@@ -1,11 +1,14 @@
 package edu.cuit.adapter.controller.eva.query;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import edu.cuit.client.api.eva.IEvaStatisticsService;
 import edu.cuit.client.dto.clientobject.eva.ScoreRangeCourseCO;
 import edu.cuit.client.dto.clientobject.eva.*;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,18 +51,16 @@ public class EvaStatisticsController {
     // 评教看板相关
 
     /**
-     * 获取指定某一天的详细评教统计数据
-     * @param day 指定的这一天和今天相差多少天，eg：0 =》 今天，-1 =》 昨天
-     * @param num 要将这一天的24小时分几段时间进行数据的统计
+     * 获取指定某一周内的详细评教统计数据
+     * @param week 距离周数
      * @param semId 学期id
      */
-    @GetMapping("/evaluate/moreCount/{day}/{num}")
+    @GetMapping("/evaluate/moreCount")
     @SaCheckPermission("evaluate.board.query")
-    public CommonResult<OneDayAddEvaDataCO> evaOneDayInfo(
-            @PathVariable ("day") Integer day,
-            @PathVariable ("num") Integer num,
+    public CommonResult<EvaWeekAddCO> evaWeekAdd(
+            @RequestParam (value = "week",required = false) Integer week,
             @RequestParam (value = "semId",required = false) Integer semId){
-        return CommonResult.success(iEvaStatisticsService.evaOneDayInfo(day, num, semId));
+        return CommonResult.success(iEvaStatisticsService.evaWeekAdd(week,semId));
     }
     /**
      * 获取各个分数段中 课程的数目情况
@@ -67,6 +68,7 @@ public class EvaStatisticsController {
      * @param interval 间隔，分数段之间的默认间隔，如果按照该间隔，无法达到 num 个有数据的分数段，则将间隔减少0.2分，直到达到 num 个分数段
      */
     @GetMapping("/evaluate/score/count/{num}/{interval}")
+    @SaCheckLogin
     public CommonResult<List<ScoreRangeCourseCO>> scoreRangeCourseInfo(
             @PathVariable ("num") Integer num,
             @PathVariable ("interval") Integer interval){
@@ -77,6 +79,7 @@ public class EvaStatisticsController {
      * @param semId 学期id
      */
     @GetMapping("/evaluate/month/count")
+    @SaCheckLogin
     public CommonResult<List<Integer>> getMonthEvaNUmber(
             @RequestParam(value = "semId",required = false) Integer semId){
         return CommonResult.success(iEvaStatisticsService.getMonthEvaNUmber(semId));
@@ -84,16 +87,25 @@ public class EvaStatisticsController {
     /**
      * 获取指定过去一段时间内的详细评教统计数据
      * @param num 获取从今天开始往过去看 num 天（含今天）中，每天的新增评教数目
-     * @param target 被评教的目标次数，大于等于该数目则达标，小于则未达标
-     * @param evaTarget 评教的目标次数，大于等于该数目则达标，小于则未达标
      * @param semId 学期id
      */
-    @GetMapping("/evaluate/moreCounts/{num}/{target}/{evaTarget}")
+    @GetMapping("/evaluate/moreCounts/{num}")
+    @SaCheckPermission("evaluate.board.query")
     public CommonResult<PastTimeEvaDetailCO> getEvaData(
             @RequestParam(value = "semId",required = false) Integer semId,
-            @PathVariable ("num") Integer num,
-            @PathVariable ("target") Integer target,
-            @PathVariable ("evaTarget") Integer evaTarget){
-        return CommonResult.success(iEvaStatisticsService.getEvaData(semId, num, target, evaTarget));
+            @PathVariable ("num") Integer num){
+        return CommonResult.success(iEvaStatisticsService.getEvaData(semId, num));
+    }
+
+    /**
+     * 导出某学期的评教记录统计文件
+     * @param semId 学期id
+     * @return excel文件二进制数据，content-type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+     */
+    @GetMapping(value = "/evaluate/export",produces = {"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"})
+    @SaCheckPermission("evaluate.record.export")
+    public ResponseEntity<byte[]> exportEvaStatics(@RequestParam(value = "semId",required = false) Integer semId) {
+        byte[] data = iEvaStatisticsService.exportEvaStatistics(semId);
+        return new ResponseEntity<>(data, HttpStatus.OK);
     }
 }

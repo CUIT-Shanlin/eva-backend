@@ -35,8 +35,9 @@ public interface EvaUpdateGateway {
      * 发起评教任务
      * 要同时发送该任务的评教待办消息;
      *@param newEvaTaskCmd NewEvaTaskCmd
+     * @param maxNum 最大泡脚数目
      */
-    Integer postEvaTask(NewEvaTaskCmd newEvaTaskCmd);
+    Integer postEvaTask(NewEvaTaskCmd newEvaTaskCmd,Integer maxNum);
     /**
      * 新建评教模板
      * @param newEvaTemplateCmd NewEvaTemplateCmd

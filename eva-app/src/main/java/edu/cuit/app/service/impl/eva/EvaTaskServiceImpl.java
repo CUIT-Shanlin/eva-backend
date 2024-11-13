@@ -9,24 +9,20 @@ import edu.cuit.app.service.impl.MsgServiceImpl;
 import edu.cuit.client.api.eva.IEvaTaskService;
 import edu.cuit.client.bo.MessageBO;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
-import edu.cuit.client.dto.clientobject.eva.AddTaskCO;
-import edu.cuit.client.dto.clientobject.eva.EvaInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskBaseInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskDetailInfoCO;
-import edu.cuit.client.dto.cmd.eva.NewEvaLogCmd;
 import edu.cuit.client.dto.cmd.eva.NewEvaTaskCmd;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.EvaTaskConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
-import edu.cuit.domain.entity.eva.CourOneEvaTemplateEntity;
 import edu.cuit.domain.entity.eva.EvaTaskEntity;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
+import edu.cuit.domain.gateway.eva.EvaConfigGateway;
 import edu.cuit.domain.gateway.eva.EvaDeleteGateway;
 import edu.cuit.domain.gateway.eva.EvaQueryGateway;
 import edu.cuit.domain.gateway.eva.EvaUpdateGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
-import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +41,7 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
     private final EvaDeleteGateway evaDeleteGateway;
     private final UserQueryGateway userQueryGateway;
     private final CourseQueryGateway courseQueryGateway;
+    private final EvaConfigGateway evaConfigGateway;
     private final EvaTaskBizConvertor evaTaskBizConvertor;
     private final PaginationBizConvertor paginationBizConvertor;
     private final MsgServiceImpl msgService;
@@ -82,7 +79,8 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
     @Override
     @Transactional
     public Void postEvaTask(NewEvaTaskCmd newEvaTaskCmd) {
-        Integer taskId=evaUpdateGateway.postEvaTask(newEvaTaskCmd);
+        Integer maxTaskNum= evaConfigGateway.getMaxBeEvaNum();
+        Integer taskId=evaUpdateGateway.postEvaTask(newEvaTaskCmd,maxTaskNum);
         msgService.sendMessage(new MessageBO().setMsg("")
                 .setMode(1).setIsShowName(1)
                 .setRecipientId(newEvaTaskCmd.getTeacherId()).setSenderId(newEvaTaskCmd.getTeacherId())

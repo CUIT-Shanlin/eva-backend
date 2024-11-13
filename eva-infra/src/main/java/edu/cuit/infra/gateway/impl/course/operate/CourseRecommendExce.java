@@ -5,7 +5,7 @@ import edu.cuit.client.dto.clientobject.course.RecommendCourseCO;
 import edu.cuit.client.dto.data.course.CourseTime;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.client.dto.query.condition.MobileCourseQuery;
-import edu.cuit.domain.gateway.DynamicConfigGateway;
+import edu.cuit.domain.gateway.eva.EvaConfigGateway;
 import edu.cuit.infra.convertor.course.CourseConvertor;
 import edu.cuit.infra.dal.database.dataobject.course.*;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
@@ -37,7 +37,7 @@ public class CourseRecommendExce {
     private final EvaTaskMapper evaTaskMapper;
     private final SysUserMapper userMapper;
     private final SemesterMapper semesterMapper;
-    private final DynamicConfigGateway dynamicConfigGateway;
+    private final EvaConfigGateway evaConfigGateway;
 
 
     public List<RecommendCourseCO> RecommendCourse(Integer semId, String userName,CourseTime courseTime){
@@ -109,7 +109,7 @@ public class CourseRecommendExce {
             for (Map.Entry<Integer, List<CourInfDO>> entry : integerMapEntry.getValue().entrySet()) {
                 for (CourInfDO courInfDO : entry.getValue()) sum++;
             }
-            if(sum>= dynamicConfigGateway.toGetMaxEvaNum()){
+            if(sum>= evaConfigGateway.getMaxBeEvaNum()){
                 //从collet中找出大于8次的
                 for (Map.Entry<Integer, List<CourInfDO>> entry : integerMapEntry.getValue().entrySet()) {
                     collect1.add(entry.getKey());
@@ -692,10 +692,10 @@ public class CourseRecommendExce {
         int result=0;
         int hour = inStartDate.getHour();
         int minute = inStartDate.getMinute();
-        if(hour<=8|(hour<=8&&minute<=20))result=1;
-        else if(hour <= 10|(hour<=10&&minute<=20))result=3;
-        else if(hour<=14)result=5;
-        else if (hour<=16)result=7;
+        if(hour<8|(hour<=8&&minute<=20))result=1;
+        else if(hour < 10|(hour<=10&&minute<=20))result=3;
+        else if(hour<14)result=5;
+        else if (hour<16)result=7;
         else if(hour<19|(hour<=19&&minute<=30))result=9;
         else result=11;
         return result;

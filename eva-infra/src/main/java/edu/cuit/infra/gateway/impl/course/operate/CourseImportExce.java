@@ -1,7 +1,10 @@
 package edu.cuit.infra.gateway.impl.course.operate;
 
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.cuit.client.bo.CourseExcelBO;
+import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
 import edu.cuit.infra.convertor.course.CourseConvertor;
 import edu.cuit.infra.dal.database.dataobject.course.*;
 import edu.cuit.infra.dal.database.dataobject.eva.CourOneEvaTemplateDO;
@@ -163,5 +166,24 @@ public class CourseImportExce {
         courseTypeCourseDO.setCreateTime(LocalDateTime.now());
         courseTypeCourseDO.setUpdateTime(LocalDateTime.now());
         courseTypeCourseMapper.insert(courseTypeCourseDO);
+    }
+    public List<CourseScoreCO> getCourseScore(Integer templateId){
+         List<CourseScoreCO> result =new ArrayList<>();
+        FormTemplateDO formTemplateDO = formTemplateMapper.selectById(templateId);
+        if(formTemplateDO==null)return result;
+        else{
+            JSONArray jsonArray = JSONUtil.parseArray(formTemplateDO.getProps());
+            List<String> list = jsonArray.toList(String.class);
+            for (String s : list) {
+                CourseScoreCO courseScoreCO=new CourseScoreCO();
+                courseScoreCO.setProp(s);
+                courseScoreCO.setAverScore((double) -1);
+                courseScoreCO.setMaxScore((double) -1);
+                courseScoreCO.setMinScore((double) -1);
+                result.add(courseScoreCO);
+            }
+            return result;
+        }
+        
     }
 }
