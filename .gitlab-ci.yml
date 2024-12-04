@@ -38,11 +38,11 @@ publish:
     - until docker info; do sleep 5s; done
   script:
     - docker login -u $HARBOR_USER -p $HARBOR_PASSWORD $HARBOR_URL
-    - docker build --cache-from $HARBOR_URL/eva-system/eva-server:match-latest -t eva-server:$EVA_VERSION .
-    - docker tag eva-server:$EVA_VERSION $HARBOR_URL/eva-system/eva-server:match-$EVA_VERSION
-    - docker push $HARBOR_URL/eva-system/eva-server:match-$EVA_VERSION
-    - docker tag eva-server:$EVA_VERSION $HARBOR_URL/eva-system/eva-server:match-latest
-    - docker push $HARBOR_URL/eva-system/eva-server:match-latest
+    - docker build --cache-from $HARBOR_URL/eva-system/eva-server-match:latest -t eva-server:$EVA_VERSION .
+    - docker tag eva-server:$EVA_VERSION $HARBOR_URL/eva-system/eva-server-match:$EVA_VERSION
+    - docker push $HARBOR_URL/eva-system/eva-server-match:$EVA_VERSION
+    - docker tag eva-server:$EVA_VERSION $HARBOR_URL/eva-system/eva-server-match
+    - docker push $HARBOR_URL/eva-system/eva-server-match
   rules:
     - if: $CI_COMMIT_BRANCH == 'master-match'
 
