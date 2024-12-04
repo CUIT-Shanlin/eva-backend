@@ -5,26 +5,9 @@ variables:
   EVA_VERSION: 1.81-SNAPSHOT
 
 stages:
-  - sonarqube-check
   - build
   - publish
   - recreate
-
-sonarqube-check:
-  image: $HARBOR_URL/library/maven:3-eclipse-temurin-17
-  stage: sonarqube-check
-  cache:
-    key: "${CI_PROJECT_ID}"
-    paths:
-      - .sonar/cache
-      - .m2/repository
-  script: 
-    - $SONAR_MAVEN
-  allow_failure: true
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_COMMIT_BRANCH == 'review'
-    - if: $CI_COMMIT_BRANCH == 'dev'
 
 build:
   image: $HARBOR_URL/library/maven:3-eclipse-temurin-17
@@ -37,7 +20,7 @@ build:
   script:
     - mvn package -Dmaven.test.skip=true -Dmaven.repo.local=.m2/repository
   rules:
-    - if: $CI_COMMIT_BRANCH == 'master'
+    - if: $CI_COMMIT_BRANCH == 'master-match'
   artifacts:
     paths:
       - start/target/eva-server.jar
@@ -55,13 +38,13 @@ publish:
     - until docker info; do sleep 5s; done
   script:
     - docker login -u $HARBOR_USER -p $HARBOR_PASSWORD $HARBOR_URL
-    - docker build --cache-from $HARBOR_URL/eva-system/eva-server:latest -t eva-server:$EVA_VERSION .
-    - docker tag eva-server:$EVA_VERSION $HARBOR_URL/eva-system/eva-server:$EVA_VERSION
-    - docker push $HARBOR_URL/eva-system/eva-server:$EVA_VERSION
-    - docker tag eva-server:$EVA_VERSION $HARBOR_URL/eva-system/eva-server
-    - docker push $HARBOR_URL/eva-system/eva-server
+    - docker build --cache-from $HARBOR_URL/eva-system/eva-server:match-latest -t eva-server:$EVA_VERSION .
+    - docker tag eva-server:$EVA_VERSION $HARBOR_URL/eva-system/eva-server:match-$EVA_VERSION
+    - docker push $HARBOR_URL/eva-system/eva-server:match-$EVA_VERSION
+    - docker tag eva-server:$EVA_VERSION $HARBOR_URL/eva-system/eva-server:match-latest
+    - docker push $HARBOR_URL/eva-system/eva-server:match-latest
   rules:
-    - if: $CI_COMMIT_BRANCH == 'master'
+    - if: $CI_COMMIT_BRANCH == 'master-match'
 
 recreate:
   image: $HARBOR_URL/library/curl:8.9.1
@@ -69,4 +52,4 @@ recreate:
   script:
     - curl -X POST $PORTAINER_UPDATE_URL
   rules:
-    - if: $CI_COMMIT_BRANCH == 'master'
+    - if: $CI_COMMIT_BRANCH == 'master-match'
