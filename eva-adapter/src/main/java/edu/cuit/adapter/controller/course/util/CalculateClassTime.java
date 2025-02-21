@@ -15,7 +15,7 @@ public class CalculateClassTime {
         if (classNumber <= 4) {
             // 上午第一节课从8点开始
             startTime = baseTime.withHour(8).withMinute(0).withSecond(0);
-            if(classNumber==3){
+            if(classNumber>=3){
                 totalOffset = (classDuration + breakDuration) * (classNumber - 1)+breakDuration;
             }else{
                 totalOffset = (classDuration + breakDuration) * (classNumber - 1);
@@ -25,7 +25,7 @@ public class CalculateClassTime {
             startTime = baseTime.withHour(14).withMinute(0).withSecond(0);
             // 调整课节号，使其从1开始计算
             classNumber -= 4;
-            if(classNumber==3){
+            if(classNumber>=3){
                 totalOffset = (classDuration + breakDuration) * (classNumber - 1)+breakDuration;
             }else{
                 totalOffset = (classDuration + breakDuration) * (classNumber - 1);
