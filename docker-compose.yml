@@ -20,7 +20,7 @@ services:
     depends_on:
       - mariadb
     volumes:
-      - "./data:/data"
+      - "eva-data:/data"
     networks:
       - eva-net
 
@@ -46,3 +46,4 @@ networks:
 
 volumes:
   eva-db:
+  eva-data:
