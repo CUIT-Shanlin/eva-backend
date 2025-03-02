@@ -35,8 +35,6 @@ services:
     image: registry.littlestrange.site/eva-system/eva-nginx
     container_name: eva-nginx
     restart: always
-    volumes:
-      - "./nginx.conf:/etc/nginx/conf.d/default.conf"
     ports:
       - "38081:80"
     networks:
