@@ -1,0 +1,18 @@
+version: '3.1'
+
+services:
+
+  server:
+    image: registry.littlestrange.site/eva-system/eva-server
+    container_name: eva-server
+    restart: always
+    volumes:
+      - "eva-data:/data"
+    networks:
+      - eva-net
+
+networks:
+  eva-net:
+
+volumes:
+  eva-data:
