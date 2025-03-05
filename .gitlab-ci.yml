@@ -2,7 +2,7 @@ variables:
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
   DOCKER_TLS_CERTDIR: ""
-  EVA_VERSION: 1.82-SNAPSHOT
+  EVA_VERSION: 1.83-SNAPSHOT
 
 stages:
   - build
@@ -20,7 +20,7 @@ build:
   script:
     - mvn package -Dmaven.test.skip=true -Dmaven.repo.local=.m2/repository
   rules:
-    - if: $CI_COMMIT_BRANCH == 'master-match'
+    - if: $CI_COMMIT_BRANCH == 'master'
   artifacts:
     paths:
       - start/target/eva-server.jar
@@ -38,13 +38,13 @@ publish:
     - until docker info; do sleep 5s; done
   script:
     - docker login -u $HARBOR_USER -p $HARBOR_PASSWORD $HARBOR_URL
-    - docker build --cache-from $HARBOR_URL/eva-system/eva-server-match:latest -t eva-server:$EVA_VERSION .
-    - docker tag eva-server:$EVA_VERSION $HARBOR_URL/eva-system/eva-server-match:$EVA_VERSION
-    - docker push $HARBOR_URL/eva-system/eva-server-match:$EVA_VERSION
-    - docker tag eva-server:$EVA_VERSION $HARBOR_URL/eva-system/eva-server-match
-    - docker push $HARBOR_URL/eva-system/eva-server-match
+    - docker build --cache-from $HARBOR_URL/eva-system/eva-server:latest -t eva-server:$EVA_VERSION .
+    - docker tag eva-server:$EVA_VERSION $HARBOR_URL/eva-system/eva-server:$EVA_VERSION
+    - docker push $HARBOR_URL/eva-system/eva-server:$EVA_VERSION
+    - docker tag eva-server:$EVA_VERSION $HARBOR_URL/eva-system/eva-server
+    - docker push $HARBOR_URL/eva-system/eva-server
   rules:
-    - if: $CI_COMMIT_BRANCH == 'master-match'
+    - if: $CI_COMMIT_BRANCH == 'master'
 
 recreate:
   image: $HARBOR_URL/library/curl:8.9.1
@@ -52,4 +52,4 @@ recreate:
   script:
     - curl -X POST $PORTAINER_UPDATE_MATCH_URL
   rules:
-    - if: $CI_COMMIT_BRANCH == 'master-match'
+    - if: $CI_COMMIT_BRANCH == 'master'
