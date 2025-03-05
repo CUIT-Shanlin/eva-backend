@@ -10,7 +10,7 @@ services:
       - "eva-data:/data"
     networks:
       - eva-net
-    envirnment:
+    environment:
       PARAMS: '${PARAMS}'
 
 
