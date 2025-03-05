@@ -974,6 +974,9 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             }
         }
         List<UnqualifiedUserInfoCO> getDataArr=new ArrayList<>();
+        if(dataArr.size()<num){
+            num=dataArr.size();
+        }
         for(int i=0;i<num;i++){
             getDataArr.add(i,dataArr.get(i));
         }
@@ -1025,6 +1028,9 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             }
         }
         List<UnqualifiedUserInfoCO> getDataArr=new ArrayList<>();
+        if(dataArr.size()<num){
+            num=dataArr.size();
+        }
         for(int i=0;i<num;i++){
             getDataArr.add(i,dataArr.get(i));
         }
