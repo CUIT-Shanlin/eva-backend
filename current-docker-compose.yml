@@ -3,6 +3,7 @@ version: '3.1'
 services:
 
   server:
+    build: .
     image: registry.littlestrange.site/eva-system/eva-server
     container_name: eva-server
     restart: always
