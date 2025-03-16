@@ -50,6 +50,6 @@ recreate:
   image: $HARBOR_URL/library/curl:8.9.1
   stage: recreate
   script:
-    - curl -X POST $PORTAINER_UPDATE_MATCH_URL
+    - curl -X POST $PORTAINER_UPDATE_URL
   rules:
     - if: $CI_COMMIT_BRANCH == 'master'
