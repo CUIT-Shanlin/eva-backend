@@ -32,7 +32,7 @@ publish:
   retry: 2
   services:
     - name: $HARBOR_HOST/library/docker:23.0.2-dind-alpine3.17
-      command: [ "--tls=false" ]
+      # command: [ "--tls=false" ]
       alias: docker
   before_script:
     - until docker info; do sleep 5s; done
