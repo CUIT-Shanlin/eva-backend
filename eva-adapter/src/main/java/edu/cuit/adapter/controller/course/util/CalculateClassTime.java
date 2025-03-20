@@ -20,7 +20,7 @@ public class CalculateClassTime {
             }else{
                 totalOffset = (classDuration + breakDuration) * (classNumber - 1);
             }
-        } else if (classNumber <= 8) {
+        } else if (classNumber <= 9) {
             // 下午第一节课从2点开始
             startTime = baseTime.withHour(14).withMinute(0).withSecond(0);
             // 调整课节号，使其从1开始计算
@@ -35,7 +35,7 @@ public class CalculateClassTime {
             // 晚上第一节课从7:30开始
             startTime = baseTime.withHour(19).withMinute(30).withSecond(0);
             // 调整课节号，使其从1开始计算
-            classNumber -= 8;
+            classNumber -= 9;
             // 计算总时间偏移量
             totalOffset = (classDuration + breakDuration) * (classNumber - 1);
         }

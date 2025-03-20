@@ -110,8 +110,8 @@ public class TheoryCourseExcelResolver extends CourseExcelResolverStrategy {
                     .setCourseClass(courseClass)
                     .setDay(i + 1);
             courseExcelBO.setStartTime(startTime);
-            if (startTime == 11) {
-                courseExcelBO.setEndTime(11);
+            if (startTime == 12 || startTime == 9) {
+                courseExcelBO.setEndTime(startTime);
             } else courseExcelBO.setEndTime(startTime + 1);
             results.add(courseExcelBO);
         }
@@ -127,10 +127,10 @@ public class TheoryCourseExcelResolver extends CourseExcelResolverStrategy {
     private Integer getTime(int rowIndex) {
         for (int i = 0; i < startRows.size() - 1; i++) {
             if (startRows.get(i) <= rowIndex && startRows.get(i+1) > rowIndex) {
-                return i * 2 + 1;
+                return i >= 5 ? i * 2 : i * 2 + 1;
             }
         }
-        return 11;
+        return 12;
     }
 
 }
