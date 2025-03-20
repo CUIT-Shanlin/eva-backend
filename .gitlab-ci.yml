@@ -61,9 +61,9 @@ publish-test:
   script:
     - docker login -u $HARBOR_USERNAME -p $HARBOR_PASSWORD $HARBOR_HOST
     - docker build --cache-from $HARBOR_HOST/eva-system/eva-server-test:latest --build-arg PARAMS="-Dspring.profiles.active=debug" -t eva-server-test:$EVA_VERSION .
-    - docker tag eva-servertest:$EVA_VERSION $HARBOR_HOST/eva-system/eva-server-test:$EVA_VERSION
+    - docker tag eva-server-test:$EVA_VERSION $HARBOR_HOST/eva-system/eva-server-test:$EVA_VERSION
     - docker push $HARBOR_HOST/eva-system/eva-server-test:$EVA_VERSION
-    - docker tag eva-servertest:$EVA_VERSION $HARBOR_HOST/eva-system/eva-server-test
+    - docker tag eva-server-test:$EVA_VERSION $HARBOR_HOST/eva-system/eva-server-test
     - docker push $HARBOR_HOST/eva-system/eva-server-test
   rules:
     - if: $CI_COMMIT_BRANCH == 'master-test'
