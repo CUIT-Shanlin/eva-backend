@@ -7,9 +7,9 @@ spring:
         master:
 #          url: jdbc:mariadb://littlestrange.site:40007/evaluate_system?characterEncoding=utf8&serverTimezone=UTC
           # 内网环境
-          url: jdbc:mariadb://192.168.1.13:35493/evaluate_system?characterEncoding=utf8&serverTimezone=UTC
+          url: jdbc:mariadb://192.168.1.13:3307/evaluate_system?characterEncoding=utf8&serverTimezone=UTC
           username: root
-          password: eva-system
+          password: 30153015
           driver-class-name: org.mariadb.jdbc.Driver
     druid:
       keep-alive: true
