@@ -632,7 +632,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         Integer lowerNum=0;
         Integer higherNum=0;
         for(int i=0;i<strings.size();i++){
-            //整个方法把单个text整到平均分
+            //整个方法把单个text整到总分
             numbers.add(i, stringToSumAver(strings.get(i)));
             if(aScore>numbers.get(i)){
                 lowerNum++;
