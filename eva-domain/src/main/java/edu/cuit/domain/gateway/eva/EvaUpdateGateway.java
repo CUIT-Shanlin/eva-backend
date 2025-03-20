@@ -28,6 +28,7 @@ public interface EvaUpdateGateway {
     /**
      * 提交评教表单，完成评教任务记得完成评教任务之后，
      * 要删除对应的两种消息 “该任务的待办评教消息” “该任务的系统逾期提醒消息”
+     * 改：对应的评价不能低于50字
      * @param newEvaLogCmd NewEvaLogCmd
      */
     Void putEvaTemplate(NewEvaLogCmd newEvaLogCmd);

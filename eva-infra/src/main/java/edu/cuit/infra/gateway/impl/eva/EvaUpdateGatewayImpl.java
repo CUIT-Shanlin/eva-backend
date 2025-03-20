@@ -92,6 +92,11 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         formRecordDO.setTaskId(cmd.getTaskId());
         formRecordDO.setTextValue(cmd.getTextValue());
 
+        //判断评价是否低于50个字符
+        if(cmd.getTextValue().length()<50){
+            throw new UpdateException("输入的评价文本过少，请用心评价此课程，故不能提交哦");
+        }
+
         //判断是不是任务已经取消了
         if(evaTaskDO==null){
             throw new UpdateException("该任务不存在");
