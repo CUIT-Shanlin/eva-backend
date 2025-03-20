@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    dynamic:
+      primary: master
+      strict: false
+      datasource:
+        master:
+          url: jdbc:mariadb://eva-mariadb-test:3306/evaluate_system?characterEncoding=utf8&serverTimezone=UTC
+          username: root
+          password: eva-system
+          driver-class-name: org.mariadb.jdbc.Driver
+
+  ldap:
+    urls: ldap://eva-ldap:1389
+    base: dc=3015,dc=cuit
+    username: cn=admin,dc=3015,dc=cuit
+    password: 30153015
+
+common:
+  print-illegal-arguments: true
+
+eva:
+  config:
+    directory: "/data/config"
+  avatar:
+    #    directory: "/avatar"
+    directory: "/data/avatar"
