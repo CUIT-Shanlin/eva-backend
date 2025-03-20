@@ -195,5 +195,4 @@ public interface EvaQueryGateway {
      * 通过用户id，semId 得到评教次数和被评教次数
      */
     List<Integer> getCountAbEva(Integer semId,Integer userId);
-
 }

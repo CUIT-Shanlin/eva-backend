@@ -821,7 +821,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         }
 
         Double percent=0.0;
-        if(moreNum!=0&&lastMoreNum!=0) {//TODO
+        if(moreNum!=0&&lastMoreNum!=0) {
             percent = (moreNum - lastMoreNum) / Double.valueOf(lastMoreNum) * 100;
         }
         List<Integer> weekAdd=new ArrayList<>();
@@ -1241,6 +1241,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
 
     @Override
     public Optional<Double> getScoreFromRecord(String prop) {
+        //TODO
         Double score =stringToSumAver(prop);
         return Optional.of(score);
     }
@@ -1377,6 +1378,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         return courseConvertor.toCourseEntity(courseDO,subjectEntity,userEntity,semesterEntity);
     }
     //根据传来的String数据form_props_values中的数据解析出来得到平均分
+    //TODO 平均score/jsonArray.size()变总和score
     private Double stringToSumAver(String s) {
         Double score=0.0;
         JSONArray jsonArray;
@@ -1392,7 +1394,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             // 处理jsonObject
             score=score+Double.parseDouble(jsonObject.get("score").toString());
         }
-        return score/jsonArray.size();
+        return score;
     }
     //根据传来的前n天,还有evaTaskIdS返回SimplePercent对象
     private SimplePercentCO getSimplePercent(Integer n,List<Integer> evaTaskIdS,Double score){
