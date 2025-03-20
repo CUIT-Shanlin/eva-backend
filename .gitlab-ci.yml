@@ -5,29 +5,12 @@ variables:
   EVA_VERSION: 1.81-SNAPSHOT
 
 stages:
-  - sonarqube-check
   - build
   - publish
   - recreate
 
-sonarqube-check:
-  image: $HARBOR_URL/library/maven:3-eclipse-temurin-17
-  stage: sonarqube-check
-  cache:
-    key: "${CI_PROJECT_ID}"
-    paths:
-      - .sonar/cache
-      - .m2/repository
-  script: 
-    - $SONAR_MAVEN
-  allow_failure: true
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_COMMIT_BRANCH == 'review'
-    - if: $CI_COMMIT_BRANCH == 'dev'
-
 build:
-  image: $HARBOR_URL/library/maven:3-eclipse-temurin-17
+  image: $HARBOR_HOST/library/maven:3-eclipse-temurin-17
   stage: build
   retry: 2
   cache:
@@ -45,26 +28,26 @@ build:
 
 publish:
   stage: publish
-  image: $HARBOR_URL/library/docker:23.0.2-alpine3.17
+  image: $HARBOR_HOST/library/docker:23.0.2-alpine3.17
   retry: 2
   services:
-    - name: $HARBOR_URL/library/docker:23.0.2-dind-alpine3.17
-      command: [ "--tls=false" ]
+    - name: $HARBOR_HOST/library/docker:23.0.2-dind-alpine3.17
+      # command: [ "--tls=false" ]
       alias: docker
   before_script:
     - until docker info; do sleep 5s; done
   script:
-    - docker login -u $HARBOR_USER -p $HARBOR_PASSWORD $HARBOR_URL
-    - docker build --cache-from $HARBOR_URL/eva-system/eva-server:latest -t eva-server:$EVA_VERSION .
-    - docker tag eva-server:$EVA_VERSION $HARBOR_URL/eva-system/eva-server:$EVA_VERSION
-    - docker push $HARBOR_URL/eva-system/eva-server:$EVA_VERSION
-    - docker tag eva-server:$EVA_VERSION $HARBOR_URL/eva-system/eva-server
-    - docker push $HARBOR_URL/eva-system/eva-server
+    - docker login -u $HARBOR_USERNAME -p $HARBOR_PASSWORD $HARBOR_HOST
+    - docker build --cache-from $HARBOR_HOST/eva-system/eva-server:latest -t eva-server:$EVA_VERSION .
+    - docker tag eva-server:$EVA_VERSION $HARBOR_HOST/eva-system/eva-server:$EVA_VERSION
+    - docker push $HARBOR_HOST/eva-system/eva-server:$EVA_VERSION
+    - docker tag eva-server:$EVA_VERSION $HARBOR_HOST/eva-system/eva-server
+    - docker push $HARBOR_HOST/eva-system/eva-server
   rules:
     - if: $CI_COMMIT_BRANCH == 'master'
 
 recreate:
-  image: $HARBOR_URL/library/curl:8.9.1
+  image: $HARBOR_HOST/library/curl:8.9.1
   stage: recreate
   script:
     - curl -X POST $PORTAINER_UPDATE_URL
