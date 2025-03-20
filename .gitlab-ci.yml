@@ -19,8 +19,10 @@ build:
       - .m2/repository
   script:
     - mvn package -Dmaven.test.skip=true -Dmaven.repo.local=.m2/repository
-  rules:
-    - if: $CI_COMMIT_BRANCH == 'master'
+  only:
+    refs:
+      - master
+      - master-test
   artifacts:
     paths:
       - start/target/eva-server.jar
