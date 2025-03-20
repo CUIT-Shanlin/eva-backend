@@ -5,7 +5,9 @@ MAINTAINER  "LittleStrange"
 
 ENV PARAMS=""
 
-ENV JVMOPTIONS=""
+ARG JVMOPTIONS
+
+ENV JVMOPTIONS=${JVMOPTIONS}
 
 RUN mkdir -p /data/avatar
 RUN cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
