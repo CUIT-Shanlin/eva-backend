@@ -80,7 +80,13 @@ public class FillAverageScoreExporterDecorator extends EvaStatisticsExporter {
                     propsRow.setHeight((short)(24*20));
 
                     ExcelUtils.createRegion(rowIndex, rowIndex,6,8,sheet);
-                    createCell(propsRow,6).setCellValue(courseScore.getProp());
+
+                    String propStr = courseScore.getProp();
+                    int delimiterIndex = propStr.indexOf('|');
+                    String maxScore = propStr.substring(0, delimiterIndex);
+                    propStr = propStr.substring(delimiterIndex);
+
+                    createCell(propsRow,6).setCellValue(String.format("%s (%s)",propStr,maxScore));
                     createCell(propsRow,9).setCellValue(courseScore.getMinScore());
                     createCell(propsRow,10).setCellValue(courseScore.getAverScore());
                     createCell(propsRow,11).setCellValue(courseScore.getMaxScore());
@@ -123,7 +129,7 @@ public class FillAverageScoreExporterDecorator extends EvaStatisticsExporter {
         createHeaderCell(2,3,"课程",headerRow);
         createHeaderCell(4,4,"性质",headerRow);
         createHeaderCell(5,5,"评教次数",headerRow);
-        createHeaderCell(6,8,"指标",headerRow);
+        createHeaderCell(6,8,"指标 (满分)",headerRow);
         createHeaderCell(9,9,"最低分",headerRow);
         createHeaderCell(10,10,"平均分",headerRow);
         createHeaderCell(11,11,"最高分",headerRow);

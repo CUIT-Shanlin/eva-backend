@@ -113,7 +113,6 @@ public class UserServiceImpl implements IUserService {
             UserSingleCourseScoreCO courseScoreCO = new UserSingleCourseScoreCO();
             courseScoreCO.setCourseId(course.getId());
             courseScoreCO.setScore(new BigDecimal(score)
-                            .divide(new BigDecimal(evaScore.size()), 2, RoundingMode.HALF_UP)
                             .doubleValue())
                     .setCourseName(course.getName())
                     .setEvaNum(evaQueryGateway.getEvaNumByCourse(course.getId())
