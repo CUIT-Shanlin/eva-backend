@@ -244,7 +244,8 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
             Double sum=0.0;
             Double max= Double.valueOf(stringListEntry.getValue().get(0).getScore());
             Double min=Double.valueOf(stringListEntry.getValue().get(0).getScore());
-            courseScoreCO.setProp(stringListEntry.getKey());
+            //courseScoreCO.setProp(stringListEntry.getKey()); TODO 原版把指标前面数字取消
+            courseScoreCO.setProp(courseImportExce.getCourseScore(courseDO.getTemplateId()).get(0).getProp());
             for (EvaProp evaProp : stringListEntry.getValue()) {
                 sum+=evaProp.getScore();
                 if(evaProp.getScore()>max){
