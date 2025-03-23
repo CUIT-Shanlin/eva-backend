@@ -5,6 +5,7 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import edu.cuit.client.dto.clientobject.SimplePercentCO;
 import edu.cuit.client.dto.cmd.eva.EvaTemplateCmd;
 import edu.cuit.client.dto.cmd.eva.NewEvaLogCmd;
 import edu.cuit.client.dto.cmd.eva.NewEvaTaskCmd;
@@ -53,19 +54,16 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
     private final SysUserMapper sysUserMapper;
     private final EvaCacheConstants evaCacheConstants;
     private final LocalCacheManager localCacheManager;
+
+
     @Override
     @Transactional
     @LocalCacheInvalidate(area="#{@evaCacheConstants.ONE_TEMPLATE}",key= "#cmd.getId()")
     public Void updateEvaTemplate(EvaTemplateCmd cmd) {
         DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-        //检验是否那个模板prop有重复
-        if(cmd.getProps()!=null&&StringUtils.isNotBlank(cmd.getProps())) {
-            List<String> props= Arrays.stream(cmd.getProps().split(",")).toList();
-            long count = props.stream().distinct().count();
-            if (props.size() != count) {
-                throw new UpdateException("由于你输入的指标中有重复数据，故不能修改");
-            }
+        //校验是否合规
+        if(verifyProp(cmd.getProps())!=0){
+            throw new UpdateException("数据校验不合规");
         }
 
         FormTemplateDO formTemplateDO=new FormTemplateDO();
@@ -91,6 +89,11 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         FormRecordDO formRecordDO=new FormRecordDO();
         formRecordDO.setTaskId(cmd.getTaskId());
         formRecordDO.setTextValue(cmd.getTextValue());
+
+        //判断评价是否低于50个字符
+        if(cmd.getTextValue().length()<50){
+            throw new UpdateException("输入的评价文本过少，请用心评价此课程，故不能提交哦");
+        }
 
         //判断是不是任务已经取消了
         if(evaTaskDO==null){
@@ -249,13 +252,10 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
     @Transactional
     public Void addEvaTemplate(NewEvaTemplateCmd cmd) throws ParseException {
         DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        //判断指标重复
-        if(cmd.getProps()!=null) {
-            List<String> props= Arrays.stream(cmd.getProps().split(",")).toList();
-            long count = props.stream().distinct().count();
-            if (props.size() != count) {
-                throw new UpdateException("由于你输入的指标中有重复数据，故不能增加");
-            }
+
+        //判断指标是否合规
+        if(verifyProp(cmd.getProps())!=0){
+            throw new UpdateException("数据校验不合规");
         }
 
         FormTemplateDO formTemplateDO=new FormTemplateDO();
@@ -282,5 +282,41 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(courseMapper.selectById(courInfMapper.selectById(evaTaskDO.getCourInfId()).getCourseId()).getSemesterId()));
         localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_TEACH,sysUserMapper.selectById(evaTaskDO.getTeacherId()).getName());
         return null;
+    }
+
+    //简便方法
+    //对prop的检查
+    private Integer verifyProp(String prop){
+        //检验是否那个模板prop有重复
+        if(prop!=null&&StringUtils.isNotBlank(prop)) {
+            List<String> props= Arrays.stream(prop.split(",")).toList();
+            long count = props.stream().distinct().count();
+            if (props.size() != count) {
+                throw new UpdateException("由于你输入的指标中有重复数据，故不能修改");
+            }
+        }
+
+        //检验那个模板prop是否是有唯一的|
+        String[] props=prop.split(",");
+        int total=0;
+        for(int i=0;i<props.length;i++){
+            String res=props[i];
+            String b="|";
+            if((res.length()-res.replace(b,"").length())/b.length()!=1){
+                throw new UpdateException("prop格式错误，请确保指标不含有|");
+            }
+            String input=props[i];
+            int pipeIndex = input.indexOf('|');
+            int quoteIndex = input.lastIndexOf('"', pipeIndex - 1);
+            String betweenQuoteAndPipe = input.substring(quoteIndex + 1, pipeIndex);
+            total=total+Integer.parseInt(betweenQuoteAndPipe);
+            if(!betweenQuoteAndPipe.matches("\\d+(\\.\\d+)?")){
+                throw new UpdateException("prop格式错误，“与|之间不是数字，");
+            }
+        }
+        if(total!=100){
+            throw new UpdateException("赋分之和不够100哦");
+        }
+        return 0;
     }
 }
