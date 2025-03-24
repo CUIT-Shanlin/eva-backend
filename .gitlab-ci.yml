@@ -2,7 +2,8 @@ variables:
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
   DOCKER_TLS_CERTDIR: ""
-  EVA_VERSION: 1.88-SNAPSHOT
+  EVA_VERSION: 1.87-SNAPSHOT
+  EVA_TEST_VERSION: 1.88
 
 stages:
   - build
@@ -60,10 +61,10 @@ publish-test:
     - until docker info; do sleep 5s; done
   script:
     - docker login -u $HARBOR_USERNAME -p $HARBOR_PASSWORD $HARBOR_HOST
-    - docker build --cache-from $HARBOR_HOST/eva-system/eva-server-test:latest --build-arg JVMOPTIONS="-Dspring.profiles.active=debug" -t eva-server-test:$EVA_VERSION .
-    - docker tag eva-server-test:$EVA_VERSION $HARBOR_HOST/eva-system/eva-server-test:$EVA_VERSION
-    - docker push $HARBOR_HOST/eva-system/eva-server-test:$EVA_VERSION
-    - docker tag eva-server-test:$EVA_VERSION $HARBOR_HOST/eva-system/eva-server-test
+    - docker build --cache-from $HARBOR_HOST/eva-system/eva-server-test:latest --build-arg JVMOPTIONS="-Dspring.profiles.active=debug" -t eva-server-test:$EVA_TEST_VERSION .
+    - docker tag eva-server-test:$EVA_TEST_VERSION $HARBOR_HOST/eva-system/eva-server-test:$EVA_TEST_VERSION
+    - docker push $HARBOR_HOST/eva-system/eva-server-test:$EVA_TEST_VERSION
+    - docker tag eva-server-test:$EVA_TEST_VERSION $HARBOR_HOST/eva-system/eva-server-test
     - docker push $HARBOR_HOST/eva-system/eva-server-test
   rules:
     - if: $CI_COMMIT_BRANCH == 'master-test'
