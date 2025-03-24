@@ -188,7 +188,7 @@ public interface EvaQueryGateway {
      */
     List<EvaRecordEntity> getRecordByCourse(Integer courseId);
     /**
-     * 通过string指标传平均分数
+     * 通过string指标传总分数
      */
     Optional<Double> getScoreByProp(String prop);
     /**

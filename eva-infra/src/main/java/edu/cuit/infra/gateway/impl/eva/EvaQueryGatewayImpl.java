@@ -1335,7 +1335,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             // 处理jsonObject
             score=score+Double.parseDouble(jsonObject.get("score").toString());
         }
-        return Optional.of(score/jsonArray.size());
+        return Optional.of(score);
     }
 
     @Override
