@@ -69,7 +69,7 @@ public class FillAverageScoreExporterDecorator extends EvaStatisticsExporter {
             createCell(courseFirstRow,2).setCellValue(userSingleCourseScore.getCourseName());
             createCell(courseFirstRow,4).setCellValue(getCourseNature(course));
             createCell(courseFirstRow,5).setCellValue(userSingleCourseScore.getEvaNum());
-            createCell(courseFirstRow,12).setCellValue(userSingleCourseScore.getScore());
+            createCell(courseFirstRow,12).setCellValue(userSingleCourseScore.getScore()  == -2 ? "-" : userSingleCourseScore.getScore().toString());
 
             // 处理课程指标
             List<CourseScoreCO> courseScoreList = courseDetailService.evaResult(course.getCourseBaseMsg().getId());
@@ -84,12 +84,12 @@ public class FillAverageScoreExporterDecorator extends EvaStatisticsExporter {
                     String propStr = courseScore.getProp();
                     int delimiterIndex = propStr.indexOf('|');
                     String maxScore = propStr.substring(0, delimiterIndex);
-                    propStr = propStr.substring(delimiterIndex);
+                    propStr = propStr.substring(delimiterIndex + 1);
 
                     createCell(propsRow,6).setCellValue(String.format("%s (%s)",propStr,maxScore));
-                    createCell(propsRow,9).setCellValue(courseScore.getMinScore());
-                    createCell(propsRow,10).setCellValue(courseScore.getAverScore());
-                    createCell(propsRow,11).setCellValue(courseScore.getMaxScore());
+                    createCell(propsRow,9).setCellValue(courseScore.getMinScore() == -1 ? "-" : courseScore.getMinScore().toString());
+                    createCell(propsRow,10).setCellValue(courseScore.getAverScore() == -1 ? "-" : courseScore.getAverScore().toString());
+                    createCell(propsRow,11).setCellValue(courseScore.getMaxScore() == -1 ? "-" : courseScore.getMaxScore().toString());
                     rowIndex++;
                 }
             } else {
