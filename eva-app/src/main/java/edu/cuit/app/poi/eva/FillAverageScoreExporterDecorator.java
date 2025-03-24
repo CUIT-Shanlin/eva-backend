@@ -69,7 +69,7 @@ public class FillAverageScoreExporterDecorator extends EvaStatisticsExporter {
             createCell(courseFirstRow,2).setCellValue(userSingleCourseScore.getCourseName());
             createCell(courseFirstRow,4).setCellValue(getCourseNature(course));
             createCell(courseFirstRow,5).setCellValue(userSingleCourseScore.getEvaNum());
-            createCell(courseFirstRow,12).setCellValue(userSingleCourseScore.getScore()  == -2 ? "-" : userSingleCourseScore.getScore().toString());
+            createCell(courseFirstRow,12).setCellValue(userSingleCourseScore.getScore() < 0 ? "-" : userSingleCourseScore.getScore().toString());
 
             // 处理课程指标
             List<CourseScoreCO> courseScoreList = courseDetailService.evaResult(course.getCourseBaseMsg().getId());
@@ -87,9 +87,9 @@ public class FillAverageScoreExporterDecorator extends EvaStatisticsExporter {
                     propStr = propStr.substring(delimiterIndex + 1);
 
                     createCell(propsRow,6).setCellValue(String.format("%s (%s)",propStr,maxScore));
-                    createCell(propsRow,9).setCellValue(courseScore.getMinScore() == -1 ? "-" : courseScore.getMinScore().toString());
-                    createCell(propsRow,10).setCellValue(courseScore.getAverScore() == -1 ? "-" : courseScore.getAverScore().toString());
-                    createCell(propsRow,11).setCellValue(courseScore.getMaxScore() == -1 ? "-" : courseScore.getMaxScore().toString());
+                    createCell(propsRow,9).setCellValue(courseScore.getMinScore() <= -1 ? "-" : courseScore.getMinScore().toString());
+                    createCell(propsRow,10).setCellValue(courseScore.getAverScore() <= -1 ? "-" : courseScore.getAverScore().toString());
+                    createCell(propsRow,11).setCellValue(courseScore.getMaxScore() <= -1 ? "-" : courseScore.getMaxScore().toString());
                     rowIndex++;
                 }
             } else {
@@ -99,9 +99,9 @@ public class FillAverageScoreExporterDecorator extends EvaStatisticsExporter {
 
                 ExcelUtils.createRegion(rowIndex, rowIndex,6,8 ,sheet);
                 createCell(propsRow,6).setCellValue("无指标");
-                createCell(propsRow,9).setCellValue(-1);
-                createCell(propsRow,10).setCellValue(-1);
-                createCell(propsRow,11).setCellValue(-1);
+                createCell(propsRow,9).setCellValue("-");
+                createCell(propsRow,10).setCellValue("-");
+                createCell(propsRow,11).setCellValue("-");
                 rowIndex++;
             }
 
