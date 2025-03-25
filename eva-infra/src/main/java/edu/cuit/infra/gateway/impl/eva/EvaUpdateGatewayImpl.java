@@ -155,8 +155,8 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
                         if(localDate.getDayOfMonth()==LocalDate.now().getDayOfMonth()) {
                             String dateTime = localDate + " 00:00";//因为少了一个空格而不能满足格式而报错
                             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-                            LocalDateTime localDateTime = LocalDateTime.parse(dateTime, formatter);
-                            if (CalculateClassTime.calculateClassTime(localDateTime, courInfDO.getStartTime()).isBefore(LocalDateTime.now())) {
+                            LocalDateTime localDateTime = LocalDateTime.parse(dateTime, formatter);//CalculateClassTime原接口在controller那里，因为原作者把它写那里我gateway拿不到，只能复印
+                            if (CalculateClassTime.calculateClassTime(localDateTime, courInfDO.getStartTime()).isBefore(LocalDateTime.now())) {//如果出了问题看看原接口有没有跟新
                                 f = 1;
                             } else {
                                 f = 0;
