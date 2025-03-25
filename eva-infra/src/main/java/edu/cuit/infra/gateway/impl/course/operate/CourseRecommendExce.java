@@ -129,19 +129,26 @@ public class CourseRecommendExce {
         List<RecommendCourseCO> recommendCourse = getRecommendCourse(leList, list, courseDOS1, courseTime,semId,courseDOS);
         //根据recommendCourse中的proriority进行排序(降序)，如果优先级相同，那么根据课程时间来进行排序(升序)
         Stream<RecommendCourseCO> stream = recommendCourse.stream();
+        List<Integer> subjectList = courseDOS1.stream().map(CourseDO::getSubjectId).toList();
+        List<String> subjectNames = subjectMapper.selectList(new QueryWrapper<SubjectDO>().in("id", subjectList)).stream().map(SubjectDO::getName).toList();
         // 按照 prioty属性进行降序排序
         Comparator<RecommendCourseCO> priotyComparator = Comparator.comparing(RecommendCourseCO::getPriority).reversed();
-        // 如果 prioty 相同，则按 time 的 week和day 属性进行升序排序
+        // 如果 prioty 相同，则按 time 的 week和day 属性进行升序排序(补充课程名称相同的应排在前面)
+        Comparator<RecommendCourseCO> subjectComparator = Comparator.comparing((RecommendCourseCO rc) -> subjectNames.contains(rc.getName()));
         Comparator<RecommendCourseCO> weekComparator = Comparator.comparing(RecommendCourseCO::getTime, Comparator.comparing(CourseTime::getWeek));
         Comparator<RecommendCourseCO> dayComparator = Comparator.comparing(RecommendCourseCO::getTime, Comparator.comparing(CourseTime::getDay));
         Comparator<RecommendCourseCO> startComparator = Comparator.comparing(RecommendCourseCO::getTime, Comparator.comparing(CourseTime::getStartTime));
 
         // 组合比较器
-        Comparator<RecommendCourseCO> combinedComparator = priotyComparator.thenComparing(weekComparator);
+      /*  Comparator<RecommendCourseCO> combinedComparator = priotyComparator.thenComparing(weekComparator);
         Comparator<RecommendCourseCO> recommendCourseCOComparator = combinedComparator.thenComparing(dayComparator);
-        Comparator<RecommendCourseCO> recommendResult = recommendCourseCOComparator.thenComparing(startComparator);
+        Comparator<RecommendCourseCO> recommendResult = recommendCourseCOComparator.thenComparing(startComparator);*/
+        Comparator<RecommendCourseCO> combinedComparator = priotyComparator.thenComparing(subjectComparator);
+        Comparator<RecommendCourseCO> recommendCourseCOComparator = combinedComparator.thenComparing(weekComparator);
+        Comparator<RecommendCourseCO> recommendResult = recommendCourseCOComparator.thenComparing(dayComparator);
+        Comparator<RecommendCourseCO> recommendFinal = recommendResult.thenComparing(startComparator);
         // 排序
-        Stream<RecommendCourseCO> sortedStream = stream.sorted(recommendResult);
+        Stream<RecommendCourseCO> sortedStream = stream.sorted(recommendFinal);
         List<RecommendCourseCO> result = sortedStream.toList();
         //过滤出reCourseList中id不在List，和list2中的RecommendCourseCO的集合
         List<RecommendCourseCO>resultCO=toFilterList(courINfoList,evaCourInfo,result);
