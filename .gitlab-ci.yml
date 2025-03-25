@@ -2,7 +2,8 @@ variables:
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
   DOCKER_TLS_CERTDIR: ""
-  EVA_VERSION: 1.81-SNAPSHOT
+  EVA_VERSION: 1.90-SNAPSHOT
+  EVA_TEST_VERSION: 1.90
 
 stages:
   - build
@@ -19,8 +20,10 @@ build:
       - .m2/repository
   script:
     - mvn package -Dmaven.test.skip=true -Dmaven.repo.local=.m2/repository
-  rules:
-    - if: $CI_COMMIT_BRANCH == 'master'
+  only:
+    refs:
+      - master
+      - master-test
   artifacts:
     paths:
       - start/target/eva-server.jar
@@ -38,13 +41,33 @@ publish:
     - until docker info; do sleep 5s; done
   script:
     - docker login -u $HARBOR_USERNAME -p $HARBOR_PASSWORD $HARBOR_HOST
-    - docker build --cache-from $HARBOR_HOST/eva-system/eva-server:latest -t eva-server:$EVA_VERSION .
+    - docker build --cache-from $HARBOR_HOST/eva-system/eva-server:latest --build-arg JVMOPTIONS="-Dspring.profiles.active=test" -t eva-server:$EVA_VERSION .
     - docker tag eva-server:$EVA_VERSION $HARBOR_HOST/eva-system/eva-server:$EVA_VERSION
     - docker push $HARBOR_HOST/eva-system/eva-server:$EVA_VERSION
     - docker tag eva-server:$EVA_VERSION $HARBOR_HOST/eva-system/eva-server
     - docker push $HARBOR_HOST/eva-system/eva-server
   rules:
     - if: $CI_COMMIT_BRANCH == 'master'
+
+publish-test:
+  stage: publish
+  image: $HARBOR_HOST/library/docker:23.0.2-alpine3.17
+  retry: 2
+  services:
+    - name: $HARBOR_HOST/library/docker:23.0.2-dind-alpine3.17
+      # command: [ "--tls=false" ]
+      alias: docker
+  before_script:
+    - until docker info; do sleep 5s; done
+  script:
+    - docker login -u $HARBOR_USERNAME -p $HARBOR_PASSWORD $HARBOR_HOST
+    - docker build --cache-from $HARBOR_HOST/eva-system/eva-server-test:latest --build-arg JVMOPTIONS="-Dspring.profiles.active=debug" -t eva-server-test:$EVA_TEST_VERSION .
+    - docker tag eva-server-test:$EVA_TEST_VERSION $HARBOR_HOST/eva-system/eva-server-test:$EVA_TEST_VERSION
+    - docker push $HARBOR_HOST/eva-system/eva-server-test:$EVA_TEST_VERSION
+    - docker tag eva-server-test:$EVA_TEST_VERSION $HARBOR_HOST/eva-system/eva-server-test
+    - docker push $HARBOR_HOST/eva-system/eva-server-test
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'master-test'
 
 recreate:
   image: $HARBOR_HOST/library/curl:8.9.1
@@ -53,3 +76,11 @@ recreate:
     - curl -X POST $PORTAINER_UPDATE_URL
   rules:
     - if: $CI_COMMIT_BRANCH == 'master'
+
+recreate-test:
+  image: $HARBOR_HOST/library/curl:8.9.1
+  stage: recreate
+  script:
+    - curl -X POST $PORTAINER_UPDATE_TEST_URL
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'master-test'
