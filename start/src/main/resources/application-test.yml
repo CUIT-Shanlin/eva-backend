@@ -17,7 +17,7 @@ spring:
     password: 30153015
 
 common:
-  print-illegal-arguments: true
+  print-illegal-arguments: false
 
 eva:
   config:
