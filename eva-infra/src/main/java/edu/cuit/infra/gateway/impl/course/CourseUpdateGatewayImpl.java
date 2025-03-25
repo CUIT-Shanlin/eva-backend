@@ -642,13 +642,17 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     }
 
     private void judgeAlsoHasLocation(Integer week, SelfTeachCourseTimeCO timeCO) {
-        CourInfDO courInfDO = courInfMapper.selectOne(new QueryWrapper<CourInfDO>()
-                .eq("week", week)
-                .eq("day", timeCO.getDay())
-                .eq("location", timeCO.getClassroom())
-                .eq("start_time", timeCO.getEndTime())
-                .eq("end_time", timeCO.getStartTime()));
-        if(courInfDO!=null){
+        try {
+            CourInfDO courInfDO = courInfMapper.selectOne(new QueryWrapper<CourInfDO>()
+                    .eq("week", week)
+                    .eq("day", timeCO.getDay())
+                    .eq("location", timeCO.getClassroom())
+                    .eq("start_time", timeCO.getStartTime())
+                    .eq("end_time", timeCO.getEndTime()));
+            if (courInfDO != null) {
+                throw new UpdateException("该时间段教室冲突，请修改时间");
+            }
+        }catch (Exception e){
             throw new UpdateException("该时间段教室冲突，请修改时间");
         }
 
