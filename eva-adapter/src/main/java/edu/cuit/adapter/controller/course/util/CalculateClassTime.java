@@ -1,6 +1,9 @@
 package edu.cuit.adapter.controller.course.util;
 
+import org.springframework.stereotype.Component;
+
 import java.time.LocalDateTime;
+
 
 public class CalculateClassTime {
     public static LocalDateTime calculateClassTime(LocalDateTime baseTime, int classNumber) {
@@ -8,7 +11,6 @@ public class CalculateClassTime {
         long classDuration = 45;
         // 课间休息时间（10分钟）
         long breakDuration = 10;
-
         // 判断上午、下午或晚上的起始时间
         LocalDateTime startTime;
         long totalOffset;

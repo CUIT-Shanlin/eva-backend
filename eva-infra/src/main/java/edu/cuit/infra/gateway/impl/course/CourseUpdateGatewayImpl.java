@@ -646,8 +646,8 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                 .eq("week", week)
                 .eq("day", timeCO.getDay())
                 .eq("location", timeCO.getClassroom())
-                .le("start_time", timeCO.getEndTime())
-                .ge("end_time", timeCO.getStartTime()));
+                .eq("start_time", timeCO.getEndTime())
+                .eq("end_time", timeCO.getStartTime()));
         if(courInfDO!=null){
             throw new UpdateException("该时间段教室冲突，请修改时间");
         }
