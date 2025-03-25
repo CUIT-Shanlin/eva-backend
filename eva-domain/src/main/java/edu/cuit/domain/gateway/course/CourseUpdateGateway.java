@@ -97,7 +97,7 @@ public interface CourseUpdateGateway {
      *  @param courseId 课程id
      *  @param timeCO 课程对应授课时间
      * */
-    Void addExistCoursesDetails( Integer courseId, SelfTeachCourseTimeCO timeCO);
+    Void addExistCoursesDetails( Integer semId,Integer courseId, SelfTeachCourseTimeCO timeCO);
 
     /**
      * 批量新建多节课(新课程)

@@ -618,9 +618,9 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
 
     @Override
     @Transactional
-    public Void addExistCoursesDetails(Integer courseId, SelfTeachCourseTimeCO timeCO) {
+    public Void addExistCoursesDetails(Integer semId,Integer courseId, SelfTeachCourseTimeCO timeCO) {
         for (Integer week : timeCO.getWeeks()) {
-            judgeAlsoHasLocation(week,timeCO);
+            judgeAlsoHasLocation(week,timeCO,semId);
             CourInfDO courInfDO=new CourInfDO();
             courInfDO.setCourseId(courseId);
             courInfDO.setWeek(week);
@@ -641,20 +641,25 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         return null;
     }
 
-    private void judgeAlsoHasLocation(Integer week, SelfTeachCourseTimeCO timeCO) {
-        try {
-            CourInfDO courInfDO = courInfMapper.selectOne(new QueryWrapper<CourInfDO>()
+    private void judgeAlsoHasLocation(Integer week, SelfTeachCourseTimeCO timeCO,Integer semId) {
+
+            List<CourInfDO> courInfDO = courInfMapper.selectList(new QueryWrapper<CourInfDO>()
                     .eq("week", week)
                     .eq("day", timeCO.getDay())
                     .eq("location", timeCO.getClassroom())
                     .eq("start_time", timeCO.getStartTime())
                     .eq("end_time", timeCO.getEndTime()));
-            if (courInfDO != null) {
+           /* if (courInfDO != null) {
+                throw new UpdateException("该时间段教室冲突，请修改时间");
+            }*/
+        //根据CourInfDo来查Course
+        for (CourInfDO courseInfo : courInfDO) {
+            CourseDO courseDO = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", courseInfo.getCourseId()).eq("semester_id", semId));
+            if (courseDO != null) {
                 throw new UpdateException("该时间段教室冲突，请修改时间");
             }
-        }catch (Exception e){
-            throw new UpdateException("该时间段教室冲突，请修改时间");
         }
+
 
     }
 
@@ -704,7 +709,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         //插入课程时间表
         for (SelfTeachCourseTimeCO time : dateArr) {
             for (Integer week : time.getWeeks()) {
-                judgeAlsoHasLocation(week,time);
+                judgeAlsoHasLocation(week,time,semId);
                 CourInfDO courInfDO = new CourInfDO();
                 courInfDO.setCourseId(courseDOId);
                 courInfDO.setWeek(week);

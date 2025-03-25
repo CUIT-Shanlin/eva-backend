@@ -86,7 +86,7 @@ public interface ICourseService {
      *  @param timeCO 课程对应授课时间
      *
      * */
-    void addExistCoursesDetails( Integer courseId, SelfTeachCourseTimeCO timeCO);
+    void addExistCoursesDetails(Integer semId ,Integer courseId, SelfTeachCourseTimeCO timeCO);
 
     /**
      * 批量新建多节课(新课程)

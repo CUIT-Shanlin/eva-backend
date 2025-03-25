@@ -202,7 +202,7 @@ public class UpdateCourseController {
              @PathVariable Integer courseId,
             @Valid @RequestBody List<SelfTeachCourseTimeCO> timeCO){
         for (SelfTeachCourseTimeCO selfTeachCourseTimeCO : timeCO) {
-            courseService.addExistCoursesDetails(courseId, selfTeachCourseTimeCO);
+            courseService.addExistCoursesDetails(null,courseId, selfTeachCourseTimeCO);
         }
         return CommonResult.success(null);
     }
