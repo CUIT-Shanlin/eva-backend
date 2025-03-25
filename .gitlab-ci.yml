@@ -3,7 +3,7 @@ variables:
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
   DOCKER_TLS_CERTDIR: ""
   EVA_VERSION: 1.87-SNAPSHOT
-  EVA_TEST_VERSION: 1.88
+  EVA_TEST_VERSION: 1.89
 
 stages:
   - build
