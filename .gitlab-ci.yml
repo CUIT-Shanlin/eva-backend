@@ -2,8 +2,8 @@ variables:
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
   DOCKER_TLS_CERTDIR: ""
-  EVA_VERSION: 1.92-SNAPSHOT
-  EVA_TEST_VERSION: 1.92
+  EVA_VERSION: 1.93-SNAPSHOT
+  EVA_TEST_VERSION: 1.93
 
 stages:
   - build
@@ -72,6 +72,9 @@ publish-test:
 recreate:
   image: $HARBOR_HOST/library/curl:8.9.1
   stage: recreate
+  needs:
+    - job: build
+      artifacts: false
   script:
     - curl -X POST $PORTAINER_UPDATE_URL
   rules:
@@ -80,6 +83,9 @@ recreate:
 recreate-test:
   image: $HARBOR_HOST/library/curl:8.9.1
   stage: recreate
+  needs:
+    - job: build
+      artifacts: false
   script:
     - curl -X POST $PORTAINER_UPDATE_TEST_URL
   rules:
