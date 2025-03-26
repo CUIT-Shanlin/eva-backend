@@ -139,6 +139,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         CourseDO courseDO=courseMapper.selectById(courInfDO.getCourseId());
         //选中的课程是否已经上完
         SemesterDO semesterDO = semesterMapper.selectById(courseDO.getSemesterId());
+        Integer evaEdSemId=courseDO.getSemesterId();//得到被评教课程的学期id TODO 方便后面比较课程
         LocalDate localDate = semesterDO.getStartDate().plusDays((courInfDO.getWeek()-1) * 7L + courInfDO.getDay() - 1);
 
         Integer f=2;//判断是不是课程快已经结束 1冲0无
@@ -180,13 +181,20 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         List<CourseDO> courseDOList=courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id",cmd.getTeacherId()));
         List<Integer> courseIds=courseDOList.stream().map(CourseDO::getId).toList();
         if(CollectionUtil.isNotEmpty(courseIds)) {
-            List<CourInfDO> courInfDOList = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", courseIds));
+            List<CourInfDO> courInfDOList = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", courseIds));//老师所有课程信息
             for (int i = 0; i < courInfDOList.size(); i++) {
-                if (courInfDO.getWeek().equals(courInfDOList.get(i).getWeek())) {
-                    if (courInfDO.getDay().equals(courInfDOList.get(i).getDay())) {
-                        if (((courInfDO.getStartTime() <= courInfDOList.get(i).getEndTime()) && (courInfDO.getEndTime() >= courInfDOList.get(i).getStartTime()))
-                                || ((courInfDOList.get(i).getStartTime() <= courInfDO.getEndTime()) && (courInfDOList.get(i).getEndTime() >= courInfDO.getStartTime()))) {
-                            throw new UpdateException("与你其他课程冲突");
+                //加入学期判断
+                Integer course3=courInfDOList.get(i).getCourseId();
+                CourseDO courseDO3=courseMapper.selectById(course3);
+                Integer evaSemId=courseDO3.getSemesterId();
+                //如果学期不一样，就不用判断课程是否冲突
+                if(evaSemId==evaEdSemId) {
+                    if (courInfDO.getWeek().equals(courInfDOList.get(i).getWeek())) {
+                        if (courInfDO.getDay().equals(courInfDOList.get(i).getDay())) {
+                            if (((courInfDO.getStartTime() <= courInfDOList.get(i).getEndTime()) && (courInfDO.getEndTime() >= courInfDOList.get(i).getStartTime()))
+                                    || ((courInfDOList.get(i).getStartTime() <= courInfDO.getEndTime()) && (courInfDOList.get(i).getEndTime() >= courInfDO.getStartTime()))) {
+                                throw new UpdateException("与你其他课程冲突");
+                            }
                         }
                     }
                 }
