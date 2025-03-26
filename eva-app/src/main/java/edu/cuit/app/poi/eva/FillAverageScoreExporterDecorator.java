@@ -97,7 +97,7 @@ public class FillAverageScoreExporterDecorator extends EvaStatisticsExporter {
                     }
                     int columnWidth = sheet.getColumnWidth(6);
                     if (textLength > columnWidth * 3) {
-                        propsRow.setHeight((short) (((textLength / (columnWidth*3)) + 2) * (propsRow.getHeight() / 2)));
+                        propsRow.setHeight((short) (((textLength / (columnWidth*3)) + 4) * (propsRow.getHeight() / 2)));
                     }
 
                     createCell(propsRow,9).setCellValue(courseScore.getMinScore() <= -1 ? "-" : courseScore.getMinScore().toString());
