@@ -131,7 +131,7 @@ public class CourseRecommendExce {
         Stream<RecommendCourseCO> stream = recommendCourse.stream();
         List<Integer> subjectList = courseDOS1.stream().map(CourseDO::getSubjectId).toList();
         List<String> subjectNames=null;
-        if(!subjectList.isEmpty()) subjectNames=new ArrayList<>();
+        if(subjectList.isEmpty()) subjectNames=new ArrayList<>();
         else subjectNames = subjectMapper.selectList(new QueryWrapper<SubjectDO>().in("id", subjectList)).stream().map(SubjectDO::getName).toList();
         // 按照 prioty属性进行降序排序
         Comparator<RecommendCourseCO> priotyComparator = Comparator.comparing(RecommendCourseCO::getPriority).reversed();
