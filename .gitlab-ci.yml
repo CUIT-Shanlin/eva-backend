@@ -37,6 +37,8 @@ publish:
     - name: $HARBOR_HOST/library/docker:23.0.2-dind-alpine3.17
       # command: [ "--tls=false" ]
       alias: docker
+  variables:
+    GIT_STRATEGY: none
   before_script:
     - until docker info; do sleep 5s; done
   script:
@@ -57,6 +59,8 @@ publish-test:
     - name: $HARBOR_HOST/library/docker:23.0.2-dind-alpine3.17
       # command: [ "--tls=false" ]
       alias: docker
+  variables:
+    GIT_STRATEGY: none
   before_script:
     - until docker info; do sleep 5s; done
   script:
@@ -72,6 +76,8 @@ publish-test:
 recreate:
   image: $HARBOR_HOST/library/curl:8.9.1
   stage: recreate
+  variables:
+    GIT_STRATEGY: none
   needs:
     - job: build
       artifacts: false
@@ -83,6 +89,8 @@ recreate:
 recreate-test:
   image: $HARBOR_HOST/library/curl:8.9.1
   stage: recreate
+  variables:
+    GIT_STRATEGY: none
   needs:
     - job: build
       artifacts: false
