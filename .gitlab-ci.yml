@@ -77,6 +77,7 @@ recreate:
   needs:
     - job: build
       artifacts: false
+    - job: publish
   script:
     - curl -X POST $PORTAINER_UPDATE_URL
   rules:
@@ -90,6 +91,7 @@ recreate-test:
   needs:
     - job: build
       artifacts: false
+    - job: publish-test
   script:
     - curl -X POST $PORTAINER_UPDATE_TEST_URL
   rules:
