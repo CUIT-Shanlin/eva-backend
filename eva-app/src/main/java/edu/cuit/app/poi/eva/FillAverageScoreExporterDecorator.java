@@ -7,6 +7,7 @@ import edu.cuit.client.dto.clientobject.eva.UserSingleCourseScoreCO;
 import edu.cuit.domain.entity.user.biz.UserEntity;
 import org.apache.poi.ss.usermodel.Row;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,6 +88,18 @@ public class FillAverageScoreExporterDecorator extends EvaStatisticsExporter {
                     propStr = propStr.substring(delimiterIndex + 1);
 
                     createCell(propsRow,6).setCellValue(String.format("%s (%s)",propStr,maxScore));
+
+                    int textLength = 0;
+                    try {
+                        textLength = (propStr.getBytes("GBK").length) * 256;
+                    } catch (UnsupportedEncodingException e) {
+                        throw new RuntimeException(e);
+                    }
+                    int columnWidth = sheet.getColumnWidth(6);
+                    if (textLength > columnWidth * 4) {
+                        propsRow.setHeight((short) (((textLength / (columnWidth*4)) + 1) * (propsRow.getHeight() / 2)));
+                    }
+
                     createCell(propsRow,9).setCellValue(courseScore.getMinScore() <= -1 ? "-" : courseScore.getMinScore().toString());
                     createCell(propsRow,10).setCellValue(courseScore.getAverScore() <= -1 ? "-" : courseScore.getAverScore().toString());
                     createCell(propsRow,11).setCellValue(courseScore.getMaxScore() <= -1 ? "-" : courseScore.getMaxScore().toString());
