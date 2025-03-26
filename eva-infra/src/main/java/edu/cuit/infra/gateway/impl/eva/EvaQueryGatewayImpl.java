@@ -99,6 +99,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     private final UserCacheConstants userCacheConstants;
 
     @Override
+    //TODO
     public PaginationResultEntity<EvaRecordEntity> pageEvaRecord(Integer semId, PagingQuery<EvaLogConditionalQuery> query) {
         //课程
         Page<FormRecordDO> pageLog=new Page<>(query.getPage(),query.getSize());
@@ -118,6 +119,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         }
         if(CollectionUtil.isNotEmpty(query.getQueryObj().getCourseTimes())) {
             List<CourInfDO> newCourInfDOS = new ArrayList<>();
+            //TODO 出错
             List<FormRecordDO> formRecordDOS=formRecordMapper.selectList(null);
             if(CollectionUtil.isEmpty(formRecordDOS)){
                 List list=new ArrayList();
@@ -755,7 +757,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         EvaSituationCO evaSituationCO=new EvaSituationCO();
         evaSituationCO.setEvaNum(evaNum);
         evaSituationCO.setTotalNum(totalNum);
-        evaSituationCO.setMoreNum(getEvaNumByDate(0,semId));
+        evaSituationCO.setMoreNum(getEvaNumByDate(0,semId)-getEvaNumByDate(1,semId));
         evaSituationCO.setMoreEvaNum(unTotalNum);
         evaSituationCO.setEvaNumArr(list);
 
@@ -1482,6 +1484,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         }
     }
     //获得几天前的新增评教数
+    //TODO
     private Integer getEvaNumByDate(Integer num,Integer semId){
         LocalDateTime start;
         LocalDateTime end=LocalDateTime.now();
@@ -1493,16 +1496,18 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             end=time.minusDays(num-1);
             start=time.minusDays(num);
         }
-        QueryWrapper<FormRecordDO> query=new QueryWrapper<>();
+        //将已评价完成的任务变成没有完成的任务
         if(semId!=null){
             List<Integer> evaTaskIds=getEvaTaskIdS(semId);
             if(CollectionUtil.isEmpty(evaTaskIds)){
                 return 0;
             }
-            query.in("task_id",evaTaskIds);
+            List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("id",evaTaskIds).between("create_time",start,end));
+            return evaTaskDOS.size();
+        }else{
+            List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().between("create_time",start,end));
+            return evaTaskDOS.size();
         }
-        List<FormRecordDO> formRecordDOs=formRecordMapper.selectList(query.between("create_time",start,end));
-        return formRecordDOs.size();
     }
     //根据evaTaskDOs变成entity数据
     private List<EvaTaskEntity> getEvaTaskEntities(List<EvaTaskDO> evaTaskDOS,List<UserEntity> userEntities,List<SingleCourseEntity> courseEntities){
