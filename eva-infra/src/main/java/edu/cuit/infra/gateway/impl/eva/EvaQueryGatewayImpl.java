@@ -649,8 +649,11 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         }else {
             percent = Double.parseDouble(df.format(100));
         }
+        //修改直接把时间判定改了
+        LocalDateTime time=LocalDateTime.now();
+        LocalDateTime time1=LocalDateTime.of(time.getYear(),time.getMonthValue(),time.getDayOfMonth(),0,1);
         //整个方法把以前的数据拿出来
-        List<FormRecordDO> last1FormRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIdS).gt("create_time",LocalDateTime.now().minusDays(1)));
+        List<FormRecordDO> last1FormRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIdS).between("create_time",time1,time));
         Integer totalNum1;
         if(CollectionUtil.isEmpty(last1FormRecordDOS)){
             totalNum1=0;
@@ -1488,10 +1491,10 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     private Integer getEvaNumByDate(Integer num,Integer semId){
         LocalDateTime start;
         LocalDateTime end=LocalDateTime.now();
-        LocalDateTime time=LocalDateTime.of(end.getYear(),end.getMonthValue(),end.getDayOfMonth(),0,0);
+        LocalDateTime time=LocalDateTime.of(end.getYear(),end.getMonthValue(),end.getDayOfMonth(),0,1);
         if(num==0){
             end=LocalDateTime.now();
-            start=LocalDateTime.of(end.getYear(),end.getMonthValue(),end.getDayOfMonth(),0,0);
+            start=LocalDateTime.of(end.getYear(),end.getMonthValue(),end.getDayOfMonth(),0,1);
         }else{
             end=time.minusDays(num-1);
             start=time.minusDays(num);
