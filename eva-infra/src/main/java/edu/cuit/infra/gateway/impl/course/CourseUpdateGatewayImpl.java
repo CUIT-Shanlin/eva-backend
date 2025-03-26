@@ -777,7 +777,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     @Override
     public void judgeHasCourseOrEva(Integer courseId, SelfTeachCourseTimeCO timeCO) {
         //找数据库中是否有对应课程
-        if(courInfMapper.exists(new QueryWrapper<CourInfDO>().eq("course_id", courseId).in("week", timeCO.getWeeks())))
+        if(courInfMapper.exists(new QueryWrapper<CourInfDO>().eq("course_id", courseId).in("week", timeCO.getWeeks()).eq("day", timeCO.getDay()).eq("startTime", timeCO.getStartTime()).eq(false,"endTime", timeCO.getEndTime())))
             throw new UpdateException("该教师在该时间段有课程");
         CourseDO courseDO = courseMapper.selectById(courseId);
         List<EvaTaskDO> taskDOList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id", courseDO.getTeacherId()).eq("status", 0));
