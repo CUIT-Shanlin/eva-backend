@@ -121,4 +121,11 @@ public interface CourseUpdateGateway {
      *
      * */
     void updateCoursesType(UpdateCoursesToTypeCmd updateCoursesToTypeCmd);
+
+    /**
+     * 判断该老师是否已经有课(包括评教课程)了
+     *  @param courseId 课程id
+     *
+     * */
+    void judgeHasCourseOrEva(Integer courseId, SelfTeachCourseTimeCO timeCO);
 }
