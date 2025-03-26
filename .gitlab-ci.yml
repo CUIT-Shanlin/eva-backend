@@ -2,8 +2,8 @@ variables:
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
   DOCKER_TLS_CERTDIR: ""
-  EVA_VERSION: 1.90-SNAPSHOT
-  EVA_TEST_VERSION: 1.90
+  EVA_VERSION: 1.93-SNAPSHOT
+  EVA_TEST_VERSION: 1.93
 
 stages:
   - build
@@ -37,11 +37,13 @@ publish:
     - name: $HARBOR_HOST/library/docker:23.0.2-dind-alpine3.17
       # command: [ "--tls=false" ]
       alias: docker
+  variables:
+    GIT_STRATEGY: none
   before_script:
     - until docker info; do sleep 5s; done
   script:
     - docker login -u $HARBOR_USERNAME -p $HARBOR_PASSWORD $HARBOR_HOST
-    - docker build --cache-from $HARBOR_HOST/eva-system/eva-server:latest --build-arg JVMOPTIONS="-Dspring.profiles.active=test" -t eva-server:$EVA_VERSION .
+    - docker build --cache-from $HARBOR_HOST/eva-system/eva-server:latest --build-arg JVMOPTIONS="-Dspring.profiles.active=prod" -t eva-server:$EVA_VERSION .
     - docker tag eva-server:$EVA_VERSION $HARBOR_HOST/eva-system/eva-server:$EVA_VERSION
     - docker push $HARBOR_HOST/eva-system/eva-server:$EVA_VERSION
     - docker tag eva-server:$EVA_VERSION $HARBOR_HOST/eva-system/eva-server
@@ -57,6 +59,8 @@ publish-test:
     - name: $HARBOR_HOST/library/docker:23.0.2-dind-alpine3.17
       # command: [ "--tls=false" ]
       alias: docker
+  variables:
+    GIT_STRATEGY: none
   before_script:
     - until docker info; do sleep 5s; done
   script:
@@ -72,6 +76,11 @@ publish-test:
 recreate:
   image: $HARBOR_HOST/library/curl:8.9.1
   stage: recreate
+  variables:
+    GIT_STRATEGY: none
+  needs:
+    - job: build
+      artifacts: false
   script:
     - curl -X POST $PORTAINER_UPDATE_URL
   rules:
@@ -80,6 +89,11 @@ recreate:
 recreate-test:
   image: $HARBOR_HOST/library/curl:8.9.1
   stage: recreate
+  variables:
+    GIT_STRATEGY: none
+  needs:
+    - job: build
+      artifacts: false
   script:
     - curl -X POST $PORTAINER_UPDATE_TEST_URL
   rules:
