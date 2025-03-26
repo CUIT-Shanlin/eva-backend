@@ -124,6 +124,8 @@ public class ICourseServiceImpl implements ICourseService {
     @Override
     @CheckSemId
     public void addExistCoursesDetails(Integer semId,Integer courseId, SelfTeachCourseTimeCO timeCO) {
+            //判断该老师是否有课程
+            courseUpdateGateway.judgeHasCourseOrEva(courseId,timeCO);
             courseUpdateGateway.addExistCoursesDetails(semId,courseId,timeCO);
     }
 

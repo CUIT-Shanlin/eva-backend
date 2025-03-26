@@ -619,6 +619,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     @Override
     @Transactional
     public Void addExistCoursesDetails(Integer semId,Integer courseId, SelfTeachCourseTimeCO timeCO) {
+
         for (Integer week : timeCO.getWeeks()) {
             judgeAlsoHasLocation(week,timeCO,semId);
             CourInfDO courInfDO=new CourInfDO();
@@ -666,6 +667,13 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     @Override
     @Transactional
     public void addNotExistCoursesDetails(Integer semId, Integer teacherId, UpdateCourseCmd courseInfo, List<SelfTeachCourseTimeCO> dateArr) {
+        //找出老师这学期所有课程（判断是否有课程或者评教任务冲突）
+        List<CourseDO> courseDOList = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId).eq("teacher_id", teacherId));
+        dateArr.forEach(
+                courseTimetoJudge -> {
+                    courseDOList.forEach(courseDO -> {judgeHasCourseOrEva(courseDO.getId(),courseTimetoJudge);});
+                }
+        );
         SubjectDO subjectDO1 = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("name", courseInfo.getSubjectMsg().getName()).eq("nature", courseInfo.getSubjectMsg().getNature()));
         Integer subjectId=null;
         if(subjectDO1==null) {
@@ -763,6 +771,19 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                 courseTypeCourseDO.setCreateTime(LocalDateTime.now());
                 courseTypeCourseMapper.insert(courseTypeCourseDO);
             }
+        }
+    }
+
+    @Override
+    public void judgeHasCourseOrEva(Integer courseId, SelfTeachCourseTimeCO timeCO) {
+        //找数据库中是否有对应课程
+        if(courInfMapper.exists(new QueryWrapper<CourInfDO>().eq("course_id", courseId).in("week", timeCO.getWeeks())))
+            throw new UpdateException("该教师在该时间段有课程");
+        CourseDO courseDO = courseMapper.selectById(courseId);
+        List<EvaTaskDO> taskDOList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id", courseDO.getTeacherId()).eq("status", 0));
+        for (EvaTaskDO evaTaskDO : taskDOList) {
+            if(courInfMapper.exists(new QueryWrapper<CourInfDO>().eq("id", evaTaskDO.getCourInfId()).in("week", timeCO.getWeeks()).eq("day", timeCO.getDay()).eq("startTime", timeCO.getStartTime()).eq(false,"endTime", timeCO.getEndTime())))
+                throw new UpdateException("该教师在该时间段有评教任务");
         }
     }
 }
