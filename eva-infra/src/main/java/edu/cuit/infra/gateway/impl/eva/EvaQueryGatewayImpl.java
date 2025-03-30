@@ -649,39 +649,12 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         }else {
             percent = Double.parseDouble(df.format(100));
         }
+
         //修改直接把时间判定改了
-        LocalDateTime time=LocalDateTime.now();
-        LocalDateTime time1=LocalDateTime.of(time.getYear(),time.getMonthValue(),time.getDayOfMonth(),0,1);
-        //整个方法把以前的数据拿出来
-        List<FormRecordDO> last1FormRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIdS).between("create_time",time1,time));
-        Integer totalNum1;
-        if(CollectionUtil.isEmpty(last1FormRecordDOS)){
-            totalNum1=0;
-        }else {
-            totalNum1=last1FormRecordDOS.size();
-        }
-        //根据他们的form_props_values得到对应的数值
-        List<String> strings1=last1FormRecordDOS.stream().map(FormRecordDO::getFormPropsValues).toList();
-        List<Double> numbers1=new ArrayList<>();
-        //低于 指定分数的数目
-        Integer lowerNum1=0;
-        Integer higherNum1=0;
-        for(int i=0;i<strings1.size();i++){
-            //整个方法把单个text整到平均分
-            numbers1.add(i, stringToSumAver(strings1.get(i)));
-            if(aScore>numbers1.get(i)){
-                lowerNum1++;
-            }
-            if(aScore<numbers1.get(i)){
-                higherNum1++;
-            }
-        }
-        Double percent1;
-        if(totalNum1!=0) {
-            percent1 = Double.parseDouble(df.format((higherNum1 / (double) totalNum1) * 100.0));
-        }else {
-            percent1 = Double.parseDouble(df.format(100));
-        }
+        LocalDateTime time2=LocalDateTime.now();
+        LocalDateTime time1=LocalDateTime.of(time2.getYear(),time2.getMonthValue(),time2.getDayOfMonth(),0,1);
+        LocalDateTime time=time1.minusDays(1);
+
         //7日内 percent 的值
         List<SimplePercentCO> percentArr=new ArrayList<>();
         for(int i=0;i<7;i++){
@@ -693,8 +666,8 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         evaScoreInfoCO.setLowerNum(lowerNum);
         evaScoreInfoCO.setTotalNum(totalNum);
         evaScoreInfoCO.setPercent(percent);
-        evaScoreInfoCO.setMoreNum(lowerNum-lowerNum1);
-        evaScoreInfoCO.setMorePercent(percent-percent1);
+        evaScoreInfoCO.setMoreNum((Integer) getNumAndPercentByDate(evaTaskIdS,time1,time2,aScore).get(0)-(Integer) getNumAndPercentByDate(evaTaskIdS,time,time1,aScore).get(0));
+        evaScoreInfoCO.setMorePercent((Double) getNumAndPercentByDate(evaTaskIdS,time1,time2,aScore).get(1)-(Double) getNumAndPercentByDate(evaTaskIdS,time,time1,aScore).get(1));
         evaScoreInfoCO.setPercentArr(percentArr);
         return Optional.of(evaScoreInfoCO);
     }
@@ -1673,6 +1646,45 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     private List<SingleCourseEntity> getListCurInfoEntities(List<CourInfDO> courInfDOS){
         return courInfDOS.stream().map(courInfDO ->courseConvertor.toSingleCourseEntity(
                 ()->toCourseEntity(courInfDO.getCourseId(),courseMapper.selectById(courInfDO.getCourseId()).getSemesterId()),courInfDO)).toList();
+    }
+
+    private List getNumAndPercentByDate(List<Integer> evaTaskIdS,LocalDateTime time1,LocalDateTime time2,Double aScore){
+        List list=new ArrayList<>();
+        DecimalFormat df = new DecimalFormat("0.0");
+        //整个方法把以前的数据拿出来
+        List<FormRecordDO> last1FormRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().
+                in("task_id",evaTaskIdS).between("create_time",time1,time2));
+        Integer totalNum1;
+        if(CollectionUtil.isEmpty(last1FormRecordDOS)){
+            totalNum1=0;
+        }else {
+            totalNum1=last1FormRecordDOS.size();
+        }
+        //根据他们的form_props_values得到对应的数值
+        List<String> strings1=last1FormRecordDOS.stream().map(FormRecordDO::getFormPropsValues).toList();
+        List<Double> numbers1=new ArrayList<>();
+        //低于 指定分数的数目
+        Integer lowerNum1=0;
+        Integer higherNum1=0;
+        for(int i=0;i<strings1.size();i++){
+            //整个方法把单个text整到平均分
+            numbers1.add(i, stringToSumAver(strings1.get(i)));
+            if(aScore>numbers1.get(i)){
+                lowerNum1++;
+            }
+            if(aScore<numbers1.get(i)){
+                higherNum1++;
+            }
+        }
+        Double percent1;
+        if(totalNum1!=0) {
+            percent1 = Double.parseDouble(df.format((higherNum1 / (double) totalNum1) * 100.0));
+        }else {
+            percent1 = Double.parseDouble(df.format(100));
+        }
+        list.set(0,lowerNum1);
+        list.set(1,percent1);
+        return null;
     }
 
 }
