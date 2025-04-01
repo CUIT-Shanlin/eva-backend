@@ -1648,7 +1648,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
                 ()->toCourseEntity(courInfDO.getCourseId(),courseMapper.selectById(courInfDO.getCourseId()).getSemesterId()),courInfDO)).toList();
     }
 
-    private List getNumAndPercentByDate(List<Integer> evaTaskIdS,LocalDateTime time1,LocalDateTime time2,Double aScore){
+    private List<Number> getNumAndPercentByDate(List<Integer> evaTaskIdS,LocalDateTime time1,LocalDateTime time2,Double aScore){
         List list=new ArrayList<>();
         DecimalFormat df = new DecimalFormat("0.0");
         //整个方法把以前的数据拿出来
@@ -1682,8 +1682,8 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         }else {
             percent1 = Double.parseDouble(df.format(100));
         }
-        list.set(0,lowerNum1);
-        list.set(1,percent1);
+        list.add(0,lowerNum1);
+        list.add(1,percent1);
         return list;
     }
 
