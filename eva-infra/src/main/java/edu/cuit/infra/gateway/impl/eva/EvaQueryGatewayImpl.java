@@ -1684,7 +1684,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         }
         list.set(0,lowerNum1);
         list.set(1,percent1);
-        return null;
+        return list;
     }
 
 }
