@@ -31,6 +31,8 @@ eva:
   avatar:
 #    directory: "/avatar"
     directory: "D:\\Programming\\Java\\Projects\\eva-backend\\data\\avatar"
+  records-image:
+    directory: "D:\\Programming\\Java\\Projects\\eva-backend\\data\\records"
 
 common:
   print-illegal-arguments: true
