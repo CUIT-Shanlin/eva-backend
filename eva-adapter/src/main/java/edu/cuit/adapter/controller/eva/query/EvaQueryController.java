@@ -2,6 +2,7 @@ package edu.cuit.adapter.controller.eva.query;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import edu.cuit.app.RecordImageManager;
 import edu.cuit.client.api.eva.IEvaRecordService;
 import edu.cuit.client.api.eva.IEvaTaskService;
 import edu.cuit.client.api.eva.IEvaTemplateService;
@@ -31,6 +32,7 @@ public class EvaQueryController {
     private final IEvaTemplateService iEvaTemplateService;
     private final IEvaTaskService iEvaTaskService;
     private final IUserEvaService iUserEvaService;
+    private final RecordImageManager recordImageManager;
 
     //评教记录相关
     /**
@@ -58,6 +60,18 @@ public class EvaQueryController {
             @RequestBody PagingQuery<EvaTaskConditionalQuery> query){
         return CommonResult.success(iEvaTaskService.pageEvaUnfinishedTask(semId,query));
     }
+
+    /**
+     * 获取某条评教数据的照片
+     * @param recordId 评教记录id
+     * @return 图片base64数据数组
+     */
+    @GetMapping("/evaluate/records/images")
+    @SaCheckPermission("evaluate.record.query")
+    public CommonResult<List<String>> evaRecordImages(@RequestParam("id") Integer recordId) {
+        return CommonResult.success(recordImageManager.getRecordImages(recordId));
+    }
+
     /**
      * 获取自己的所有待办评教任务
      * @param semId 学期id
@@ -93,6 +107,7 @@ public class EvaQueryController {
             @RequestBody PagingQuery<GenericConditionalQuery> query){
         return CommonResult.success(iEvaTemplateService.pageEvaTemplate(semId,query));
     }
+
     /**
      * 获取所有模板的基础信息，仅包含名称和id信息
      */
