@@ -2,15 +2,13 @@ package edu.cuit.adapter.controller.eva.update;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import edu.cuit.adapter.controller.eva.util.StringBecomeCmd;
+import edu.cuit.app.RecordImageManager;
 import edu.cuit.client.api.eva.IEvaRecordService;
 import edu.cuit.client.api.eva.IEvaTaskService;
 import edu.cuit.client.api.eva.IEvaTemplateService;
-import edu.cuit.client.dto.clientobject.eva.AddTaskCO;
-import edu.cuit.client.dto.clientobject.eva.EvaInfoCO;
-import edu.cuit.client.dto.clientobject.eva.EvaTaskFormCO;
-import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
 import edu.cuit.client.dto.cmd.eva.EvaTemplateCmd;
-import edu.cuit.client.dto.cmd.eva.NewEvaLogCmd;
 import edu.cuit.client.dto.cmd.eva.NewEvaTaskCmd;
 import edu.cuit.client.dto.cmd.eva.NewEvaTemplateCmd;
 import edu.cuit.common.enums.LogModule;
@@ -24,6 +22,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 
 /**
@@ -36,6 +36,7 @@ public class UpdateEvaController {
     private final IEvaRecordService iEvaRecordService;
     private final IEvaTemplateService iEvaTemplateService;
     private final IEvaTaskService iEvaTaskService;
+    private final RecordImageManager recordImageManager;
     //修改
     /**
      * 修改评教模板，注：只有在该评教模板没有分配在课程中 且 评教记录中也没使用过该模板 才可以进行删除或修改！
@@ -54,15 +55,25 @@ public class UpdateEvaController {
     //其他操做
     /**
      * 提交评教表单，完成评教任务
-     * @param newEvaLogCmd 评教表单评价分值dto//返回数据类型原来没有刚建的
+     * @param props 评教表单评价分值dto//返回数据类型原来没有刚建的
      */
     @PutMapping("/evaluate/task/form")
-    @SaCheckLogin
+    //@SaCheckLogin
     public CommonResult<Void> putEvaTemplate(
-            @Valid @RequestParam("props") NewEvaLogCmd newEvaLogCmd, @RequestParam("images") MultipartFile[] images){
-        iEvaRecordService.putEvaTemplate(newEvaLogCmd);
+            @Valid @RequestParam("props") String props, @RequestParam("images") MultipartFile[] images) throws IOException {
+        //将评教数据props解析
+        StringBecomeCmd s=new StringBecomeCmd();
+        Integer recordId=iEvaRecordService.putEvaTemplate(s.stringBecomeCmd(props));
+
+        // 将 MultipartFile[] 转换为 InputStream[]
+        InputStream[] inputStreams = new InputStream[images.length];
+        for (int i = 0; i < images.length; i++) {
+            inputStreams[i] = images[i].getInputStream();
+        }
+        recordImageManager.uploadRecordImages(recordId, inputStreams);
         return CommonResult.success(null);
     }
+
     /**
      * 发起评教任务
      *@param newEvaTaskCmd 评教信息dto
@@ -112,5 +123,4 @@ public class UpdateEvaController {
         LogUtils.logContent("ID为"+id+" 的评教任务");
         return CommonResult.success(null);
     }
-
 }

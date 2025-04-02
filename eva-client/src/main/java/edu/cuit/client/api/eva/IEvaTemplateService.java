@@ -2,7 +2,6 @@ package edu.cuit.client.api.eva;
 
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
-import edu.cuit.client.dto.clientobject.eva.EvaTaskFormCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
 import edu.cuit.client.dto.cmd.eva.EvaTemplateCmd;
 import edu.cuit.client.dto.cmd.eva.NewEvaTemplateCmd;

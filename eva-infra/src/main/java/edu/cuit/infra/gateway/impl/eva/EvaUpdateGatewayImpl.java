@@ -75,11 +75,10 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         LogUtils.logContent(formTemplateMapper.selectById(cmd.getId()).getName() +" 评教模板");
         return null;
     }
-    //TODO
     @Override
     @Transactional
     @LocalCacheInvalidate(area="#{@evaCacheConstants.ONE_TASK}",key="#cmd.getTaskId()")
-    public Void putEvaTemplate(NewEvaLogCmd cmd) {
+    public Integer putEvaTemplate(NewEvaLogCmd cmd) {
         EvaTaskDO evaTaskDO=evaTaskMapper.selectById(cmd.getTaskId());
         CourInfDO courInfDO=courInfMapper.selectById(evaTaskDO.getCourInfId());
         CourseDO courseDO=courseMapper.selectById(courInfDO.getCourseId());
@@ -88,6 +87,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         FormTemplateDO formTemplateDO=formTemplateMapper.selectById(courseDO.getTemplateId());
         //把评教的具体数据传进去给评教记录
         FormRecordDO formRecordDO=new FormRecordDO();
+        formRecordDO.setTopic(cmd.getTopic());
         formRecordDO.setTaskId(cmd.getTaskId());
         formRecordDO.setTextValue(cmd.getTextValue());
 
@@ -126,7 +126,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
             courOneEvaTemplateDO1.setFormTemplate(s);
             courOneEvaTemplateMapper.insert(courOneEvaTemplateDO1);
         }
-        return null;
+        return formRecordDO.getId();
     }
 
     @Override
@@ -140,7 +140,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         CourseDO courseDO=courseMapper.selectById(courInfDO.getCourseId());
         //选中的课程是否已经上完
         SemesterDO semesterDO = semesterMapper.selectById(courseDO.getSemesterId());
-        Integer evaEdSemId=courseDO.getSemesterId();//得到被评教课程的学期id TODO 方便后面比较课程
+        Integer evaEdSemId=courseDO.getSemesterId();//得到被评教课程的学期id  方便后面比较课程
         LocalDate localDate = semesterDO.getStartDate().plusDays((courInfDO.getWeek()-1) * 7L + courInfDO.getDay() - 1);
 
         Integer f=2;//判断是不是课程快已经结束 1冲0无

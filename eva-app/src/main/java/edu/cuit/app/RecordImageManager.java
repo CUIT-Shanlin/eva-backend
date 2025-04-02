@@ -47,7 +47,7 @@ public class RecordImageManager {
                 }).map(bytes -> "data:image/jpeg;base64," + java.util.Base64.getEncoder().encodeToString(bytes))
                 .toList();
     }
-
+//TODO
     /**
      * 上传评教记录图片
      * @param recordId           评教记录id

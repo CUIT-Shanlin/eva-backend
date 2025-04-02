@@ -60,4 +60,9 @@ public class EvaRecordCO extends ClientObject {
      * 上课的时间，xx周 星期x  x节课到x节课
      */
     private CourseTime courseTime;
+
+    /**
+     * 上课的主题
+     */
+    private String topic;
 }

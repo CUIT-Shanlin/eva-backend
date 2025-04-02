@@ -1,15 +1,9 @@
 package edu.cuit.domain.gateway.eva;
 
-import edu.cuit.client.dto.clientobject.eva.AddTaskCO;
-import edu.cuit.client.dto.clientobject.eva.EvaInfoCO;
-import edu.cuit.client.dto.clientobject.eva.EvaTaskFormCO;
-import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
 import edu.cuit.client.dto.cmd.eva.EvaTemplateCmd;
 import edu.cuit.client.dto.cmd.eva.NewEvaLogCmd;
 import edu.cuit.client.dto.cmd.eva.NewEvaTaskCmd;
 import edu.cuit.client.dto.cmd.eva.NewEvaTemplateCmd;
-import edu.cuit.domain.entity.eva.EvaTaskEntity;
-import edu.cuit.domain.entity.eva.EvaTemplateEntity;
 import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
@@ -31,7 +25,7 @@ public interface EvaUpdateGateway {
      * 改：对应的评价不能低于50字
      * @param newEvaLogCmd NewEvaLogCmd
      */
-    Void putEvaTemplate(NewEvaLogCmd newEvaLogCmd);
+    Integer putEvaTemplate(NewEvaLogCmd newEvaLogCmd);
     /**
      * 发起评教任务
      * 要同时发送该任务的评教待办消息;

@@ -99,7 +99,6 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     private final UserCacheConstants userCacheConstants;
 
     @Override
-    //TODO
     public PaginationResultEntity<EvaRecordEntity> pageEvaRecord(Integer semId, PagingQuery<EvaLogConditionalQuery> query) {
         //课程
         Page<FormRecordDO> pageLog=new Page<>(query.getPage(),query.getSize());
@@ -119,7 +118,6 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         }
         if(CollectionUtil.isNotEmpty(query.getQueryObj().getCourseTimes())) {
             List<CourInfDO> newCourInfDOS = new ArrayList<>();
-            //TODO 出错
             List<FormRecordDO> formRecordDOS=formRecordMapper.selectList(null);
             if(CollectionUtil.isEmpty(formRecordDOS)){
                 List list=new ArrayList();
@@ -1219,7 +1217,6 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
 
     @Override
     public Optional<Double> getScoreFromRecord(String prop) {
-        //TODO
         Double score =stringToSumAver(prop);
         return Optional.of(score);
     }
@@ -1356,7 +1353,7 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         return courseConvertor.toCourseEntity(courseDO,subjectEntity,userEntity,semesterEntity);
     }
     //根据传来的String数据form_props_values中的数据解析出来得到平均分
-    //TODO 平均score/jsonArray.size()变总和score
+    // 平均score/jsonArray.size()变总和score
     private Double stringToSumAver(String s) {
         Double score=0.0;
         JSONArray jsonArray;
@@ -1460,7 +1457,6 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         }
     }
     //获得几天前的新增评教数
-    //TODO
     private Integer getEvaNumByDate(Integer num,Integer semId){
         LocalDateTime start;
         LocalDateTime end=LocalDateTime.now();

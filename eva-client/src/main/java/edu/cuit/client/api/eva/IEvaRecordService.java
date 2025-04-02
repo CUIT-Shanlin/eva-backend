@@ -2,7 +2,6 @@ package edu.cuit.client.api.eva;
 
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.eva.EvaRecordCO;
-import edu.cuit.client.dto.clientobject.eva.EvaTaskFormCO;
 import edu.cuit.client.dto.cmd.eva.NewEvaLogCmd;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.EvaLogConditionalQuery;
@@ -39,5 +38,5 @@ public interface IEvaRecordService {
      * 提交评教表单，完成评教任务
      * @param newEvaLogCmd 评教表单评价分值dto//返回数据类型原来没有刚建的
      */
-    Void putEvaTemplate(NewEvaLogCmd newEvaLogCmd);
+    Integer putEvaTemplate(NewEvaLogCmd newEvaLogCmd);
 }
