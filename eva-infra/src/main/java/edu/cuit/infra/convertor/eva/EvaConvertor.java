@@ -1,7 +1,6 @@
 package edu.cuit.infra.convertor.eva;
 
-import edu.cuit.client.dto.clientobject.eva.EvaTaskFormCO;
-import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
+
 import edu.cuit.domain.entity.course.CourseEntity;
 import edu.cuit.domain.entity.course.SemesterEntity;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
@@ -46,6 +45,7 @@ public interface EvaConvertor {
             @Mapping(target = "task",source = "task"),
             @Mapping(target = "textValue",source = "formRecordDO.textValue"),
             @Mapping(target = "formPropsValues",source = "formRecordDO.formPropsValues"),
+            @Mapping(target = "topic",source = "formRecordDO.topic"),
             @Mapping(target = "createTime",source = "formRecordDO.createTime"),
             @Mapping(target = "isDeleted",source = "formRecordDO.isDeleted")
     })

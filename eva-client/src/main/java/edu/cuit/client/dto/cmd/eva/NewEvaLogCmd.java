@@ -27,4 +27,8 @@ public class NewEvaLogCmd extends Command {
      *评教的指标及其分数
      */
     private List<FormPropCO> formPropsValues;
+    /**
+     * 那节课的课程主题
+     */
+    private String topic;
 }

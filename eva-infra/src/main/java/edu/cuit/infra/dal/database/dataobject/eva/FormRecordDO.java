@@ -30,6 +30,12 @@ public class FormRecordDO implements Serializable {
     private Integer taskId;
 
     /**
+     * 这节课程的主题
+     */
+    @TableField(value = "topic")
+    private String topic;
+
+    /**
      * 详细的文字评价
      */
     @TableField(value = "text_value")

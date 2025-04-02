@@ -25,3 +25,5 @@ eva:
   avatar:
     #    directory: "/avatar"
     directory: "/data/avatar"
+  records-image:
+    directory: "/data/records"

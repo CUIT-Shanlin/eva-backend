@@ -57,4 +57,9 @@ public class EvaRecordEntity {
      */
     private Integer isDeleted;
 
+    /**
+     * 那节课的课程主题
+     */
+    private String topic;
+
 }
