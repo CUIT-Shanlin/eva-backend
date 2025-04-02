@@ -7,6 +7,7 @@
     <resultMap id="BaseResultMap" type="edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO">
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="taskId" column="task_id" jdbcType="INTEGER"/>
+            <result property="topic" column="topic" jdbcType="VARCHAR"/>
             <result property="textValue" column="text_value" jdbcType="VARCHAR"/>
             <result property="formPropsValues" column="form_props_values" jdbcType="VARCHAR"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
