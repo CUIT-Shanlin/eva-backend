@@ -22,6 +22,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.text.ParseException;
 
@@ -58,7 +59,7 @@ public class UpdateEvaController {
     @PutMapping("/evaluate/task/form")
     @SaCheckLogin
     public CommonResult<Void> putEvaTemplate(
-            @Valid @RequestBody NewEvaLogCmd newEvaLogCmd){
+            @Valid @RequestParam("props") NewEvaLogCmd newEvaLogCmd, @RequestParam("images") MultipartFile[] images){
         iEvaRecordService.putEvaTemplate(newEvaLogCmd);
         return CommonResult.success(null);
     }
