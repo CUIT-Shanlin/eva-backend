@@ -89,6 +89,23 @@ public class QueryUserCourseController {
     }
 
     /**
+     * 获取一节课的具体上课时间
+     *  @param semId 学期id
+     *  @param courseTime 课程时间模型
+     * */
+    @PostMapping("/course/time/all")
+    @SaCheckLogin
+    public CommonResult<List<LocalDateTime>> getCourseStartAndEndTime(
+            @RequestParam(value = "semId",required = false)Integer semId,
+            @RequestBody(required = true)CourseTime courseTime){
+        String date = courseService.getDate(semId, courseTime.getWeek(), courseTime.getDay());
+        String dateTime = date + " 00:00";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime localDateTime = LocalDateTime.parse(dateTime, formatter);
+        return CommonResult.success(CalculateClassTime.calculateStartAndEndTime(localDateTime, courseTime.getStartTime()));
+    }
+
+    /**
      * 获取自己所有教学的课程的详细信息
      * @param semId 学期id
      * */
