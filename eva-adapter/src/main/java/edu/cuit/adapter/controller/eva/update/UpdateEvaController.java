@@ -18,6 +18,7 @@ import edu.cuit.zhuyimeng.framework.logging.aspect.enums.OperateLogType;
 import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,12 +27,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 
+
 /**
  * 评教相关更新接口
  */
 @RestController
 @RequiredArgsConstructor
 @Validated
+@Slf4j
 public class UpdateEvaController {
     private final IEvaRecordService iEvaRecordService;
     private final IEvaTemplateService iEvaTemplateService;
@@ -58,19 +61,32 @@ public class UpdateEvaController {
      * @param props 评教表单评价分值dto//返回数据类型原来没有刚建的
      */
     @PutMapping("/evaluate/task/form")
-    //@SaCheckLogin
+    @SaCheckLogin
     public CommonResult<Void> putEvaTemplate(
             @Valid @RequestParam("props") String props, @RequestParam("images") MultipartFile[] images) throws IOException {
         //将评教数据props解析
-        StringBecomeCmd s=new StringBecomeCmd();
-        Integer recordId=iEvaRecordService.putEvaTemplate(s.stringBecomeCmd(props));
+        StringBecomeCmd s = new StringBecomeCmd();
+        Integer recordId = iEvaRecordService.putEvaTemplate(s.stringBecomeCmd(props));
 
-        // 将 MultipartFile[] 转换为 InputStream[]
+        // 转换为 InputStream 并上传
         InputStream[] inputStreams = new InputStream[images.length];
-        for (int i = 0; i < images.length; i++) {
-            inputStreams[i] = images[i].getInputStream();
+        try {
+            for (int i = 0; i < images.length; i++) {
+                inputStreams[i] = images[i].getInputStream();
+            }
+            recordImageManager.uploadRecordImages(recordId, inputStreams);
+        } finally {
+            // 确保关闭所有流
+            for (InputStream is : inputStreams) {
+                if (is != null) {
+                    try {
+                        is.close();
+                    } catch (IOException e) {
+                        log.error("关闭流失败", e);
+                    }
+                }
+            }
         }
-        recordImageManager.uploadRecordImages(recordId, inputStreams);
         return CommonResult.success(null);
     }
 
