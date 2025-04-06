@@ -87,9 +87,11 @@ public class FillEvaRecordExporterDecorator extends EvaStatisticsExporter{
             for (EvaRecordEntity courseRecord : courseRecordList) {
                 Row propsRow = getOrCreateRow(rowIndex);
 
+                createCell(propsRow,6).setCellValue(courseRecord.getTopic());
+
                 // 设置评价内容
                 String text = courseRecord.getTextValue();
-                Cell textCell = createCell(propsRow, 7);
+                Cell textCell = createCell(propsRow, 9);
                 textCell.setCellValue(text);
 
                 XSSFCellStyle textCellStyle = workbook.createCellStyle();
@@ -103,7 +105,7 @@ public class FillEvaRecordExporterDecorator extends EvaStatisticsExporter{
                 } catch (UnsupportedEncodingException e) {
                     throw new RuntimeException(e);
                 }
-                int columnWidth = sheet.getColumnWidth(6);
+                int columnWidth = sheet.getColumnWidth(5);
                 if (textLength > columnWidth * 4) {
                     propsRow.setHeight((short) (((textLength / (columnWidth*4)) + 1) * (propsRow.getHeight() / 2)));
                 }
@@ -114,10 +116,11 @@ public class FillEvaRecordExporterDecorator extends EvaStatisticsExporter{
                     return e;
                 });
                 if (score < 0) {
-                    createCell(propsRow,6).setCellValue("无指标分数");
-                } else createCell(propsRow,6).setCellValue(new DecimalFormat("#.00").format(score));
+                    createCell(propsRow,8).setCellValue("无指标分数");
+                } else createCell(propsRow,8).setCellValue(new DecimalFormat("#.00").format(score));
 
-                ExcelUtils.createRegion(rowIndex,rowIndex,7,10,sheet);
+                ExcelUtils.createRegion(rowIndex,rowIndex,6,7,sheet);
+                ExcelUtils.createRegion(rowIndex,rowIndex,9,12,sheet);
 
                 rowIndex++;
             }
@@ -134,7 +137,7 @@ public class FillEvaRecordExporterDecorator extends EvaStatisticsExporter{
     }
 
     private void createHeader() {
-        addTitle("教师评教评价统计",10);
+        addTitle("教师评教评价统计",12);
 
         Row headerRow = sheet.createRow(1);
         headerRow.setHeight((short)(24*25));
@@ -143,8 +146,9 @@ public class FillEvaRecordExporterDecorator extends EvaStatisticsExporter{
         createHeaderCell(2,3,"课程",headerRow);
         createHeaderCell(4,4,"性质",headerRow);
         createHeaderCell(5,5,"课程平均分",headerRow);
-        createHeaderCell(6,6,"分数",headerRow);
-        createHeaderCell(7,10,"评价信息",headerRow);
+        createHeaderCell(6,7,"课程主题",headerRow);
+        createHeaderCell(8,8,"分数",headerRow);
+        createHeaderCell(9,12,"评价信息",headerRow);
     }
 
     private Row getOrCreateRow(int rowIndex) {
