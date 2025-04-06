@@ -2,6 +2,7 @@ package edu.cuit.adapter.controller.eva.update;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import cn.hutool.core.collection.CollectionUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import edu.cuit.adapter.controller.eva.util.StringBecomeCmd;
 import edu.cuit.app.RecordImageManager;
@@ -19,6 +20,7 @@ import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -62,27 +64,36 @@ public class UpdateEvaController {
      */
     @PutMapping("/evaluate/task/form")
     @SaCheckLogin
+    @Transactional
     public CommonResult<Void> putEvaTemplate(
             @Valid @RequestParam("props") String props, @RequestParam("images") MultipartFile[] images) throws IOException {
-        //将评教数据props解析
-        StringBecomeCmd s = new StringBecomeCmd();
-        Integer recordId = iEvaRecordService.putEvaTemplate(s.stringBecomeCmd(props));
 
-        // 转换为 InputStream 并上传
-        InputStream[] inputStreams = new InputStream[images.length];
-        try {
-            for (int i = 0; i < images.length; i++) {
-                inputStreams[i] = images[i].getInputStream();
-            }
-            recordImageManager.uploadRecordImages(recordId, inputStreams);
-        } finally {
-            // 确保关闭所有流
-            for (InputStream is : inputStreams) {
-                if (is != null) {
-                    try {
-                        is.close();
-                    } catch (IOException e) {
-                        log.error("关闭流失败", e);
+        //判断图片是否有
+        if(images.length==0){
+            StringBecomeCmd s = new StringBecomeCmd();
+            Integer recordId = iEvaRecordService.putEvaTemplate(s.stringBecomeCmd(props));
+        }else {
+            //将评教数据props解析
+            StringBecomeCmd s = new StringBecomeCmd();
+            Integer recordId = iEvaRecordService.putEvaTemplate(s.stringBecomeCmd(props));
+            // 转换为 InputStream 并上传
+            log.info("图片开始转inputstream");
+            InputStream[] inputStreams = new InputStream[images.length];
+            try {
+                for (int i = 0; i < images.length; i++) {
+                    inputStreams[i] = images[i].getInputStream();
+                }
+                log.info("已经转好了");
+                recordImageManager.uploadRecordImages(recordId, inputStreams);
+            } finally {
+                // 确保关闭所有流
+                for (InputStream is : inputStreams) {
+                    if (is != null) {
+                        try {
+                            is.close();
+                        } catch (IOException e) {
+                            log.error("关闭流失败", e);
+                        }
                     }
                 }
             }

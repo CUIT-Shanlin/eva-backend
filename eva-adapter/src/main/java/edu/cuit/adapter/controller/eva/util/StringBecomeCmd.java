@@ -12,7 +12,6 @@ public class StringBecomeCmd {
         ObjectMapper objectMapper = new ObjectMapper();
         NewEvaLogCmd newEvalogCmd = objectMapper.readValue(props, NewEvaLogCmd.class);
         // 处理业务逻辑
-        System.out.println("解析后的对象: " + newEvalogCmd);
         return newEvalogCmd;
     }
 }

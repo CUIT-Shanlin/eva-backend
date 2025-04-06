@@ -107,6 +107,21 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
             throw new UpdateException("该任务对应的课程信息不存在，不能提交哦");
         }
 
+        //判断客户输入指标分值是否超过最大值
+        for(int i=0;i<cmd.getFormPropsValues().size();i++){
+            double a=cmd.getFormPropsValues().get(i).getScore().doubleValue();//指标对应分数
+            String s=cmd.getFormPropsValues().get(i).getProp();
+            // 使用split方法分割字符串，限制分成两部分以处理多个|
+            String[] parts = s.split("\\|", 2);
+            if (parts.length < 1) {
+                throw new IllegalArgumentException("输入格式错误，缺少分隔符'|'");
+            }
+            String numberStr = parts[0].trim(); // 去除前后空格
+            double b=Double.parseDouble(numberStr);//指标最高分
+            if(a>b){
+                throw new RuntimeException("指标对应评教分数不能高于该项指标最高分哦");
+            }
+        }
         formRecordDO.setFormPropsValues(JSONUtil.toJsonStr(cmd.getFormPropsValues()));
         formRecordMapper.insert(formRecordDO);
         //加缓存
