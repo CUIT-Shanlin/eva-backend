@@ -66,8 +66,8 @@ public class UpdateEvaController {
     @SaCheckLogin
     @Transactional
     public CommonResult<Void> putEvaTemplate(
-            @Valid @RequestParam("props") String props, @RequestParam("images") MultipartFile[] images) throws IOException {
-
+            @Valid @RequestParam(value = "props") String props,
+            @RequestParam(value = "images",required = false) MultipartFile[] images) throws IOException {
         //判断图片是否有
         if(images.length==0){
             StringBecomeCmd s = new StringBecomeCmd();
@@ -77,13 +77,11 @@ public class UpdateEvaController {
             StringBecomeCmd s = new StringBecomeCmd();
             Integer recordId = iEvaRecordService.putEvaTemplate(s.stringBecomeCmd(props));
             // 转换为 InputStream 并上传
-            log.info("图片开始转inputstream");
             InputStream[] inputStreams = new InputStream[images.length];
             try {
                 for (int i = 0; i < images.length; i++) {
                     inputStreams[i] = images[i].getInputStream();
                 }
-                log.info("已经转好了");
                 recordImageManager.uploadRecordImages(recordId, inputStreams);
             } finally {
                 // 确保关闭所有流
