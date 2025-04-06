@@ -66,8 +66,8 @@ public class UpdateEvaController {
     @SaCheckLogin
     @Transactional
     public CommonResult<Void> putEvaTemplate(
-            @Valid @RequestParam("props") String props, @RequestParam("images") MultipartFile[] images) throws IOException {
-
+            @Valid @RequestParam(value = "props") String props,
+            @RequestParam(value = "images",required = false) MultipartFile[] images) throws IOException {
         //判断图片是否有
         if(images.length==0){
             StringBecomeCmd s = new StringBecomeCmd();
