@@ -62,7 +62,7 @@ public class UpdateEvaController {
      * 提交评教表单，完成评教任务
      * @param props 评教表单评价分值dto//返回数据类型原来没有刚建的
      */
-    @PutMapping("/evaluate/task/form")
+    @PostMapping("/evaluate/task/form")
     @SaCheckLogin
     @Transactional
     public CommonResult<Void> putEvaTemplate(
