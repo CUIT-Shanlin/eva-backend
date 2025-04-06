@@ -105,7 +105,7 @@ public class FillEvaRecordExporterDecorator extends EvaStatisticsExporter{
                 } catch (UnsupportedEncodingException e) {
                     throw new RuntimeException(e);
                 }
-                int columnWidth = sheet.getColumnWidth(6);
+                int columnWidth = sheet.getColumnWidth(5);
                 if (textLength > columnWidth * 4) {
                     propsRow.setHeight((short) (((textLength / (columnWidth*4)) + 1) * (propsRow.getHeight() / 2)));
                 }
