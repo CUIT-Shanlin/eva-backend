@@ -44,4 +44,5 @@ build/
 
 .xcodemap
 
-data
+data/avatar
+data/records
