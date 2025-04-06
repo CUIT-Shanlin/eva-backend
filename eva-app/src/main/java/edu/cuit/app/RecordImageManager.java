@@ -3,6 +3,7 @@ package edu.cuit.app;
 import com.alibaba.cola.exception.BizException;
 import com.alibaba.cola.exception.SysException;
 import edu.cuit.infra.property.RecordDataProperties;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -26,6 +27,18 @@ import java.util.List;
 public class RecordImageManager {
 
     private final RecordDataProperties recordDataProperties;
+
+    @PostConstruct
+    public void init() {
+        File directory = new File(recordDataProperties.getDirectory());
+        if (!directory.exists()) {
+            if (!directory.mkdir()) {
+                SysException e = new SysException("发生内部异常");
+                log.error("创建评教记录图片文件夹失败", e);
+                throw e;
+            }
+        }
+    }
 
     /**
      * 获取评教记录图片base64数据
@@ -79,13 +92,6 @@ public class RecordImageManager {
 
     private List<File> getRecordImageFile(Integer recordId) {
         File directory = new File(recordDataProperties.getDirectory());
-        if (!directory.exists()) {
-            if (!directory.mkdir()) {
-                SysException e = new SysException("发生内部异常");
-                log.error("创建评教记录图片文件夹失败", e);
-                throw e;
-            }
-        }
         int count = 0;
         List<File> files = new ArrayList<>();
         File file = new File(directory, recordId + "-" + count + ".jpg");
