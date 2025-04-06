@@ -43,3 +43,6 @@ build/
 .idea
 
 .xcodemap
+
+data/avatar
+data/records
