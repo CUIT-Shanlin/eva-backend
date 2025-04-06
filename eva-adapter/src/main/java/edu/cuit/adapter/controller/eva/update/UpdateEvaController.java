@@ -69,7 +69,7 @@ public class UpdateEvaController {
             @Valid @RequestParam(value = "props") String props,
             @RequestParam(value = "images",required = false) MultipartFile[] images) throws IOException {
         //判断图片是否有
-        if(images.length==0){
+        if(images==null){
             StringBecomeCmd s = new StringBecomeCmd();
             Integer recordId = iEvaRecordService.putEvaTemplate(s.stringBecomeCmd(props));
         }else {
