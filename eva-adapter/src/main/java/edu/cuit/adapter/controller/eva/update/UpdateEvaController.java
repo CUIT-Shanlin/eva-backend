@@ -62,7 +62,7 @@ public class UpdateEvaController {
      * 提交评教表单，完成评教任务
      * @param props 评教表单评价分值dto//返回数据类型原来没有刚建的
      */
-    @PutMapping("/evaluate/task/form")
+    @PostMapping("/evaluate/task/form")
     @SaCheckLogin
     @Transactional
     public CommonResult<Void> putEvaTemplate(
@@ -77,13 +77,11 @@ public class UpdateEvaController {
             StringBecomeCmd s = new StringBecomeCmd();
             Integer recordId = iEvaRecordService.putEvaTemplate(s.stringBecomeCmd(props));
             // 转换为 InputStream 并上传
-            log.info("图片开始转inputstream");
             InputStream[] inputStreams = new InputStream[images.length];
             try {
                 for (int i = 0; i < images.length; i++) {
                     inputStreams[i] = images[i].getInputStream();
                 }
-                log.info("已经转好了");
                 recordImageManager.uploadRecordImages(recordId, inputStreams);
             } finally {
                 // 确保关闭所有流
