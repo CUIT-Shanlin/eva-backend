@@ -64,6 +64,7 @@ public class UpdateEvaController {
      */
     @PostMapping("/evaluate/task/form")
     @SaCheckLogin
+    @OperateLog(module = LogModule.EVA,type = OperateLogType.CREATE,name = "提交评教表单")
     @Transactional
     public CommonResult<Void> putEvaTemplate(
             @Valid @RequestParam(value = "props") String props,
@@ -104,6 +105,7 @@ public class UpdateEvaController {
      *@param newEvaTaskCmd 评教信息dto
      */
     @PostMapping("/evaluate/task")
+    @OperateLog(module = LogModule.EVA,type = OperateLogType.CREATE,name = "发起评教任务")
     @SaCheckLogin
     public CommonResult<Void> postEvaTask(
             @Valid @RequestBody NewEvaTaskCmd newEvaTaskCmd){
