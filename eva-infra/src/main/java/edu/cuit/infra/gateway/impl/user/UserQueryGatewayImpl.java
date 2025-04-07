@@ -1,6 +1,5 @@
 package edu.cuit.infra.gateway.impl.user;
 
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.cola.exception.SysException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -64,7 +63,7 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
     @LocalCached(area = "#{@userCacheConstants.ONE_USER_ID}",key = "#id")
     public Optional<UserEntity> findById(Integer id) {
         SysUserDO userDO = userMapper.selectById(id);
-        return Optional.ofNullable(fileUserEntity(userDO));
+        return Optional.ofNullable(fillUserEntity(userDO));
     }
 
     @Override
@@ -74,7 +73,7 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
         LambdaQueryWrapper<SysUserDO> userQuery = Wrappers.lambdaQuery();
         userQuery.eq(SysUserDO::getUsername,username);
         SysUserDO userDO = userMapper.selectOne(userQuery);
-        return Optional.ofNullable(fileUserEntity(userDO));
+        return Optional.ofNullable(userDO == null ? null : fillUserEntity(userDO));
     }
 
     @Override
@@ -140,7 +139,7 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
         Page<SysUserDO> usersPage = userMapper.selectPage(userPage, userQuery);
 
         //映射
-        List<UserEntity> userEntityList = usersPage.getRecords().stream().map(this::fileUserEntity).toList();
+        List<UserEntity> userEntityList = usersPage.getRecords().stream().map(this::fillUserEntity).toList();
 
         return paginationConverter.toPaginationEntity(usersPage,userEntityList);
     }
@@ -196,7 +195,7 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
      * 填充UserEntity字段
      * @param userDO SysUserDO
      */
-    private UserEntity fileUserEntity(SysUserDO userDO) {
+    private UserEntity fillUserEntity(SysUserDO userDO) {
         //查询角色
         LambdaQueryWrapper<SysRoleDO> roleQuery = new LambdaQueryWrapper<>();
         List<Integer> userRoleIds = userQueryGateway.getUserRoleIds(userDO.getId());
