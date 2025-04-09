@@ -2,8 +2,8 @@ variables:
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
   DOCKER_TLS_CERTDIR: ""
-  EVA_VERSION: 1.96-SNAPSHOT
-  EVA_TEST_VERSION: 2.16
+  EVA_VERSION: 1.97-SNAPSHOT
+  EVA_TEST_VERSION: 2.17
 
 stages:
   - build
