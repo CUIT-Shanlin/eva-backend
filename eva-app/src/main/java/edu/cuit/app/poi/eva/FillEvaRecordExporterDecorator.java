@@ -25,6 +25,8 @@ import java.util.Map;
 @Slf4j
 public class FillEvaRecordExporterDecorator extends EvaStatisticsExporter{
 
+    private static final DecimalFormat decimalFormat = new DecimalFormat("#.00");
+
     public FillEvaRecordExporterDecorator(EvaStatisticsExporter exporter) {
         super(exporter.semId);
         this.exporter = exporter;
@@ -117,7 +119,7 @@ public class FillEvaRecordExporterDecorator extends EvaStatisticsExporter{
                 });
                 if (score < 0) {
                     createCell(propsRow,8).setCellValue("无指标分数");
-                } else createCell(propsRow,8).setCellValue(score <= 0 ? score.toString() : new DecimalFormat("#.00").format(score));
+                } else createCell(propsRow,8).setCellValue(score <= 0 ? score.toString() : decimalFormat.format(score));
 
                 ExcelUtils.createRegion(rowIndex,rowIndex,6,7,sheet);
                 ExcelUtils.createRegion(rowIndex,rowIndex,9,12,sheet);
