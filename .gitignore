@@ -41,3 +41,6 @@ build/
 
 .idea/sonarlint.xml
 .idea
+
+data/avatar
+data/records
