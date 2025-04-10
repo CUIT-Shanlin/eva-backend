@@ -8,6 +8,7 @@ import edu.cuit.domain.entity.user.biz.UserEntity;
 import org.apache.poi.ss.usermodel.Row;
 
 import java.io.UnsupportedEncodingException;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,8 @@ import java.util.Map;
  * 填充课程分数sheet
  */
 public class FillAverageScoreExporterDecorator extends EvaStatisticsExporter {
+
+    private static final DecimalFormat decimalFormat = new DecimalFormat("#.00");
 
     private int rowIndex = 2;
 
@@ -70,7 +73,7 @@ public class FillAverageScoreExporterDecorator extends EvaStatisticsExporter {
             createCell(courseFirstRow,2).setCellValue(userSingleCourseScore.getCourseName());
             createCell(courseFirstRow,4).setCellValue(getCourseNature(course));
             createCell(courseFirstRow,5).setCellValue(userSingleCourseScore.getEvaNum());
-            createCell(courseFirstRow,12).setCellValue(userSingleCourseScore.getScore() < 0 ? "-" : userSingleCourseScore.getScore().toString());
+            createCell(courseFirstRow,12).setCellValue(userSingleCourseScore.getScore() < 0 ? "-" : round(userSingleCourseScore.getScore()));
 
             // 处理课程指标
             List<CourseScoreCO> courseScoreList = courseDetailService.evaResult(course.getCourseBaseMsg().getId());
@@ -99,10 +102,9 @@ public class FillAverageScoreExporterDecorator extends EvaStatisticsExporter {
                     if (textLength > columnWidth * 3) {
                         propsRow.setHeight((short) (((textLength / (columnWidth*3)) + 4) * (propsRow.getHeight() / 2)));
                     }
-
-                    createCell(propsRow,9).setCellValue(courseScore.getMinScore() <= -1 ? "-" : courseScore.getMinScore().toString());
-                    createCell(propsRow,10).setCellValue(courseScore.getAverScore() <= -1 ? "-" : courseScore.getAverScore().toString());
-                    createCell(propsRow,11).setCellValue(courseScore.getMaxScore() <= -1 ? "-" : courseScore.getMaxScore().toString());
+                    createCell(propsRow,9).setCellValue(courseScore.getMinScore() <= -1 ? "-" : round(courseScore.getMinScore()));
+                    createCell(propsRow,10).setCellValue(courseScore.getAverScore() <= -1 ? "-" : round(courseScore.getAverScore()));
+                    createCell(propsRow,11).setCellValue(courseScore.getMaxScore() <= -1 ? "-" : round(courseScore.getMaxScore()));
                     rowIndex++;
                 }
             } else {
@@ -136,7 +138,6 @@ public class FillAverageScoreExporterDecorator extends EvaStatisticsExporter {
         Row headerRow = sheet.createRow(1);
         headerRow.setHeight((short)(24*25));
 
-
         // 处理教师格
         createHeaderCell(0,1,"教师",headerRow);
         createHeaderCell(2,3,"课程",headerRow);
@@ -148,6 +149,10 @@ public class FillAverageScoreExporterDecorator extends EvaStatisticsExporter {
         createHeaderCell(11,11,"最高分",headerRow);
         createHeaderCell(12,13,"课程平均分",headerRow);
 
+    }
+
+    private String round(Double d) {
+        return decimalFormat.format(d);
     }
 
 }

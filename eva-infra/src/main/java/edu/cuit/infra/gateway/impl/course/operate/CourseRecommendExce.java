@@ -64,7 +64,8 @@ public class CourseRecommendExce {
             evaCourInfo = courInfMapper.selectList( new QueryWrapper<CourInfDO>()
                     .in(!evaCourInfoList.isEmpty(),"id", evaCourInfoList));
             //得到待评教的courseId集合（set集合）
-            evaCourInfoSet = evaCourInfo.stream().map(CourInfDO::getCourseId).collect(Collectors.toSet());
+            Set<Integer> set = evaCourInfo.stream().map(CourInfDO::getCourseId).collect(Collectors.toSet());
+            evaCourInfoSet=toRemoveCourse(set);
         } else {
             evaCourInfoSet = new HashSet<>();
         }
@@ -87,7 +88,7 @@ public class CourseRecommendExce {
         }
         Map<Integer, List<CourInfDO>> collect=new HashMap<>();
 //        Map<Integer, List<CourInfDO>> collect = courseDOS.stream().collect(Collectors.groupingBy(CourInfDO::getCourseId));
-        for (CourInfDO courseDO : courseDOS) {
+        for (CourInfDO courseDO : courseDOS) {//courseDOS为被选中去评教的那些课
             collect.putIfAbsent(courseDO.getCourseId(),new ArrayList<>());
             collect.get(courseDO.getCourseId()).add(courseDO);
         }
@@ -110,9 +111,10 @@ public class CourseRecommendExce {
                 for (CourInfDO courInfDO : entry.getValue()) sum++;
             }
             if(sum>= evaConfigGateway.getMaxBeEvaNum()){
+//            if(sum>= evaConfigGateway.getMaxBeEvaNum()){
                 //从collet中找出大于8次的
                 for (Map.Entry<Integer, List<CourInfDO>> entry : integerMapEntry.getValue().entrySet()) {
-                    collect1.add(entry.getKey());
+                    collect1.add(entry.getKey());//存储该老师所评教的课程ID（大于等于8次的）
                 }
             }else{
                 //从collet中找出小于8次的
@@ -122,11 +124,18 @@ public class CourseRecommendExce {
             }
         }
         //包含了所有教学课程和评教课程和所有评教次数大于等于8次的课程ID集合
-        evaCourInfoSet.addAll(collect1);
+        Set<Integer> removeCourse = toRemoveCourse(collect1);
+
+        evaCourInfoSet.addAll(removeCourse);
         List<CourseDO> courseList = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId));
         //符合硬性要求的课程
         List<CourseDO> list = courseList.stream().filter(course -> !evaCourInfoSet.contains(course.getId())).toList();
         List<RecommendCourseCO> recommendCourse = getRecommendCourse(leList, list, courseDOS1, courseTime,semId,courseDOS);
+        //过滤掉evaTeacherNum》=evaConfigGateway.getMinBeEvaNum()的课程
+        int maxBeEvaNum = evaConfigGateway.getMinBeEvaNum();
+        recommendCourse = recommendCourse.stream()
+                .filter(recommend -> recommend.getEvaTeacherNum() < maxBeEvaNum)
+                .toList();
         //根据recommendCourse中的proriority进行排序(降序)，如果优先级相同，那么根据课程时间来进行排序(升序)
         Stream<RecommendCourseCO> stream = recommendCourse.stream();
         List<Integer> subjectList = courseDOS1.stream().map(CourseDO::getSubjectId).toList();
@@ -171,6 +180,16 @@ public class CourseRecommendExce {
         return reCourseList.size()>25?reCourseList.subList(0,25):reCourseList;
     }
 
+    private Set<Integer> toRemoveCourse(Collection<Integer> set) {
+        Set<Integer> courseSet=new HashSet<>();
+        for (Integer i : set) {
+            CourseDO courseDO = courseMapper.selectById(i);
+            Set<Integer> set1 = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", courseDO.getSemesterId()).eq("teacher_id", courseDO.getTeacherId()).eq("subject_id", courseDO.getSubjectId())).stream().map(CourseDO::getId).collect(Collectors.toSet());
+            courseSet.addAll(set1);
+        }
+        return courseSet;
+    }
+
     private List<RecommendCourseCO> toFilterList(List<CourInfDO> courINfoList, List<CourInfDO> evaCourInfo, List<RecommendCourseCO> result) {
         List<RecommendCourseCO> returnList=new ArrayList<>();
         for (RecommendCourseCO recommendCourseCO : result) {
@@ -194,7 +213,7 @@ public class CourseRecommendExce {
         return courInfDO.getWeek().equals(recommendCourseCO.getTime().getWeek()) && courInfDO.getDay().equals(recommendCourseCO.getTime().getDay()) && courInfDO.getEndTime() >= recommendCourseCO.getTime().getStartTime() && courInfDO.getStartTime() <= recommendCourseCO.getTime().getEndTime();
     }
 
-    private List<RecommendCourseCO> getRecommendCourse(List<Integer> leList,List<CourseDO> list, List<CourseDO> courseDOS1,CourseTime courseTime,Integer semId,List<CourInfDO> courInfDOS){
+    private List<RecommendCourseCO> getRecommendCourse(Collection<Integer> leList,Collection<CourseDO> list, List<CourseDO> courseDOS1,CourseTime courseTime,Integer semId,List<CourInfDO> courInfDOS){
         List<RecommendCourseCO> recommendList=new ArrayList<>();
         //找出list中的id不在leList的集合
         List<CourseDO> notExistCourse = list.stream().filter(courseDO -> !leList.contains(courseDO.getId())).toList();
@@ -204,19 +223,43 @@ public class CourseRecommendExce {
 //        Map<Integer, List<CourseDO>> map2 = existCourse.stream().collect(Collectors.groupingBy(CourseDO::getTeacherId));
 
         for (Map.Entry<Integer, List<CourseDO>> entry : map.entrySet()) {
-            int l = Math.toIntExact(courseMapper.selectCount(new QueryWrapper<CourseDO>().eq("teacher_id", entry.getKey()).eq("semester_id", semId)));
-            if(entry.getValue().size()>=l){
+//            int l = Math.toIntExact(courseMapper.selectCount(new QueryWrapper<CourseDO>().eq("teacher_id", entry.getKey()).eq("semester_id", semId)));
+            List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", entry.getKey()).eq("semester_id", semId));
+            if(entry.getValue().size()==courseDOS.size()){
               //该老师的课程还没有被评教过，优先级priority: 5
-              recommendList.addAll(createRecommentList(entry.getValue(), 5, courseDOS1,courseTime,courInfDOS));
+              recommendList.addAll(createRecommentList(courseDOS, 5, courseDOS1,courseTime,courInfDOS));
           }else{
               //该老师课程被评教过，优先级priority: 2
-              recommendList.addAll(createRecommentList(entry.getValue(), 2, courseDOS1,courseTime,courInfDOS));
-          }
+              //将courseDos根据课程subjectId和templateId进行分组
+                    //根据课程模板id和subjectID进行分组
+                 /*   Map<String, List<CourseDO>> collect1 = courseDOS.stream().collect(Collectors.groupingBy(course->course.getTemplateId().toString()+course.getSubjectId().toString()));
+                    collect1.forEach((key,value)->{
+                        recommendList.addAll(createRecommentList(value, 2, courseDOS1, courseTime,courInfDOS));
+                    });*/
+                List<CourseDO> notExiest = courseDOS.stream().filter(courseDO -> !entry.getValue().stream().map(CourseDO::getId).toList().contains(courseDO.getId())).toList();
+                boolean allContained = notExiest.stream()
+                        .map(CourseDO::getId)
+                        .allMatch(id -> existCourse.stream().map(CourseDO::getId).toList().contains(id));
+                if(allContained){
+                    Map<String, List<CourseDO>> collect1 = courseDOS.stream().collect(Collectors.groupingBy(course->course.getTemplateId().toString()+course.getSubjectId().toString()));
+                    collect1.forEach((key,value)->{
+                        recommendList.addAll(createRecommentList(value, 2, courseDOS1, courseTime,courInfDOS));
+                    });
+                }
+
+            }
             }
         //对已经评教过的existCourse，根据课程老师id进行分类
         Map<Integer, List<CourseDO>> collect = existCourse.stream().collect(Collectors.groupingBy(CourseDO::getTeacherId));
         for (Map.Entry<Integer, List<CourseDO>> exist : collect.entrySet()) {
-            recommendList.addAll(createRecommentList(exist.getValue(), 0, courseDOS1, courseTime,courInfDOS));
+            List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", exist.getKey()).eq("semester_id", semId));
+            if(exist.getValue().size()==courseDOS.size()){
+                //根据课程模板id进行分组
+                Map<String, List<CourseDO>> collect1 = courseDOS.stream().collect(Collectors.groupingBy(course->course.getTemplateId().toString()+course.getSubjectId().toString()));
+                collect1.forEach((key,value)->{
+                    recommendList.addAll(createRecommentList(value, 2, courseDOS1, courseTime,courInfDOS));
+                });
+            }
         }
 
 
@@ -341,23 +384,39 @@ public class CourseRecommendExce {
             CourseTime startTime = toGetCourseTime(semesterDO.getStartDate(), courseQuery.getStartDay());
             CourseTime endTime = toGetCourseTime(semesterDO.getStartDate(), courseQuery.getEndDay());
             for (Map.Entry<Integer, List<CourseDO>> map : collect.entrySet()) {
-                List<RecommendCourseCO> recommentListEndandStart = createRecommentListEndandStart(map.getValue(), 0, userCourse, startTime, endTime);
-                result.addAll(recommentListEndandStart);
+                Map<String, List<CourseDO>> collect1 = map.getValue().stream().collect(Collectors.groupingBy(courseDO -> courseDO.getTemplateId().toString() + courseDO.getSubjectId().toString()));
+                collect1.forEach((key,value)->{
+                    List<RecommendCourseCO> recommentListEndandStart = createRecommentListEndandStart(value, 0, userCourse, startTime, endTime);
+                    result.addAll(recommentListEndandStart);
+                });
+
+
             }
 //            return createRecommentListEndandStart(courseList, 0, userCourse, startTime, endTime);
         } else if(courseQuery.getStartDay() != null&& courseQuery.getEndDay()==null){
             CourseTime startTime = toGetCourseTime(semesterDO.getStartDate(), courseQuery.getStartDay());
             for (Map.Entry<Integer, List<CourseDO>> integerListEntry : collect.entrySet()) {
-                List<RecommendCourseCO> recommentList = createRecommentList(integerListEntry.getValue(), 0, userCourse, startTime,new ArrayList<>());
-                result.addAll(recommentList);
+                Map<String, List<CourseDO>> collect1 = integerListEntry.getValue().stream().collect(Collectors.groupingBy(courseDO -> courseDO.getTemplateId().toString() + courseDO.getSubjectId().toString()));
+                collect1.forEach((key,value)->{
+                    List<RecommendCourseCO> recommentListEndandStart = createRecommentList(value, 0, userCourse, startTime, new ArrayList<>());
+                    result.addAll(recommentListEndandStart);
+                });
+
+               /* List<RecommendCourseCO> recommentList = createRecommentList(integerListEntry.getValue(), 0, userCourse, startTime,new ArrayList<>());
+                result.addAll(recommentList);*/
             }
 //            return createRecommentList(courseList, 0, userCourse, startTime);
 
         } else if(courseQuery.getEndDay() != null&& courseQuery.getStartDay()==null){
             CourseTime endTime = toGetCourseTime(semesterDO.getStartDate(), courseQuery.getEndDay());
             for (Map.Entry<Integer, List<CourseDO>> integerListEntry : collect.entrySet()) {
-                List<RecommendCourseCO> recommentListEnd = createRecommentListEnd(integerListEntry.getValue(), 0, userCourse, endTime);
-                result.addAll(recommentListEnd);
+                Map<String, List<CourseDO>> collect1 = integerListEntry.getValue().stream().collect(Collectors.groupingBy(courseDO -> courseDO.getTemplateId().toString() + courseDO.getSubjectId().toString()));
+                collect1.forEach((key,value)->{
+                    List<RecommendCourseCO> recommentListEndandStart = createRecommentListEnd(value, 0, userCourse, endTime);
+                    result.addAll(recommentListEndandStart);
+                });
+               /* List<RecommendCourseCO> recommentListEnd = createRecommentListEnd(integerListEntry.getValue(), 0, userCourse, endTime);
+                result.addAll(recommentListEnd);*/
             }
 //            return createRecommentListEnd(courseList, 0, userCourse, endTime);
         }

@@ -1,4 +1,10 @@
 spring:
+  data:
+    redis:
+      # Redis服务器地址
+      host: 192.168.1.13
+      # Redis服务器连接端口
+      port: 35784
   datasource:
     dynamic:
       primary: master
