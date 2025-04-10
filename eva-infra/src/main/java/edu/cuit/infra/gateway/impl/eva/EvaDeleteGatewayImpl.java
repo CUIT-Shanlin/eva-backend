@@ -63,11 +63,13 @@ public class EvaDeleteGatewayImpl implements EvaDeleteGateway {
                 }
                 LogUtils.logContent(sysUserMapper.selectById(evaTaskMapper.selectById(formRecordDO.getTaskId()).getTeacherId()).getName()
                         +" 用户评教任务ID为"+formRecordDO.getTaskId()+"的评教记录");
-                formRecordMapper.delete(formRecordWrapper);
+
                 // TODO 并将相关的任务变成未完成
                 EvaTaskDO evaTaskDO=evaTaskMapper.selectById(formRecordMapper.selectById(id).getTaskId());
                 evaTaskDO.setStatus(0);
                 evaTaskMapper.update(evaTaskDO,new QueryWrapper<EvaTaskDO>().eq("id",evaTaskDO.getId()));
+                //最后删除记录
+                formRecordMapper.delete(formRecordWrapper);
 
 
                 //看看相关课程有没有泡脚记录
