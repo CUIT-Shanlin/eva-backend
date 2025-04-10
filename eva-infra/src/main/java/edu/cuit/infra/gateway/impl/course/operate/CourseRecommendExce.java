@@ -111,6 +111,7 @@ public class CourseRecommendExce {
                 for (CourInfDO courInfDO : entry.getValue()) sum++;
             }
             if(sum>= evaConfigGateway.getMaxBeEvaNum()){
+//            if(sum>= evaConfigGateway.getMaxBeEvaNum()){
                 //从collet中找出大于8次的
                 for (Map.Entry<Integer, List<CourInfDO>> entry : integerMapEntry.getValue().entrySet()) {
                     collect1.add(entry.getKey());//存储该老师所评教的课程ID（大于等于8次的）
@@ -130,6 +131,11 @@ public class CourseRecommendExce {
         //符合硬性要求的课程
         List<CourseDO> list = courseList.stream().filter(course -> !evaCourInfoSet.contains(course.getId())).toList();
         List<RecommendCourseCO> recommendCourse = getRecommendCourse(leList, list, courseDOS1, courseTime,semId,courseDOS);
+        //过滤掉evaTeacherNum》=evaConfigGateway.getMinBeEvaNum()的课程
+        int maxBeEvaNum = evaConfigGateway.getMinBeEvaNum();
+        recommendCourse = recommendCourse.stream()
+                .filter(recommend -> recommend.getEvaTeacherNum() < maxBeEvaNum)
+                .toList();
         //根据recommendCourse中的proriority进行排序(降序)，如果优先级相同，那么根据课程时间来进行排序(升序)
         Stream<RecommendCourseCO> stream = recommendCourse.stream();
         List<Integer> subjectList = courseDOS1.stream().map(CourseDO::getSubjectId).toList();
@@ -226,12 +232,22 @@ public class CourseRecommendExce {
               //该老师课程被评教过，优先级priority: 2
               //将courseDos根据课程subjectId和templateId进行分组
                     //根据课程模板id和subjectID进行分组
+                 /*   Map<String, List<CourseDO>> collect1 = courseDOS.stream().collect(Collectors.groupingBy(course->course.getTemplateId().toString()+course.getSubjectId().toString()));
+                    collect1.forEach((key,value)->{
+                        recommendList.addAll(createRecommentList(value, 2, courseDOS1, courseTime,courInfDOS));
+                    });*/
+                List<CourseDO> notExiest = courseDOS.stream().filter(courseDO -> !entry.getValue().stream().map(CourseDO::getId).toList().contains(courseDO.getId())).toList();
+                boolean allContained = notExiest.stream()
+                        .map(CourseDO::getId)
+                        .allMatch(id -> existCourse.stream().map(CourseDO::getId).toList().contains(id));
+                if(allContained){
                     Map<String, List<CourseDO>> collect1 = courseDOS.stream().collect(Collectors.groupingBy(course->course.getTemplateId().toString()+course.getSubjectId().toString()));
                     collect1.forEach((key,value)->{
                         recommendList.addAll(createRecommentList(value, 2, courseDOS1, courseTime,courInfDOS));
                     });
+                }
 
-          }
+            }
             }
         //对已经评教过的existCourse，根据课程老师id进行分类
         Map<Integer, List<CourseDO>> collect = existCourse.stream().collect(Collectors.groupingBy(CourseDO::getTeacherId));
