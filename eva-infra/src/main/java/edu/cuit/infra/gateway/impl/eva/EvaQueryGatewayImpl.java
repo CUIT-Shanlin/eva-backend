@@ -1332,6 +1332,27 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
     }
 
     @Override
+    public List<Double> getScoresByProp(String props) {
+        if(props==null){
+            return List.of();
+        }
+        Double score=0.0;
+        JSONArray jsonArray;
+        try {
+            jsonArray = JSONUtil.parseArray(props, JSONConfig.create()
+                    .setIgnoreError(true));
+        }catch (Exception e){
+            throw new SysException("jsonObject 数据对象转化失败");
+        }
+        if(jsonArray.isEmpty()){
+            return List.of();
+        }
+        return jsonArray.stream()
+                .map(jsonObject -> Double.parseDouble(((JSONObject) jsonObject).get("score").toString()))
+                .toList();
+    }
+
+    @Override
     public List<Integer> getCountAbEva(Integer semId, Integer userId) {
         List k=new ArrayList();
         k.add(getEvaNumByTeacherId(userId,semId));

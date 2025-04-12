@@ -191,6 +191,11 @@ public interface EvaQueryGateway {
      * 通过string指标传平均分数
      */
     Optional<Double> getScoreByProp(String prop);
+
+    /**
+     * 通过string指标传所有分数
+     */
+    List<Double> getScoresByProp(String props);
     /**
      * 通过用户id，semId 得到评教次数和被评教次数
      */
