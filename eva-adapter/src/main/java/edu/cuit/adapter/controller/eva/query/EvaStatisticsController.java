@@ -117,6 +117,7 @@ public class EvaStatisticsController {
      * @return word
      */
     @GetMapping(value = "/evaluate/export/report",produces = {"application/vnd.openxmlformats-officedocument.wordprocessingml.document"})
+    @SaCheckLogin
     public ResponseEntity<byte[]> exportEvaReport(@RequestParam(value = "semId",required = false) Integer semId) {
         byte[] data = aiCourseAnalysisService.exportDocData(semId);
         return new ResponseEntity<>(data,HttpStatus.OK);
