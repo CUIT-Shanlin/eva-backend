@@ -12,4 +12,11 @@ public interface IAiCourseAnalysisService {
      */
     AiAnalysisBO analysis(Integer semId,Integer teacherId );
 
+    /**
+     * 导出自己的ai分析报告
+     * @param semId 学期
+     * @return word文档二进制数据
+     */
+    byte[] exportDocData(Integer semId);
+
 }

@@ -1,282 +1,279 @@
 package edu.cuit.app.poi.ai;
 
+import com.alibaba.cola.exception.SysException;
 import edu.cuit.client.bo.ai.AiAnalysisBO;
 import edu.cuit.client.bo.ai.AiCourseSuggestionBO;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xddf.usermodel.chart.*;
-import org.apache.poi.xssf.usermodel.XSSFChart;
-import org.apache.poi.xssf.usermodel.XSSFDrawing;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.xwpf.usermodel.*;
+import org.apache.poi.util.Units;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartUtils;
+import org.jfree.chart.JFreeChart;
+import org.jfree.data.general.DefaultPieDataset;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
 
-import java.io.FileOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 
+@Slf4j
 public class AiReportExporter {
 
-    public XSSFWorkbook generateReport(AiAnalysisBO analysis) throws IOException {
-        try (XSSFWorkbook workbook = new XSSFWorkbook()) {
-            // 创建样式
-            CellStyle titleStyle = createTitleStyle(workbook);
-            CellStyle subTitleStyle = createSubTitleStyle(workbook);
-            CellStyle dataStyle = createDataStyle(workbook);
+    private static final int CHART_WIDTH = 400;
+    private static final int CHART_HEIGHT = 300;
+    private static final int PAGE_WIDTH_TWIPS = 12240; // A4纸宽度(24cm)对应的Twips值
 
-            // 课程详细报告工作表
-            XSSFSheet courseSheet = workbook.createSheet("课程报告");
-            generateCourseSheet(courseSheet, analysis, titleStyle, subTitleStyle, dataStyle);
-
-            // 总体报告工作表
-            XSSFSheet overallSheet = workbook.createSheet("总体报告");
-            generateOverallSheet(overallSheet, analysis, titleStyle, subTitleStyle, dataStyle);
-
-            return workbook;
-        }
+    public XWPFDocument generateReport(AiAnalysisBO analysis) {
+        XWPFDocument doc = new XWPFDocument();
+        setGlobalStyles(doc);
+        createCoverPage(doc, analysis.getTeacherName());
+        createCourseAnalysisSection(doc, analysis);
+        createOverallAnalysisSection(doc, analysis);
+        return doc;
     }
 
-    private void generateCourseSheet(XSSFSheet sheet, AiAnalysisBO analysis,
-                                     CellStyle titleStyle, CellStyle subTitleStyle, CellStyle dataStyle) {
-        int rowNum = 0;
+    private void setGlobalStyles(XWPFDocument doc) {
+        CTFonts ctFonts = CTFonts.Factory.newInstance();
+        ctFonts.setEastAsia("微软雅黑");
+        doc.createStyles().setDefaultFonts(ctFonts);
+    }
+
+    private void createCoverPage(XWPFDocument doc, String teacherName) {
+        XWPFParagraph titlePara = doc.createParagraph();
+        titlePara.setAlignment(ParagraphAlignment.CENTER);
+
+        XWPFRun titleRun = titlePara.createRun();
+        titleRun.setText("教师教学质量评估报告");
+        titleRun.setFontSize(28);
+        titleRun.setBold(true);
+        titleRun.setColor("2E75B5");
+
+        addEmptyLines(titlePara, 2);
+
+        XWPFParagraph teacherPara = doc.createParagraph();
+        teacherPara.setAlignment(ParagraphAlignment.CENTER);
+        XWPFRun teacherRun = teacherPara.createRun();
+        teacherRun.setText("被评估教师：" + teacherName);
+        teacherRun.setFontSize(22);
+        teacherRun.setColor("5B9BD5");
+    }
+
+    private void createCourseAnalysisSection(XWPFDocument doc, AiAnalysisBO analysis) {
+        addSectionTitle(doc, "课程专项分析");
+
         for (AiCourseSuggestionBO course : analysis.getCourseSuggestions()) {
-            // 课程标题
-            rowNum = createCourseHeader(sheet, rowNum, course, titleStyle);
-
-            // 课程统计信息
-            rowNum = createCourseStats(sheet, rowNum, course, subTitleStyle, dataStyle);
-
-            // 课程详细分析
-            rowNum = createCourseAnalysis(sheet, rowNum, course, subTitleStyle, dataStyle);
-
-            // 创建饼图
-            createCourseChart(sheet, rowNum, course);
-            rowNum += 15; // 为图表留出空间
+            createCourseTable(doc, course);
+            addChartToDoc(doc, createCourseChart(course));
+            addEmptyLines(doc.createParagraph(), 2);
         }
     }
 
-    private int createCourseHeader(XSSFSheet sheet, int rowNum, AiCourseSuggestionBO course, CellStyle style) {
-        Row row = sheet.createRow(rowNum++);
-        Cell cell = row.createCell(0);
-        cell.setCellValue("课程名称：" + course.getCourseName());
-        cell.setCellStyle(style);
-        sheet.addMergedRegion(new CellRangeAddress(rowNum-1, rowNum-1, 0, 4));
-        return rowNum;
+    private void createCourseTable(XWPFDocument doc, AiCourseSuggestionBO course) {
+        XWPFTable table = doc.createTable(4, 2);
+//        configureTableLayout(table, new int[]{30, 70}); // 调整为3:7的列宽比例
+
+        fillTableHeader(table.getRow(0), "课程名称", course.getCourseName());
+        fillTableRow(table.getRow(1),
+                "评教统计",
+                formatEvaStats(course.getBeEvaNumCount(), course.getHighScoreBeEvaCount()));
+        fillMultiLineCell(table.getRow(2), "课程分析",
+                formatAnalysis(course.getAdventures(), course.getDrawbacks()));
+        fillMultiLineCell(table.getRow(3), "改进建议", course.getSuggestion());
     }
 
-    private int createCourseStats(XSSFSheet sheet, int rowNum, AiCourseSuggestionBO course,
-                                  CellStyle headerStyle, CellStyle dataStyle) {
-        Row row = sheet.createRow(rowNum++);
-        addMergedCell(sheet, row, 0,  "统计信息", headerStyle, 0, 0);
-        addCell(row, 1, "被评次数：" + course.getBeEvaNumCount(), dataStyle);
-        addCell(row, 3, "高分次数：" + course.getHighScoreBeEvaCount(), dataStyle);
-        return rowNum;
+    private void createOverallAnalysisSection(XWPFDocument doc, AiAnalysisBO analysis) {
+        addSectionTitle(doc, "总体评估报告");
+
+        XWPFTable overallTable = doc.createTable(2, 2);
+//        configureTableLayout(overallTable, new int[]{30, 40});
+        overallTable.setWidth("100%");
+
+        fillTableRow(overallTable.getRow(0), "总评次数", analysis.getTotalBeEvaCount().toString());
+        fillTableRow(overallTable.getRow(1), "高分次数", analysis.getHighScoreEvaCount().toString());
+
+        addAnalysisParagraph(doc, analysis.getOverallReport());
+        addChartToDoc(doc, createOverallChart(analysis));
     }
 
-    private int createCourseAnalysis(XSSFSheet sheet, int rowNum, AiCourseSuggestionBO course,
-                                     CellStyle headerStyle, CellStyle dataStyle) {
-        // 优点
-        Row adventRow = sheet.createRow(rowNum++);
-        addMergedCell(sheet, adventRow,  0, "优点", headerStyle, 1, 4);
-        addCell(adventRow, 1, course.getAdventures(), dataStyle);
+    // 表格布局优化方法
+    private void configureTableLayout(XWPFTable table, int[] columnPercentages) {
+        // 设置表格整体宽度为页面宽度
+        CTTblPr tblPr = table.getCTTbl().getTblPr();
+        CTTblWidth tblWidth = tblPr.isSetTblW() ? tblPr.getTblW() : tblPr.addNewTblW();
+        tblWidth.setType(STTblWidth.DXA);
+        tblWidth.setW(BigInteger.valueOf(PAGE_WIDTH_TWIPS));
 
-        // 缺点
-        Row drawRow = sheet.createRow(rowNum++);
-        addMergedCell(sheet, drawRow, 0, "缺点", headerStyle, 1, 4);
-        addCell(drawRow, 1, course.getDrawbacks(), dataStyle);
-
-        // 建议
-        Row suggestRow = sheet.createRow(rowNum++);
-        addMergedCell(sheet, suggestRow, 0,  "改进建议", headerStyle, 1, 4);
-        addCell(suggestRow, 1, course.getSuggestion(), dataStyle);
-
-        return rowNum;
-    }
-
-    private void createCourseChart(XSSFSheet sheet, int chartRow, AiCourseSuggestionBO course) {
-        // 创建辅助数据
-        int dataRow = chartRow + 2;
-        createChartData(sheet, dataRow, course);
-
-        // 创建图表
-        Drawing<?> drawing = sheet.createDrawingPatriarch();
-        ClientAnchor anchor = drawing.createAnchor(0, 0, 0, 0, 5, chartRow, 10, chartRow + 10);
-
-        //XSSFChart chart = (XSSFChart) drawing.createChart(anchor);
-        XSSFChart chart = ((XSSFDrawing) drawing).createChart(anchor);
-        // 配置图表数据
-        XDDFDataSource<String> categories = XDDFDataSourcesFactory.fromStringCellRange(
-                sheet, new CellRangeAddress(dataRow, dataRow+1, 5, 5));
-        XDDFNumericalDataSource<Double> values = XDDFDataSourcesFactory.fromNumericCellRange(
-                sheet, new CellRangeAddress(dataRow, dataRow+1, 6, 6));
-        XDDFChartData data = chart.createData(ChartTypes.PIE, null, null);
-//        XDDFChartData data = new XDDFPieChartData(chart.getCTChart());
-        data.addSeries(categories, values);
-        chart.plot(data);
-        chart.setTitleText(course.getCourseName() + " 评分分布");
-    }
-
-    private void createChartData(XSSFSheet sheet, int rowNum, AiCourseSuggestionBO course) {
-        Row highRow = sheet.createRow(rowNum++);
-        highRow.createCell(5).setCellValue("高分");
-        highRow.createCell(6).setCellValue(course.getHighScoreBeEvaCount());
-
-        Row otherRow = sheet.createRow(rowNum);
-        otherRow.createCell(5).setCellValue("其他");
-        otherRow.createCell(6).setCellValue(course.getBeEvaNumCount() - course.getHighScoreBeEvaCount());
-    }
-
-    private void generateOverallSheet(XSSFSheet sheet, AiAnalysisBO analysis,
-                                      CellStyle titleStyle, CellStyle subTitleStyle, CellStyle dataStyle) {
-        int rowNum = 0;
-
-        // 标题
-        Row titleRow = sheet.createRow(rowNum++);
-        addMergedCell(sheet, titleRow, 0,
-                analysis.getTeacherName() + " 总体教学报告", titleStyle, 0, 4);
-
-        // 总体统计
-        rowNum = createOverallStats(sheet, rowNum, analysis, subTitleStyle, dataStyle);
-
-        // 总体分析
-        rowNum = createOverallAnalysis(sheet, rowNum, analysis, subTitleStyle, dataStyle);
-
-        // 词频统计
-        rowNum = createWordFrequency(sheet, rowNum, analysis, subTitleStyle, dataStyle);
-
-        // 总体饼图
-        createOverallChart(sheet, rowNum, analysis);
-    }
-
-    private int createOverallStats(XSSFSheet sheet, int rowNum, AiAnalysisBO analysis,
-                                   CellStyle headerStyle, CellStyle dataStyle) {
-        Row row = sheet.createRow(rowNum++);
-        addMergedCell(sheet, row, 0, "总体统计", headerStyle, 0, 0);
-        addCell(row, 1, "总评次数：" + analysis.getTotalBeEvaCount(), dataStyle);
-        addCell(row, 3, "总高分次数：" + analysis.getHighScoreEvaCount(), dataStyle);
-        return rowNum;
-    }
-
-    private int createOverallAnalysis(XSSFSheet sheet, int rowNum, AiAnalysisBO analysis,
-                                      CellStyle headerStyle, CellStyle dataStyle) {
-        Row row = sheet.createRow(rowNum++);
-        addMergedCell(sheet, row, 0,  "总体评价", headerStyle, 1, 4);
-        addCell(row, 1, analysis.getOverallReport(), dataStyle);
-        return rowNum + 2;
-    }
-
-    private int createWordFrequency(XSSFSheet sheet, int rowNum, AiAnalysisBO analysis,
-                                    CellStyle headerStyle, CellStyle dataStyle) {
-        Row titleRow = sheet.createRow(rowNum++);
-        addMergedCell(sheet, titleRow, 0,  "高频词汇统计", headerStyle, 0, 1);
-
-        Row headerRow = sheet.createRow(rowNum++);
-        addCell(headerRow, 0, "词汇", headerStyle);
-        addCell(headerRow, 1, "出现次数", headerStyle);
-
-        for (Pair<String, Integer> pair : analysis.getWordFrequencyCount()) {
-            Row row = sheet.createRow(rowNum++);
-            addCell(row, 0, pair.getKey(), dataStyle);
-            addCell(row, 1, pair.getValue(), dataStyle);
+        // 设置列宽比例
+        for (int i = 0; i < columnPercentages.length; i++) {
+            int columnWidth = (int) (PAGE_WIDTH_TWIPS * columnPercentages[i] / 100.0);
+            CTTblWidth ctTblWidth = table.getRow(0).getCell(i).getCTTc().addNewTcPr().addNewTcW();
+            ctTblWidth.setType(STTblWidth.DXA);
+//            ctTblWidth.setW(BigInteger.valueOf(columnWidth));
         }
-        return rowNum;
     }
 
-    private void createOverallChart(XSSFSheet sheet, int rowNum, AiAnalysisBO analysis) {
-        // 创建辅助数据
-        int dataRow = rowNum + 2;
-        createOverallChartData(sheet, dataRow, analysis);
-
-        // 创建图表
-        Drawing<?> drawing = sheet.createDrawingPatriarch();
-        ClientAnchor anchor = drawing.createAnchor(0, 0, 0, 0, 5, rowNum, 10, rowNum + 10);
-        XSSFChart chart = ((XSSFDrawing) drawing).createChart(anchor);
-//        XSSFChart chart = (XSSFChart) drawing.createChart(anchor);
-
-        // 配置图表数据
-        XDDFDataSource<String> categories = XDDFDataSourcesFactory.fromStringCellRange(
-                sheet, new CellRangeAddress(dataRow, dataRow+1, 5, 5));
-        XDDFNumericalDataSource<Double> values = XDDFDataSourcesFactory.fromNumericCellRange(
-                sheet, new CellRangeAddress(dataRow, dataRow+1, 6, 6));
-
-        XDDFChartData data = chart.createData(ChartTypes.PIE, null, null);
-//        XDDFChartData data = new XDDFPieChartData(chart.getCTChart());
-
-        data.addSeries(categories, values);
-        chart.plot(data);
-        chart.setTitleText("总体评分分布");
+    // 带格式的评教统计
+    private String formatEvaStats(int total, int highScore) {
+        return String.format("总评次数：%-6d | 高分次数：%-4d (%.1f%%)",
+                total, highScore, (highScore * 100.0 / total));
     }
 
-    private void createOverallChartData(XSSFSheet sheet, int rowNum, AiAnalysisBO analysis) {
-        Row highRow = sheet.createRow(rowNum++);
-        highRow.createCell(5).setCellValue("高分");
-        highRow.createCell(6).setCellValue(analysis.getHighScoreEvaCount());
-
-        Row otherRow = sheet.createRow(rowNum);
-        otherRow.createCell(5).setCellValue("其他");
-        otherRow.createCell(6).setCellValue(analysis.getTotalBeEvaCount() - analysis.getHighScoreEvaCount());
+    // 带格式的课程分析
+    private String formatAnalysis(String advantages, String disadvantages) {
+        return String.format("优点：\\n%s\\n\\n缺点：\\n%s", advantages, disadvantages);
     }
 
-    // 辅助方法
-    private void addCell(Row row, int col, Object value, CellStyle style) {
-        Cell cell = row.createCell(col);
-        if (value instanceof Number) {
-            cell.setCellValue(((Number) value).doubleValue());
-        } else {
-            cell.setCellValue(value.toString());
+    // 带换行符处理的段落生成
+    private void addAnalysisParagraph(XWPFDocument doc, String text) {
+        XWPFParagraph para = doc.createParagraph();
+        para.setIndentationFirstLine(600);
+        XWPFRun run = para.createRun();
+        run.setText("AI总体评价：");
+        run.setBold(true);
+        run.setColor("FF0000");
+        addFormattedText(run, text);
+    }
+
+    // 核心改进：带换行符的文本处理方法
+    private void addFormattedText(XWPFRun run, String text) {
+        String[] lines = text.split("\\\\n");
+        for (int i = 0; i < lines.length; i++) {
+            run.setText(lines[i]);
+            if (i > 0) {
+                run.addBreak(); // 换行符转换为Word换行
+                run.addCarriageReturn();
+            }
         }
-        cell.setCellStyle(style);
     }
 
-    private void addMergedCell(XSSFSheet sheet, Row row, int col, Object value,
-                               CellStyle style, int firstCol, int lastCol) {
-        Cell cell = row.createCell(col);
-        cell.setCellValue(value.toString());
-        cell.setCellStyle(style);
-        sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), firstCol, lastCol));
+    // 表格单元格处理方法（支持自动换行）
+    private void fillMultiLineCell(XWPFTableRow row, String label, String content) {
+        styleCell(row.getCell(0), label, "D9E1F2", true);
+        XWPFTableCell contentCell = row.getCell(1);
+        contentCell.removeParagraph(0);
+        XWPFParagraph para = contentCell.addParagraph();
+        para.setSpacingBetween(1.5);
+        XWPFRun run = para.createRun();
+        addFormattedText(run, content);
+        run.setFontSize(12);
     }
 
-    // 样式创建方法
-    private CellStyle createTitleStyle(XSSFWorkbook workbook) {
-        CellStyle style = workbook.createCellStyle();
-        style.setFillForegroundColor(IndexedColors.ROYAL_BLUE.getIndex());
-        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+    // 其他保持不变的图表相关方法
+    private JFreeChart createCourseChart(AiCourseSuggestionBO course) {
+        DefaultPieDataset dataset = new DefaultPieDataset();
+        dataset.setValue("95+", course.getHighScoreBeEvaCount());
+        dataset.setValue("95-", course.getBeEvaNumCount() - course.getHighScoreBeEvaCount());
 
-        Font font = workbook.createFont();
-        font.setColor(IndexedColors.WHITE.getIndex());
-        font.setBold(true);
-        font.setFontHeightInPoints((short)14);
-        style.setFont(font);
-
-        style.setAlignment(HorizontalAlignment.CENTER);
-        style.setVerticalAlignment(VerticalAlignment.CENTER);
-        return style;
+        JFreeChart chart = ChartFactory.createPieChart(
+                course.getCourseName() + "评分分布",
+                dataset,
+                true, true, false
+        );
+        styleChart(chart);
+        return chart;
     }
 
-    private CellStyle createSubTitleStyle(XSSFWorkbook workbook) {
-        CellStyle style = workbook.createCellStyle();
-        style.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+    private JFreeChart createOverallChart(AiAnalysisBO analysis) {
+        DefaultPieDataset dataset = new DefaultPieDataset();
+        dataset.setValue("95+", analysis.getHighScoreEvaCount());
+        dataset.setValue("95-", analysis.getTotalBeEvaCount() - analysis.getHighScoreEvaCount());
 
-        Font font = workbook.createFont();
-        font.setBold(true);
-        style.setFont(font);
-
-        style.setBorderBottom(BorderStyle.THIN);
-        style.setBorderTop(BorderStyle.THIN);
-        style.setBorderLeft(BorderStyle.THIN);
-        style.setBorderRight(BorderStyle.THIN);
-        return style;
+        JFreeChart chart = ChartFactory.createPieChart(
+                "总体评分分布",
+                dataset,
+                true, true, false
+        );
+        styleChart(chart);
+        return chart;
     }
 
-    private CellStyle createDataStyle(XSSFWorkbook workbook) {
-        CellStyle style = workbook.createCellStyle();
-        style.setWrapText(true);
-        style.setVerticalAlignment(VerticalAlignment.TOP);
-        style.setBorderBottom(BorderStyle.THIN);
-        style.setBorderTop(BorderStyle.THIN);
-        style.setBorderLeft(BorderStyle.THIN);
-        style.setBorderRight(BorderStyle.THIN);
-        return style;
+    private void styleChart(JFreeChart chart) {
+        chart.getTitle().setFont(new java.awt.Font("微软雅黑", java.awt.Font.BOLD, 16));
+        chart.getLegend().setItemFont(new java.awt.Font("微软雅黑", java.awt.Font.PLAIN, 12));
     }
 
+    private void addChartToDoc(XWPFDocument doc, JFreeChart chart) {
+        try (ByteArrayOutputStream chartOut = new ByteArrayOutputStream()) {
+            ChartUtils.writeChartAsPNG(chartOut, chart, CHART_WIDTH, CHART_HEIGHT);
+            XWPFParagraph chartPara = doc.createParagraph();
+            chartPara.setAlignment(ParagraphAlignment.CENTER);
+
+            chartPara.createRun().addPicture(
+                    new ByteArrayInputStream(chartOut.toByteArray()),
+                    XWPFDocument.PICTURE_TYPE_PNG,
+                    "chart.png",
+                    Units.toEMU(CHART_WIDTH),
+                    Units.toEMU(CHART_HEIGHT)
+            );
+        } catch (IOException | InvalidFormatException e) {
+            log.error("图表生成失败", e);
+            throw new SysException("图表生成失败");
+        }
+    }
+
+    // 其他辅助方法保持不变
+    private void addSectionTitle(XWPFDocument doc, String title) {
+        XWPFParagraph sectionTitle = doc.createParagraph();
+        sectionTitle.setStyle("Heading1");
+        sectionTitle.createRun().setText(title);
+        sectionTitle.setAlignment(ParagraphAlignment.CENTER);
+    }
+
+    private void fillTableHeader(XWPFTableRow row, String title, String content) {
+        styleCell(row.getCell(0), title, "2E75B5", true);
+        styleCell(row.getCell(1), content, "FFFFFF", false);
+    }
+
+    private void fillTableRow(XWPFTableRow row, String label, String value) {
+        styleCell(row.getCell(0), label, "D9E1F2", false);
+        styleCell(row.getCell(1), value, "FFFFFF", false);
+    }
+
+    private void styleCell(XWPFTableCell cell, String text, String bgColor, boolean isHeader) {
+        cell.removeParagraph(0);
+        XWPFParagraph para = cell.addParagraph();
+        para.setAlignment(ParagraphAlignment.CENTER);
+
+        XWPFRun run = para.createRun();
+        run.setText(text);
+
+        run.setFontSize(isHeader ? 14 : 12);
+        run.setBold(isHeader);
+        run.setColor(isHeader ? "FFFFFF" : "000000");
+
+        CTShd cTShd = cell.getCTTc().addNewTcPr().addNewShd();
+        cTShd.setFill(bgColor);
+    }
+
+    /*private void styleCell(XWPFTableCell cell, String text, String bgColor, boolean isHeader) {
+        cell.removeParagraph(0);
+        XWPFParagraph para = cell.addParagraph();
+        para.setAlignment(ParagraphAlignment.CENTER);
+
+        String[] lines = text.split("\n");
+        for (int i = 0; i < lines.length; i++) {
+            XWPFRun run = para.createRun();
+            run.setText(lines[i]);
+            run.setFontSize(isHeader ? 14 : 12);
+            run.setBold(isHeader);
+            run.setColor(isHeader ? "FFFFFF" : "000000");
+
+            // 在非最后一行末尾添加换行符
+            if (i < lines.length - 1) {
+                run.addBreak();
+                run.addCarriageReturn();
+            }
+        }
+
+        CTShd cTShd = cell.getCTTc().addNewTcPr().addNewShd();
+        cTShd.setFill(bgColor);
+    }*/
+
+    private void addEmptyLines(XWPFParagraph para, int lines) {
+        for (int i = 0; i < lines; i++) {
+            para.createRun().addBreak();
+        }
+    }
 }
