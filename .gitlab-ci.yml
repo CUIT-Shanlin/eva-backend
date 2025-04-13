@@ -36,7 +36,7 @@ publish:
   before_script:
     - until docker info; do sleep 5s; done
   script:
-    - docker login -u $HARBOR_USER -p $HARBOR_PASSWORD $HARBOR_HOST
+    - docker login -u $HARBOR_USERNAME -p $HARBOR_PASSWORD $HARBOR_HOST
     - docker build --cache-from $HARBOR_HOST/eva-system/eva-server-match:latest -t eva-server:$EVA_VERSION .
     - docker tag eva-server:$EVA_VERSION $HARBOR_HOST/eva-system/eva-server-match:$EVA_VERSION
     - docker push $HARBOR_HOST/eva-system/eva-server-match:$EVA_VERSION

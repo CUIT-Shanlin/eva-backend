@@ -30,14 +30,14 @@ public class CourseAnalysisTest {
         System.out.println(analysis);
     }
 
-//    @Test
-    @org.junit.Test
+    @Test
+//    @org.junit.Test
     public void testExportFile() throws IOException {
-        /*AiAnalysisBO analysis = aiCourseAnalysisService.analysis(2, 6);
+        AiAnalysisBO analysis = aiCourseAnalysisService.analysis(2, 7);
         System.out.println(JSONUtil.parse(analysis).toStringPretty());
         System.out.println("======================================================");
-        System.out.println(analysis);*/
-        AiAnalysisBO aiAnalysisBO = new AiAnalysisBO()
+        System.out.println(analysis);
+        /*AiAnalysisBO analysis = new AiAnalysisBO()
                 .setCourseSuggestions(List.of(new AiCourseSuggestionBO()
                         .setCourseName("Web应用开发A")
                         .setSuggestion("1. 重新审视并调整教学目标和计划，确保它们更加合理且符合学生的学习需求。可以考虑增加与学生讨论课程内容的机会，以更好地了解他们的兴趣点和难点。\\n2. 增加更多高质量的教学资源，比如视频、文章链接等，并确保这些材料易于访问。同时也可以鼓励学生分享他们发现的有用资源。\\n3. 加强课堂管理技巧，比如明确课堂规则、使用积极的语言来引导学生行为等，创造一个更有序的学习环境。\\n4. 提前做好充分准备，包括熟悉讲授的内容以及准备好所有需要用到的教学工具或设备，避免因技术问题而打断上课节奏。\\n5. 调整每节课的内容量，确保能够充分利用好每一分钟，如果经常提前完成，则可以考虑加入更多互动环节或者深入探讨某些话题，使课程更加充实。")
@@ -50,8 +50,8 @@ public class CourseAnalysisTest {
                 .setTotalBeEvaCount(5)
                 .setHighScoreEvaCount(0)
                 .setOverallReport("综合分析该教师的教学情况，可以看出其在教学方法和课堂互动方面表现较为突出，能够通过多种方式激发学生的学习兴趣，并有效提升课堂参与度。然而，在教学计划执行、课堂纪律管理以及备课准备方面存在一定不足，影响了整体教学效果。\\n\\n建议该教师在以下几个方面进行改进：\\n1. 严格遵守课时安排，确保每节课都能按照预定的教学计划进行，可以提前准备一些额外的教学材料或活动以备不时之需。\\n2. 加强课堂管理，设立明确的课堂规则，并在课程开始时向学生说明这些规则的重要性。对于违反纪律的行为，采取适当的措施加以纠正。\\n3. 重新审视并调整教学目标和计划，使之更加符合学生的实际需求和发展水平。可以通过调研、与同行交流等方式来获取反馈，进一步优化教学内容。\\n4. 提前充分备课，对即将讲授的知识点做深入研究，准备好相关案例、习题等辅助材料，提高授课质量。同时也可以考虑参加专业培训或研讨会，不断更新自己的知识体系和教学方法。\\n\\n通过以上改进措施，该教师可以进一步提升教学质量，更好地满足学生的学习需求，促进其职业发展。")
-                .setTeacherName("张三");
-        XWPFDocument document = new AiReportExporter().generateReport(aiAnalysisBO);
+                .setTeacherName("张三");*/
+        XWPFDocument document = new AiReportExporter().generateReport(analysis);
         File file = new File("D:\\Programming\\projects\\evaluate-system\\ai报告.docx");
         BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(file));
         document.write(stream);
