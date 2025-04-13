@@ -145,14 +145,14 @@ public class AiCourseAnalysisService implements IAiCourseAnalysisService {
     @Override
     public byte[] exportDocData(Integer semId) {
 
-        /*Integer userId = userQueryGateway.findIdByUsername(((String) StpUtil.getLoginId()))
+        Integer userId = userQueryGateway.findIdByUsername(((String) StpUtil.getLoginId()))
                 .orElseThrow(() -> {
                     SysException e = new SysException("用户数据查找失败，请联系管理员");
                     log.error("系统异常", e);
                     return e;
-                });*/
+                });
 
-        AiAnalysisBO analysis = iAiCourseAnalysisService.analysis(2, 6);
+        AiAnalysisBO analysis = iAiCourseAnalysisService.analysis(semId, userId);
         XWPFDocument document = new AiReportExporter().generateReport(analysis);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
