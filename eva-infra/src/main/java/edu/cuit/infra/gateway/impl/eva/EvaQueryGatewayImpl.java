@@ -73,6 +73,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 
 @Component
@@ -1329,6 +1330,47 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             score=score+Double.parseDouble(jsonObject.get("score").toString());
         }
         return Optional.of(score/jsonArray.size());
+    }
+
+    @Override
+    public List<Double> getScoresByProp(String props) {
+        if(props==null){
+            return List.of();
+        }
+        Double score=0.0;
+        JSONArray jsonArray;
+        try {
+            jsonArray = JSONUtil.parseArray(props, JSONConfig.create()
+                    .setIgnoreError(true));
+        }catch (Exception e){
+            throw new SysException("jsonObject 数据对象转化失败");
+        }
+        if(jsonArray.isEmpty()){
+            return List.of();
+        }
+        return jsonArray.stream()
+                .map(jsonObject -> Double.parseDouble(((JSONObject) jsonObject).get("score").toString()))
+                .toList();
+    }
+
+    @Override
+    public Map<String, Double> getScorePropMapByProp(String props) {
+        if(props==null){
+            return Map.of();
+        }
+        Double score=0.0;
+        JSONArray jsonArray;
+        try {
+            jsonArray = JSONUtil.parseArray(props, JSONConfig.create()
+                    .setIgnoreError(true));
+        }catch (Exception e){
+            throw new SysException("jsonObject 数据对象转化失败");
+        }
+        if(jsonArray.isEmpty()){
+            return Map.of();
+        }
+        return jsonArray.stream().collect(Collectors
+                .toMap(obj -> ((JSONObject) obj).getStr("prop"),obj -> ((JSONObject) obj).getDouble("score")));
     }
 
     @Override

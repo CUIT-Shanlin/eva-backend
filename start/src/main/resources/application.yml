@@ -38,3 +38,10 @@ sa-token:
 #  is-log: true
   token-name: Authorization
 
+ai:
+  silicon-api-key: sk-vsmsagfnpmqlbrtqtxnkxdkccydjuytksfyooulmgvjeeilr
+  dashscope-api-key: sk-c8041c6ee60d4de68b726495254e92a7
+
+
+
+

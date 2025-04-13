@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -191,6 +192,16 @@ public interface EvaQueryGateway {
      * 通过string指标传平均分数
      */
     Optional<Double> getScoreByProp(String prop);
+
+    /**
+     * 通过string指标传所有分数
+     */
+    List<Double> getScoresByProp(String props);
+
+    /**
+     * 通过string指标返回指标名对应分数的map
+     */
+    Map<String,Double> getScorePropMapByProp(String props);
     /**
      * 通过用户id，semId 得到评教次数和被评教次数
      */

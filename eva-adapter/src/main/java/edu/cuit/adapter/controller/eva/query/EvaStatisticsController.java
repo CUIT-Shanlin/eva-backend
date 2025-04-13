@@ -2,6 +2,7 @@ package edu.cuit.adapter.controller.eva.query;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import edu.cuit.client.api.ai.IAiCourseAnalysisService;
 import edu.cuit.client.api.eva.IEvaStatisticsService;
 import edu.cuit.client.dto.clientobject.eva.ScoreRangeCourseCO;
 import edu.cuit.client.dto.clientobject.eva.*;
@@ -23,6 +24,7 @@ import java.util.List;
 public class EvaStatisticsController {
 
     private final IEvaStatisticsService iEvaStatisticsService;
+    private final IAiCourseAnalysisService aiCourseAnalysisService;
 
     // 评教记录相关统计
 
@@ -107,5 +109,16 @@ public class EvaStatisticsController {
     public ResponseEntity<byte[]> exportEvaStatics(@RequestParam(value = "semId",required = false) Integer semId) {
         byte[] data = iEvaStatisticsService.exportEvaStatistics(semId);
         return new ResponseEntity<>(data, HttpStatus.OK);
+    }
+
+    /**
+     * 导出老师自己的评教AI分析报告
+     * @param semId 学期
+     * @return word
+     */
+    @GetMapping(value = "/evaluate/export/report",produces = {"application/vnd.openxmlformats-officedocument.wordprocessingml.document"})
+    public ResponseEntity<byte[]> exportEvaReport(@RequestParam(value = "semId",required = false) Integer semId) {
+        byte[] data = aiCourseAnalysisService.exportDocData(semId);
+        return new ResponseEntity<>(data,HttpStatus.OK);
     }
 }
