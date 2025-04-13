@@ -6,6 +6,9 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 
+/**
+ * AI分析报告（代表一位老师的报告）
+ */
 @Data
 @Accessors(chain = true)
 public class AiAnalysisBO {

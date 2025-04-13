@@ -6,6 +6,9 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 
+/**
+ * AI课程报告业务对象（代表某位老师的一门课）
+ */
 @Data
 @Accessors(chain = true)
 public class AiCourseSuggestionBO {
@@ -29,6 +32,6 @@ public class AiCourseSuggestionBO {
     private String drawbacks;
 
     // 词频统计
-    private List<Pair<String,Integer>> wordFrequencyCount;
+//    private List<Pair<String,Integer>> wordFrequencyCount;
 
 }
