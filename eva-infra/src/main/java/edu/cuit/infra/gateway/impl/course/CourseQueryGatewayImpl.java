@@ -296,10 +296,12 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
             int finalI = i;
             for(int j=1;j<=7;j++){
                 int sum=0;
-                if(i<=4){
-                        sum= (int) map.get(j).stream().filter(courInfDO -> courInfDO.getStartTime() == 2 * finalI - 1).count();
+                if(i<=3){
+                        sum= (int) map.get(j).stream().filter(courInfDO -> courInfDO.getStartTime() == 2 * finalI - 1||courInfDO.getStartTime()==2*finalI).count();
+                }else if(i==4){
+                        sum= (int) map.get(j).stream().filter(courInfDO -> courInfDO.getStartTime() == 2 * finalI||courInfDO.getStartTime()==2*finalI-1||courInfDO.getStartTime()==finalI*2+1).count();
                 }else{
-                        sum= (int) map.get(j).stream().filter(courInfDO -> courInfDO.getStartTime() == 2 * finalI).count();
+                        sum= (int) map.get(j).stream().filter(courInfDO -> courInfDO.getStartTime() == 2 * finalI ||courInfDO.getStartTime()==2*finalI+1).count();
                 }
                 newList.add(sum);
             }
@@ -312,12 +314,23 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     public List<SingleCourseCO> getPeriodInfo(Integer semId, CourseQuery courseQuery) {
         List<Integer> list1 = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId)).stream().map(CourseDO::getId).toList();
         QueryWrapper<CourInfDO> wrapper = new QueryWrapper<>();
-        wrapper.eq("week",courseQuery.getWeek())
-                .eq("day",courseQuery.getDay())
-                .in(true,"course_id",list1)
-                .and(wrapper1->wrapper1.eq("start_time",courseQuery.getNum())
-                        .or()
-                        .eq("start_time",courseQuery.getNum()+1));
+        if(courseQuery.getNum()==7){
+            wrapper.eq("week",courseQuery.getWeek())
+                    .eq("day",courseQuery.getDay())
+                    .in(true,"course_id",list1)
+                    .and(wrapper1->wrapper1.eq("start_time",courseQuery.getNum())
+                            .or()
+                            .eq("start_time",courseQuery.getNum()+1)
+                            .or()
+                            .eq("start_time",courseQuery.getNum()+2));
+        }else{
+            wrapper.eq("week",courseQuery.getWeek())
+                    .eq("day",courseQuery.getDay())
+                    .in(true,"course_id",list1)
+                    .and(wrapper1->wrapper1.eq("start_time",courseQuery.getNum())
+                            .or()
+                            .eq("start_time",courseQuery.getNum()+1));
+        }
         //先根据courseQuery中的信息来查询courInfoDO列表(课程详情表)
 
         List<CourInfDO> courInfDOS = courInfMapper.selectList(wrapper);

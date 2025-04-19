@@ -764,9 +764,9 @@ public class CourseRecommendExce {
         if(hour<8|(hour<=8&&minute<=20))result=1;
         else if(hour < 10|(hour<=10&&minute<=20))result=3;
         else if(hour<14)result=5;
-        else if (hour<16)result=7;
-        else if(hour<19|(hour<=19&&minute<=30))result=9;
-        else result=11;
+        else if (hour<15|(hour<=15&&minute<=50))result=7;
+        else if(hour<19|(hour<=19&&minute<=30))result=10;
+        else result=12;
         return result;
     }
 
