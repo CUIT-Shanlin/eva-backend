@@ -295,7 +295,12 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
             List<Integer> newList=new ArrayList<>();
             int finalI = i;
             for(int j=1;j<=7;j++){
-                int sum= (int) map.get(j).stream().filter(courInfDO -> courInfDO.getStartTime() == 2 * finalI - 1).count();
+                int sum=0;
+                if(i<=4){
+                        sum= (int) map.get(j).stream().filter(courInfDO -> courInfDO.getStartTime() == 2 * finalI - 1).count();
+                }else{
+                        sum= (int) map.get(j).stream().filter(courInfDO -> courInfDO.getStartTime() == 2 * finalI).count();
+                }
                 newList.add(sum);
             }
             result.add(newList);
