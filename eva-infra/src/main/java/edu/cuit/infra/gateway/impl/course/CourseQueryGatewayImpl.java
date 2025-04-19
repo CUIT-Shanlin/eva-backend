@@ -314,12 +314,23 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     public List<SingleCourseCO> getPeriodInfo(Integer semId, CourseQuery courseQuery) {
         List<Integer> list1 = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId)).stream().map(CourseDO::getId).toList();
         QueryWrapper<CourInfDO> wrapper = new QueryWrapper<>();
-        wrapper.eq("week",courseQuery.getWeek())
-                .eq("day",courseQuery.getDay())
-                .in(true,"course_id",list1)
-                .and(wrapper1->wrapper1.eq("start_time",courseQuery.getNum())
-                        .or()
-                        .eq("start_time",courseQuery.getNum()+1));
+        if(courseQuery.getNum()==7){
+            wrapper.eq("week",courseQuery.getWeek())
+                    .eq("day",courseQuery.getDay())
+                    .in(true,"course_id",list1)
+                    .and(wrapper1->wrapper1.eq("start_time",courseQuery.getNum())
+                            .or()
+                            .eq("start_time",courseQuery.getNum()+1)
+                            .or()
+                            .eq("start_time",courseQuery.getNum()+2));
+        }else{
+            wrapper.eq("week",courseQuery.getWeek())
+                    .eq("day",courseQuery.getDay())
+                    .in(true,"course_id",list1)
+                    .and(wrapper1->wrapper1.eq("start_time",courseQuery.getNum())
+                            .or()
+                            .eq("start_time",courseQuery.getNum()+1));
+        }
         //先根据courseQuery中的信息来查询courInfoDO列表(课程详情表)
 
         List<CourInfDO> courInfDOS = courInfMapper.selectList(wrapper);
