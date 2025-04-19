@@ -124,10 +124,12 @@ public class ExperimentalCourseResolver extends CourseExcelResolverStrategy{
         int tmpStartRow = TIME_START_ROW;
         for (count = 0;count < 7;count++) {
             CellRangeAddress cra = ExcelUtils.getMergerCellRegionRow(sheet, tmpStartRow, 0);
-            if (cra == null)
-                throw new BizException("实验课程表格格式有误");
-            timeTable.add(Pair.of(tmpStartRow,cra.getLastRow()));
-            CellRangeAddress blankCra = ExcelUtils.getMergerCellRegionRow(sheet, cra.getLastRow() + 1, 0);
+            int lastRow;
+            if (cra == null) {
+                lastRow = tmpStartRow;
+            } else lastRow = cra.getLastRow();
+            timeTable.add(Pair.of(tmpStartRow,lastRow));
+            CellRangeAddress blankCra = ExcelUtils.getMergerCellRegionRow(sheet, lastRow + 1, 0);
 
             if (count == 6) break;
             if (blankCra == null) {
@@ -137,7 +139,7 @@ public class ExperimentalCourseResolver extends CourseExcelResolverStrategy{
             }
             if (blankCra.getLastColumn() > 1) {
                 tmpStartRow = blankCra.getLastRow() + 1;
-            } else tmpStartRow = cra.getLastRow() + 1;
+            } else tmpStartRow = lastRow + 1;
         }
     }
 

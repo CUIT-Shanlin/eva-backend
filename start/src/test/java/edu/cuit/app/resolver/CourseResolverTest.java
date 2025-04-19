@@ -14,7 +14,7 @@ public class CourseResolverTest {
 
     @Test
     public void testExpResolve() {
-        File file = new File("D:\\Programming\\Java\\Projects\\evaluate-system\\2024-2025第一学期课表06周发布(实验课).xlsx");
+        File file = new File("D:\\Programming\\projects-doc\\evaluate-system\\测试实验课包.xlsx");
         try {
             List<CourseExcelBO> courseExcelBOS = CourseExcelResolver.resolveData(CourseExcelResolver.Strategy.EXPERIMENTAL_COURSE,
                     new BufferedInputStream(new FileInputStream(file)));
