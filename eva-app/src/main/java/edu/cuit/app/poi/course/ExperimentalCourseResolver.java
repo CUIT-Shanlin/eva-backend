@@ -54,7 +54,8 @@ public class ExperimentalCourseResolver extends CourseExcelResolverStrategy{
         for (int x = 0; x < timeTable.size(); x++) {
             Pair<Integer, Integer> timePeriod = timeTable.get(x);
             for (int i = timePeriod.getKey(); i <= timePeriod.getValue(); i++) {
-                List<CourseExcelBO> lineResults = readLine(i,x * 2 + 1);
+                int startTime = x >= 5 ? x * 2 : x * 2 + 1;
+                List<CourseExcelBO> lineResults = readLine(i,startTime);
                 for (CourseExcelBO lineResult : lineResults) {
                     courses.putIfAbsent(lineResult,new ArrayList<>());
                     courses.get(lineResult).add(lineResult);
@@ -93,7 +94,7 @@ public class ExperimentalCourseResolver extends CourseExcelResolverStrategy{
                         .setClassroom(classroom)
                         .setDay(dayIndex + 1)
                         .setStartTime(startTime)
-                        .setEndTime(startTime + 1)
+                        .setEndTime((startTime == 9 || startTime == 12) ? startTime : startTime + 1)
                         .setWeeks(ExcelUtils.resolveWeekString(weeks));
                 oneDayCourses.add(courseExcelBO);
             }
@@ -121,14 +122,14 @@ public class ExperimentalCourseResolver extends CourseExcelResolverStrategy{
     private void readTimeTable() {
         int count;
         int tmpStartRow = TIME_START_ROW;
-        for (count = 0;count < 6;count++) {
+        for (count = 0;count < 7;count++) {
             CellRangeAddress cra = ExcelUtils.getMergerCellRegionRow(sheet, tmpStartRow, 0);
             if (cra == null)
                 throw new BizException("实验课程表格格式有误");
             timeTable.add(Pair.of(tmpStartRow,cra.getLastRow()));
             CellRangeAddress blankCra = ExcelUtils.getMergerCellRegionRow(sheet, cra.getLastRow() + 1, 0);
 
-            if (count == 5) break;
+            if (count == 6) break;
             if (blankCra == null) {
                 SysException e = new SysException("解析文件出错，请联系管理员");
                 log.error("发生系统异常",e);
