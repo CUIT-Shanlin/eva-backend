@@ -55,7 +55,9 @@ public class AiCourseAnalysisService implements IAiCourseAnalysisService {
     @Override
     @CheckSemId
     public AiAnalysisBO analysis(Integer semId, Integer teacherId) {
-        List<CourseDetailCO> courseDetailsList = userCourseService.getUserCourseDetail(teacherId, semId);
+        List<CourseDetailCO> courseDetailsList = userCourseService.getUserCourseDetail(teacherId, semId)
+                .stream().filter(course -> course.getTypeList() != null && course.getDateList() != null)
+                .toList();
 
         Map<String, List<CourseDetailCO>> courseCollect = courseDetailsList.stream()
                 .collect(Collectors.groupingBy(cl -> cl.getCourseBaseMsg().getName()));
