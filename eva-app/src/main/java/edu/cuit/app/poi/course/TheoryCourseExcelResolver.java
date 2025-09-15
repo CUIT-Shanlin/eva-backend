@@ -91,7 +91,7 @@ public class TheoryCourseExcelResolver extends CourseExcelResolverStrategy {
         for (int i = 0; i < 5; i++) {
             int startColumn = i * 9 + WEEK_START;
             Cell courseNameCell = row.getCell(startColumn);
-            if (courseNameCell.getCellType() == CellType.BLANK) continue;
+            if (courseNameCell == null || courseNameCell.getCellType() == CellType.BLANK) continue;
             String courseName = ExcelUtils.getCellStringValue(courseNameCell);
             if (StrUtil.isBlank(courseName)) continue;
             String teacherName = ExcelUtils.getCellStringValue(row.getCell(startColumn + 2));
