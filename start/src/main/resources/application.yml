@@ -59,3 +59,19 @@ sa-token:
 #  is-log: true
   token-name: Authorization
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health  # 暴露 health 端点（默认路径 /actuator/health）
+  endpoint:
+    health:
+      show-details: always  # 显示详细健康信息
+      probes:
+        enabled: true  # 支持 Kubernetes/Swarm 的存活探针
+  health:
+    livenessState:
+      enabled: true  # 启用存活状态检测
+    readinessState:
+      enabled: true  # 启用就绪状态检测
+
