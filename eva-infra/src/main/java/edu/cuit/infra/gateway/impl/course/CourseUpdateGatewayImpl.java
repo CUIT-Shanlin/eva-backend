@@ -236,7 +236,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                 +"，第"+updateSingleCourseCmd.getTime().getStartTime()+"-"+updateSingleCourseCmd.getTime().getEndTime()+"节。教室："+
                 updateSingleCourseCmd.getLocation()*/
         map.put(userDO.getName()+"老师的"+name+"课程("+natureName+")的上课时间被修改了",null);
-        map.put("因为"+userDO.getName()+"老师的"+name+"课程("+natureName+")的上课时间修改，故已取消您对该课程的评教任务",mapEva);
+        map.put("因为"+userDO.getName()+"老师的"+name+"课程(原定于"+courINfo.getWeek()+"周，星期"+courINfo.getDay()+" 位于"+courINfo.getLocation()+")("+natureName+")的上课时间/上课地点修改，故已取消您对该课程的评教任务",mapEva);
         LogUtils.logContent(name+"上课时间信息");
         localCacheManager.invalidateCache(null,evaCacheConstants.LOG_LIST);
         localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM,String.valueOf(semId));
