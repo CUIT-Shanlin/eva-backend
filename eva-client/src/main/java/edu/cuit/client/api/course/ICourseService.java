@@ -61,7 +61,7 @@ public interface ICourseService {
      *  @param updateSingleCourseCmd 修改单节课课程信息
      *
      * */
-    void updateSingleCourse(Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd);
+    void updateSingleCourse(Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd,List<Integer> weekList,Boolean isBatchUpdate);
 
     /**
      * 分配听课/评教老师

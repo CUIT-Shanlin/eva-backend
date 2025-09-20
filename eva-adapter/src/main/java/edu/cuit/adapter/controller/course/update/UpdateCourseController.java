@@ -80,8 +80,10 @@ public class UpdateCourseController {
     @SaCheckPermission("course.tabulation.update")
     public CommonResult<Void> updateSingleCourse(
             @RequestParam(value = "semId",required = false) Integer semId,
-            @Valid @RequestBody UpdateSingleCourseCmd updateSingleCourseCmd){
-        courseService.updateSingleCourse(semId, updateSingleCourseCmd);
+            @Valid @RequestBody UpdateSingleCourseCmd updateSingleCourseCmd,
+            @RequestParam(value = "weekList",required = false,defaultValue = "[]")List<Integer> weekList,
+            @RequestParam(value = "isBatchUpdate",required = false,defaultValue = "false")Boolean isBatchUpdate){
+        courseService.updateSingleCourse(semId, updateSingleCourseCmd, weekList, isBatchUpdate);
         return CommonResult.success(null);
     }
 

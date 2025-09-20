@@ -79,9 +79,57 @@ public class ICourseServiceImpl implements ICourseService {
 
     @CheckSemId
     @Override
-    public void updateSingleCourse(Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd) {
+    public void updateSingleCourse(Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd,List<Integer> weekList,Boolean isBatchUpdate) {
         String userName =String.valueOf(StpUtil.getLoginId()) ;
-        Map<String,Map<Integer,Integer>> map = courseUpdateGateway.updateSingleCourse(userName, semId, updateSingleCourseCmd);
+        if(!isBatchUpdate){
+            Map<String,Map<Integer,Integer>> map = courseUpdateGateway.updateSingleCourse(userName, semId, updateSingleCourseCmd);
+            Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
+            for (Map.Entry<String, Map<Integer, Integer>> stringListEntry : map.entrySet()) {
+                Map<String,Map<Integer,Integer>> map1=new HashMap<>();
+                map1.put(stringListEntry.getKey(),stringListEntry.getValue());
+                if(stringListEntry.getValue()==null){
+                    msgResult.SendMsgToAll(map1,userId.orElseThrow(() -> new QueryException("请先登录")));
+                }else if(!stringListEntry.getValue().isEmpty()){
+                    msgResult.toNormalMsg(map1,userId.orElseThrow(() -> new QueryException("请先登录")));
+                    stringListEntry.getValue().forEach((k,v)->msgService.deleteEvaMsg(k,null));
+                }
+            }
+        }else{
+            Map<String,Map<Integer,Integer>> map=new HashMap<>();
+            Map<Integer,Integer> ids = courseQueryGateway.selectCourInfoIds(updateSingleCourseCmd.getId(), weekList);
+            for (Map.Entry<Integer, Integer> courseInfo : ids.entrySet()) {
+                UpdateSingleCourseCmd updateBatchCourseCmd = new UpdateSingleCourseCmd()
+                        .setId(courseInfo.getKey())
+                        .setLocation(updateSingleCourseCmd.getLocation())
+                        .setTime(updateSingleCourseCmd.getTime());
+                updateBatchCourseCmd.getTime().setWeek(courseInfo.getValue());
+                Map<String, Map<Integer, Integer>> stringMapMap = courseUpdateGateway.updateSingleCourse(userName, semId, updateBatchCourseCmd);
+                //将stringMap中的数据添加到map中
+                map.putAll(stringMapMap);
+            }
+            Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
+            int flag=0;
+            for (Map.Entry<String, Map<Integer, Integer>> stringListEntry : map.entrySet()) {
+                Map<String,Map<Integer,Integer>> map1=new HashMap<>();
+                map1.put(stringListEntry.getKey(),stringListEntry.getValue());
+                if(stringListEntry.getValue()==null){
+                    if(flag==0){
+                        msgResult.SendMsgToAll(map1,userId.orElseThrow(() -> new QueryException("请先登录")));
+                        flag++;
+                    }else{
+                        continue;
+                    }
+
+                }else if(!stringListEntry.getValue().isEmpty()){
+                    msgResult.toNormalMsg(map1,userId.orElseThrow(() -> new QueryException("请先登录")));
+                    stringListEntry.getValue().forEach((k,v)->msgService.deleteEvaMsg(k,null));
+                }
+            }
+
+
+        }
+
+       /* Map<String,Map<Integer,Integer>> map = courseUpdateGateway.updateSingleCourse(userName, semId, updateSingleCourseCmd);
         Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
         for (Map.Entry<String, Map<Integer, Integer>> stringListEntry : map.entrySet()) {
             Map<String,Map<Integer,Integer>> map1=new HashMap<>();
@@ -92,7 +140,7 @@ public class ICourseServiceImpl implements ICourseService {
                 msgResult.toNormalMsg(map1,userId.orElseThrow(() -> new QueryException("请先登录")));
                 stringListEntry.getValue().forEach((k,v)->msgService.deleteEvaMsg(k,null));
             }
-        }
+        }*/
     }
 
     @CheckSemId
