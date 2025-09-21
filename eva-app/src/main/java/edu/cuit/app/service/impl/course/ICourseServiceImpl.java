@@ -21,6 +21,7 @@ import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.domain.gateway.course.CourseUpdateGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
+import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -95,6 +96,7 @@ public class ICourseServiceImpl implements ICourseService {
                 }
             }
         }else{
+            if(weekList==null)throw new UpdateException("请选择要修改的周数");
             Map<String,Map<Integer,Integer>> map=new HashMap<>();
             Map<Integer,Integer> ids = courseQueryGateway.selectCourInfoIds(updateSingleCourseCmd.getId(), weekList);
             for (Map.Entry<Integer, Integer> courseInfo : ids.entrySet()) {
