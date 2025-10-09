@@ -218,7 +218,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         }
         //判定是否超过最大评教次数
         SysUserDO teacher=sysUserMapper.selectById(courseDO.getTeacherId());
-        List<CourseDO> evaCourseDOS=courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id",teacher.getId()));
+        List<CourseDO> evaCourseDOS=courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id",teacher.getId()).eq("semester_id",courseDO.getSemesterId()));
         List<Integer> evaCourseIds=evaCourseDOS.stream().map(CourseDO::getId).toList();
         if(CollectionUtil.isNotEmpty(evaCourseIds)) {
             List<CourInfDO> evaCourInfoDOs = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", evaCourseIds));
