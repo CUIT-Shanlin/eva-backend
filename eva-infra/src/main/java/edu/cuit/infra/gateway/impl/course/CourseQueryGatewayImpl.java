@@ -3,7 +3,6 @@ package edu.cuit.infra.gateway.impl.course;
 
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.json.JSONArray;
-import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -11,9 +10,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.benmanes.caffeine.cache.Cache;
 import edu.cuit.client.bo.EvaProp;
 
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
@@ -40,7 +37,6 @@ import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.infra.convertor.PaginationConverter;
 import edu.cuit.infra.convertor.course.CourseConvertor;
-import edu.cuit.infra.convertor.user.MenuConvertor;
 import edu.cuit.infra.convertor.user.RoleConverter;
 import edu.cuit.infra.convertor.user.UserConverter;
 import edu.cuit.infra.dal.database.dataobject.course.*;
@@ -65,14 +61,12 @@ import edu.cuit.zhuyimeng.framework.cache.aspect.annotation.local.LocalCached;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.stereotype.Component;
 
 
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -606,6 +600,22 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", userId).eq("semester_id", semId));
 
         return courseDOS.stream().map(CourseDO::getId).toList();
+    }
+
+    @Override
+    public Map<Integer, Integer> selectCourInfoIds(Integer id, List<Integer> weekList) {
+        CourInfDO courInfDO = courInfMapper.selectOne(new QueryWrapper<CourInfDO>().eq("id", id));
+        List<CourInfDO> infDOList = courInfMapper.selectList(new QueryWrapper<CourInfDO>()
+                .eq("course_id", courInfDO.getCourseId())
+                .eq("start_time", courInfDO.getStartTime())
+                .eq("end_time", courInfDO.getEndTime())
+                .eq("day", courInfDO.getDay())
+                .in("week", weekList));
+        Map<Integer,Integer> map= new HashMap<>();
+        for (CourInfDO infDO : infDOList) {
+            map.put(infDO.getId(),infDO.getWeek());
+        }
+        return map;
     }
 
     @Override

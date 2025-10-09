@@ -24,6 +24,7 @@ import edu.cuit.domain.entity.course.SubjectEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -172,4 +173,13 @@ public interface CourseQueryGateway {
      *  @param userId 用户ID
      * */
     List<Integer> getUserCourses(Integer semId,Integer userId);
+
+    /**
+     * 批量获取课程详情id
+     *
+     * @param id       课程详情id
+     * @param weekList 周数组
+     * @return
+     */
+    Map<Integer, Integer> selectCourInfoIds(Integer id, List<Integer> weekList);
 }

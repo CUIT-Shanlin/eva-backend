@@ -45,6 +45,14 @@ public interface CourseUpdateGateway {
      * */
     Map<String,Map<Integer,Integer>> updateSingleCourse(String userName,Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd);
 
+/*    *//**
+     * 批量获取课程详情id
+     * @param id 课程详情id
+     * @param weekList 周数组
+     * @return
+    * *//*
+    List<Integer> selectCourInfoIds(Integer id, List<Integer> weekList);*/
+
     /**
      * 修改一个课程类型
      *  @param courseType 修改课课程类型
