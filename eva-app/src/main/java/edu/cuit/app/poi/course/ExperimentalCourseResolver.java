@@ -94,7 +94,7 @@ public class ExperimentalCourseResolver extends CourseExcelResolverStrategy{
                         .setClassroom(classroom)
                         .setDay(dayIndex + 1)
                         .setStartTime(startTime)
-                        .setEndTime((startTime == 9 || startTime == 12) ? startTime : startTime + 1)
+                        .setEndTime(startTime + 1)
                         .setWeeks(ExcelUtils.resolveWeekString(weeks));
                 oneDayCourses.add(courseExcelBO);
             }
@@ -122,7 +122,7 @@ public class ExperimentalCourseResolver extends CourseExcelResolverStrategy{
     private void readTimeTable() {
         int count;
         int tmpStartRow = TIME_START_ROW;
-        for (count = 0;count < 7;count++) {
+        for (count = 0;count < 6;count++) {
             CellRangeAddress cra = ExcelUtils.getMergerCellRegionRow(sheet, tmpStartRow, 0);
             int lastRow;
             if (cra == null) {
@@ -131,7 +131,7 @@ public class ExperimentalCourseResolver extends CourseExcelResolverStrategy{
             timeTable.add(Pair.of(tmpStartRow,lastRow));
             CellRangeAddress blankCra = ExcelUtils.getMergerCellRegionRow(sheet, lastRow + 1, 0);
 
-            if (count == 6) break;
+            if (count == 5) break;
             if (blankCra == null) {
                 SysException e = new SysException("解析文件出错，请联系管理员");
                 log.error("发生系统异常",e);
