@@ -61,7 +61,7 @@ public interface ICourseService {
      *  @param updateSingleCourseCmd 修改单节课课程信息
      *
      * */
-    void updateSingleCourse(Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd);
+    void updateSingleCourse(Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd,List<Integer> weekList,Boolean isBatchUpdate);
 
     /**
      * 分配听课/评教老师
@@ -86,7 +86,7 @@ public interface ICourseService {
      *  @param timeCO 课程对应授课时间
      *
      * */
-    void addExistCoursesDetails( Integer courseId, SelfTeachCourseTimeCO timeCO);
+    void addExistCoursesDetails(Integer semId ,Integer courseId, SelfTeachCourseTimeCO timeCO);
 
     /**
      * 批量新建多节课(新课程)

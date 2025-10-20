@@ -5,6 +5,7 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import edu.cuit.client.dto.clientobject.SimplePercentCO;
 import edu.cuit.client.dto.cmd.eva.EvaTemplateCmd;
 import edu.cuit.client.dto.cmd.eva.NewEvaLogCmd;
 import edu.cuit.client.dto.cmd.eva.NewEvaTaskCmd;
@@ -53,19 +54,16 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
     private final SysUserMapper sysUserMapper;
     private final EvaCacheConstants evaCacheConstants;
     private final LocalCacheManager localCacheManager;
+
+
     @Override
     @Transactional
     @LocalCacheInvalidate(area="#{@evaCacheConstants.ONE_TEMPLATE}",key= "#cmd.getId()")
     public Void updateEvaTemplate(EvaTemplateCmd cmd) {
         DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-        //检验是否那个模板prop有重复
-        if(cmd.getProps()!=null&&StringUtils.isNotBlank(cmd.getProps())) {
-            List<String> props= Arrays.stream(cmd.getProps().split(",")).toList();
-            long count = props.stream().distinct().count();
-            if (props.size() != count) {
-                throw new UpdateException("由于你输入的指标中有重复数据，故不能修改");
-            }
+        //校验是否合规
+        if(verifyProp(cmd.getProps())!=0){
+            throw new UpdateException("数据校验不合规");
         }
 
         FormTemplateDO formTemplateDO=new FormTemplateDO();
@@ -80,7 +78,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
     @Override
     @Transactional
     @LocalCacheInvalidate(area="#{@evaCacheConstants.ONE_TASK}",key="#cmd.getTaskId()")
-    public Void putEvaTemplate(NewEvaLogCmd cmd) {
+    public Integer putEvaTemplate(NewEvaLogCmd cmd) {
         EvaTaskDO evaTaskDO=evaTaskMapper.selectById(cmd.getTaskId());
         CourInfDO courInfDO=courInfMapper.selectById(evaTaskDO.getCourInfId());
         CourseDO courseDO=courseMapper.selectById(courInfDO.getCourseId());
@@ -89,8 +87,14 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         FormTemplateDO formTemplateDO=formTemplateMapper.selectById(courseDO.getTemplateId());
         //把评教的具体数据传进去给评教记录
         FormRecordDO formRecordDO=new FormRecordDO();
+        formRecordDO.setTopic(cmd.getTopic());
         formRecordDO.setTaskId(cmd.getTaskId());
         formRecordDO.setTextValue(cmd.getTextValue());
+
+        //判断评价是否低于50个字符
+        if(cmd.getTextValue().length()<50){
+            throw new UpdateException("输入的评价文本过少，请用心评价此课程，故不能提交哦");
+        }
 
         //判断是不是任务已经取消了
         if(evaTaskDO==null){
@@ -103,6 +107,21 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
             throw new UpdateException("该任务对应的课程信息不存在，不能提交哦");
         }
 
+        //判断客户输入指标分值是否超过最大值
+        for(int i=0;i<cmd.getFormPropsValues().size();i++){
+            double a=cmd.getFormPropsValues().get(i).getScore().doubleValue();//指标对应分数
+            String s=cmd.getFormPropsValues().get(i).getProp();
+            // 使用split方法分割字符串，限制分成两部分以处理多个|
+            String[] parts = s.split("\\|", 2);
+            if (parts.length < 1) {
+                throw new IllegalArgumentException("输入格式错误，缺少分隔符'|'");
+            }
+            String numberStr = parts[0].trim(); // 去除前后空格
+            double b=Double.parseDouble(numberStr);//指标最高分
+            if(a>b){
+                throw new RuntimeException("指标对应评教分数不能高于该项指标最高分哦");
+            }
+        }
         formRecordDO.setFormPropsValues(JSONUtil.toJsonStr(cmd.getFormPropsValues()));
         formRecordMapper.insert(formRecordDO);
         //加缓存
@@ -122,7 +141,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
             courOneEvaTemplateDO1.setFormTemplate(s);
             courOneEvaTemplateMapper.insert(courOneEvaTemplateDO1);
         }
-        return null;
+        return formRecordDO.getId();
     }
 
     @Override
@@ -136,6 +155,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         CourseDO courseDO=courseMapper.selectById(courInfDO.getCourseId());
         //选中的课程是否已经上完
         SemesterDO semesterDO = semesterMapper.selectById(courseDO.getSemesterId());
+        Integer evaEdSemId=courseDO.getSemesterId();//得到被评教课程的学期id  方便后面比较课程
         LocalDate localDate = semesterDO.getStartDate().plusDays((courInfDO.getWeek()-1) * 7L + courInfDO.getDay() - 1);
 
         Integer f=2;//判断是不是课程快已经结束 1冲0无
@@ -152,8 +172,8 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
                         if(localDate.getDayOfMonth()==LocalDate.now().getDayOfMonth()) {
                             String dateTime = localDate + " 00:00";//因为少了一个空格而不能满足格式而报错
                             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-                            LocalDateTime localDateTime = LocalDateTime.parse(dateTime, formatter);
-                            if (CalculateClassTime.calculateClassTime(localDateTime, courInfDO.getStartTime()).isBefore(LocalDateTime.now())) {
+                            LocalDateTime localDateTime = LocalDateTime.parse(dateTime, formatter);//CalculateClassTime原接口在controller那里，因为原作者把它写那里我gateway拿不到，只能复印
+                            if (CalculateClassTime.calculateClassTime(localDateTime, courInfDO.getStartTime()).isBefore(LocalDateTime.now())) {//如果出了问题看看原接口有没有跟新
                                 f = 1;
                             } else {
                                 f = 0;
@@ -177,13 +197,20 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         List<CourseDO> courseDOList=courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id",cmd.getTeacherId()));
         List<Integer> courseIds=courseDOList.stream().map(CourseDO::getId).toList();
         if(CollectionUtil.isNotEmpty(courseIds)) {
-            List<CourInfDO> courInfDOList = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", courseIds));
+            List<CourInfDO> courInfDOList = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", courseIds));//老师所有课程信息
             for (int i = 0; i < courInfDOList.size(); i++) {
-                if (courInfDO.getWeek().equals(courInfDOList.get(i).getWeek())) {
-                    if (courInfDO.getDay().equals(courInfDOList.get(i).getDay())) {
-                        if (((courInfDO.getStartTime() <= courInfDOList.get(i).getEndTime()) && (courInfDO.getEndTime() >= courInfDOList.get(i).getStartTime()))
-                                || ((courInfDOList.get(i).getStartTime() <= courInfDO.getEndTime()) && (courInfDOList.get(i).getEndTime() >= courInfDO.getStartTime()))) {
-                            throw new UpdateException("与你其他课程冲突");
+                //加入学期判断
+                Integer course3=courInfDOList.get(i).getCourseId();
+                CourseDO courseDO3=courseMapper.selectById(course3);
+                Integer evaSemId=courseDO3.getSemesterId();
+                //如果学期不一样，就不用判断课程是否冲突
+                if(evaSemId==evaEdSemId) {
+                    if (courInfDO.getWeek().equals(courInfDOList.get(i).getWeek())) {
+                        if (courInfDO.getDay().equals(courInfDOList.get(i).getDay())) {
+                            if (((courInfDO.getStartTime() <= courInfDOList.get(i).getEndTime()) && (courInfDO.getEndTime() >= courInfDOList.get(i).getStartTime()))
+                                    || ((courInfDOList.get(i).getStartTime() <= courInfDO.getEndTime()) && (courInfDOList.get(i).getEndTime() >= courInfDO.getStartTime()))) {
+                                throw new UpdateException("与你其他课程冲突");
+                            }
                         }
                     }
                 }
@@ -191,7 +218,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         }
         //判定是否超过最大评教次数
         SysUserDO teacher=sysUserMapper.selectById(courseDO.getTeacherId());
-        List<CourseDO> evaCourseDOS=courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id",teacher.getId()));
+        List<CourseDO> evaCourseDOS=courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id",teacher.getId()).eq("semester_id",courseDO.getSemesterId()));
         List<Integer> evaCourseIds=evaCourseDOS.stream().map(CourseDO::getId).toList();
         if(CollectionUtil.isNotEmpty(evaCourseIds)) {
             List<CourInfDO> evaCourInfoDOs = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", evaCourseIds));
@@ -249,13 +276,10 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
     @Transactional
     public Void addEvaTemplate(NewEvaTemplateCmd cmd) throws ParseException {
         DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        //判断指标重复
-        if(cmd.getProps()!=null) {
-            List<String> props= Arrays.stream(cmd.getProps().split(",")).toList();
-            long count = props.stream().distinct().count();
-            if (props.size() != count) {
-                throw new UpdateException("由于你输入的指标中有重复数据，故不能增加");
-            }
+
+        //判断指标是否合规
+        if(verifyProp(cmd.getProps())!=0){
+            throw new UpdateException("数据校验不合规");
         }
 
         FormTemplateDO formTemplateDO=new FormTemplateDO();
@@ -282,5 +306,41 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(courseMapper.selectById(courInfMapper.selectById(evaTaskDO.getCourInfId()).getCourseId()).getSemesterId()));
         localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_TEACH,sysUserMapper.selectById(evaTaskDO.getTeacherId()).getName());
         return null;
+    }
+
+    //简便方法
+    //对prop的检查
+    private Integer verifyProp(String prop){
+        //检验是否那个模板prop有重复
+        if(prop!=null&&StringUtils.isNotBlank(prop)) {
+            List<String> props= Arrays.stream(prop.split(",")).toList();
+            long count = props.stream().distinct().count();
+            if (props.size() != count) {
+                throw new UpdateException("由于你输入的指标中有重复数据，故不能修改");
+            }
+        }
+
+        //检验那个模板prop是否是有唯一的|
+        String[] props=prop.split(",");
+        int total=0;
+        for(int i=0;i<props.length;i++){
+            String res=props[i];
+            String b="|";
+            if((res.length()-res.replace(b,"").length())/b.length()!=1){
+                throw new UpdateException("prop格式错误，请确保指标不含有|");
+            }
+            String input=props[i];
+            int pipeIndex = input.indexOf('|');
+            int quoteIndex = input.lastIndexOf('"', pipeIndex - 1);
+            String betweenQuoteAndPipe = input.substring(quoteIndex + 1, pipeIndex);
+            total=total+Integer.parseInt(betweenQuoteAndPipe);
+            if(!betweenQuoteAndPipe.matches("\\d+(\\.\\d+)?")){
+                throw new UpdateException("prop格式错误，“与|之间不是数字，");
+            }
+        }
+        if(total!=100){
+            throw new UpdateException("赋分之和不够100哦");
+        }
+        return 0;
     }
 }

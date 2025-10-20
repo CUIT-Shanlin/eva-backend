@@ -3,7 +3,6 @@ package edu.cuit.infra.gateway.impl.course;
 
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.json.JSONArray;
-import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -11,9 +10,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.benmanes.caffeine.cache.Cache;
 import edu.cuit.client.bo.EvaProp;
 
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
@@ -40,7 +37,6 @@ import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.infra.convertor.PaginationConverter;
 import edu.cuit.infra.convertor.course.CourseConvertor;
-import edu.cuit.infra.convertor.user.MenuConvertor;
 import edu.cuit.infra.convertor.user.RoleConverter;
 import edu.cuit.infra.convertor.user.UserConverter;
 import edu.cuit.infra.dal.database.dataobject.course.*;
@@ -65,14 +61,12 @@ import edu.cuit.zhuyimeng.framework.cache.aspect.annotation.local.LocalCached;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.stereotype.Component;
 
 
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -243,7 +237,8 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
             CourseScoreCO courseScoreCO=new CourseScoreCO();
             Double sum=0.0;
             Double max= Double.valueOf(stringListEntry.getValue().get(0).getScore());
-            Double min=Double.valueOf(stringListEntry.getValue().get(0).getScore());
+            Double min= Double.valueOf(stringListEntry.getValue().get(0).getScore());
+//            courseScoreCO.setProp(courseImportExce.getCourseScore(courseDO.getTemplateId()).get(0).getProp());
             courseScoreCO.setProp(stringListEntry.getKey());
             for (EvaProp evaProp : stringListEntry.getValue()) {
                 sum+=evaProp.getScore();
@@ -294,7 +289,14 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
             List<Integer> newList=new ArrayList<>();
             int finalI = i;
             for(int j=1;j<=7;j++){
-                int sum= (int) map.get(j).stream().filter(courInfDO -> courInfDO.getStartTime() == 2 * finalI - 1).count();
+                int sum=0;
+                if(i<=3){
+                        sum= (int) map.get(j).stream().filter(courInfDO -> courInfDO.getStartTime() == 2 * finalI - 1||courInfDO.getStartTime()==2*finalI).count();
+                }else if(i==4){
+                        sum= (int) map.get(j).stream().filter(courInfDO -> courInfDO.getStartTime() == 2 * finalI||courInfDO.getStartTime()==2*finalI-1||courInfDO.getStartTime()==finalI*2+1).count();
+                }else{
+                        sum= (int) map.get(j).stream().filter(courInfDO -> courInfDO.getStartTime() == 2 * finalI ||courInfDO.getStartTime()==2*finalI+1).count();
+                }
                 newList.add(sum);
             }
             result.add(newList);
@@ -306,12 +308,23 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
     public List<SingleCourseCO> getPeriodInfo(Integer semId, CourseQuery courseQuery) {
         List<Integer> list1 = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId)).stream().map(CourseDO::getId).toList();
         QueryWrapper<CourInfDO> wrapper = new QueryWrapper<>();
-        wrapper.eq("week",courseQuery.getWeek())
-                .eq("day",courseQuery.getDay())
-                .in(true,"course_id",list1)
-                .and(wrapper1->wrapper1.eq("start_time",courseQuery.getNum())
-                        .or()
-                        .eq("start_time",courseQuery.getNum()+1));
+        if(courseQuery.getNum()==7){
+            wrapper.eq("week",courseQuery.getWeek())
+                    .eq("day",courseQuery.getDay())
+                    .in(true,"course_id",list1)
+                    .and(wrapper1->wrapper1.eq("start_time",courseQuery.getNum())
+                            .or()
+                            .eq("start_time",courseQuery.getNum()+1)
+                            .or()
+                            .eq("start_time",courseQuery.getNum()+2));
+        }else{
+            wrapper.eq("week",courseQuery.getWeek())
+                    .eq("day",courseQuery.getDay())
+                    .in(true,"course_id",list1)
+                    .and(wrapper1->wrapper1.eq("start_time",courseQuery.getNum())
+                            .or()
+                            .eq("start_time",courseQuery.getNum()+1));
+        }
         //先根据courseQuery中的信息来查询courInfoDO列表(课程详情表)
 
         List<CourInfDO> courInfDOS = courInfMapper.selectList(wrapper);
@@ -587,6 +600,22 @@ public class CourseQueryGatewayImpl implements CourseQueryGateway {
         List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", userId).eq("semester_id", semId));
 
         return courseDOS.stream().map(CourseDO::getId).toList();
+    }
+
+    @Override
+    public Map<Integer, Integer> selectCourInfoIds(Integer id, List<Integer> weekList) {
+        CourInfDO courInfDO = courInfMapper.selectOne(new QueryWrapper<CourInfDO>().eq("id", id));
+        List<CourInfDO> infDOList = courInfMapper.selectList(new QueryWrapper<CourInfDO>()
+                .eq("course_id", courInfDO.getCourseId())
+                .eq("start_time", courInfDO.getStartTime())
+                .eq("end_time", courInfDO.getEndTime())
+                .eq("day", courInfDO.getDay())
+                .in("week", weekList));
+        Map<Integer,Integer> map= new HashMap<>();
+        for (CourInfDO infDO : infDOList) {
+            map.put(infDO.getId(),infDO.getWeek());
+        }
+        return map;
     }
 
     @Override

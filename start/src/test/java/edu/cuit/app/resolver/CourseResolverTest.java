@@ -14,7 +14,7 @@ public class CourseResolverTest {
 
     @Test
     public void testExpResolve() {
-        File file = new File("D:\\Programming\\Java\\Projects\\evaluate-system\\2024-2025第一学期课表06周发布(实验课).xlsx");
+        File file = new File("D:\\Downloads\\qq\\同行听课实验课表.xlsx");
         try {
             List<CourseExcelBO> courseExcelBOS = CourseExcelResolver.resolveData(CourseExcelResolver.Strategy.EXPERIMENTAL_COURSE,
                     new BufferedInputStream(new FileInputStream(file)));
@@ -30,7 +30,7 @@ public class CourseResolverTest {
 
     @Test
     public void testTheoryResolve() throws FileNotFoundException {
-        File file = new File("D:\\Programming\\Java\\Projects\\evaluate-system\\2023-2024-2学期教师课表.xlsx");
+        File file = new File("D:\\Downloads\\qq\\同行听课导入课表 (1).xlsx");
         List<CourseExcelBO> courseExcelBOS = CourseExcelResolver.resolveData(CourseExcelResolver.Strategy.THEORY_COURSE,
                 new BufferedInputStream(new FileInputStream(file))).stream()
                 .toList();

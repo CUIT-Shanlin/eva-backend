@@ -54,7 +54,8 @@ public class ExperimentalCourseResolver extends CourseExcelResolverStrategy{
         for (int x = 0; x < timeTable.size(); x++) {
             Pair<Integer, Integer> timePeriod = timeTable.get(x);
             for (int i = timePeriod.getKey(); i <= timePeriod.getValue(); i++) {
-                List<CourseExcelBO> lineResults = readLine(i,x * 2 + 1);
+                int startTime = x >= 5 ? x * 2 : x * 2 + 1;
+                List<CourseExcelBO> lineResults = readLine(i,startTime);
                 for (CourseExcelBO lineResult : lineResults) {
                     courses.putIfAbsent(lineResult,new ArrayList<>());
                     courses.get(lineResult).add(lineResult);
@@ -123,10 +124,12 @@ public class ExperimentalCourseResolver extends CourseExcelResolverStrategy{
         int tmpStartRow = TIME_START_ROW;
         for (count = 0;count < 6;count++) {
             CellRangeAddress cra = ExcelUtils.getMergerCellRegionRow(sheet, tmpStartRow, 0);
-            if (cra == null)
-                throw new BizException("实验课程表格格式有误");
-            timeTable.add(Pair.of(tmpStartRow,cra.getLastRow()));
-            CellRangeAddress blankCra = ExcelUtils.getMergerCellRegionRow(sheet, cra.getLastRow() + 1, 0);
+            int lastRow;
+            if (cra == null) {
+                lastRow = tmpStartRow;
+            } else lastRow = cra.getLastRow();
+            timeTable.add(Pair.of(tmpStartRow,lastRow));
+            CellRangeAddress blankCra = ExcelUtils.getMergerCellRegionRow(sheet, lastRow + 1, 0);
 
             if (count == 5) break;
             if (blankCra == null) {
@@ -136,7 +139,7 @@ public class ExperimentalCourseResolver extends CourseExcelResolverStrategy{
             }
             if (blankCra.getLastColumn() > 1) {
                 tmpStartRow = blankCra.getLastRow() + 1;
-            } else tmpStartRow = cra.getLastRow() + 1;
+            } else tmpStartRow = lastRow + 1;
         }
     }
 

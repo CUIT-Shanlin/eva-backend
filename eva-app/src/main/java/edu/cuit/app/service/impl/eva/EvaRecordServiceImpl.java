@@ -8,7 +8,6 @@ import edu.cuit.app.service.impl.MsgServiceImpl;
 import edu.cuit.client.api.eva.IEvaRecordService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.eva.EvaRecordCO;
-import edu.cuit.client.dto.clientobject.eva.EvaTaskFormCO;
 import edu.cuit.client.dto.cmd.eva.NewEvaLogCmd;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.EvaLogConditionalQuery;
@@ -62,10 +61,10 @@ public class EvaRecordServiceImpl implements IEvaRecordService {
     //记得完成评教任务之后，
     // 要删除对应的两种消息 “该任务的待办评教消息” “该任务的系统逾期提醒消息”
     @Override
-    public Void putEvaTemplate(NewEvaLogCmd newEvaLogCmd) {
-        evaUpdateGateway.putEvaTemplate(newEvaLogCmd);
+    public Integer putEvaTemplate(NewEvaLogCmd newEvaLogCmd) {
+        Integer recordId=evaUpdateGateway.putEvaTemplate(newEvaLogCmd);
         //删除所有相关消息
         msgService.deleteEvaMsg(newEvaLogCmd.getTaskId(),null);
-        return null;
+        return recordId;
     }
 }

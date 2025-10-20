@@ -33,6 +33,7 @@ public interface EvaRecordBizConvertor {
             @Mapping(target = "createTime",expression="java(evaRecordEntity.getCreateTime())"),
             @Mapping(target = "courseTime",expression="java(toCourseTime(evaRecordEntity.getTask().getCourInf()))"),
             @Mapping(target = "averScore",ignore = true),
+            @Mapping(target = "topic",expression="java(evaRecordEntity.getTopic())"),
     })
     EvaRecordCO evaRecordEntityToCo(EvaRecordEntity evaRecordEntity);
 }

@@ -45,6 +45,14 @@ public interface CourseUpdateGateway {
      * */
     Map<String,Map<Integer,Integer>> updateSingleCourse(String userName,Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd);
 
+/*    *//**
+     * 批量获取课程详情id
+     * @param id 课程详情id
+     * @param weekList 周数组
+     * @return
+    * *//*
+    List<Integer> selectCourInfoIds(Integer id, List<Integer> weekList);*/
+
     /**
      * 修改一个课程类型
      *  @param courseType 修改课课程类型
@@ -97,7 +105,7 @@ public interface CourseUpdateGateway {
      *  @param courseId 课程id
      *  @param timeCO 课程对应授课时间
      * */
-    Void addExistCoursesDetails( Integer courseId, SelfTeachCourseTimeCO timeCO);
+    Void addExistCoursesDetails( Integer semId,Integer courseId, SelfTeachCourseTimeCO timeCO);
 
     /**
      * 批量新建多节课(新课程)
@@ -121,4 +129,11 @@ public interface CourseUpdateGateway {
      *
      * */
     void updateCoursesType(UpdateCoursesToTypeCmd updateCoursesToTypeCmd);
+
+    /**
+     * 判断该老师是否已经有课(包括评教课程)了
+     *  @param courseId 课程id
+     *
+     * */
+    void judgeHasCourseOrEva(Integer courseId, SelfTeachCourseTimeCO timeCO);
 }

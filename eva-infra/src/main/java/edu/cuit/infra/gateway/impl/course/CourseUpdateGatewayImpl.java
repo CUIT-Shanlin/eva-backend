@@ -236,7 +236,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                 +"，第"+updateSingleCourseCmd.getTime().getStartTime()+"-"+updateSingleCourseCmd.getTime().getEndTime()+"节。教室："+
                 updateSingleCourseCmd.getLocation()*/
         map.put(userDO.getName()+"老师的"+name+"课程("+natureName+")的上课时间被修改了",null);
-        map.put("因为"+userDO.getName()+"老师的"+name+"课程("+natureName+")的上课时间修改，故已取消您对该课程的评教任务",mapEva);
+        map.put("因为"+userDO.getName()+"老师的"+name+"课程(原定于"+courINfo.getWeek()+"周，星期"+courINfo.getDay()+" 位于"+courINfo.getLocation()+")("+natureName+")的上课时间/上课地点修改，故已取消您对该课程的评教任务",mapEva);
         LogUtils.logContent(name+"上课时间信息");
         localCacheManager.invalidateCache(null,evaCacheConstants.LOG_LIST);
         localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM,String.valueOf(semId));
@@ -618,9 +618,10 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
 
     @Override
     @Transactional
-    public Void addExistCoursesDetails(Integer courseId, SelfTeachCourseTimeCO timeCO) {
+    public Void addExistCoursesDetails(Integer semId,Integer courseId, SelfTeachCourseTimeCO timeCO) {
+
         for (Integer week : timeCO.getWeeks()) {
-            judgeAlsoHasLocation(week,timeCO);
+            judgeAlsoHasLocation(week,timeCO,semId);
             CourInfDO courInfDO=new CourInfDO();
             courInfDO.setCourseId(courseId);
             courInfDO.setWeek(week);
@@ -641,22 +642,38 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         return null;
     }
 
-    private void judgeAlsoHasLocation(Integer week, SelfTeachCourseTimeCO timeCO) {
-        CourInfDO courInfDO = courInfMapper.selectOne(new QueryWrapper<CourInfDO>()
-                .eq("week", week)
-                .eq("day", timeCO.getDay())
-                .eq("location", timeCO.getClassroom())
-                .le("start_time", timeCO.getEndTime())
-                .ge("end_time", timeCO.getStartTime()));
-        if(courInfDO!=null){
-            throw new UpdateException("该时间段教室冲突，请修改时间");
+    private void judgeAlsoHasLocation(Integer week, SelfTeachCourseTimeCO timeCO,Integer semId) {
+
+            List<CourInfDO> courInfDO = courInfMapper.selectList(new QueryWrapper<CourInfDO>()
+                    .eq("week", week)
+                    .eq("day", timeCO.getDay())
+                    .eq("location", timeCO.getClassroom())
+                    .eq("start_time", timeCO.getStartTime())
+                    .eq("end_time", timeCO.getEndTime()));
+           /* if (courInfDO != null) {
+                throw new UpdateException("该时间段教室冲突，请修改时间");
+            }*/
+        //根据CourInfDo来查Course
+        for (CourInfDO courseInfo : courInfDO) {
+            CourseDO courseDO = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", courseInfo.getCourseId()).eq("semester_id", semId));
+            if (courseDO != null) {
+                throw new UpdateException("该时间段教室冲突，请修改时间");
+            }
         }
+
 
     }
 
     @Override
     @Transactional
     public void addNotExistCoursesDetails(Integer semId, Integer teacherId, UpdateCourseCmd courseInfo, List<SelfTeachCourseTimeCO> dateArr) {
+        //找出老师这学期所有课程（判断是否有课程或者评教任务冲突）
+        List<CourseDO> courseDOList = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId).eq("teacher_id", teacherId));
+        dateArr.forEach(
+                courseTimetoJudge -> {
+                    courseDOList.forEach(courseDO -> {judgeHasCourseOrEva(courseDO.getId(),courseTimetoJudge);});
+                }
+        );
         SubjectDO subjectDO1 = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("name", courseInfo.getSubjectMsg().getName()).eq("nature", courseInfo.getSubjectMsg().getNature()));
         Integer subjectId=null;
         if(subjectDO1==null) {
@@ -700,7 +717,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         //插入课程时间表
         for (SelfTeachCourseTimeCO time : dateArr) {
             for (Integer week : time.getWeeks()) {
-                judgeAlsoHasLocation(week,time);
+                judgeAlsoHasLocation(week,time,semId);
                 CourInfDO courInfDO = new CourInfDO();
                 courInfDO.setCourseId(courseDOId);
                 courInfDO.setWeek(week);
@@ -754,6 +771,19 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                 courseTypeCourseDO.setCreateTime(LocalDateTime.now());
                 courseTypeCourseMapper.insert(courseTypeCourseDO);
             }
+        }
+    }
+
+    @Override
+    public void judgeHasCourseOrEva(Integer courseId, SelfTeachCourseTimeCO timeCO) {
+        //找数据库中是否有对应课程
+        if(courInfMapper.exists(new QueryWrapper<CourInfDO>().eq("course_id", courseId).in("week", timeCO.getWeeks()).eq("day", timeCO.getDay()).eq("start_Time", timeCO.getStartTime()).eq(false,"end_time", timeCO.getEndTime())))
+            throw new UpdateException("该教师在该时间段有课程");
+        CourseDO courseDO = courseMapper.selectById(courseId);
+        List<EvaTaskDO> taskDOList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id", courseDO.getTeacherId()).eq("status", 0));
+        for (EvaTaskDO evaTaskDO : taskDOList) {
+            if(courInfMapper.exists(new QueryWrapper<CourInfDO>().eq("id", evaTaskDO.getCourInfId()).in("week", timeCO.getWeeks()).eq("day", timeCO.getDay()).eq("start_Time", timeCO.getStartTime()).eq(false,"end_time", timeCO.getEndTime())))
+                throw new UpdateException("该教师在该时间段有评教任务");
         }
     }
 }

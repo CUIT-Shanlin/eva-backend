@@ -27,7 +27,7 @@ public class UpdateSingleCourseCmd extends ClientObject {
     private String location;
 
     /**
-     * =课程时间模型
+     * 课程时间模型
      */
     @NotNull(message = "课程时间不能为空")
     private CourseTime time;

@@ -80,8 +80,10 @@ public class UpdateCourseController {
     @SaCheckPermission("course.tabulation.update")
     public CommonResult<Void> updateSingleCourse(
             @RequestParam(value = "semId",required = false) Integer semId,
-            @Valid @RequestBody UpdateSingleCourseCmd updateSingleCourseCmd){
-        courseService.updateSingleCourse(semId, updateSingleCourseCmd);
+            @Valid @RequestBody UpdateSingleCourseCmd updateSingleCourseCmd,
+            @RequestParam(value = "weekList",required = false)List<Integer> weekList,
+            @RequestParam(value = "isBatchUpdate",required = false,defaultValue = "false")Boolean isBatchUpdate){
+        courseService.updateSingleCourse(semId, updateSingleCourseCmd, weekList, isBatchUpdate);
         return CommonResult.success(null);
     }
 
@@ -202,7 +204,7 @@ public class UpdateCourseController {
              @PathVariable Integer courseId,
             @Valid @RequestBody List<SelfTeachCourseTimeCO> timeCO){
         for (SelfTeachCourseTimeCO selfTeachCourseTimeCO : timeCO) {
-            courseService.addExistCoursesDetails(courseId, selfTeachCourseTimeCO);
+            courseService.addExistCoursesDetails(null,courseId, selfTeachCourseTimeCO);
         }
         return CommonResult.success(null);
     }

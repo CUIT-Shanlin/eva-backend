@@ -7,6 +7,8 @@ import edu.cuit.client.dto.clientobject.eva.UserSingleCourseScoreCO;
 import edu.cuit.domain.entity.user.biz.UserEntity;
 import org.apache.poi.ss.usermodel.Row;
 
+import java.io.UnsupportedEncodingException;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +17,8 @@ import java.util.Map;
  * 填充课程分数sheet
  */
 public class FillAverageScoreExporterDecorator extends EvaStatisticsExporter {
+
+    private static final DecimalFormat decimalFormat = new DecimalFormat("#.00");
 
     private int rowIndex = 2;
 
@@ -69,7 +73,7 @@ public class FillAverageScoreExporterDecorator extends EvaStatisticsExporter {
             createCell(courseFirstRow,2).setCellValue(userSingleCourseScore.getCourseName());
             createCell(courseFirstRow,4).setCellValue(getCourseNature(course));
             createCell(courseFirstRow,5).setCellValue(userSingleCourseScore.getEvaNum());
-            createCell(courseFirstRow,12).setCellValue(userSingleCourseScore.getScore());
+            createCell(courseFirstRow,12).setCellValue(userSingleCourseScore.getScore() < 0 ? "-" : round(userSingleCourseScore.getScore()));
 
             // 处理课程指标
             List<CourseScoreCO> courseScoreList = courseDetailService.evaResult(course.getCourseBaseMsg().getId());
@@ -80,10 +84,27 @@ public class FillAverageScoreExporterDecorator extends EvaStatisticsExporter {
                     propsRow.setHeight((short)(24*20));
 
                     ExcelUtils.createRegion(rowIndex, rowIndex,6,8,sheet);
-                    createCell(propsRow,6).setCellValue(courseScore.getProp());
-                    createCell(propsRow,9).setCellValue(courseScore.getMinScore());
-                    createCell(propsRow,10).setCellValue(courseScore.getAverScore());
-                    createCell(propsRow,11).setCellValue(courseScore.getMaxScore());
+
+                    String propStr = courseScore.getProp();
+                    int delimiterIndex = propStr.indexOf('|');
+                    String maxScore = propStr.substring(0, delimiterIndex);
+                    propStr = propStr.substring(delimiterIndex + 1);
+
+                    createCell(propsRow,6).setCellValue(String.format("%s (%s)",propStr,maxScore));
+
+                    int textLength = 0;
+                    try {
+                        textLength = (propStr.getBytes("GBK").length) * 256;
+                    } catch (UnsupportedEncodingException e) {
+                        throw new RuntimeException(e);
+                    }
+                    int columnWidth = sheet.getColumnWidth(6);
+                    if (textLength > columnWidth * 3) {
+                        propsRow.setHeight((short) (((textLength / (columnWidth*3)) + 4) * (propsRow.getHeight() / 2)));
+                    }
+                    createCell(propsRow,9).setCellValue(courseScore.getMinScore() <= -1 ? "-" : round(courseScore.getMinScore()));
+                    createCell(propsRow,10).setCellValue(courseScore.getAverScore() <= -1 ? "-" : round(courseScore.getAverScore()));
+                    createCell(propsRow,11).setCellValue(courseScore.getMaxScore() <= -1 ? "-" : round(courseScore.getMaxScore()));
                     rowIndex++;
                 }
             } else {
@@ -93,9 +114,9 @@ public class FillAverageScoreExporterDecorator extends EvaStatisticsExporter {
 
                 ExcelUtils.createRegion(rowIndex, rowIndex,6,8 ,sheet);
                 createCell(propsRow,6).setCellValue("无指标");
-                createCell(propsRow,9).setCellValue(-1);
-                createCell(propsRow,10).setCellValue(-1);
-                createCell(propsRow,11).setCellValue(-1);
+                createCell(propsRow,9).setCellValue("-");
+                createCell(propsRow,10).setCellValue("-");
+                createCell(propsRow,11).setCellValue("-");
                 rowIndex++;
             }
 
@@ -117,18 +138,21 @@ public class FillAverageScoreExporterDecorator extends EvaStatisticsExporter {
         Row headerRow = sheet.createRow(1);
         headerRow.setHeight((short)(24*25));
 
-
         // 处理教师格
         createHeaderCell(0,1,"教师",headerRow);
         createHeaderCell(2,3,"课程",headerRow);
         createHeaderCell(4,4,"性质",headerRow);
         createHeaderCell(5,5,"评教次数",headerRow);
-        createHeaderCell(6,8,"指标",headerRow);
+        createHeaderCell(6,8,"指标 (满分)",headerRow);
         createHeaderCell(9,9,"最低分",headerRow);
         createHeaderCell(10,10,"平均分",headerRow);
         createHeaderCell(11,11,"最高分",headerRow);
         createHeaderCell(12,13,"课程平均分",headerRow);
 
+    }
+
+    private String round(Double d) {
+        return decimalFormat.format(d);
     }
 
 }
