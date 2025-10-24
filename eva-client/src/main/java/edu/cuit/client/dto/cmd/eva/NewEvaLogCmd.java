@@ -30,5 +30,6 @@ public class NewEvaLogCmd extends Command {
     /**
      * 那节课的课程主题
      */
+    @NotBlank(message = "课程主题不能为空")
     private String topic;
 }

@@ -90,6 +90,10 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         formRecordDO.setTopic(cmd.getTopic());
         formRecordDO.setTaskId(cmd.getTaskId());
         formRecordDO.setTextValue(cmd.getTextValue());
+        //判断主题是否高于50个字符
+        if(cmd.getTopic().length()>50){
+            throw new UpdateException("输入的评价主题过长，请精简您的评价主题哦");
+        }
 
         //判断评价是否低于50个字符
         if(cmd.getTextValue().length()<50){
