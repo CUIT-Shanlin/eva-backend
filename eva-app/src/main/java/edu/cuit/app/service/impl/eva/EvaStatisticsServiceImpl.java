@@ -86,6 +86,7 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
         UnqualifiedUserResultCO error=new UnqualifiedUserResultCO();
         error.setTotal(0).setDataArr(List.of());
         EvaConfigEntity evaConfig = evaConfigGateway.getEvaConfig();
+        //0：获取 评教 未达标的用户、1：获取 被评教 次数未达标的用户
         if(type==0){
             unqualifiedUserResultCO=evaQueryGateway.getEvaTargetAmountUnqualifiedUser(semId,num,evaConfig.getMinEvaNum()).orElseGet(()->error);
         } else if(type==1){

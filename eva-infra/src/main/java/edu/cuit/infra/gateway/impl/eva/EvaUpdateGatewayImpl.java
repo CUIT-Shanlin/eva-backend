@@ -114,7 +114,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         //判断客户输入指标分值是否超过最大值
         for(int i=0;i<cmd.getFormPropsValues().size();i++){
             double a=cmd.getFormPropsValues().get(i).getScore().doubleValue();//指标对应分数
-            String s=cmd.getFormPropsValues().get(i).getProp();
+            String s=cmd.getFormPropsValues().get(i).getProp();//指标名称
             // 使用split方法分割字符串，限制分成两部分以处理多个|
             String[] parts = s.split("\\|", 2);
             if (parts.length < 1) {
@@ -122,10 +122,17 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
             }
             String numberStr = parts[0].trim(); // 去除前后空格
             double b=Double.parseDouble(numberStr);//指标最高分
+            if(a==0){
+                throw new UpdateException("由于部分老师出现“不小心”提交情况，需要求每个指标分数至少为1");
+            }
             if(a>b){
-                throw new RuntimeException("指标对应评教分数不能高于该项指标最高分哦");
+                throw new UpdateException("指标对应评教分数不能高于该项指标最高分哦");
             }
         }
+
+        //为防止用户不小心没填分数提交，则进行判断，传过来每一个指标分数不能为0，最低为1，也不能为空
+
+
         formRecordDO.setFormPropsValues(JSONUtil.toJsonStr(cmd.getFormPropsValues()));
         formRecordMapper.insert(formRecordDO);
         //加缓存

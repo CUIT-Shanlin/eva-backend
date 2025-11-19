@@ -1,6 +1,7 @@
 package edu.cuit.client.dto.clientobject;
 import com.alibaba.cola.dto.ClientObject;
 import edu.cuit.client.dto.data.course.CourseTime;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
