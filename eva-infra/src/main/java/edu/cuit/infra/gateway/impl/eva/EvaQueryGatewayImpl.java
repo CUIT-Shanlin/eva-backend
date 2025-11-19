@@ -966,15 +966,8 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
         //根据系查老师
         List<Integer> getCached=localCacheManager.getCache(null,userCacheConstants.ALL_USER_ID);
         if(CollectionUtil.isEmpty(getCached)) {
-            //从老师中进行筛选，我们选出所有这学期有课的老师来进行  参与评教被达标统计
-            //先找这学期内所有课程
-            List<CourseDO> courseDOList = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId));
-            if(CollectionUtil.isEmpty(courseDOList)){
-                throw new QueryException("未在这学期找到相关的课程");
-            }
-            //通过课程找到所有相关老师
-            List<Integer> teacherIdS = courseDOList.stream().map(CourseDO::getTeacherId).distinct().toList();
-
+            List<SysUserDO> teacher = sysUserMapper.selectList(null);
+            List<Integer> teacherIdS = teacher.stream().map(SysUserDO::getId).toList();
             localCacheManager.putCache(null,userCacheConstants.ALL_USER_ID,teacherIdS);
             getCached=localCacheManager.getCache(null,userCacheConstants.ALL_USER_ID);
         }

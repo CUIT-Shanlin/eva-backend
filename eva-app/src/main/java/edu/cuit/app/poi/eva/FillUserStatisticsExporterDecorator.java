@@ -31,6 +31,7 @@ public class FillUserStatisticsExporterDecorator extends EvaStatisticsExporter {
 
     private EvaConfig evaConfig;
     private XSSFCellStyle unqualifiedCellStyle;
+    private XSSFCellStyle noCourseBeEvaUnqualifiedCellStyle;
 
     @Override
     protected void process() {
@@ -39,10 +40,17 @@ public class FillUserStatisticsExporterDecorator extends EvaStatisticsExporter {
         sheet = workbook.createSheet("任务统计");
         evaConfig = evaConfigService.getEvaConfig();
 
+        // 创建未达标样式
         unqualifiedCellStyle = workbook.createCellStyle();
         unqualifiedCellStyle.cloneStyleFrom(getContentStyle());
         unqualifiedCellStyle.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.getIndex());
         unqualifiedCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+        // 创建虽然未达标但没有办法因为本学期没有课程的样式
+        noCourseBeEvaUnqualifiedCellStyle= workbook.createCellStyle();
+        noCourseBeEvaUnqualifiedCellStyle.cloneStyleFrom(getContentStyle());
+        noCourseBeEvaUnqualifiedCellStyle.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());
+        noCourseBeEvaUnqualifiedCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
         createHeader();
         insertData();
@@ -61,6 +69,9 @@ public class FillUserStatisticsExporterDecorator extends EvaStatisticsExporter {
     private int rowIndex = 2;
 
     private void insertTeacherData(UserEntity teacher) {
+        //去查老师这学期有没有课程
+        List<Integer> courseIds = userCourseService.getUserCourses(semId, teacher.getId());
+
         Row teacherRow = createRow(rowIndex);
 
         createCell(teacherRow,0).setCellValue(teacher.getName());
@@ -74,6 +85,7 @@ public class FillUserStatisticsExporterDecorator extends EvaStatisticsExporter {
         int unqualifiedEvaCount = evaConfig.getMinEvaNum() - count.get(0);
         createCell(teacherRow,3).setCellValue(Math.max(unqualifiedEvaCount, 0));
         Cell isEvaQualifiedCell = createCell(teacherRow, 4);
+        //评教次数
         if (unqualifiedEvaCount > 0) {
             isEvaQualifiedCell.setCellStyle(unqualifiedCellStyle);
             isEvaQualifiedCell.setCellValue("否");
@@ -83,9 +95,15 @@ public class FillUserStatisticsExporterDecorator extends EvaStatisticsExporter {
         int unqualifiedBeEvaCount = evaConfig.getMinBeEvaNum() - count.get(1);
         createCell(teacherRow,6).setCellValue(Math.max(unqualifiedBeEvaCount,0));
         Cell isBeEvaQualifiedCell = createCell(teacherRow, 7);
+        //被评教次数(只有待被评教次数>0且老师确实这学期有课才不达标)
         if (unqualifiedBeEvaCount > 0) {
-            isBeEvaQualifiedCell.setCellStyle(unqualifiedCellStyle);
-            isBeEvaQualifiedCell.setCellValue("否");
+            if(courseIds.size()==0){
+                isBeEvaQualifiedCell.setCellStyle(noCourseBeEvaUnqualifiedCellStyle);//变绿特效
+                isBeEvaQualifiedCell.setCellValue("是");
+            }else {
+                isBeEvaQualifiedCell.setCellStyle(unqualifiedCellStyle);//变黄特效
+                isBeEvaQualifiedCell.setCellValue("否");
+            }
         } else isBeEvaQualifiedCell.setCellValue("是");
 
         rowIndex++;
