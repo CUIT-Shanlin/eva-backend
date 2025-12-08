@@ -21,7 +21,7 @@ env:
 jobs:
   build:
     name: Build Artifact
-    runs-on: ubuntu-latest
+    runs-on: shanlin
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,6 +33,8 @@ jobs:
           distribution: temurin
           java-version: "17"
           cache: maven
+          server-username: 'LystranG'
+          server-password: ${{ secrets.PACKAGE_TOKEN }}
       - name: Package server JAR
         run: mvn package -Dmaven.test.skip=true
       - name: Upload server artifact
@@ -44,7 +46,7 @@ jobs:
 
   publish:
     name: Publish Production Image
-    runs-on: ubuntu-latest
+    runs-on: shanlin
     needs: build
     if: github.ref == 'refs/heads/master'
     steps:
@@ -80,7 +82,7 @@ jobs:
 
   publish-test:
     name: Publish Test Image
-    runs-on: ubuntu-latest
+    runs-on: shanlin
     needs: build
     if: github.ref == 'refs/heads/master-test'
     steps:
@@ -116,7 +118,7 @@ jobs:
 
   recreate-test:
     name: Trigger Portainer Update (Test)
-    runs-on: ubuntu-latest
+    runs-on: shanlin
     needs:
       - build
       - publish-test
