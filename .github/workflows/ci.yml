@@ -15,6 +15,7 @@ env:
   PROD_IMAGE: 'ghcr.io/cuit-shanlin/eva-server'
   TEST_IMAGE: 'ghcr.io/cuit-shanlin/eva-server-test'
   PACKAGE_ACTOR: 'LystranG'
+  PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
 
 jobs:
   build:
