@@ -69,20 +69,18 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build production image
-        run: |
-          docker pull ${PROD_IMAGE}:latest || true
-          docker build \
-            --cache-from ${PROD_IMAGE}:latest \
-            --build-arg JVMOPTIONS="-Dspring.profiles.active=prod" \
-            -t eva-server:${EVA_VERSION} .
-
-      - name: Tag and push production image
-        run: |
-          docker tag eva-server:${EVA_VERSION} ${PROD_IMAGE}:${EVA_VERSION}
-          docker push ${PROD_IMAGE}:${EVA_VERSION}
-          docker tag eva-server:${EVA_VERSION} ${PROD_IMAGE}:latest
-          docker push ${PROD_IMAGE}:latest
+      - name: Build and push test image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          cache-from: type=registry,ref=${{ env.PROD_IMAGE }}:latest
+          cache-to: type=inline
+          build-args: |
+            JVMOPTIONS=-Dspring.profiles.active=prod
+          tags: |
+            ${{ env.PROD_IMAGE }}:${{ env.EVA_VERSION }}
+            ${{ env.PROD_IMAGE }}:latest
 
   publish-test:
     name: Publish Test Image
@@ -108,17 +106,18 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build test image
-        run: |
-          docker build \
-            --build-arg JVMOPTIONS="-Dspring.profiles.active=debug" \
-            -t eva-server-test:${EVA_TEST_VERSION} .
-      - name: Tag and push test image
-        run: |
-          docker tag eva-server-test:${EVA_TEST_VERSION} ${TEST_IMAGE}:${EVA_TEST_VERSION}
-          docker push ${TEST_IMAGE}:${EVA_TEST_VERSION}
-          docker tag eva-server-test:${EVA_TEST_VERSION} ${TEST_IMAGE}:latest
-          docker push ${TEST_IMAGE}:latest
+      - name: Build and push test image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          cache-from: type=registry,ref=${{ env.TEST_IMAGE }}:latest
+          cache-to: type=inline
+          build-args: |
+              JVMOPTIONS=-Dspring.profiles.active=debug
+          tags: |
+            ${{ env.TEST_IMAGE }}:${{ env.EVA_TEST_VERSION }}
+            ${{ env.TEST_IMAGE }}:latest
 
   recreate-test:
     name: Trigger Portainer Update (Test)
