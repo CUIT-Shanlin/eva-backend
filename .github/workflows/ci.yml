@@ -14,6 +14,7 @@ env:
   SERVER_ARTIFACT: eva-server-jar
   PROD_IMAGE: 'ghcr.io/cuit-shanlin/eva-server'
   TEST_IMAGE: 'ghcr.io/cuit-shanlin/eva-server-test'
+  PACKAGE_ACTOR: 'LystranG'
 
 jobs:
   build:
@@ -30,21 +31,8 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
           cache: maven
-          server-username: 'LystranG'
-          server-password: ${{ secrets.PACKAGE_TOKEN }}
-
-      - name: Configure Maven authentication
-        run: |
-          mkdir -p ~/.m2
-          echo "<settings>
-            <servers>
-              <server>
-                <id>github</id>
-                <username>LystranG</username>
-                <password>${{ secrets.PACKAGE_TOKEN }}</password>
-              </server>
-            </servers>
-          </settings>" > ~/.m2/settings.xml
+          server-username: 'PACKAGE_ACTOR'
+          server-password: 'PACKAGE_TOKEN'
 
       - name: Package server JAR
         run: mvn package -Dmaven.test.skip=true
