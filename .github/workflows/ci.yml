@@ -110,9 +110,7 @@ jobs:
 
       - name: Build test image
         run: |
-#          docker pull ${TEST_IMAGE}:latest || true
           docker build \
-#            --cache-from ${TEST_IMAGE}:latest \
             --build-arg JVMOPTIONS="-Dspring.profiles.active=debug" \
             -t eva-server-test:${EVA_TEST_VERSION} .
       - name: Tag and push test image
