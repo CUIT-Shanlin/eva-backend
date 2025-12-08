@@ -10,9 +10,6 @@ on:
 env:
   EVA_VERSION: 2.07-SNAPSHOT
   EVA_TEST_VERSION: 2.19
-  HARBOR_HOST: ${{ secrets.HARBOR_HOST }}
-  HARBOR_USERNAME: ${{ secrets.HARBOR_USERNAME }}
-  HARBOR_PASSWORD: ${{ secrets.HARBOR_PASSWORD }}
   PORTAINER_UPDATE_TEST_URL: ${{ secrets.PORTAINER_UPDATE_TEST_URL }}
   SERVER_ARTIFACT: eva-server-jar
   PROD_IMAGE: ${{ format('{0}/eva-system/eva-server', secrets.HARBOR_HOST) }}
@@ -63,9 +60,9 @@ jobs:
       - name: Log in to Harbor
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.HARBOR_HOST }}
-          username: ${{ env.HARBOR_USERNAME }}
-          password: ${{ env.HARBOR_PASSWORD }}
+          registry: ${{ secrets.HARBOR_HOST }}
+          username: ${{ secrets.HARBOR_USERNAME }}
+          password: ${{ secrets.HARBOR_PASSWORD }}
       - name: Build production image
         run: |
           docker pull ${PROD_IMAGE}:latest || true
@@ -99,9 +96,9 @@ jobs:
       - name: Log in to Harbor
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.HARBOR_HOST }}
-          username: ${{ env.HARBOR_USERNAME }}
-          password: ${{ env.HARBOR_PASSWORD }}
+          registry: ${{ secrets.HARBOR_HOST }}
+          username: ${{ secrets.HARBOR_USERNAME }}
+          password: ${{ secrets.HARBOR_PASSWORD }}
       - name: Build test image
         run: |
           docker pull ${TEST_IMAGE}:latest || true
