@@ -47,6 +47,9 @@ jobs:
   publish:
     name: Publish Production Image
     runs-on: shanlin
+    permissions:
+      contents: read
+      packages: write
     needs: build
     if: github.ref == 'refs/heads/master'
     steps:
@@ -87,6 +90,9 @@ jobs:
   publish-test:
     name: Publish Test Image
     runs-on: shanlin
+    permissions:
+      contents: read
+      packages: write
     needs: build
     if: github.ref == 'refs/heads/master-test'
     steps:
