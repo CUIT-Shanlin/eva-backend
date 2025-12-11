@@ -74,4 +74,3 @@ management:
       enabled: true  # 启用存活状态检测
     readinessState:
       enabled: true  # 启用就绪状态检测
-
