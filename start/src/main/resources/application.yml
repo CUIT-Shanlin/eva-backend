@@ -40,9 +40,6 @@ spring:
 mybatis-plus:
   global-config:
     db-config:
-      logic-delete-field: isDeleted
-      logic-delete-value: 1
-      logic-not-delete-value: 0
       id-type: auto
   configuration:
     map-underscore-to-camel-case: true
@@ -74,4 +71,3 @@ management:
       enabled: true  # 启用存活状态检测
     readinessState:
       enabled: true  # 启用就绪状态检测
-

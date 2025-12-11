@@ -1,4 +1,4 @@
-FROM registry.littlestrange.site/library/eclipse-temurin:17-jre
+FROM docker.1ms.run/library/eclipse-temurin:17-jre
 
 LABEL authors="LittleStrange"
 MAINTAINER  "LittleStrange"
