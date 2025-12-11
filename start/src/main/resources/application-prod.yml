@@ -17,7 +17,7 @@ spring:
           driver-class-name: org.mariadb.jdbc.Driver
 
   ldap:
-    urls: ldap://192.168.1.13:1389
+    urls: ldap://eva-ldap:1389
     base: dc=3015,dc=cuit
     username: cn=admin,dc=3015,dc=cuit
     password: 30153015
