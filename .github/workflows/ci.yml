@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  EVA_VERSION: 2.08-SNAPSHOT
+  EVA_VERSION: 2.09-SNAPSHOT
   EVA_TEST_VERSION: 2.19
   PORTAINER_UPDATE_TEST_URL: ${{ secrets.PORTAINER_UPDATE_TEST_URL }}
   SERVER_ARTIFACT: eva-server-jar
