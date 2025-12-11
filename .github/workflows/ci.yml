@@ -62,7 +62,7 @@ jobs:
         uses: actions/download-artifact@v5
         with:
           name: ${{ env.SERVER_ARTIFACT }}
-          path: start/target/eva-server.jar
+          path: start/target
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -101,10 +101,10 @@ jobs:
         with:
           fetch-depth: 0
       - name: Download server artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: ${{ env.SERVER_ARTIFACT }}
-          path: start/target/eva-server.jar
+          path: start/target
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
