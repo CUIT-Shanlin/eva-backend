@@ -27,7 +27,7 @@
     <spring-boot-maven-plugin.version>3.3.2</spring-boot-maven-plugin.version>
     <lombok.version>1.18.38</lombok.version>
     <mapstruct.version>1.5.5.Final</mapstruct.version>
-    <sa-token.version>1.40.0</sa-token.version>
+    <sa-token.version>1.37.0</sa-token.version>
     <revision>1.0</revision>
     <!-- Sonar设置 -->
     <sonar.projectKey>eva-project-group_backend-group_eva-backend_1ed3cea6-18ee-40a1-a9c5-976bffae773a</sonar.projectKey>
@@ -63,7 +63,7 @@
       <dependency>
         <groupId>edu.cuit.zhuyimeng</groupId>
         <artifactId>zym-spring-boot-starter-security</artifactId>
-        <version>1.2.1</version>
+        <version>1.2.2</version>
       </dependency>
       <dependency>
         <groupId>edu.cuit.zhuyimeng</groupId>

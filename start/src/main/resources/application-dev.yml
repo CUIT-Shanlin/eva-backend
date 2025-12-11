@@ -42,3 +42,5 @@ eva:
 
 common:
   print-illegal-arguments: true
+
+debug: true
