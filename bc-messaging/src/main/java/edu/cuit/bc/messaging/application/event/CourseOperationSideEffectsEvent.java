@@ -9,6 +9,10 @@ import java.util.Map;
  */
 public record CourseOperationSideEffectsEvent(
         Integer operatorUserId,
-        Map<String, Map<Integer, Integer>> messageMap
-) { }
-
+        Map<String, Map<Integer, Integer>> messageMap,
+        CourseOperationMessageMode messageMode
+) {
+    public CourseOperationSideEffectsEvent(Integer operatorUserId, Map<String, Map<Integer, Integer>> messageMap) {
+        this(operatorUserId, messageMap, CourseOperationMessageMode.NORMAL);
+    }
+}

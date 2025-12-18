@@ -14,10 +14,10 @@ import edu.cuit.app.service.impl.MsgServiceImpl;
 import edu.cuit.app.service.operate.course.MsgResult;
 import edu.cuit.app.service.operate.course.query.UserCourseDetailQueryExec;
 import edu.cuit.app.service.operate.course.update.FileImportExec;
+import edu.cuit.bc.messaging.application.event.CourseOperationMessageMode;
 import edu.cuit.bc.messaging.application.event.CourseOperationSideEffectsEvent;
 import edu.cuit.client.api.course.IUserCourseService;
 import edu.cuit.client.bo.CourseExcelBO;
-import edu.cuit.client.bo.MessageBO;
 import edu.cuit.client.dto.clientobject.SemesterCO;
 import edu.cuit.client.dto.clientobject.SimpleSubjectResultCO;
 import edu.cuit.client.dto.clientobject.course.*;
@@ -135,50 +135,29 @@ public class IUserCourseServiceImpl implements IUserCourseService {
 
     @Override
     public Void deleteSelfCourse(Integer courseId) {
-        Map<String, Map<Integer,Integer>> map = courseDeleteGateway.deleteSelfCourse(String.valueOf(StpUtil.getLoginId()), courseId);
-        Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
-        for (Map.Entry<String, Map<Integer, Integer>> stringMapEntry : map.entrySet()) {
-            Map<String,Map<Integer,Integer>> map1=new HashMap<>();
-            map1.put(stringMapEntry.getKey(),stringMapEntry.getValue());
-            if(stringMapEntry.getValue()==null){
-                msgResult.SendMsgToAll(map1, userId.orElseThrow(() -> new QueryException("请先登录")));
-            } else if (!stringMapEntry.getValue().isEmpty()) {
-                msgResult.toNormalMsg(map1, userId.orElseThrow(() -> new QueryException("请先登录")));
-                stringMapEntry.getValue().forEach((k,v)->msgService.deleteEvaMsg(k,null));
-            }
+        Map<String, Map<Integer, Integer>> map = courseDeleteGateway.deleteSelfCourse(String.valueOf(StpUtil.getLoginId()), courseId);
+        Integer operatorUserId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId())
+                .orElseThrow(() -> new QueryException("请先登录"));
 
-        }
-
-
+        // 渐进式 DDD 重构：把“教师自助删课”的跨域副作用（消息通知、撤回评教消息）事件化交给 bc-messaging 处理
+        afterCommitEventPublisher.publishAfterCommit(new CourseOperationSideEffectsEvent(operatorUserId, map));
         return null;
     }
 
     @Override
     public Void updateSelfCourse(SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeInfoCO> timeList) {
-        Map<String, Map<Integer, Integer>> mapMsg = courseUpdateGateway.updateSelfCourse(String.valueOf(StpUtil.getLoginId()), selfTeachCourseCO, timeList);
-        Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
-        for (Map.Entry<String, Map<Integer, Integer>> stringMapEntry : mapMsg.entrySet()) {
-            Map<String,Map<Integer,Integer>> map=new HashMap<>();
-            map.put(stringMapEntry.getKey(),stringMapEntry.getValue());
-            if(stringMapEntry.getValue()==null&&stringMapEntry.getKey()!=null&& !stringMapEntry.getKey().isEmpty()){
-                msgResult.SendMsgToAll(map, userId.orElseThrow(() -> new QueryException("请先登录")));
-            }else if(!Objects.equals(stringMapEntry.getKey(), "")&&!stringMapEntry.getValue().isEmpty()){
-                MessageBO messageBO=new MessageBO();
-                messageBO.setMsg(stringMapEntry.getKey());
-            for (Map.Entry<Integer, Integer> mapEntry : stringMapEntry.getValue().entrySet()) {
-                messageBO.setTaskId(mapEntry.getKey()).setMode(0)
-                        .setTaskId(mapEntry.getKey())
-                        .setRecipientId(mapEntry.getValue())
-                        .setType(1)
-                        .setIsShowName(1)
-                        .setSenderId(userId.orElseThrow(()->new QueryException("请先登录")));
-                msgService.sendMessage(messageBO);
-                msgService.deleteEvaMsg(mapEntry.getKey(),null);
-            }
-            }
+        Map<String, Map<Integer, Integer>> mapMsg = courseUpdateGateway.updateSelfCourse(
+                String.valueOf(StpUtil.getLoginId()),
+                selfTeachCourseCO,
+                timeList
+        );
+        Integer operatorUserId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId())
+                .orElseThrow(() -> new QueryException("请先登录"));
 
-        }
-
+        // 渐进式 DDD 重构：保持历史“携带 taskId 的消息”行为不变，事件化交给 bc-messaging 处理
+        afterCommitEventPublisher.publishAfterCommit(
+                new CourseOperationSideEffectsEvent(operatorUserId, mapMsg, CourseOperationMessageMode.TASK_LINKED)
+        );
         return null;
     }
 

@@ -24,5 +24,9 @@ public class CourseBroadcastPortAdapter implements CourseBroadcastPort {
     public void sendNormal(Map<String, Map<Integer, Integer>> messageMap, Integer operatorUserId) {
         msgResult.toNormalMsg(messageMap, operatorUserId);
     }
-}
 
+    @Override
+    public void sendTaskLinked(Map<String, Map<Integer, Integer>> messageMap, Integer operatorUserId) {
+        msgResult.toSendMsg(messageMap, operatorUserId);
+    }
+}

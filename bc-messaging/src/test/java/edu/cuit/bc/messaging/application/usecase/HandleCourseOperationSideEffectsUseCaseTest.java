@@ -1,6 +1,7 @@
 package edu.cuit.bc.messaging.application.usecase;
 
 import edu.cuit.bc.messaging.application.event.CourseOperationSideEffectsEvent;
+import edu.cuit.bc.messaging.application.event.CourseOperationMessageMode;
 import edu.cuit.bc.messaging.application.port.CourseBroadcastPort;
 import edu.cuit.bc.messaging.application.port.EvaMessageCleanupPort;
 import org.junit.jupiter.api.Test;
@@ -33,12 +34,33 @@ class HandleCourseOperationSideEffectsUseCaseTest {
 
         assertEquals(1, broadcastPort.toAll.size());
         assertEquals(1, broadcastPort.normal.size());
+        assertEquals(0, broadcastPort.taskLinked.size());
         assertEquals(Set.of(10, 20), Set.copyOf(cleanupPort.deletedTaskIds));
+    }
+
+    @Test
+    void handle_shouldSendTaskLinkedWhenModeTaskLinked_andCleanupWhenValueNonEmpty() {
+        RecordingBroadcastPort broadcastPort = new RecordingBroadcastPort();
+        RecordingCleanupPort cleanupPort = new RecordingCleanupPort();
+        HandleCourseOperationSideEffectsUseCase useCase = new HandleCourseOperationSideEffectsUseCase(broadcastPort, cleanupPort);
+
+        Map<String, Map<Integer, Integer>> messageMap = new HashMap<>();
+        Map<Integer, Integer> taskMap = new HashMap<>();
+        taskMap.put(10, 1);
+        messageMap.put("携带任务ID的通知", taskMap);
+
+        useCase.handle(new CourseOperationSideEffectsEvent(1, messageMap, CourseOperationMessageMode.TASK_LINKED));
+
+        assertEquals(0, broadcastPort.toAll.size());
+        assertEquals(0, broadcastPort.normal.size());
+        assertEquals(1, broadcastPort.taskLinked.size());
+        assertEquals(Set.of(10), Set.copyOf(cleanupPort.deletedTaskIds));
     }
 
     private static class RecordingBroadcastPort implements CourseBroadcastPort {
         private final List<Map<String, Map<Integer, Integer>>> toAll = new ArrayList<>();
         private final List<Map<String, Map<Integer, Integer>>> normal = new ArrayList<>();
+        private final List<Map<String, Map<Integer, Integer>>> taskLinked = new ArrayList<>();
 
         @Override
         public void sendToAll(Map<String, Map<Integer, Integer>> messageMap, Integer operatorUserId) {
@@ -48,6 +70,11 @@ class HandleCourseOperationSideEffectsUseCaseTest {
         @Override
         public void sendNormal(Map<String, Map<Integer, Integer>> messageMap, Integer operatorUserId) {
             normal.add(messageMap);
+        }
+
+        @Override
+        public void sendTaskLinked(Map<String, Map<Integer, Integer>> messageMap, Integer operatorUserId) {
+            taskLinked.add(messageMap);
         }
     }
 

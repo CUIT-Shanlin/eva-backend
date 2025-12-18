@@ -1,6 +1,7 @@
 package edu.cuit.bc.messaging.application.usecase;
 
 import edu.cuit.bc.messaging.application.event.CourseOperationSideEffectsEvent;
+import edu.cuit.bc.messaging.application.event.CourseOperationMessageMode;
 import edu.cuit.bc.messaging.application.port.CourseBroadcastPort;
 import edu.cuit.bc.messaging.application.port.EvaMessageCleanupPort;
 
@@ -38,10 +39,13 @@ public class HandleCourseOperationSideEffectsUseCase {
                 continue;
             }
             if (!entry.getValue().isEmpty()) {
-                courseBroadcastPort.sendNormal(single, operatorUserId);
+                if (event.messageMode() == null || event.messageMode() == CourseOperationMessageMode.NORMAL) {
+                    courseBroadcastPort.sendNormal(single, operatorUserId);
+                } else {
+                    courseBroadcastPort.sendTaskLinked(single, operatorUserId);
+                }
                 entry.getValue().forEach((taskId, ignored) -> evaMessageCleanupPort.deleteEvaMsg(taskId));
             }
         }
     }
 }
-
