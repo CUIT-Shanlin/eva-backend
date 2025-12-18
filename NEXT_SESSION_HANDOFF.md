@@ -6,9 +6,14 @@
 
 ---
 
-## 0. 本轮会话增量总结（2025-12-18）
+## 0. 本轮会话增量总结（2025-12-18，更新至 `cac3a97f`）
 
-本轮会话聚焦“DDD 渐进式重构（不做功能优化/不改业务语义）”，继续执行方案 B/C，并持续压扁课程相关的大泥球入口（保持 API/异常文案/副作用行为不变）：
+本轮会话聚焦“DDD 渐进式重构（不做功能优化/不改业务语义）”，继续执行方案 B/C，并持续压扁课程相关的大泥球入口：
+
+**本会话铁律（验收标准）**
+- ✅ 只做重构：收敛调用链、抽离端口/用例、让旧 gateway 退化委托壳、事件化副作用；
+- ✅ 行为不变：API 不变、异常类型/异常文案不变、消息文案与副作用时机（事务提交后）不变；
+- ❌ 不做任何业务逻辑优化/语义调整（即便看到明显 bug/命名不佳，也先不动）。
 
 1) **课表导入/覆盖用例收敛到 bc-course（闭环 E）**  
    - 背景：历史实现中 `IUserCourseServiceImpl.importCourse()` 既做导入又做消息通知/撤回评教消息，属于典型“大泥球联动”。
@@ -27,19 +32,60 @@
    - 简历可用沉淀：`data/RESUME_BALL_OF_MUD_REFACTOR_SUMMARY.md`（新增了“课表导入/覆盖收敛”案例）。
    - 交接文档：本文件已补充闭环 E 与下一步行动建议。
 
-4) **教师自助课表链路继续收敛（删课/改课）**  
-   - 背景：历史实现中 `IUserCourseServiceImpl.deleteSelfCourse()/updateSelfCourse()` 直接操作 `msgResult/msgService`，跨域副作用与主流程混杂。  
-   - 做法：
-     - 先把跨域副作用统一事件化（事务提交后发布），并通过 `CourseOperationMessageMode` 兼容历史消息模型（NORMAL/TASK_LINKED），保证行为不变。
-     - 再把“自助删课/自助改课”的主写逻辑收敛到 `bc-course` 用例，旧 gateway 退化为委托壳，持久化/缓存/日志逻辑迁移到 `eva-infra/bccourse/adapter`。
+4) **教师自助课表：副作用事件化 + 主写逻辑收敛（保持行为不变）**  
+   - 背景：历史实现中 `IUserCourseServiceImpl.deleteSelfCourse()/updateSelfCourse()` 同时包含：
+     - 主写逻辑（删课/改课，涉及课程/课次/评教任务/缓存）；
+     - 跨域副作用（消息通知、撤回评教消息）；
+     - 造成应用服务“大泥球联动”与难以拆分。
+   - 落地（两段式，小步提交）：
+     1. **事件化跨域副作用（事务提交后发布）**：
+        - `CourseOperationSideEffectsEvent` 增加 `messageMode`（`NORMAL` / `TASK_LINKED`）用于兼容历史消息模型差异：
+          - `NORMAL`：历史上对应 `MsgResult.toNormalMsg`（taskId 固定 -1）；
+          - `TASK_LINKED`：历史上对应 `MsgResult.toSendMsg`（taskId = map key）。
+        - usecase `HandleCourseOperationSideEffectsUseCase` 根据 `messageMode` 路由到 `CourseBroadcastPort.sendNormal/sendTaskLinked`，并保持“撤回评教消息”逻辑不变。
+        - 关键文件：
+          - `bc-messaging/src/main/java/edu/cuit/bc/messaging/application/event/CourseOperationMessageMode.java`
+          - `bc-messaging/src/main/java/edu/cuit/bc/messaging/application/event/CourseOperationSideEffectsEvent.java`
+          - `bc-messaging/src/main/java/edu/cuit/bc/messaging/application/usecase/HandleCourseOperationSideEffectsUseCase.java`
+          - `eva-app/src/main/java/edu/cuit/app/bcmessaging/adapter/CourseBroadcastPortAdapter.java`
+          - `eva-app/src/main/java/edu/cuit/app/service/impl/course/IUserCourseServiceImpl.java`（删课=默认 NORMAL；改课=TASK_LINKED）
+     2. **主写逻辑收敛到 bc-course 用例**（仍返回历史 `Map<String, Map<Integer,Integer>>`，以便复用事件化副作用）：
+        - 自助删课：`DeleteSelfCourseUseCase` + `DeleteSelfCourseRepositoryImpl`，旧 `CourseDeleteGatewayImpl.deleteSelfCourse` 退化为委托壳；
+        - 自助改课：`UpdateSelfCourseUseCase` + `UpdateSelfCourseRepositoryImpl`，旧 `CourseUpdateGatewayImpl.updateSelfCourse` 退化为委托壳；
+        - 迁移内容包含：原先 gateway 内部的课程/课次/评教任务/缓存失效逻辑，全部按原样搬运（不做优化）。
+        - 关键文件：
+          - `bc-course/src/main/java/edu/cuit/bc/course/application/usecase/DeleteSelfCourseUseCase.java`
+          - `eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/DeleteSelfCourseRepositoryImpl.java`
+          - `bc-course/src/main/java/edu/cuit/bc/course/application/usecase/UpdateSelfCourseUseCase.java`
+          - `eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/UpdateSelfCourseRepositoryImpl.java`
+          - `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseDeleteGatewayImpl.java`
+          - `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseUpdateGatewayImpl.java`
 
 5) **课程类型修改链路收敛到 bc-course（保持行为不变）**  
-   - 把 `CourseUpdateGatewayImpl.updateCourseType()/updateCoursesType()` 的逻辑迁移到 `eva-infra/bccourse/adapter` 端口实现；
-   - 旧 gateway 退化为委托壳，bc-course 提供用例骨架与纯单测。
+   - 目标：压扁 `CourseUpdateGatewayImpl.updateCourseType()/updateCoursesType()`，让 infra 不再承载业务流程。
+   - 落地：
+     - bc-course：新增 `UpdateCourseTypeUseCase/UpdateCoursesTypeUseCase`（仅委托端口，不新增校验），并补齐纯单测；
+     - eva-infra：新增端口实现 `UpdateCourseTypeRepositoryImpl/UpdateCoursesTypeRepositoryImpl`，迁移原 DB/缓存/日志逻辑；
+     - 旧 gateway：方法退化为委托壳（行为不变）。
+   - 关键文件：
+     - `bc-course/src/main/java/edu/cuit/bc/course/application/usecase/UpdateCourseTypeUseCase.java`
+     - `bc-course/src/main/java/edu/cuit/bc/course/application/usecase/UpdateCoursesTypeUseCase.java`
+     - `eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/UpdateCourseTypeRepositoryImpl.java`
+     - `eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/UpdateCoursesTypeRepositoryImpl.java`
+     - `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseUpdateGatewayImpl.java`
 
 6) **删课链路收敛到 bc-course（保持行为不变）**  
-   - 把 `CourseDeleteGatewayImpl.deleteCourse()/deleteCourses()` 的逻辑迁移到 `eva-infra/bccourse/adapter` 端口实现；
-   - 旧 gateway 退化为委托壳，bc-course 提供用例骨架与纯单测。
+   - 目标：压扁 `CourseDeleteGatewayImpl.deleteCourse()/deleteCourses()`，把“删课 + 删除评教任务/记录 + 缓存/日志”收敛到 bc-course。
+   - 落地：
+     - bc-course：新增 `DeleteCourseUseCase/DeleteCoursesUseCase`（仅委托端口，不新增校验），并补齐纯单测；
+     - eva-infra：新增端口实现 `DeleteCourseRepositoryImpl/DeleteCoursesRepositoryImpl`，迁移原 DB/缓存/日志逻辑（含 `isEmptiy` 条件拼装逻辑随端口实现私有化）；
+     - 旧 gateway：方法退化为委托壳（行为不变）。
+   - 关键文件：
+     - `bc-course/src/main/java/edu/cuit/bc/course/application/usecase/DeleteCourseUseCase.java`
+     - `bc-course/src/main/java/edu/cuit/bc/course/application/usecase/DeleteCoursesUseCase.java`
+     - `eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/DeleteCourseRepositoryImpl.java`
+     - `eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/DeleteCoursesRepositoryImpl.java`
+     - `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseDeleteGatewayImpl.java`
 
 本轮新增提交（按时间顺序）：
 - `a122ff58 feat(bc-course): 引入课程BC用例与基础设施端口实现`
@@ -60,6 +106,7 @@
 - `7f055aa3 feat(bc-course): 收敛删课用例骨架`
 - `bd85f734 feat(eva-infra): 实现删课端口适配器`
 - `0a186d03 refactor(course): 删课链路收敛到bc-course`
+- `cac3a97f docs: 更新会话交接（删课/自助课表收敛）`
 
 验证（建议使用 Java17；网络受限时再加 `-o` 离线）：
 - 切换 JDK（本机已安装）：`sdk use java 17.0.17-zulu`  
@@ -206,8 +253,59 @@
   - `eva-app/.../IUserCourseServiceImpl.importCourse()` 不再直接循环调用 `msgResult/msgService.deleteEvaMsg`
   - 改为发布 `CourseOperationSideEffectsEvent`，由 `CourseOperationSideEffectsListener` -> `bc-messaging` 统一处理
 
+### 3.6 闭环 F：教师自助课表链路收敛（Self Course）
+
+目标：把“教师自助删课/改课”的主写逻辑与跨域副作用拆开：  
+- 主写逻辑收敛到 `bc-course` 用例 + `eva-infra` 端口适配器（行为不变）；  
+- 跨域副作用（消息通知、撤回评教消息）统一“事务提交后发布”交给 `bc-messaging`（行为不变）。
+
+落地（保持 API/异常文案/副作用不变，仅重构调用链）：
+- 自助删课：
+  - bc-course 用例：`bc-course/src/main/java/edu/cuit/bc/course/application/usecase/DeleteSelfCourseUseCase.java`
+  - infra 端口实现：`eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/DeleteSelfCourseRepositoryImpl.java`
+  - 旧入口退化委托壳：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseDeleteGatewayImpl.java`（`deleteSelfCourse`）
+  - 应用层副作用事件化：`eva-app/src/main/java/edu/cuit/app/service/impl/course/IUserCourseServiceImpl.java`（`deleteSelfCourse`）
+- 自助改课：
+  - bc-course 用例：`bc-course/src/main/java/edu/cuit/bc/course/application/usecase/UpdateSelfCourseUseCase.java`
+  - infra 端口实现：`eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/UpdateSelfCourseRepositoryImpl.java`
+  - 旧入口退化委托壳：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseUpdateGatewayImpl.java`（`updateSelfCourse`）
+  - 应用层副作用事件化：`eva-app/src/main/java/edu/cuit/app/service/impl/course/IUserCourseServiceImpl.java`（`updateSelfCourse`，注意需要 `CourseOperationMessageMode.TASK_LINKED` 保持历史消息格式）
+
+补充：为保证“消息格式行为不变”，`CourseOperationSideEffectsEvent` 引入了 `CourseOperationMessageMode`（`NORMAL/TASK_LINKED`）：
+- `NORMAL`：历史 `MsgResult.toNormalMsg`；
+- `TASK_LINKED`：历史 `MsgResult.toSendMsg`；
+对应适配已落地在 `eva-app/src/main/java/edu/cuit/app/bcmessaging/adapter/CourseBroadcastPortAdapter.java`。
+
+### 3.7 闭环 G：修改课程信息用例收敛（Update Course Info）
+
+目标：压扁 `CourseUpdateGatewayImpl.updateCourse()`，让 infra 不再承载“修改课程信息”的业务流程（行为不变）。
+
+落地：
+- bc-course 新增用例：`bc-course/src/main/java/edu/cuit/bc/course/application/usecase/UpdateCourseInfoUseCase.java`
+- infra 端口实现：`eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/UpdateCourseInfoRepositoryImpl.java`
+- 旧 gateway 退化委托壳：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseUpdateGatewayImpl.java`（`updateCourse`）
+
+### 3.8 闭环 H：课程类型修改链路收敛（Update Course Type）
+
+目标：压扁 `CourseUpdateGatewayImpl.updateCourseType/updateCoursesType`（行为不变）。
+
+落地：
+- bc-course 用例骨架：`UpdateCourseTypeUseCase` / `UpdateCoursesTypeUseCase`
+- infra 端口实现：`UpdateCourseTypeRepositoryImpl` / `UpdateCoursesTypeRepositoryImpl`
+- 旧 gateway 退化为委托壳（仍由 domain gateway 对外暴露）
+
+### 3.9 闭环 I：删课链路收敛（Delete Course）
+
+目标：压扁 `CourseDeleteGatewayImpl.deleteCourse/deleteCourses`（行为不变）。
+
+落地：
+- bc-course 用例骨架：`DeleteCourseUseCase` / `DeleteCoursesUseCase`
+- infra 端口实现：`DeleteCourseRepositoryImpl` / `DeleteCoursesRepositoryImpl`（原 `isEmptiy` 条件拼装逻辑已随端口实现私有化）
+- 旧 gateway 退化为委托壳：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseDeleteGatewayImpl.java`
+
 验证命令（离线优先，避免网络受限）：
 - `mvn -o -pl bc-course -am test -q -Dmaven.repo.local=.m2/repository`
+- `mvn -o -pl bc-messaging -am test -q -Dmaven.repo.local=.m2/repository`
 - `mvn -o -pl eva-infra -am -DskipTests test -q -Dmaven.repo.local=.m2/repository`
 
 ---
@@ -249,23 +347,28 @@
 
 ## 5. 已完成的提交（按时间倒序，供回退/追踪）
 
-当前 `git log --oneline -n 20` 关键提交如下（最新在上）：
+当前 `git log --oneline -n 20` 关键提交如下（最新在上，更新至 `cac3a97f`）：
 
-- `4d9e624b chore: gitignore add data`（忽略 data 等内容，避免提交大文件）  
-- `539ffd44 chore: 扩展忽略规则覆盖 Windows 风格路径目录`  
-- `e4042b56 feat(template): 引入模板锁定服务并接入课程模板切换`  
-- `b33e7d2c chore: 忽略 Linux 下误生成的 Windows 路径目录`  
-- `a33bf203 test(course): 添加课程模板锁定校验单测`  
-- `b8806de4 update: security dependency version`（用户更新依赖版本）  
-- `d925b4ae fix(evaluation): 修复提交评教缓存失效参数类型`  
-- `46bcf379 fix(course): 已评教课程模板锁定禁止切换`（早期锁定实现，后续被 bc-template 接管）  
-- `beb6a3b7 chore: 添加 bc-template 模块骨架`  
-- `01ef8339 chore: 忽略 Serena 元数据目录`  
-- `2587de84 test(evaluation): 添加提交评教用例单元测试`  
-- `9c1d5daa update: 修改依赖源`（用户更新依赖源）  
-- `ab28d80a feat(evaluation): 接入提交评教用例并事件化清理消息`  
-- `887ed43b feat(evaluation): 引入提交评教用例与持久化端口`  
-- `bf5c05e3 chore: 添加 bc-evaluation 模块骨架`
+- `cac3a97f docs: 更新会话交接（删课/自助课表收敛）`
+- `0a186d03 refactor(course): 删课链路收敛到bc-course`
+- `bd85f734 feat(eva-infra): 实现删课端口适配器`
+- `7f055aa3 feat(bc-course): 收敛删课用例骨架`
+- `87caef60 refactor(course): 自助改课收敛到bc-course`
+- `dde5ecf1 feat(bc-course): 收敛教师自助改课用例骨架`
+- `e7ef502a refactor(course): 自助删课收敛到bc-course`
+- `45ca3b5c feat(bc-course): 收敛教师自助删课用例骨架`
+- `b97a905b refactor(course): 课程类型修改收敛到bc-course`
+- `255cb51f feat(eva-infra): 实现课程类型修改端口适配器`
+- `2b5cb49d feat(bc-course): 增加课程类型修改用例骨架`
+- `1b2d8756 feat(bc-course): 收敛修改课程信息用例`
+- `9a96a04a feat(bc-messaging): 自助课表操作副作用事件化`
+- `35aca4eb docs: 更新会话交接与后续任务清单`
+- `a330d8e7 test(bc-template): 迁移模板锁定校验并清理旧实现`
+- `60fe256d feat(eva-config): 支持高分阈值可配置`
+- `4a22fdaf fix(gitignore): 仅忽略仓库根 data 目录`
+- `285db180 feat(bc-messaging): 课程操作副作用事件化并收敛消息发送`
+- `a122ff58 feat(bc-course): 引入课程BC用例与基础设施端口实现`
+- `7275c71b docs: 添加会话交接摘要`
 
 ---
 
@@ -299,8 +402,27 @@
    - `deleteCourse/deleteCourses` 已收敛到 `bc-course`。
 
 5) **下一步推荐：压扁 `CourseDeleteGatewayImpl.deleteCourseType()`**
-   - 目标：为“删除课程类型/批量删除课程类型”新增 `bc-course` 用例 + 端口实现（迁移 DB/缓存/日志），旧 gateway 退化委托壳。
-   - 验收标准：行为不变；用例纯单测；每小步 commit。
+   - 背景：目前 `deleteCourseType(List<Integer> ids)` 仍由 `eva-infra` 的 `CourseDeleteGatewayImpl` 直接承载业务流程：
+     - 校验入参为空：`\"请选择要删除的课程类型\"`
+     - 校验默认类型不可删：`courseTypeDO.getIsDefault() != -1` -> `\"默认课程类型不能删除\"`
+     - 删除关联表 `course_type_course`（按 `type_id in ids`）
+     - 删除 `course_type`（按 `id in ids`）
+     - 记录日志：`LogUtils.logContent(typeName + \"课程类型\")`
+     - 缓存失效：`COURSE_TYPE_LIST`
+   - 目标：把该链路按 DDD 渐进式方式收敛到 `bc-course`（用例 + 端口），旧 gateway 退化为委托壳，**异常类型/异常文案/删除策略/日志与缓存行为保持不变**。
+   - 推荐落地步骤（每小步一个 commit）：
+     1. **Serena 定位调用链**：从 Controller/Service 入口找到调用点，确认返回值/异常处理方式不变（通常无需改 API）。
+     2. **bc-course 增加用例骨架**：
+        - `DeleteCourseTypeCommand(List<Integer> typeIds)`、`DeleteCourseTypeRepository`、`DeleteCourseTypeUseCase`（usecase 只做委托，不新增校验）。
+        - 添加纯单测：只验证“空命令抛 NPE + 调用端口一次”，不验证业务规则（规则仍以旧实现为准，避免无意改语义）。
+     3. **eva-infra 实现端口适配器**：
+        - 新增 `DeleteCourseTypeRepositoryImpl`，把当前 `CourseDeleteGatewayImpl.deleteCourseType` 的逻辑原样搬运进去（含 `isDefault != -1` 校验与文案、删除顺序、日志与缓存失效）。
+     4. **旧 gateway 委托化**：
+        - `CourseDeleteGatewayImpl.deleteCourseType` 改为调用 usecase，返回 `null`（保持签名与行为不变）。
+     5. **离线验证**：
+        - `mvn -o -pl bc-course -am test -q -Dmaven.repo.local=.m2/repository`
+        - `mvn -o -pl eva-infra -am -DskipTests test -q -Dmaven.repo.local=.m2/repository`
+     6. **更新交接文档**：把完成项与 commit 追加到本文件，便于下一会话续航。
 
 6) **事件载荷逐步语义化（中长期）**
    - 当前为了行为不变，事件仍携带 `Map<String, Map<Integer,Integer>>` 作为过渡载荷；
