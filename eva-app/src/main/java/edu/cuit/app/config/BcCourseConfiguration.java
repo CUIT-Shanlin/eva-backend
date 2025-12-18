@@ -5,12 +5,16 @@ import edu.cuit.bc.course.application.port.AssignEvaTeachersRepository;
 import edu.cuit.bc.course.application.port.CourseTemplateIdQueryPort;
 import edu.cuit.bc.course.application.port.ImportCourseFileRepository;
 import edu.cuit.bc.course.application.port.UpdateCourseInfoRepository;
+import edu.cuit.bc.course.application.port.UpdateCourseTypeRepository;
+import edu.cuit.bc.course.application.port.UpdateCoursesTypeRepository;
 import edu.cuit.bc.course.application.usecase.AssignEvaTeachersUseCase;
 import edu.cuit.bc.course.application.usecase.ChangeCourseTemplateUseCase;
 import edu.cuit.bc.course.application.usecase.ChangeSingleCourseTemplateUseCase;
 import edu.cuit.bc.course.application.port.UpdateSingleCourseRepository;
 import edu.cuit.bc.course.application.usecase.ImportCourseFileUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateCourseInfoUseCase;
+import edu.cuit.bc.course.application.usecase.UpdateCourseTypeUseCase;
+import edu.cuit.bc.course.application.usecase.UpdateCoursesTypeUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateSingleCourseUseCase;
 import edu.cuit.bc.template.application.CourseTemplateLockService;
 import org.springframework.context.annotation.Bean;
@@ -56,5 +60,15 @@ public class BcCourseConfiguration {
     @Bean
     public UpdateCourseInfoUseCase updateCourseInfoUseCase(UpdateCourseInfoRepository repository) {
         return new UpdateCourseInfoUseCase(repository);
+    }
+
+    @Bean
+    public UpdateCourseTypeUseCase updateCourseTypeUseCase(UpdateCourseTypeRepository repository) {
+        return new UpdateCourseTypeUseCase(repository);
+    }
+
+    @Bean
+    public UpdateCoursesTypeUseCase updateCoursesTypeUseCase(UpdateCoursesTypeRepository repository) {
+        return new UpdateCoursesTypeUseCase(repository);
     }
 }

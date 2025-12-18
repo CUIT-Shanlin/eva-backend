@@ -36,6 +36,10 @@ import edu.cuit.bc.course.domain.ImportCourseFileException;
 import edu.cuit.bc.course.application.model.UpdateCourseInfoCommand;
 import edu.cuit.bc.course.application.usecase.UpdateCourseInfoUseCase;
 import edu.cuit.bc.course.domain.UpdateCourseInfoException;
+import edu.cuit.bc.course.application.model.UpdateCourseTypeCommand;
+import edu.cuit.bc.course.application.model.UpdateCoursesTypeCommand;
+import edu.cuit.bc.course.application.usecase.UpdateCourseTypeUseCase;
+import edu.cuit.bc.course.application.usecase.UpdateCoursesTypeUseCase;
 import edu.cuit.bc.course.application.model.UpdateSingleCourseCommand;
 import edu.cuit.bc.course.application.usecase.UpdateSingleCourseUseCase;
 import edu.cuit.bc.course.domain.UpdateSingleCourseException;
@@ -73,6 +77,8 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     private final UpdateSingleCourseUseCase updateSingleCourseUseCase;
     private final ImportCourseFileUseCase importCourseFileUseCase;
     private final UpdateCourseInfoUseCase updateCourseInfoUseCase;
+    private final UpdateCourseTypeUseCase updateCourseTypeUseCase;
+    private final UpdateCoursesTypeUseCase updateCoursesTypeUseCase;
 
 
     /**
@@ -137,15 +143,8 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     @Override
     @Transactional
     public Void updateCourseType(UpdateCourseTypeCmd courseType) {
-        //判断课程类型是否存在
-        CourseTypeDO courseTypeDO = courseTypeMapper.selectById(courseType.getId());
-        if(courseTypeDO==null)throw new QueryException("该课程类型不存在");
-        //根据id更新课程类型
-        courseTypeDO.setName(courseType.getName());
-        courseTypeDO.setDescription(courseType.getDescription());
-        courseTypeMapper.update(courseTypeDO,new QueryWrapper<CourseTypeDO>().eq("id",courseType.getId()));
-        LogUtils.logContent(courseType.getName()+"课程类型");
-        localCacheManager.invalidateCache(null,courseCacheConstants.COURSE_TYPE_LIST);
+        // 历史路径：收敛到 bc-course 用例，基础设施层避免继续堆“课程类型修改”业务流程
+        updateCourseTypeUseCase.execute(new UpdateCourseTypeCommand(courseType));
         return null;
     }
 
@@ -529,22 +528,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     @Override
     @Transactional
     public void updateCoursesType(UpdateCoursesToTypeCmd updateCoursesToTypeCmd) {
-        List<Integer> courseIdList = updateCoursesToTypeCmd.getCourseIdList();
-        if(courseIdList==null||courseIdList.isEmpty())throw new UpdateException("请选择要更改类型的课程");
-        List<Integer> typeIdList = updateCoursesToTypeCmd.getTypeIdList();
-        if(typeIdList==null||typeIdList.isEmpty())throw new UpdateException("请选择要更改的类型");
-        for (Integer i : courseIdList) {
-            if(!courseMapper.exists(new QueryWrapper<CourseDO>().eq("id",i)))throw new QueryException("该课程已被删除");
-            courseTypeCourseMapper.delete(new QueryWrapper<CourseTypeCourseDO>().eq("course_id",i));
-            for (Integer integer : typeIdList) {
-                if(!courseTypeMapper.exists(new QueryWrapper<CourseTypeDO>().eq("id",integer)))throw new QueryException("该课程类型那个已被删除");
-                CourseTypeCourseDO courseTypeCourseDO = new CourseTypeCourseDO();
-                courseTypeCourseDO.setCourseId(i);
-                courseTypeCourseDO.setTypeId(integer);
-                courseTypeCourseDO.setUpdateTime(LocalDateTime.now());
-                courseTypeCourseDO.setCreateTime(LocalDateTime.now());
-                courseTypeCourseMapper.insert(courseTypeCourseDO);
-            }
-        }
+        // 历史路径：收敛到 bc-course 用例，基础设施层避免继续堆“批量课程类型修改”业务流程
+        updateCoursesTypeUseCase.execute(new UpdateCoursesTypeCommand(updateCoursesToTypeCmd));
     }
 }
