@@ -47,6 +47,8 @@ import edu.cuit.bc.course.application.model.AddCourseTypeCommand;
 import edu.cuit.bc.course.application.usecase.AddCourseTypeUseCase;
 import edu.cuit.bc.course.application.model.AddNotExistCoursesDetailsCommand;
 import edu.cuit.bc.course.application.usecase.AddNotExistCoursesDetailsUseCase;
+import edu.cuit.bc.course.application.model.AddExistCoursesDetailsCommand;
+import edu.cuit.bc.course.application.usecase.AddExistCoursesDetailsUseCase;
 import edu.cuit.bc.course.application.model.UpdateSelfCourseCommand;
 import edu.cuit.bc.course.application.usecase.UpdateSelfCourseUseCase;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
@@ -88,6 +90,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     private final UpdateSelfCourseUseCase updateSelfCourseUseCase;
     private final AddCourseTypeUseCase addCourseTypeUseCase;
     private final AddNotExistCoursesDetailsUseCase addNotExistCoursesDetailsUseCase;
+    private final AddExistCoursesDetailsUseCase addExistCoursesDetailsUseCase;
 
 
     /**
@@ -381,39 +384,9 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     @Override
     @Transactional
     public Void addExistCoursesDetails(Integer courseId, SelfTeachCourseTimeCO timeCO) {
-        for (Integer week : timeCO.getWeeks()) {
-            judgeAlsoHasLocation(week,timeCO);
-            CourInfDO courInfDO=new CourInfDO();
-            courInfDO.setCourseId(courseId);
-            courInfDO.setWeek(week);
-            courInfDO.setDay(timeCO.getDay());
-            courInfDO.setStartTime(timeCO.getStartTime());
-            courInfDO.setEndTime(timeCO.getEndTime());
-            courInfDO.setLocation(timeCO.getClassroom());
-            courInfDO.setCreateTime(LocalDateTime.now());
-            courInfDO.setUpdateTime(LocalDateTime.now());
-            courInfMapper.insert(courInfDO);
-        }
-        CourseDO courseDO = courseMapper.selectById(courseId);
-        if(courseDO==null)throw new  QueryException("不存在对应的课程");
-        SubjectDO subjectDO = subjectMapper.selectById(courseDO.getSubjectId());
-        if(subjectDO==null)throw  new QueryException("不存在对应的课程的科目");
-        LogUtils.logContent(subjectDO.getName()+"(ID:"+courseDO.getId()+")的课程的课数");
-        localCacheManager.invalidateCache(null,classroomCacheConstants.ALL_CLASSROOM);
+        // 历史路径：收敛到 bc-course 用例，基础设施层避免继续堆“新增课次”业务流程（行为不变）
+        addExistCoursesDetailsUseCase.execute(new AddExistCoursesDetailsCommand(courseId, timeCO));
         return null;
-    }
-
-    private void judgeAlsoHasLocation(Integer week, SelfTeachCourseTimeCO timeCO) {
-        CourInfDO courInfDO = courInfMapper.selectOne(new QueryWrapper<CourInfDO>()
-                .eq("week", week)
-                .eq("day", timeCO.getDay())
-                .eq("location", timeCO.getClassroom())
-                .le("start_time", timeCO.getEndTime())
-                .ge("end_time", timeCO.getStartTime()));
-        if(courInfDO!=null){
-            throw new UpdateException("该时间段教室冲突，请修改时间");
-        }
-
     }
 
     @Override
