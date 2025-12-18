@@ -43,6 +43,8 @@ import edu.cuit.bc.course.application.usecase.UpdateCoursesTypeUseCase;
 import edu.cuit.bc.course.application.model.UpdateSingleCourseCommand;
 import edu.cuit.bc.course.application.usecase.UpdateSingleCourseUseCase;
 import edu.cuit.bc.course.domain.UpdateSingleCourseException;
+import edu.cuit.bc.course.application.model.AddCourseTypeCommand;
+import edu.cuit.bc.course.application.usecase.AddCourseTypeUseCase;
 import edu.cuit.bc.course.application.model.UpdateSelfCourseCommand;
 import edu.cuit.bc.course.application.usecase.UpdateSelfCourseUseCase;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
@@ -82,6 +84,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     private final UpdateCourseTypeUseCase updateCourseTypeUseCase;
     private final UpdateCoursesTypeUseCase updateCoursesTypeUseCase;
     private final UpdateSelfCourseUseCase updateSelfCourseUseCase;
+    private final AddCourseTypeUseCase addCourseTypeUseCase;
 
 
     /**
@@ -154,19 +157,8 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     @Override
     @Transactional
     public Void addCourseType(CourseType courseType) {
-        // 根据课程类型名称查询数据库
-        CourseTypeDO existingCourseType = courseTypeMapper.selectOne(new QueryWrapper<CourseTypeDO>().eq("name", courseType.getName()));
-        if (existingCourseType == null) {
-            // 如果不存在相同名称的课程类型，则插入新记录
-            CourseTypeDO courseTypeDO=new CourseTypeDO();
-            courseTypeDO.setName(courseType.getName());
-            courseTypeDO.setDescription(courseType.getDescription());
-            courseTypeMapper.insert(courseTypeDO);
-            localCacheManager.invalidateCache(null,courseCacheConstants.COURSE_TYPE_LIST);
-        }else {
-            throw new UpdateException("该课程类型已存在");
-        }
-
+        // 历史路径：收敛到 bc-course 用例，基础设施层避免继续堆“新增课程类型”业务流程（行为不变）
+        addCourseTypeUseCase.execute(new AddCourseTypeCommand(courseType));
         return null;
     }
 
