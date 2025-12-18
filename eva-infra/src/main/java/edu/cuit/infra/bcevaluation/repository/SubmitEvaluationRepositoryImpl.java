@@ -114,7 +114,7 @@ public class SubmitEvaluationRepositoryImpl implements SubmitEvaluationRepositor
         evaTaskMapper.updateById(task);
 
         // 缓存失效：尽量保持与历史逻辑一致
-        localCacheManager.invalidateCache(evaCacheConstants.ONE_TASK, context.taskId());
+        localCacheManager.invalidateCache(evaCacheConstants.ONE_TASK, String.valueOf(context.taskId()));
         localCacheManager.invalidateCache(null, evaCacheConstants.LOG_LIST);
         String evaluatorName = context.evaluatorName();
         if (evaluatorName == null && task.getTeacherId() != null) {
@@ -150,4 +150,3 @@ public class SubmitEvaluationRepositoryImpl implements SubmitEvaluationRepositor
         }
     }
 }
-
