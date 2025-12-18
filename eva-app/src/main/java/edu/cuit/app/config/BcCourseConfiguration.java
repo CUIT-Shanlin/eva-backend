@@ -3,6 +3,7 @@ package edu.cuit.app.config;
 import edu.cuit.bc.course.application.port.ChangeCourseTemplateRepository;
 import edu.cuit.bc.course.application.port.AssignEvaTeachersRepository;
 import edu.cuit.bc.course.application.port.CourseTemplateIdQueryPort;
+import edu.cuit.bc.course.application.port.DeleteSelfCourseRepository;
 import edu.cuit.bc.course.application.port.ImportCourseFileRepository;
 import edu.cuit.bc.course.application.port.UpdateCourseInfoRepository;
 import edu.cuit.bc.course.application.port.UpdateCourseTypeRepository;
@@ -11,6 +12,7 @@ import edu.cuit.bc.course.application.usecase.AssignEvaTeachersUseCase;
 import edu.cuit.bc.course.application.usecase.ChangeCourseTemplateUseCase;
 import edu.cuit.bc.course.application.usecase.ChangeSingleCourseTemplateUseCase;
 import edu.cuit.bc.course.application.port.UpdateSingleCourseRepository;
+import edu.cuit.bc.course.application.usecase.DeleteSelfCourseUseCase;
 import edu.cuit.bc.course.application.usecase.ImportCourseFileUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateCourseInfoUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateCourseTypeUseCase;
@@ -70,5 +72,10 @@ public class BcCourseConfiguration {
     @Bean
     public UpdateCoursesTypeUseCase updateCoursesTypeUseCase(UpdateCoursesTypeRepository repository) {
         return new UpdateCoursesTypeUseCase(repository);
+    }
+
+    @Bean
+    public DeleteSelfCourseUseCase deleteSelfCourseUseCase(DeleteSelfCourseRepository repository) {
+        return new DeleteSelfCourseUseCase(repository);
     }
 }
