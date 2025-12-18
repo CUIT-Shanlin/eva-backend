@@ -2,6 +2,7 @@ package edu.cuit.infra.bccourse.adapter;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.cuit.bc.course.application.port.AssignEvaTeachersRepository;
+import edu.cuit.infra.bccourse.support.CourInfTimeOverlapQuery;
 import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.course.SubjectDO;
@@ -100,12 +101,14 @@ public class AssignEvaTeachersRepositoryImpl implements AssignEvaTeachersReposit
             return;
         }
         for (Integer courseId : list) {
-            boolean hasCourses = courInfMapper.exists(new QueryWrapper<CourInfDO>()
-                    .eq("week", courInfDO.getWeek())
-                    .eq("day", courInfDO.getDay())
-                    .le("start_time", courInfDO.getEndTime())
-                    .ge("end_time", courInfDO.getStartTime())
-                    .eq(true, "course_id", courseId));
+            boolean hasCourses = courInfMapper.exists(
+                    CourInfTimeOverlapQuery.overlap(
+                            courInfDO.getWeek(),
+                            courInfDO.getDay(),
+                            courInfDO.getStartTime(),
+                            courInfDO.getEndTime()
+                    ).eq(true, "course_id", courseId)
+            );
             if (hasCourses) {
                 CourseDO courseDO = courseMapper.selectById(courseId);
                 SysUserDO userDO = userMapper.selectById(courseDO.getTeacherId());
@@ -125,12 +128,14 @@ public class AssignEvaTeachersRepositoryImpl implements AssignEvaTeachersReposit
             return;
         }
         for (Integer courInfId : courInfoList) {
-            CourInfDO courInfDO1 = courInfMapper.selectOne(new QueryWrapper<CourInfDO>()
-                    .eq("week", courInfDO.getWeek())
-                    .eq("day", courInfDO.getDay())
-                    .le("start_time", courInfDO.getEndTime())
-                    .ge("end_time", courInfDO.getStartTime())
-                    .eq(true, "id", courInfId));
+            CourInfDO courInfDO1 = courInfMapper.selectOne(
+                    CourInfTimeOverlapQuery.overlap(
+                            courInfDO.getWeek(),
+                            courInfDO.getDay(),
+                            courInfDO.getStartTime(),
+                            courInfDO.getEndTime()
+                    ).eq(true, "id", courInfId)
+            );
             if (courInfDO1 != null) {
                 EvaTaskDO evaTaskDO = evaTaskMapper.selectOne(new QueryWrapper<EvaTaskDO>()
                         .eq("cour_inf_id", courInfDO1.getId())
@@ -141,4 +146,3 @@ public class AssignEvaTeachersRepositoryImpl implements AssignEvaTeachersReposit
         }
     }
 }
-

@@ -515,6 +515,7 @@
      - `CourseUpdateGatewayImpl`：清理已无引用的历史私有方法（`JudgeCourseTime/getDifference/JudgeCourseType/toJudge`），避免“旧 gateway 继续承载业务”回潮
      - 已新增 `CourInfTimeOverlapQuery` 作为“时间段重叠”QueryWrapper 片段收敛点（后续迁移各适配器逐步替换）
      - 已迁移：`UpdateSelfCourseRepositoryImpl`、`UpdateSingleCourseRepositoryImpl` 的“时间段重叠”查询条件改为复用 `CourInfTimeOverlapQuery`（SQL 条件/异常文案保持不变）
+     - 已迁移：`AssignEvaTeachersRepositoryImpl` 的“时间段重叠”查询条件改为复用 `CourInfTimeOverlapQuery`（SQL 条件/异常文案保持不变）
 
 10) **事件载荷逐步语义化（中长期）**
    - 当前为了行为不变，事件仍携带 `Map<String, Map<Integer,Integer>>` 作为过渡载荷；
