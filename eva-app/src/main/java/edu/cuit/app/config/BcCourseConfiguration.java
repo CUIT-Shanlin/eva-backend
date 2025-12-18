@@ -17,6 +17,8 @@ import edu.cuit.bc.course.application.usecase.ImportCourseFileUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateCourseInfoUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateCourseTypeUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateCoursesTypeUseCase;
+import edu.cuit.bc.course.application.port.UpdateSelfCourseRepository;
+import edu.cuit.bc.course.application.usecase.UpdateSelfCourseUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateSingleCourseUseCase;
 import edu.cuit.bc.template.application.CourseTemplateLockService;
 import org.springframework.context.annotation.Bean;
@@ -77,5 +79,10 @@ public class BcCourseConfiguration {
     @Bean
     public DeleteSelfCourseUseCase deleteSelfCourseUseCase(DeleteSelfCourseRepository repository) {
         return new DeleteSelfCourseUseCase(repository);
+    }
+
+    @Bean
+    public UpdateSelfCourseUseCase updateSelfCourseUseCase(UpdateSelfCourseRepository repository) {
+        return new UpdateSelfCourseUseCase(repository);
     }
 }
