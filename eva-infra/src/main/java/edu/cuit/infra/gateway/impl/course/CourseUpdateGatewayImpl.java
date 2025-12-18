@@ -43,6 +43,8 @@ import edu.cuit.bc.course.application.usecase.UpdateCoursesTypeUseCase;
 import edu.cuit.bc.course.application.model.UpdateSingleCourseCommand;
 import edu.cuit.bc.course.application.usecase.UpdateSingleCourseUseCase;
 import edu.cuit.bc.course.domain.UpdateSingleCourseException;
+import edu.cuit.bc.course.application.model.UpdateSelfCourseCommand;
+import edu.cuit.bc.course.application.usecase.UpdateSelfCourseUseCase;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
@@ -79,6 +81,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     private final UpdateCourseInfoUseCase updateCourseInfoUseCase;
     private final UpdateCourseTypeUseCase updateCourseTypeUseCase;
     private final UpdateCoursesTypeUseCase updateCoursesTypeUseCase;
+    private final UpdateSelfCourseUseCase updateSelfCourseUseCase;
 
 
     /**
@@ -203,34 +206,8 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     @Override
     @Transactional
     public Map<String,Map<Integer,Integer>> updateSelfCourse(String userName, SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeInfoCO> timeList) {
-        String msg=null;
-        SysUserDO userDO = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("username", userName));
-        if(userDO==null){
-            throw new QueryException("用户不存在");
-        }
-        Integer userId =userDO.getId();
-        CourseDO courseDO = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", selfTeachCourseCO.getId()).eq("teacher_id", userId));
-        if(courseDO==null){
-            //课程不存在(抛出异常)
-            throw new QueryException("用户对应课程不存在");
-        }
-        List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", userId).eq("semester_id", courseDO.getSemesterId()));
-        courseDOS.removeIf(aDo -> aDo.getId().equals(selfTeachCourseCO.getId()));
-        SubjectDO subjectDO = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("id", courseDO.getSubjectId()));
-        if(subjectDO==null)throw new QueryException("该课程对应的科目不存在");
-        msg=toJudge(courseDO,subjectDO,selfTeachCourseCO);
-        //课程类型
-        msg+=JudgeCourseType(userDO.getName()+"老师的"+selfTeachCourseCO.getName(),courseDO,selfTeachCourseCO);
-        //课程时间段
-        Map<Integer,Integer> taskMap=new HashMap<>();
-        String msgEva="";
-        msgEva=JudgeCourseTime(courseDO,timeList,courseDOS,selfTeachCourseCO,taskMap);
-        if(!msgEva.isEmpty())msg+=userDO.getName()+"老师的"+selfTeachCourseCO.getName()+"课程的上课时间（教室）被修改了。";
-        Map<String,Map<Integer,Integer>> map=new HashMap<>();
-        map.put(msg,null);
-        map.put(msgEva,taskMap);
-        localCacheManager.invalidateCache(null,classroomCacheConstants.ALL_CLASSROOM);
-        return map;
+        // 历史路径：收敛到 bc-course 用例，基础设施层避免继续堆“自助改课”业务流程（行为不变）
+        return updateSelfCourseUseCase.execute(new UpdateSelfCourseCommand(userName, selfTeachCourseCO, timeList));
     }
 
     private String JudgeCourseTime(CourseDO courseDO, List<SelfTeachCourseTimeInfoCO> timeList,List<CourseDO> courseDOList,SelfTeachCourseCO selfTeachCourseCO,Map<Integer,Integer> taskMap) {
