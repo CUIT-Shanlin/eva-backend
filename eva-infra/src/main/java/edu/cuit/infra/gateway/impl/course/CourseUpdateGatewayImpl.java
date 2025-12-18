@@ -33,6 +33,9 @@ import edu.cuit.bc.course.domain.AssignEvaTeachersException;
 import edu.cuit.bc.course.application.model.ImportCourseFileCommand;
 import edu.cuit.bc.course.application.usecase.ImportCourseFileUseCase;
 import edu.cuit.bc.course.domain.ImportCourseFileException;
+import edu.cuit.bc.course.application.model.UpdateCourseInfoCommand;
+import edu.cuit.bc.course.application.usecase.UpdateCourseInfoUseCase;
+import edu.cuit.bc.course.domain.UpdateCourseInfoException;
 import edu.cuit.bc.course.application.model.UpdateSingleCourseCommand;
 import edu.cuit.bc.course.application.usecase.UpdateSingleCourseUseCase;
 import edu.cuit.bc.course.domain.UpdateSingleCourseException;
@@ -69,6 +72,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     private final AssignEvaTeachersUseCase assignEvaTeachersUseCase;
     private final UpdateSingleCourseUseCase updateSingleCourseUseCase;
     private final ImportCourseFileUseCase importCourseFileUseCase;
+    private final UpdateCourseInfoUseCase updateCourseInfoUseCase;
 
 
     /**
@@ -80,73 +84,12 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     @Override
     @Transactional
     public Map<String,Map<Integer,Integer>> updateCourse(Integer semId, UpdateCourseCmd updateCourseCmd) {
-        List<Integer> courseIdList=new ArrayList<>();
-        //先查出课程表中的subjectId
-        CourseDO courseDO = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", updateCourseCmd.getId()));
-        if(courseDO==null){
-            throw new QueryException("没有该课程");
+        // 历史路径：收敛到 bc-course 用例，基础设施层避免继续堆“修改课程信息”业务流程
+        try {
+            return updateCourseInfoUseCase.execute(new UpdateCourseInfoCommand(semId, updateCourseCmd));
+        } catch (UpdateCourseInfoException e) {
+            throw new UpdateException(e.getMessage());
         }
-        SysUserDO userDO = userMapper.selectById(courseDO.getTeacherId());
-        if(updateCourseCmd.getIsUpdate()){
-            Integer subjectId = courseDO.getSubjectId();
-            //再根据subjectId更新对应科目表
-            subjectMapper.update(courseConvertor.toSubjectDO(updateCourseCmd.getSubjectMsg()),new QueryWrapper<SubjectDO>().eq("id",subjectId));
-            courseIdList.add(courseDO.getId());
-            localCacheManager.invalidateCache(null,courseCacheConstants.SUBJECT_LIST);
-        }else{
-            courseIdList.add(updateCourseCmd.getId());
-            SubjectDO subjectDO = subjectMapper.selectById(courseDO.getSubjectId());
-            if(!subjectDO.getName().equals(updateCourseCmd.getSubjectMsg().getName())|| !Objects.equals(subjectDO.getNature(), updateCourseCmd.getSubjectMsg().getNature())){
-                    SubjectDO sujectDo=new SubjectDO();
-                    sujectDo.setName(updateCourseCmd.getSubjectMsg().getName());
-                    sujectDo.setNature(updateCourseCmd.getSubjectMsg().getNature());
-                    sujectDo.setUpdateTime(LocalDateTime.now());
-                    sujectDo.setCreateTime(LocalDateTime.now());
-                    subjectMapper.insert(sujectDo);
-                    courseDO.setSubjectId(sujectDo.getId());
-                    //查看是否要删除subject
-                if(courseMapper.selectCount(new QueryWrapper<CourseDO>().eq("subject_id",subjectDO.getId()))==1){
-                    subjectMapper.delete(new QueryWrapper<SubjectDO>().eq("id",subjectDO.getId()));
-                }
-                localCacheManager.invalidateCache(null,courseCacheConstants.SUBJECT_LIST);
-            }
-
-        }
-        List<Integer> typeIds = courseTypeCourseMapper.selectList(new QueryWrapper<CourseTypeCourseDO>().eq("course_id", updateCourseCmd.getId())).stream().map(CourseTypeCourseDO::getTypeId).toList();
-        //判断typeIds是否与typeIdList一致
-        boolean isEq = !typeIds.equals(updateCourseCmd.getTypeIdList());
-        //更新课程表的templateId字段
-        CourseDO courseDO1 = new CourseDO();
-        courseDO1.setTemplateId(updateCourseCmd.getTemplateId());
-        courseDO1.setSubjectId(courseDO.getSubjectId());
-        for (Integer i : courseIdList) {
-            if(isEq){
-                //先删除，再添加
-                courseTypeCourseMapper.delete(new QueryWrapper<CourseTypeCourseDO>().eq("course_id",i));
-                //更新课程类型快照表
-                for (Integer typeId : updateCourseCmd.getTypeIdList()) {
-                    CourseTypeCourseDO courseTypeCourseDO = new CourseTypeCourseDO();
-                    courseTypeCourseDO.setCourseId(updateCourseCmd.getId());
-                    courseTypeCourseDO.setTypeId(typeId);
-                    courseTypeCourseDO.setCreateTime(LocalDateTime.now());
-                    courseTypeCourseDO.setUpdateTime(LocalDateTime.now());
-                    courseTypeCourseMapper.insert(courseTypeCourseDO);
-                }
-            }
-            //更新课程表的templateId字段
-            courseMapper.update(courseDO1,new QueryWrapper<CourseDO>().eq("id",i));
-        }
-        /*List<Integer> list = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", updateCourseCmd.getId())).stream().map(CourInfDO::getId).toList();
-
-        List<Integer> list1 = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id", list).eq("status", 0)).stream().map(EvaTaskDO::getTeacherId).toList();*/
-       Map<String,Map<Integer,Integer>> map=new HashMap<>();
-       map.put( userDO.getName()+"的"+updateCourseCmd.getSubjectMsg().getName()+"课程的信息被修改了",null);
-       //清缓存
-        localCacheManager.invalidateCache(courseCacheConstants.COURSE_LIST_BY_SEM, String.valueOf(semId));
-        localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(semId));
-        localCacheManager.invalidateCache(null,classroomCacheConstants.ALL_CLASSROOM);
-        return map;
-
     }
 
 
