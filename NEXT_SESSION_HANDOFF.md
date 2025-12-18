@@ -6,7 +6,7 @@
 
 ---
 
-## 0. 本轮会话增量总结（2025-12-18，更新至 `cac3a97f`）
+## 0. 本轮会话增量总结（2025-12-18，更新至 `57c8bc5d`）
 
 本轮会话聚焦“DDD 渐进式重构（不做功能优化/不改业务语义）”，继续执行方案 B/C，并持续压扁课程相关的大泥球入口：
 
@@ -84,7 +84,22 @@
      - `bc-course/src/main/java/edu/cuit/bc/course/application/usecase/DeleteCourseUseCase.java`
      - `bc-course/src/main/java/edu/cuit/bc/course/application/usecase/DeleteCoursesUseCase.java`
      - `eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/DeleteCourseRepositoryImpl.java`
-     - `eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/DeleteCoursesRepositoryImpl.java`
+      - `eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/DeleteCoursesRepositoryImpl.java`
+      - `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseDeleteGatewayImpl.java`
+
+7) **删除课程类型链路收敛到 bc-course（保持行为不变）**
+   - 目标：压扁 `CourseDeleteGatewayImpl.deleteCourseType()`，让 infra 不再承载“删课程类型”的业务流程。
+   - 行为不变约束（必须保持）：
+     - 异常类型/异常文案不变：`UpdateException("请选择要删除的课程类型")`、`UpdateException("默认课程类型不能删除")`
+     - 删除顺序不变：先删关联表 `course_type_course`，再删 `course_type`
+     - 日志/缓存行为不变：`LogUtils.logContent(typeName + "课程类型")` + 失效 `COURSE_TYPE_LIST`
+   - 落地：
+     - bc-course：新增 `DeleteCourseTypeUseCase` + `DeleteCourseTypeRepository`（仅委托端口，不新增校验），并补齐纯单测；
+     - eva-infra：新增端口实现 `DeleteCourseTypeRepositoryImpl`，把旧逻辑原样搬运（含校验/删除顺序/日志/缓存）；
+     - 旧 gateway：`CourseDeleteGatewayImpl.deleteCourseType` 退化为委托壳（返回 `null`，保持签名与行为不变）。
+   - 关键文件：
+     - `bc-course/src/main/java/edu/cuit/bc/course/application/usecase/DeleteCourseTypeUseCase.java`
+     - `eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/DeleteCourseTypeRepositoryImpl.java`
      - `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseDeleteGatewayImpl.java`
 
 本轮新增提交（按时间顺序）：
@@ -107,13 +122,16 @@
 - `bd85f734 feat(eva-infra): 实现删课端口适配器`
 - `0a186d03 refactor(course): 删课链路收敛到bc-course`
 - `cac3a97f docs: 更新会话交接（删课/自助课表收敛）`
+- `cf7ef892 feat(bc-course): 增加删除课程类型用例骨架`
+- `d5a8a0d3 feat(eva-infra): 实现删除课程类型端口适配器`
+- `57c8bc5d refactor(course): 删除课程类型收敛到bc-course`
 
 验证（建议使用 Java17；网络受限时再加 `-o` 离线）：
 - 切换 JDK（本机已安装）：`sdk use java 17.0.17-zulu`  
-  或：`export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\"`
-- `mvn -pl bc-course -am test -q -Dmaven.repo.local=.m2/repository`
-- `mvn -pl bc-messaging -am test -q -Dmaven.repo.local=.m2/repository`
-- `mvn -pl eva-infra -am -DskipTests test -q -Dmaven.repo.local=.m2/repository`
+  或：`export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\"$JAVA_HOME/bin:$PATH\"`
+ - `mvn -o -pl bc-course -am test -q -Dmaven.repo.local=.m2/repository`
+ - `mvn -o -pl bc-messaging -am test -q -Dmaven.repo.local=.m2/repository`
+ - `mvn -o -pl eva-infra -am -DskipTests test -q -Dmaven.repo.local=.m2/repository`
 
 ## 1. 关键业务结论（必须记住）
 
@@ -303,6 +321,15 @@
 - infra 端口实现：`DeleteCourseRepositoryImpl` / `DeleteCoursesRepositoryImpl`（原 `isEmptiy` 条件拼装逻辑已随端口实现私有化）
 - 旧 gateway 退化为委托壳：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseDeleteGatewayImpl.java`
 
+### 3.10 闭环 J：删除课程类型链路收敛（Delete Course Type）
+
+目标：压扁 `CourseDeleteGatewayImpl.deleteCourseType`（行为不变）。
+
+落地：
+- bc-course 用例骨架：`DeleteCourseTypeUseCase`
+- infra 端口实现：`DeleteCourseTypeRepositoryImpl`
+- 旧 gateway 退化为委托壳：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseDeleteGatewayImpl.java`
+
 验证命令（离线优先，避免网络受限）：
 - `mvn -o -pl bc-course -am test -q -Dmaven.repo.local=.m2/repository`
 - `mvn -o -pl bc-messaging -am test -q -Dmaven.repo.local=.m2/repository`
@@ -347,8 +374,11 @@
 
 ## 5. 已完成的提交（按时间倒序，供回退/追踪）
 
-当前 `git log --oneline -n 20` 关键提交如下（最新在上，更新至 `cac3a97f`）：
+当前 `git log --oneline -n 20` 关键提交如下（最新在上，更新至 `57c8bc5d`）：
 
+- `57c8bc5d refactor(course): 删除课程类型收敛到bc-course`
+- `d5a8a0d3 feat(eva-infra): 实现删除课程类型端口适配器`
+- `cf7ef892 feat(bc-course): 增加删除课程类型用例骨架`
 - `cac3a97f docs: 更新会话交接（删课/自助课表收敛）`
 - `0a186d03 refactor(course): 删课链路收敛到bc-course`
 - `bd85f734 feat(eva-infra): 实现删课端口适配器`
@@ -401,28 +431,8 @@
 4) ✅ **已完成：删课链路收敛**
    - `deleteCourse/deleteCourses` 已收敛到 `bc-course`。
 
-5) **下一步推荐：压扁 `CourseDeleteGatewayImpl.deleteCourseType()`**
-   - 背景：目前 `deleteCourseType(List<Integer> ids)` 仍由 `eva-infra` 的 `CourseDeleteGatewayImpl` 直接承载业务流程：
-     - 校验入参为空：`\"请选择要删除的课程类型\"`
-     - 校验默认类型不可删：`courseTypeDO.getIsDefault() != -1` -> `\"默认课程类型不能删除\"`
-     - 删除关联表 `course_type_course`（按 `type_id in ids`）
-     - 删除 `course_type`（按 `id in ids`）
-     - 记录日志：`LogUtils.logContent(typeName + \"课程类型\")`
-     - 缓存失效：`COURSE_TYPE_LIST`
-   - 目标：把该链路按 DDD 渐进式方式收敛到 `bc-course`（用例 + 端口），旧 gateway 退化为委托壳，**异常类型/异常文案/删除策略/日志与缓存行为保持不变**。
-   - 推荐落地步骤（每小步一个 commit）：
-     1. **Serena 定位调用链**：从 Controller/Service 入口找到调用点，确认返回值/异常处理方式不变（通常无需改 API）。
-     2. **bc-course 增加用例骨架**：
-        - `DeleteCourseTypeCommand(List<Integer> typeIds)`、`DeleteCourseTypeRepository`、`DeleteCourseTypeUseCase`（usecase 只做委托，不新增校验）。
-        - 添加纯单测：只验证“空命令抛 NPE + 调用端口一次”，不验证业务规则（规则仍以旧实现为准，避免无意改语义）。
-     3. **eva-infra 实现端口适配器**：
-        - 新增 `DeleteCourseTypeRepositoryImpl`，把当前 `CourseDeleteGatewayImpl.deleteCourseType` 的逻辑原样搬运进去（含 `isDefault != -1` 校验与文案、删除顺序、日志与缓存失效）。
-     4. **旧 gateway 委托化**：
-        - `CourseDeleteGatewayImpl.deleteCourseType` 改为调用 usecase，返回 `null`（保持签名与行为不变）。
-     5. **离线验证**：
-        - `mvn -o -pl bc-course -am test -q -Dmaven.repo.local=.m2/repository`
-        - `mvn -o -pl eva-infra -am -DskipTests test -q -Dmaven.repo.local=.m2/repository`
-     6. **更新交接文档**：把完成项与 commit 追加到本文件，便于下一会话续航。
+5) ✅ **已完成：压扁 `CourseDeleteGatewayImpl.deleteCourseType()`**
+   - 已新增 `DeleteCourseTypeUseCase` + `DeleteCourseTypeRepositoryImpl`，旧 gateway 退化委托壳（保持行为不变）。
 
 6) **事件载荷逐步语义化（中长期）**
    - 当前为了行为不变，事件仍携带 `Map<String, Map<Integer,Integer>>` 作为过渡载荷；
