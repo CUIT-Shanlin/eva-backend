@@ -29,10 +29,6 @@
     <lombok.version>1.18.30</lombok.version>
     <mapstruct.version>1.5.5.Final</mapstruct.version>
     <revision>1.0</revision>
-    <!-- Sonar设置 -->
-    <sonar.projectKey>eva-project-group_backend-group_eva-backend_1ed3cea6-18ee-40a1-a9c5-976bffae773a</sonar.projectKey>
-    <sonar.projectName>eva-backend</sonar.projectName>
-    <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
   </properties>
 
   <dependencyManagement>
@@ -48,12 +44,12 @@
       <dependency>
         <groupId>edu.cuit.zhuyimeng</groupId>
         <artifactId>zym-spring-boot-starter-common</artifactId>
-        <version>1.7.15</version>
+        <version>1.7.17</version>
       </dependency>
       <dependency>
         <groupId>edu.cuit.zhuyimeng</groupId>
         <artifactId>zym-spring-boot-starter-logging</artifactId>
-        <version>1.5</version>
+        <version>1.6</version>
       </dependency>
       <dependency>
         <groupId>edu.cuit.zhuyimeng</groupId>
@@ -186,23 +182,20 @@
   </build>
 
 
-  <repositories>
-    <repository>
-      <id>gitlab-maven</id>
-      <url>https://gitlab.littlestrange.site/api/v4/projects/4/packages/maven</url>
-    </repository>
-  </repositories>
+    <repositories>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/LystranG/zym-framework</url>
+        </repository>
+    </repositories>
+    <distributionManagement>
 
-  <distributionManagement>
-    <repository>
-      <id>gitlab-maven</id>
-      <url>https://gitlab.littlestrange.site/api/v4/projects/4/packages/maven</url>
-    </repository>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/LystranG/zym-framework</url>
+        </repository>
 
-    <snapshotRepository>
-      <id>gitlab-maven</id>
-      <url>https://gitlab.littlestrange.site/api/v4/projects/4/packages/maven</url>
-    </snapshotRepository>
-  </distributionManagement>
+    </distributionManagement>
+
 
 </project>
