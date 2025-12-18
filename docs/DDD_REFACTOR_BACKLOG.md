@@ -3,6 +3,7 @@ title: DDD 渐进式重构目标清单与行为框架
 repo: eva-backend
 branch: ddd
 generated_at: 2025-12-18
+updated_at: 2025-12-18
 scope: 全仓库（离线扫描 + 规则归纳）
 ---
 
@@ -96,6 +97,19 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 ---
 
+### 4.2 实施进度（滚动更新，按时间倒序）
+
+> 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
+
+**已完成（2025-12-18）**
+- 冲突校验收敛（保持行为不变）：
+  - 教室占用冲突：提炼 `ClassroomOccupancyChecker` 并在“新增课次 / 新建课程明细 / 自助改课”等端口适配器复用（异常文案与 SQL 条件保持不变）。
+  - 时间段重叠：提炼 `CourInfTimeOverlapQuery` 并迁移“改课 / 自助改课 / 分配评教”等端口适配器复用（异常文案与 SQL 条件保持不变）。
+- 旧 gateway 退化加固：清理 `CourseUpdateGatewayImpl` 中已无引用的历史私有逻辑（防止“旧 gateway 继续承载业务流程”回潮）。
+- 构建基线固化：补充 **Java 17** 为构建基线，并在离线模式下完成 `eva-infra` 的 `mvn -o -pl eva-infra -am test` 验证。
+
+---
+
 ## 5. 候选目标（按模块/文件归类）
 
 > 注意：以下“LOC”是粗略估算，主要用于优先级排序，不作为验收依据。
@@ -104,13 +118,10 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 #### A) `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseUpdateGatewayImpl.java`
 
-写侧尚未收敛（仍在 infra 内承载流程/校验/DB）：
-- `JudgeCourseTime`（~98 LOC，含 DB/Mapper）：时间冲突判定/教室冲突等规则（建议后续收敛到 `bc-course`）。
-- `JudgeCourseType`（~41 LOC，含 DB/Mapper）：课程类型相关判定（建议后续收敛到 `bc-course`）。
-- `addNotExistCoursesDetails`（~62 LOC，含 DB/Mapper）：自助课表创建“课程+科目+类型+课次”联动写流程（高优先级，跨多表）。
-- `addExistCoursesDetails`（~22 LOC，含 DB/Mapper）：自助课表给已存在课程追加课次（中优先级）。
-- `isImported`（~19 LOC，含 DB/Mapper）：按学期/课程性质判断是否已导入（偏查询/校验）。
-- `toJudge/judgeAlsoHasLocation/getDifference` 等私有辅助（随主流程一起迁移更稳）。
+写侧目标说明（已在最近会话完成收敛/清理，作为回溯保留）：
+- ✅ `addNotExistCoursesDetails/addExistCoursesDetails/updateSelfCourse/updateCourse/updateCourses/updateSingleCourse` 等已收敛为“委托壳”，主写逻辑迁移到 `bc-course` 用例 + `eva-infra` 端口适配器（行为保持不变）。
+- ✅ `JudgeCourseTime/JudgeCourseType/toJudge/getDifference` 等遗留私有逻辑已清理（避免旧 gateway 回潮承载业务流程）。
+- ⏳ `isImported` 仍保留在 gateway（偏查询/校验），可在读侧收敛阶段再统一处理。
 
 #### B) `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseQueryGatewayImpl.java`
 
@@ -200,11 +211,11 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 如果继续按“写侧优先”的策略推进，下一批候选（高 → 低）建议是：
 
-1) `CourseUpdateGatewayImpl.addNotExistCoursesDetails`（课程自助新增整条写链路，跨多表）  
-2) `CourseUpdateGatewayImpl.JudgeCourseTime` / `JudgeCourseType`（时间与类型规则收敛，后续复用面大）  
-3) `EvaUpdateGatewayImpl.postEvaTask`（评教任务发布，跨多表/缓存/可能涉及消息）  
-4) `EvaDeleteGatewayImpl.deleteEvaRecord/deleteEvaTemplate`（写侧删除链路）  
-5) 读侧：`CourseQueryGatewayImpl` 与 `EvaQueryGatewayImpl`（统计/分页/聚合，后置）  
+1) `EvaUpdateGatewayImpl.postEvaTask`（评教任务发布，跨多表/缓存/消息联动，高优先级）  
+2) `EvaDeleteGatewayImpl.deleteEvaRecord/deleteEvaTemplate`（写侧删除链路，含联动与缓存/日志）  
+3) 课程读侧：`CourseQueryGatewayImpl`（先抽 `QueryPort` 再谈 CQRS/投影表，避免过早优化）  
+4) 评教读侧：`EvaQueryGatewayImpl`（统计/分页/聚合，后置但收益大）  
+5) `MsgGatewayImpl`（若要继续事件化副作用，可逐步委托化到 `bc-messaging`）  
 
 ---
 
@@ -212,4 +223,3 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 - “已完成闭环与踩坑记录”以 `NEXT_SESSION_HANDOFF.md` 为准（每次会话结束必须更新）。
 - 本文件用于“长期 Backlog 与统一执行模板”，避免每个新会话重复盘点。
-
