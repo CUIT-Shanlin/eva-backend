@@ -25,7 +25,8 @@ import edu.cuit.infra.enums.cache.CourseCacheConstants;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
 import edu.cuit.infra.gateway.impl.course.operate.CourseFormat;
 import edu.cuit.infra.gateway.impl.course.operate.CourseImportExce;
-import edu.cuit.infra.gateway.impl.course.support.CourseTemplateLockChecker;
+import edu.cuit.bc.template.application.CourseTemplateLockService;
+import edu.cuit.bc.template.domain.TemplateLockedException;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
@@ -56,7 +57,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     private final FormTemplateMapper formTemplateMapper;
     private final EvaCacheConstants evaCacheConstants;
     private final ClassroomCacheConstants classroomCacheConstants;
-    private final CourseTemplateLockChecker courseTemplateLockChecker;
+    private final CourseTemplateLockService courseTemplateLockService;
 
 
     /**
@@ -79,7 +80,11 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         if (updateCourseCmd.getTemplateId() != null
                 && !Objects.equals(courseDO.getTemplateId(), updateCourseCmd.getTemplateId())) {
             Integer effectiveSemId = semId != null ? semId : courseDO.getSemesterId();
-            courseTemplateLockChecker.assertNotLocked(courseDO.getId(), effectiveSemId);
+            try {
+                courseTemplateLockService.assertCanChangeTemplate(courseDO.getId(), effectiveSemId);
+            } catch (TemplateLockedException e) {
+                throw new UpdateException(e.getMessage());
+            }
         }
         SysUserDO userDO = userMapper.selectById(courseDO.getTeacherId());
         if(updateCourseCmd.getIsUpdate()){
@@ -166,8 +171,10 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
                 effectiveSemId = course == null ? null : course.getSemesterId();
             }
             try {
-                courseTemplateLockChecker.assertNotLocked(courseId, effectiveSemId);
+                courseTemplateLockService.assertCanChangeTemplate(courseId, effectiveSemId);
             } catch (UpdateException e) {
+                lockedCourseIds.add(courseId);
+            } catch (TemplateLockedException e) {
                 lockedCourseIds.add(courseId);
             }
         }
