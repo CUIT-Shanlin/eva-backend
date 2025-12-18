@@ -25,6 +25,7 @@ import edu.cuit.infra.enums.cache.CourseCacheConstants;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
 import edu.cuit.infra.gateway.impl.course.operate.CourseFormat;
 import edu.cuit.infra.gateway.impl.course.operate.CourseImportExce;
+import edu.cuit.infra.gateway.impl.course.support.CourseTemplateLockChecker;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
@@ -55,6 +56,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     private final FormTemplateMapper formTemplateMapper;
     private final EvaCacheConstants evaCacheConstants;
     private final ClassroomCacheConstants classroomCacheConstants;
+    private final CourseTemplateLockChecker courseTemplateLockChecker;
 
 
     /**
@@ -71,6 +73,13 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         CourseDO courseDO = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", updateCourseCmd.getId()));
         if(courseDO==null){
             throw new QueryException("没有该课程");
+        }
+
+        // 模板锁定：只要有人评教过，该课程本学期模板不可再切换
+        if (updateCourseCmd.getTemplateId() != null
+                && !Objects.equals(courseDO.getTemplateId(), updateCourseCmd.getTemplateId())) {
+            Integer effectiveSemId = semId != null ? semId : courseDO.getSemesterId();
+            courseTemplateLockChecker.assertNotLocked(courseDO.getId(), effectiveSemId);
         }
         SysUserDO userDO = userMapper.selectById(courseDO.getTeacherId());
         if(updateCourseCmd.getIsUpdate()){
@@ -147,6 +156,25 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     public void updateCourses(Integer semId, UpdateCoursesCmd updateCoursesCmd) {
         //修改updateCoursesCmd中的courseIdList集合中id对应的课程的templateId
         List<Integer> courseIdList = updateCoursesCmd.getCourseIdList();
+
+        // 批量切换模板前，先整体校验锁定（避免部分成功部分失败）
+        List<Integer> lockedCourseIds = new ArrayList<>();
+        for (Integer courseId : courseIdList) {
+            Integer effectiveSemId = semId;
+            if (effectiveSemId == null) {
+                CourseDO course = courseMapper.selectById(courseId);
+                effectiveSemId = course == null ? null : course.getSemesterId();
+            }
+            try {
+                courseTemplateLockChecker.assertNotLocked(courseId, effectiveSemId);
+            } catch (UpdateException e) {
+                lockedCourseIds.add(courseId);
+            }
+        }
+        if (!lockedCourseIds.isEmpty()) {
+            throw new UpdateException("部分课程已评教过，模板已锁定，无法切换，课程ID：" + lockedCourseIds);
+        }
+
         for (Integer i : courseIdList) {
             CourseDO courseDO = new CourseDO();
             courseDO.setTemplateId(updateCoursesCmd.getTemplateId());
