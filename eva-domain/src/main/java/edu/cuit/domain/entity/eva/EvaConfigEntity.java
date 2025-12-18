@@ -25,12 +25,18 @@ public class EvaConfigEntity implements Cloneable{
      */
     private Integer maxBeEvaNum = 8;
 
+    /**
+     * 高分阈值（>=该值计为“高分”）。
+     */
+    private Integer highScoreThreshold = 95;
+
     @Override
     public EvaConfigEntity clone() {
         EvaConfigEntity config = SpringUtil.getBean(EvaConfigEntity.class);
         config.setMaxBeEvaNum(maxBeEvaNum);
         config.setMinEvaNum(minEvaNum);
         config.setMinBeEvaNum(minBeEvaNum);
+        config.setHighScoreThreshold(highScoreThreshold);
         return config;
     }
 

@@ -78,6 +78,11 @@ public class EvaConfigGatewayImpl implements EvaConfigGateway {
     }
 
     private void writeConfig(EvaConfig evaConfig) {
+        // 兼容：旧客户端/旧页面可能未携带新字段，写入时用当前缓存值兜底，避免把配置写成 null
+        if (evaConfig.getHighScoreThreshold() == null) {
+            evaConfig.setHighScoreThreshold(configCache.getHighScoreThreshold());
+        }
+
         BufferedOutputStream outputStream = FileUtil.getOutputStream(evaConfigFile);
         try {
             objectMapper.writeValue(outputStream,evaConfig);
@@ -94,9 +99,22 @@ public class EvaConfigGatewayImpl implements EvaConfigGateway {
         try {
             JsonNode jsonNode = objectMapper.readTree(inputStream);
             configCache = SpringUtil.getBean(EvaConfigEntity.class);
-            configCache.setMinEvaNum(jsonNode.get("minEvaNum").intValue());
-            configCache.setMinBeEvaNum(jsonNode.get("minBeEvaNum").intValue());
-            configCache.setMaxBeEvaNum(jsonNode.get("maxBeEvaNum").intValue());
+            JsonNode minEvaNum = jsonNode.get("minEvaNum");
+            if (minEvaNum != null && minEvaNum.isNumber()) {
+                configCache.setMinEvaNum(minEvaNum.intValue());
+            }
+            JsonNode minBeEvaNum = jsonNode.get("minBeEvaNum");
+            if (minBeEvaNum != null && minBeEvaNum.isNumber()) {
+                configCache.setMinBeEvaNum(minBeEvaNum.intValue());
+            }
+            JsonNode maxBeEvaNum = jsonNode.get("maxBeEvaNum");
+            if (maxBeEvaNum != null && maxBeEvaNum.isNumber()) {
+                configCache.setMaxBeEvaNum(maxBeEvaNum.intValue());
+            }
+            JsonNode highScoreThreshold = jsonNode.get("highScoreThreshold");
+            if (highScoreThreshold != null && highScoreThreshold.isNumber()) {
+                configCache.setHighScoreThreshold(highScoreThreshold.intValue());
+            }
         } catch (IOException e) {
             SysException e1 = new SysException("评教配置文件读取失败");
             log.error("评教配置文件读取失败",e);

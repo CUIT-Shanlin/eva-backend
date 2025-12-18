@@ -22,7 +22,7 @@ public class AiCourseSuggestionBO {
     // 被评教次数
     private Integer beEvaNumCount;
 
-    // 高分（95分以上）次数
+    // 高分次数（阈值来自评教配置 highScoreThreshold）
     private Integer highScoreBeEvaCount;
 
     // 优点

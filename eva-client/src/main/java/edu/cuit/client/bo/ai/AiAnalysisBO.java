@@ -22,7 +22,7 @@ public class AiAnalysisBO {
     // 被评教总数
     private Integer totalBeEvaCount;
 
-    // 高分（95分以上）总数
+    // 高分总数（阈值来自评教配置 highScoreThreshold）
     private Integer highScoreEvaCount;
 
     // 词频统计（由高到低）

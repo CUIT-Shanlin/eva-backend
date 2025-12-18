@@ -15,6 +15,7 @@ import edu.cuit.client.bo.ai.AiCourseSuggestionBO;
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.client.dto.clientobject.eva.EvaRecordCO;
 import edu.cuit.domain.entity.eva.EvaRecordEntity;
+import edu.cuit.domain.gateway.eva.EvaConfigGateway;
 import edu.cuit.domain.gateway.eva.EvaQueryGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.infra.ai.aiservice.CourseAiServices;
@@ -43,6 +44,7 @@ public class AiCourseAnalysisService implements IAiCourseAnalysisService {
     private final IUserCourseService userCourseService;
     private final EvaQueryGateway evaQueryGateway;
     private final UserQueryGateway userQueryGateway;
+    private final EvaConfigGateway evaConfigGateway;
 
     private final QwenChatModel qwenMaxChatModel;
     private final QwenChatModel qwenTurboChatModel;
@@ -55,6 +57,8 @@ public class AiCourseAnalysisService implements IAiCourseAnalysisService {
     @Override
     @CheckSemId
     public AiAnalysisBO analysis(Integer semId, Integer teacherId) {
+        int highScoreThreshold = evaConfigGateway.getEvaConfig().getHighScoreThreshold();
+
         List<CourseDetailCO> courseDetailsList = userCourseService.getUserCourseDetail(teacherId, semId)
                 .stream().filter(course -> course.getTypeList() != null && course.getDateList() != null)
                 .toList();
@@ -99,7 +103,7 @@ public class AiCourseAnalysisService implements IAiCourseAnalysisService {
                     .setSuggestion(suggestion)
                     .setBeEvaNumCount(records.size())
                     .setHighScoreBeEvaCount((int) records.parallelStream()
-                            .filter(record -> evaQueryGateway.getScoreFromRecord(record.getFormPropsValues()).get() >= 95)
+                            .filter(record -> evaQueryGateway.getScoreFromRecord(record.getFormPropsValues()).get() >= highScoreThreshold)
                             .count());
             courseSuggestionList.add(suggestionBO);
         });
@@ -123,7 +127,7 @@ public class AiCourseAnalysisService implements IAiCourseAnalysisService {
 
         int highScoreBeEvaCount = courseRecordMap.values().stream()
                 .flatMap(List::stream)
-                .filter(record -> evaQueryGateway.getScoreFromRecord(record.getFormPropsValues()).get() >= 95)
+                .filter(record -> evaQueryGateway.getScoreFromRecord(record.getFormPropsValues()).get() >= highScoreThreshold)
                 .toList()
                 .size();
 
