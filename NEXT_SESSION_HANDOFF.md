@@ -183,6 +183,7 @@
  - `mvn -o -pl bc-course -am test -q -Dmaven.repo.local=.m2/repository`
  - `mvn -o -pl bc-messaging -am test -q -Dmaven.repo.local=.m2/repository`
  - `mvn -o -pl eva-infra -am -DskipTests test -q -Dmaven.repo.local=.m2/repository`
+ - 注意：若直接使用系统默认 JDK（例如 GraalVM Java 25），本仓库可能在编译期报 `TypeTag :: UNKNOWN`，请优先切回 Java 17 再验证
 
 ## 1. 关键业务结论（必须记住）
 
