@@ -48,3 +48,7 @@ build/
 
 data/avatar
 data/records
+
+# 避免在 Linux 下误创建 Windows 风格路径目录（来自 dev 配置中的 D:\\...）
+D:\\Programming\\Java\\Projects\\eva-backend\\data\\
+start/D:\\Programming\\Java\\Projects\\eva-backend\\data\\
