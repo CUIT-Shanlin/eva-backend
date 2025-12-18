@@ -8,7 +8,7 @@
 
 ## 0. 本轮会话增量总结（2025-12-18）
 
-本轮会话聚焦“DDD 渐进式重构（不做功能优化）”，继续执行方案 B/C，并补齐课程模块的收敛闭环：
+本轮会话聚焦“DDD 渐进式重构（不做功能优化/不改业务语义）”，继续执行方案 B/C，并持续压扁课程相关的大泥球入口（保持 API/异常文案/副作用行为不变）：
 
 1) **课表导入/覆盖用例收敛到 bc-course（闭环 E）**  
    - 背景：历史实现中 `IUserCourseServiceImpl.importCourse()` 既做导入又做消息通知/撤回评教消息，属于典型“大泥球联动”。
@@ -27,12 +27,39 @@
    - 简历可用沉淀：`data/RESUME_BALL_OF_MUD_REFACTOR_SUMMARY.md`（新增了“课表导入/覆盖收敛”案例）。
    - 交接文档：本文件已补充闭环 E 与下一步行动建议。
 
+4) **教师自助课表链路继续收敛（删课/改课）**  
+   - 背景：历史实现中 `IUserCourseServiceImpl.deleteSelfCourse()/updateSelfCourse()` 直接操作 `msgResult/msgService`，跨域副作用与主流程混杂。  
+   - 做法：
+     - 先把跨域副作用统一事件化（事务提交后发布），并通过 `CourseOperationMessageMode` 兼容历史消息模型（NORMAL/TASK_LINKED），保证行为不变。
+     - 再把“自助删课/自助改课”的主写逻辑收敛到 `bc-course` 用例，旧 gateway 退化为委托壳，持久化/缓存/日志逻辑迁移到 `eva-infra/bccourse/adapter`。
+
+5) **课程类型修改链路收敛到 bc-course（保持行为不变）**  
+   - 把 `CourseUpdateGatewayImpl.updateCourseType()/updateCoursesType()` 的逻辑迁移到 `eva-infra/bccourse/adapter` 端口实现；
+   - 旧 gateway 退化为委托壳，bc-course 提供用例骨架与纯单测。
+
+6) **删课链路收敛到 bc-course（保持行为不变）**  
+   - 把 `CourseDeleteGatewayImpl.deleteCourse()/deleteCourses()` 的逻辑迁移到 `eva-infra/bccourse/adapter` 端口实现；
+   - 旧 gateway 退化为委托壳，bc-course 提供用例骨架与纯单测。
+
 本轮新增提交（按时间顺序）：
 - `a122ff58 feat(bc-course): 引入课程BC用例与基础设施端口实现`
 - `285db180 feat(bc-messaging): 课程操作副作用事件化并收敛消息发送`
 - `4a22fdaf fix(gitignore): 仅忽略仓库根 data 目录`（避免误伤 `eva-client/.../dto/data` 包路径）
 - `60fe256d feat(eva-config): 支持高分阈值可配置`
 - `a330d8e7 test(bc-template): 迁移模板锁定校验并清理旧实现`
+- `35aca4eb docs: 更新会话交接与后续任务清单`
+- `9a96a04a feat(bc-messaging): 自助课表操作副作用事件化`
+- `1b2d8756 feat(bc-course): 收敛修改课程信息用例`
+- `2b5cb49d feat(bc-course): 增加课程类型修改用例骨架`
+- `255cb51f feat(eva-infra): 实现课程类型修改端口适配器`
+- `b97a905b refactor(course): 课程类型修改收敛到bc-course`
+- `45ca3b5c feat(bc-course): 收敛教师自助删课用例骨架`
+- `e7ef502a refactor(course): 自助删课收敛到bc-course`
+- `dde5ecf1 feat(bc-course): 收敛教师自助改课用例骨架`
+- `87caef60 refactor(course): 自助改课收敛到bc-course`
+- `7f055aa3 feat(bc-course): 收敛删课用例骨架`
+- `bd85f734 feat(eva-infra): 实现删课端口适配器`
+- `0a186d03 refactor(course): 删课链路收敛到bc-course`
 
 验证（建议使用 Java17；网络受限时再加 `-o` 离线）：
 - 切换 JDK（本机已安装）：`sdk use java 17.0.17-zulu`  
@@ -259,17 +286,22 @@
    - 切 JDK 到 17（见上文），再跑一次 `mvn -pl bc-course -am test` / `mvn -pl bc-messaging -am test` 快速验收。
    - 用 Serena 重新索引（用户要求“开始任务先更新一次索引”）。
 
-1) **继续收敛“教师自助课表”链路（IUserCourseServiceImpl）**
-   - 目标：把 `deleteSelfCourse()`、`updateSelfCourse()` 里直接 `msgResult/msgService` 的跨域副作用，统一事件化并收敛到 `bc-messaging`（保持行为不变）。
-   - 推荐落地顺序：
-     - 先引入 `AfterCommitEventPublisher`（已具备）；
-     - 让两方法返回的 `Map<String, Map<Integer,Integer>>` 复用 `CourseOperationSideEffectsEvent`；
-     - 只改“消息发送/撤回评教消息”触发点，不动主流程逻辑。
+1) ✅ **已完成：继续收敛“教师自助课表”链路（IUserCourseServiceImpl）**
+   - 已完成事件化副作用 + 主写逻辑收敛到 `bc-course`（保持行为不变）。
 
-2) **继续压扁旧 `CourseUpdateGatewayImpl.updateCourse()`（当前仍是大泥球核心之一）**
-   - 目标：为“修改课程信息”新增 `bc-course` 用例（例如 `UpdateCourseInfoUseCase`），并把现有 DB/缓存/日志迁移到 `eva-infra` 的端口实现。
-   - 验收标准：旧 gateway 变为委托壳；用例有纯单测；行为不变。
+2) ✅ **已完成：压扁旧 `CourseUpdateGatewayImpl.updateCourse()`**
+   - 已新增 `UpdateCourseInfoUseCase` + infra 端口实现，旧 gateway 退化委托壳（保持行为不变）。
 
-3) **事件载荷逐步语义化（中长期）**
+3) ✅ **已完成：课程类型修改链路收敛**
+   - `updateCourseType/updateCoursesType` 已收敛到 `bc-course`。
+
+4) ✅ **已完成：删课链路收敛**
+   - `deleteCourse/deleteCourses` 已收敛到 `bc-course`。
+
+5) **下一步推荐：压扁 `CourseDeleteGatewayImpl.deleteCourseType()`**
+   - 目标：为“删除课程类型/批量删除课程类型”新增 `bc-course` 用例 + 端口实现（迁移 DB/缓存/日志），旧 gateway 退化委托壳。
+   - 验收标准：行为不变；用例纯单测；每小步 commit。
+
+6) **事件载荷逐步语义化（中长期）**
    - 当前为了行为不变，事件仍携带 `Map<String, Map<Integer,Integer>>` 作为过渡载荷；
    - 后续可逐步替换为更明确的字段（广播文案、撤回任务列表等），并为 MQ + Outbox 做准备（先不做优化，等收敛完成后再演进）。
