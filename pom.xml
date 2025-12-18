@@ -16,6 +16,7 @@
     <module>eva-domain</module>
     <module>eva-infra</module>
     <module>eva-base</module>
+    <module>bc-evaluation</module>
   </modules>
 
   <properties>
