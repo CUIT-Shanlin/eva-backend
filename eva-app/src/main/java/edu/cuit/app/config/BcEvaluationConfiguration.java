@@ -1,0 +1,24 @@
+package edu.cuit.app.config;
+
+import edu.cuit.bc.evaluation.application.port.DomainEventPublisher;
+import edu.cuit.bc.evaluation.application.port.SubmitEvaluationRepository;
+import edu.cuit.bc.evaluation.application.usecase.SubmitEvaluationUseCase;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+/**
+ * bc-evaluation 的组合根（单体阶段由 eva-app 负责装配）。
+ *
+ * <p>未来拆分微服务时：可以把该配置迁移到对应服务的 bootstrap 模块中。</p>
+ */
+@Configuration
+public class BcEvaluationConfiguration {
+    @Bean
+    public SubmitEvaluationUseCase submitEvaluationUseCase(
+            SubmitEvaluationRepository repository,
+            DomainEventPublisher eventPublisher
+    ) {
+        return new SubmitEvaluationUseCase(repository, eventPublisher);
+    }
+}
+

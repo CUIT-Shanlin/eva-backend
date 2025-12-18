@@ -24,6 +24,11 @@
             <version>${revision}</version>
         </dependency>
         <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>bc-evaluation</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
             <groupId>edu.cuit.zhuyimeng</groupId>
             <artifactId>zym-spring-boot-starter-security</artifactId>
         </dependency>
