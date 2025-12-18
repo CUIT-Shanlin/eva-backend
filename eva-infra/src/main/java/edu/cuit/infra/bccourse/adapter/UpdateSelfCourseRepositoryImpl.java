@@ -6,6 +6,7 @@ import edu.cuit.bc.course.application.port.UpdateSelfCourseRepository;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeInfoCO;
 import edu.cuit.client.dto.data.course.CourseType;
+import edu.cuit.infra.bccourse.support.ClassroomOccupancyChecker;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
@@ -55,6 +56,7 @@ public class UpdateSelfCourseRepositoryImpl implements UpdateSelfCourseRepositor
     private final ClassroomCacheConstants classroomCacheConstants;
     private final CourseCacheConstants courseCacheConstants;
     private final EvaCacheConstants evaCacheConstants;
+    private final ClassroomOccupancyChecker classroomOccupancyChecker;
 
     @Override
     @Transactional
@@ -187,17 +189,15 @@ public class UpdateSelfCourseRepositoryImpl implements UpdateSelfCourseRepositor
                 }
 
                 // 判断对应时间段的教室是否被占用
-                QueryWrapper<CourInfDO> wrapper = new QueryWrapper<CourInfDO>()
-                        .eq("week", courInfDO.getWeek())
-                        .eq("day", courInfDO.getDay())
-                        .le("start_time", courInfDO.getEndTime())
-                        .ge("end_time", courInfDO.getStartTime())
-                        .and(courseWrapper -> courseWrapper.ne("course_id", courseDO.getId()));
-                wrapper.eq("location", courInfDO.getLocation());
-                if (courInfMapper.selectOne(wrapper) != null) {
-                    // 被占用了，抛出异常
-                    throw new UpdateException("该时间段教室已占用");
-                }
+                classroomOccupancyChecker.assertClassroomAvailable(
+                        courInfDO.getWeek(),
+                        courInfDO.getDay(),
+                        courInfDO.getStartTime(),
+                        courInfDO.getEndTime(),
+                        courInfDO.getLocation(),
+                        courseDO.getId(),
+                        "该时间段教室已占用"
+                );
                 courInfMapper.insert(courInfDO);
             }
             return msg + userDO.getName() + "老师的" + selfTeachCourseCO.getName() + "课程的上课时间（教室）被修改了," + "因而取消您对该课程的评教任务";

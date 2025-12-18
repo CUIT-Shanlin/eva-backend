@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.cuit.bc.course.application.port.AddNotExistCoursesDetailsRepository;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeCO;
 import edu.cuit.client.dto.cmd.course.UpdateCourseCmd;
+import edu.cuit.infra.bccourse.support.ClassroomOccupancyChecker;
 import edu.cuit.infra.convertor.course.CourseConvertor;
 import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
@@ -20,7 +21,6 @@ import edu.cuit.infra.dal.database.mapper.eva.FormTemplateMapper;
 import edu.cuit.infra.enums.cache.ClassroomCacheConstants;
 import edu.cuit.infra.enums.cache.CourseCacheConstants;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
-import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +43,7 @@ public class AddNotExistCoursesDetailsRepositoryImpl implements AddNotExistCours
     private final CourseCacheConstants courseCacheConstants;
     private final FormTemplateMapper formTemplateMapper;
     private final ClassroomCacheConstants classroomCacheConstants;
+    private final ClassroomOccupancyChecker classroomOccupancyChecker;
 
     @Override
     @Transactional
@@ -92,7 +93,15 @@ public class AddNotExistCoursesDetailsRepositoryImpl implements AddNotExistCours
         //插入课程时间表
         for (SelfTeachCourseTimeCO time : dateArr) {
             for (Integer week : time.getWeeks()) {
-                judgeAlsoHasLocation(week, time);
+                classroomOccupancyChecker.assertClassroomAvailable(
+                        week,
+                        time.getDay(),
+                        time.getStartTime(),
+                        time.getEndTime(),
+                        time.getClassroom(),
+                        null,
+                        "该时间段教室冲突，请修改时间"
+                );
                 CourInfDO courInfDO = new CourInfDO();
                 courInfDO.setCourseId(courseDOId);
                 courInfDO.setWeek(week);
@@ -108,18 +117,4 @@ public class AddNotExistCoursesDetailsRepositoryImpl implements AddNotExistCours
         localCacheManager.invalidateCache(null, classroomCacheConstants.ALL_CLASSROOM);
 
     }
-
-    private void judgeAlsoHasLocation(Integer week, SelfTeachCourseTimeCO timeCO) {
-        CourInfDO courInfDO = courInfMapper.selectOne(new QueryWrapper<CourInfDO>()
-                .eq("week", week)
-                .eq("day", timeCO.getDay())
-                .eq("location", timeCO.getClassroom())
-                .le("start_time", timeCO.getEndTime())
-                .ge("end_time", timeCO.getStartTime()));
-        if (courInfDO != null) {
-            throw new UpdateException("该时间段教室冲突，请修改时间");
-        }
-
-    }
 }
-

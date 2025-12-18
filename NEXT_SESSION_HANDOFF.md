@@ -508,6 +508,9 @@
    - 背景：当前“时间/教室冲突校验”逻辑分散在 `CourseUpdateGatewayImpl` 的多个私有方法/端口适配器中（例如 `JudgeCourseTime`、`judgeAlsoHasLocation`），不利于后续复用与拆分。
    - 目标：把“课程时间冲突判定”收敛到 `bc-course` 用例 + 端口（保持异常类型/文案与判定边界不变），旧 gateway 退化委托壳。
    - 注意：本阶段仍是“只重构不改语义”，不要优化判定算法与 SQL 条件。
+   - 进展（本会话追加）：已抽取教室占用冲突校验组件 `ClassroomOccupancyChecker`（eva-infra），并在以下端口适配器复用：
+     - `AddExistCoursesDetailsRepositoryImpl` / `AddNotExistCoursesDetailsRepositoryImpl`：替换重复 `judgeAlsoHasLocation`（异常文案保持不变）
+     - `UpdateSelfCourseRepositoryImpl`：替换“教室已占用”校验的重复 QueryWrapper 片段（异常文案保持不变）
 
 10) **事件载荷逐步语义化（中长期）**
    - 当前为了行为不变，事件仍携带 `Map<String, Map<Integer,Integer>>` 作为过渡载荷；
