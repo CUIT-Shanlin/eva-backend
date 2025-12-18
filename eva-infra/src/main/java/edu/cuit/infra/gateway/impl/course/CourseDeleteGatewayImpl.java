@@ -16,6 +16,8 @@ import edu.cuit.infra.enums.cache.ClassroomCacheConstants;
 import edu.cuit.infra.enums.cache.CourseCacheConstants;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
 import edu.cuit.infra.gateway.impl.course.operate.CourseFormat;
+import edu.cuit.bc.course.application.model.DeleteSelfCourseCommand;
+import edu.cuit.bc.course.application.usecase.DeleteSelfCourseUseCase;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
@@ -44,6 +46,7 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
     private final FormRecordMapper formRecordMapper;
     private final EvaCacheConstants evaCacheConstants;
     private final ClassroomCacheConstants classroomCacheConstants;
+    private final DeleteSelfCourseUseCase deleteSelfCourseUseCase;
 
 
     /**
@@ -204,56 +207,8 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
     @Override
     @Transactional
     public Map<String, Map<Integer, Integer>> deleteSelfCourse(String userName, Integer courseId) {
-        if (userName == null) {
-            throw new QueryException("请先登录");
-        }
-        //先根据userName来找到用户id
-        SysUserDO userDO = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("username", userName));
-        if(userDO==null){
-            throw new QueryException("你已经被删除了");
-        }
-        Integer userId =userDO.getId();
-        //根据userId和courseId来删除课程表
-        CourseDO courseDO = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", courseId).eq("teacher_id", userId));
-        if (courseDO == null) {
-            throw new QueryException("没有该用户对应课程");
-        }
-        SubjectDO subjectDO = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("id", courseDO.getSubjectId()));
-        String natureName = CourseFormat.getNatureName(subjectDO.getNature());
-        String name = subjectDO.getName();
-        courseMapper.delete(new UpdateWrapper<CourseDO>().eq("id", courseId).eq("teacher_id", userId));
-        if(courseMapper.selectCount(new QueryWrapper<CourseDO>().eq("subject_id",courseDO.getSubjectId()))==1){
-            subjectMapper.delete(new QueryWrapper<SubjectDO>().eq("id",courseDO.getSubjectId()));
-            localCacheManager.invalidateCache(null,courseCacheConstants.SUBJECT_LIST);
-        }
-        List<CourInfDO> courInfoIds = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseId));
-        courInfMapper.delete(new UpdateWrapper<CourInfDO>().eq("course_id", courseId));
-        courseTypeCourseMapper.delete(new UpdateWrapper<CourseTypeCourseDO>().eq("course_id", courseId));
-        //删除评教相关数据
-        List<Integer> list = courInfoIds.stream().map(CourInfDO::getId).toList();
-        List<EvaTaskDO> taskDOList = new ArrayList<>();
-        if (!list.isEmpty()) {
-            taskDOList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in(true, "cour_inf_id", list));
-        }
-        if (!taskDOList.isEmpty()) {
-            formRecordMapper.delete(new QueryWrapper<FormRecordDO>().in(true, "task_id", list));
-        }
-        List<Integer> list1 = courInfoIds.stream().map(CourInfDO::getId).toList();
-        if (!list1.isEmpty()) {
-            evaTaskMapper.delete(new UpdateWrapper<EvaTaskDO>().in("cour_inf_id", taskDOList.stream().map(EvaTaskDO::getId).toList()));
-        }
-        Map<Integer, Integer> mapEva = new HashMap<>();
-        for (EvaTaskDO i : taskDOList) {
-            mapEva.put(i.getId(), i.getTeacherId());
-        }
-        Map<String,Map<Integer,Integer>> map=new HashMap<>();
-        map.put("你所要评教的"+userDO.getName()+"老师的"+name+"课程("+natureName+")被删除，已取消评教任务",mapEva);
-        map.put(userDO.getName()+"老师的"+name+"课程（"+natureName+"）已被删除",null);
-        localCacheManager.invalidateCache(courseCacheConstants.COURSE_LIST_BY_SEM, String.valueOf(courseDO.getSemesterId()));
-        localCacheManager.invalidateCache(null, evaCacheConstants.LOG_LIST);
-        localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(courseDO.getSemesterId()));
-        localCacheManager.invalidateCache(null, classroomCacheConstants.ALL_CLASSROOM);
-        return map;
+        // 历史路径：收敛到 bc-course 用例，基础设施层避免继续堆“自助删课”业务流程（行为不变）
+        return deleteSelfCourseUseCase.execute(new DeleteSelfCourseCommand(userName, courseId));
     }
 
     private void isEmptiy(QueryWrapper wrapper, CoursePeriod coursePeriod) {
