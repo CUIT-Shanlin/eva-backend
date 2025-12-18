@@ -6,7 +6,7 @@
 
 ---
 
-## 0. 本轮会话增量总结（2025-12-18，更新至（请以 `git log -n 1` 为准））
+## 0. 本轮会话增量总结（2025-12-18，更新至 `HEAD`，以 `git log -n 1` 为准）
 
 本轮会话聚焦“DDD 渐进式重构（不做功能优化/不改业务语义）”，继续执行方案 B/C，并持续压扁课程相关的大泥球入口：
 
@@ -32,7 +32,14 @@
    - 简历可用沉淀：`data/RESUME_BALL_OF_MUD_REFACTOR_SUMMARY.md`（新增了“课表导入/覆盖收敛”案例）。
    - 交接文档：本文件已补充闭环 E 与下一步行动建议。
 
-4) **教师自助课表：副作用事件化 + 主写逻辑收敛（保持行为不变）**  
+4) **冲突校验收敛（教室占用/时间段重叠，保持行为不变）**
+   - 背景：教室占用/时间段重叠的 QueryWrapper 片段在多个端口适配器里重复，容易出现 SQL 条件漂移与异常文案不一致。
+   - 做法：提炼可复用的“底层校验/查询片段”，用最小改动迁移调用点；并清理已无引用的旧 gateway 遗留私有逻辑，防止回潮。
+   - 落地：
+     - `ClassroomOccupancyChecker`：统一“教室占用冲突”校验（异常文案保持不变）
+     - `CourInfTimeOverlapQuery`：统一“时间段重叠”查询片段（`start_time <= end && end_time >= start`，保持 SQL 条件不变）
+
+5) **教师自助课表：副作用事件化 + 主写逻辑收敛（保持行为不变）**  
    - 背景：历史实现中 `IUserCourseServiceImpl.deleteSelfCourse()/updateSelfCourse()` 同时包含：
      - 主写逻辑（删课/改课，涉及课程/课次/评教任务/缓存）；
      - 跨域副作用（消息通知、撤回评教消息）；
@@ -184,6 +191,8 @@
 - `bcdd8564 refactor(eva-infra): 分配评教冲突校验复用时间重叠片段`
 - `a53aafee docs: 记录冲突校验收敛进展与离线验证`
 - `a84dc46d docs: 更新交接文档版本号`
+- `94662c8a docs: 交接文档改为git log对齐`
+- `0684a374 docs: 更新DDD重构Backlog进度与下一步`
 
 验证（建议使用 Java17；网络受限时再加 `-o` 离线）：
 - 切换 JDK（本机已安装）：`sdk use java 17.0.17-zulu`  
@@ -435,8 +444,18 @@
 
 ## 5. 已完成的提交（按时间倒序，供回退/追踪）
 
-当前 `git log --oneline -n 20` 关键提交如下（最新在上，更新至 `080ae028`）：
+当前 `git log --oneline -n 20` 关键提交如下（最新在上，更新至 `HEAD`，以 `git log -n 1` 为准）：
 
+- `0684a374 docs: 更新DDD重构Backlog进度与下一步`
+- `94662c8a docs: 交接文档改为git log对齐`
+- `a84dc46d docs: 更新交接文档版本号`
+- `a53aafee docs: 记录冲突校验收敛进展与离线验证`
+- `bcdd8564 refactor(eva-infra): 分配评教冲突校验复用时间重叠片段`
+- `2bb64aa1 refactor(eva-infra): 复用时间段重叠查询条件`
+- `e417fb8e refactor(eva-infra): 提炼课程时间段重叠查询片段`
+- `2cfbfaee docs: 补充Java17构建基线说明`
+- `969d606a refactor(eva-infra): 清理CourseUpdateGateway遗留私有逻辑`
+- `8c9b7443 refactor(eva-infra): 收敛教室占用冲突校验`
 - `080ae028 docs: 更新会话交接（新增课次收敛）`
 - `f447fd17 refactor(course): 新增课次收敛到bc-course`
 - `b4b66261 feat(eva-infra): 实现新增课次端口适配器`
@@ -514,18 +533,19 @@
 8) ✅ **已完成：压扁 `CourseUpdateGatewayImpl.addExistCoursesDetails()`**
    - 已新增 `AddExistCoursesDetailsUseCase` + `AddExistCoursesDetailsRepositoryImpl`，旧 gateway 退化委托壳（保持行为不变）。
 
-9) **下一步推荐：收敛 `CourseUpdateGatewayImpl.JudgeCourseTime()` 与 `judgeAlsoHasLocation`**
-   - 背景：当前“时间/教室冲突校验”逻辑分散在 `CourseUpdateGatewayImpl` 的多个私有方法/端口适配器中（例如 `JudgeCourseTime`、`judgeAlsoHasLocation`），不利于后续复用与拆分。
-   - 目标：把“课程时间冲突判定”收敛到 `bc-course` 用例 + 端口（保持异常类型/文案与判定边界不变），旧 gateway 退化委托壳。
-   - 注意：本阶段仍是“只重构不改语义”，不要优化判定算法与 SQL 条件。
-   - 进展（本会话追加）：已抽取教室占用冲突校验组件 `ClassroomOccupancyChecker`（eva-infra），并在以下端口适配器复用：
-     - `AddExistCoursesDetailsRepositoryImpl` / `AddNotExistCoursesDetailsRepositoryImpl`：替换重复 `judgeAlsoHasLocation`（异常文案保持不变）
-     - `UpdateSelfCourseRepositoryImpl`：替换“教室已占用”校验的重复 QueryWrapper 片段（异常文案保持不变）
-     - `CourseUpdateGatewayImpl`：清理已无引用的历史私有方法（`JudgeCourseTime/getDifference/JudgeCourseType/toJudge`），避免“旧 gateway 继续承载业务”回潮
-     - 已新增 `CourInfTimeOverlapQuery` 作为“时间段重叠”QueryWrapper 片段收敛点（后续迁移各适配器逐步替换）
-     - 已迁移：`UpdateSelfCourseRepositoryImpl`、`UpdateSingleCourseRepositoryImpl` 的“时间段重叠”查询条件改为复用 `CourInfTimeOverlapQuery`（SQL 条件/异常文案保持不变）
-     - 已迁移：`AssignEvaTeachersRepositoryImpl` 的“时间段重叠”查询条件改为复用 `CourInfTimeOverlapQuery`（SQL 条件/异常文案保持不变）
+9) ✅ **已完成：收敛“课程时间/教室冲突校验”的重复片段（保持行为不变）**
+   - 已抽取：
+     - `ClassroomOccupancyChecker`（教室占用冲突校验）
+     - `CourInfTimeOverlapQuery`（时间段重叠查询片段）
+   - 已迁移：
+     - 新增课次/新建课程明细/自助改课：替换重复 `judgeAlsoHasLocation` 与重复 QueryWrapper（异常文案保持不变）
+     - 改课/自助改课/分配评教：替换时间段重叠 QueryWrapper（异常文案保持不变）
+   - 已清理：`CourseUpdateGatewayImpl` 遗留私有逻辑（防止旧 gateway 回潮承载业务流程）
 
-10) **事件载荷逐步语义化（中长期）**
+10) **下一步推荐：收敛评教写侧主链路（`EvaUpdateGatewayImpl.postEvaTask`）**
+   - 背景：评教任务发布属于高价值写流程（跨表 + 可能联动消息/缓存/日志），是下一阶段事件化与模块化的关键入口。
+   - 目标：按“用例 + 端口 + 旧 gateway 委托壳”的标准步骤，把写侧流程收敛到 `bc-evaluation`（行为不变）。
+
+11) **事件载荷逐步语义化（中长期）**
    - 当前为了行为不变，事件仍携带 `Map<String, Map<Integer,Integer>>` 作为过渡载荷；
    - 后续可逐步替换为更明确的字段（广播文案、撤回任务列表等），并为 MQ + Outbox 做准备（先不做优化，等收敛完成后再演进）。
