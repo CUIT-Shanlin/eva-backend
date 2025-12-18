@@ -45,6 +45,8 @@ import edu.cuit.bc.course.application.usecase.UpdateSingleCourseUseCase;
 import edu.cuit.bc.course.domain.UpdateSingleCourseException;
 import edu.cuit.bc.course.application.model.AddCourseTypeCommand;
 import edu.cuit.bc.course.application.usecase.AddCourseTypeUseCase;
+import edu.cuit.bc.course.application.model.AddNotExistCoursesDetailsCommand;
+import edu.cuit.bc.course.application.usecase.AddNotExistCoursesDetailsUseCase;
 import edu.cuit.bc.course.application.model.UpdateSelfCourseCommand;
 import edu.cuit.bc.course.application.usecase.UpdateSelfCourseUseCase;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
@@ -85,6 +87,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     private final UpdateCoursesTypeUseCase updateCoursesTypeUseCase;
     private final UpdateSelfCourseUseCase updateSelfCourseUseCase;
     private final AddCourseTypeUseCase addCourseTypeUseCase;
+    private final AddNotExistCoursesDetailsUseCase addNotExistCoursesDetailsUseCase;
 
 
     /**
@@ -416,64 +419,8 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     @Override
     @Transactional
     public void addNotExistCoursesDetails(Integer semId, Integer teacherId, UpdateCourseCmd courseInfo, List<SelfTeachCourseTimeCO> dateArr) {
-        SubjectDO subjectDO1 = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("name", courseInfo.getSubjectMsg().getName()).eq("nature", courseInfo.getSubjectMsg().getNature()));
-        Integer subjectId=null;
-        if(subjectDO1==null) {
-            SubjectDO subjectDO = courseConvertor.toSubjectDO(courseInfo.getSubjectMsg());
-            //向subject表插入数据并返回主键ID
-            subjectMapper.insert(subjectDO);
-            subjectId=subjectDO.getId();
-            localCacheManager.invalidateCache(null,courseCacheConstants.SUBJECT_LIST);
-        }else {
-            subjectId=subjectDO1.getId();
-        }
-        //向course表中插入数据
-        CourseDO courseDO = courseConvertor.toCourseDO(courseInfo, subjectId, teacherId, semId);
-        Integer type=null;
-        if(courseDO.getTemplateId()==null&&(courseInfo.getSubjectMsg().getNature()==1|| courseInfo.getSubjectMsg().getNature()==0)){
-            Integer id = formTemplateMapper.selectOne(new QueryWrapper<FormTemplateDO>().eq("is_default", courseInfo.getSubjectMsg().getNature())).getId();
-            courseDO.setTemplateId(id);
-             type = courseTypeMapper.selectOne(new QueryWrapper<CourseTypeDO>().eq("is_default", courseInfo.getSubjectMsg().getNature())).getId();
-        }
-        courseMapper.insert(courseDO);
-        localCacheManager.invalidateCache(courseCacheConstants.COURSE_LIST_BY_SEM, String.valueOf(semId));
-        //再根据teacherId和subjectId又将他查出来
-       Integer courseDOId = courseDO.getId();
-       if(type!=null&&!courseInfo.getTypeIdList().contains(type)){
-           CourseTypeCourseDO courseTypeCourseDO = new CourseTypeCourseDO();
-           courseTypeCourseDO.setCourseId(courseDOId);
-           courseTypeCourseDO.setTypeId(type);
-           courseTypeCourseDO.setCreateTime(courseInfo.getCreateTime());
-           courseTypeCourseDO.setUpdateTime(courseInfo.getUpdateTime());
-           courseTypeCourseMapper.insert(courseTypeCourseDO);
-       }
-        //插入课程类型
-        for (Integer i : courseInfo.getTypeIdList()) {
-            CourseTypeCourseDO courseTypeCourseDO = new CourseTypeCourseDO();
-            courseTypeCourseDO.setCourseId(courseDOId);
-            courseTypeCourseDO.setTypeId(i);
-            courseTypeCourseDO.setCreateTime(courseInfo.getCreateTime());
-            courseTypeCourseDO.setUpdateTime(courseInfo.getUpdateTime());
-            courseTypeCourseMapper.insert(courseTypeCourseDO);
-        }
-        //插入课程时间表
-        for (SelfTeachCourseTimeCO time : dateArr) {
-            for (Integer week : time.getWeeks()) {
-                judgeAlsoHasLocation(week,time);
-                CourInfDO courInfDO = new CourInfDO();
-                courInfDO.setCourseId(courseDOId);
-                courInfDO.setWeek(week);
-                courInfDO.setDay(time.getDay());
-                courInfDO.setStartTime(time.getStartTime());
-                courInfDO.setEndTime(time.getEndTime());
-                courInfDO.setLocation(time.getClassroom());
-                courInfDO.setCreateTime(courseInfo.getCreateTime());
-                courInfDO.setUpdateTime(courseInfo.getCreateTime());
-                courInfMapper.insert(courInfDO);
-            }
-        }
-        localCacheManager.invalidateCache(null,classroomCacheConstants.ALL_CLASSROOM);
-
+        // 历史路径：收敛到 bc-course 用例，基础设施层避免继续堆“新建课程明细”业务流程（行为不变）
+        addNotExistCoursesDetailsUseCase.execute(new AddNotExistCoursesDetailsCommand(semId, teacherId, courseInfo, dateArr));
     }
 
     @Override
