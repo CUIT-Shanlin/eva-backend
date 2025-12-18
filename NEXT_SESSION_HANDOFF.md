@@ -6,7 +6,7 @@
 
 ---
 
-## 0. 本轮会话增量总结（2025-12-18，更新至 `28dfdd49`）
+## 0. 本轮会话增量总结（2025-12-18，更新至 `f447fd17`）
 
 本轮会话聚焦“DDD 渐进式重构（不做功能优化/不改业务语义）”，继续执行方案 B/C，并持续压扁课程相关的大泥球入口：
 
@@ -129,6 +129,20 @@
      - infra 端口实现：`eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/AddNotExistCoursesDetailsRepositoryImpl.java`
      - 旧 gateway 退化委托壳：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseUpdateGatewayImpl.java`（`addNotExistCoursesDetails`）
 
+10) **批量新建多节课（已有课程）链路收敛到 bc-course（闭环 L，保持行为不变）**
+   - 背景：`POST /course/batch/exist/{courseId}` 入口最终落到 `CourseUpdateGatewayImpl.addExistCoursesDetails`，旧实现包含“逐周新增课次 + 教室冲突校验 + 课程/科目存在性校验 + 日志 + 缓存失效”等完整写流程，属于 infra 层承载业务。
+   - 做法：新增 bc-course 用例骨架 + 端口，并在 eva-infra 端口适配器中原样搬运旧逻辑；旧 gateway 退化为委托壳。
+   - 行为不变约束（必须保持）：
+     - 冲突校验与文案不变：教室冲突抛 `UpdateException("该时间段教室冲突，请修改时间")`；
+     - 课程/科目不存在异常不变：`QueryException("不存在对应的课程")`、`QueryException("不存在对应的课程的科目")`；
+     - 日志文案不变：`subjectName + "(ID:" + courseId + ")的课程的课数"`；
+     - 缓存失效不变：`ALL_CLASSROOM`；
+     - 课次写入时间字段不变：`createTime/updateTime` 仍为 `LocalDateTime.now()`。
+   - 关键文件：
+     - 用例与端口：`bc-course/src/main/java/edu/cuit/bc/course/application/usecase/AddExistCoursesDetailsUseCase.java`
+     - infra 端口实现：`eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/AddExistCoursesDetailsRepositoryImpl.java`
+     - 旧 gateway 退化委托壳：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseUpdateGatewayImpl.java`（`addExistCoursesDetails`）
+
 本轮新增提交（按时间顺序）：
 - `a122ff58 feat(bc-course): 引入课程BC用例与基础设施端口实现`
 - `285db180 feat(bc-messaging): 课程操作副作用事件化并收敛消息发送`
@@ -158,6 +172,9 @@
 - `a73c7bed feat(bc-course): 收敛新建课程明细用例骨架`
 - `685cfd8c feat(eva-infra): 实现新建课程明细端口适配器`
 - `28dfdd49 refactor(course): 新建课程明细收敛到bc-course`
+- `c91c4473 feat(bc-course): 收敛新增课次用例骨架`
+- `b4b66261 feat(eva-infra): 实现新增课次端口适配器`
+- `f447fd17 refactor(course): 新增课次收敛到bc-course`
 
 验证（建议使用 Java17；网络受限时再加 `-o` 离线）：
 - 切换 JDK（本机已安装）：`sdk use java 17.0.17-zulu`  
@@ -407,8 +424,11 @@
 
 ## 5. 已完成的提交（按时间倒序，供回退/追踪）
 
-当前 `git log --oneline -n 20` 关键提交如下（最新在上，更新至 `28dfdd49`）：
+当前 `git log --oneline -n 20` 关键提交如下（最新在上，更新至 `f447fd17`）：
 
+- `f447fd17 refactor(course): 新增课次收敛到bc-course`
+- `b4b66261 feat(eva-infra): 实现新增课次端口适配器`
+- `c91c4473 feat(bc-course): 收敛新增课次用例骨架`
 - `28dfdd49 refactor(course): 新建课程明细收敛到bc-course`
 - `685cfd8c feat(eva-infra): 实现新建课程明细端口适配器`
 - `a73c7bed feat(bc-course): 收敛新建课程明细用例骨架`
@@ -479,6 +499,14 @@
 7) ✅ **已完成：压扁 `CourseUpdateGatewayImpl.addNotExistCoursesDetails()`**
    - 已新增 `AddNotExistCoursesDetailsUseCase` + `AddNotExistCoursesDetailsRepositoryImpl`，旧 gateway 退化委托壳（保持行为不变）。
 
-8) **事件载荷逐步语义化（中长期）**
+8) ✅ **已完成：压扁 `CourseUpdateGatewayImpl.addExistCoursesDetails()`**
+   - 已新增 `AddExistCoursesDetailsUseCase` + `AddExistCoursesDetailsRepositoryImpl`，旧 gateway 退化委托壳（保持行为不变）。
+
+9) **下一步推荐：收敛 `CourseUpdateGatewayImpl.JudgeCourseTime()` 与 `judgeAlsoHasLocation`**
+   - 背景：当前“时间/教室冲突校验”逻辑分散在 `CourseUpdateGatewayImpl` 的多个私有方法/端口适配器中（例如 `JudgeCourseTime`、`judgeAlsoHasLocation`），不利于后续复用与拆分。
+   - 目标：把“课程时间冲突判定”收敛到 `bc-course` 用例 + 端口（保持异常类型/文案与判定边界不变），旧 gateway 退化委托壳。
+   - 注意：本阶段仍是“只重构不改语义”，不要优化判定算法与 SQL 条件。
+
+10) **事件载荷逐步语义化（中长期）**
    - 当前为了行为不变，事件仍携带 `Map<String, Map<Integer,Integer>>` 作为过渡载荷；
    - 后续可逐步替换为更明确的字段（广播文案、撤回任务列表等），并为 MQ + Outbox 做准备（先不做优化，等收敛完成后再演进）。
