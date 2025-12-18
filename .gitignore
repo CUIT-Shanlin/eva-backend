@@ -46,9 +46,8 @@ build/
 
 .xcodemap
 
-data/avatar
-data/records
-data
+# 仅忽略仓库根目录下的运行时 data/（避免误伤 Java 包路径中的 dto/data 等目录）
+/data/
 
 # 避免在 Linux 下误创建 Windows 风格路径目录（来自 dev 配置中的 D:\\...）
 D:\\Programming\\Java\\Projects\\eva-backend\\data\\*
