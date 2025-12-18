@@ -18,6 +18,7 @@
     <module>eva-base</module>
     <module>bc-evaluation</module>
     <module>bc-template</module>
+    <module>bc-course</module>
   </modules>
 
   <properties>

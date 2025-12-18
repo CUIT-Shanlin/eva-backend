@@ -3,13 +3,14 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>edu.cuit</groupId>
         <artifactId>eva-backend</artifactId>
         <version>${revision}</version>
     </parent>
 
-    <artifactId>eva-app</artifactId>
+    <artifactId>bc-course</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -18,48 +19,29 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>eva-infra</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>bc-evaluation</artifactId>
-            <version>${revision}</version>
-        </dependency>
+        <!-- 课程 BC 在“模板锁定”上依赖 bc-template 的用例服务（上游 BC）。 -->
         <dependency>
             <groupId>edu.cuit</groupId>
             <artifactId>bc-template</artifactId>
             <version>${revision}</version>
         </dependency>
+
+        <!-- 渐进式重构阶段：课表导入用例沿用旧系统的 Excel/学期 DTO，以保证行为不变。 -->
         <dependency>
             <groupId>edu.cuit</groupId>
-            <artifactId>bc-course</artifactId>
+            <artifactId>eva-client</artifactId>
             <version>${revision}</version>
         </dependency>
-        <dependency>
-            <groupId>edu.cuit.zhuyimeng</groupId>
-            <artifactId>zym-spring-boot-starter-security</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-websocket</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jfree</groupId>
-            <artifactId>jfreechart</artifactId>
-            <version>1.5.3</version>
-        </dependency>
 
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
-
 </project>
