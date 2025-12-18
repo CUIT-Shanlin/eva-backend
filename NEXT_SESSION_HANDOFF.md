@@ -6,6 +6,41 @@
 
 ---
 
+## 0. 本轮会话增量总结（2025-12-18）
+
+本轮会话聚焦“DDD 渐进式重构（不做功能优化）”，继续执行方案 B/C，并补齐课程模块的收敛闭环：
+
+1) **课表导入/覆盖用例收敛到 bc-course（闭环 E）**  
+   - 背景：历史实现中 `IUserCourseServiceImpl.importCourse()` 既做导入又做消息通知/撤回评教消息，属于典型“大泥球联动”。
+   - 做法：把导入课表的核心写操作收敛到 `bc-course` 用例，把跨域副作用统一事件化交给 `bc-messaging`。
+   - 关键改动点：
+     - 用例与端口：`bc-course/src/main/java/edu/cuit/bc/course/application/usecase/ImportCourseFileUseCase.java`
+     - infra 端口实现：`eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/ImportCourseFileRepositoryImpl.java`
+     - 旧 gateway 退化委托壳：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseUpdateGatewayImpl.java`（`importCourseFile`）
+     - 应用层入口事件化：`eva-app/src/main/java/edu/cuit/app/service/impl/course/IUserCourseServiceImpl.java`（`importCourse`）
+
+2) **跨域副作用继续“事务提交后发布”统一化**  
+   - 通过 `eva-app/src/main/java/edu/cuit/app/event/AfterCommitEventPublisher.java` 把事件发布固定为“提交后再执行副作用”，避免回滚不一致。
+   - 导入课表复用现有 `CourseOperationSideEffectsEvent` + `bc-messaging` 用例处理（通知/撤回评教消息）。
+
+3) **文档沉淀**  
+   - 简历可用沉淀：`data/RESUME_BALL_OF_MUD_REFACTOR_SUMMARY.md`（新增了“课表导入/覆盖收敛”案例）。
+   - 交接文档：本文件已补充闭环 E 与下一步行动建议。
+
+本轮新增提交（按时间顺序）：
+- `a122ff58 feat(bc-course): 引入课程BC用例与基础设施端口实现`
+- `285db180 feat(bc-messaging): 课程操作副作用事件化并收敛消息发送`
+- `4a22fdaf fix(gitignore): 仅忽略仓库根 data 目录`（避免误伤 `eva-client/.../dto/data` 包路径）
+- `60fe256d feat(eva-config): 支持高分阈值可配置`
+- `a330d8e7 test(bc-template): 迁移模板锁定校验并清理旧实现`
+
+验证（建议使用 Java17；网络受限时再加 `-o` 离线）：
+- 切换 JDK（本机已安装）：`sdk use java 17.0.17-zulu`  
+  或：`export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\"`
+- `mvn -pl bc-course -am test -q -Dmaven.repo.local=.m2/repository`
+- `mvn -pl bc-messaging -am test -q -Dmaven.repo.local=.m2/repository`
+- `mvn -pl eva-infra -am -DskipTests test -q -Dmaven.repo.local=.m2/repository`
+
 ## 1. 关键业务结论（必须记住）
 
 用户已明确确认的业务语义：
@@ -14,7 +49,7 @@
 2) `cour_inf.day`：`day=1` 表示 **周一**，`day=n` 表示周 n（周一是一周开始）。  
 3) 同一课次允许多人评教（这是必须如此的业务前提）。  
 4) 模板锁定规则：**只要有人评教过就锁定**，锁定后不允许切换课程模板。  
-5) “高分次数”的阈值：希望 **可配置**（后续可加入评教配置，如 `highScoreThreshold`）。  
+5) “高分次数”的阈值：已支持 **可配置**（`eva-config.json` 新增 `highScoreThreshold`，AI 报告统计已改为使用该阈值）。  
 6) AI 报告维度：**教师 + 学期**（汇总该教师本学期全部课程；报告中可按课程分节）。
 
 微服务演进约束：
@@ -68,7 +103,9 @@
 - Controller：`eva-adapter/.../UpdateCourseController`  
   - `PUT /course`（单课程修改，含 templateId）  
   - `PUT /courses/template`（批量切换课程模板）
-- 应用层：`eva-app/.../ICourseDetailServiceImpl.updateCourses()` -> `courseUpdateGateway.updateCourses(...)`
+- 应用层：
+  - `eva-app/.../ICourseDetailServiceImpl.updateCourse()` -> `bc-course` 用例 `ChangeSingleCourseTemplateUseCase`
+  - `eva-app/.../ICourseDetailServiceImpl.updateCourses()` -> `bc-course` 用例 `ChangeCourseTemplateUseCase`
 - 基础设施：`eva-infra/.../CourseUpdateGatewayImpl.updateCourse()/updateCourses()` 原先直接 update `course.template_id`，没有锁定校验。
 
 已实现的锁定规则（最终形态：业务模块 bc-template）：
@@ -86,12 +123,65 @@
 - 单体装配：
   - `eva-app/.../BcTemplateConfiguration.java`
 - 在 `CourseUpdateGatewayImpl` 接入：
-  - `updateCourse()`：当 templateId 发生变化时，先 `courseTemplateLockService.assertCanChangeTemplate(courseId, semId)`，锁定则抛 `UpdateException`
-  - `updateCourses()`：批量切换前先整体校验，若存在锁定课程则整体失败（避免部分成功部分失败）
+  - `updateCourse()`：模板切换逻辑已上移到 `bc-course`，不再在 infra 内重复做“锁定不可切换”校验
+  - `updateCourses()`：历史路径仍保留，但已委托到 `bc-course` 用例（收敛重复逻辑，便于后续删掉旧 gateway）
 
-注意：中间曾临时实现了一个基础设施校验器（现在已不再被主流程使用）：
-- `eva-infra/.../CourseTemplateLockChecker.java`（已提交但目前属于“可删的遗留”候选）
-- 仍有对应 Mockito 单测：`start/src/test/.../CourseTemplateLockCheckerTest.java`
+本会话已清理遗留/重复实现：
+- 已删除 `eva-infra/.../CourseTemplateLockChecker.java`（被 `CourseTemplateLockQueryPortImpl` 取代）
+- 已删除 `start/src/test/.../CourseTemplateLockCheckerTest.java`，并新增 `CourseTemplateLockQueryPortImplTest` 直接验证端口实现
+- 由于当前运行环境不支持 Mockito inline mock maker（ByteBuddy 自附加），增加了 `mockito-extensions/org.mockito.plugins.MockMaker=mock-maker-subclass`
+- 已新增 `bc-course`，并把模板切换（批量/单个）统一收口到用例层（避免“前端总是带 templateId”导致锁定误判）
+
+### 3.3 闭环 C：课程改课/删课联动事件化（Course -> Messaging）
+
+目标：把“改课/删课”产生的跨域副作用（消息通知、撤回评教消息）从课程应用服务中剥离，收敛到 `bc-messaging` 处理，便于后续拆微服务/替换 MQ。
+
+落地：
+- 新增业务模块：`bc-messaging`
+  - 事件：`CourseOperationSideEffectsEvent`
+  - 用例：`HandleCourseOperationSideEffectsUseCase`
+- 事件发布：`eva-app/.../AfterCommitEventPublisher`（事务提交后发布，避免回滚导致联动不一致）
+- 监听器：`eva-app/.../CourseOperationSideEffectsListener`（收到事件后调用 `bc-messaging` 用例）
+- 改造入口（行为保持不变，仅重构调用链）：
+  - `eva-app/.../ICourseServiceImpl.updateSingleCourse()`（改课）
+  - `eva-app/.../ICourseServiceImpl.deleteCourses()`（删除某课程某时段等）
+  - `eva-app/.../ICourseDetailServiceImpl.delete()`（删除课程）
+  - `eva-app/.../ICourseDetailServiceImpl.updateCourse()`（修改课程后通知全体）
+  - `eva-app/.../ICourseServiceImpl.allocateTeacher()`（分配听课/评教老师，老师任务消息也已事件化）
+
+补充：`allocateTeacher()` 的事件使用 `CourseTeacherTaskMessagesEvent`，并由 `bc-messaging` 用例 `HandleCourseTeacherTaskMessagesUseCase` 处理（底层仍复用 `MsgResult.sendMsgtoTeacher`，行为保持不变）。
+
+### 3.4 闭环 D：分配评教老师用例收敛（Course -> bc-course）
+
+目标：把“分配听课/评教老师”从旧 `CourseUpdateGatewayImpl.assignTeacher()` 的大段业务逻辑中抽离，收敛到 `bc-course` 用例层，旧 gateway 仅保留委托。
+
+落地：
+- 用例：`bc-course/.../AssignEvaTeachersUseCase`
+- 端口：`bc-course/.../AssignEvaTeachersRepository`
+- 基础设施端口实现：`eva-infra/.../AssignEvaTeachersRepositoryImpl`（迁移原有冲突校验 + 任务创建 + 缓存失效逻辑，行为保持不变）
+- 旧入口：`CourseUpdateGatewayImpl.assignTeacher()` 现在委托到用例（避免 infra 继续堆规则）
+
+### 3.5 闭环 E：课表导入用例收敛 + 副作用事件化（Import Course Table）
+
+目标：把“导入课表/覆盖课表”的核心写操作从旧 gateway/service 中抽离，收敛到 `bc-course`；并把导入后产生的跨域副作用（通知全体、撤回评教消息）统一事件化交给 `bc-messaging` 处理，便于后续迁移到各 BC/微服务。
+
+落地（保持 API/行为不变，仅重构调用链）：
+- `bc-course` 新增用例：
+  - 命令：`bc-course/.../ImportCourseFileCommand.java`
+  - 端口：`bc-course/.../ImportCourseFileRepository.java`
+  - 用例：`bc-course/.../ImportCourseFileUseCase.java`
+- 基础设施端口实现（迁移原逻辑，行为保持不变）：
+  - `eva-infra/.../ImportCourseFileRepositoryImpl.java`
+  - 迁移内容包含：学期 upsert、覆盖导入时的删除+新增、返回旧的 `Map<String, Map<Integer,Integer>>` 消息模型、教室缓存失效与日志记录
+- 旧 gateway 退化为委托壳：
+  - `eva-infra/.../CourseUpdateGatewayImpl.importCourseFile()` -> 委托 `ImportCourseFileUseCase`
+- 导入入口侧副作用事件化：
+  - `eva-app/.../IUserCourseServiceImpl.importCourse()` 不再直接循环调用 `msgResult/msgService.deleteEvaMsg`
+  - 改为发布 `CourseOperationSideEffectsEvent`，由 `CourseOperationSideEffectsListener` -> `bc-messaging` 统一处理
+
+验证命令（离线优先，避免网络受限）：
+- `mvn -o -pl bc-course -am test -q -Dmaven.repo.local=.m2/repository`
+- `mvn -o -pl eva-infra -am -DskipTests test -q -Dmaven.repo.local=.m2/repository`
 
 ---
 
@@ -120,8 +210,9 @@
   - 运行 bc 模块纯单测：  
     - `mvn -pl bc-evaluation test -q -Dmaven.repo.local=.m2/repository`  
     - `mvn -pl bc-template test -q -Dmaven.repo.local=.m2/repository`
+    - `mvn -pl bc-course -am test -q -Dmaven.repo.local=.m2/repository`
   - 只跑指定测试（多模块时需要忽略未命中模块）：  
-    - `mvn -pl start -am test -q -Dtest=CourseTemplateLockCheckerTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
+    - `mvn -pl start -am test -q -Dtest=CourseTemplateLockQueryPortImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
 
 ### 4.5 Linux 下误生成 Windows 路径目录
 - 曾出现目录：`start/D:\Programming\Java\Projects\eva-backend\data\config/`（包含一个 `eva-config.json`）
@@ -153,7 +244,10 @@
 
 ## 6. 当前工作区状态（需要处理/注意）
 
-- `git status` 显示当前仍有未提交改动：`M .gitignore`（需要在新会话确认 diff 并决定是否提交）。
+- 当前工作区除本文件外应保持干净（已按步骤完成 git 提交拆分）。
+- 简历可用的“重构大泥球方法论”沉淀在：`data/RESUME_BALL_OF_MUD_REFACTOR_SUMMARY.md`
+  - 注意：仓库根 `data/` 已被 `.gitignore` 忽略（设计如此，用于存放运行时/文档/样例，不进版本库）。
+  - 若需要把该文档纳入版本库，请迁移到非 `data/` 目录（例如新建 `docs/`）。
 
 ---
 
@@ -161,16 +255,21 @@
 
 推荐按“继续模块化 + 小步 commit”的方式推进：
 
-1) **清理遗留/重复实现**（可作为一个小 commit）  
-   - `CourseTemplateLockChecker` 目前已被 bc-template 取代，可考虑删除该类与对应测试（或迁移测试去验证 `CourseTemplateLockQueryPortImpl`）。  
+0) **新会话起手式（避免上下文浪费时间）**
+   - 切 JDK 到 17（见上文），再跑一次 `mvn -pl bc-course -am test` / `mvn -pl bc-messaging -am test` 快速验收。
+   - 用 Serena 重新索引（用户要求“开始任务先更新一次索引”）。
 
-2) **把“课程模板切换”从 infra gateway 进一步上移到业务用例（bc-course）**  
-   - 新增 `bc-course` 模块骨架（domain/application/ports），把“批量切换模板”做成 `ChangeCourseTemplateCommand` 用例。  
-   - `eva-infra` 只实现 repository/port；Controller/Service 只调 bc-course application。  
+1) **继续收敛“教师自助课表”链路（IUserCourseServiceImpl）**
+   - 目标：把 `deleteSelfCourse()`、`updateSelfCourse()` 里直接 `msgResult/msgService` 的跨域副作用，统一事件化并收敛到 `bc-messaging`（保持行为不变）。
+   - 推荐落地顺序：
+     - 先引入 `AfterCommitEventPublisher`（已具备）；
+     - 让两方法返回的 `Map<String, Map<Integer,Integer>>` 复用 `CourseOperationSideEffectsEvent`；
+     - 只改“消息发送/撤回评教消息”触发点，不动主流程逻辑。
 
-3) **落实“高分阈值可配置”**  
-   - 在评教配置中增加 `highScoreThreshold`，并统一统计口径（导出/看板/AI 报告均使用同一策略）。  
+2) **继续压扁旧 `CourseUpdateGatewayImpl.updateCourse()`（当前仍是大泥球核心之一）**
+   - 目标：为“修改课程信息”新增 `bc-course` 用例（例如 `UpdateCourseInfoUseCase`），并把现有 DB/缓存/日志迁移到 `eva-infra` 的端口实现。
+   - 验收标准：旧 gateway 变为委托壳；用例有纯单测；行为不变。
 
-4) **继续事件化联动**  
-   - 提交评教已事件化消息清理；后续可以把模板快照/锁定、统计刷新、AI 报告失效/重算也改为订阅 `EvaluationSubmittedEvent`。  
-
+3) **事件载荷逐步语义化（中长期）**
+   - 当前为了行为不变，事件仍携带 `Map<String, Map<Integer,Integer>>` 作为过渡载荷；
+   - 后续可逐步替换为更明确的字段（广播文案、撤回任务列表等），并为 MQ + Outbox 做准备（先不做优化，等收敛完成后再演进）。
