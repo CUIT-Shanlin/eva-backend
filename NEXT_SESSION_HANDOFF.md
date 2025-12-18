@@ -6,7 +6,7 @@
 
 ---
 
-## 0. 本轮会话增量总结（2025-12-18，更新至 `57c8bc5d`）
+## 0. 本轮会话增量总结（2025-12-18，更新至 `a5df07af`）
 
 本轮会话聚焦“DDD 渐进式重构（不做功能优化/不改业务语义）”，继续执行方案 B/C，并持续压扁课程相关的大泥球入口：
 
@@ -102,6 +102,20 @@
      - `eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/DeleteCourseTypeRepositoryImpl.java`
      - `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseDeleteGatewayImpl.java`
 
+8) **新增课程类型链路收敛到 bc-course（保持行为不变）**
+   - 目标：压扁 `CourseUpdateGatewayImpl.addCourseType()`，让 infra 不再承载“新增课程类型”的写流程。
+   - 行为不变约束（必须保持）：
+     - 异常类型/异常文案不变：`UpdateException("该课程类型已存在")`
+     - 缓存行为不变：新增成功后失效 `COURSE_TYPE_LIST`
+   - 落地：
+     - bc-course：新增 `AddCourseTypeUseCase` + `AddCourseTypeRepository`（仅委托端口，不新增校验），并补齐纯单测；
+     - eva-infra：新增端口实现 `AddCourseTypeRepositoryImpl`，把旧逻辑原样搬运（含存在性校验/插入/缓存失效）；
+     - 旧 gateway：`CourseUpdateGatewayImpl.addCourseType` 退化为委托壳（返回 `null`，保持签名与行为不变）。
+   - 关键文件：
+     - `bc-course/src/main/java/edu/cuit/bc/course/application/usecase/AddCourseTypeUseCase.java`
+     - `eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/AddCourseTypeRepositoryImpl.java`
+     - `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseUpdateGatewayImpl.java`
+
 本轮新增提交（按时间顺序）：
 - `a122ff58 feat(bc-course): 引入课程BC用例与基础设施端口实现`
 - `285db180 feat(bc-messaging): 课程操作副作用事件化并收敛消息发送`
@@ -125,6 +139,9 @@
 - `cf7ef892 feat(bc-course): 增加删除课程类型用例骨架`
 - `d5a8a0d3 feat(eva-infra): 实现删除课程类型端口适配器`
 - `57c8bc5d refactor(course): 删除课程类型收敛到bc-course`
+- `7df81f64 feat(bc-course): 增加新增课程类型用例骨架`
+- `e612d92a feat(eva-infra): 实现新增课程类型端口适配器`
+- `a5df07af refactor(course): 新增课程类型收敛到bc-course`
 
 验证（建议使用 Java17；网络受限时再加 `-o` 离线）：
 - 切换 JDK（本机已安装）：`sdk use java 17.0.17-zulu`  
@@ -376,6 +393,9 @@
 
 当前 `git log --oneline -n 20` 关键提交如下（最新在上，更新至 `57c8bc5d`）：
 
+- `a5df07af refactor(course): 新增课程类型收敛到bc-course`
+- `e612d92a feat(eva-infra): 实现新增课程类型端口适配器`
+- `7df81f64 feat(bc-course): 增加新增课程类型用例骨架`
 - `57c8bc5d refactor(course): 删除课程类型收敛到bc-course`
 - `d5a8a0d3 feat(eva-infra): 实现删除课程类型端口适配器`
 - `cf7ef892 feat(bc-course): 增加删除课程类型用例骨架`
@@ -434,6 +454,9 @@
 5) ✅ **已完成：压扁 `CourseDeleteGatewayImpl.deleteCourseType()`**
    - 已新增 `DeleteCourseTypeUseCase` + `DeleteCourseTypeRepositoryImpl`，旧 gateway 退化委托壳（保持行为不变）。
 
-6) **事件载荷逐步语义化（中长期）**
+6) ✅ **已完成：压扁 `CourseUpdateGatewayImpl.addCourseType()`**
+   - 已新增 `AddCourseTypeUseCase` + `AddCourseTypeRepositoryImpl`，旧 gateway 退化委托壳（保持行为不变）。
+
+7) **事件载荷逐步语义化（中长期）**
    - 当前为了行为不变，事件仍携带 `Map<String, Map<Integer,Integer>>` 作为过渡载荷；
    - 后续可逐步替换为更明确的字段（广播文案、撤回任务列表等），并为 MQ + Outbox 做准备（先不做优化，等收敛完成后再演进）。
