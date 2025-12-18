@@ -2,6 +2,7 @@
 
 > 适用范围：本仓库 `eva-backend`（Spring Boot + Maven 多模块）。  
 > 构建基线：**Java 17**（避免高版本 JDK 下的编译器/注解处理器兼容性问题）。  
+> 离线验证示例：`mvn -o -pl eva-infra -am test -q -Dmaven.repo.local=.m2/repository`（网络受限场景优先）。  
 > 目标：把当前“按技术分层”的结构，重构为“按业务域分模块”的 **DDD 模块化单体**，并在架构与边界上为未来拆分微服务预留低成本路径。
 
 ---

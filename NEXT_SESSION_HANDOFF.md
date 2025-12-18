@@ -6,7 +6,7 @@
 
 ---
 
-## 0. 本轮会话增量总结（2025-12-18，更新至 `080ae028`）
+## 0. 本轮会话增量总结（2025-12-18，更新至 `bcdd8564`）
 
 本轮会话聚焦“DDD 渐进式重构（不做功能优化/不改业务语义）”，继续执行方案 B/C，并持续压扁课程相关的大泥球入口：
 
@@ -176,6 +176,12 @@
 - `b4b66261 feat(eva-infra): 实现新增课次端口适配器`
 - `f447fd17 refactor(course): 新增课次收敛到bc-course`
 - `080ae028 docs: 更新会话交接（新增课次收敛）`
+- `8c9b7443 refactor(eva-infra): 收敛教室占用冲突校验`
+- `969d606a refactor(eva-infra): 清理CourseUpdateGateway遗留私有逻辑`
+- `2cfbfaee docs: 补充Java17构建基线说明`
+- `e417fb8e refactor(eva-infra): 提炼课程时间段重叠查询片段`
+- `2bb64aa1 refactor(eva-infra): 复用时间段重叠查询条件`
+- `bcdd8564 refactor(eva-infra): 分配评教冲突校验复用时间重叠片段`
 
 验证（建议使用 Java17；网络受限时再加 `-o` 离线）：
 - 切换 JDK（本机已安装）：`sdk use java 17.0.17-zulu`  
@@ -183,6 +189,7 @@
  - `mvn -o -pl bc-course -am test -q -Dmaven.repo.local=.m2/repository`
  - `mvn -o -pl bc-messaging -am test -q -Dmaven.repo.local=.m2/repository`
  - `mvn -o -pl eva-infra -am -DskipTests test -q -Dmaven.repo.local=.m2/repository`
+ - 已验证：`export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\"$JAVA_HOME/bin:$PATH\" && mvn -o -pl eva-infra -am test -q -Dmaven.repo.local=.m2/repository`
  - 注意：若直接使用系统默认 JDK（例如 GraalVM Java 25），本仓库可能在编译期报 `TypeTag :: UNKNOWN`，请优先切回 Java 17 再验证
 
 ## 1. 关键业务结论（必须记住）
