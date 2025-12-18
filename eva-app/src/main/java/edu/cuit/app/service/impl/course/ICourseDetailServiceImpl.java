@@ -4,8 +4,14 @@ import cn.dev33.satoken.stp.StpUtil;
 import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.PaginationBizConvertor;
 import edu.cuit.app.convertor.course.CourseBizConvertor;
-import edu.cuit.app.service.impl.MsgServiceImpl;
-import edu.cuit.app.service.operate.course.MsgResult;
+import edu.cuit.app.event.AfterCommitEventPublisher;
+import edu.cuit.bc.course.application.model.ChangeCourseTemplateCommand;
+import edu.cuit.bc.course.application.model.ChangeSingleCourseTemplateCommand;
+import edu.cuit.bc.course.application.usecase.ChangeCourseTemplateUseCase;
+import edu.cuit.bc.course.application.usecase.ChangeSingleCourseTemplateUseCase;
+import edu.cuit.bc.course.domain.ChangeCourseTemplateException;
+import edu.cuit.bc.course.domain.CourseNotFoundException;
+import edu.cuit.bc.messaging.application.event.CourseOperationSideEffectsEvent;
 import edu.cuit.client.api.course.ICourseDetailService;
 import edu.cuit.client.bo.MessageBO;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
@@ -30,8 +36,10 @@ import edu.cuit.domain.gateway.course.CourseUpdateGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.infra.gateway.impl.course.operate.CourseFormat;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
+import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -44,9 +52,10 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     private final UserQueryGateway userQueryGateway;
     private final CourseBizConvertor courseBizConvertor;
     private final PaginationBizConvertor pagenConvertor;
-    private final MsgServiceImpl msgService;
-   private final MsgResult msgResult;
    private final CourseFormat courseFormat;
+    private final ChangeCourseTemplateUseCase changeCourseTemplateUseCase;
+    private final ChangeSingleCourseTemplateUseCase changeSingleCourseTemplateUseCase;
+    private final AfterCommitEventPublisher afterCommitEventPublisher;
     @CheckSemId
     @Override
     public PaginationQueryResultCO<CourseModelCO> pageCoursesInfo(Integer semId, PagingQuery<CourseConditionalQuery> courseQuery) {
@@ -98,15 +107,38 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     @CheckSemId
     @Override
     public void updateCourse(Integer semId, UpdateCourseCmd updateCourseCmd) {
+        // 单课程模板切换：前置交给 bc-course 用例，避免基础设施层重复实现与重复校验
+        try {
+            changeSingleCourseTemplateUseCase.execute(new ChangeSingleCourseTemplateCommand(
+                    semId,
+                    updateCourseCmd.getId(),
+                    updateCourseCmd.getTemplateId()
+            ));
+        } catch (CourseNotFoundException e) {
+            throw new QueryException(e.getMessage());
+        } catch (ChangeCourseTemplateException e) {
+            throw new UpdateException(e.getMessage());
+        }
+
         Map<String, Map<Integer,Integer>> map = courseUpdateGateway.updateCourse(semId, updateCourseCmd);
         Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
-        msgResult.SendMsgToAll(map, userId.orElseThrow(() -> new QueryException("请先登录")));
+        Integer operatorUserId = userId.orElseThrow(() -> new QueryException("请先登录"));
+        afterCommitEventPublisher.publishAfterCommit(new CourseOperationSideEffectsEvent(operatorUserId, map));
     }
 
     @CheckSemId
     @Override
+    @Transactional
     public void updateCourses(Integer semId, UpdateCoursesCmd updateCoursesCmd) {
-      courseUpdateGateway.updateCourses(semId, updateCoursesCmd);
+        try {
+            changeCourseTemplateUseCase.execute(new ChangeCourseTemplateCommand(
+                    semId,
+                    updateCoursesCmd.getTemplateId(),
+                    updateCoursesCmd.getCourseIdList()
+            ));
+        } catch (ChangeCourseTemplateException e) {
+            throw new UpdateException(e.getMessage());
+        }
     }
 
     @CheckSemId
@@ -120,18 +152,8 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     public void delete(Integer semId, Integer id) {
         Map<String, Map<Integer,Integer>> map = courseDeleteGateway.deleteCourse(semId, id);
         Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
-        for (Map.Entry<String, Map<Integer, Integer>> stringListEntry : map.entrySet()) {
-           Map<String,Map<Integer,Integer>> temMap=new HashMap<>();
-            if(stringListEntry.getValue()==null){
-                temMap.put(stringListEntry.getKey(),null);
-                msgResult.SendMsgToAll(temMap,userId.orElseThrow(() -> new QueryException("请先登录")));
-            }else if(!stringListEntry.getValue().isEmpty()){
-                temMap.put(stringListEntry.getKey(),stringListEntry.getValue());
-                msgResult.toNormalMsg(temMap,userId.orElseThrow(() -> new QueryException("请先登录")));
-                stringListEntry.getValue().forEach((k,v)->msgService.deleteEvaMsg(k,null));
-
-            }
-        }
+        Integer operatorUserId = userId.orElseThrow(() -> new QueryException("请先登录"));
+        afterCommitEventPublisher.publishAfterCommit(new CourseOperationSideEffectsEvent(operatorUserId, map));
 
     }
 }

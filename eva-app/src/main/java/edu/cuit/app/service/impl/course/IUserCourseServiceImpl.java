@@ -7,12 +7,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.cuit.app.aop.CheckSemId;
 
 import edu.cuit.app.convertor.course.CourseBizConvertor;
+import edu.cuit.app.event.AfterCommitEventPublisher;
 import edu.cuit.app.poi.course.CourseExcelResolver;
 
 import edu.cuit.app.service.impl.MsgServiceImpl;
 import edu.cuit.app.service.operate.course.MsgResult;
 import edu.cuit.app.service.operate.course.query.UserCourseDetailQueryExec;
 import edu.cuit.app.service.operate.course.update.FileImportExec;
+import edu.cuit.bc.messaging.application.event.CourseOperationSideEffectsEvent;
 import edu.cuit.client.api.course.IUserCourseService;
 import edu.cuit.client.bo.CourseExcelBO;
 import edu.cuit.client.bo.MessageBO;
@@ -45,6 +47,7 @@ public class IUserCourseServiceImpl implements IUserCourseService {
     private final MsgServiceImpl msgService;
     private final UserQueryGateway userQueryGateway;
     private final MsgResult msgResult;
+    private final AfterCommitEventPublisher afterCommitEventPublisher;
 
     private final ObjectMapper objectMapper;
 
@@ -91,23 +94,11 @@ public class IUserCourseServiceImpl implements IUserCourseService {
             throw new BizException("课表类型转换错误");
         }
         Map<String, Map<Integer,Integer>> map = courseUpdateGateway.importCourseFile(courseExce, semesterCO, type);
-        Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
-        for (Map.Entry<String, Map<Integer, Integer>> stringListEntry : map.entrySet()) {
-            Map<String, Map<Integer, Integer> > temMap=new HashMap<>();
-            temMap.put(stringListEntry.getKey(), stringListEntry.getValue());
-            if(stringListEntry.getValue()!=null){
-                if(!stringListEntry.getValue().isEmpty()) {
-                    msgResult.toNormalMsg(temMap, userId.orElseThrow(() -> new QueryException("请先登录")));
-                    for (Map.Entry<Integer, Integer> k : stringListEntry.getValue().entrySet()) {
-                        msgService.deleteEvaMsg(k.getKey(),null);
-                    }
-                }
-                }else{
-                msgResult.SendMsgToAll(temMap,userId.orElseThrow(() -> new QueryException("请先登录")));
+        Integer operatorUserId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId())
+                .orElseThrow(() -> new QueryException("请先登录"));
 
-            }
-
-        }
+        // 渐进式 DDD 重构：把“导入课表”的跨域副作用（消息通知、撤回评教消息）事件化交给 bc-messaging 处理
+        afterCommitEventPublisher.publishAfterCommit(new CourseOperationSideEffectsEvent(operatorUserId, map));
 
     }
 

@@ -19,6 +19,7 @@
     <module>bc-evaluation</module>
     <module>bc-template</module>
     <module>bc-course</module>
+    <module>bc-messaging</module>
   </modules>
 
   <properties>

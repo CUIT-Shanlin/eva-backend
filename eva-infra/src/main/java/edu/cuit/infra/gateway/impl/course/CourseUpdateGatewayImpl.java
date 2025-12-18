@@ -24,9 +24,18 @@ import edu.cuit.infra.enums.cache.ClassroomCacheConstants;
 import edu.cuit.infra.enums.cache.CourseCacheConstants;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
 import edu.cuit.infra.gateway.impl.course.operate.CourseFormat;
-import edu.cuit.infra.gateway.impl.course.operate.CourseImportExce;
-import edu.cuit.bc.template.application.CourseTemplateLockService;
-import edu.cuit.bc.template.domain.TemplateLockedException;
+import edu.cuit.bc.course.application.model.ChangeCourseTemplateCommand;
+import edu.cuit.bc.course.application.usecase.ChangeCourseTemplateUseCase;
+import edu.cuit.bc.course.domain.ChangeCourseTemplateException;
+import edu.cuit.bc.course.application.model.AssignEvaTeachersCommand;
+import edu.cuit.bc.course.application.usecase.AssignEvaTeachersUseCase;
+import edu.cuit.bc.course.domain.AssignEvaTeachersException;
+import edu.cuit.bc.course.application.model.ImportCourseFileCommand;
+import edu.cuit.bc.course.application.usecase.ImportCourseFileUseCase;
+import edu.cuit.bc.course.domain.ImportCourseFileException;
+import edu.cuit.bc.course.application.model.UpdateSingleCourseCommand;
+import edu.cuit.bc.course.application.usecase.UpdateSingleCourseUseCase;
+import edu.cuit.bc.course.domain.UpdateSingleCourseException;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
@@ -51,13 +60,15 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     private final SubjectMapper subjectMapper;
     private final EvaTaskMapper evaTaskMapper;
     private final SysUserMapper userMapper;
-    private final CourseImportExce courseImportExce;
     private final LocalCacheManager localCacheManager;
     private final CourseCacheConstants courseCacheConstants;
     private final FormTemplateMapper formTemplateMapper;
     private final EvaCacheConstants evaCacheConstants;
     private final ClassroomCacheConstants classroomCacheConstants;
-    private final CourseTemplateLockService courseTemplateLockService;
+    private final ChangeCourseTemplateUseCase changeCourseTemplateUseCase;
+    private final AssignEvaTeachersUseCase assignEvaTeachersUseCase;
+    private final UpdateSingleCourseUseCase updateSingleCourseUseCase;
+    private final ImportCourseFileUseCase importCourseFileUseCase;
 
 
     /**
@@ -74,17 +85,6 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         CourseDO courseDO = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", updateCourseCmd.getId()));
         if(courseDO==null){
             throw new QueryException("没有该课程");
-        }
-
-        // 模板锁定：只要有人评教过，该课程本学期模板不可再切换
-        if (updateCourseCmd.getTemplateId() != null
-                && !Objects.equals(courseDO.getTemplateId(), updateCourseCmd.getTemplateId())) {
-            Integer effectiveSemId = semId != null ? semId : courseDO.getSemesterId();
-            try {
-                courseTemplateLockService.assertCanChangeTemplate(courseDO.getId(), effectiveSemId);
-            } catch (TemplateLockedException e) {
-                throw new UpdateException(e.getMessage());
-            }
         }
         SysUserDO userDO = userMapper.selectById(courseDO.getTeacherId());
         if(updateCourseCmd.getIsUpdate()){
@@ -159,124 +159,36 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     @Override
     @Transactional
     public void updateCourses(Integer semId, UpdateCoursesCmd updateCoursesCmd) {
-        //修改updateCoursesCmd中的courseIdList集合中id对应的课程的templateId
-        List<Integer> courseIdList = updateCoursesCmd.getCourseIdList();
-
-        // 批量切换模板前，先整体校验锁定（避免部分成功部分失败）
-        List<Integer> lockedCourseIds = new ArrayList<>();
-        for (Integer courseId : courseIdList) {
-            Integer effectiveSemId = semId;
-            if (effectiveSemId == null) {
-                CourseDO course = courseMapper.selectById(courseId);
-                effectiveSemId = course == null ? null : course.getSemesterId();
-            }
-            try {
-                courseTemplateLockService.assertCanChangeTemplate(courseId, effectiveSemId);
-            } catch (UpdateException e) {
-                lockedCourseIds.add(courseId);
-            } catch (TemplateLockedException e) {
-                lockedCourseIds.add(courseId);
-            }
+        // 历史路径：收敛到 bc-course 用例，避免基础设施层重复实现与重复校验
+        try {
+            changeCourseTemplateUseCase.execute(new ChangeCourseTemplateCommand(
+                    semId,
+                    updateCoursesCmd.getTemplateId(),
+                    updateCoursesCmd.getCourseIdList()
+            ));
+        } catch (ChangeCourseTemplateException e) {
+            throw new UpdateException(e.getMessage());
         }
-        if (!lockedCourseIds.isEmpty()) {
-            throw new UpdateException("部分课程已评教过，模板已锁定，无法切换，课程ID：" + lockedCourseIds);
-        }
-
-        for (Integer i : courseIdList) {
-            CourseDO courseDO = new CourseDO();
-            courseDO.setTemplateId(updateCoursesCmd.getTemplateId());
-            courseMapper.update(courseDO,new QueryWrapper<CourseDO>().eq("id",i).eq("semester_id",semId));
-            CourseDO courseDO1 = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", i).eq("semester_id", semId));
-            if(courseDO1==null) throw new QueryException("并未找到相关课程");
-            Integer subjectId =courseDO1 .getSubjectId();
-            String name = subjectMapper.selectById(subjectId).getName();
-            LogUtils.logContent(name+"(ID:"+i+")课程模板");
-        }
-        localCacheManager.invalidateCache(courseCacheConstants.COURSE_LIST_BY_SEM, String.valueOf(semId));
-        localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(semId));
 
     }
 
     @Override
     @Transactional
     public Map<String,Map<Integer,Integer>> updateSingleCourse(String userName,Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd) {
-        if(updateSingleCourseCmd.getTime()==null){
-            throw new UpdateException("修改的时间不能为空");
+        // 历史路径：收敛到 bc-course 用例（保持行为不变）
+        try {
+            return updateSingleCourseUseCase.execute(new UpdateSingleCourseCommand(
+                    semId,
+                    updateSingleCourseCmd.getId(),
+                    updateSingleCourseCmd.getTime() == null ? null : updateSingleCourseCmd.getTime().getWeek(),
+                    updateSingleCourseCmd.getTime() == null ? null : updateSingleCourseCmd.getTime().getDay(),
+                    updateSingleCourseCmd.getTime() == null ? null : updateSingleCourseCmd.getTime().getStartTime(),
+                    updateSingleCourseCmd.getTime() == null ? null : updateSingleCourseCmd.getTime().getEndTime(),
+                    updateSingleCourseCmd.getLocation()
+            ));
+        } catch (UpdateSingleCourseException e) {
+            throw new UpdateException(e.getMessage());
         }
-        //先将要修改的那节课查出来
-        CourInfDO courINfo = courInfMapper.selectById(updateSingleCourseCmd.getId());
-        CourseDO courseDo=null;
-        if(courINfo==null){
-            throw new QueryException("该节课不存在");
-        }
-        //先根据用户名来查出教师id
-        SysUserDO userDO = userMapper.selectById(courseMapper.selectById(courINfo.getCourseId()).getTeacherId());
-        if(userDO==null)throw new QueryException("老师不存在");
-        Integer teacherId = userDO.getId();
-        //根据teacherId和semId找出他的所有授课
-        List<CourseDO> courseDOList = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", teacherId).eq("semester_id", semId));
-        //根据CourseDO中的Id和updateSingleCourseCmd中的time来判断来查看这个老师在这个时间段是否有课程
-        for (CourseDO courseDO : courseDOList) {
-            if(courseDO.getId().equals(courINfo.getCourseId())){
-                courseDo=courseDO;
-                continue;
-            }
-            CourInfDO courInfDO = courInfMapper.selectOne(new QueryWrapper<CourInfDO>()
-                    .eq("course_id", courseDO.getId())
-                    .eq("week", updateSingleCourseCmd.getTime().getWeek())
-                    .eq("day", updateSingleCourseCmd.getTime().getDay())
-                    .le("start_time", updateSingleCourseCmd.getTime().getEndTime())
-                    .ge("end_time", updateSingleCourseCmd.getTime().getStartTime()));
-            if (courInfDO != null) {
-                throw new UpdateException("该时间段已有课程");
-            }
-
-        }
-        //判断location是否被占用
-            //先根据updateSingleCourseCmd中的数据找出所有对应时间段的课程
-                List<CourInfDO> courInfDOList = courInfMapper.selectList(new QueryWrapper<CourInfDO>()
-                        .eq("week", updateSingleCourseCmd.getTime().getWeek())
-                        .eq("day", updateSingleCourseCmd.getTime().getDay())
-                        .le("start_time", updateSingleCourseCmd.getTime().getEndTime())
-                        .ge("end_time", updateSingleCourseCmd.getTime().getStartTime()));
-                for (CourInfDO courInfDO : courInfDOList) {
-                    if(courseMapper.selectById(courInfDO.getCourseId()).getSemesterId().equals(semId)){
-                        if(courInfDO.getLocation().equals(updateSingleCourseCmd.getLocation())){
-                            throw new UpdateException("该时间段该地点已有课程");
-                        }
-                    }
-                }
-        assert courseDo != null;
-        SubjectDO subjectDO = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("id", courseDo.getSubjectId()));
-        String natureName = CourseFormat.getNatureName(subjectDO.getNature());
-        String name = subjectDO.getName();
-        //更新一节课的数据
-        CourInfDO courInfDO = courseConvertor.toCourInfDO(updateSingleCourseCmd);
-        courInfDO.setUpdateTime(LocalDateTime.now());
-        courInfDO.setLocation(updateSingleCourseCmd.getLocation());
-        courInfMapper.update(courInfDO,new QueryWrapper<CourInfDO>().eq("id",updateSingleCourseCmd.getId()));
-        //找出所有要评教这节课的老师id
-        List<EvaTaskDO> taskDOList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courINfo.getCourseId()).eq("status",0));
-        Map<Integer,Integer> mapEva=new HashMap<>();
-        for (EvaTaskDO i : taskDOList) {
-            EvaTaskDO evaTaskDO = new EvaTaskDO();
-            evaTaskDO.setStatus(2);
-            evaTaskMapper.update(evaTaskDO,new QueryWrapper<EvaTaskDO>().eq("teacher_id",i.getTeacherId()).eq("cour_inf_id",courINfo.getCourseId()));
-            mapEva.put(i.getTeacherId(),i.getId());
-        }
-        Map<String,Map<Integer,Integer>> map=new HashMap<>();
- /*       "你所评教的"+name+"课程第"+courINfo.getWeek()+"周，星期"
-                +courINfo.getDay()+"，第"+courINfo.getStartTime()+"-"+courINfo.getEndTime()+"节，上课时间已修改为第"
-                +updateSingleCourseCmd.getTime().getWeek()+"周，星期"+updateSingleCourseCmd.getTime().getDay()
-                +"，第"+updateSingleCourseCmd.getTime().getStartTime()+"-"+updateSingleCourseCmd.getTime().getEndTime()+"节。教室："+
-                updateSingleCourseCmd.getLocation()*/
-        map.put(userDO.getName()+"老师的"+name+"课程("+natureName+")的上课时间被修改了",null);
-        map.put("因为"+userDO.getName()+"老师的"+name+"课程("+natureName+")的上课时间修改，故已取消您对该课程的评教任务",mapEva);
-        LogUtils.logContent(name+"上课时间信息");
-        localCacheManager.invalidateCache(null,evaCacheConstants.LOG_LIST);
-        localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM,String.valueOf(semId));
-        localCacheManager.invalidateCache(null,classroomCacheConstants.ALL_CLASSROOM);
-        return map;
     }
 
     @Override
@@ -323,126 +235,27 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     @Override
     @Transactional
     public Map<String,Map<Integer,Integer>> assignTeacher(Integer semId, AlignTeacherCmd alignTeacherCmd) {
-
-        Integer courseId=alignTeacherCmd.getId();
-        CourInfDO courInfDO = courInfMapper.selectById(courseId);
-        if(courInfDO==null){
-            throw new QueryException("该节课不存在");
+        // 历史路径：收敛到 bc-course 用例，避免基础设施层继续堆业务规则
+        try {
+            return assignEvaTeachersUseCase.execute(new AssignEvaTeachersCommand(
+                    semId,
+                    alignTeacherCmd.getId(),
+                    alignTeacherCmd.getEvaTeacherIdList()
+            ));
+        } catch (AssignEvaTeachersException e) {
+            throw new UpdateException(e.getMessage());
         }
-        //查看评教老师在那个时间段是否已经有评教任务
-            judgeAlsoHasTask(alignTeacherCmd.getEvaTeacherIdList(),courInfDO);
-        //判断评教老师再改时间段是否已经有课了
-            judgeAlsoHasCourse(semId,alignTeacherCmd.getEvaTeacherIdList(),courInfDO);
-        //遍历并创建评教任务对象，在插入评教任务表
-        List<EvaTaskDO> taskList = alignTeacherCmd.getEvaTeacherIdList().stream().map(id -> {
-            EvaTaskDO evaTaskDO = new EvaTaskDO();
-            evaTaskDO.setTeacherId(id);
-            evaTaskDO.setCourInfId(courseId);
-            evaTaskDO.setStatus(0);
-            evaTaskDO.setCreateTime(LocalDateTime.now());
-            evaTaskDO.setUpdateTime(LocalDateTime.now());
-            return evaTaskDO;
-        }).toList();
-        taskList.forEach(evaTaskMapper::insert);
-        Map<Integer,Integer> mapTask=new HashMap<>();
-        taskList.forEach(evaTaskDO -> mapTask.put(evaTaskDO.getId(),evaTaskDO.getTeacherId()));
-        Integer subjectId = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", courInfDO.getCourseId())).getSubjectId();
-        String name = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("id", subjectId)).getName();
-        Map<String,Map<Integer,Integer>> map=new HashMap<>();
-        map.put("你已经被分配去听第"+courInfDO.getWeek()+"周，星期"
-                +courInfDO.getDay()+"，第"+courInfDO.getStartTime()+"-"+courInfDO.getEndTime()+"节，"+name+"课程。位置："+courInfDO.getLocation()
-                ,mapTask);
-        for (Integer i : alignTeacherCmd.getEvaTeacherIdList()) {
-            SysUserDO userDO = userMapper.selectById(i);
-            if(userDO==null)throw new QueryException("所分配老师中有人未在数据库中");
-            LogUtils.logContent(userDO.getName()+"老师去听的课：第"+courInfDO.getWeek()+"周，星期"
-                    +courInfDO.getDay()+"，第"+courInfDO.getStartTime()+"-"+courInfDO.getEndTime()+"节，"+name+"课程。位置："+courInfDO.getLocation()+name+"课程");
-        }
-        localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM,String.valueOf(semId));
-        return map;
-    }
-
-    private void judgeAlsoHasCourse(Integer semId,List<Integer> evaTeacherIdList, CourInfDO courInfDO) {
-        List<Integer> list = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId).in(!evaTeacherIdList.isEmpty(),"teacher_id", evaTeacherIdList)).stream().map(CourseDO::getId).toList();
-        if(list.isEmpty()) return;
-        for (Integer i : list) {
-
-            boolean hasCourses = courInfMapper.exists(new QueryWrapper<CourInfDO>().eq("week", courInfDO.getWeek())
-                    .eq("day", courInfDO.getDay())
-                    .le("start_time", courInfDO.getEndTime())
-                    .ge("end_time", courInfDO.getStartTime())
-                    .eq(true, "course_id", i));
-            if(hasCourses){
-                CourseDO courseDO = courseMapper.selectById(i);
-                SysUserDO userDO = userMapper.selectById(courseDO.getTeacherId());
-                throw new UpdateException(userDO.getName()+"老师"+"该时间段已有课程");
-
-            }
-        }
-
-    }
-
-    private void judgeAlsoHasTask(List<Integer> userList,CourInfDO courInfDO){
-        List<Integer> courInfoList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in(!userList.isEmpty(),"teacher_id", userList).eq("status",0)).stream().map(EvaTaskDO::getCourInfId).toList();
-        if(courInfoList.isEmpty()){
-            return;
-        }
-        for (Integer i : courInfoList) {
-            CourInfDO courInfDO1 = courInfMapper.selectOne(new QueryWrapper<CourInfDO>()
-                    .eq("week", courInfDO.getWeek())
-                    .eq("day", courInfDO.getDay())
-                    .le("start_time", courInfDO.getEndTime())
-                    .ge("end_time", courInfDO.getStartTime())
-                    .eq(true, "id", i));
-            if(courInfDO1!=null){
-                EvaTaskDO evaTaskDO = evaTaskMapper.selectOne(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO1.getId()).in("teacher_id", userList));
-                SysUserDO userDO = userMapper.selectById( evaTaskDO.getTeacherId());
-                throw new UpdateException("课程时间冲突，评教老师中"+userDO.getName()+"在该时间段已经有了评教任务");
-            }
-
-        }
-
-
     }
 
     @Override
     @Transactional
     public Map<String,Map<Integer,Integer>> importCourseFile(Map<String, List<CourseExcelBO>> courseExce, SemesterCO semester, Integer type) {
-        SemesterDO semesterDO = semesterMapper.selectOne(new QueryWrapper<SemesterDO>().eq("start_year", semester.getStartYear()).eq("period", semester.getPeriod()));
-        Map<String,Map<Integer,Integer>> map=new HashMap<>();
-        String typeName=null;
-        if(type==0)typeName="理论课";
-        else typeName="实验课";
-        Map<Integer,Integer> evaTaskIds=new HashMap<>();
-        if(semesterDO!=null){
-            Boolean imported = isImported(type, toTerm(semester));
-            //执行已有学期的删除添加逻辑
-            if(semester.getStartDate()!=null){
-                semesterDO.setStartDate(semester.getStartDate());
-                semesterMapper.update(semesterDO,new QueryWrapper<SemesterDO>().eq("id",semesterDO.getId()));
-            }
-            evaTaskIds=courseImportExce.deleteCourse(semesterDO.getId(),type);
-            if(imported)map.put(semesterDO.getStartYear()+"-"+semesterDO.getEndYear()+"第"+(semesterDO.getPeriod()+1)+"学期"+typeName+"课程表被覆盖",null);
-            else  map.put(semesterDO.getStartYear()+"-"+semesterDO.getEndYear()+"第"+(semesterDO.getPeriod()+1)+"学期"+typeName+"课程表被导入",null);
-            map.put("因为"+semesterDO.getStartYear()+"-"+semesterDO.getEndYear()+"第"+(semesterDO.getPeriod()+1)+"学期"+typeName+"课程表被覆盖"+",故而取消您该学期的评教任务",evaTaskIds);
-        }else{
-            //直接插入学期
-            SemesterDO semesterDO1 = courseConvertor.toSemesterDO(semester);
-            semesterMapper.insert(semesterDO1);
-            semesterDO=semesterDO1;
-            map.put(semesterDO.getStartYear()+"-"+semesterDO.getEndYear()+"第"+(semesterDO.getPeriod()+1)+"学期"+typeName+"课程表被导入",null);
+        // 历史路径：收敛到 bc-course 用例，基础设施层避免继续堆“导入课表”业务流程
+        try {
+            return importCourseFileUseCase.execute(new ImportCourseFileCommand(courseExce, semester, type));
+        } catch (ImportCourseFileException e) {
+            throw new UpdateException(e.getMessage());
         }
-        courseImportExce.addAll(courseExce, type,semesterDO.getId());
-        localCacheManager.invalidateCache(null,classroomCacheConstants.ALL_CLASSROOM);
-
-        LogUtils.logContent(semesterDO.getStartYear()+"-"+semesterDO.getEndYear()+"第"+semesterDO.getPeriod()+1+"学期"+typeName+"课程表");
-
-
-        return map;
-    }
-
-    private Term toTerm(SemesterCO semester) {
-        return new Term().setStartYear(semester.getStartYear()).setEndYear(semester.getEndYear()).setPeriod(semester.getPeriod());
     }
 
     @Override

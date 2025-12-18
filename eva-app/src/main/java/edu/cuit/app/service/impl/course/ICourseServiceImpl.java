@@ -3,8 +3,9 @@ package edu.cuit.app.service.impl.course;
 import cn.dev33.satoken.stp.StpUtil;
 import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.course.CourseBizConvertor;
-import edu.cuit.app.service.impl.MsgServiceImpl;
-import edu.cuit.app.service.operate.course.MsgResult;
+import edu.cuit.app.event.AfterCommitEventPublisher;
+import edu.cuit.bc.messaging.application.event.CourseOperationSideEffectsEvent;
+import edu.cuit.bc.messaging.application.event.CourseTeacherTaskMessagesEvent;
 import edu.cuit.client.api.course.ICourseService;
 import edu.cuit.client.bo.MessageBO;
 import edu.cuit.client.dto.clientobject.course.*;
@@ -34,8 +35,7 @@ public class ICourseServiceImpl implements ICourseService {
     private final CourseDeleteGateway courseDeleteGateway;
     private final CourseBizConvertor courseConvertor;
     private final UserQueryGateway userQueryGateway;
-    private final MsgResult msgResult;
-    private  final MsgServiceImpl msgService;
+    private final AfterCommitEventPublisher afterCommitEventPublisher;
     @CheckSemId
     @Override
     public List<List<Integer>> courseNum(Integer week, Integer semId) {
@@ -83,16 +83,8 @@ public class ICourseServiceImpl implements ICourseService {
         String userName =String.valueOf(StpUtil.getLoginId()) ;
         Map<String,Map<Integer,Integer>> map = courseUpdateGateway.updateSingleCourse(userName, semId, updateSingleCourseCmd);
         Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
-        for (Map.Entry<String, Map<Integer, Integer>> stringListEntry : map.entrySet()) {
-            Map<String,Map<Integer,Integer>> map1=new HashMap<>();
-            map1.put(stringListEntry.getKey(),stringListEntry.getValue());
-            if(stringListEntry.getValue()==null){
-                msgResult.SendMsgToAll(map1,userId.orElseThrow(() -> new QueryException("请先登录")));
-            }else if(!stringListEntry.getValue().isEmpty()){
-                msgResult.toNormalMsg(map1,userId.orElseThrow(() -> new QueryException("请先登录")));
-                stringListEntry.getValue().forEach((k,v)->msgService.deleteEvaMsg(k,null));
-            }
-        }
+        Integer operatorUserId = userId.orElseThrow(() -> new QueryException("请先登录"));
+        afterCommitEventPublisher.publishAfterCommit(new CourseOperationSideEffectsEvent(operatorUserId, map));
     }
 
     @CheckSemId
@@ -100,7 +92,8 @@ public class ICourseServiceImpl implements ICourseService {
     public void allocateTeacher(Integer semId, AlignTeacherCmd alignTeacherCmd) {
         Map<String, Map<Integer,Integer>> map = courseUpdateGateway.assignTeacher(semId, alignTeacherCmd);
         Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
-        msgResult.sendMsgtoTeacher(map, userId.orElseThrow(() -> new QueryException("请先登录")));
+        Integer operatorUserId = userId.orElseThrow(() -> new QueryException("请先登录"));
+        afterCommitEventPublisher.publishAfterCommit(new CourseTeacherTaskMessagesEvent(operatorUserId, map));
     }
 
     @CheckSemId
@@ -108,16 +101,8 @@ public class ICourseServiceImpl implements ICourseService {
     public void deleteCourses(Integer semId, Integer id, CoursePeriod coursePeriod) {
         Map<String, Map<Integer,Integer>> map = courseDeleteGateway.deleteCourses(semId, id, coursePeriod);
         Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
-        for (Map.Entry<String, Map<Integer, Integer>> stringMapEntry : map.entrySet()) {
-            Map<String,Map<Integer,Integer>> map1=new HashMap<>();
-            map1.put(stringMapEntry.getKey(),stringMapEntry.getValue());
-            if(stringMapEntry.getValue()==null){
-                msgResult.SendMsgToAll(map1, userId.orElseThrow(() -> new QueryException("请先登录")));
-            }else if(!stringMapEntry.getValue().isEmpty()){
-                msgResult.toNormalMsg(map1, userId.orElseThrow(() -> new QueryException("请先登录")));
-                stringMapEntry.getValue().forEach((k,v)->msgService.deleteEvaMsg(k,null));
-            }
-        }
+        Integer operatorUserId = userId.orElseThrow(() -> new QueryException("请先登录"));
+        afterCommitEventPublisher.publishAfterCommit(new CourseOperationSideEffectsEvent(operatorUserId, map));
 
     }
 
