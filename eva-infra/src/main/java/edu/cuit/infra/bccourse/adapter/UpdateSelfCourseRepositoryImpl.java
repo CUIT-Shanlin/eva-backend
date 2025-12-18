@@ -6,6 +6,7 @@ import edu.cuit.bc.course.application.port.UpdateSelfCourseRepository;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeInfoCO;
 import edu.cuit.client.dto.data.course.CourseType;
+import edu.cuit.infra.bccourse.support.CourInfTimeOverlapQuery;
 import edu.cuit.infra.bccourse.support.ClassroomOccupancyChecker;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
@@ -163,12 +164,12 @@ public class UpdateSelfCourseRepositoryImpl implements UpdateSelfCourseRepositor
             localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(courseDO.getSemesterId()));
             for (CourInfDO courInfDO : difference) {
                 for (CourseDO course : courseDOList) {
-                    QueryWrapper<CourInfDO> wrapper = new QueryWrapper<CourInfDO>()
-                            .eq("week", courInfDO.getWeek())
-                            .eq("day", courInfDO.getDay())
-                            .le("start_time", courInfDO.getEndTime())
-                            .ge("end_time", courInfDO.getStartTime())
-                            .eq("course_id", course.getId());
+                    QueryWrapper<CourInfDO> wrapper = CourInfTimeOverlapQuery.overlap(
+                            courInfDO.getWeek(),
+                            courInfDO.getDay(),
+                            courInfDO.getStartTime(),
+                            courInfDO.getEndTime()
+                    ).eq("course_id", course.getId());
                     // 判断对应时间段是否已经有课了
                     if (!courInfMapper.selectList(wrapper).isEmpty()) {
                         throw new UpdateException("该时间段你已经有课了");
@@ -177,12 +178,12 @@ public class UpdateSelfCourseRepositoryImpl implements UpdateSelfCourseRepositor
 
                 // 评教
                 if (!courInfoIds.isEmpty()) {
-                    QueryWrapper<CourInfDO> wrapper = new QueryWrapper<CourInfDO>()
-                            .eq("week", courInfDO.getWeek())
-                            .eq("day", courInfDO.getDay())
-                            .le("start_time", courInfDO.getEndTime())
-                            .ge("end_time", courInfDO.getStartTime())
-                            .in(true, "course_id", courInfoIds);
+                    QueryWrapper<CourInfDO> wrapper = CourInfTimeOverlapQuery.overlap(
+                            courInfDO.getWeek(),
+                            courInfDO.getDay(),
+                            courInfDO.getStartTime(),
+                            courInfDO.getEndTime()
+                    ).in(true, "course_id", courInfoIds);
                     if (!courInfMapper.selectList(wrapper).isEmpty()) {
                         throw new UpdateException("该时间段你有要去评教的课程");
                     }

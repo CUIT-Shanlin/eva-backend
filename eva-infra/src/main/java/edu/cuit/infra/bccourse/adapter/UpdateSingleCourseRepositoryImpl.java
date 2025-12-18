@@ -3,6 +3,7 @@ package edu.cuit.infra.bccourse.adapter;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.cuit.bc.course.application.model.UpdateSingleCourseCommand;
 import edu.cuit.bc.course.application.port.UpdateSingleCourseRepository;
+import edu.cuit.infra.bccourse.support.CourInfTimeOverlapQuery;
 import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.course.SubjectDO;
@@ -77,23 +78,19 @@ public class UpdateSingleCourseRepositoryImpl implements UpdateSingleCourseRepos
                 courseDo = courseDO;
                 continue;
             }
-            CourInfDO courInfDO = courInfMapper.selectOne(new QueryWrapper<CourInfDO>()
-                    .eq("course_id", courseDO.getId())
-                    .eq("week", command.week())
-                    .eq("day", command.day())
-                    .le("start_time", command.endTime())
-                    .ge("end_time", command.startTime()));
+            CourInfDO courInfDO = courInfMapper.selectOne(
+                    CourInfTimeOverlapQuery.overlap(command.week(), command.day(), command.startTime(), command.endTime())
+                            .eq("course_id", courseDO.getId())
+            );
             if (courInfDO != null) {
                 throw new UpdateException("该时间段已有课程");
             }
         }
 
         // 判断 location 是否被占用（原逻辑：同周同天同节次 + 同学期 + 同地点）
-        List<CourInfDO> courInfDOList = courInfMapper.selectList(new QueryWrapper<CourInfDO>()
-                .eq("week", command.week())
-                .eq("day", command.day())
-                .le("start_time", command.endTime())
-                .ge("end_time", command.startTime()));
+        List<CourInfDO> courInfDOList = courInfMapper.selectList(
+                CourInfTimeOverlapQuery.overlap(command.week(), command.day(), command.startTime(), command.endTime())
+        );
         for (CourInfDO courInfDO : courInfDOList) {
             if (courseMapper.selectById(courInfDO.getCourseId()).getSemesterId().equals(semId)) {
                 if (courInfDO.getLocation().equals(command.location())) {
@@ -144,4 +141,3 @@ public class UpdateSingleCourseRepositoryImpl implements UpdateSingleCourseRepos
         return map;
     }
 }
-
