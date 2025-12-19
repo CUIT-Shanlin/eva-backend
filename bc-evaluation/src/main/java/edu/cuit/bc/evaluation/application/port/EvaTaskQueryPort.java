@@ -18,5 +18,7 @@ public interface EvaTaskQueryPort {
 
     Optional<EvaTaskEntity> oneEvaTaskInfo(Integer id);
 
+    Optional<Integer> getEvaNumber(Long id);
+
     Optional<String> getNameByTaskId(Integer taskId);
 }

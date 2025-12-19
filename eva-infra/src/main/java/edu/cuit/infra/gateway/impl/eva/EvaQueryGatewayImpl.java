@@ -13,7 +13,10 @@ import edu.cuit.domain.entity.eva.EvaRecordEntity;
 import edu.cuit.domain.entity.eva.EvaTaskEntity;
 import edu.cuit.domain.entity.eva.EvaTemplateEntity;
 import edu.cuit.domain.gateway.eva.EvaQueryGateway;
-import edu.cuit.infra.bcevaluation.query.EvaQueryRepo;
+import edu.cuit.bc.evaluation.application.port.EvaRecordQueryPort;
+import edu.cuit.bc.evaluation.application.port.EvaStatisticsQueryPort;
+import edu.cuit.bc.evaluation.application.port.EvaTaskQueryPort;
+import edu.cuit.bc.evaluation.application.port.EvaTemplateQueryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -29,150 +32,153 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class EvaQueryGatewayImpl implements EvaQueryGateway {
-    private final EvaQueryRepo repo;
+    private final EvaTaskQueryPort evaTaskQueryPort;
+    private final EvaRecordQueryPort evaRecordQueryPort;
+    private final EvaTemplateQueryPort evaTemplateQueryPort;
+    private final EvaStatisticsQueryPort evaStatisticsQueryPort;
 
     @Override
     public PaginationResultEntity<EvaRecordEntity> pageEvaRecord(Integer semId, PagingQuery<EvaLogConditionalQuery> evaLogQuery) {
-        return repo.pageEvaRecord(semId, evaLogQuery);
+        return evaRecordQueryPort.pageEvaRecord(semId, evaLogQuery);
     }
 
     @Override
     public PaginationResultEntity<EvaTaskEntity> pageEvaUnfinishedTask(Integer semId, PagingQuery<EvaTaskConditionalQuery> taskQuery) {
-        return repo.pageEvaUnfinishedTask(semId, taskQuery);
+        return evaTaskQueryPort.pageEvaUnfinishedTask(semId, taskQuery);
     }
 
     @Override
     public PaginationResultEntity<EvaTemplateEntity> pageEvaTemplate(Integer semId, PagingQuery<GenericConditionalQuery> query) {
-        return repo.pageEvaTemplate(semId, query);
+        return evaTemplateQueryPort.pageEvaTemplate(semId, query);
     }
 
     @Override
     public List<EvaTaskEntity> evaSelfTaskInfo(Integer useId, Integer id, String keyword) {
-        return repo.evaSelfTaskInfo(useId, id, keyword);
+        return evaTaskQueryPort.evaSelfTaskInfo(useId, id, keyword);
     }
 
     @Override
     public List<EvaRecordEntity> getEvaLogInfo(Integer userId, Integer id, String keyword) {
-        return repo.getEvaLogInfo(userId, id, keyword);
+        return evaRecordQueryPort.getEvaLogInfo(userId, id, keyword);
     }
 
     @Override
     public List<EvaRecordEntity> getEvaEdLogInfo(Integer userId, Integer semId, Integer courseId) {
-        return repo.getEvaEdLogInfo(userId, semId, courseId);
+        return evaRecordQueryPort.getEvaEdLogInfo(userId, semId, courseId);
     }
 
     @Override
     public Optional<EvaTaskEntity> oneEvaTaskInfo(Integer id) {
-        return repo.oneEvaTaskInfo(id);
+        return evaTaskQueryPort.oneEvaTaskInfo(id);
     }
 
     @Override
     public Optional<EvaScoreInfoCO> evaScoreStatisticsInfo(Integer semId, Number score) {
-        return repo.evaScoreStatisticsInfo(semId, score);
+        return evaStatisticsQueryPort.evaScoreStatisticsInfo(semId, score);
     }
 
     @Override
     public Optional<EvaSituationCO> evaTemplateSituation(Integer semId) {
-        return repo.evaTemplateSituation(semId);
+        return evaStatisticsQueryPort.evaTemplateSituation(semId);
     }
 
     @Override
     public List<Integer> getMonthEvaNUmber(Integer semId) {
-        return repo.getMonthEvaNUmber(semId);
+        return evaStatisticsQueryPort.getMonthEvaNUmber(semId);
     }
 
     @Override
     public Optional<EvaWeekAddCO> evaWeekAdd(Integer week, Integer semId) {
-        return repo.evaWeekAdd(week, semId);
+        return evaStatisticsQueryPort.evaWeekAdd(week, semId);
     }
 
     @Override
     public Optional<PastTimeEvaDetailCO> getEvaData(Integer semId, Integer num, Integer target, Integer evaTarget) {
-        return repo.getEvaData(semId, num, target, evaTarget);
+        return evaStatisticsQueryPort.getEvaData(semId, num, target, evaTarget);
     }
 
     @Override
     public Optional<UnqualifiedUserResultCO> getEvaTargetAmountUnqualifiedUser(Integer semId, Integer num, Integer target) {
-        return repo.getEvaTargetAmountUnqualifiedUser(semId, num, target);
+        return evaStatisticsQueryPort.getEvaTargetAmountUnqualifiedUser(semId, num, target);
     }
 
     @Override
     public Optional<UnqualifiedUserResultCO> getBeEvaTargetAmountUnqualifiedUser(Integer semId, Integer num, Integer target) {
-        return repo.getBeEvaTargetAmountUnqualifiedUser(semId, num, target);
+        return evaStatisticsQueryPort.getBeEvaTargetAmountUnqualifiedUser(semId, num, target);
     }
 
     @Override
     public PaginationResultEntity<UnqualifiedUserInfoCO> pageEvaUnqualifiedUserInfo(Integer semId, PagingQuery<UnqualifiedUserConditionalQuery> query, Integer target) {
-        return repo.pageEvaUnqualifiedUserInfo(semId, query, target);
+        return evaStatisticsQueryPort.pageEvaUnqualifiedUserInfo(semId, query, target);
     }
 
     @Override
     public PaginationResultEntity<UnqualifiedUserInfoCO> pageBeEvaUnqualifiedUserInfo(Integer semId, PagingQuery<UnqualifiedUserConditionalQuery> query, Integer target) {
-        return repo.pageBeEvaUnqualifiedUserInfo(semId, query, target);
+        return evaStatisticsQueryPort.pageBeEvaUnqualifiedUserInfo(semId, query, target);
     }
 
     @Override
     public Optional<Integer> getEvaNumber(Long id) {
-        return repo.getEvaNumber(id);
+        return evaTaskQueryPort.getEvaNumber(id);
     }
 
     @Override
     public Optional<String> getTaskTemplate(Integer taskId, Integer semId) {
-        return repo.getTaskTemplate(taskId, semId);
+        return evaTemplateQueryPort.getTaskTemplate(taskId, semId);
     }
 
     @Override
     public List<ScoreRangeCourseCO> scoreRangeCourseInfo(Integer num, Integer interval) {
-        return repo.scoreRangeCourseInfo(num, interval);
+        return evaStatisticsQueryPort.scoreRangeCourseInfo(num, interval);
     }
 
     @Override
     public List<EvaTemplateEntity> getAllTemplate() {
-        return repo.getAllTemplate();
+        return evaTemplateQueryPort.getAllTemplate();
     }
 
     @Override
     public Optional<Double> getScoreFromRecord(String prop) {
-        return repo.getScoreFromRecord(prop);
+        return evaRecordQueryPort.getScoreFromRecord(prop);
     }
 
     @Override
     public Optional<Integer> getEvaNumByCourInfo(Integer courInfId) {
-        return repo.getEvaNumByCourInfo(courInfId);
+        return evaRecordQueryPort.getEvaNumByCourInfo(courInfId);
     }
 
     @Override
     public Optional<Integer> getEvaNumByCourse(Integer courseId) {
-        return repo.getEvaNumByCourse(courseId);
+        return evaRecordQueryPort.getEvaNumByCourse(courseId);
     }
 
     @Override
     public Optional<String> getNameByTaskId(Integer taskId) {
-        return repo.getNameByTaskId(taskId);
+        return evaTaskQueryPort.getNameByTaskId(taskId);
     }
 
     @Override
     public List<EvaRecordEntity> getRecordByCourse(Integer courseId) {
-        return repo.getRecordByCourse(courseId);
+        return evaRecordQueryPort.getRecordByCourse(courseId);
     }
 
     @Override
     public Optional<Double> getScoreByProp(String prop) {
-        return repo.getScoreByProp(prop);
+        return evaRecordQueryPort.getScoreByProp(prop);
     }
 
     @Override
     public List<Double> getScoresByProp(String props) {
-        return repo.getScoresByProp(props);
+        return evaRecordQueryPort.getScoresByProp(props);
     }
 
     @Override
     public Map<String, Double> getScorePropMapByProp(String props) {
-        return repo.getScorePropMapByProp(props);
+        return evaRecordQueryPort.getScorePropMapByProp(props);
     }
 
     @Override
     public List<Integer> getCountAbEva(Integer semId, Integer userId) {
-        return repo.getCountAbEva(semId, userId);
+        return evaStatisticsQueryPort.getCountAbEva(semId, userId);
     }
 }

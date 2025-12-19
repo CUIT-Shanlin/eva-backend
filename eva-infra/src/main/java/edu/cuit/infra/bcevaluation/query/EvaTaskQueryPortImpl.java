@@ -35,6 +35,11 @@ public class EvaTaskQueryPortImpl implements EvaTaskQueryPort {
     }
 
     @Override
+    public Optional<Integer> getEvaNumber(Long id) {
+        return repo.getEvaNumber(id);
+    }
+
+    @Override
     public Optional<String> getNameByTaskId(Integer taskId) {
         return repo.getNameByTaskId(taskId);
     }
