@@ -27,6 +27,8 @@
   - `02f4167d refactor(eva-infra): 评教读侧抽取QueryRepo`
   - `a48cf044 test(eva-app): 补充评教读侧用例级回归`
   - `daf343ef test(start): 稳定化回归用例并去除外部依赖`
+  - `3b215441 docs: 更新交接与计划书（测试稳定化）`
+  - `daf343ef test(start): 稳定化回归用例并去除外部依赖`
 
 ## 0. 本轮会话增量总结（2025-12-18，更新至 `HEAD`，以 `git log -n 1` 为准）
 
@@ -528,7 +530,7 @@
 推荐按“继续模块化 + 小步 commit”的方式推进：
 
 0) **新会话起手式（避免上下文浪费时间）**
-   - 切 JDK 到 17（见上文），再跑一次 `mvn -pl bc-course -am test` / `mvn -pl bc-messaging -am test` 快速验收。
+   - 切 JDK 到 17（见上文），再跑一次 `mvn -pl start -am test -Dmaven.repo.local=.m2/repository` 做全量回归。
    - 用 Serena 重新索引（用户要求“开始任务先更新一次索引”）。
 
 1) ✅ **已完成：继续收敛“教师自助课表”链路（IUserCourseServiceImpl）**
@@ -593,3 +595,4 @@
 15) **下一步推荐：评教读侧进一步解耦（保持行为不变）**
    - 目标：按用例维度拆分读侧 QueryService（任务/记录/统计/模板），降低单类复杂度。
    - 做法：把 `EvaQueryRepo` 拆成更小的 query 端口（先放在 `bc-evaluation` 应用层），`eva-infra` 继续做实现；`EvaQueryGatewayImpl` 仍只做委托壳。
+   - 约束：每个小步完成后都执行 `mvn -pl start -am test -Dmaven.repo.local=.m2/repository` 并据失败补强回归。

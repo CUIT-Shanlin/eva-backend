@@ -107,6 +107,10 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - 评教删除：`EvaDeleteGatewayImpl.deleteEvaRecord/deleteEvaTemplate` 收敛到 `bc-evaluation`（落地提交：`ea928055/07b65663/05900142`）。
 - 课程读侧收敛（保持行为不变）：
   - `CourseQueryGatewayImpl` 退化委托壳 + 抽取 `CourseQueryRepo/CourseQueryRepository`（落地提交：`ba8f2003`）。
+- 评教读侧收敛（保持行为不变）：
+  - `EvaQueryGatewayImpl` 退化委托壳 + 抽取 `EvaQueryRepo/EvaQueryRepository`（落地提交：`02f4167d`）。
+- 测试稳定化（回归可重复执行）：
+  - `start` 模块测试去除外部依赖（本地文件/Redis/LDAP/数据库），改为内存用例（落地提交：`daf343ef`）。
 
 **已完成（2025-12-18）**
 - 冲突校验收敛（保持行为不变）：
@@ -167,8 +171,11 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - `evaScoreStatisticsInfo/getEvaLogInfo/evaSelfTaskInfo/evaTemplateSituation/pageEvaUnfinishedTask/getEvaEdLogInfo` 等（60~90 LOC）
 - 大量统计/报表相关方法（30~50 LOC）
 
+进展：
+- ✅ 已抽取 `EvaQueryRepo/EvaQueryRepository`，`EvaQueryGatewayImpl` 退化委托壳（落地提交：`02f4167d`）。
+
 建议策略：
-- 评教写侧优先收敛（`postEvaTask` 等），读侧统计可以后置，避免“边重构边改统计口径”。
+- 下一步按用例维度拆分 QueryService（任务/记录/统计/模板），保持统计口径不变。
 
 ---
 
@@ -219,7 +226,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 如果继续按“写侧优先”的策略推进，下一批候选（高 → 低）建议是：
 
-1) 评教读侧：`EvaQueryGatewayImpl`（统计/分页/聚合，后置但收益大；建议先抽 QueryRepo/QueryService，保持口径不变）  
+1) 评教读侧进一步解耦：拆分 QueryService（任务/记录/统计/模板），保持统计口径不变  
 2) 消息域：`MsgGatewayImpl`（若要继续事件化副作用，可逐步委托化到 `bc-messaging`）  
 3) 课程读侧（后置）：在已完成 QueryRepo 结构化基础上，按“课表视图/评教统计/移动端周期课表”等主题进一步拆 QueryService 或引入投影表  
 
