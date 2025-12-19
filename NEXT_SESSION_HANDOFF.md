@@ -22,7 +22,7 @@
   - `cc9af9ad docs: 更新交接与计划书（评教任务发布收敛）`
   - `76a89b78 docs: 更新交接与计划书（评教删除收敛）`
   - `ba8f2003 refactor(eva-infra): 课程读侧抽取QueryRepo`
-  - `待填 refactor(eva-infra): 评教读侧抽取QueryRepo`
+  - `02f4167d refactor(eva-infra): 评教读侧抽取QueryRepo`
 
 ## 0. 本轮会话增量总结（2025-12-18，更新至 `HEAD`，以 `git log -n 1` 为准）
 
