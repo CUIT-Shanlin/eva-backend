@@ -14,6 +14,7 @@
 - ✅ 评教读侧渐进收敛：为 `EvaQueryGatewayImpl` 引入 `EvaQueryRepo`（gateway 退化委托壳，行为不变）。
 - ✅ 评教读侧用例级回归测试：固化统计口径（`EvaStatisticsServiceImpl` / `EvaRecordServiceImpl`）。
 - ✅ 测试稳定化：将依赖本地文件/外部服务的 `start` 测试改为内存回归用例，移除 Spring 上下文依赖。
+- ✅ 评教读侧进一步解耦（统计/导出）：新增 `EvaStatisticsQueryPort`，应用层统计与导出查询改走端口；`eva-infra` 端口实现委托 `EvaQueryRepo`，行为保持不变。
 - 新增提交（按时间顺序）：
   - `8e434fe1 feat(bc-evaluation): 增加评教任务发布用例骨架`
   - `ca69b131 feat(eva-infra): 实现评教任务发布端口适配器`
@@ -29,6 +30,7 @@
   - `daf343ef test(start): 稳定化回归用例并去除外部依赖`
   - `3b215441 docs: 更新交接与计划书（测试稳定化）`
   - `daf343ef test(start): 稳定化回归用例并去除外部依赖`
+  - `bb391698 refactor(evaluation): 拆分统计查询端口`
 
 ## 0. 本轮会话增量总结（2025-12-18，更新至 `HEAD`，以 `git log -n 1` 为准）
 
@@ -593,6 +595,7 @@
    - 落地：抽取 `EvaQueryRepo`/`EvaQueryRepository`，`EvaQueryGatewayImpl` 退化为委托壳（保持统计口径与异常文案不变）。
 
 15) **下一步推荐：评教读侧进一步解耦（保持行为不变）**
-   - 目标：按用例维度拆分读侧 QueryService（任务/记录/统计/模板），降低单类复杂度。
+   - 进展：已完成“统计/导出查询端口”拆分（`EvaStatisticsQueryPort`），应用层统计与导出查询改走新端口。
+   - 目标：继续按用例维度拆分读侧 QueryService（任务/记录/模板），降低单类复杂度。
    - 做法：把 `EvaQueryRepo` 拆成更小的 query 端口（先放在 `bc-evaluation` 应用层），`eva-infra` 继续做实现；`EvaQueryGatewayImpl` 仍只做委托壳。
    - 约束：每个小步完成后都执行 `mvn -pl start -am test -Dmaven.repo.local=.m2/repository` 并据失败补强回归。
