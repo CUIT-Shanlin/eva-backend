@@ -564,3 +564,4 @@
    - 背景：删除评教记录/模板涉及跨表校验、快照清理与缓存失效，是评教域写侧的重要入口。
    - 目标：按“用例 + 端口 + 旧 gateway 委托壳”的标准步骤，把写侧流程收敛到 `bc-evaluation`（行为不变）。
    - 进展（进行中）：已在 `bc-evaluation` 新增 `DeleteEvaRecordUseCase/DeleteEvaTemplateUseCase` 与对应端口/异常，并补齐纯单测。
+   - 进展（进行中）：已在 `eva-infra` 实现 `DeleteEvaRecordRepositoryImpl/DeleteEvaTemplateRepositoryImpl`，并将旧 `EvaDeleteGatewayImpl` 两个方法退化为委托壳（异常文案/类型保持不变）。
