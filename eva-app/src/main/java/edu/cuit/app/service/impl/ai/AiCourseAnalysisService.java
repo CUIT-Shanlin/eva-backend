@@ -16,7 +16,7 @@ import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.client.dto.clientobject.eva.EvaRecordCO;
 import edu.cuit.domain.entity.eva.EvaRecordEntity;
 import edu.cuit.domain.gateway.eva.EvaConfigGateway;
-import edu.cuit.domain.gateway.eva.EvaQueryGateway;
+import edu.cuit.bc.evaluation.application.port.EvaRecordQueryPort;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.infra.ai.aiservice.CourseAiServices;
 import edu.cuit.infra.ai.util.MessageUtils;
@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 public class AiCourseAnalysisService implements IAiCourseAnalysisService {
 
     private final IUserCourseService userCourseService;
-    private final EvaQueryGateway evaQueryGateway;
+    private final EvaRecordQueryPort evaRecordQueryPort;
     private final UserQueryGateway userQueryGateway;
     private final EvaConfigGateway evaConfigGateway;
 
@@ -70,7 +70,7 @@ public class AiCourseAnalysisService implements IAiCourseAnalysisService {
         courseCollect.forEach((name,courses) -> {
             List<EvaRecordEntity> recordList = new ArrayList<>();
             for (CourseDetailCO course : courses) {
-                recordList.addAll(evaQueryGateway.getRecordByCourse(course.getCourseBaseMsg().getId()));
+                recordList.addAll(evaRecordQueryPort.getRecordByCourse(course.getCourseBaseMsg().getId()));
             }
             courseRecordMap.put(courses.get(0).getCourseBaseMsg().getName(),recordList);
         });
@@ -85,7 +85,7 @@ public class AiCourseAnalysisService implements IAiCourseAnalysisService {
                     .map(record -> {
                         StringBuilder builder = new StringBuilder();
                         builder.append("评价信息：").append(record.getTextValue()).append("评分信息：(");
-                        Map<String, Double> map = evaQueryGateway.getScorePropMapByProp(record.getFormPropsValues());
+                        Map<String, Double> map = evaRecordQueryPort.getScorePropMapByProp(record.getFormPropsValues());
                         map.forEach((prop,score) -> {
                             builder.append(" ").append(prop).append(": ").append(score).append(" , ");
                         });
@@ -103,7 +103,7 @@ public class AiCourseAnalysisService implements IAiCourseAnalysisService {
                     .setSuggestion(suggestion)
                     .setBeEvaNumCount(records.size())
                     .setHighScoreBeEvaCount((int) records.parallelStream()
-                            .filter(record -> evaQueryGateway.getScoreFromRecord(record.getFormPropsValues()).get() >= highScoreThreshold)
+                            .filter(record -> evaRecordQueryPort.getScoreFromRecord(record.getFormPropsValues()).get() >= highScoreThreshold)
                             .count());
             courseSuggestionList.add(suggestionBO);
         });
@@ -127,7 +127,7 @@ public class AiCourseAnalysisService implements IAiCourseAnalysisService {
 
         int highScoreBeEvaCount = courseRecordMap.values().stream()
                 .flatMap(List::stream)
-                .filter(record -> evaQueryGateway.getScoreFromRecord(record.getFormPropsValues()).get() >= highScoreThreshold)
+                .filter(record -> evaRecordQueryPort.getScoreFromRecord(record.getFormPropsValues()).get() >= highScoreThreshold)
                 .toList()
                 .size();
 

@@ -11,7 +11,6 @@ import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.UnqualifiedUserConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
-import edu.cuit.domain.entity.eva.EvaRecordEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -81,12 +80,7 @@ public class EvaStatisticsQueryPortImpl implements EvaStatisticsQueryPort {
     }
 
     @Override
-    public List<EvaRecordEntity> getRecordByCourse(Integer courseId) {
-        return repo.getRecordByCourse(courseId);
-    }
-
-    @Override
-    public Optional<Double> getScoreByProp(String prop) {
-        return repo.getScoreByProp(prop);
+    public List<Integer> getCountAbEva(Integer semId, Integer userId) {
+        return repo.getCountAbEva(semId, userId);
     }
 }

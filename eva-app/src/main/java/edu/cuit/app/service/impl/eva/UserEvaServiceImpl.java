@@ -8,7 +8,7 @@ import edu.cuit.client.dto.clientobject.eva.EvaRecordCO;
 import edu.cuit.domain.entity.eva.EvaRecordEntity;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.domain.gateway.eva.EvaDeleteGateway;
-import edu.cuit.domain.gateway.eva.EvaQueryGateway;
+import edu.cuit.bc.evaluation.application.port.EvaRecordQueryPort;
 import edu.cuit.domain.gateway.eva.EvaUpdateGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
@@ -21,7 +21,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class UserEvaServiceImpl implements IUserEvaService {
-    private final EvaQueryGateway evaQueryGateway;
+    private final EvaRecordQueryPort evaRecordQueryPort;
     private final EvaRecordBizConvertor evaRecordBizConvertor;
     private final UserQueryGateway userQueryGateway;
 
@@ -34,14 +34,14 @@ public class UserEvaServiceImpl implements IUserEvaService {
         if(userId==null){
             throw new SysException("还没有登录，怎么查到这里的");
         }
-        List<EvaRecordEntity> evaRecordEntities=evaQueryGateway.getEvaLogInfo(userId,semId,keyword);
+        List<EvaRecordEntity> evaRecordEntities=evaRecordQueryPort.getEvaLogInfo(userId,semId,keyword);
         if(evaRecordEntities.isEmpty()){
             List list=new ArrayList();
             return list;
         }
         for (EvaRecordEntity evaRecordEntity : evaRecordEntities) {
             EvaRecordCO evaRecordCO = evaRecordBizConvertor.evaRecordEntityToCo(evaRecordEntity);
-            evaRecordCO.setAverScore(evaQueryGateway.getScoreFromRecord(evaRecordEntity.getFormPropsValues()).orElse(0.0));
+            evaRecordCO.setAverScore(evaRecordQueryPort.getScoreFromRecord(evaRecordEntity.getFormPropsValues()).orElse(0.0));
             evaRecordCOS.add(evaRecordCO);
         }
         return evaRecordCOS;
@@ -54,7 +54,7 @@ public class UserEvaServiceImpl implements IUserEvaService {
         if(userId==null){
             throw new SysException("还没有登录，怎么查到这里的");
         }
-        List<EvaRecordEntity> evaRecordEntities=evaQueryGateway.getEvaEdLogInfo(userId,semId,courseId);
+        List<EvaRecordEntity> evaRecordEntities=evaRecordQueryPort.getEvaEdLogInfo(userId,semId,courseId);
         List<EvaRecordCO> evaRecordCOS=new ArrayList<>();
         if(evaRecordEntities.isEmpty()){
             List list=new ArrayList();
@@ -63,7 +63,7 @@ public class UserEvaServiceImpl implements IUserEvaService {
         for (EvaRecordEntity evaRecordEntity : evaRecordEntities) {
             EvaRecordCO evaRecordCO = evaRecordBizConvertor.evaRecordEntityToCo(evaRecordEntity);
 
-            evaRecordCO.setAverScore(evaQueryGateway.getScoreFromRecord(evaRecordEntity.getFormPropsValues()).orElse(0.0));
+            evaRecordCO.setAverScore(evaRecordQueryPort.getScoreFromRecord(evaRecordEntity.getFormPropsValues()).orElse(0.0));
             evaRecordCOS.add(evaRecordCO);
         }
         return evaRecordCOS;

@@ -19,7 +19,7 @@ import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.EvaLogConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.eva.EvaRecordEntity;
-import edu.cuit.domain.gateway.eva.EvaQueryGateway;
+import edu.cuit.bc.evaluation.application.port.EvaRecordQueryPort;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +32,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class EvaRecordServiceImpl implements IEvaRecordService {
-    private final EvaQueryGateway evaQueryGateway;
+    private final EvaRecordQueryPort evaRecordQueryPort;
     private final EvaRecordBizConvertor evaRecordBizConvertor;
     private final PaginationBizConvertor paginationBizConvertor;
     private final SubmitEvaluationUseCase submitEvaluationUseCase;
@@ -40,12 +40,12 @@ public class EvaRecordServiceImpl implements IEvaRecordService {
     @Override
     @CheckSemId
     public PaginationQueryResultCO<EvaRecordCO> pageEvaRecord(Integer semId, PagingQuery<EvaLogConditionalQuery> query) {
-        PaginationResultEntity<EvaRecordEntity> page=evaQueryGateway.pageEvaRecord(semId,query);
+        PaginationResultEntity<EvaRecordEntity> page=evaRecordQueryPort.pageEvaRecord(semId,query);
         List<EvaRecordCO> results = page.getRecords().stream()
                 .map(evaRecordBizConvertor::evaRecordEntityToCo)
                 .toList();
         for(int i=0;i<results.size();i++){
-            results.get(i).setAverScore(evaQueryGateway.getScoreFromRecord(page.getRecords().get(i).getFormPropsValues()).orElseThrow(()->new SysException("相关模板不存在")));
+            results.get(i).setAverScore(evaRecordQueryPort.getScoreFromRecord(page.getRecords().get(i).getFormPropsValues()).orElseThrow(()->new SysException("相关模板不存在")));
         }
         return paginationBizConvertor.toPaginationEntity(page,results);
     }

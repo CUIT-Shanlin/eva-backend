@@ -17,7 +17,8 @@ import edu.cuit.client.dto.data.msg.GenericResponseMsg;
 import edu.cuit.domain.entity.MsgEntity;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.gateway.MsgGateway;
-import edu.cuit.domain.gateway.eva.EvaQueryGateway;
+import edu.cuit.bc.evaluation.application.port.EvaRecordQueryPort;
+import edu.cuit.bc.evaluation.application.port.EvaTaskQueryPort;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +39,8 @@ public class MsgServiceImpl implements IMsgService {
 
     private final MsgGateway msgGateway;
     private final UserQueryGateway userQueryGateway;
-    private final EvaQueryGateway evaQueryGateway;
+    private final EvaTaskQueryPort evaTaskQueryPort;
+    private final EvaRecordQueryPort evaRecordQueryPort;
 
     private final WebsocketManager websocketManager;
 
@@ -81,12 +83,12 @@ public class MsgServiceImpl implements IMsgService {
     }
 
     private EvaResponseMsg toEvaResponseMsg(MsgEntity msgEntity) {
-        return evaQueryGateway.oneEvaTaskInfo(msgEntity.getTaskId()).map(taskEntity -> {
+        return evaTaskQueryPort.oneEvaTaskInfo(msgEntity.getTaskId()).map(taskEntity -> {
             // 获取评教信息对应课程
             SingleCourseEntity courInf = taskEntity.getCourInf();
             // 转换为课程对象
             SingleCourseCO singleCourseCO = courseBizConvertor.toSingleCourseCO(courInf,
-                    evaQueryGateway.getEvaNumByCourInfo(courInf.getId()).orElse(0));
+                    evaRecordQueryPort.getEvaNumByCourInfo(courInf.getId()).orElse(0));
             return msgBizConvertor.toEvaResponseMsg(msgEntity,singleCourseCO);
         }).orElseThrow(() -> new BizException("获取评教信息失败"));
     }
@@ -181,12 +183,12 @@ public class MsgServiceImpl implements IMsgService {
     }
 
     private SingleCourseCO getSingleCourseByTaskId(Integer taskId) {
-        return evaQueryGateway.oneEvaTaskInfo(taskId).map(taskEntity -> {
+        return evaTaskQueryPort.oneEvaTaskInfo(taskId).map(taskEntity -> {
             // 获取评教信息对应课程
             SingleCourseEntity courInf = taskEntity.getCourInf();
             // 转换为课程对象
             return courseBizConvertor.toSingleCourseCO(courInf,
-                    evaQueryGateway.getEvaNumByCourInfo(courInf.getId()).orElse(0));
+                    evaRecordQueryPort.getEvaNumByCourInfo(courInf.getId()).orElse(0));
         }).orElse(null);
     }
 

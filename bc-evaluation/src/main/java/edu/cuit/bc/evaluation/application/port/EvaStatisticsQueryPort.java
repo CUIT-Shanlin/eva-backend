@@ -10,7 +10,6 @@ import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.UnqualifiedUserConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
-import edu.cuit.domain.entity.eva.EvaRecordEntity;
 
 import java.util.List;
 import java.util.Optional;
@@ -45,7 +44,5 @@ public interface EvaStatisticsQueryPort {
                                                                                PagingQuery<UnqualifiedUserConditionalQuery> query,
                                                                                Integer target);
 
-    List<EvaRecordEntity> getRecordByCourse(Integer courseId);
-
-    Optional<Double> getScoreByProp(String prop);
+    List<Integer> getCountAbEva(Integer semId, Integer userId);
 }

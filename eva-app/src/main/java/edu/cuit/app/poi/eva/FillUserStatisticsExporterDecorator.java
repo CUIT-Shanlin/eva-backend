@@ -65,7 +65,7 @@ public class FillUserStatisticsExporterDecorator extends EvaStatisticsExporter {
 
         createCell(teacherRow,0).setCellValue(teacher.getName());
 
-        List<Integer> count = evaQueryGateway.getCountAbEva(semId, teacher.getId());
+        List<Integer> count = evaStatisticsQueryPort.getCountAbEva(semId, teacher.getId());
 
         ExcelUtils.createRegion(rowIndex,rowIndex,0,1,sheet);
 

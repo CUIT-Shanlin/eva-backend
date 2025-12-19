@@ -18,7 +18,7 @@ import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.eva.EvaTemplateEntity;
-import edu.cuit.domain.gateway.eva.EvaQueryGateway;
+import edu.cuit.bc.evaluation.application.port.EvaTemplateQueryPort;
 import edu.cuit.domain.gateway.eva.EvaUpdateGateway;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
@@ -34,14 +34,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EvaTemplateServiceImpl implements IEvaTemplateService {
     private final EvaUpdateGateway evaUpdateGateway;
-    private final EvaQueryGateway evaQueryGateway;
+    private final EvaTemplateQueryPort evaTemplateQueryPort;
     private final PaginationBizConvertor paginationBizConvertor;
     private final DeleteEvaTemplateUseCase deleteEvaTemplateUseCase;
     @Override
     @CheckSemId
     public PaginationQueryResultCO<EvaTemplateCO> pageEvaTemplate(Integer semId, PagingQuery<GenericConditionalQuery> query) {
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        PaginationResultEntity<EvaTemplateEntity> page=evaQueryGateway.pageEvaTemplate(semId,query);
+        PaginationResultEntity<EvaTemplateEntity> page=evaTemplateQueryPort.pageEvaTemplate(semId,query);
         List<EvaTemplateCO> results =new ArrayList<>();
         for(int i=0;i<page.getRecords().size();i++){
             EvaTemplateCO evaTemplateCO=new EvaTemplateCO();
@@ -60,7 +60,7 @@ public class EvaTemplateServiceImpl implements IEvaTemplateService {
 
     @Override
     public List<SimpleResultCO> evaAllTemplate() {
-        List<EvaTemplateEntity> evaTemplateEntities=evaQueryGateway.getAllTemplate();
+        List<EvaTemplateEntity> evaTemplateEntities=evaTemplateQueryPort.getAllTemplate();
         if(CollectionUtil.isEmpty(evaTemplateEntities)){
             List list=new ArrayList();
             return list;
@@ -78,7 +78,7 @@ public class EvaTemplateServiceImpl implements IEvaTemplateService {
     @Override
     @CheckSemId
     public String evaTemplateByTaskId(Integer taskId, Integer semId) {
-        return evaQueryGateway.getTaskTemplate(taskId,semId).orElseGet(() -> JSONUtil.toJsonStr(List.of()));
+        return evaTemplateQueryPort.getTaskTemplate(taskId,semId).orElseGet(() -> JSONUtil.toJsonStr(List.of()));
     }
 
     @Override
