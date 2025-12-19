@@ -48,6 +48,7 @@
   - `cf493ef2 fix(eva-infra): 修正统计查询端口实现DTO包名`
   - `3e5da427 refactor(evaluation): 旧EvaQueryGateway委托到细分端口`
   - `5c74083e refactor(evaluation): 移除旧EvaQueryGateway`
+  - `49b80e0f docs: 更新交接与计划书（旧网关移除）`
 
 ## 0. 本轮会话增量总结（2025-12-18，更新至 `HEAD`，以 `git log -n 1` 为准）
 
