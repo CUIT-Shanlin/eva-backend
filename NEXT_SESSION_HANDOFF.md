@@ -546,6 +546,7 @@
    - 背景：评教任务发布属于高价值写流程（跨表 + 可能联动消息/缓存/日志），是下一阶段事件化与模块化的关键入口。
    - 目标：按“用例 + 端口 + 旧 gateway 委托壳”的标准步骤，把写侧流程收敛到 `bc-evaluation`（行为不变）。
    - 进展（进行中）：已在 `bc-evaluation` 新增 `PostEvaTaskUseCase` + `PostEvaTaskRepository` + `EvaluationTaskPostedEvent` 并补齐纯单测。
+   - 进展（进行中）：已在 `eva-infra` 实现 `PostEvaTaskRepositoryImpl`，并将 `EvaUpdateGatewayImpl.postEvaTask` 退化为委托壳（异常文案/类型保持不变）。
 
 11) **事件载荷逐步语义化（中长期）**
    - 当前为了行为不变，事件仍携带 `Map<String, Map<Integer,Integer>>` 作为过渡载荷；
