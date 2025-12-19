@@ -110,6 +110,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - 评教读侧收敛（保持行为不变）：
   - `EvaQueryGatewayImpl` 退化委托壳 + 抽取 `EvaQueryRepo/EvaQueryRepository`（落地提交：`02f4167d`）。
   - 进一步拆分统计/任务/记录/模板查询端口，并让旧 `EvaQueryGatewayImpl` 委托到细分端口（落地提交：`bb391698/570fecb6/ec5191a3/3e5da427`）。
+  - 旧 `EvaQueryGateway`/`EvaQueryGatewayImpl` 已移除（落地提交：`5c74083e`）。
 - 测试稳定化（回归可重复执行）：
   - `start` 模块测试去除外部依赖（本地文件/Redis/LDAP/数据库），改为内存用例（落地提交：`daf343ef`）。
 
@@ -175,9 +176,10 @@ scope: 全仓库（离线扫描 + 规则归纳）
 进展：
 - ✅ 已抽取 `EvaQueryRepo/EvaQueryRepository`，`EvaQueryGatewayImpl` 退化委托壳（落地提交：`02f4167d`）。
 - ✅ 已按“统计/任务/记录/模板”拆分查询端口，并让旧 gateway 委托到细分端口（落地提交：`bb391698/570fecb6/ec5191a3/3e5da427`）。
+- ✅ 旧 `EvaQueryGateway`/`EvaQueryGatewayImpl` 已移除。
 
 建议策略：
-- 下一步继续收口旧 `EvaQueryGateway` 的使用入口，逐步让应用层只依赖各 QueryPort；必要时清理不再使用的方法/接口。
+- 未完成清单：继续按用例维度细化 QueryService（任务/记录/模板），并评估 `EvaQueryRepo` 的内部拆分策略（保持统计口径不变）。
 
 ---
 
