@@ -3,6 +3,7 @@ package edu.cuit.app.eva;
 import com.alibaba.cola.exception.SysException;
 import edu.cuit.app.convertor.PaginationBizConvertor;
 import edu.cuit.app.service.impl.eva.EvaStatisticsServiceImpl;
+import edu.cuit.bc.evaluation.application.port.EvaStatisticsQueryPort;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.eva.PastTimeEvaDetailCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
@@ -12,7 +13,6 @@ import edu.cuit.client.dto.query.condition.UnqualifiedUserConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.eva.EvaConfigEntity;
 import edu.cuit.domain.gateway.eva.EvaConfigGateway;
-import edu.cuit.domain.gateway.eva.EvaQueryGateway;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -31,7 +31,7 @@ import static org.mockito.Mockito.*;
 class EvaStatisticsServiceImplTest {
 
     @Mock
-    private EvaQueryGateway evaQueryGateway;
+    private EvaStatisticsQueryPort evaStatisticsQueryPort;
 
     @Mock
     private PaginationBizConvertor paginationBizConvertor;
@@ -47,12 +47,12 @@ class EvaStatisticsServiceImplTest {
         when(evaConfigGateway.getMinEvaNum()).thenReturn(3);
         when(evaConfigGateway.getMinBeEvaNum()).thenReturn(5);
         PastTimeEvaDetailCO detail = new PastTimeEvaDetailCO();
-        when(evaQueryGateway.getEvaData(1, 7, 3, 5)).thenReturn(Optional.of(detail));
+        when(evaStatisticsQueryPort.getEvaData(1, 7, 3, 5)).thenReturn(Optional.of(detail));
 
         PastTimeEvaDetailCO result = service.getEvaData(1, 7);
 
         assertSame(detail, result);
-        verify(evaQueryGateway).getEvaData(1, 7, 3, 5);
+        verify(evaStatisticsQueryPort).getEvaData(1, 7, 3, 5);
     }
 
     @Test
@@ -70,13 +70,13 @@ class EvaStatisticsServiceImplTest {
         page.setRecords(List.of(new UnqualifiedUserInfoCO()));
 
         PaginationQueryResultCO<UnqualifiedUserInfoCO> expected = new PaginationQueryResultCO<>();
-        when(evaQueryGateway.pageEvaUnqualifiedUserInfo(1, query, 4)).thenReturn(page);
+        when(evaStatisticsQueryPort.pageEvaUnqualifiedUserInfo(1, query, 4)).thenReturn(page);
         when(paginationBizConvertor.toPaginationEntity(page, page.getRecords())).thenReturn(expected);
 
         PaginationQueryResultCO<UnqualifiedUserInfoCO> result = service.pageUnqualifiedUser(1, 0, query);
 
         assertSame(expected, result);
-        verify(evaQueryGateway).pageEvaUnqualifiedUserInfo(1, query, 4);
+        verify(evaStatisticsQueryPort).pageEvaUnqualifiedUserInfo(1, query, 4);
     }
 
     @Test
@@ -94,13 +94,13 @@ class EvaStatisticsServiceImplTest {
         page.setRecords(List.of(new UnqualifiedUserInfoCO()));
 
         PaginationQueryResultCO<UnqualifiedUserInfoCO> expected = new PaginationQueryResultCO<>();
-        when(evaQueryGateway.pageBeEvaUnqualifiedUserInfo(1, query, 6)).thenReturn(page);
+        when(evaStatisticsQueryPort.pageBeEvaUnqualifiedUserInfo(1, query, 6)).thenReturn(page);
         when(paginationBizConvertor.toPaginationEntity(page, page.getRecords())).thenReturn(expected);
 
         PaginationQueryResultCO<UnqualifiedUserInfoCO> result = service.pageUnqualifiedUser(1, 1, query);
 
         assertSame(expected, result);
-        verify(evaQueryGateway).pageBeEvaUnqualifiedUserInfo(1, query, 6);
+        verify(evaStatisticsQueryPort).pageBeEvaUnqualifiedUserInfo(1, query, 6);
     }
 
     @Test
@@ -119,7 +119,7 @@ class EvaStatisticsServiceImplTest {
         config.setMinEvaNum(3);
         config.setMinBeEvaNum(5);
         when(evaConfigGateway.getEvaConfig()).thenReturn(config);
-        when(evaQueryGateway.getEvaTargetAmountUnqualifiedUser(1, 5, 3)).thenReturn(Optional.empty());
+        when(evaStatisticsQueryPort.getEvaTargetAmountUnqualifiedUser(1, 5, 3)).thenReturn(Optional.empty());
 
         UnqualifiedUserResultCO result = service.getTargetAmountUnqualifiedUser(1, 0, 5);
 
@@ -136,12 +136,12 @@ class EvaStatisticsServiceImplTest {
         config.setMinBeEvaNum(5);
         when(evaConfigGateway.getEvaConfig()).thenReturn(config);
         UnqualifiedUserResultCO expected = new UnqualifiedUserResultCO();
-        when(evaQueryGateway.getBeEvaTargetAmountUnqualifiedUser(1, 2, 5)).thenReturn(Optional.of(expected));
+        when(evaStatisticsQueryPort.getBeEvaTargetAmountUnqualifiedUser(1, 2, 5)).thenReturn(Optional.of(expected));
 
         UnqualifiedUserResultCO result = service.getTargetAmountUnqualifiedUser(1, 1, 2);
 
         assertSame(expected, result);
-        verify(evaQueryGateway).getBeEvaTargetAmountUnqualifiedUser(1, 2, 5);
+        verify(evaStatisticsQueryPort).getBeEvaTargetAmountUnqualifiedUser(1, 2, 5);
     }
 
     @Test

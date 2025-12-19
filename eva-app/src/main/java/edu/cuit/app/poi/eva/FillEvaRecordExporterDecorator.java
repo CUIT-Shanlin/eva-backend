@@ -75,7 +75,7 @@ public class FillEvaRecordExporterDecorator extends EvaStatisticsExporter{
             Row courseFirstRow = getOrCreateRow(rowIndex);
 
 
-            List<EvaRecordEntity> courseRecordList = evaQueryGateway.getRecordByCourse(course.getCourseBaseMsg().getId());
+            List<EvaRecordEntity> courseRecordList = evaStatisticsQueryPort.getRecordByCourse(course.getCourseBaseMsg().getId());
 
             if (courseRecordList.isEmpty()) continue;
 
@@ -108,7 +108,7 @@ public class FillEvaRecordExporterDecorator extends EvaStatisticsExporter{
                     propsRow.setHeight((short) (((textLength / (columnWidth*4)) + 1) * (propsRow.getHeight() / 2)));
                 }
 
-                Double score = evaQueryGateway.getScoreByProp(courseRecord.getFormPropsValues()).orElseThrow(() -> {
+                Double score = evaStatisticsQueryPort.getScoreByProp(courseRecord.getFormPropsValues()).orElseThrow(() -> {
                     SysException e = new SysException("导出失败，请联系管理员");
                     log.error("发生系统异常", e);
                     return e;
