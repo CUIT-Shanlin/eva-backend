@@ -511,7 +511,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 3) ✅ **课程读侧渐进收敛**：为 `CourseQueryGatewayImpl` 引入 `QueryPort/QueryRepo`（先结构化，再考虑 CQRS 投影表；落地提交：`ba8f2003`）。
 4) ✅ **评教读侧渐进收敛**：为 `EvaQueryGatewayImpl` 抽取 `EvaQueryRepo`，gateway 退化为委托壳（保持统计口径与异常文案不变；落地提交：`02f4167d`）。
 5) **评教读侧进一步解耦**：按用例维度拆分 QueryService（任务/记录/统计/模板），将 query 端口逐步迁到 `bc-evaluation` 应用层，`eva-infra` 仅保留实现（行为不变）。  
-   - 进展：已拆分统计/导出查询端口 `EvaStatisticsQueryPort` 与任务查询端口 `EvaTaskQueryPort`，应用层开始迁移，行为保持不变。
+   - 进展：已拆分统计/导出、任务、记录、模板查询端口（`EvaStatisticsQueryPort` / `EvaTaskQueryPort` / `EvaRecordQueryPort` / `EvaTemplateQueryPort`），应用层开始迁移，行为保持不变。
 
 ---
 
@@ -529,6 +529,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - `evaluation`：评教读侧已结构化（`EvaQueryGatewayImpl` 退化委托壳 + `EvaQueryRepo` 抽取；落地提交：`02f4167d`）。
 - `evaluation`：评教读侧进一步解耦第一步（统计/导出查询端口 `EvaStatisticsQueryPort` 已从网关拆分并迁移应用层，行为保持不变）。
 - `evaluation`：评教读侧进一步解耦补充（任务查询端口 `EvaTaskQueryPort` 已拆分并迁移应用层，行为保持不变）。
+- `evaluation`：评教读侧进一步解耦扩展（记录/模板查询端口 `EvaRecordQueryPort` / `EvaTemplateQueryPort` 已拆分并迁移应用层，行为保持不变）。
 - 评教读侧用例级回归测试已补充（固化统计口径；落地提交：`a48cf044`）。
 - `start`：回归测试稳定化（去除本地文件/外部服务依赖；落地提交：`daf343ef`）。
 - 冲突校验底层片段已收敛：
