@@ -1,41 +1,40 @@
 package edu.cuit.app.resolver;
 
+import com.alibaba.cola.exception.BizException;
 import edu.cuit.app.poi.course.CourseExcelResolver;
-import edu.cuit.client.bo.CourseExcelBO;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.util.List;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 public class CourseResolverTest {
 
     @Test
-    public void testExpResolve() {
-        File file = new File("D:\\Programming\\Java\\Projects\\evaluate-system\\2024-2025第一学期课表06周发布(实验课).xlsx");
-        try {
-            List<CourseExcelBO> courseExcelBOS = CourseExcelResolver.resolveData(CourseExcelResolver.Strategy.EXPERIMENTAL_COURSE,
-                    new BufferedInputStream(new FileInputStream(file)));
-            List<CourseExcelBO> courses = courseExcelBOS.stream()
-                    .toList();
-            for (CourseExcelBO cours : courses) {
-                System.out.println(cours);
-            }
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+    public void testExpResolve_invalidFormat_shouldThrow() throws IOException {
+        ByteArrayInputStream inputStream = buildEmptyWorkbook();
+        BizException ex = org.junit.jupiter.api.Assertions.assertThrows(BizException.class, () ->
+                CourseExcelResolver.resolveData(CourseExcelResolver.Strategy.EXPERIMENTAL_COURSE, inputStream)
+        );
+        org.junit.jupiter.api.Assertions.assertEquals("实验课程表格格式有误", ex.getMessage());
     }
 
     @Test
-    public void testTheoryResolve() throws FileNotFoundException {
-        File file = new File("D:\\Programming\\Java\\Projects\\evaluate-system\\2023-2024-2学期教师课表.xlsx");
-        List<CourseExcelBO> courseExcelBOS = CourseExcelResolver.resolveData(CourseExcelResolver.Strategy.THEORY_COURSE,
-                new BufferedInputStream(new FileInputStream(file))).stream()
-                .toList();
-        for (CourseExcelBO courseExcelBO : courseExcelBOS) {
-            System.out.println(courseExcelBO.getStartTime() + "-" + courseExcelBO.getEndTime() + " " + courseExcelBO.getWeeks());
+    public void testTheoryResolve_invalidFormat_shouldThrow() throws IOException {
+        ByteArrayInputStream inputStream = buildEmptyWorkbook();
+        BizException ex = org.junit.jupiter.api.Assertions.assertThrows(BizException.class, () ->
+                CourseExcelResolver.resolveData(CourseExcelResolver.Strategy.THEORY_COURSE, inputStream)
+        );
+        org.junit.jupiter.api.Assertions.assertEquals("理论课程表格格式有误", ex.getMessage());
+    }
+
+    private ByteArrayInputStream buildEmptyWorkbook() throws IOException {
+        try (XSSFWorkbook workbook = new XSSFWorkbook();
+             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            workbook.createSheet("sheet1");
+            workbook.write(outputStream);
+            return new ByteArrayInputStream(outputStream.toByteArray());
         }
     }
 
