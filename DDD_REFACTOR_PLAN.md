@@ -526,6 +526,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - `course`：课程读侧已结构化（`CourseQueryGatewayImpl` 退化委托壳 + `CourseQueryRepo` 抽取；落地提交：`ba8f2003`）。
 - `evaluation`：评教读侧已结构化（`EvaQueryGatewayImpl` 退化委托壳 + `EvaQueryRepo` 抽取；落地提交：`02f4167d`）。
 - 评教读侧用例级回归测试已补充（固化统计口径；落地提交：`a48cf044`）。
+- `start`：回归测试稳定化（去除本地文件/外部服务依赖；落地提交：`daf343ef`）。
 - 冲突校验底层片段已收敛：
   - 教室占用冲突：`ClassroomOccupancyChecker`
   - 时间段重叠：`CourInfTimeOverlapQuery`

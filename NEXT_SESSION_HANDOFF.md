@@ -13,6 +13,7 @@
 - ✅ 课程读侧渐进收敛：为 `CourseQueryGatewayImpl` 引入 QueryRepo（gateway 退化委托壳，行为不变）。
 - ✅ 评教读侧渐进收敛：为 `EvaQueryGatewayImpl` 引入 `EvaQueryRepo`（gateway 退化委托壳，行为不变）。
 - ✅ 评教读侧用例级回归测试：固化统计口径（`EvaStatisticsServiceImpl` / `EvaRecordServiceImpl`）。
+- ✅ 测试稳定化：将依赖本地文件/外部服务的 `start` 测试改为内存回归用例，移除 Spring 上下文依赖。
 - 新增提交（按时间顺序）：
   - `8e434fe1 feat(bc-evaluation): 增加评教任务发布用例骨架`
   - `ca69b131 feat(eva-infra): 实现评教任务发布端口适配器`
@@ -25,6 +26,7 @@
   - `ba8f2003 refactor(eva-infra): 课程读侧抽取QueryRepo`
   - `02f4167d refactor(eva-infra): 评教读侧抽取QueryRepo`
   - `a48cf044 test(eva-app): 补充评教读侧用例级回归`
+  - `daf343ef test(start): 稳定化回归用例并去除外部依赖`
 
 ## 0. 本轮会话增量总结（2025-12-18，更新至 `HEAD`，以 `git log -n 1` 为准）
 
