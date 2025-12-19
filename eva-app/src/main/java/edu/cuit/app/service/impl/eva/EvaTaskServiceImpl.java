@@ -2,12 +2,15 @@ package edu.cuit.app.service.impl.eva;
 import cn.dev33.satoken.stp.StpUtil;
 import com.alibaba.cola.exception.BizException;
 import com.alibaba.cola.exception.SysException;
+import edu.cuit.bc.evaluation.application.model.PostEvaTaskCommand;
+import edu.cuit.bc.evaluation.application.usecase.PostEvaTaskUseCase;
+import edu.cuit.bc.evaluation.domain.PostEvaTaskQueryException;
+import edu.cuit.bc.evaluation.domain.PostEvaTaskUpdateException;
 import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.PaginationBizConvertor;
 import edu.cuit.app.convertor.eva.EvaTaskBizConvertor;
 import edu.cuit.app.service.impl.MsgServiceImpl;
 import edu.cuit.client.api.eva.IEvaTaskService;
-import edu.cuit.client.bo.MessageBO;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskBaseInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskDetailInfoCO;
@@ -24,6 +27,7 @@ import edu.cuit.domain.gateway.eva.EvaQueryGateway;
 import edu.cuit.domain.gateway.eva.EvaUpdateGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
+import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -45,6 +49,7 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
     private final EvaTaskBizConvertor evaTaskBizConvertor;
     private final PaginationBizConvertor paginationBizConvertor;
     private final MsgServiceImpl msgService;
+    private final PostEvaTaskUseCase postEvaTaskUseCase;
     @Override
     @CheckSemId
     public PaginationQueryResultCO<EvaTaskBaseInfoCO> pageEvaUnfinishedTask(Integer semId, PagingQuery<EvaTaskConditionalQuery> query) {
@@ -80,11 +85,13 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
     @Transactional
     public Void postEvaTask(NewEvaTaskCmd newEvaTaskCmd) {
         Integer maxTaskNum= evaConfigGateway.getMaxBeEvaNum();
-        Integer taskId=evaUpdateGateway.postEvaTask(newEvaTaskCmd,maxTaskNum);
-        msgService.sendMessage(new MessageBO().setMsg("")
-                .setMode(1).setIsShowName(1)
-                .setRecipientId(newEvaTaskCmd.getTeacherId()).setSenderId(newEvaTaskCmd.getTeacherId())
-                .setType(0).setTaskId(taskId));
+        try {
+            postEvaTaskUseCase.post(new PostEvaTaskCommand(newEvaTaskCmd.getCourInfId(), newEvaTaskCmd.getTeacherId()), maxTaskNum);
+        } catch (PostEvaTaskUpdateException e) {
+            throw new UpdateException(e.getMessage());
+        } catch (PostEvaTaskQueryException e) {
+            throw new QueryException(e.getMessage());
+        }
         return null;
     }
 

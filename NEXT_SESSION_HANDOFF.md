@@ -542,11 +542,11 @@
      - 改课/自助改课/分配评教：替换时间段重叠 QueryWrapper（异常文案保持不变）
    - 已清理：`CourseUpdateGatewayImpl` 遗留私有逻辑（防止旧 gateway 回潮承载业务流程）
 
-10) **下一步推荐：收敛评教写侧主链路（`EvaUpdateGatewayImpl.postEvaTask`）**
-   - 背景：评教任务发布属于高价值写流程（跨表 + 可能联动消息/缓存/日志），是下一阶段事件化与模块化的关键入口。
+10) ✅ **已完成：收敛评教写侧主链路（`EvaUpdateGatewayImpl.postEvaTask`）**
    - 目标：按“用例 + 端口 + 旧 gateway 委托壳”的标准步骤，把写侧流程收敛到 `bc-evaluation`（行为不变）。
-   - 进展（进行中）：已在 `bc-evaluation` 新增 `PostEvaTaskUseCase` + `PostEvaTaskRepository` + `EvaluationTaskPostedEvent` 并补齐纯单测。
-   - 进展（进行中）：已在 `eva-infra` 实现 `PostEvaTaskRepositoryImpl`，并将 `EvaUpdateGatewayImpl.postEvaTask` 退化为委托壳（异常文案/类型保持不变）。
+   - 用例与端口：`bc-evaluation` 新增 `PostEvaTaskUseCase` + `PostEvaTaskRepository` + `EvaluationTaskPostedEvent`，并补齐纯单测。
+   - infra 端口实现：`eva-infra` 新增 `PostEvaTaskRepositoryImpl`，旧 `EvaUpdateGatewayImpl.postEvaTask` 退化为委托壳（异常文案/类型保持不变）。
+   - 应用层入口：`EvaTaskServiceImpl.postEvaTask` 改为调用用例；“待办评教消息发送”改为监听 `EvaluationTaskPostedEvent` 并在事务提交后发送（避免回滚误推）。
 
 11) **事件载荷逐步语义化（中长期）**
    - 当前为了行为不变，事件仍携带 `Map<String, Map<Integer,Integer>>` 作为过渡载荷；

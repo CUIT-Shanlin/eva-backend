@@ -1,7 +1,9 @@
 package edu.cuit.app.config;
 
 import edu.cuit.bc.evaluation.application.port.DomainEventPublisher;
+import edu.cuit.bc.evaluation.application.port.PostEvaTaskRepository;
 import edu.cuit.bc.evaluation.application.port.SubmitEvaluationRepository;
+import edu.cuit.bc.evaluation.application.usecase.PostEvaTaskUseCase;
 import edu.cuit.bc.evaluation.application.usecase.SubmitEvaluationUseCase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,5 +22,12 @@ public class BcEvaluationConfiguration {
     ) {
         return new SubmitEvaluationUseCase(repository, eventPublisher);
     }
-}
 
+    @Bean
+    public PostEvaTaskUseCase postEvaTaskUseCase(
+            PostEvaTaskRepository repository,
+            DomainEventPublisher eventPublisher
+    ) {
+        return new PostEvaTaskUseCase(repository, eventPublisher);
+    }
+}
