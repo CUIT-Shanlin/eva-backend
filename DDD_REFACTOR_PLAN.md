@@ -517,6 +517,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 > 说明：本节用于让新会话快速判断“已经落地到哪里”，避免重复劳动；详细提交清单以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 - `bc-evaluation`：提交评教写侧已收敛（提交评教后消息清理等副作用事件化，事务提交后触发）。
+- `bc-evaluation`：评教任务发布写侧收敛（进行中：已新增 `PostEvaTaskUseCase/PostEvaTaskRepository/EvaluationTaskPostedEvent`，待接入应用层入口与基础设施端口实现）。
 - `bc-template`：课程模板锁定校验已落地（已评教则禁止切换模板）。
 - `bc-messaging`：课程操作副作用（通知/撤回评教消息）已事件化并统一在提交后处理。
 - `bc-course`：多条课程写链路已收敛（导入课表、改课/自助课表、删课、课程类型、课次新增等），旧 gateway 逐步退化为委托壳。
