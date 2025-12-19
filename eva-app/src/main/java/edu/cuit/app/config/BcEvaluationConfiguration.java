@@ -1,8 +1,12 @@
 package edu.cuit.app.config;
 
 import edu.cuit.bc.evaluation.application.port.DomainEventPublisher;
+import edu.cuit.bc.evaluation.application.port.DeleteEvaRecordRepository;
+import edu.cuit.bc.evaluation.application.port.DeleteEvaTemplateRepository;
 import edu.cuit.bc.evaluation.application.port.PostEvaTaskRepository;
 import edu.cuit.bc.evaluation.application.port.SubmitEvaluationRepository;
+import edu.cuit.bc.evaluation.application.usecase.DeleteEvaRecordUseCase;
+import edu.cuit.bc.evaluation.application.usecase.DeleteEvaTemplateUseCase;
 import edu.cuit.bc.evaluation.application.usecase.PostEvaTaskUseCase;
 import edu.cuit.bc.evaluation.application.usecase.SubmitEvaluationUseCase;
 import org.springframework.context.annotation.Bean;
@@ -29,5 +33,15 @@ public class BcEvaluationConfiguration {
             DomainEventPublisher eventPublisher
     ) {
         return new PostEvaTaskUseCase(repository, eventPublisher);
+    }
+
+    @Bean
+    public DeleteEvaRecordUseCase deleteEvaRecordUseCase(DeleteEvaRecordRepository repository) {
+        return new DeleteEvaRecordUseCase(repository);
+    }
+
+    @Bean
+    public DeleteEvaTemplateUseCase deleteEvaTemplateUseCase(DeleteEvaTemplateRepository repository) {
+        return new DeleteEvaTemplateUseCase(repository);
     }
 }

@@ -3,7 +3,10 @@ package edu.cuit.app.service.impl.eva;
 import com.alibaba.cola.exception.SysException;
 import edu.cuit.bc.evaluation.application.model.FormPropValue;
 import edu.cuit.bc.evaluation.application.model.SubmitEvaluationCommand;
+import edu.cuit.bc.evaluation.application.usecase.DeleteEvaRecordUseCase;
 import edu.cuit.bc.evaluation.application.usecase.SubmitEvaluationUseCase;
+import edu.cuit.bc.evaluation.domain.DeleteEvaRecordQueryException;
+import edu.cuit.bc.evaluation.domain.DeleteEvaRecordUpdateException;
 import edu.cuit.bc.evaluation.domain.SubmitEvaluationException;
 import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.PaginationBizConvertor;
@@ -16,8 +19,8 @@ import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.EvaLogConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.eva.EvaRecordEntity;
-import edu.cuit.domain.gateway.eva.EvaDeleteGateway;
 import edu.cuit.domain.gateway.eva.EvaQueryGateway;
+import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,11 +32,11 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class EvaRecordServiceImpl implements IEvaRecordService {
-    private final EvaDeleteGateway evaDeleteGateway;
     private final EvaQueryGateway evaQueryGateway;
     private final EvaRecordBizConvertor evaRecordBizConvertor;
     private final PaginationBizConvertor paginationBizConvertor;
     private final SubmitEvaluationUseCase submitEvaluationUseCase;
+    private final DeleteEvaRecordUseCase deleteEvaRecordUseCase;
     @Override
     @CheckSemId
     public PaginationQueryResultCO<EvaRecordCO> pageEvaRecord(Integer semId, PagingQuery<EvaLogConditionalQuery> query) {
@@ -51,13 +54,25 @@ public class EvaRecordServiceImpl implements IEvaRecordService {
     public Void deleteOneEvaLogById(Integer id) {
         List<Integer> list=new ArrayList<>();
         list.add(id);
-        evaDeleteGateway.deleteEvaRecord(list);
+        try {
+            deleteEvaRecordUseCase.delete(list);
+        } catch (DeleteEvaRecordQueryException e) {
+            throw new QueryException(e.getMessage());
+        } catch (DeleteEvaRecordUpdateException e) {
+            throw new UpdateException(e.getMessage());
+        }
         return null;
     }
 
     @Override
     public Void deleteEvaLogsById(List<Integer> ids) {
-        evaDeleteGateway.deleteEvaRecord(ids);
+        try {
+            deleteEvaRecordUseCase.delete(ids);
+        } catch (DeleteEvaRecordQueryException e) {
+            throw new QueryException(e.getMessage());
+        } catch (DeleteEvaRecordUpdateException e) {
+            throw new UpdateException(e.getMessage());
+        }
         return null;
     }
     //记得完成评教任务之后，

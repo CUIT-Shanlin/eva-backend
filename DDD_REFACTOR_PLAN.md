@@ -518,7 +518,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 - `bc-evaluation`：提交评教写侧已收敛（提交评教后消息清理等副作用事件化，事务提交后触发）。
 - `bc-evaluation`：评教任务发布写侧已收敛（用例 + 端口 + `eva-infra` 端口适配器 + 提交后消息事件；落地提交：`8e434fe1/ca69b131/e9043f96`）。
-- `bc-evaluation`：评教删除写侧收敛（进行中：已新增 `DeleteEvaRecordUseCase/DeleteEvaTemplateUseCase` 与端口/异常，`eva-infra` 端口适配器已落地，待应用层入口改造）。
+- `bc-evaluation`：评教删除写侧收敛（进行中：`bc-evaluation` 用例 + `eva-infra` 端口适配器 + 应用层入口已接入，待离线验证并沉淀提交号）。
 - `bc-template`：课程模板锁定校验已落地（已评教则禁止切换模板）。
 - `bc-messaging`：课程操作副作用（通知/撤回评教消息）已事件化并统一在提交后处理。
 - `bc-course`：多条课程写链路已收敛（导入课表、改课/自助课表、删课、课程类型、课次新增等），旧 gateway 逐步退化为委托壳。

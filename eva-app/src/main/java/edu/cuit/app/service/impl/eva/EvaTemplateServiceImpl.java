@@ -2,6 +2,9 @@ package edu.cuit.app.service.impl.eva;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.cola.exception.SysException;
+import edu.cuit.bc.evaluation.application.usecase.DeleteEvaTemplateUseCase;
+import edu.cuit.bc.evaluation.domain.DeleteEvaTemplateQueryException;
+import edu.cuit.bc.evaluation.domain.DeleteEvaTemplateUpdateException;
 import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.PaginationBizConvertor;
 import edu.cuit.app.convertor.eva.EvaTemplateBizConvertor;
@@ -15,10 +18,10 @@ import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.eva.EvaTemplateEntity;
-import edu.cuit.domain.gateway.eva.EvaDeleteGateway;
 import edu.cuit.domain.gateway.eva.EvaQueryGateway;
 import edu.cuit.domain.gateway.eva.EvaUpdateGateway;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
+import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,15 +29,14 @@ import java.text.ParseException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class EvaTemplateServiceImpl implements IEvaTemplateService {
-    private final EvaDeleteGateway evaDeleteGateway;
     private final EvaUpdateGateway evaUpdateGateway;
     private final EvaQueryGateway evaQueryGateway;
     private final PaginationBizConvertor paginationBizConvertor;
+    private final DeleteEvaTemplateUseCase deleteEvaTemplateUseCase;
     @Override
     @CheckSemId
     public PaginationQueryResultCO<EvaTemplateCO> pageEvaTemplate(Integer semId, PagingQuery<GenericConditionalQuery> query) {
@@ -83,13 +85,25 @@ public class EvaTemplateServiceImpl implements IEvaTemplateService {
     public Void deleteEvaTemplateById(Integer templateId) {
         List<Integer> list=new ArrayList<>();
         list.add(templateId);
-        evaDeleteGateway.deleteEvaTemplate(list);
+        try {
+            deleteEvaTemplateUseCase.delete(list);
+        } catch (DeleteEvaTemplateQueryException e) {
+            throw new QueryException(e.getMessage());
+        } catch (DeleteEvaTemplateUpdateException e) {
+            throw new UpdateException(e.getMessage());
+        }
         return null;
     }
     //该评教模板没有分配在课程中才可以进行删除或修改！在gateway里面实现
     @Override
     public Void deleteEvaTemplatesById(List<Integer> ids) {
-        evaDeleteGateway.deleteEvaTemplate(ids);
+        try {
+            deleteEvaTemplateUseCase.delete(ids);
+        } catch (DeleteEvaTemplateQueryException e) {
+            throw new QueryException(e.getMessage());
+        } catch (DeleteEvaTemplateUpdateException e) {
+            throw new UpdateException(e.getMessage());
+        }
         return null;
     }
 
