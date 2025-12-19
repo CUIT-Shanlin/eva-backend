@@ -535,6 +535,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - `evaluation`：修正统计查询端口 DTO 包名，确保编译通过。
 - `evaluation`：修正统计查询端口实现 DTO 包名，确保基础设施模块编译通过。
 - `evaluation`：旧 `EvaQueryGatewayImpl` 进一步收敛，委托到细分 QueryPort，避免直接依赖 QueryRepo。
+- 验证：最小回归用例 `EvaRecordServiceImplTest` / `EvaStatisticsServiceImplTest` 已通过（离线）。
 - 评教读侧用例级回归测试已补充（固化统计口径；落地提交：`a48cf044`）。
 - `start`：回归测试稳定化（去除本地文件/外部服务依赖；落地提交：`daf343ef`）。
 - 冲突校验底层片段已收敛：
