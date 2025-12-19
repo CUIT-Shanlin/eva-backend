@@ -530,6 +530,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - `evaluation`：评教读侧进一步解耦第一步（统计/导出查询端口 `EvaStatisticsQueryPort` 已从网关拆分并迁移应用层，行为保持不变）。
 - `evaluation`：评教读侧进一步解耦补充（任务查询端口 `EvaTaskQueryPort` 已拆分并迁移应用层，行为保持不变）。
 - `evaluation`：评教读侧进一步解耦扩展（记录/模板查询端口 `EvaRecordQueryPort` / `EvaTemplateQueryPort` 已拆分并迁移应用层，行为保持不变）。
+- `evaluation`：补齐 `bc-evaluation` 对 `eva-client` / `eva-domain` 的依赖，保障 QueryPort 编译通过。
 - 评教读侧用例级回归测试已补充（固化统计口径；落地提交：`a48cf044`）。
 - `start`：回归测试稳定化（去除本地文件/外部服务依赖；落地提交：`daf343ef`）。
 - 冲突校验底层片段已收敛：

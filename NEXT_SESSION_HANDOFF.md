@@ -17,6 +17,7 @@
 - ✅ 评教读侧进一步解耦（统计/导出）：新增 `EvaStatisticsQueryPort`，应用层统计与导出查询改走端口；`eva-infra` 端口实现委托 `EvaQueryRepo`，行为保持不变。
 - ✅ 评教读侧进一步解耦（任务查询）：新增 `EvaTaskQueryPort`，应用层任务查询改走端口；`eva-infra` 端口实现委托 `EvaQueryRepo`，行为保持不变。
 - ✅ 评教读侧进一步解耦（记录/模板查询）：新增 `EvaRecordQueryPort` / `EvaTemplateQueryPort`，应用层记录与模板查询改走端口；统计导出补齐 `getCountAbEva` 统一由 `EvaStatisticsQueryPort` 提供，行为保持不变。
+- ✅ `bc-evaluation` 补齐 `eva-client`/`eva-domain` 依赖，解决新 QueryPort 编译缺失问题。
 - 新增提交（按时间顺序）：
   - `8e434fe1 feat(bc-evaluation): 增加评教任务发布用例骨架`
   - `ca69b131 feat(eva-infra): 实现评教任务发布端口适配器`
@@ -35,6 +36,7 @@
   - `bb391698 refactor(evaluation): 拆分统计查询端口`
   - `570fecb6 refactor(evaluation): 拆分评教任务查询端口`
   - `ec5191a3 refactor(evaluation): 拆分评教记录与模板查询端口`
+  - `6029a56e chore(bc-evaluation): 补齐查询端口依赖`
 
 ## 0. 本轮会话增量总结（2025-12-18，更新至 `HEAD`，以 `git log -n 1` 为准）
 
