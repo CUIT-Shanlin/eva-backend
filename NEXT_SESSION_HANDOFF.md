@@ -22,10 +22,8 @@
 - ✅ 修正 `EvaStatisticsQueryPort` 中 DTO 包名（`PastTimeEvaDetailCO` / `ScoreRangeCourseCO`）以通过编译。
 - ✅ 修正 `EvaStatisticsQueryPortImpl` 中 DTO 包名，确保 `eva-infra` 编译通过。
 - ✅ 旧 `EvaQueryGatewayImpl` 进一步收敛为 QueryPort 委托（任务/记录/模板/统计），避免直接依赖 `EvaQueryRepo`。
-- ✅ 最小回归已通过：`mvn -o -pl start -am test -q -Dtest=EvaRecordServiceImplTest,EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
-- ✅ 本次会话最小回归已再次通过（同上命令）。
+- ✅ 最小回归已通过并完成复验（同上命令）。
 - ✅ 旧 `EvaQueryGateway` / `EvaQueryGatewayImpl` 已移除（应用层已完全切换到 QueryPort）。
- - ✅ 最小回归再次通过（旧网关移除后复验）：`mvn -o -pl start -am test -q -Dtest=EvaRecordServiceImplTest,EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
 - 新增提交（按时间顺序）：
   - `8e434fe1 feat(bc-evaluation): 增加评教任务发布用例骨架`
   - `ca69b131 feat(eva-infra): 实现评教任务发布端口适配器`
@@ -49,8 +47,12 @@
   - `198746fc fix(bc-evaluation): 修正统计查询端口DTO包名`
   - `cf493ef2 fix(eva-infra): 修正统计查询端口实现DTO包名`
   - `3e5da427 refactor(evaluation): 旧EvaQueryGateway委托到细分端口`
+  - `c0d0b31a docs: 更新交接与Backlog（旧网关收敛）`
+  - `9ab6512d docs: 更新回归结果`
   - `5c74083e refactor(evaluation): 移除旧EvaQueryGateway`
   - `49b80e0f docs: 更新交接与计划书（旧网关移除）`
+  - `dd5245ed docs: 更新交接提交清单`
+  - `35fb9e69 docs: 更新最小回归与规则`
 
 ## 0. 本轮会话增量总结（2025-12-18，更新至 `HEAD`，以 `git log -n 1` 为准）
 
@@ -623,3 +625,11 @@
    - 未完成清单（下一步）：继续按用例维度细化 QueryService（任务/记录/模板），并考虑逐步收敛/拆分 `EvaQueryRepo` 内部实现（保持统计口径不变）。
    - 规则补充：下一会话**每个步骤结束**都需跑最小回归用例并记录结果。
    - 约束：每个小步完成后都执行 `mvn -pl start -am test -Dmaven.repo.local=.m2/repository` 并据失败补强回归。
+
+16) **当前未收敛清单（供下个会话优先处理）**
+   - 评教写侧：`EvaUpdateGatewayImpl.updateEvaTemplate` / `addEvaTemplate` 仍在旧 gateway（模板新增/修改写流程未收敛到 `bc-evaluation`）。
+   - 评教提交：`EvaUpdateGatewayImpl.putEvaTemplate` 旧实现仍保留（虽已引入 `SubmitEvaluationUseCase`，但旧逻辑尚未迁移/清理）。
+   - 消息域：`MsgGatewayImpl` 仍为 CRUD 入口，尚未完全收敛到 `bc-messaging`。
+   - 课程域：`CourseUpdateGatewayImpl.isImported` 仍保留在旧 gateway（偏查询/校验）。
+   - IAM 域：`UserUpdateGatewayImpl.assignRole/createUser` 等仍未 BC 化。
+   - AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`。

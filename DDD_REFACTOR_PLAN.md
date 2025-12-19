@@ -513,6 +513,16 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 5) **评教读侧进一步解耦**：按用例维度拆分 QueryService（任务/记录/统计/模板），将 query 端口逐步迁到 `bc-evaluation` 应用层，`eva-infra` 仅保留实现（行为不变）。  
    - 进展：已拆分统计/导出、任务、记录、模板查询端口（`EvaStatisticsQueryPort` / `EvaTaskQueryPort` / `EvaRecordQueryPort` / `EvaTemplateQueryPort`），应用层开始迁移，行为保持不变；旧 `EvaQueryGatewayImpl` 已移除。
 
+### 10.3 未完成清单（滚动，供下一会话排期）
+
+- 评教写侧：`EvaUpdateGatewayImpl.updateEvaTemplate` / `addEvaTemplate` 仍在旧 gateway（模板新增/修改写流程未收敛到 `bc-evaluation`）。
+- 评教提交：`EvaUpdateGatewayImpl.putEvaTemplate` 旧实现仍保留（虽已引入 `SubmitEvaluationUseCase`，但旧逻辑尚未迁移/清理）。
+- 消息域：`MsgGatewayImpl` 仍为 CRUD 入口，尚未完全收敛到 `bc-messaging`。
+- 课程域：`CourseUpdateGatewayImpl.isImported` 仍保留在旧 gateway（偏查询/校验）。
+- IAM 域：`UserUpdateGatewayImpl.assignRole/createUser` 等仍未 BC 化。
+- AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`。
+- 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分。
+
 ---
 
 ## 11. 当前已落地里程碑（滚动）

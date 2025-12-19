@@ -123,6 +123,20 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 ---
 
+### 4.3 未收敛清单（滚动）
+
+> 说明：以下是仍在旧 gateway/技术切片中的能力，优先级按“写侧优先 + 影响范围”排序。
+
+1) 评教写侧：`EvaUpdateGatewayImpl.updateEvaTemplate` / `addEvaTemplate`（模板新增/修改）  
+2) 评教提交：`EvaUpdateGatewayImpl.putEvaTemplate`（旧实现仍保留，待迁移/清理）  
+3) 消息域：`MsgGatewayImpl` 仍为 CRUD 入口，未完全收敛到 `bc-messaging`  
+4) 课程域：`CourseUpdateGatewayImpl.isImported`（查询/校验仍在旧 gateway）  
+5) IAM 域：`UserUpdateGatewayImpl.assignRole/createUser` 等  
+6) AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`  
+7) 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分（保持统计口径不变）
+
+---
+
 ## 5. 候选目标（按模块/文件归类）
 
 > 注意：以下“LOC”是粗略估算，主要用于优先级排序，不作为验收依据。
