@@ -23,7 +23,9 @@
 - ✅ 修正 `EvaStatisticsQueryPortImpl` 中 DTO 包名，确保 `eva-infra` 编译通过。
 - ✅ 旧 `EvaQueryGatewayImpl` 进一步收敛为 QueryPort 委托（任务/记录/模板/统计），避免直接依赖 `EvaQueryRepo`。
 - ✅ 最小回归已通过：`mvn -o -pl start -am test -q -Dtest=EvaRecordServiceImplTest,EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
+- ✅ 本次会话最小回归已再次通过（同上命令）。
 - ✅ 旧 `EvaQueryGateway` / `EvaQueryGatewayImpl` 已移除（应用层已完全切换到 QueryPort）。
+ - ✅ 最小回归再次通过（旧网关移除后复验）：`mvn -o -pl start -am test -q -Dtest=EvaRecordServiceImplTest,EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
 - 新增提交（按时间顺序）：
   - `8e434fe1 feat(bc-evaluation): 增加评教任务发布用例骨架`
   - `ca69b131 feat(eva-infra): 实现评教任务发布端口适配器`
@@ -58,6 +60,9 @@
 - ✅ 只做重构：收敛调用链、抽离端口/用例、让旧 gateway 退化委托壳、事件化副作用；
 - ✅ 行为不变：API 不变、异常类型/异常文案不变、消息文案与副作用时机（事务提交后）不变；
 - ❌ 不做任何业务逻辑优化/语义调整（即便看到明显 bug/命名不佳，也先不动）。
+
+**新增规则（给下一个会话）**
+- ✅ 每个步骤结束必须跑最小回归用例（`EvaRecordServiceImplTest` / `EvaStatisticsServiceImplTest`）。
 
 1) **课表导入/覆盖用例收敛到 bc-course（闭环 E）**  
    - 背景：历史实现中 `IUserCourseServiceImpl.importCourse()` 既做导入又做消息通知/撤回评教消息，属于典型“大泥球联动”。
@@ -616,4 +621,5 @@
    - 进展：已完成“统计/导出、任务、记录、模板”查询端口拆分（`EvaStatisticsQueryPort` / `EvaTaskQueryPort` / `EvaRecordQueryPort` / `EvaTemplateQueryPort`），应用层相关查询改走新端口。
    - 进展补充：旧 `EvaQueryGatewayImpl` 已移除，应用层已完全切换到细分 QueryPort。
    - 未完成清单（下一步）：继续按用例维度细化 QueryService（任务/记录/模板），并考虑逐步收敛/拆分 `EvaQueryRepo` 内部实现（保持统计口径不变）。
+   - 规则补充：下一会话**每个步骤结束**都需跑最小回归用例并记录结果。
    - 约束：每个小步完成后都执行 `mvn -pl start -am test -Dmaven.repo.local=.m2/repository` 并据失败补强回归。
