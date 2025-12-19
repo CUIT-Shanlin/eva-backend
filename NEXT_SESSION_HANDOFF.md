@@ -12,6 +12,7 @@
 - ✅ 评教删除写侧收敛到 `bc-evaluation`（删除评教记录/模板两条写链路；旧 gateway 退化委托壳；行为不变）。
 - ✅ 课程读侧渐进收敛：为 `CourseQueryGatewayImpl` 引入 QueryRepo（gateway 退化委托壳，行为不变）。
 - ✅ 评教读侧渐进收敛：为 `EvaQueryGatewayImpl` 引入 `EvaQueryRepo`（gateway 退化委托壳，行为不变）。
+- ✅ 评教读侧用例级回归测试：固化统计口径（`EvaStatisticsServiceImpl` / `EvaRecordServiceImpl`）。
 - 新增提交（按时间顺序）：
   - `8e434fe1 feat(bc-evaluation): 增加评教任务发布用例骨架`
   - `ca69b131 feat(eva-infra): 实现评教任务发布端口适配器`
@@ -23,6 +24,7 @@
   - `76a89b78 docs: 更新交接与计划书（评教删除收敛）`
   - `ba8f2003 refactor(eva-infra): 课程读侧抽取QueryRepo`
   - `02f4167d refactor(eva-infra): 评教读侧抽取QueryRepo`
+  - `a48cf044 test(eva-app): 补充评教读侧用例级回归`
 
 ## 0. 本轮会话增量总结（2025-12-18，更新至 `HEAD`，以 `git log -n 1` 为准）
 
@@ -585,3 +587,7 @@
 14) ✅ **已完成：评教读侧渐进收敛（`EvaQueryGatewayImpl`）**
    - 背景：评教读侧统计/分页/聚合仍大量集中在 `EvaQueryGatewayImpl`，是下一阶段“结构化读模型”的高收益目标。
    - 落地：抽取 `EvaQueryRepo`/`EvaQueryRepository`，`EvaQueryGatewayImpl` 退化为委托壳（保持统计口径与异常文案不变）。
+
+15) **下一步推荐：评教读侧进一步解耦（保持行为不变）**
+   - 目标：按用例维度拆分读侧 QueryService（任务/记录/统计/模板），降低单类复杂度。
+   - 做法：把 `EvaQueryRepo` 拆成更小的 query 端口（先放在 `bc-evaluation` 应用层），`eva-infra` 继续做实现；`EvaQueryGatewayImpl` 仍只做委托壳。

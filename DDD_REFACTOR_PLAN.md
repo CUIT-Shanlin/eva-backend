@@ -509,6 +509,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 2) ✅ **评教删除写侧收敛**：把 `EvaDeleteGatewayImpl.deleteEvaRecord/deleteEvaTemplate` 收敛到 `bc-evaluation`（行为不变；落地提交：`ea928055/07b65663/05900142`）。
 3) ✅ **课程读侧渐进收敛**：为 `CourseQueryGatewayImpl` 引入 `QueryPort/QueryRepo`（先结构化，再考虑 CQRS 投影表；落地提交：`ba8f2003`）。
 4) ✅ **评教读侧渐进收敛**：为 `EvaQueryGatewayImpl` 抽取 `EvaQueryRepo`，gateway 退化为委托壳（保持统计口径与异常文案不变；落地提交：`02f4167d`）。
+5) **评教读侧进一步解耦**：按用例维度拆分 QueryService（任务/记录/统计/模板），将 query 端口逐步迁到 `bc-evaluation` 应用层，`eva-infra` 仅保留实现（行为不变）。
 
 ---
 
@@ -524,6 +525,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - `bc-course`：多条课程写链路已收敛（导入课表、改课/自助课表、删课、课程类型、课次新增等），旧 gateway 逐步退化为委托壳。
 - `course`：课程读侧已结构化（`CourseQueryGatewayImpl` 退化委托壳 + `CourseQueryRepo` 抽取；落地提交：`ba8f2003`）。
 - `evaluation`：评教读侧已结构化（`EvaQueryGatewayImpl` 退化委托壳 + `EvaQueryRepo` 抽取；落地提交：`02f4167d`）。
+- 评教读侧用例级回归测试已补充（固化统计口径；落地提交：`a48cf044`）。
 - 冲突校验底层片段已收敛：
   - 教室占用冲突：`ClassroomOccupancyChecker`
   - 时间段重叠：`CourInfTimeOverlapQuery`
