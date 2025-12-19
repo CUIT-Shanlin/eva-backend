@@ -21,6 +21,8 @@
 - ✅ `bc-evaluation` 内部依赖补齐版本号（`eva-client`/`eva-domain`），修复 Maven 构建缺失版本报错。
 - ✅ 修正 `EvaStatisticsQueryPort` 中 DTO 包名（`PastTimeEvaDetailCO` / `ScoreRangeCourseCO`）以通过编译。
 - ✅ 修正 `EvaStatisticsQueryPortImpl` 中 DTO 包名，确保 `eva-infra` 编译通过。
+- ✅ 旧 `EvaQueryGatewayImpl` 进一步收敛为 QueryPort 委托（任务/记录/模板/统计），避免直接依赖 `EvaQueryRepo`。
+- ⚠️ 本次“旧网关委托化”后未重新跑测试（上次通过的是端口拆分阶段的指定用例）。
 - 新增提交（按时间顺序）：
   - `8e434fe1 feat(bc-evaluation): 增加评教任务发布用例骨架`
   - `ca69b131 feat(eva-infra): 实现评教任务发布端口适配器`
@@ -43,6 +45,7 @@
   - `9efe7b12 chore(bc-evaluation): 补齐内部依赖版本`
   - `198746fc fix(bc-evaluation): 修正统计查询端口DTO包名`
   - `cf493ef2 fix(eva-infra): 修正统计查询端口实现DTO包名`
+  - `3e5da427 refactor(evaluation): 旧EvaQueryGateway委托到细分端口`
 
 ## 0. 本轮会话增量总结（2025-12-18，更新至 `HEAD`，以 `git log -n 1` 为准）
 
@@ -608,6 +611,7 @@
 
 15) **下一步推荐：评教读侧进一步解耦（保持行为不变）**
    - 进展：已完成“统计/导出、任务、记录、模板”查询端口拆分（`EvaStatisticsQueryPort` / `EvaTaskQueryPort` / `EvaRecordQueryPort` / `EvaTemplateQueryPort`），应用层相关查询改走新端口。
+   - 进展补充：旧 `EvaQueryGatewayImpl` 已改为委托到细分端口，当前应用层已基本不再直接依赖旧 gateway。
    - 目标：继续按用例维度拆分读侧 QueryService（任务/记录/模板），降低单类复杂度。
    - 做法：把 `EvaQueryRepo` 拆成更小的 query 端口（先放在 `bc-evaluation` 应用层），`eva-infra` 继续做实现；`EvaQueryGatewayImpl` 仍只做委托壳。
    - 约束：每个小步完成后都执行 `mvn -pl start -am test -Dmaven.repo.local=.m2/repository` 并据失败补强回归。
