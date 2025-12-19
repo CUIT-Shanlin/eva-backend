@@ -11,6 +11,7 @@
 - ✅ 评教任务发布写侧收敛到 `bc-evaluation`（用例 + 端口 + 旧 gateway 委托壳），并将“待办消息发送”改为事务提交后事件触发，避免回滚误推。
 - ✅ 评教删除写侧收敛到 `bc-evaluation`（删除评教记录/模板两条写链路；旧 gateway 退化委托壳；行为不变）。
 - ✅ 课程读侧渐进收敛：为 `CourseQueryGatewayImpl` 引入 QueryRepo（gateway 退化委托壳，行为不变）。
+- ✅ 评教读侧渐进收敛：为 `EvaQueryGatewayImpl` 引入 `EvaQueryRepo`（gateway 退化委托壳，行为不变）。
 - 新增提交（按时间顺序）：
   - `8e434fe1 feat(bc-evaluation): 增加评教任务发布用例骨架`
   - `ca69b131 feat(eva-infra): 实现评教任务发布端口适配器`
@@ -21,6 +22,7 @@
   - `cc9af9ad docs: 更新交接与计划书（评教任务发布收敛）`
   - `76a89b78 docs: 更新交接与计划书（评教删除收敛）`
   - `ba8f2003 refactor(eva-infra): 课程读侧抽取QueryRepo`
+  - `待填 refactor(eva-infra): 评教读侧抽取QueryRepo`
 
 ## 0. 本轮会话增量总结（2025-12-18，更新至 `HEAD`，以 `git log -n 1` 为准）
 
@@ -580,6 +582,6 @@
    - 目标：按“先结构化 QueryRepo，再谈 CQRS 投影表”的策略，抽离查询仓储并让 gateway 退化为委托壳（行为不变）。
    - 落地：新增 `CourseQueryRepo/CourseQueryRepository`，旧 `CourseQueryGatewayImpl` 退化为委托壳（提交：`ba8f2003`）。
 
-14) **下一步推荐：评教读侧渐进收敛（`EvaQueryGatewayImpl`）**
+14) ✅ **已完成：评教读侧渐进收敛（`EvaQueryGatewayImpl`）**
    - 背景：评教读侧统计/分页/聚合仍大量集中在 `EvaQueryGatewayImpl`，是下一阶段“结构化读模型”的高收益目标。
-   - 目标：先抽 `QueryRepo`（或按统计维度拆 QueryService），保持统计口径与异常文案不变；后续再考虑投影表/预聚合。
+   - 落地：抽取 `EvaQueryRepo`/`EvaQueryRepository`，`EvaQueryGatewayImpl` 退化为委托壳（保持统计口径与异常文案不变）。
