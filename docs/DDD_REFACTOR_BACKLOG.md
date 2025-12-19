@@ -3,7 +3,7 @@ title: DDD 渐进式重构目标清单与行为框架
 repo: eva-backend
 branch: ddd
 generated_at: 2025-12-18
-updated_at: 2025-12-18
+updated_at: 2025-12-19
 scope: 全仓库（离线扫描 + 规则归纳）
 ---
 
@@ -101,6 +101,13 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
+**已完成（2025-12-19）**
+- 评教写侧收敛（保持行为不变）：
+  - 评教任务发布：`EvaUpdateGatewayImpl.postEvaTask` 收敛到 `bc-evaluation`（落地提交：`8e434fe1/ca69b131/e9043f96`）。
+  - 评教删除：`EvaDeleteGatewayImpl.deleteEvaRecord/deleteEvaTemplate` 收敛到 `bc-evaluation`（落地提交：`ea928055/07b65663/05900142`）。
+- 课程读侧收敛（保持行为不变）：
+  - `CourseQueryGatewayImpl` 退化委托壳 + 抽取 `CourseQueryRepo/CourseQueryRepository`（落地提交：`ba8f2003`）。
+
 **已完成（2025-12-18）**
 - 冲突校验收敛（保持行为不变）：
   - 教室占用冲突：提炼 `ClassroomOccupancyChecker` 并在“新增课次 / 新建课程明细 / 自助改课”等端口适配器复用（异常文案与 SQL 条件保持不变）。
@@ -125,14 +132,15 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 #### B) `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseQueryGatewayImpl.java`
 
-读侧尚未收敛（大量 query/组装逻辑仍在 gateway）：
-- `toCourseTime`（~86 LOC，含 DB/Mapper）：课程时间组装与映射（可后置，避免过早 CQRS）。
-- `getPeriodCourse`（~64 LOC）：周期课程/课表视图组装（建议后续拆为 QueryPort/ReadModel）。
-- `findEvaScore`（~56 LOC，含 DB/Mapper）：课程评教分数统计（与评教域耦合，后续可考虑走 `bc-evaluation` 的 read side）。
-- `getCourseInfo/page/getCourseList/getPeriodInfo/toGetCourseTime/getUserCourseDetail/getSelfCourseInfo/pageCourseType/getWeekCourses` 等（30~51 LOC 级别）。
+✅ 已收敛（先结构化 QueryRepo，行为不变）：
+- `CourseQueryGatewayImpl` 已退化为委托壳（读侧入口不变）。
+- 复杂查询/组装逻辑已抽取到：
+  - `eva-infra/src/main/java/edu/cuit/infra/bccourse/query/CourseQueryRepo.java`
+  - `eva-infra/src/main/java/edu/cuit/infra/bccourse/query/CourseQueryRepository.java`
+- 落地提交：`ba8f2003`
 
 建议策略：
-- 先继续写侧（Command）收敛；读侧（Query）可以在写侧稳定后再逐步抽 `QueryPort`。
+- 后续如需继续优化：可按“查询主题”拆 QueryService（例如：课表视图/评教统计/移动端周期课表），或再引入 CQRS 投影表（后置）。
 
 ---
 
@@ -141,15 +149,15 @@ scope: 全仓库（离线扫描 + 规则归纳）
 #### A) `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/eva/EvaUpdateGatewayImpl.java`
 
 写侧高价值目标（体积大、跨表）：
-- `postEvaTask`（~145 LOC，含 DB/Mapper）：发布评教任务（高优先级，跨任务/消息/记录/缓存）。
+- ✅ `postEvaTask`（~145 LOC，含 DB/Mapper）：发布评教任务已收敛到 `bc-evaluation`（落地提交：`8e434fe1/ca69b131/e9043f96`）。
 - `putEvaTemplate`（~47 LOC，含 DB/Mapper）：提交评教（注意：提交评教的主链路已在 `bc-evaluation` 有用例，需核对该 gateway 仍承担的内容）。
 - `updateEvaTemplate`（~24 LOC，含 DB/Mapper）：模板修改（可能涉及锁定规则，需确保“锁定”行为不变）。
 
 #### B) `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/eva/EvaDeleteGatewayImpl.java`
 
 删改写侧目标：
-- `deleteEvaRecord`（~57 LOC，含 DB/Mapper）
-- `deleteEvaTemplate`（~33 LOC，含 DB/Mapper）
+- ✅ `deleteEvaRecord`（~57 LOC，含 DB/Mapper）已收敛到 `bc-evaluation`（落地提交：`ea928055/07b65663/05900142`）。
+- ✅ `deleteEvaTemplate`（~33 LOC，含 DB/Mapper）已收敛到 `bc-evaluation`（落地提交：`ea928055/07b65663/05900142`）。
 
 #### C) `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/eva/EvaQueryGatewayImpl.java`
 
@@ -211,11 +219,9 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 如果继续按“写侧优先”的策略推进，下一批候选（高 → 低）建议是：
 
-1) `EvaUpdateGatewayImpl.postEvaTask`（评教任务发布，跨多表/缓存/消息联动，高优先级）  
-2) `EvaDeleteGatewayImpl.deleteEvaRecord/deleteEvaTemplate`（写侧删除链路，含联动与缓存/日志）  
-3) 课程读侧：`CourseQueryGatewayImpl`（先抽 `QueryPort` 再谈 CQRS/投影表，避免过早优化）  
-4) 评教读侧：`EvaQueryGatewayImpl`（统计/分页/聚合，后置但收益大）  
-5) `MsgGatewayImpl`（若要继续事件化副作用，可逐步委托化到 `bc-messaging`）  
+1) 评教读侧：`EvaQueryGatewayImpl`（统计/分页/聚合，后置但收益大；建议先抽 QueryRepo/QueryService，保持口径不变）  
+2) 消息域：`MsgGatewayImpl`（若要继续事件化副作用，可逐步委托化到 `bc-messaging`）  
+3) 课程读侧（后置）：在已完成 QueryRepo 结构化基础上，按“课表视图/评教统计/移动端周期课表”等主题进一步拆 QueryService 或引入投影表  
 
 ---
 
