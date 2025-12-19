@@ -9,10 +9,15 @@
 ## 0.1 本次会话增量总结（2025-12-19，更新至 `HEAD`）
 
 - ✅ 评教任务发布写侧收敛到 `bc-evaluation`（用例 + 端口 + 旧 gateway 委托壳），并将“待办消息发送”改为事务提交后事件触发，避免回滚误推。
+- ✅ 评教删除写侧收敛到 `bc-evaluation`（删除评教记录/模板两条写链路；旧 gateway 退化委托壳；行为不变）。
 - 新增提交（按时间顺序）：
   - `8e434fe1 feat(bc-evaluation): 增加评教任务发布用例骨架`
   - `ca69b131 feat(eva-infra): 实现评教任务发布端口适配器`
   - `e9043f96 refactor(eva-app): 评教任务发布收敛到bc-evaluation`
+  - `ea928055 feat(bc-evaluation): 增加评教删除用例骨架`
+  - `07b65663 feat(eva-infra): 实现评教删除端口适配器`
+  - `05900142 refactor(eva-app): 评教删除写侧收敛到bc-evaluation`
+  - `cc9af9ad docs: 更新交接与计划书（评教任务发布收敛）`
 
 ## 0. 本轮会话增量总结（2025-12-18，更新至 `HEAD`，以 `git log -n 1` 为准）
 
@@ -560,9 +565,9 @@
    - 当前为了行为不变，事件仍携带 `Map<String, Map<Integer,Integer>>` 作为过渡载荷；
    - 后续可逐步替换为更明确的字段（广播文案、撤回任务列表等），并为 MQ + Outbox 做准备（先不做优化，等收敛完成后再演进）。
 
-12) **下一步推荐：收敛评教删除写侧（`EvaDeleteGatewayImpl.deleteEvaRecord/deleteEvaTemplate`）**
+12) ✅ **已完成：收敛评教删除写侧（`EvaDeleteGatewayImpl.deleteEvaRecord/deleteEvaTemplate`）**
    - 背景：删除评教记录/模板涉及跨表校验、快照清理与缓存失效，是评教域写侧的重要入口。
    - 目标：按“用例 + 端口 + 旧 gateway 委托壳”的标准步骤，把写侧流程收敛到 `bc-evaluation`（行为不变）。
-   - 进展（进行中）：已在 `bc-evaluation` 新增 `DeleteEvaRecordUseCase/DeleteEvaTemplateUseCase` 与对应端口/异常，并补齐纯单测。
-   - 进展（进行中）：已在 `eva-infra` 实现 `DeleteEvaRecordRepositoryImpl/DeleteEvaTemplateRepositoryImpl`，并将旧 `EvaDeleteGatewayImpl` 两个方法退化为委托壳（异常文案/类型保持不变）。
-   - 进展（进行中）：`eva-app` 的 `EvaRecordServiceImpl/EvaTemplateServiceImpl` 已改为调用 `bc-evaluation` 用例，并将异常映射回历史 `QueryException/UpdateException`（保持行为不变）。
+   - 用例与端口：`bc-evaluation` 新增 `DeleteEvaRecordUseCase/DeleteEvaTemplateUseCase` 与端口/异常，并补齐纯单测（提交：`ea928055`）。
+   - infra 端口实现：`eva-infra` 新增 `DeleteEvaRecordRepositoryImpl/DeleteEvaTemplateRepositoryImpl`，旧 `EvaDeleteGatewayImpl` 两个方法退化为委托壳（提交：`07b65663`）。
+   - 应用层入口：`eva-app` 的 `EvaRecordServiceImpl/EvaTemplateServiceImpl` 改为调用用例，并将异常映射回历史 `QueryException/UpdateException`（提交：`05900142`）。
