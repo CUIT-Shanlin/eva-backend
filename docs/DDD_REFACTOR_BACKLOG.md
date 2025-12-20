@@ -145,7 +145,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：以下是仍在旧 gateway/技术切片中的能力，优先级按“写侧优先 + 影响范围”排序。
 
-1) IAM 写侧：`UserUpdateGatewayImpl.updateInfo/updateStatus/deleteUser` 仍在旧 gateway（含 LDAP/缓存/日志等副作用，保持行为不变；其中 `updateInfo` 已新增用例骨架 + 端口 + 纯单测，待接入）  
+1) IAM 写侧：`UserUpdateGatewayImpl.updateInfo/updateStatus/deleteUser` 仍在旧 gateway（含 LDAP/缓存/日志等副作用，保持行为不变；其中 `updateInfo` 已新增用例骨架 + 端口 + 纯单测，并落地 `eva-infra` 端口适配器，待接入）  
 2) AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`  
 3) 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分（保持统计口径不变）
 
