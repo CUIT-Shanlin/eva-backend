@@ -1,6 +1,5 @@
 package edu.cuit.infra.gateway.impl.course;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.cuit.client.bo.CourseExcelBO;
 import edu.cuit.client.dto.clientobject.SemesterCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
@@ -10,8 +9,6 @@ import edu.cuit.client.dto.cmd.course.*;
 import edu.cuit.client.dto.data.Term;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.domain.gateway.course.CourseUpdateGateway;
-import edu.cuit.infra.dal.database.dataobject.course.*;
-import edu.cuit.infra.dal.database.mapper.course.*;
 import edu.cuit.bc.course.application.model.ChangeCourseTemplateCommand;
 import edu.cuit.bc.course.application.usecase.ChangeCourseTemplateUseCase;
 import edu.cuit.bc.course.domain.ChangeCourseTemplateException;
@@ -21,6 +18,7 @@ import edu.cuit.bc.course.domain.AssignEvaTeachersException;
 import edu.cuit.bc.course.application.model.ImportCourseFileCommand;
 import edu.cuit.bc.course.application.usecase.ImportCourseFileUseCase;
 import edu.cuit.bc.course.domain.ImportCourseFileException;
+import edu.cuit.bc.course.application.usecase.IsCourseImportedUseCase;
 import edu.cuit.bc.course.application.model.UpdateCourseInfoCommand;
 import edu.cuit.bc.course.application.usecase.UpdateCourseInfoUseCase;
 import edu.cuit.bc.course.domain.UpdateCourseInfoException;
@@ -50,9 +48,6 @@ import java.util.*;
 @Component
 @RequiredArgsConstructor
 public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
-    private final SemesterMapper semesterMapper;
-    private final CourseMapper courseMapper;
-    private final SubjectMapper subjectMapper;
     private final ChangeCourseTemplateUseCase changeCourseTemplateUseCase;
     private final AssignEvaTeachersUseCase assignEvaTeachersUseCase;
     private final UpdateSingleCourseUseCase updateSingleCourseUseCase;
@@ -64,6 +59,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     private final AddCourseTypeUseCase addCourseTypeUseCase;
     private final AddNotExistCoursesDetailsUseCase addNotExistCoursesDetailsUseCase;
     private final AddExistCoursesDetailsUseCase addExistCoursesDetailsUseCase;
+    private final IsCourseImportedUseCase isCourseImportedUseCase;
 
 
     /**
@@ -198,20 +194,8 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
 
     @Override
     public Boolean isImported(Integer type, Term term) {
-   /*     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate date = LocalDate.parse(term.getStartDate(), formatter);*/
-        SemesterDO semesterDO = semesterMapper.selectOne(new QueryWrapper<SemesterDO>().eq("period", term.getPeriod()).eq("start_year", term.getStartYear()).eq("end_year", term.getEndYear()));
-        if(semesterDO==null)return false;
-        List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semesterDO.getId()));
-        if(courseDOS.isEmpty())return false;
-        List<Integer> list = courseDOS.stream().map(CourseDO::getSubjectId).toList();
-        List<SubjectDO> subjectDOS = subjectMapper.selectList(new QueryWrapper<SubjectDO>().in(!list.isEmpty(),"id",list ));
-        for (SubjectDO subjectDO : subjectDOS) {
-            if(subjectDO.getNature().equals(type)){
-                return true;
-            }
-        }
-        return false;
+        // 历史路径：收敛到 bc-course Query 用例，旧 gateway 退化为委托壳（保持行为不变）
+        return isCourseImportedUseCase.execute(type, term);
     }
 
     @Override

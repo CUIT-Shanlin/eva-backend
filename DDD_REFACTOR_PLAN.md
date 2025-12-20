@@ -515,7 +515,6 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 ### 10.3 未完成清单（滚动，供下一会话排期）
 
-- 课程域：`CourseUpdateGatewayImpl.isImported` 收敛进行中（已新增 `bc-course` QueryPort/UseCase 骨架，并补齐 `eva-infra` 端口适配器与组合根装配；落地提交：见本次提交）。
 - IAM 域：`UserUpdateGatewayImpl.assignRole/createUser` 等仍未 BC 化。
 - AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`。
 - 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分。
@@ -537,6 +536,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - `bc-messaging`：消息展示状态写侧已收敛（`updateMsgDisplay`：用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；落地提交：见本次提交）。
 - `eva-infra`：旧 `MsgGatewayImpl` 已全量退化为委托壳（CRUD 能力全部委托到 `bc-messaging`，行为不变）。
 - `bc-course`：多条课程写链路已收敛（导入课表、改课/自助课表、删课、课程类型、课次新增等），旧 gateway 逐步退化为委托壳。
+- `bc-course`：课程导入状态查询 `CourseUpdateGatewayImpl.isImported` 已收敛（QueryPort + 用例 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；落地提交：见本次提交）。
 - `course`：课程读侧已结构化（`CourseQueryGatewayImpl` 退化委托壳 + `CourseQueryRepo` 抽取；落地提交：`ba8f2003`）。
 - `evaluation`：评教读侧已结构化（`EvaQueryGatewayImpl` 退化委托壳 + `EvaQueryRepo` 抽取；落地提交：`02f4167d`）。
 - `evaluation`：评教读侧进一步解耦第一步（统计/导出查询端口 `EvaStatisticsQueryPort` 已从网关拆分并迁移应用层，行为保持不变）。

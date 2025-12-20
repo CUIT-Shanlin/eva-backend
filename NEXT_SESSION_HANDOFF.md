@@ -23,8 +23,8 @@
   - 落地提交：见本次提交（更新至 `HEAD`）
 - ✅ 最小回归已通过（Java17）：
   - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
-- ⏳ 课程域查询/校验进一步收敛：开始收敛 `CourseUpdateGatewayImpl.isImported`（保持行为不变）。
-  - 进展：已在 `bc-course` 新增 QueryPort + UseCase 骨架，并补齐纯单测；并新增 `eva-infra` 端口适配器与 `eva-app` 组合根装配（落地提交：见本次提交，更新至 `HEAD`）。
+- ✅ 课程域查询/校验进一步收敛：`CourseUpdateGatewayImpl.isImported` 收敛到 `bc-course`（保持行为不变）。
+  - 落地：`bc-course` 新增 QueryPort + UseCase；`eva-infra` 新增端口适配器原样搬运旧查询逻辑；旧 `CourseUpdateGatewayImpl.isImported` 退化为委托壳（落地提交：见本次提交，更新至 `HEAD`）。
 
 ## 0.1 本次会话增量总结（2025-12-19，更新至 `HEAD`）
 
@@ -647,13 +647,12 @@
    - 约束：每个小步完成后都执行 `mvn -pl start -am test -Dmaven.repo.local=.m2/repository` 并据失败补强回归。
 
 16) **当前未收敛清单（供下个会话优先处理）**
-   - 课程域：`CourseUpdateGatewayImpl.isImported` 仍保留在旧 gateway（偏查询/校验）。
    - IAM 域：`UserUpdateGatewayImpl.assignRole/createUser` 等仍未 BC 化。
    - AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`。
 
-17) **下一会话推荐重构任务：课程域 `CourseUpdateGatewayImpl.isImported`（保持行为不变）**
-   - 背景：该方法属于“查询/校验仍在旧 gateway”的残留入口之一，可作为下一阶段收敛目标（优先级低于写侧，但利于清理旧 gateway 职责）。
-   - 建议做法：按“Query 用例 + QueryPort + `eva-infra` 端口适配器 + 旧 gateway 委托壳”的套路推进（保持异常文案与边界语义不变）。
+17) **下一会话推荐重构任务：IAM 域 `UserUpdateGatewayImpl.assignRole/createUser`（保持行为不变）**
+   - 背景：用户/角色分配属于典型 IAM 写侧入口，目前仍在旧 gateway + mapper 中，适合作为下一批“写侧优先”收敛目标。
+   - 建议做法：按“用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳”的套路推进（保持异常文案与边界语义不变）。
    - 行为不变约束（必须保持）：
      - 过滤规则与边界值不变（`type/mode/num` 的 `null 或 <0` 语义保持不变；排序仍按 `create_time desc`）。
      - 权限校验与异常文案不变：仍为“只能修改自己的消息”。
