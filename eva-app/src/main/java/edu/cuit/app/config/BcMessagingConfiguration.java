@@ -3,12 +3,14 @@ package edu.cuit.app.config;
 import edu.cuit.bc.messaging.application.port.CourseBroadcastPort;
 import edu.cuit.bc.messaging.application.port.EvaMessageCleanupPort;
 import edu.cuit.bc.messaging.application.port.MessageDeletionPort;
+import edu.cuit.bc.messaging.application.port.MessageQueryPort;
 import edu.cuit.bc.messaging.application.port.MessageReadPort;
 import edu.cuit.bc.messaging.application.port.TeacherTaskMessagePort;
 import edu.cuit.bc.messaging.application.usecase.DeleteMessageUseCase;
 import edu.cuit.bc.messaging.application.usecase.HandleCourseOperationSideEffectsUseCase;
 import edu.cuit.bc.messaging.application.usecase.HandleCourseTeacherTaskMessagesUseCase;
 import edu.cuit.bc.messaging.application.usecase.MarkMessageReadUseCase;
+import edu.cuit.bc.messaging.application.usecase.QueryMessageUseCase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -40,5 +42,10 @@ public class BcMessagingConfiguration {
     @Bean
     public MarkMessageReadUseCase markMessageReadUseCase(MessageReadPort readPort) {
         return new MarkMessageReadUseCase(readPort);
+    }
+
+    @Bean
+    public QueryMessageUseCase queryMessageUseCase(MessageQueryPort queryPort) {
+        return new QueryMessageUseCase(queryPort);
     }
 }

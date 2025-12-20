@@ -108,6 +108,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - 消息域写侧阶段性收敛（保持行为不变）：
   - 消息删除：收敛到 `bc-messaging`（落地提交：`22cb60eb`）。
   - 消息已读：收敛到 `bc-messaging`（落地提交：`dd7483aa`）。
+- 消息域读侧进一步收敛（保持行为不变）：
+  - 消息查询：`queryMsg/queryTargetAmountMsg` 收敛到 `bc-messaging`（落地提交：见本次提交）。
 
 **已完成（2025-12-19）**
 - 评教写侧收敛（保持行为不变）：
@@ -135,7 +137,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：以下是仍在旧 gateway/技术切片中的能力，优先级按“写侧优先 + 影响范围”排序。
 
-1) 消息域：`MsgGatewayImpl` 仍为 CRUD 入口（其中删除/已读写侧已收敛到 `bc-messaging`，剩余 `query/insert/display` 待继续收敛）  
+1) 消息域：`MsgGatewayImpl` 仍为 CRUD 入口（其中删除/已读写侧、查询读侧已收敛到 `bc-messaging`，剩余 `insert/display` 待继续收敛）  
 2) 课程域：`CourseUpdateGatewayImpl.isImported`（查询/校验仍在旧 gateway）  
 3) IAM 域：`UserUpdateGatewayImpl.assignRole/createUser` 等  
 4) AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`  
@@ -212,7 +214,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 建议策略：
 - 若后续要继续做“跨域副作用事件化”，可逐步把消息发送/撤回/查询统一收敛到 `bc-messaging` 的端口与用例，旧 gateway 委托化。
-- 进展：删除/已读写侧已收敛到 `bc-messaging`（落地提交：`22cb60eb/dd7483aa`），剩余 `query/insert/display` 可作为下一阶段目标。
+- 进展：删除/已读写侧已收敛到 `bc-messaging`（落地提交：`22cb60eb/dd7483aa`），查询读侧 `queryMsg/queryTargetAmountMsg` 已收敛到 `bc-messaging`（落地提交：见本次提交），剩余 `insert/display` 可作为下一阶段目标。
 
 ---
 

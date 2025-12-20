@@ -1,15 +1,14 @@
 package edu.cuit.infra.gateway.impl;
 
 import com.alibaba.cola.exception.BizException;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import edu.cuit.bc.messaging.application.usecase.DeleteMessageUseCase;
 import edu.cuit.bc.messaging.application.usecase.MarkMessageReadUseCase;
+import edu.cuit.bc.messaging.application.usecase.QueryMessageUseCase;
 import edu.cuit.client.dto.data.msg.GenericRequestMsg;
 import edu.cuit.domain.entity.MsgEntity;
 import edu.cuit.domain.gateway.MsgGateway;
-import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.infra.convertor.MsgConvertor;
 import edu.cuit.infra.dal.database.dataobject.MsgTipDO;
 import edu.cuit.infra.dal.database.mapper.MsgTipMapper;
@@ -26,36 +25,22 @@ public class MsgGatewayImpl implements MsgGateway {
 
     private final MsgTipMapper msgTipMapper;
 
-    private final UserQueryGateway userQueryGateway;
-
     private final MsgConvertor msgConvertor;
 
     private final DeleteMessageUseCase deleteMessageUseCase;
 
     private final MarkMessageReadUseCase markMessageReadUseCase;
 
+    private final QueryMessageUseCase queryMessageUseCase;
+
     @Override
     public List<MsgEntity> queryMsg(Integer userId, Integer type, Integer mode) {
-        LambdaQueryWrapper<MsgTipDO> msgQuery = Wrappers.lambdaQuery();
-        msgQuery.eq(MsgTipDO::getRecipientId,userId);
-        if (type != null && type >= 0) msgQuery.eq(MsgTipDO::getType,type);
-        if (mode != null && mode >= 0) msgQuery.eq(MsgTipDO::getMode,mode);
-        msgQuery.orderByDesc(MsgTipDO::getCreateTime);
-        return msgTipMapper.selectList(msgQuery).stream()
-                .map(this::getMsgEntity)
-                .toList();
+        return queryMessageUseCase.queryMsg(userId, type, mode);
     }
 
     @Override
     public List<MsgEntity> queryTargetAmountMsg(Integer userId, Integer num, Integer type) {
-        LambdaQueryWrapper<MsgTipDO> msgQuery = Wrappers.lambdaQuery();
-        msgQuery.eq(MsgTipDO::getRecipientId,userId);
-        if (type != null && type >= 0) msgQuery.eq(MsgTipDO::getType,type);
-        if (num != null && num >= 0) msgQuery.last("limit " + num);
-        msgQuery.orderByDesc(MsgTipDO::getCreateTime);
-        return msgTipMapper.selectList(msgQuery).stream()
-                .map(this::getMsgEntity)
-                .toList();
+        return queryMessageUseCase.queryTargetAmountMsg(userId, num, type);
     }
 
     @Override
@@ -103,14 +88,4 @@ public class MsgGatewayImpl implements MsgGateway {
         }
     }
 
-    private MsgEntity getMsgEntity(MsgTipDO msgTipDO) {
-        return msgConvertor.toMsgEntity(msgTipDO,
-                () -> {
-                    if (msgTipDO.getSenderId() == null || msgTipDO.getSenderId() < 0) {
-                        return null;
-                    }
-                    return userQueryGateway.findById(msgTipDO.getSenderId()).orElseThrow(() -> new BizException("发送者id不存在"));
-                },
-                () -> userQueryGateway.findById(msgTipDO.getRecipientId()).orElseThrow(() -> new BizException("接受者id不存在")));
-    }
 }

@@ -20,6 +20,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>eva-domain</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
@@ -31,4 +36,3 @@
         </dependency>
     </dependencies>
 </project>
-
