@@ -2,11 +2,11 @@ package edu.cuit.infra.gateway.impl.user;
 
 import com.alibaba.cola.exception.BizException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import edu.cuit.bc.iam.application.usecase.AssignRoleUseCase;
 import edu.cuit.bc.iam.application.usecase.CreateUserUseCase;
 import edu.cuit.bc.iam.application.usecase.UpdateUserInfoUseCase;
+import edu.cuit.bc.iam.application.usecase.UpdateUserStatusUseCase;
 import edu.cuit.client.dto.cmd.user.NewUserCmd;
 import edu.cuit.client.dto.cmd.user.UpdateUserCmd;
 import edu.cuit.domain.gateway.user.LdapPersonGateway;
@@ -51,6 +51,7 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
     private final AssignRoleUseCase assignRoleUseCase;
     private final CreateUserUseCase createUserUseCase;
     private final UpdateUserInfoUseCase updateUserInfoUseCase;
+    private final UpdateUserStatusUseCase updateUserStatusUseCase;
 
     @Override
     public void updateInfo(UpdateUserCmd cmd) {
@@ -60,15 +61,8 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
 
     @Override
     public void updateStatus(Integer userId, Integer status) {
-        SysUserDO tmp = checkIdExistence(userId);
-        checkAdmin(userId);
-        LambdaUpdateWrapper<SysUserDO> userUpdate = Wrappers.lambdaUpdate();
-        userUpdate.set(SysUserDO::getStatus,status).eq(SysUserDO::getId,userId);
-        userMapper.update(userUpdate);
-
-        handleUserUpdateCache(userId);
-
-        LogUtils.logContent(tmp.getName() + " 用户(id:" + tmp.getId() + ")的状态为 " + status);
+        // 历史路径：收敛到 bc-iam 用例，旧 gateway 退化为委托壳（保持行为不变）
+        updateUserStatusUseCase.execute(userId, status);
     }
 
     @Override
