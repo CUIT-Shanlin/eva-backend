@@ -4,18 +4,17 @@ import com.alibaba.cola.exception.BizException;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import edu.cuit.bc.messaging.application.usecase.DeleteMessageUseCase;
+import edu.cuit.bc.messaging.application.usecase.InsertMessageUseCase;
 import edu.cuit.bc.messaging.application.usecase.MarkMessageReadUseCase;
 import edu.cuit.bc.messaging.application.usecase.QueryMessageUseCase;
 import edu.cuit.client.dto.data.msg.GenericRequestMsg;
 import edu.cuit.domain.entity.MsgEntity;
 import edu.cuit.domain.gateway.MsgGateway;
-import edu.cuit.infra.convertor.MsgConvertor;
 import edu.cuit.infra.dal.database.dataobject.MsgTipDO;
 import edu.cuit.infra.dal.database.mapper.MsgTipMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,13 +24,13 @@ public class MsgGatewayImpl implements MsgGateway {
 
     private final MsgTipMapper msgTipMapper;
 
-    private final MsgConvertor msgConvertor;
-
     private final DeleteMessageUseCase deleteMessageUseCase;
 
     private final MarkMessageReadUseCase markMessageReadUseCase;
 
     private final QueryMessageUseCase queryMessageUseCase;
+
+    private final InsertMessageUseCase insertMessageUseCase;
 
     @Override
     public List<MsgEntity> queryMsg(Integer userId, Integer type, Integer mode) {
@@ -65,10 +64,7 @@ public class MsgGatewayImpl implements MsgGateway {
 
     @Override
     public void insertMessage(GenericRequestMsg msg) {
-        MsgTipDO msgDO = msgConvertor.toMsgDO(msg);
-        msgTipMapper.insert(msgDO);
-        msg.setId(msgDO.getId());
-        msg.setCreateTime(LocalDateTime.now());
+        insertMessageUseCase.insertMessage(msg);
     }
 
     @Override
