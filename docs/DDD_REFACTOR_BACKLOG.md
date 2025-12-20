@@ -120,6 +120,10 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - 用户创建：`UserUpdateGatewayImpl.createUser` 收敛到 `bc-iam`（落地提交：`c3aa8739/a3232b78/a26e01b3/9e7d46dd`）。
   - 用户信息更新：`UserUpdateGatewayImpl.updateInfo` 收敛到 `bc-iam`（落地提交：`38c31541/6ce61024/db0fd6a3/cb789e21`）。
 
+**进行中（2025-12-20）**
+- IAM 写侧继续收敛（保持行为不变）：
+  - 用户状态更新：新增 `bc-iam` 用例/端口骨架 `UpdateUserStatusUseCase` / `UserStatusUpdatePort`（落地提交：`e3fcdbf0`；待迁移旧逻辑与旧 gateway 委托壳）。
+
 **已完成（2025-12-19）**
 - 评教写侧收敛（保持行为不变）：
   - 评教任务发布：`EvaUpdateGatewayImpl.postEvaTask` 收敛到 `bc-evaluation`（落地提交：`8e434fe1/ca69b131/e9043f96`）。
