@@ -16,11 +16,11 @@
   - 消息删除：收敛到 `bc-messaging`（用例 + 端口 + `eva-infra` 端口适配器 + 旧 `MsgGatewayImpl` 委托壳；提交：`22cb60eb`）。
   - 消息已读：收敛到 `bc-messaging`（用例 + 端口 + `eva-infra` 端口适配器 + 旧 `MsgGatewayImpl` 委托壳；提交：`dd7483aa`）。
 - ✅ 消息域读侧进一步收敛：收敛 `queryMsg/queryTargetAmountMsg` 到 `bc-messaging`（用例 + 端口 + `eva-infra` 端口适配器 + 旧 `MsgGatewayImpl` 委托壳；保持行为不变）。
-  - 落地提交：见本次提交（更新至 `HEAD`）
+  - 落地提交：`05a2381b`
 - ✅ 消息域写侧进一步收敛：收敛 `insertMessage` 到 `bc-messaging`（用例 + 端口 + `eva-infra` 端口适配器 + 旧 `MsgGatewayImpl` 委托壳；保持行为不变）。
-  - 落地提交：见本次提交（更新至 `HEAD`）
+  - 落地提交：`8445bc41`
 - ✅ 消息域写侧进一步收敛：收敛 `updateMsgDisplay` 到 `bc-messaging`（用例 + 端口 + `eva-infra` 端口适配器 + 旧 `MsgGatewayImpl` 委托壳；保持行为不变）。
-  - 落地提交：见本次提交（更新至 `HEAD`）
+  - 落地提交：`c315fa22`
 - ✅ 最小回归已通过（Java17）：
   - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
 - ✅ 课程域查询/校验进一步收敛：`CourseUpdateGatewayImpl.isImported` 收敛到 `bc-course`（保持行为不变）。
@@ -521,51 +521,33 @@
 
 ## 5. 已完成的提交（按时间倒序，供回退/追踪）
 
-当前 `git log --oneline -n 20` 关键提交如下（最新在上，更新至 `HEAD`，以 `git log -n 1` 为准）：
+当前 `git log --oneline -n 25` 关键提交如下（最新在上，更新至 `HEAD`，以 `git log -n 1` 为准）：
 
-- `0684a374 docs: 更新DDD重构Backlog进度与下一步`
-- `94662c8a docs: 交接文档改为git log对齐`
-- `a84dc46d docs: 更新交接文档版本号`
-- `a53aafee docs: 记录冲突校验收敛进展与离线验证`
-- `bcdd8564 refactor(eva-infra): 分配评教冲突校验复用时间重叠片段`
-- `2bb64aa1 refactor(eva-infra): 复用时间段重叠查询条件`
-- `e417fb8e refactor(eva-infra): 提炼课程时间段重叠查询片段`
-- `2cfbfaee docs: 补充Java17构建基线说明`
-- `969d606a refactor(eva-infra): 清理CourseUpdateGateway遗留私有逻辑`
-- `8c9b7443 refactor(eva-infra): 收敛教室占用冲突校验`
-- `080ae028 docs: 更新会话交接（新增课次收敛）`
-- `f447fd17 refactor(course): 新增课次收敛到bc-course`
-- `b4b66261 feat(eva-infra): 实现新增课次端口适配器`
-- `c91c4473 feat(bc-course): 收敛新增课次用例骨架`
-- `28dfdd49 refactor(course): 新建课程明细收敛到bc-course`
-- `685cfd8c feat(eva-infra): 实现新建课程明细端口适配器`
-- `a73c7bed feat(bc-course): 收敛新建课程明细用例骨架`
-- `a5df07af refactor(course): 新增课程类型收敛到bc-course`
-- `e612d92a feat(eva-infra): 实现新增课程类型端口适配器`
-- `7df81f64 feat(bc-course): 增加新增课程类型用例骨架`
-- `57c8bc5d refactor(course): 删除课程类型收敛到bc-course`
-- `d5a8a0d3 feat(eva-infra): 实现删除课程类型端口适配器`
-- `cf7ef892 feat(bc-course): 增加删除课程类型用例骨架`
-- `cac3a97f docs: 更新会话交接（删课/自助课表收敛）`
-- `0a186d03 refactor(course): 删课链路收敛到bc-course`
-- `bd85f734 feat(eva-infra): 实现删课端口适配器`
-- `7f055aa3 feat(bc-course): 收敛删课用例骨架`
-- `87caef60 refactor(course): 自助改课收敛到bc-course`
-- `dde5ecf1 feat(bc-course): 收敛教师自助改课用例骨架`
-- `e7ef502a refactor(course): 自助删课收敛到bc-course`
-- `45ca3b5c feat(bc-course): 收敛教师自助删课用例骨架`
-- `b97a905b refactor(course): 课程类型修改收敛到bc-course`
-- `255cb51f feat(eva-infra): 实现课程类型修改端口适配器`
-- `2b5cb49d feat(bc-course): 增加课程类型修改用例骨架`
-- `1b2d8756 feat(bc-course): 收敛修改课程信息用例`
-- `9a96a04a feat(bc-messaging): 自助课表操作副作用事件化`
-- `35aca4eb docs: 更新会话交接与后续任务清单`
-- `a330d8e7 test(bc-template): 迁移模板锁定校验并清理旧实现`
-- `60fe256d feat(eva-config): 支持高分阈值可配置`
-- `4a22fdaf fix(gitignore): 仅忽略仓库根 data 目录`
-- `285db180 feat(bc-messaging): 课程操作副作用事件化并收敛消息发送`
-- `a122ff58 feat(bc-course): 引入课程BC用例与基础设施端口实现`
-- `7275c71b docs: 添加会话交接摘要`
+- `51dd315b docs: 补齐updateInfo收敛提交号`
+- `cb789e21 refactor(iam): 收敛updateInfo到bc-iam`
+- `db0fd6a3 feat(iam): 装配updateInfo组合根`
+- `6ce61024 feat(eva-infra): 实现updateInfo端口适配器`
+- `38c31541 feat(bc-iam): 增加updateInfo用例骨架`
+- `1a3eb0b1 docs: 更新IAM收敛进度与下一步计划`
+- `9e7d46dd refactor(iam): 收敛createUser到bc-iam`
+- `a26e01b3 feat(iam): 装配createUser组合根`
+- `a3232b78 feat(eva-infra): 实现createUser端口适配器`
+- `c3aa8739 feat(bc-iam): 增加createUser用例骨架`
+- `a707ab86 refactor(iam): 收敛assignRole到bc-iam`
+- `b65d311f feat(iam): 装配assignRole端口适配器与组合根`
+- `16ff60b6 feat(bc-iam): 初始化模块并增加assignRole用例骨架`
+- `f3e8e3cc refactor(course): 收敛isImported到bc-course`
+- `495287c8 feat(eva-infra): 实现课程导入状态查询端口适配器`
+- `4ed055a2 feat(bc-course): 增加isImported查询用例骨架`
+- `c315fa22 refactor(messaging): 收敛消息展示状态到bc-messaging`
+- `8445bc41 refactor(messaging): 收敛消息插入到bc-messaging`
+- `05a2381b refactor(messaging): 收敛消息查询到bc-messaging`
+- `915d53ae docs: 更新计划/Backlog/交接（消息删除与已读收敛）`
+- `dd7483aa refactor(messaging): 消息已读写侧收敛到bc-messaging`
+- `22cb60eb refactor(messaging): 删除消息写侧收敛到bc-messaging`
+- `bbad6802 docs: 更新交接与计划书（清理提交评教旧实现）`
+- `12279f3f refactor(evaluation): 清理旧EvaUpdateGatewayImpl提交评教遗留实现`
+- `fdac216b docs: 更新交接与计划书（评教模板写侧收敛）`
 
 ---
 
@@ -653,14 +635,14 @@
    - 约束：每个小步完成后都执行 `mvn -pl start -am test -Dmaven.repo.local=.m2/repository` 并据失败补强回归。
 
 16) **当前未收敛清单（供下个会话优先处理）**
-   - IAM 域：`UserUpdateGatewayImpl.updateInfo/updateStatus/deleteUser` 仍在旧 gateway（含 LDAP + 缓存失效 + 日志，需保持行为不变）。
+   - IAM 域：`UserUpdateGatewayImpl.updateStatus/deleteUser` 仍在旧 gateway（含 LDAP + 缓存失效 + 日志，需保持行为不变）。
    - 系统管理读侧：`UserQueryGatewayImpl.fileUserEntity` 等仍在旧 gateway（可按 QueryPort 渐进收敛，行为不变）。
    - AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`。
 
-17) **下一会话推荐重构任务：IAM 域 `UserUpdateGatewayImpl.updateInfo`（保持行为不变）**
-   - 背景：`updateInfo` 同时涉及 DB 更新、LDAP 同步、缓存失效与日志记录，是典型的 IAM 写侧“多副作用”入口；目前仍在旧 gateway 中。
-   - 目标：按“用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳”的套路收敛到 `bc-iam`（行为不变）。
+17) **下一会话推荐重构任务：IAM 域 `UserUpdateGatewayImpl.updateStatus`（保持行为不变）**
+   - 背景：`updateStatus` 属于 IAM 写侧高频入口，涉及 DB 更新、缓存失效与日志记录；同时由 `UserServiceImpl.updateStatus` 在事务中调用，后续还会触发 `StpUtil.logout`（需保持时机不变）。
+   - 目标：按“用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳”的套路收敛到 `bc-iam`（行为不变；`updateInfo` 已完成收敛，提交链：`38c31541/6ce61024/db0fd6a3/cb789e21`）。
    - 行为不变约束（必须保持）：
-     - 异常类型/异常文案不变（例如：`"初始管理员账户不允许此操作"`、`"该用户名已存在"` 等）。
-     - 顺序与时机不变：旧逻辑的 DB 更新 → LDAP 保存 → 缓存失效 → 日志记录顺序保持一致；事务边界仍在 `UserServiceImpl.update...` 的 `@Transactional` 里。
+     - 异常类型/异常文案不变（例如：`"初始管理员账户不允许此操作"`、`"用户ID不存在"` 等）。
+     - 顺序与时机不变：旧逻辑的 DB 更新 → 缓存失效 → 日志记录顺序保持一致；事务边界仍在 `UserServiceImpl.updateStatus` 的 `@Transactional` 里；`StpUtil.logout` 仍在 gateway 调用之后执行。
      - 缓存 key/area 不变：沿用旧 `handleUserUpdateCache` 失效清单（含 `COURSE_LIST_BY_SEM` 等）。

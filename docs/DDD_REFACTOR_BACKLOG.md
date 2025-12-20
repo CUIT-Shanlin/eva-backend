@@ -109,13 +109,13 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - 消息删除：收敛到 `bc-messaging`（落地提交：`22cb60eb`）。
   - 消息已读：收敛到 `bc-messaging`（落地提交：`dd7483aa`）。
 - 消息域读侧进一步收敛（保持行为不变）：
-  - 消息查询：`queryMsg/queryTargetAmountMsg` 收敛到 `bc-messaging`（落地提交：见本次提交）。
+  - 消息查询：`queryMsg/queryTargetAmountMsg` 收敛到 `bc-messaging`（落地提交：`05a2381b`）。
 - 消息域写侧进一步收敛（保持行为不变）：
-  - 消息插入：`insertMessage` 收敛到 `bc-messaging`（落地提交：见本次提交）。
+  - 消息插入：`insertMessage` 收敛到 `bc-messaging`（落地提交：`8445bc41`）。
 - 消息域写侧进一步收敛（保持行为不变）：
-  - 消息展示状态：`updateMsgDisplay` 收敛到 `bc-messaging`（落地提交：见本次提交）。
+  - 消息展示状态：`updateMsgDisplay` 收敛到 `bc-messaging`（落地提交：`c315fa22`）。
 - 课程域查询/校验进一步收敛（保持行为不变）：
-  - 课表导入状态查询：`CourseUpdateGatewayImpl.isImported` 收敛到 `bc-course`（落地提交：见本次提交）。
+  - 课表导入状态查询：`CourseUpdateGatewayImpl.isImported` 收敛到 `bc-course`（落地提交：`4ed055a2/495287c8/f3e8e3cc`）。
 - IAM 写侧继续收敛（保持行为不变）：
   - 用户创建：`UserUpdateGatewayImpl.createUser` 收敛到 `bc-iam`（落地提交：`c3aa8739/a3232b78/a26e01b3/9e7d46dd`）。
   - 用户信息更新：`UserUpdateGatewayImpl.updateInfo` 收敛到 `bc-iam`（落地提交：`38c31541/6ce61024/db0fd6a3/cb789e21`）。
@@ -221,9 +221,9 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 建议策略：
 - 若后续要继续做“跨域副作用事件化”，可逐步把消息发送/撤回/查询统一收敛到 `bc-messaging` 的端口与用例，旧 gateway 委托化。
-- 进展：删除/已读写侧已收敛到 `bc-messaging`（落地提交：`22cb60eb/dd7483aa`），查询读侧 `queryMsg/queryTargetAmountMsg` 已收敛到 `bc-messaging`（落地提交：见本次提交），剩余 `insert/display` 可作为下一阶段目标。
-- 进展：删除/已读写侧已收敛到 `bc-messaging`（落地提交：`22cb60eb/dd7483aa`），查询读侧 `queryMsg/queryTargetAmountMsg` 已收敛到 `bc-messaging`（落地提交：见本次提交），插入写侧 `insertMessage` 已收敛到 `bc-messaging`（落地提交：见本次提交），剩余 `display` 可作为下一阶段目标。
-- 进展：删除/已读写侧已收敛到 `bc-messaging`（落地提交：`22cb60eb/dd7483aa`），查询读侧 `queryMsg/queryTargetAmountMsg`、插入写侧 `insertMessage`、展示状态写侧 `updateMsgDisplay` 已收敛到 `bc-messaging`（落地提交：见本次提交），旧 `MsgGatewayImpl` 已全量退化为委托壳（行为不变）。
+- 进展：删除/已读写侧已收敛到 `bc-messaging`（落地提交：`22cb60eb/dd7483aa`），查询读侧 `queryMsg/queryTargetAmountMsg` 已收敛到 `bc-messaging`（落地提交：`05a2381b`），剩余 `insert/display` 可作为下一阶段目标。
+- 进展：删除/已读写侧已收敛到 `bc-messaging`（落地提交：`22cb60eb/dd7483aa`），查询读侧 `queryMsg/queryTargetAmountMsg` 已收敛到 `bc-messaging`（落地提交：`05a2381b`），插入写侧 `insertMessage` 已收敛到 `bc-messaging`（落地提交：`8445bc41`），剩余 `display` 可作为下一阶段目标。
+- 进展：删除/已读写侧已收敛到 `bc-messaging`（落地提交：`22cb60eb/dd7483aa`），查询读侧 `queryMsg/queryTargetAmountMsg`、插入写侧 `insertMessage`、展示状态写侧 `updateMsgDisplay` 已收敛到 `bc-messaging`（落地提交：`05a2381b/8445bc41/c315fa22`），旧 `MsgGatewayImpl` 已全量退化为委托壳（行为不变）。
 
 ---
 
