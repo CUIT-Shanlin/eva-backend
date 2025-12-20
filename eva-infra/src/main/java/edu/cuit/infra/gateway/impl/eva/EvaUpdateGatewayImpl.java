@@ -3,15 +3,12 @@ package edu.cuit.infra.gateway.impl.eva;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import edu.cuit.bc.evaluation.application.model.PostEvaTaskCommand;
 import edu.cuit.bc.evaluation.application.port.PostEvaTaskRepository;
 import edu.cuit.bc.evaluation.domain.PostEvaTaskQueryException;
 import edu.cuit.bc.evaluation.domain.PostEvaTaskUpdateException;
-import edu.cuit.client.dto.cmd.eva.EvaTemplateCmd;
 import edu.cuit.client.dto.cmd.eva.NewEvaLogCmd;
 import edu.cuit.client.dto.cmd.eva.NewEvaTaskCmd;
-import edu.cuit.client.dto.cmd.eva.NewEvaTemplateCmd;
 import edu.cuit.domain.gateway.eva.EvaUpdateGateway;
 import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
@@ -25,20 +22,14 @@ import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.cache.aspect.annotation.local.LocalCacheInvalidate;
-import edu.cuit.zhuyimeng.framework.cache.aspect.annotation.local.LocalCacheInvalidateContainer;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
-import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.ParseException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -54,31 +45,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
     private final EvaCacheConstants evaCacheConstants;
     private final LocalCacheManager localCacheManager;
     private final PostEvaTaskRepository postEvaTaskRepository;
-    @Override
-    @Transactional
-    @LocalCacheInvalidate(area="#{@evaCacheConstants.ONE_TEMPLATE}",key= "#cmd.getId()")
-    public Void updateEvaTemplate(EvaTemplateCmd cmd) {
-        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-        //检验是否那个模板prop有重复
-        if(cmd.getProps()!=null&&StringUtils.isNotBlank(cmd.getProps())) {
-            List<String> props= Arrays.stream(cmd.getProps().split(",")).toList();
-            long count = props.stream().distinct().count();
-            if (props.size() != count) {
-                throw new UpdateException("由于你输入的指标中有重复数据，故不能修改");
-            }
-        }
-
-        FormTemplateDO formTemplateDO=new FormTemplateDO();
-        formTemplateDO.setDescription(cmd.getDescription());
-        formTemplateDO.setProps(cmd.getProps());
-        formTemplateDO.setName(cmd.getName());
-        formTemplateMapper.update(formTemplateDO, new QueryWrapper<FormTemplateDO>().eq("id", cmd.getId()));
-        localCacheManager.invalidateCache(null,evaCacheConstants.TEMPLATE_LIST);
-        LogUtils.logContent(formTemplateMapper.selectById(cmd.getId()).getName() +" 评教模板");
-        return null;
-    }
-    @Override
     @Transactional
     @LocalCacheInvalidate(area="#{@evaCacheConstants.ONE_TASK}",key="#cmd.getTaskId()")
     public Void putEvaTemplate(NewEvaLogCmd cmd) {
@@ -126,7 +93,6 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         return null;
     }
 
-    @Override
     @Transactional
     public Integer postEvaTask(NewEvaTaskCmd cmd,Integer maxNum) {
         try {
@@ -136,30 +102,6 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         } catch (PostEvaTaskQueryException e) {
             throw new QueryException(e.getMessage());
         }
-    }
-
-    @Override
-    @Transactional
-    public Void addEvaTemplate(NewEvaTemplateCmd cmd) throws ParseException {
-        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        //判断指标重复
-        if(cmd.getProps()!=null) {
-            List<String> props= Arrays.stream(cmd.getProps().split(",")).toList();
-            long count = props.stream().distinct().count();
-            if (props.size() != count) {
-                throw new UpdateException("由于你输入的指标中有重复数据，故不能增加");
-            }
-        }
-
-        FormTemplateDO formTemplateDO=new FormTemplateDO();
-        formTemplateDO.setDescription(cmd.getDescription());
-        formTemplateDO.setProps(cmd.getProps());
-        formTemplateDO.setName(cmd.getName());
-        formTemplateMapper.insert(formTemplateDO);
-        //加缓存
-        localCacheManager.invalidateCache(null,evaCacheConstants.TEMPLATE_LIST);
-        LogUtils.logContent(cmd.getName() +" 评教模板");
-        return null;
     }
 
     @Override

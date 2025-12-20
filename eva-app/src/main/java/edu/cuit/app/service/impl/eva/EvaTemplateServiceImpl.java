@@ -1,13 +1,17 @@
 package edu.cuit.app.service.impl.eva;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.json.JSONUtil;
-import com.alibaba.cola.exception.SysException;
+import edu.cuit.bc.evaluation.application.model.AddEvaTemplateCommand;
+import edu.cuit.bc.evaluation.application.model.UpdateEvaTemplateCommand;
+import edu.cuit.bc.evaluation.application.usecase.AddEvaTemplateUseCase;
 import edu.cuit.bc.evaluation.application.usecase.DeleteEvaTemplateUseCase;
+import edu.cuit.bc.evaluation.application.usecase.UpdateEvaTemplateUseCase;
+import edu.cuit.bc.evaluation.domain.AddEvaTemplateUpdateException;
 import edu.cuit.bc.evaluation.domain.DeleteEvaTemplateQueryException;
 import edu.cuit.bc.evaluation.domain.DeleteEvaTemplateUpdateException;
+import edu.cuit.bc.evaluation.domain.UpdateEvaTemplateUpdateException;
 import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.PaginationBizConvertor;
-import edu.cuit.app.convertor.eva.EvaTemplateBizConvertor;
 import edu.cuit.client.api.eva.IEvaTemplateService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
@@ -19,7 +23,6 @@ import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.eva.EvaTemplateEntity;
 import edu.cuit.bc.evaluation.application.port.EvaTemplateQueryPort;
-import edu.cuit.domain.gateway.eva.EvaUpdateGateway;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
@@ -33,10 +36,11 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class EvaTemplateServiceImpl implements IEvaTemplateService {
-    private final EvaUpdateGateway evaUpdateGateway;
     private final EvaTemplateQueryPort evaTemplateQueryPort;
     private final PaginationBizConvertor paginationBizConvertor;
     private final DeleteEvaTemplateUseCase deleteEvaTemplateUseCase;
+    private final AddEvaTemplateUseCase addEvaTemplateUseCase;
+    private final UpdateEvaTemplateUseCase updateEvaTemplateUseCase;
     @Override
     @CheckSemId
     public PaginationQueryResultCO<EvaTemplateCO> pageEvaTemplate(Integer semId, PagingQuery<GenericConditionalQuery> query) {
@@ -109,13 +113,30 @@ public class EvaTemplateServiceImpl implements IEvaTemplateService {
 
     @Override
     public Void updateEvaTemplate(EvaTemplateCmd evaTemplateCmd) {
-        evaUpdateGateway.updateEvaTemplate(evaTemplateCmd);
+        try {
+            updateEvaTemplateUseCase.update(new UpdateEvaTemplateCommand(
+                    evaTemplateCmd.getId(),
+                    evaTemplateCmd.getName(),
+                    evaTemplateCmd.getDescription(),
+                    evaTemplateCmd.getProps()
+            ));
+        } catch (UpdateEvaTemplateUpdateException e) {
+            throw new UpdateException(e.getMessage());
+        }
         return null;
     }
 
     @Override
     public Void addEvaTemplate(NewEvaTemplateCmd newEvaTemplateCmd) throws ParseException {
-        evaUpdateGateway.addEvaTemplate(newEvaTemplateCmd);
+        try {
+            addEvaTemplateUseCase.add(new AddEvaTemplateCommand(
+                    newEvaTemplateCmd.getName(),
+                    newEvaTemplateCmd.getDescription(),
+                    newEvaTemplateCmd.getProps()
+            ));
+        } catch (AddEvaTemplateUpdateException e) {
+            throw new UpdateException(e.getMessage());
+        }
         return null;
     }
 }

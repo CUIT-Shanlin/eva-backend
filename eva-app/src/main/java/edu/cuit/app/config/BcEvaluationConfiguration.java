@@ -1,14 +1,18 @@
 package edu.cuit.app.config;
 
-import edu.cuit.bc.evaluation.application.port.DomainEventPublisher;
+import edu.cuit.bc.evaluation.application.port.AddEvaTemplateRepository;
 import edu.cuit.bc.evaluation.application.port.DeleteEvaRecordRepository;
 import edu.cuit.bc.evaluation.application.port.DeleteEvaTemplateRepository;
+import edu.cuit.bc.evaluation.application.port.DomainEventPublisher;
 import edu.cuit.bc.evaluation.application.port.PostEvaTaskRepository;
 import edu.cuit.bc.evaluation.application.port.SubmitEvaluationRepository;
+import edu.cuit.bc.evaluation.application.port.UpdateEvaTemplateRepository;
+import edu.cuit.bc.evaluation.application.usecase.AddEvaTemplateUseCase;
 import edu.cuit.bc.evaluation.application.usecase.DeleteEvaRecordUseCase;
 import edu.cuit.bc.evaluation.application.usecase.DeleteEvaTemplateUseCase;
 import edu.cuit.bc.evaluation.application.usecase.PostEvaTaskUseCase;
 import edu.cuit.bc.evaluation.application.usecase.SubmitEvaluationUseCase;
+import edu.cuit.bc.evaluation.application.usecase.UpdateEvaTemplateUseCase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -43,5 +47,15 @@ public class BcEvaluationConfiguration {
     @Bean
     public DeleteEvaTemplateUseCase deleteEvaTemplateUseCase(DeleteEvaTemplateRepository repository) {
         return new DeleteEvaTemplateUseCase(repository);
+    }
+
+    @Bean
+    public AddEvaTemplateUseCase addEvaTemplateUseCase(AddEvaTemplateRepository repository) {
+        return new AddEvaTemplateUseCase(repository);
+    }
+
+    @Bean
+    public UpdateEvaTemplateUseCase updateEvaTemplateUseCase(UpdateEvaTemplateRepository repository) {
+        return new UpdateEvaTemplateUseCase(repository);
     }
 }
