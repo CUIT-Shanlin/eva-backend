@@ -117,7 +117,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - 课程域查询/校验进一步收敛（保持行为不变）：
   - 课表导入状态查询：`CourseUpdateGatewayImpl.isImported` 收敛到 `bc-course`（落地提交：见本次提交）。
 - IAM 写侧继续收敛（保持行为不变）：
-  - 用户创建：`UserUpdateGatewayImpl.createUser` 收敛到 `bc-iam`（落地提交：见本次提交）。
+  - 用户创建：`UserUpdateGatewayImpl.createUser` 收敛到 `bc-iam`（落地提交：`c3aa8739/a3232b78/a26e01b3/9e7d46dd`）。
 
 **已完成（2025-12-19）**
 - 评教写侧收敛（保持行为不变）：
@@ -145,8 +145,9 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：以下是仍在旧 gateway/技术切片中的能力，优先级按“写侧优先 + 影响范围”排序。
 
-1) AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`  
-2) 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分（保持统计口径不变）
+1) IAM 写侧：`UserUpdateGatewayImpl.updateInfo/updateStatus/deleteUser` 仍在旧 gateway（含 LDAP/缓存/日志等副作用，保持行为不变）  
+2) AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`  
+3) 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分（保持统计口径不变）
 
 ---
 
@@ -230,8 +231,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
 这些模块多为典型 IAM/权限模型 CRUD，当前主要仍在 `eva-infra` gateway + mapper。
 
 候选目标（体积/复杂度相对更高者）：
-- ✅ `eva-infra/.../user/UserUpdateGatewayImpl.assignRole`（~30 LOC，已收敛到 `bc-iam`）
-- ✅ `eva-infra/.../user/UserUpdateGatewayImpl.createUser`（~23 LOC，已收敛到 `bc-iam`）
+- ✅ `eva-infra/.../user/UserUpdateGatewayImpl.assignRole`（~30 LOC，已收敛到 `bc-iam`；落地提交：`16ff60b6/b65d311f/a707ab86`）
+- ✅ `eva-infra/.../user/UserUpdateGatewayImpl.createUser`（~23 LOC，已收敛到 `bc-iam`；落地提交：`c3aa8739/a3232b78/a26e01b3/9e7d46dd`）
 - `eva-infra/.../user/UserQueryGatewayImpl.fileUserEntity`（~30 LOC）
 - `eva-infra/.../user/MenuUpdateGatewayImpl.handleUserMenuCache`（~19 LOC）
 - `eva-infra/.../user/RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole`（~17~18 LOC）
@@ -260,9 +261,9 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 如果继续按“写侧优先”的策略推进，下一批候选（高 → 低）建议是：
 
-1) 评教读侧进一步解耦：拆分 QueryService（任务/记录/统计/模板），保持统计口径不变  
-2) 消息域：`MsgGatewayImpl`（若要继续事件化副作用，可逐步委托化到 `bc-messaging`）  
-3) 课程读侧（后置）：在已完成 QueryRepo 结构化基础上，按“课表视图/评教统计/移动端周期课表”等主题进一步拆 QueryService 或引入投影表  
+1) IAM 写侧继续收敛：优先 `UserUpdateGatewayImpl.updateInfo`（随后 `updateStatus/deleteUser`）  
+2) 评教读侧进一步解耦：拆分 QueryService（任务/记录/统计/模板），保持统计口径不变  
+3) AI 报告 / 审计日志：启动 `bc-ai-report` / `bc-audit` 的最小骨架，并选择 1 条高价值写链路先收敛（保持行为不变）  
 
 ---
 

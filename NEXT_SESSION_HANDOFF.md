@@ -24,11 +24,11 @@
 - ✅ 最小回归已通过（Java17）：
   - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
 - ✅ 课程域查询/校验进一步收敛：`CourseUpdateGatewayImpl.isImported` 收敛到 `bc-course`（保持行为不变）。
-  - 落地：`bc-course` 新增 QueryPort + UseCase；`eva-infra` 新增端口适配器原样搬运旧查询逻辑；旧 `CourseUpdateGatewayImpl.isImported` 退化为委托壳（落地提交：见本次提交，更新至 `HEAD`）。
+  - 落地：`bc-course` 新增 QueryPort + UseCase；`eva-infra` 新增端口适配器原样搬运旧查询逻辑；旧 `CourseUpdateGatewayImpl.isImported` 退化为委托壳（落地提交：`4ed055a2/495287c8/f3e8e3cc`）。
 - ✅ IAM 域写侧部分收敛：`UserUpdateGatewayImpl.assignRole` 收敛到 `bc-iam`（保持行为不变）。
-  - 落地：`bc-iam` 新增用例 + 端口；`eva-infra` 新增端口适配器原样搬运旧写流程；旧 `UserUpdateGatewayImpl.assignRole` 退化为委托壳（落地提交：见本次提交，更新至 `HEAD`）。
+  - 落地：`bc-iam` 新增用例 + 端口；`eva-infra` 新增端口适配器原样搬运旧写流程；旧 `UserUpdateGatewayImpl.assignRole` 退化为委托壳（落地提交：`16ff60b6/b65d311f/a707ab86`）。
 - ✅ IAM 域写侧继续收敛：`UserUpdateGatewayImpl.createUser` 收敛到 `bc-iam`（保持行为不变）。
-  - 落地：`bc-iam` 新增 `CreateUserUseCase` + `UserCreationPort` 与纯单测；`eva-infra` 新增 `UserCreationPortImpl` 端口适配器原样搬运旧流程；`eva-app` 组合根装配 Bean；旧 `UserUpdateGatewayImpl.createUser` 退化为委托壳（落地提交：见本次提交，更新至 `HEAD`）。
+  - 落地：`bc-iam` 新增 `CreateUserUseCase` + `UserCreationPort` 与纯单测；`eva-infra` 新增 `UserCreationPortImpl` 端口适配器原样搬运旧流程；`eva-app` 组合根装配 Bean；旧 `UserUpdateGatewayImpl.createUser` 退化为委托壳（落地提交：`c3aa8739/a3232b78/a26e01b3/9e7d46dd`）。
 
 ## 0.1 本次会话增量总结（2025-12-19，更新至 `HEAD`）
 
@@ -651,17 +651,14 @@
    - 约束：每个小步完成后都执行 `mvn -pl start -am test -Dmaven.repo.local=.m2/repository` 并据失败补强回归。
 
 16) **当前未收敛清单（供下个会话优先处理）**
-   - IAM 域：`UserUpdateGatewayImpl.assignRole/createUser` 等仍未 BC 化。
+   - IAM 域：`UserUpdateGatewayImpl.updateInfo/updateStatus/deleteUser` 仍在旧 gateway（含 LDAP + 缓存失效 + 日志，需保持行为不变）。
+   - 系统管理读侧：`UserQueryGatewayImpl.fileUserEntity` 等仍在旧 gateway（可按 QueryPort 渐进收敛，行为不变）。
    - AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`。
 
-17) **下一会话推荐重构任务：IAM 域 `UserUpdateGatewayImpl.assignRole/createUser`（保持行为不变）**
-   - 背景：用户/角色分配属于典型 IAM 写侧入口，目前仍在旧 gateway + mapper 中，适合作为下一批“写侧优先”收敛目标。
-   - 建议做法：按“用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳”的套路推进（保持异常文案与边界语义不变）。
+17) **下一会话推荐重构任务：IAM 域 `UserUpdateGatewayImpl.updateInfo`（保持行为不变）**
+   - 背景：`updateInfo` 同时涉及 DB 更新、LDAP 同步、缓存失效与日志记录，是典型的 IAM 写侧“多副作用”入口；目前仍在旧 gateway 中。
+   - 目标：按“用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳”的套路收敛到 `bc-iam`（行为不变）。
    - 行为不变约束（必须保持）：
-     - 过滤规则与边界值不变（`type/mode/num` 的 `null 或 <0` 语义保持不变；排序仍按 `create_time desc`）。
-     - 权限校验与异常文案不变：仍为“只能修改自己的消息”。
-     - 发送者/接收者用户信息取值与异常文案不变（沿用旧 `getMsgEntity` 的 `BizException` 文案）。
-   - 建议落地方式（可照抄本会话做法）：
-     - `bc-messaging` 新增 Query/Write 用例与端口；
-     - `eva-infra` 新增端口适配器原样搬运旧逻辑；
-     - 旧 `MsgGatewayImpl` 退化为委托壳（仅负责参数转发）。
+     - 异常类型/异常文案不变（例如：`"初始管理员账户不允许此操作"`、`"该用户名已存在"` 等）。
+     - 顺序与时机不变：旧逻辑的 DB 更新 → LDAP 保存 → 缓存失效 → 日志记录顺序保持一致；事务边界仍在 `UserServiceImpl.update...` 的 `@Transactional` 里。
+     - 缓存 key/area 不变：沿用旧 `handleUserUpdateCache` 失效清单（含 `COURSE_LIST_BY_SEM` 等）。
