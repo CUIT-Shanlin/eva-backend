@@ -4,6 +4,7 @@ import com.alibaba.cola.exception.BizException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import edu.cuit.bc.messaging.application.usecase.DeleteMessageUseCase;
 import edu.cuit.client.dto.data.msg.GenericRequestMsg;
 import edu.cuit.domain.entity.MsgEntity;
 import edu.cuit.domain.gateway.MsgGateway;
@@ -27,6 +28,8 @@ public class MsgGatewayImpl implements MsgGateway {
     private final UserQueryGateway userQueryGateway;
 
     private final MsgConvertor msgConvertor;
+
+    private final DeleteMessageUseCase deleteMessageUseCase;
 
     @Override
     public List<MsgEntity> queryMsg(Integer userId, Integer type, Integer mode) {
@@ -91,25 +94,12 @@ public class MsgGatewayImpl implements MsgGateway {
 
     @Override
     public void deleteMessage(Integer taskId, Integer type) {
-        LambdaQueryWrapper<MsgTipDO> msgQuery = Wrappers.lambdaQuery();
-        msgQuery.eq(MsgTipDO::getTaskId,taskId);
-        if (type != null && type >= 0) {
-            msgQuery.eq(MsgTipDO::getType,type);
-        }
-        msgTipMapper.delete(msgQuery);
+        deleteMessageUseCase.deleteByTask(taskId, type);
     }
 
     @Override
     public void deleteTargetTypeMessage(Integer userId,Integer mode, Integer type) {
-        LambdaQueryWrapper<MsgTipDO> msgQuery = Wrappers.lambdaQuery();
-        msgQuery.eq(MsgTipDO::getRecipientId,userId);
-        if (mode != null && mode >= 0) {
-            msgQuery.eq(MsgTipDO::getMode,mode);
-        }
-        if (type != null && type >= 0) {
-            msgQuery.eq(MsgTipDO::getType,type);
-        }
-        msgTipMapper.delete(msgQuery);
+        deleteMessageUseCase.deleteUserMessages(userId, mode, type);
     }
 
     private void checkUser(Integer userId, Integer id) {
