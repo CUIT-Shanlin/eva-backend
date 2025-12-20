@@ -5,6 +5,7 @@ import edu.cuit.bc.course.application.port.AddExistCoursesDetailsRepository;
 import edu.cuit.bc.course.application.port.AddNotExistCoursesDetailsRepository;
 import edu.cuit.bc.course.application.port.ChangeCourseTemplateRepository;
 import edu.cuit.bc.course.application.port.AssignEvaTeachersRepository;
+import edu.cuit.bc.course.application.port.CourseImportedQueryPort;
 import edu.cuit.bc.course.application.port.CourseTemplateIdQueryPort;
 import edu.cuit.bc.course.application.port.DeleteSelfCourseRepository;
 import edu.cuit.bc.course.application.port.ImportCourseFileRepository;
@@ -26,6 +27,7 @@ import edu.cuit.bc.course.application.usecase.DeleteCourseUseCase;
 import edu.cuit.bc.course.application.usecase.DeleteCoursesUseCase;
 import edu.cuit.bc.course.application.usecase.DeleteCourseTypeUseCase;
 import edu.cuit.bc.course.application.usecase.ImportCourseFileUseCase;
+import edu.cuit.bc.course.application.usecase.IsCourseImportedUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateCourseInfoUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateCourseTypeUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateCoursesTypeUseCase;
@@ -56,6 +58,11 @@ public class BcCourseConfiguration {
             CourseTemplateLockService courseTemplateLockService
     ) {
         return new ChangeSingleCourseTemplateUseCase(courseTemplateIdQueryPort, repository, courseTemplateLockService);
+    }
+
+    @Bean
+    public IsCourseImportedUseCase isCourseImportedUseCase(CourseImportedQueryPort queryPort) {
+        return new IsCourseImportedUseCase(queryPort);
     }
 
     @Bean

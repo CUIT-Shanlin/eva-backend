@@ -515,7 +515,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 ### 10.3 未完成清单（滚动，供下一会话排期）
 
-- 课程域：`CourseUpdateGatewayImpl.isImported` 收敛进行中（已新增 `bc-course` QueryPort/UseCase 骨架；落地提交：见本次提交）。
+- 课程域：`CourseUpdateGatewayImpl.isImported` 收敛进行中（已新增 `bc-course` QueryPort/UseCase 骨架，并补齐 `eva-infra` 端口适配器与组合根装配；落地提交：见本次提交）。
 - IAM 域：`UserUpdateGatewayImpl.assignRole/createUser` 等仍未 BC 化。
 - AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`。
 - 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分。
