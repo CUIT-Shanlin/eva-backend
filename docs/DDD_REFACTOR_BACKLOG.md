@@ -118,7 +118,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - 课表导入状态查询：`CourseUpdateGatewayImpl.isImported` 收敛到 `bc-course`（落地提交：见本次提交）。
 - IAM 写侧继续收敛（保持行为不变）：
   - 用户创建：`UserUpdateGatewayImpl.createUser` 收敛到 `bc-iam`（落地提交：`c3aa8739/a3232b78/a26e01b3/9e7d46dd`）。
-  - 用户信息更新：`UserUpdateGatewayImpl.updateInfo` 收敛到 `bc-iam`（落地提交：`38c31541/6ce61024/db0fd6a3/见本次提交`）。
+  - 用户信息更新：`UserUpdateGatewayImpl.updateInfo` 收敛到 `bc-iam`（落地提交：`38c31541/6ce61024/db0fd6a3/cb789e21`）。
 
 **已完成（2025-12-19）**
 - 评教写侧收敛（保持行为不变）：
