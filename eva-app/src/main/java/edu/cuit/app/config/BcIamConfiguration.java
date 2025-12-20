@@ -1,7 +1,9 @@
 package edu.cuit.app.config;
 
+import edu.cuit.bc.iam.application.port.UserCreationPort;
 import edu.cuit.bc.iam.application.port.UserRoleAssignmentPort;
 import edu.cuit.bc.iam.application.usecase.AssignRoleUseCase;
+import edu.cuit.bc.iam.application.usecase.CreateUserUseCase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,5 +17,9 @@ public class BcIamConfiguration {
     public AssignRoleUseCase assignRoleUseCase(UserRoleAssignmentPort assignmentPort) {
         return new AssignRoleUseCase(assignmentPort);
     }
-}
 
+    @Bean
+    public CreateUserUseCase createUserUseCase(UserCreationPort creationPort) {
+        return new CreateUserUseCase(creationPort);
+    }
+}

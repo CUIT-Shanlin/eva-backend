@@ -515,7 +515,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 ### 10.3 未完成清单（滚动，供下一会话排期）
 
-- IAM 域：开始引入 `bc-iam`，已收敛 `UserUpdateGatewayImpl.assignRole`（用例 + 端口 + 端口适配器 + 旧 gateway 委托壳；落地提交：见本次提交）；`createUser` 收敛进行中（已新增 `bc-iam` 用例骨架 + 端口 + 纯单测，`eva-infra` 端口适配器已落地，待接入旧 gateway）。
+- IAM 域：开始引入 `bc-iam`，已收敛 `UserUpdateGatewayImpl.assignRole`（用例 + 端口 + 端口适配器 + 旧 gateway 委托壳；落地提交：见本次提交）；`createUser` 收敛进行中（已新增 `bc-iam` 用例骨架 + 端口 + 纯单测，`eva-infra` 端口适配器已落地，`eva-app` 组合根已装配，待接入旧 gateway）。
 - AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`。
 - 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分。
 

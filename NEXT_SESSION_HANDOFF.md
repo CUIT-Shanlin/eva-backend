@@ -30,6 +30,7 @@
 - ⏳ IAM 域写侧待继续：`UserUpdateGatewayImpl.createUser` 仍在旧 gateway（保持行为不变）。
   - 进展：已在 `bc-iam` 新增 `createUser` 用例骨架 + 端口 + 纯单测（尚未切换旧 gateway，行为不变）。
   - 进展：已在 `eva-infra` 新增 `UserCreationPortImpl` 端口适配器，原样搬运旧 `createUser` 写流程（异常文案/顺序/副作用保持不变）。
+  - 进展：`eva-app` 已补齐 `bc-iam` 组合根装配（`CreateUserUseCase` Bean）。
 
 ## 0.1 本次会话增量总结（2025-12-19，更新至 `HEAD`）
 
