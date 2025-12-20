@@ -12,6 +12,9 @@
   - 落地提交：`ea03dbd3 refactor(evaluation): 评教模板新增/修改写侧收敛到bc-evaluation`
 - ✅ 清理旧 `EvaUpdateGatewayImpl.putEvaTemplate` 遗留实现（避免提交评教写侧旧代码回潮；行为不变）。
   - 落地提交：`12279f3f refactor(evaluation): 清理旧EvaUpdateGatewayImpl提交评教遗留实现`
+- ✅ 消息域写侧阶段性收敛：先收敛“删除/已读”（保持行为不变）。
+  - 消息删除：收敛到 `bc-messaging`（用例 + 端口 + `eva-infra` 端口适配器 + 旧 `MsgGatewayImpl` 委托壳；提交：`22cb60eb`）。
+  - 消息已读：收敛到 `bc-messaging`（用例 + 端口 + `eva-infra` 端口适配器 + 旧 `MsgGatewayImpl` 委托壳；提交：`dd7483aa`）。
 - ✅ 最小回归已通过（Java17）：
   - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
 
@@ -636,7 +639,21 @@
    - 约束：每个小步完成后都执行 `mvn -pl start -am test -Dmaven.repo.local=.m2/repository` 并据失败补强回归。
 
 16) **当前未收敛清单（供下个会话优先处理）**
-   - 消息域：`MsgGatewayImpl` 仍为 CRUD 入口，尚未完全收敛到 `bc-messaging`。
+   - 消息域：`MsgGatewayImpl` 仍为 CRUD 入口（其中删除/已读写侧已收敛到 `bc-messaging`，剩余 `query/insert/display` 待继续收敛）。
    - 课程域：`CourseUpdateGatewayImpl.isImported` 仍保留在旧 gateway（偏查询/校验）。
    - IAM 域：`UserUpdateGatewayImpl.assignRole/createUser` 等仍未 BC 化。
    - AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`。
+
+17) **下一会话推荐重构任务：继续收敛消息域剩余 CRUD（保持行为不变）**
+   - 目标：按“用例 + 端口 + 旧 gateway 委托壳”的标准步骤，继续压扁 `eva-infra/.../MsgGatewayImpl`：
+     - `queryMsg/queryTargetAmountMsg`（查询与组装逻辑）
+     - `insertMessage`（落库 + 补齐 id/createTime）
+     - `updateMsgDisplay`（仅自己可改显示状态）
+   - 行为不变约束（必须保持）：
+     - 过滤规则与边界值不变（`type/mode/num` 的 `null 或 <0` 语义保持不变；排序仍按 `create_time desc`）。
+     - 权限校验与异常文案不变：仍为“只能修改自己的消息”。
+     - 发送者/接收者用户信息取值与异常文案不变（沿用旧 `getMsgEntity` 的 `BizException` 文案）。
+   - 建议落地方式（可照抄本会话做法）：
+     - `bc-messaging` 新增 Query/Write 用例与端口；
+     - `eva-infra` 新增端口适配器原样搬运旧逻辑；
+     - 旧 `MsgGatewayImpl` 退化为委托壳（仅负责参数转发）。

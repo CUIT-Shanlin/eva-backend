@@ -3,7 +3,7 @@ title: DDD 渐进式重构目标清单与行为框架
 repo: eva-backend
 branch: ddd
 generated_at: 2025-12-18
-updated_at: 2025-12-19
+updated_at: 2025-12-20
 scope: 全仓库（离线扫描 + 规则归纳）
 ---
 
@@ -101,6 +101,14 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
+**已完成（2025-12-20）**
+- 评教写侧进一步收敛（保持行为不变）：
+  - 评教模板新增/修改：收敛到 `bc-evaluation`（落地提交：`ea03dbd3`）。
+  - 清理旧提交评教遗留实现：移除 `EvaUpdateGatewayImpl.putEvaTemplate`（落地提交：`12279f3f`）。
+- 消息域写侧阶段性收敛（保持行为不变）：
+  - 消息删除：收敛到 `bc-messaging`（落地提交：`22cb60eb`）。
+  - 消息已读：收敛到 `bc-messaging`（落地提交：`dd7483aa`）。
+
 **已完成（2025-12-19）**
 - 评教写侧收敛（保持行为不变）：
   - 评教任务发布：`EvaUpdateGatewayImpl.postEvaTask` 收敛到 `bc-evaluation`（落地提交：`8e434fe1/ca69b131/e9043f96`）。
@@ -127,13 +135,11 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：以下是仍在旧 gateway/技术切片中的能力，优先级按“写侧优先 + 影响范围”排序。
 
-1) 评教写侧：`EvaUpdateGatewayImpl.updateEvaTemplate` / `addEvaTemplate`（模板新增/修改）  
-2) 评教提交：`EvaUpdateGatewayImpl.putEvaTemplate`（旧实现仍保留，待迁移/清理）  
-3) 消息域：`MsgGatewayImpl` 仍为 CRUD 入口，未完全收敛到 `bc-messaging`  
-4) 课程域：`CourseUpdateGatewayImpl.isImported`（查询/校验仍在旧 gateway）  
-5) IAM 域：`UserUpdateGatewayImpl.assignRole/createUser` 等  
-6) AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`  
-7) 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分（保持统计口径不变）
+1) 消息域：`MsgGatewayImpl` 仍为 CRUD 入口（其中删除/已读写侧已收敛到 `bc-messaging`，剩余 `query/insert/display` 待继续收敛）  
+2) 课程域：`CourseUpdateGatewayImpl.isImported`（查询/校验仍在旧 gateway）  
+3) IAM 域：`UserUpdateGatewayImpl.assignRole/createUser` 等  
+4) AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`  
+5) 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分（保持统计口径不变）
 
 ---
 
@@ -170,8 +176,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 写侧高价值目标（体积大、跨表）：
 - ✅ `postEvaTask`（~145 LOC，含 DB/Mapper）：发布评教任务已收敛到 `bc-evaluation`（落地提交：`8e434fe1/ca69b131/e9043f96`）。
-- `putEvaTemplate`（~47 LOC，含 DB/Mapper）：提交评教（注意：提交评教的主链路已在 `bc-evaluation` 有用例，需核对该 gateway 仍承担的内容）。
-- `updateEvaTemplate`（~24 LOC，含 DB/Mapper）：模板修改（可能涉及锁定规则，需确保“锁定”行为不变）。
+- ✅ `putEvaTemplate`（~47 LOC，含 DB/Mapper）：旧实现已清理（提交评教主链路已在 `bc-evaluation`；落地提交：`12279f3f`）。
+- ✅ `updateEvaTemplate/addEvaTemplate`（模板新增/修改，含 DB/Mapper）：已收敛到 `bc-evaluation`（落地提交：`ea03dbd3`）。
 
 #### B) `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/eva/EvaDeleteGatewayImpl.java`
 
@@ -206,6 +212,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 建议策略：
 - 若后续要继续做“跨域副作用事件化”，可逐步把消息发送/撤回/查询统一收敛到 `bc-messaging` 的端口与用例，旧 gateway 委托化。
+- 进展：删除/已读写侧已收敛到 `bc-messaging`（落地提交：`22cb60eb/dd7483aa`），剩余 `query/insert/display` 可作为下一阶段目标。
 
 ---
 
