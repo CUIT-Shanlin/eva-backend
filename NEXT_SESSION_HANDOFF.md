@@ -32,6 +32,7 @@
 - ⏳ IAM 域写侧继续收敛：`UserUpdateGatewayImpl.updateInfo`（进行中，保持行为不变）。
   - 进展：已在 `bc-iam` 新增 `UpdateUserInfoUseCase` + `UserInfoUpdatePort` 与纯单测。
   - 进展：已在 `eva-infra` 新增 `UserInfoUpdatePortImpl` 端口适配器，原样搬运旧 `updateInfo` 写流程（待接入旧 gateway）。
+  - 进展：`eva-app` 已补齐 `bc-iam` 组合根装配（`UpdateUserInfoUseCase` Bean，待接入旧 gateway）。
 
 ## 0.1 本次会话增量总结（2025-12-19，更新至 `HEAD`）
 
