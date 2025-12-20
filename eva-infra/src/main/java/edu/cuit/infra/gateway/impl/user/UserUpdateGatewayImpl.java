@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import edu.cuit.bc.iam.application.usecase.AssignRoleUseCase;
+import edu.cuit.bc.iam.application.usecase.CreateUserUseCase;
 import edu.cuit.client.dto.cmd.user.NewUserCmd;
 import edu.cuit.client.dto.cmd.user.UpdateUserCmd;
 import edu.cuit.domain.entity.user.LdapPersonEntity;
@@ -48,6 +49,7 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
     private final CourseCacheConstants courseCacheConstants;
 
     private final AssignRoleUseCase assignRoleUseCase;
+    private final CreateUserUseCase createUserUseCase;
 
     @Override
     public void updateInfo(UpdateUserCmd cmd) {
@@ -102,27 +104,8 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
 
     @Override
     public void createUser(NewUserCmd cmd) {
-        if (checkUsernameExistence(cmd.getUsername())) {
-            throw new BizException("用户名已存在");
-        }
-
-        SysUserDO existedUsername = userMapper.findIdByUsername(cmd.getUsername());
-        if (existedUsername != null) {
-            throw new BizException("该用户名已存在于归档的用户（数据库逻辑删除）中");
-        }
-
-        SysUserDO userDO = userConverter.toUserDO(cmd);
-        LdapPersonEntity ldapPerson = ldapUserConvertor.userDOToLdapPersonEntity(userDO);
-        userMapper.insert(userDO);
-        SysUserRoleDO sysUserRoleDO = new SysUserRoleDO()
-                .setRoleId(roleQueryGateway.getDefaultRoleId())
-                .setUserId(userDO.getId());
-        userRoleMapper.insert(sysUserRoleDO);
-        if (ldapPersonGateway.findByUsername(cmd.getUsername()).isEmpty()) {
-            ldapPersonGateway.createUser(ldapPerson,cmd.getPassword());
-        }
-
-        handleUserUpdateCache(userDO.getId(),cmd.getUsername());
+        // 历史路径：收敛到 bc-iam 用例，旧 gateway 退化为委托壳（保持行为不变）
+        createUserUseCase.execute(cmd);
     }
 
     private void checkAdmin(Integer userId) {

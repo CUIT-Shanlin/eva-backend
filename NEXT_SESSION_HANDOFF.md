@@ -27,10 +27,8 @@
   - 落地：`bc-course` 新增 QueryPort + UseCase；`eva-infra` 新增端口适配器原样搬运旧查询逻辑；旧 `CourseUpdateGatewayImpl.isImported` 退化为委托壳（落地提交：见本次提交，更新至 `HEAD`）。
 - ✅ IAM 域写侧部分收敛：`UserUpdateGatewayImpl.assignRole` 收敛到 `bc-iam`（保持行为不变）。
   - 落地：`bc-iam` 新增用例 + 端口；`eva-infra` 新增端口适配器原样搬运旧写流程；旧 `UserUpdateGatewayImpl.assignRole` 退化为委托壳（落地提交：见本次提交，更新至 `HEAD`）。
-- ⏳ IAM 域写侧待继续：`UserUpdateGatewayImpl.createUser` 仍在旧 gateway（保持行为不变）。
-  - 进展：已在 `bc-iam` 新增 `createUser` 用例骨架 + 端口 + 纯单测（尚未切换旧 gateway，行为不变）。
-  - 进展：已在 `eva-infra` 新增 `UserCreationPortImpl` 端口适配器，原样搬运旧 `createUser` 写流程（异常文案/顺序/副作用保持不变）。
-  - 进展：`eva-app` 已补齐 `bc-iam` 组合根装配（`CreateUserUseCase` Bean）。
+- ✅ IAM 域写侧继续收敛：`UserUpdateGatewayImpl.createUser` 收敛到 `bc-iam`（保持行为不变）。
+  - 落地：`bc-iam` 新增 `CreateUserUseCase` + `UserCreationPort` 与纯单测；`eva-infra` 新增 `UserCreationPortImpl` 端口适配器原样搬运旧流程；`eva-app` 组合根装配 Bean；旧 `UserUpdateGatewayImpl.createUser` 退化为委托壳（落地提交：见本次提交，更新至 `HEAD`）。
 
 ## 0.1 本次会话增量总结（2025-12-19，更新至 `HEAD`）
 

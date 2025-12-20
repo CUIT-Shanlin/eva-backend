@@ -116,6 +116,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - 消息展示状态：`updateMsgDisplay` 收敛到 `bc-messaging`（落地提交：见本次提交）。
 - 课程域查询/校验进一步收敛（保持行为不变）：
   - 课表导入状态查询：`CourseUpdateGatewayImpl.isImported` 收敛到 `bc-course`（落地提交：见本次提交）。
+- IAM 写侧继续收敛（保持行为不变）：
+  - 用户创建：`UserUpdateGatewayImpl.createUser` 收敛到 `bc-iam`（落地提交：见本次提交）。
 
 **已完成（2025-12-19）**
 - 评教写侧收敛（保持行为不变）：
@@ -143,9 +145,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：以下是仍在旧 gateway/技术切片中的能力，优先级按“写侧优先 + 影响范围”排序。
 
-1) IAM 域：`UserUpdateGatewayImpl.createUser`（`assignRole` 已收敛到 `bc-iam`；`createUser` 收敛进行中：已新增 `bc-iam` 用例骨架 + 端口 + 纯单测，`eva-infra` 端口适配器已落地，`eva-app` 组合根已装配，待接入旧 gateway；落地提交：见本次提交）  
-2) AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`  
-3) 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分（保持统计口径不变）
+1) AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`  
+2) 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分（保持统计口径不变）
 
 ---
 
@@ -229,8 +230,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
 这些模块多为典型 IAM/权限模型 CRUD，当前主要仍在 `eva-infra` gateway + mapper。
 
 候选目标（体积/复杂度相对更高者）：
-- `eva-infra/.../user/UserUpdateGatewayImpl.assignRole`（~30 LOC）
-- `eva-infra/.../user/UserUpdateGatewayImpl.createUser`（~23 LOC）
+- ✅ `eva-infra/.../user/UserUpdateGatewayImpl.assignRole`（~30 LOC，已收敛到 `bc-iam`）
+- ✅ `eva-infra/.../user/UserUpdateGatewayImpl.createUser`（~23 LOC，已收敛到 `bc-iam`）
 - `eva-infra/.../user/UserQueryGatewayImpl.fileUserEntity`（~30 LOC）
 - `eva-infra/.../user/MenuUpdateGatewayImpl.handleUserMenuCache`（~19 LOC）
 - `eva-infra/.../user/RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole`（~17~18 LOC）
