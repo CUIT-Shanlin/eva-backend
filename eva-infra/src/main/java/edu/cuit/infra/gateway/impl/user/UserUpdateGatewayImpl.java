@@ -6,9 +6,9 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import edu.cuit.bc.iam.application.usecase.AssignRoleUseCase;
 import edu.cuit.bc.iam.application.usecase.CreateUserUseCase;
+import edu.cuit.bc.iam.application.usecase.UpdateUserInfoUseCase;
 import edu.cuit.client.dto.cmd.user.NewUserCmd;
 import edu.cuit.client.dto.cmd.user.UpdateUserCmd;
-import edu.cuit.domain.entity.user.LdapPersonEntity;
 import edu.cuit.domain.gateway.user.LdapPersonGateway;
 import edu.cuit.domain.gateway.user.RoleQueryGateway;
 import edu.cuit.domain.gateway.user.UserUpdateGateway;
@@ -50,24 +50,12 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
 
     private final AssignRoleUseCase assignRoleUseCase;
     private final CreateUserUseCase createUserUseCase;
+    private final UpdateUserInfoUseCase updateUserInfoUseCase;
 
     @Override
     public void updateInfo(UpdateUserCmd cmd) {
-        SysUserDO tmp = checkIdExistence(Math.toIntExact(cmd.getId()));
-        SysUserDO userDO = userConverter.toUserDO(cmd);
-        String oldUsername = userDO.getUsername();
-        checkAdmin(Math.toIntExact(cmd.getId()));
-        if (checkUsernameExistence(cmd.getUsername()) && !oldUsername.equals(cmd.getUsername())) {
-            throw new BizException("该用户名已存在");
-        }
-        if (cmd.getStatus() != null && cmd.getStatus() == 0) checkAdmin(Math.toIntExact(cmd.getId()));
-        userMapper.updateById(userDO);
-        LdapPersonEntity ldapPersonEntity = ldapUserConvertor.userDOToLdapPersonEntity(userDO);
-        ldapPersonGateway.saveUser(ldapPersonEntity);
-
-        handleUserUpdateCache(Math.toIntExact(cmd.getId()));
-
-        LogUtils.logContent(tmp.getName() + " 用户(id:" + tmp.getId() + ")的信息");
+        // 历史路径：收敛到 bc-iam 用例，旧 gateway 退化为委托壳（保持行为不变）
+        updateUserInfoUseCase.execute(cmd);
     }
 
     @Override

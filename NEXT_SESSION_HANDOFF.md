@@ -29,10 +29,8 @@
   - 落地：`bc-iam` 新增用例 + 端口；`eva-infra` 新增端口适配器原样搬运旧写流程；旧 `UserUpdateGatewayImpl.assignRole` 退化为委托壳（落地提交：`16ff60b6/b65d311f/a707ab86`）。
 - ✅ IAM 域写侧继续收敛：`UserUpdateGatewayImpl.createUser` 收敛到 `bc-iam`（保持行为不变）。
   - 落地：`bc-iam` 新增 `CreateUserUseCase` + `UserCreationPort` 与纯单测；`eva-infra` 新增 `UserCreationPortImpl` 端口适配器原样搬运旧流程；`eva-app` 组合根装配 Bean；旧 `UserUpdateGatewayImpl.createUser` 退化为委托壳（落地提交：`c3aa8739/a3232b78/a26e01b3/9e7d46dd`）。
-- ⏳ IAM 域写侧继续收敛：`UserUpdateGatewayImpl.updateInfo`（进行中，保持行为不变）。
-  - 进展：已在 `bc-iam` 新增 `UpdateUserInfoUseCase` + `UserInfoUpdatePort` 与纯单测。
-  - 进展：已在 `eva-infra` 新增 `UserInfoUpdatePortImpl` 端口适配器，原样搬运旧 `updateInfo` 写流程（待接入旧 gateway）。
-  - 进展：`eva-app` 已补齐 `bc-iam` 组合根装配（`UpdateUserInfoUseCase` Bean，待接入旧 gateway）。
+- ✅ IAM 域写侧继续收敛：`UserUpdateGatewayImpl.updateInfo` 收敛到 `bc-iam`（保持行为不变）。
+  - 落地：`bc-iam` 新增 `UpdateUserInfoUseCase` + `UserInfoUpdatePort` 与纯单测；`eva-infra` 新增 `UserInfoUpdatePortImpl` 端口适配器原样搬运旧流程；`eva-app` 组合根装配 Bean；旧 `UserUpdateGatewayImpl.updateInfo` 退化为委托壳（落地提交：`38c31541/6ce61024/db0fd6a3/见本次提交`）。
 
 ## 0.1 本次会话增量总结（2025-12-19，更新至 `HEAD`）
 
