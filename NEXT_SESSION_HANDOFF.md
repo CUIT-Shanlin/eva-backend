@@ -26,7 +26,7 @@
 - ✅ 课程域查询/校验进一步收敛：`CourseUpdateGatewayImpl.isImported` 收敛到 `bc-course`（保持行为不变）。
   - 落地：`bc-course` 新增 QueryPort + UseCase；`eva-infra` 新增端口适配器原样搬运旧查询逻辑；旧 `CourseUpdateGatewayImpl.isImported` 退化为委托壳（落地提交：见本次提交，更新至 `HEAD`）。
 - ⏳ IAM 域写侧开始收敛：启动 `UserUpdateGatewayImpl.assignRole/createUser` 收敛到 `bc-iam`（保持行为不变）。
-  - 进展：已新增 `bc-iam` 模块，并落地 `assignRole` 用例骨架与纯单测（落地提交：见本次提交，更新至 `HEAD`）。
+  - 进展：已新增 `bc-iam` 模块，并落地 `assignRole` 用例骨架与纯单测；并新增 `eva-infra` 端口适配器与 `eva-app` 组合根装配（落地提交：见本次提交，更新至 `HEAD`）。
 
 ## 0.1 本次会话增量总结（2025-12-19，更新至 `HEAD`）
 
