@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import edu.cuit.bc.messaging.application.usecase.DeleteMessageUseCase;
+import edu.cuit.bc.messaging.application.usecase.MarkMessageReadUseCase;
 import edu.cuit.client.dto.data.msg.GenericRequestMsg;
 import edu.cuit.domain.entity.MsgEntity;
 import edu.cuit.domain.gateway.MsgGateway;
@@ -30,6 +31,8 @@ public class MsgGatewayImpl implements MsgGateway {
     private final MsgConvertor msgConvertor;
 
     private final DeleteMessageUseCase deleteMessageUseCase;
+
+    private final MarkMessageReadUseCase markMessageReadUseCase;
 
     @Override
     public List<MsgEntity> queryMsg(Integer userId, Integer type, Integer mode) {
@@ -67,21 +70,12 @@ public class MsgGatewayImpl implements MsgGateway {
 
     @Override
     public void updateMsgRead(Integer userId,Integer id, Integer isRead) {
-        checkUser(userId,id);
-        LambdaUpdateWrapper<MsgTipDO> msgUpdate = Wrappers.lambdaUpdate();
-        msgUpdate.set(MsgTipDO::getIsRead,isRead)
-                .eq(MsgTipDO::getRecipientId,userId)
-                .eq(MsgTipDO::getId,id);
-        msgTipMapper.update(msgUpdate);
+        markMessageReadUseCase.updateRead(userId, id, isRead);
     }
 
     @Override
     public void updateMultipleMsgRead(Integer userId,Integer mode) {
-        LambdaUpdateWrapper<MsgTipDO> msgUpdate = Wrappers.lambdaUpdate();
-        msgUpdate.set(MsgTipDO::getIsRead,1)
-                .eq(MsgTipDO::getRecipientId,userId)
-                .eq(MsgTipDO::getMode,mode);
-        msgTipMapper.update(msgUpdate);
+        markMessageReadUseCase.markAllRead(userId, mode);
     }
 
     @Override
