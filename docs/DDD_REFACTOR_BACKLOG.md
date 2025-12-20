@@ -141,7 +141,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：以下是仍在旧 gateway/技术切片中的能力，优先级按“写侧优先 + 影响范围”排序。
 
-1) 课程域：`CourseUpdateGatewayImpl.isImported`（查询/校验仍在旧 gateway）  
+1) 课程域：`CourseUpdateGatewayImpl.isImported`（查询/校验收敛进行中：已新增 `bc-course` QueryPort/UseCase 骨架；落地提交：见本次提交）  
 2) IAM 域：`UserUpdateGatewayImpl.assignRole/createUser` 等  
 3) AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`  
 4) 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分（保持统计口径不变）

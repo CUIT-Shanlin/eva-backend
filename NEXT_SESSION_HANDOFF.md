@@ -23,6 +23,8 @@
   - 落地提交：见本次提交（更新至 `HEAD`）
 - ✅ 最小回归已通过（Java17）：
   - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
+- ⏳ 课程域查询/校验进一步收敛：开始收敛 `CourseUpdateGatewayImpl.isImported`（保持行为不变）。
+  - 进展：已在 `bc-course` 新增 QueryPort + UseCase 骨架，并补齐纯单测（落地提交：见本次提交，更新至 `HEAD`）。
 
 ## 0.1 本次会话增量总结（2025-12-19，更新至 `HEAD`）
 
