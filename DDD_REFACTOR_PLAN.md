@@ -516,7 +516,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 ### 10.3 未完成清单（滚动，供下一会话排期）
 
-- IAM 域：开始引入 `bc-iam`，已收敛 `UserUpdateGatewayImpl.assignRole/createUser`（落地提交：`16ff60b6/b65d311f/a707ab86`、`c3aa8739/a3232b78/a26e01b3/9e7d46dd`），`updateInfo/updateStatus/deleteUser` 待继续收敛（保持行为不变）。
+- IAM 域：开始引入 `bc-iam`，已收敛 `UserUpdateGatewayImpl.assignRole/createUser`（落地提交：`16ff60b6/b65d311f/a707ab86`、`c3aa8739/a3232b78/a26e01b3/9e7d46dd`），`updateInfo/updateStatus/deleteUser` 待继续收敛（保持行为不变；其中 `updateInfo` 已新增用例骨架 + 端口 + 纯单测，待接入）。
 - AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`。
 - 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分。
 
