@@ -122,7 +122,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 **进行中（2025-12-20）**
 - IAM 写侧继续收敛（保持行为不变）：
-  - 用户状态更新：新增 `bc-iam` 用例/端口骨架 `UpdateUserStatusUseCase` / `UserStatusUpdatePort`（落地提交：`e3fcdbf0`；待迁移旧逻辑与旧 gateway 委托壳）。
+  - 用户状态更新：新增 `bc-iam` 用例/端口骨架 `UpdateUserStatusUseCase` / `UserStatusUpdatePort`，并在 `eva-infra` 新增 `UserStatusUpdatePortImpl` 原样搬运旧逻辑（落地提交：`e3fcdbf0/8e82e01f`；待旧 gateway 委托壳）。
 
 **已完成（2025-12-19）**
 - 评教写侧收敛（保持行为不变）：
