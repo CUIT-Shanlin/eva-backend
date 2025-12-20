@@ -33,6 +33,11 @@
   - 落地：`bc-iam` 新增 `UpdateUserInfoUseCase` + `UserInfoUpdatePort` 与纯单测；`eva-infra` 新增 `UserInfoUpdatePortImpl` 端口适配器原样搬运旧流程；`eva-app` 组合根装配 Bean；旧 `UserUpdateGatewayImpl.updateInfo` 退化为委托壳（落地提交：`38c31541/6ce61024/db0fd6a3/cb789e21`）。
 - ✅ IAM 域写侧继续收敛：`UserUpdateGatewayImpl.updateStatus` 收敛到 `bc-iam`（保持行为不变）。
   - 落地：`bc-iam` 新增用例 + 端口；`eva-infra` 新增端口适配器原样搬运旧流程（DB 更新 → 缓存失效 → 日志）；`eva-app` 组合根装配 Bean；旧 `UserUpdateGatewayImpl.updateStatus` 退化为委托壳（落地提交：`e3fcdbf0/8e82e01f/eb54e13e`）。
+  - 行为快照（供回归对照）：
+    - 异常不变：仍可能抛出 `BizException("初始管理员账户不允许此操作")`、`BizException("用户id不存在")`；
+    - 副作用顺序不变：DB 更新 → 缓存失效（沿用 `handleUserUpdateCache` 清单）→ 日志（`LogUtils.logContent`）；
+    - 事务边界不变：仍由 `UserServiceImpl.updateStatus` 的 `@Transactional` 承载；
+    - `StpUtil.logout` 时机不变：仍在 gateway 调用之后执行（且仍依赖 `userQueryGateway.findUsernameById(...).orElseThrow(() -> new BizException("用户ID不存在"))` 的异常文案）。
 
 ## 0.1 本次会话增量总结（2025-12-19，更新至 `HEAD`）
 
@@ -644,7 +649,17 @@
 17) **下一会话推荐重构任务：IAM 域 `UserUpdateGatewayImpl.deleteUser`（保持行为不变）**
    - 背景：`deleteUser` 涉及 DB 删除、LDAP 删除、角色解绑、缓存失效与日志记录，是 IAM 写侧典型“多副作用写流程”，当前仍在旧 gateway。
    - 目标：按“用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳”的套路收敛到 `bc-iam`（行为不变；`updateStatus` 已完成收敛，提交链：`e3fcdbf0/8e82e01f/eb54e13e`）。
-   - 行为不变约束（必须保持）：
-     - 异常类型/异常文案不变（例如：`"初始管理员账户不允许此操作"`、`"用户ID不存在"` 等）。
-     - 顺序与时机不变：旧逻辑的 DB 删除 → LDAP 删除 → 角色解绑 → 缓存失效 → 日志记录顺序保持一致；事务边界与调用方保持一致（避免引入 self-invocation 破坏事务）。
+   - 建议拆分提交（每步一条 commit，且每步跑最小回归）：
+     1) `bc-iam`：新增 `DeleteUserUseCase` + `UserDeletionPort`（命名可对齐现有范式）+ 纯单测（只测“委托端口一次”）。
+     2) `eva-infra`：新增端口适配器 `UserDeletionPortImpl`，把旧 `UserUpdateGatewayImpl.deleteUser` 的流程原样搬运（注意顺序与文案）。
+     3) `eva-app`：在 `BcIamConfiguration` 装配 `DeleteUserUseCase` Bean。
+     4) `eva-infra`：旧 `UserUpdateGatewayImpl.deleteUser` 退化为委托壳（只委托用例）。
+     5) 文档闭环：更新 `NEXT_SESSION_HANDOFF.md` / `DDD_REFACTOR_PLAN.md` / `docs/DDD_REFACTOR_BACKLOG.md`，记录提交链与行为约束。
+   - 关键约束（必须保持）：
+     - 异常类型/异常文案不变（尤其是 `checkAdmin` 的 `"初始管理员账户不允许此操作"`、以及 `checkIdExistence` 的 `"用户id不存在"`）。
+     - 顺序与时机不变：DB 删除 → LDAP 删除 → 角色解绑 → 缓存失效 → 日志记录。
      - 缓存 key/area 不变：沿用旧 `handleUserUpdateCache` 失效清单（含 `COURSE_LIST_BY_SEM` 等）。
+   - 关键落地点（便于快速定位）：
+     - 旧实现：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/user/UserUpdateGatewayImpl.java`
+     - 端口适配器目录：`eva-infra/src/main/java/edu/cuit/infra/bciam/adapter/`
+     - 组合根：`eva-app/src/main/java/edu/cuit/app/config/BcIamConfiguration.java`
