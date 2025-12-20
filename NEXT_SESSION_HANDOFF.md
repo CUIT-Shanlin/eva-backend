@@ -31,8 +31,8 @@
   - 落地：`bc-iam` 新增 `CreateUserUseCase` + `UserCreationPort` 与纯单测；`eva-infra` 新增 `UserCreationPortImpl` 端口适配器原样搬运旧流程；`eva-app` 组合根装配 Bean；旧 `UserUpdateGatewayImpl.createUser` 退化为委托壳（落地提交：`c3aa8739/a3232b78/a26e01b3/9e7d46dd`）。
 - ✅ IAM 域写侧继续收敛：`UserUpdateGatewayImpl.updateInfo` 收敛到 `bc-iam`（保持行为不变）。
   - 落地：`bc-iam` 新增 `UpdateUserInfoUseCase` + `UserInfoUpdatePort` 与纯单测；`eva-infra` 新增 `UserInfoUpdatePortImpl` 端口适配器原样搬运旧流程；`eva-app` 组合根装配 Bean；旧 `UserUpdateGatewayImpl.updateInfo` 退化为委托壳（落地提交：`38c31541/6ce61024/db0fd6a3/cb789e21`）。
-- ⏳ IAM 域写侧继续收敛：为 `UserUpdateGatewayImpl.updateStatus` 新增 `bc-iam` 用例/端口骨架（保持行为不变；待接入旧 gateway 委托壳）。
-  - 落地提交：`e3fcdbf0`（用例/端口骨架）、`8e82e01f`（`eva-infra` 端口适配器原样搬运旧流程）
+- ✅ IAM 域写侧继续收敛：`UserUpdateGatewayImpl.updateStatus` 收敛到 `bc-iam`（保持行为不变）。
+  - 落地：`bc-iam` 新增用例 + 端口；`eva-infra` 新增端口适配器原样搬运旧流程（DB 更新 → 缓存失效 → 日志）；`eva-app` 组合根装配 Bean；旧 `UserUpdateGatewayImpl.updateStatus` 退化为委托壳（落地提交：`e3fcdbf0/8e82e01f/eb54e13e`）。
 
 ## 0.1 本次会话增量总结（2025-12-19，更新至 `HEAD`）
 
@@ -637,14 +637,14 @@
    - 约束：每个小步完成后都执行 `mvn -pl start -am test -Dmaven.repo.local=.m2/repository` 并据失败补强回归。
 
 16) **当前未收敛清单（供下个会话优先处理）**
-   - IAM 域：`UserUpdateGatewayImpl.updateStatus/deleteUser` 仍在旧 gateway（`updateStatus`：DB 更新 + 缓存失效 + 日志；`deleteUser`：DB 删除 + LDAP 删除 + 角色解绑 + 缓存失效 + 日志；需保持行为不变）。
+   - IAM 域：`UserUpdateGatewayImpl.deleteUser` 仍在旧 gateway（DB 删除 + LDAP 删除 + 角色解绑 + 缓存失效 + 日志；需保持行为不变）。
    - 系统管理读侧：`UserQueryGatewayImpl.fileUserEntity` 等仍在旧 gateway（可按 QueryPort 渐进收敛，行为不变）。
    - AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`。
 
-17) **下一会话推荐重构任务：IAM 域 `UserUpdateGatewayImpl.updateStatus`（保持行为不变）**
-   - 背景：`updateStatus` 属于 IAM 写侧高频入口，涉及 DB 更新、缓存失效与日志记录；同时由 `UserServiceImpl.updateStatus` 在事务中调用，后续还会触发 `StpUtil.logout`（需保持时机不变）。
-   - 目标：按“用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳”的套路收敛到 `bc-iam`（行为不变；`updateInfo` 已完成收敛，提交链：`38c31541/6ce61024/db0fd6a3/cb789e21`）。
+17) **下一会话推荐重构任务：IAM 域 `UserUpdateGatewayImpl.deleteUser`（保持行为不变）**
+   - 背景：`deleteUser` 涉及 DB 删除、LDAP 删除、角色解绑、缓存失效与日志记录，是 IAM 写侧典型“多副作用写流程”，当前仍在旧 gateway。
+   - 目标：按“用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳”的套路收敛到 `bc-iam`（行为不变；`updateStatus` 已完成收敛，提交链：`e3fcdbf0/8e82e01f/eb54e13e`）。
    - 行为不变约束（必须保持）：
      - 异常类型/异常文案不变（例如：`"初始管理员账户不允许此操作"`、`"用户ID不存在"` 等）。
-     - 顺序与时机不变：旧逻辑的 DB 更新 → 缓存失效 → 日志记录顺序保持一致；事务边界仍在 `UserServiceImpl.updateStatus` 的 `@Transactional` 里；`StpUtil.logout` 仍在 gateway 调用之后执行。
+     - 顺序与时机不变：旧逻辑的 DB 删除 → LDAP 删除 → 角色解绑 → 缓存失效 → 日志记录顺序保持一致；事务边界与调用方保持一致（避免引入 self-invocation 破坏事务）。
      - 缓存 key/area 不变：沿用旧 `handleUserUpdateCache` 失效清单（含 `COURSE_LIST_BY_SEM` 等）。

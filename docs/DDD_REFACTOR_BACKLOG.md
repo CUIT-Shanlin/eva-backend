@@ -119,10 +119,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - IAM 写侧继续收敛（保持行为不变）：
   - 用户创建：`UserUpdateGatewayImpl.createUser` 收敛到 `bc-iam`（落地提交：`c3aa8739/a3232b78/a26e01b3/9e7d46dd`）。
   - 用户信息更新：`UserUpdateGatewayImpl.updateInfo` 收敛到 `bc-iam`（落地提交：`38c31541/6ce61024/db0fd6a3/cb789e21`）。
-
-**进行中（2025-12-20）**
-- IAM 写侧继续收敛（保持行为不变）：
-  - 用户状态更新：新增 `bc-iam` 用例/端口骨架 `UpdateUserStatusUseCase` / `UserStatusUpdatePort`，并在 `eva-infra` 新增 `UserStatusUpdatePortImpl` 原样搬运旧逻辑（落地提交：`e3fcdbf0/8e82e01f`；待旧 gateway 委托壳）。
+  - 用户状态更新：`UserUpdateGatewayImpl.updateStatus` 收敛到 `bc-iam`（落地提交：`e3fcdbf0/8e82e01f/eb54e13e`）。
 
 **已完成（2025-12-19）**
 - 评教写侧收敛（保持行为不变）：
@@ -150,7 +147,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：以下是仍在旧 gateway/技术切片中的能力，优先级按“写侧优先 + 影响范围”排序。
 
-1) IAM 写侧：`UserUpdateGatewayImpl.updateStatus/deleteUser` 仍在旧 gateway（含 LDAP/缓存/日志等副作用，保持行为不变）  
+1) IAM 写侧：`UserUpdateGatewayImpl.deleteUser` 仍在旧 gateway（含 LDAP/缓存/日志等副作用，保持行为不变）  
 2) AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`  
 3) 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分（保持统计口径不变）
 
@@ -266,7 +263,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 如果继续按“写侧优先”的策略推进，下一批候选（高 → 低）建议是：
 
-1) IAM 写侧继续收敛：优先 `UserUpdateGatewayImpl.updateStatus`（随后 `deleteUser`）  
+1) IAM 写侧继续收敛：优先 `UserUpdateGatewayImpl.deleteUser`（保持行为不变）  
 2) 评教读侧进一步解耦：拆分 QueryService（任务/记录/统计/模板），保持统计口径不变  
 3) AI 报告 / 审计日志：启动 `bc-ai-report` / `bc-audit` 的最小骨架，并选择 1 条高价值写链路先收敛（保持行为不变）  
 
