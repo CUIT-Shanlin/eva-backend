@@ -635,7 +635,7 @@
    - 约束：每个小步完成后都执行 `mvn -pl start -am test -Dmaven.repo.local=.m2/repository` 并据失败补强回归。
 
 16) **当前未收敛清单（供下个会话优先处理）**
-   - IAM 域：`UserUpdateGatewayImpl.updateStatus/deleteUser` 仍在旧 gateway（含 LDAP + 缓存失效 + 日志，需保持行为不变）。
+   - IAM 域：`UserUpdateGatewayImpl.updateStatus/deleteUser` 仍在旧 gateway（`updateStatus`：DB 更新 + 缓存失效 + 日志；`deleteUser`：DB 删除 + LDAP 删除 + 角色解绑 + 缓存失效 + 日志；需保持行为不变）。
    - 系统管理读侧：`UserQueryGatewayImpl.fileUserEntity` 等仍在旧 gateway（可按 QueryPort 渐进收敛，行为不变）。
    - AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`。
 

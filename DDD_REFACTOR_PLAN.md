@@ -512,7 +512,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 4) ✅ **评教读侧渐进收敛**：为 `EvaQueryGatewayImpl` 抽取 `EvaQueryRepo`，gateway 退化为委托壳（保持统计口径与异常文案不变；落地提交：`02f4167d`）。
 5) **评教读侧进一步解耦**：按用例维度拆分 QueryService（任务/记录/统计/模板），将 query 端口逐步迁到 `bc-evaluation` 应用层，`eva-infra` 仅保留实现（行为不变）。  
    - 进展：已拆分统计/导出、任务、记录、模板查询端口（`EvaStatisticsQueryPort` / `EvaTaskQueryPort` / `EvaRecordQueryPort` / `EvaTemplateQueryPort`），应用层开始迁移，行为保持不变；旧 `EvaQueryGatewayImpl` 已移除。
-6) **IAM 写侧继续收敛**：继续收敛 `UserUpdateGatewayImpl.updateStatus/deleteUser` 到 `bc-iam`（均含 LDAP/缓存/日志等副作用，保持行为不变）。
+6) **IAM 写侧继续收敛**：继续收敛 `UserUpdateGatewayImpl.updateStatus/deleteUser` 到 `bc-iam`（均含缓存失效/日志等副作用，其中 `deleteUser` 还包含 LDAP 删除与角色解绑，保持行为不变）。
 
 ### 10.3 未完成清单（滚动，供下一会话排期）
 
