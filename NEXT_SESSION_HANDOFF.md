@@ -25,8 +25,9 @@
   - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
 - ✅ 课程域查询/校验进一步收敛：`CourseUpdateGatewayImpl.isImported` 收敛到 `bc-course`（保持行为不变）。
   - 落地：`bc-course` 新增 QueryPort + UseCase；`eva-infra` 新增端口适配器原样搬运旧查询逻辑；旧 `CourseUpdateGatewayImpl.isImported` 退化为委托壳（落地提交：见本次提交，更新至 `HEAD`）。
-- ⏳ IAM 域写侧开始收敛：启动 `UserUpdateGatewayImpl.assignRole/createUser` 收敛到 `bc-iam`（保持行为不变）。
-  - 进展：已新增 `bc-iam` 模块，并落地 `assignRole` 用例骨架与纯单测；并新增 `eva-infra` 端口适配器与 `eva-app` 组合根装配（落地提交：见本次提交，更新至 `HEAD`）。
+- ✅ IAM 域写侧部分收敛：`UserUpdateGatewayImpl.assignRole` 收敛到 `bc-iam`（保持行为不变）。
+  - 落地：`bc-iam` 新增用例 + 端口；`eva-infra` 新增端口适配器原样搬运旧写流程；旧 `UserUpdateGatewayImpl.assignRole` 退化为委托壳（落地提交：见本次提交，更新至 `HEAD`）。
+- ⏳ IAM 域写侧待继续：`UserUpdateGatewayImpl.createUser` 仍在旧 gateway（保持行为不变）。
 
 ## 0.1 本次会话增量总结（2025-12-19，更新至 `HEAD`）
 

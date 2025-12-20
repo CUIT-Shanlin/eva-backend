@@ -4,6 +4,7 @@ import com.alibaba.cola.exception.BizException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import edu.cuit.bc.iam.application.usecase.AssignRoleUseCase;
 import edu.cuit.client.dto.cmd.user.NewUserCmd;
 import edu.cuit.client.dto.cmd.user.UpdateUserCmd;
 import edu.cuit.domain.entity.user.LdapPersonEntity;
@@ -27,7 +28,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Objects;
 
 @RequiredArgsConstructor
 @Component
@@ -46,6 +46,8 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
     private final LocalCacheManager cacheManager;
     private final UserCacheConstants userCacheConstants;
     private final CourseCacheConstants courseCacheConstants;
+
+    private final AssignRoleUseCase assignRoleUseCase;
 
     @Override
     public void updateInfo(UpdateUserCmd cmd) {
@@ -94,32 +96,8 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
 
     @Override
     public void assignRole(Integer userId, List<Integer> roleId) {
-        SysUserDO tmp = checkIdExistence(userId);
-
-        checkAdmin(userId);
-
-        Integer defaultRoleId = roleQueryGateway.getDefaultRoleId();
-        List<Integer> roleIdList = roleId.stream()
-                .distinct()
-                .filter(id -> !Objects.equals(id, defaultRoleId))
-                .toList();
-
-        //删除原来的
-        LambdaQueryWrapper<SysUserRoleDO> userRoleQuery = Wrappers.lambdaQuery();
-        userRoleQuery.eq(SysUserRoleDO::getUserId,userId)
-                .ne(SysUserRoleDO::getRoleId,defaultRoleId);
-        userRoleMapper.delete(userRoleQuery);
-
-        //插入新的
-        for (Integer id : roleIdList) {
-            userRoleMapper.insert(new SysUserRoleDO()
-                    .setUserId(userId)
-                    .setRoleId(id));
-        }
-
-        handleUserUpdateCache(userId);
-
-        LogUtils.logContent(tmp.getName() + " 用户(id:" + tmp.getId() + ")的角色信息");
+        // 历史路径：收敛到 bc-iam 用例，旧 gateway 退化为委托壳（保持行为不变）
+        assignRoleUseCase.execute(userId, roleId);
     }
 
     @Override
