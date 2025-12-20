@@ -19,6 +19,8 @@
   - 落地提交：见本次提交（更新至 `HEAD`）
 - ✅ 消息域写侧进一步收敛：收敛 `insertMessage` 到 `bc-messaging`（用例 + 端口 + `eva-infra` 端口适配器 + 旧 `MsgGatewayImpl` 委托壳；保持行为不变）。
   - 落地提交：见本次提交（更新至 `HEAD`）
+- ✅ 消息域写侧进一步收敛：收敛 `updateMsgDisplay` 到 `bc-messaging`（用例 + 端口 + `eva-infra` 端口适配器 + 旧 `MsgGatewayImpl` 委托壳；保持行为不变）。
+  - 落地提交：见本次提交（更新至 `HEAD`）
 - ✅ 最小回归已通过（Java17）：
   - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
 
@@ -643,14 +645,13 @@
    - 约束：每个小步完成后都执行 `mvn -pl start -am test -Dmaven.repo.local=.m2/repository` 并据失败补强回归。
 
 16) **当前未收敛清单（供下个会话优先处理）**
-   - 消息域：`MsgGatewayImpl` 仍为 CRUD 入口（其中删除/已读写侧、查询读侧、插入写侧已收敛到 `bc-messaging`，剩余 `display` 待继续收敛）。
    - 课程域：`CourseUpdateGatewayImpl.isImported` 仍保留在旧 gateway（偏查询/校验）。
    - IAM 域：`UserUpdateGatewayImpl.assignRole/createUser` 等仍未 BC 化。
    - AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`。
 
-17) **下一会话推荐重构任务：继续收敛消息域剩余 CRUD（保持行为不变）**
-   - 目标：按“用例 + 端口 + 旧 gateway 委托壳”的标准步骤，继续压扁 `eva-infra/.../MsgGatewayImpl`：
-     - `updateMsgDisplay`（仅自己可改显示状态）
+17) **下一会话推荐重构任务：课程域 `CourseUpdateGatewayImpl.isImported`（保持行为不变）**
+   - 背景：该方法属于“查询/校验仍在旧 gateway”的残留入口之一，可作为下一阶段收敛目标（优先级低于写侧，但利于清理旧 gateway 职责）。
+   - 建议做法：按“Query 用例 + QueryPort + `eva-infra` 端口适配器 + 旧 gateway 委托壳”的套路推进（保持异常文案与边界语义不变）。
    - 行为不变约束（必须保持）：
      - 过滤规则与边界值不变（`type/mode/num` 的 `null 或 <0` 语义保持不变；排序仍按 `create_time desc`）。
      - 权限校验与异常文案不变：仍为“只能修改自己的消息”。

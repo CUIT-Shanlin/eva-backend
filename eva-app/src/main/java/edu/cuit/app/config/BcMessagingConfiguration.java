@@ -2,6 +2,7 @@ package edu.cuit.app.config;
 
 import edu.cuit.bc.messaging.application.port.CourseBroadcastPort;
 import edu.cuit.bc.messaging.application.port.EvaMessageCleanupPort;
+import edu.cuit.bc.messaging.application.port.MessageDisplayPort;
 import edu.cuit.bc.messaging.application.port.MessageDeletionPort;
 import edu.cuit.bc.messaging.application.port.MessageInsertionPort;
 import edu.cuit.bc.messaging.application.port.MessageQueryPort;
@@ -13,6 +14,7 @@ import edu.cuit.bc.messaging.application.usecase.HandleCourseTeacherTaskMessages
 import edu.cuit.bc.messaging.application.usecase.InsertMessageUseCase;
 import edu.cuit.bc.messaging.application.usecase.MarkMessageReadUseCase;
 import edu.cuit.bc.messaging.application.usecase.QueryMessageUseCase;
+import edu.cuit.bc.messaging.application.usecase.UpdateMessageDisplayUseCase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -54,5 +56,10 @@ public class BcMessagingConfiguration {
     @Bean
     public InsertMessageUseCase insertMessageUseCase(MessageInsertionPort insertionPort) {
         return new InsertMessageUseCase(insertionPort);
+    }
+
+    @Bean
+    public UpdateMessageDisplayUseCase updateMessageDisplayUseCase(MessageDisplayPort displayPort) {
+        return new UpdateMessageDisplayUseCase(displayPort);
     }
 }

@@ -515,7 +515,6 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 ### 10.3 未完成清单（滚动，供下一会话排期）
 
-- 消息域：`MsgGatewayImpl` 仍为 CRUD 入口；其中“删除/已读”写侧、`queryMsg/queryTargetAmountMsg` 查询读侧、`insertMessage` 写侧已收敛到 `bc-messaging`，剩余 `updateMsgDisplay` 仍在旧 gateway（待继续收敛）。
 - 课程域：`CourseUpdateGatewayImpl.isImported` 仍保留在旧 gateway（偏查询/校验）。
 - IAM 域：`UserUpdateGatewayImpl.assignRole/createUser` 等仍未 BC 化。
 - AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`。
@@ -535,6 +534,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - `bc-messaging`：消息删除/已读写侧已收敛（用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；落地提交：`22cb60eb/dd7483aa`）。
 - `bc-messaging`：消息查询读侧已收敛（`queryMsg/queryTargetAmountMsg`：用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；落地提交：见本次提交）。
 - `bc-messaging`：消息插入写侧已收敛（`insertMessage`：用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；落地提交：见本次提交）。
+- `bc-messaging`：消息展示状态写侧已收敛（`updateMsgDisplay`：用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；落地提交：见本次提交）。
+- `eva-infra`：旧 `MsgGatewayImpl` 已全量退化为委托壳（CRUD 能力全部委托到 `bc-messaging`，行为不变）。
 - `bc-course`：多条课程写链路已收敛（导入课表、改课/自助课表、删课、课程类型、课次新增等），旧 gateway 逐步退化为委托壳。
 - `course`：课程读侧已结构化（`CourseQueryGatewayImpl` 退化委托壳 + `CourseQueryRepo` 抽取；落地提交：`ba8f2003`）。
 - `evaluation`：评教读侧已结构化（`EvaQueryGatewayImpl` 退化委托壳 + `EvaQueryRepo` 抽取；落地提交：`02f4167d`）。
