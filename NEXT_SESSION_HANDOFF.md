@@ -6,6 +6,13 @@
 
 ---
 
+## 0.2 本次会话增量总结（2025-12-20，更新至 `HEAD`）
+
+- ✅ 评教模板新增/修改写侧收敛到 `bc-evaluation`（新增用例 + 端口 + `eva-infra` 端口适配器，并切换 `eva-app` 入口；行为不变）。
+  - 落地提交：`ea03dbd3 refactor(evaluation): 评教模板新增/修改写侧收敛到bc-evaluation`
+- ✅ 最小回归已通过（Java17）：
+  - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
+
 ## 0.1 本次会话增量总结（2025-12-19，更新至 `HEAD`）
 
 - ✅ 评教任务发布写侧收敛到 `bc-evaluation`（用例 + 端口 + 旧 gateway 委托壳），并将“待办消息发送”改为事务提交后事件触发，避免回滚误推。
@@ -627,7 +634,6 @@
    - 约束：每个小步完成后都执行 `mvn -pl start -am test -Dmaven.repo.local=.m2/repository` 并据失败补强回归。
 
 16) **当前未收敛清单（供下个会话优先处理）**
-   - 评教写侧：`EvaUpdateGatewayImpl.updateEvaTemplate` / `addEvaTemplate` 仍在旧 gateway（模板新增/修改写流程未收敛到 `bc-evaluation`）。
    - 评教提交：`EvaUpdateGatewayImpl.putEvaTemplate` 旧实现仍保留（虽已引入 `SubmitEvaluationUseCase`，但旧逻辑尚未迁移/清理）。
    - 消息域：`MsgGatewayImpl` 仍为 CRUD 入口，尚未完全收敛到 `bc-messaging`。
    - 课程域：`CourseUpdateGatewayImpl.isImported` 仍保留在旧 gateway（偏查询/校验）。

@@ -515,7 +515,6 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 ### 10.3 未完成清单（滚动，供下一会话排期）
 
-- 评教写侧：`EvaUpdateGatewayImpl.updateEvaTemplate` / `addEvaTemplate` 仍在旧 gateway（模板新增/修改写流程未收敛到 `bc-evaluation`）。
 - 评教提交：`EvaUpdateGatewayImpl.putEvaTemplate` 旧实现仍保留（虽已引入 `SubmitEvaluationUseCase`，但旧逻辑尚未迁移/清理）。
 - 消息域：`MsgGatewayImpl` 仍为 CRUD 入口，尚未完全收敛到 `bc-messaging`。
 - 课程域：`CourseUpdateGatewayImpl.isImported` 仍保留在旧 gateway（偏查询/校验）。
@@ -550,6 +549,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - `evaluation`：旧 `EvaQueryGateway`/`EvaQueryGatewayImpl` 已移除，避免继续引入旧网关依赖。
 - 评教读侧用例级回归测试已补充（固化统计口径；落地提交：`a48cf044`）。
 - `start`：回归测试稳定化（去除本地文件/外部服务依赖；落地提交：`daf343ef`）。
+- `evaluation`：评教模板新增/修改写侧已收敛到 `bc-evaluation`（新增用例 + 端口 + `eva-infra` 端口适配器，并切换 `eva-app` 入口；落地提交：`ea03dbd3`）。
 - 冲突校验底层片段已收敛：
   - 教室占用冲突：`ClassroomOccupancyChecker`
   - 时间段重叠：`CourInfTimeOverlapQuery`
