@@ -514,15 +514,15 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
    - 进展：已拆分统计/导出、任务、记录、模板查询端口（`EvaStatisticsQueryPort` / `EvaTaskQueryPort` / `EvaRecordQueryPort` / `EvaTemplateQueryPort`），应用层开始迁移，行为保持不变；旧 `EvaQueryGatewayImpl` 已移除。
 6) ✅ **IAM 写侧继续收敛**：`UserUpdateGatewayImpl.deleteUser` 已收敛到 `bc-iam`（含 LDAP 删除、角色解绑、缓存失效/日志等副作用，保持行为不变；落地提交：`5f08151c/e23c810a/cccd75a3/2846c689`）。
 7) ✅ **系统管理读侧渐进收敛**：`UserQueryGatewayImpl` 的用户查询能力已收敛到 `bc-iam`（保持行为不变；落地提交：`3e6f2cb2/8c245098/92a9beb3`、`9f664229/38384628/de662d1c/8a74faf5`、`56bbafcf/7e5f0a74/bc5fb3c6/6a1332b0`）。
-8) **系统管理写侧继续收敛**：优先收敛 `RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole` 与菜单变更触发的缓存失效（`MenuUpdateGatewayImpl.handleUserMenuCache` 等），按“用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳”套路推进（保持行为不变）。
-   - 进展：已用 Serena 复核旧实现的异常文案、缓存 key/area、失效顺序与 `LogUtils.logContent` 顺序，并固化到 `NEXT_SESSION_HANDOFF.md`；已新增 `bc-iam` 用例/端口骨架与纯单测，`eva-infra` 端口适配器已原样搬运旧逻辑，旧 gateway 已退化为委托壳（入口不变、行为不变）。
+8) ✅ **系统管理写侧继续收敛**：`RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole` 与菜单变更触发的缓存失效（`MenuUpdateGatewayImpl.handleUserMenuCache`）已收敛到 `bc-iam`（用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；保持行为不变）。
+   - 落地提交链：`f8838951/91d13db4/7fce88b8/d6e3bed1/4d650166`
 
 ### 10.3 未完成清单（滚动，供下一会话排期）
 
 - IAM 域：开始引入 `bc-iam`，已收敛 `UserUpdateGatewayImpl.assignRole/createUser/updateInfo/updateStatus/deleteUser`（落地提交：`16ff60b6/b65d311f/a707ab86`、`c3aa8739/a3232b78/a26e01b3/9e7d46dd`、`38c31541/6ce61024/db0fd6a3/cb789e21`、`e3fcdbf0/8e82e01f/eb54e13e`、`5f08151c/e23c810a/cccd75a3/2846c689`，保持行为不变）。
 - 系统管理读侧：`UserQueryGatewayImpl.fileUserEntity` 与基础查询能力（`findIdByUsername/findUsernameById/getUserStatus/isUsernameExist`）已收敛到 `bc-iam`（保持行为不变；落地提交：`3e6f2cb2/8c245098/92a9beb3`、`9f664229/38384628/de662d1c/8a74faf5`）。
 - 系统管理读侧：`UserQueryGatewayImpl.findAllUserId/findAllUsername/allUser/getUserRoleIds` 已收敛到 `bc-iam`（保持行为不变；落地提交：`56bbafcf/7e5f0a74/bc5fb3c6/6a1332b0`）。
-- 系统管理（缓存/权限变更副作用）：`MenuUpdateGatewayImpl.handleUserMenuCache`、`RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole` 等仍在旧 gateway（保持行为不变）。
+- 系统管理写侧：菜单写侧主链路（`MenuUpdateGatewayImpl.updateMenuInfo/deleteMenu/deleteMultipleMenu/createMenu` 等）仍在旧 gateway（非本次目标）；若后续决定“整体收敛到 bc-iam”，建议按“入口用例化 → 端口搬运 → 旧 gateway 委托壳”再拆一轮（保持行为不变）。
 - AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`。
 - 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分。
 

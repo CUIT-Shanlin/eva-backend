@@ -3,7 +3,7 @@ title: DDD 渐进式重构目标清单与行为框架
 repo: eva-backend
 branch: ddd
 generated_at: 2025-12-18
-updated_at: 2025-12-20
+updated_at: 2025-12-21
 scope: 全仓库（离线扫描 + 规则归纳）
 ---
 
@@ -101,19 +101,13 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
-**进行中（2025-12-21）**
-- 系统管理写侧继续收敛（保持行为不变）：
-  - 已完成 Step1：用 Serena 复核 `RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole` 与 `MenuUpdateGatewayImpl.handleUserMenuCache` 的异常文案、缓存 key/失效顺序与日志顺序，并固化到交接文档，作为后续“原样搬运”的对照基线。
-  - 已完成 Step2：新增 `bc-iam` 写侧用例骨架 + 端口，并补齐纯单测（仅验证“委托一次”）。
-  - 已完成 Step3：新增 `eva-infra` 端口适配器并原样搬运角色写侧旧逻辑（`assignPerms/deleteMultipleRole`，含缓存失效与日志顺序），为旧 gateway 委托化做准备。
-  - 已完成 Step4：新增菜单变更触发的用户菜单缓存失效用例/端口/端口适配器（`handleUserMenuCache`），为旧 `MenuUpdateGatewayImpl` 委托化做准备。
-  - 已完成 Step5：`BcIamConfiguration` 装配新用例 Bean；旧 `RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole` 与 `MenuUpdateGatewayImpl.handleUserMenuCache` 已退化为委托壳（入口不变、行为不变）。
-
 **已完成（2025-12-21）**
 - IAM 写侧继续收敛（保持行为不变）：
   - 用户删除：`UserUpdateGatewayImpl.deleteUser` 收敛到 `bc-iam`（落地提交：`5f08151c/e23c810a/cccd75a3/2846c689`）。
 - 系统管理读侧渐进收敛（保持行为不变）：
   - 用户查询装配：`UserQueryGatewayImpl.fileUserEntity` 收敛到 `bc-iam`（落地提交：`3e6f2cb2/8c245098/92a9beb3`）。
+- 系统管理写侧继续收敛（保持行为不变）：
+  - 角色/菜单缓存与权限变更副作用收敛到 `bc-iam`：`RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole`、`MenuUpdateGatewayImpl.handleUserMenuCache`（落地提交链：`f8838951/91d13db4/7fce88b8/d6e3bed1/4d650166`）。
 
 **已完成（2025-12-20）**
 - 评教写侧进一步收敛（保持行为不变）：
@@ -161,9 +155,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：以下是仍在旧 gateway/技术切片中的能力，优先级按“写侧优先 + 影响范围”排序。
 
-1) 系统管理（缓存/权限变更副作用）：`MenuUpdateGatewayImpl.handleUserMenuCache`、`RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole` 等仍在旧 gateway（保持行为不变）
-2) AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`  
-3) 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分（保持统计口径不变）
+1) AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`  
+2) 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分（保持统计口径不变）
 
 ---
 
@@ -252,8 +245,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ `eva-infra/.../user/UserQueryGatewayImpl.fileUserEntity`（~30 LOC，已收敛到 `bc-iam`；落地提交：`3e6f2cb2/8c245098/92a9beb3`）
 - ✅ `eva-infra/.../user/UserQueryGatewayImpl.findIdByUsername/findUsernameById/getUserStatus/isUsernameExist`（~20~40 LOC，已收敛到 `bc-iam`；保持行为不变；落地提交：`9f664229/38384628/de662d1c/8a74faf5`）
 - ✅ `eva-infra/.../user/UserQueryGatewayImpl.findAllUserId/findAllUsername/allUser/getUserRoleIds`（~15~30 LOC，已收敛到 `bc-iam`；保持行为不变；落地提交：`56bbafcf/7e5f0a74/bc5fb3c6/6a1332b0`）
-- `eva-infra/.../user/MenuUpdateGatewayImpl.handleUserMenuCache`（~19 LOC）
-- `eva-infra/.../user/RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole`（~17~18 LOC）
+- ✅ `eva-infra/.../user/MenuUpdateGatewayImpl.handleUserMenuCache`（~19 LOC，已收敛到 `bc-iam`；保持行为不变；落地提交链：`f8838951/91d13db4/7fce88b8/d6e3bed1/4d650166`）
+- ✅ `eva-infra/.../user/RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole`（~17~18 LOC，已收敛到 `bc-iam`；保持行为不变；落地提交链：`f8838951/91d13db4/7fce88b8/d6e3bed1/4d650166`）
 
 建议策略：
 - 若拆 BC，可考虑独立 `bc-iam`（或 `bc-user`）来承载权限/用户域用例与端口；否则保持为“薄 CRUD gateway”，优先级可低于课程/评教主链路。
@@ -279,7 +272,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 如果继续按“写侧优先”的策略推进，下一批候选（高 → 低）建议是：
 
-1) 系统管理写侧继续收敛：优先收敛 `RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole` 与菜单变更触发的缓存失效（`MenuUpdateGatewayImpl.handleUserMenuCache` 等），保持行为不变  
+1) ✅ 系统管理写侧继续收敛：`RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole` 与菜单变更触发的缓存失效（`MenuUpdateGatewayImpl.handleUserMenuCache`）已收敛到 `bc-iam`（保持行为不变；落地提交链：`f8838951/91d13db4/7fce88b8/d6e3bed1/4d650166`）  
 2) AI 报告 / 审计日志：启动 `bc-ai-report` / `bc-audit` 的最小骨架，并选择 1 条高价值写链路先收敛（保持行为不变）  
 3) 评教读侧进一步解耦：拆分 QueryService（任务/记录/统计/模板），保持统计口径不变  
 
