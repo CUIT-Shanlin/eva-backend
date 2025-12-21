@@ -119,6 +119,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - 迁移 `UserBasicQueryPortImpl` 到 `bc-iam-infra`（包名/类名/行为保持不变；落地提交：`070068ec`）。
   - 迁移 `RoleWritePortImpl` 到 `bc-iam-infra`（包名/类名/行为保持不变；落地提交：`03ceb685`）。
   - 迁移 `UserMenuCacheInvalidationPortImpl` 到 `bc-iam-infra`（包名/类名/行为保持不变；落地提交：`02b3e8aa`）。
+  - 迁移 `MenuWritePortImpl` 到 `bc-iam-infra`（包名/类名/行为保持不变；落地提交：`6b9d2ce7`）。
 
 **已完成（2025-12-20）**
 - 评教写侧进一步收敛（保持行为不变）：
