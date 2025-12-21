@@ -38,6 +38,17 @@
 - ✅ 最小回归已通过（Java17）：
   - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
 
+## 0.8 本次会话增量总结（2025-12-21，更新至 `HEAD`）
+
+- ✅ 中期里程碑推进：引入 `bc-iam-infra` Maven 子模块骨架（先让“基础设施归属”可落地，后续再逐步迁移 `bciam/adapter/*`；保持行为不变）。
+  - 组合根：`eva-app` 已依赖 `bc-iam-infra`，确保后续迁移的 Spring Bean 仍在运行时 classpath 上。
+  - 落地提交：`42a6f66f`
+  - 下一步拆分与里程碑/提交点（每步一条 commit；每步跑最小回归；每步完成更新三份文档）：
+    1) Serena：梳理 `edu.cuit.infra.bciam.adapter.UserBasicQueryPortImpl` 的引用与装配路径（确认迁移仅涉及类位置，不改变注入语义）。
+    2) 迁移 `UserBasicQueryPortImpl`：从 `eva-infra` 移到 `bc-iam-infra`（包名/类名保持不变）。
+    3) 迁移 `RoleWritePortImpl`：从 `eva-infra` 移到 `bc-iam-infra`（保持日志/缓存/异常/副作用顺序不变）。
+    4) 迁移 `MenuWritePortImpl`、`UserMenuCacheInvalidationPortImpl`：同上（优先按影响面从小到大拆分）。
+
 ## 0.6 本次会话增量总结（2025-12-21，更新至 `HEAD`）
 
 - ✅ 系统管理写侧继续收敛：**菜单写侧主链路**收敛到 `bc-iam`（用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；保持行为不变）。
@@ -839,9 +850,10 @@
    - 强约束保持：异常文案不变；缓存失效 key 与时机不变；日志文案与触发时机不变；副作用顺序不变。
    - 落地提交：`64fadb20`
 
-25) **中期里程碑建议：BC “自包含三层结构”落地（以 `bc-iam` 先试点）**
+25) ⏳ **中期里程碑：BC “自包含三层结构”落地（以 `bc-iam` 先试点）**
    - 目标：让 `bc-iam` 在模块边界上也更贴近最终形态（最少做到 package 结构完整；更进一步可拆 Maven 子模块）。
    - 推荐拆分路径（先小步、可回滚、行为不变）：
      1) 先统一文档与命名：将“旧 gateway = 委托壳 / 入口适配器”的约定固化（本条目已完成）。
-     2) 以 `bc-iam` 为试点：将 `eva-infra/src/main/java/edu/cuit/infra/bciam/adapter/*` 逐步迁移到 `bc-iam` 自己的 `infrastructure`（或 `bc-iam-infra` 子模块），并由 `start`/组合根装配（行为不变）。
-     3) 当 `bc-iam` 完成三层自包含后，再评估把 `eva-domain` 中与 IAM 强相关的类型逐步迁移到 `bc-iam-domain`（谨慎推进，避免牵连其它 BC；共享部分沉淀到 `shared-kernel`）。
+     2) ✅ 以 `bc-iam` 为试点：已引入 `bc-iam-infra` 子模块骨架，并由 `eva-app` 装配（提交：`42a6f66f`）。
+     3) 逐步迁移：将 `eva-infra/src/main/java/edu/cuit/infra/bciam/adapter/*` 分批迁移到 `bc-iam-infra`（行为不变）。
+     4) 当 `bc-iam` 完成三层自包含后，再评估把 `eva-domain` 中与 IAM 强相关的类型逐步迁移到 `bc-iam-domain`（谨慎推进，避免牵连其它 BC；共享部分沉淀到 `shared-kernel`）。

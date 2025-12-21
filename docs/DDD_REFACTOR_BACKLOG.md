@@ -114,6 +114,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - 角色/菜单缓存与权限变更副作用收敛到 `bc-iam`：`RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole`、`MenuUpdateGatewayImpl.handleUserMenuCache`（落地提交链：`f8838951/91d13db4/7fce88b8/d6e3bed1/4d650166/46e666f9`）。
   - 菜单写侧主链路收敛到 `bc-iam`：`MenuUpdateGatewayImpl.updateMenuInfo/deleteMenu/deleteMultipleMenu/createMenu`（落地提交：`f022c415`）。
   - 角色写侧剩余入口收敛到 `bc-iam`：`RoleUpdateGatewayImpl.updateRoleInfo/updateRoleStatus/deleteRole/createRole`（落地提交：`64fadb20`）。
+- 中期里程碑推进（保持行为不变）：
+  - 引入 `bc-iam-infra` Maven 子模块骨架并接入组合根，为后续迁移 `bciam/adapter/*` 提供落点（落地提交：`42a6f66f`）。
 
 **已完成（2025-12-20）**
 - 评教写侧进一步收敛（保持行为不变）：
@@ -163,7 +165,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 1) AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`  
 2) 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分（保持统计口径不变）
-3) 中期里程碑：以 `bc-iam` 为试点推进“BC 自包含三层结构”（保持行为不变）
+3) 中期里程碑：`bc-iam` 三层自包含推进中（已引入 `bc-iam-infra` 骨架，待迁移 `bciam/adapter/*`；保持行为不变）
 
 ---
 
@@ -281,7 +283,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 1) AI 报告 / 审计日志：启动 `bc-ai-report` / `bc-audit` 的最小骨架，并选择 1 条高价值写链路先收敛（保持行为不变）  
 2) 评教读侧进一步解耦：拆分 QueryService（任务/记录/统计/模板），保持统计口径不变  
-3) 中期里程碑：以 `bc-iam` 为试点推进“BC 自包含三层结构”（保持行为不变）  
+3) `bc-iam` 三层自包含（继续）：将 `eva-infra/.../bciam/adapter/*` 分批迁移到 `bc-iam-infra`（保持行为不变）  
 
 ---
 

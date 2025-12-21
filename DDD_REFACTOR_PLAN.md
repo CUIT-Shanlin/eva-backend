@@ -520,6 +520,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
    - 菜单写侧主链路（`MenuUpdateGatewayImpl.updateMenuInfo/deleteMenu/deleteMultipleMenu/createMenu`）已收敛到 `bc-iam`（保持行为不变；落地提交：`f022c415`）。
    - 角色写侧剩余入口（`RoleUpdateGatewayImpl.updateRoleInfo/updateRoleStatus/deleteRole/createRole`）已收敛到 `bc-iam`（保持行为不变；落地提交：`64fadb20`）。
 10) **AI 报告 / 审计日志模块化（建议）**：启动 `bc-ai-report` / `bc-audit` 最小骨架，并优先挑选 1 条写链路按同套路收敛（保持行为不变）。
+11) ⏳ **BC 自包含三层结构试点（`bc-iam`）**：已引入 `bc-iam-infra` Maven 子模块骨架并接入组合根，后续逐步迁移 `bciam/adapter/*`（保持行为不变；落地提交：`42a6f66f`）。
 
 ### 10.4 术语澄清与最终目标结构（减少“gateway”混淆）
 
@@ -543,6 +544,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 系统管理读侧：`UserQueryGatewayImpl.fileUserEntity` 与基础查询能力（`findIdByUsername/findUsernameById/getUserStatus/isUsernameExist`）已收敛到 `bc-iam`（保持行为不变；落地提交：`3e6f2cb2/8c245098/92a9beb3`、`9f664229/38384628/de662d1c/8a74faf5`）。
 - 系统管理读侧：`UserQueryGatewayImpl.findAllUserId/findAllUsername/allUser/getUserRoleIds` 已收敛到 `bc-iam`（保持行为不变；落地提交：`56bbafcf/7e5f0a74/bc5fb3c6/6a1332b0`）。
 - 系统管理写侧：角色写侧剩余入口已收敛到 `bc-iam`（保持行为不变；落地提交：`64fadb20`）。
+- 中期里程碑（进行中）：已引入 `bc-iam-infra` 子模块骨架并接入组合根，下一步迁移 `eva-infra/.../bciam/adapter/*`（落地提交：`42a6f66f`）。
 - AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`。
 - 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分。
 
