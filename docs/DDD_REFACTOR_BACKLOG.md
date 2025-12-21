@@ -153,8 +153,9 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：以下是仍在旧 gateway/技术切片中的能力，优先级按“写侧优先 + 影响范围”排序。
 
-1) AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`  
-2) 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分（保持统计口径不变）
+1) 系统管理读侧：`UserQueryGatewayImpl.findIdByUsername/findUsernameById/getUserStatus/isUsernameExist` 等仍在旧 gateway（含缓存读写与 Optional 语义，保持行为不变）  
+2) AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`  
+3) 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分（保持统计口径不变）
 
 ---
 
@@ -241,6 +242,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ `eva-infra/.../user/UserUpdateGatewayImpl.assignRole`（~30 LOC，已收敛到 `bc-iam`；落地提交：`16ff60b6/b65d311f/a707ab86`）
 - ✅ `eva-infra/.../user/UserUpdateGatewayImpl.createUser`（~23 LOC，已收敛到 `bc-iam`；落地提交：`c3aa8739/a3232b78/a26e01b3/9e7d46dd`）
 - ✅ `eva-infra/.../user/UserQueryGatewayImpl.fileUserEntity`（~30 LOC，已收敛到 `bc-iam`；落地提交：`3e6f2cb2/8c245098/92a9beb3`）
+- `eva-infra/.../user/UserQueryGatewayImpl.findIdByUsername/findUsernameById/getUserStatus/isUsernameExist`（~20~40 LOC，含缓存读写；保持行为不变）
 - `eva-infra/.../user/MenuUpdateGatewayImpl.handleUserMenuCache`（~19 LOC）
 - `eva-infra/.../user/RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole`（~17~18 LOC）
 

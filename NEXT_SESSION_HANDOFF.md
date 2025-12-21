@@ -11,7 +11,11 @@
 - ✅ IAM 域写侧继续收敛：`UserUpdateGatewayImpl.deleteUser` 收敛到 `bc-iam`（用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；保持行为不变）。
   - 落地提交链：`5f08151c/e23c810a/cccd75a3/2846c689`
 - ✅ 系统管理读侧渐进收敛：`UserQueryGatewayImpl.fileUserEntity` 收敛到 `bc-iam`（用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；保持行为不变）。
-  - 落地提交链：`3e6f2cb2/8c245098/92a9beb3`
+  - 落地提交链：`3e6f2cb2/8c245098/92a9beb3`（文档同步：`0a7802e2`）
+  - 行为快照（供回归对照）：
+    - 异常不变：菜单查询仍可能抛出 `SysException("菜单查询出错，请联系管理员")`，且仍会 `log.error("菜单查询出错", sysException)`；
+    - 缓存不变：`findById/findByUsername/page` 的 `@LocalCached` 仍保留在旧 `UserQueryGatewayImpl` 上，缓存命中/回源语义不变；
+    - API 不变：对外仍通过 `UserQueryGateway` 暴露 `findById/findByUsername/page`。
 - ✅ 最小回归已通过（Java17）：
   - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
 
@@ -651,6 +655,7 @@
    - 约束：每个小步完成后都执行 `mvn -pl start -am test -Dmaven.repo.local=.m2/repository` 并据失败补强回归。
 
 16) **当前未收敛清单（供下个会话优先处理）**
+   - 系统管理读侧：`UserQueryGatewayImpl.findIdByUsername/findUsernameById/getUserStatus/isUsernameExist` 等仍在旧 gateway（含缓存读写与 Optional 语义，保持行为不变）。
    - AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`。
 
 17) ✅ **已完成：IAM 域 `UserUpdateGatewayImpl.deleteUser` 收敛到 `bc-iam`（保持行为不变）**
@@ -664,3 +669,31 @@
      - 用例与端口：`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/DeleteUserUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/UserDeletionPort.java`
      - 端口适配器：`eva-infra/src/main/java/edu/cuit/infra/bciam/adapter/UserDeletionPortImpl.java`
      - 组合根：`eva-app/src/main/java/edu/cuit/app/config/BcIamConfiguration.java`
+
+18) ✅ **已完成：系统管理读侧 `UserQueryGatewayImpl.fileUserEntity` 收敛到 `bc-iam`（保持行为不变）**
+   - 背景：`fileUserEntity` 负责“用户实体装配”（角色 + 菜单），是典型的读侧聚合装配逻辑，长期堆在旧 gateway 内。
+   - 目标：按“用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳”的套路把装配逻辑收敛到 `bc-iam`（行为不变）。
+   - 落地提交链：`3e6f2cb2/8c245098/92a9beb3`（文档同步：`0a7802e2`）。
+   - 关键约束（行为快照，必须保持）：
+     - 异常类型/异常文案不变：菜单查询失败仍抛 `SysException("菜单查询出错，请联系管理员")`，且保持 `log.error("菜单查询出错", sysException)`。
+     - 组合方式不变：角色来源仍为 `userQueryGateway.getUserRoleIds(userId)`；菜单来源仍为 `roleQueryGateway.getRoleMenuIds(roleId)` 并逐个 `menuQueryGateway.getOne(menuId)`。
+     - 缓存不变：`findById/findByUsername/page` 的 `@LocalCached` 仍保留在旧 `UserQueryGatewayImpl` 上（入口不变）。
+   - 关键落地点（便于快速定位）：
+     - 用例：`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/FindUserByIdUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/FindUserByUsernameUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/PageUserUseCase.java`
+     - 端口：`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/UserEntityQueryPort.java`
+     - 端口适配器：`eva-infra/src/main/java/edu/cuit/infra/bciam/adapter/UserEntityQueryPortImpl.java`
+     - 旧 gateway（已退化委托壳）：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/user/UserQueryGatewayImpl.java`
+     - 组合根：`eva-app/src/main/java/edu/cuit/app/config/BcIamConfiguration.java`
+
+19) **下一会话推荐重构任务：系统管理读侧 `UserQueryGatewayImpl.findIdByUsername/findUsernameById/getUserStatus`（保持行为不变）**
+   - 背景：这些方法同时包含“缓存命中判断 + DB 回源”逻辑，属于读侧典型技术债；当前仍在旧 gateway。
+   - 目标：按“用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳”套路继续收敛到 `bc-iam`（行为不变）。
+   - 建议拆分提交（每步一条 commit，且每步跑最小回归）：
+     1) `bc-iam`：为 `findIdByUsername/findUsernameById/getUserStatus` 新增 QueryPort 方法 + 用例骨架 + 纯单测（只测委托一次）。
+     2) `eva-infra`：新增端口适配器实现，原样搬运旧的缓存读取与 DB 回源逻辑（含 Optional/null 处理与潜在 NPE 行为）。
+     3) `eva-app`：在 `BcIamConfiguration` 装配新 QueryUseCase Bean。
+     4) `eva-infra`：旧 `UserQueryGatewayImpl` 对应方法退化为委托壳（入口不变）。
+     5) 文档闭环：更新 `NEXT_SESSION_HANDOFF.md` / `DDD_REFACTOR_PLAN.md` / `docs/DDD_REFACTOR_BACKLOG.md`，记录提交链与行为约束。
+   - 关键约束（必须保持）：
+     - 缓存读取语义不变：仍需先尝试读取 `LocalCacheManager` 中的 `ONE_USER_ID/ONE_USER_USERNAME`；
+     - 返回值语义不变：仍保持历史 `Optional`/`null` 行为（包括 `getUserStatus` 的历史空值/异常表现）。
