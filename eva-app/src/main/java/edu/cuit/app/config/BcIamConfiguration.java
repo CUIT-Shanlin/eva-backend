@@ -6,12 +6,17 @@ import edu.cuit.bc.iam.application.port.UserDirectoryQueryPort;
 import edu.cuit.bc.iam.application.port.UserEntityQueryPort;
 import edu.cuit.bc.iam.application.port.UserDeletionPort;
 import edu.cuit.bc.iam.application.port.UserInfoUpdatePort;
+import edu.cuit.bc.iam.application.port.RoleBatchDeletionPort;
+import edu.cuit.bc.iam.application.port.RolePermissionAssignmentPort;
 import edu.cuit.bc.iam.application.port.UserRoleAssignmentPort;
+import edu.cuit.bc.iam.application.port.UserMenuCacheInvalidationPort;
 import edu.cuit.bc.iam.application.port.UserStatusUpdatePort;
 import edu.cuit.bc.iam.application.usecase.AllUserUseCase;
 import edu.cuit.bc.iam.application.usecase.AssignRoleUseCase;
+import edu.cuit.bc.iam.application.usecase.AssignRolePermsUseCase;
 import edu.cuit.bc.iam.application.usecase.CreateUserUseCase;
 import edu.cuit.bc.iam.application.usecase.DeleteUserUseCase;
+import edu.cuit.bc.iam.application.usecase.DeleteMultipleRoleUseCase;
 import edu.cuit.bc.iam.application.usecase.FindAllUserIdUseCase;
 import edu.cuit.bc.iam.application.usecase.FindAllUsernameUseCase;
 import edu.cuit.bc.iam.application.usecase.FindUserIdByUsernameUseCase;
@@ -20,6 +25,7 @@ import edu.cuit.bc.iam.application.usecase.FindUsernameByIdUseCase;
 import edu.cuit.bc.iam.application.usecase.FindUserByIdUseCase;
 import edu.cuit.bc.iam.application.usecase.FindUserByUsernameUseCase;
 import edu.cuit.bc.iam.application.usecase.GetUserStatusUseCase;
+import edu.cuit.bc.iam.application.usecase.HandleUserMenuCacheUseCase;
 import edu.cuit.bc.iam.application.usecase.IsUsernameExistUseCase;
 import edu.cuit.bc.iam.application.usecase.PageUserUseCase;
 import edu.cuit.bc.iam.application.usecase.UpdateUserInfoUseCase;
@@ -111,5 +117,20 @@ public class BcIamConfiguration {
     @Bean
     public GetUserRoleIdsUseCase getUserRoleIdsUseCase(UserDirectoryQueryPort queryPort) {
         return new GetUserRoleIdsUseCase(queryPort);
+    }
+
+    @Bean
+    public AssignRolePermsUseCase assignRolePermsUseCase(RolePermissionAssignmentPort assignmentPort) {
+        return new AssignRolePermsUseCase(assignmentPort);
+    }
+
+    @Bean
+    public DeleteMultipleRoleUseCase deleteMultipleRoleUseCase(RoleBatchDeletionPort deletionPort) {
+        return new DeleteMultipleRoleUseCase(deletionPort);
+    }
+
+    @Bean
+    public HandleUserMenuCacheUseCase handleUserMenuCacheUseCase(UserMenuCacheInvalidationPort invalidationPort) {
+        return new HandleUserMenuCacheUseCase(invalidationPort);
     }
 }

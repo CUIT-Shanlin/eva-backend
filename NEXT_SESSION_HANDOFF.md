@@ -764,7 +764,10 @@
        - 用例：`bc-iam/.../HandleUserMenuCacheUseCase`
        - 端口：`bc-iam/.../UserMenuCacheInvalidationPort`
        - 端口适配器：`eva-infra/.../UserMenuCacheInvalidationPortImpl`
-     - 下一步：在 `eva-app` 的 `BcIamConfiguration` 装配新用例 Bean，并让旧 `RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole` 退化为委托壳（入口不变、行为不变）。
+     - 已在 `eva-app` 的 `BcIamConfiguration` 装配新用例 Bean，并让旧 gateway 退化为委托壳：
+       - `RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole` 已改为委托 `bc-iam` 用例（入口不变、行为不变）。
+       - `MenuUpdateGatewayImpl.handleUserMenuCache` 已改为委托 `bc-iam` 用例（调用次数与调用顺序保持不变）。
+     - 下一步：文档闭环（补齐本次提交链与下一步里程碑/提交点），并在后续会话按优先级继续收敛“菜单写侧入口（若决定整体收敛）”。
    - 建议拆分提交（每步一条 commit，且每步跑最小回归；每步结束要刷新下一步计划后再结束会话）：
      1) Serena：定位旧实现与调用方，补齐异常文案/缓存 key/失效顺序快照（含 `checkRoleId/checkDefaultRole/handleRoleUpdateCache/handleUserMenuCache`）。
      2) `bc-iam`：新增用例骨架 + 端口（可按“权限分配/批量删除”拆分），并补齐纯单测（只测委托一次）。

@@ -3,6 +3,7 @@ package edu.cuit.infra.gateway.impl.user;
 import com.alibaba.cola.exception.BizException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import edu.cuit.bc.iam.application.usecase.HandleUserMenuCacheUseCase;
 import edu.cuit.client.dto.cmd.user.NewMenuCmd;
 import edu.cuit.client.dto.cmd.user.UpdateMenuCmd;
 import edu.cuit.domain.entity.user.biz.MenuEntity;
@@ -43,6 +44,8 @@ public class MenuUpdateGatewayImpl implements MenuUpdateGateway {
 
     private final LocalCacheManager localCacheManager;
     private final UserCacheConstants userCacheConstants;
+
+    private final HandleUserMenuCacheUseCase handleUserMenuCacheUseCase;
 
     @Override
     @LocalCacheInvalidateContainer({
@@ -99,22 +102,7 @@ public class MenuUpdateGatewayImpl implements MenuUpdateGateway {
     }
 
     private void handleUserMenuCache(Integer menuId) {
-        localCacheManager.invalidateCache(null,userCacheConstants.ALL_MENU);
-
-        LambdaQueryWrapper<SysRoleMenuDO> roleQuery = Wrappers.lambdaQuery();
-        roleQuery.eq(SysRoleMenuDO::getMenuId,menuId)
-                .select(SysRoleMenuDO::getRoleId);
-        roleMenuMapper.selectList(roleQuery).forEach(roleMenu -> {
-            localCacheManager.invalidateCache(userCacheConstants.ONE_ROLE, String.valueOf(roleMenu.getRoleId()));
-
-            LambdaQueryWrapper<SysUserRoleDO> userRoleQuery = Wrappers.lambdaQuery();
-            userRoleQuery.eq(SysUserRoleDO::getRoleId,roleMenu.getRoleId())
-                    .select(SysUserRoleDO::getUserId);
-            userRoleMapper.selectList(userRoleQuery).forEach(userRole -> {
-                localCacheManager.invalidateCache(userCacheConstants.ONE_USER_ID ,String.valueOf(userRole.getUserId()));
-                localCacheManager.invalidateCache(userCacheConstants.ONE_USER_USERNAME,userQueryGateway.findUsernameById(userRole.getUserId()).orElse(null));
-            });
-        });
+        handleUserMenuCacheUseCase.execute(menuId);
     }
 
     private void deleteMenuAndChildren(Integer menuId) {

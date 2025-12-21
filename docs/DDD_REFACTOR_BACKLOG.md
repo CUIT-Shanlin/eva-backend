@@ -107,6 +107,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - 已完成 Step2：新增 `bc-iam` 写侧用例骨架 + 端口，并补齐纯单测（仅验证“委托一次”）。
   - 已完成 Step3：新增 `eva-infra` 端口适配器并原样搬运角色写侧旧逻辑（`assignPerms/deleteMultipleRole`，含缓存失效与日志顺序），为旧 gateway 委托化做准备。
   - 已完成 Step4：新增菜单变更触发的用户菜单缓存失效用例/端口/端口适配器（`handleUserMenuCache`），为旧 `MenuUpdateGatewayImpl` 委托化做准备。
+  - 已完成 Step5：`BcIamConfiguration` 装配新用例 Bean；旧 `RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole` 与 `MenuUpdateGatewayImpl.handleUserMenuCache` 已退化为委托壳（入口不变、行为不变）。
 
 **已完成（2025-12-21）**
 - IAM 写侧继续收敛（保持行为不变）：

@@ -4,6 +4,8 @@ import com.alibaba.cola.exception.BizException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import edu.cuit.bc.iam.application.usecase.AssignRolePermsUseCase;
+import edu.cuit.bc.iam.application.usecase.DeleteMultipleRoleUseCase;
 import edu.cuit.client.dto.cmd.user.NewRoleCmd;
 import edu.cuit.client.dto.cmd.user.UpdateRoleCmd;
 import edu.cuit.domain.gateway.user.RoleQueryGateway;
@@ -42,6 +44,9 @@ public class RoleUpdateGatewayImpl implements RoleUpdateGateway {
     private final LocalCacheManager cacheManager;
     private final UserCacheConstants userCacheConstants;
 
+    private final AssignRolePermsUseCase assignRolePermsUseCase;
+    private final DeleteMultipleRoleUseCase deleteMultipleRoleUseCase;
+
     @Override
     public void updateRoleInfo(UpdateRoleCmd cmd) {
         SysRoleDO tmp = checkRoleId(Math.toIntExact(cmd.getId()));
@@ -78,37 +83,12 @@ public class RoleUpdateGatewayImpl implements RoleUpdateGateway {
 
     @Override
     public void deleteMultipleRole(List<Integer> ids) {
-        List<SysRoleDO> tmp = new ArrayList<>();
-        for (Integer id : ids) {
-            checkDefaultRole(id);
-            SysRoleDO roleTmp = checkRoleId(id);
-            tmp.add(roleTmp);
-            handleRoleUpdateCache(roleTmp.getId());
-        }
-        for (Integer id : ids) {
-            roleMapper.deleteById(id);
-            userRoleMapper.delete(Wrappers.lambdaQuery(SysUserRoleDO.class).eq(SysUserRoleDO::getRoleId,id));
-            roleMenuMapper.delete(Wrappers.lambdaQuery(SysRoleMenuDO.class).eq(SysRoleMenuDO::getRoleId,id));
-        }
-        LogUtils.logContent(tmp + " 角色");
+        deleteMultipleRoleUseCase.execute(ids);
     }
 
     @Override
     public void assignPerms(Integer roleId, List<Integer> menuIds) {
-        //删除原来的
-        SysRoleDO tmp = checkRoleId(roleId);
-        LambdaUpdateWrapper<SysRoleMenuDO> roleMenuUpdate = Wrappers.lambdaUpdate();
-        roleMenuUpdate.eq(SysRoleMenuDO::getRoleId,roleId);
-        roleMenuMapper.delete(roleMenuUpdate);
-
-        //插入新的
-        for (Integer id : menuIds) {
-            roleMenuMapper.insert(new SysRoleMenuDO()
-                    .setMenuId(id)
-                    .setRoleId(roleId));
-        }
-        handleRoleUpdateCache(roleId);
-        LogUtils.logContent(tmp.getRoleName() + " 角色(" + tmp.getId() + ")的权限");
+        assignRolePermsUseCase.execute(roleId, menuIds);
     }
 
     @Override
