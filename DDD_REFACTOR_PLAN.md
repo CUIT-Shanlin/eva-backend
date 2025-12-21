@@ -516,8 +516,24 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 7) ✅ **系统管理读侧渐进收敛**：`UserQueryGatewayImpl` 的用户查询能力已收敛到 `bc-iam`（保持行为不变；落地提交：`3e6f2cb2/8c245098/92a9beb3`、`9f664229/38384628/de662d1c/8a74faf5`、`56bbafcf/7e5f0a74/bc5fb3c6/6a1332b0`）。
 8) ✅ **系统管理写侧继续收敛**：`RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole` 与菜单变更触发的缓存失效（`MenuUpdateGatewayImpl.handleUserMenuCache`）已收敛到 `bc-iam`（用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；保持行为不变）。
    - 落地提交链：`f8838951/91d13db4/7fce88b8/d6e3bed1/4d650166/46e666f9`
-9) ✅ **系统管理写侧继续收敛（菜单写侧主链路）**：基于已收敛的缓存失效用例，将菜单写侧主链路（`MenuUpdateGatewayImpl.updateMenuInfo/deleteMenu/deleteMultipleMenu/createMenu`）收敛到 `bc-iam`（用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；保持行为不变；落地提交：`HEAD`）。角色写侧剩余入口仍待收敛。
+9) ✅ **系统管理写侧继续收敛（菜单写侧主链路）**：基于已收敛的缓存失效用例，将菜单写侧主链路（`MenuUpdateGatewayImpl.updateMenuInfo/deleteMenu/deleteMultipleMenu/createMenu`）收敛到 `bc-iam`（用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；保持行为不变；落地提交：`f022c415`）。角色写侧剩余入口仍待收敛。
 10) **AI 报告 / 审计日志模块化（建议）**：启动 `bc-ai-report` / `bc-audit` 最小骨架，并优先挑选 1 条写链路按同套路收敛（保持行为不变）。
+
+### 10.4 术语澄清与最终目标结构（减少“gateway”混淆）
+
+> 背景：项目早期参考 COLA 命名把大量类叫做 `*GatewayImpl`，但其中一部分事实上同时扮演了“应用入口 + DB 访问 + 副作用”，导致“gateway=DB gateway”的直觉与 DDD/六边形的职责划分冲突。
+>
+> 渐进式重构期间，本计划将严格按职责描述，而不被历史命名绑架：
+
+- **UseCase（应用层用例）**：BC 的写侧入口（`bc-*/application/usecase`），不直接依赖 DB，只依赖 Port。
+- **Port（应用层端口）**：UseCase 的出站依赖抽象（`bc-*/application/port`）。
+- **Port Adapter（基础设施适配器）**：实现 Port、搬运旧 DB/副作用流程（过渡期通常放在 `eva-infra/.../bc*/adapter`）。
+- **旧 gateway（委托壳 / 兼容入口）**：历史 `eva-infra/.../*GatewayImpl`，对外接口不变（尤其缓存注解触发点），内部逐步退化为委托到 UseCase。
+
+最终目标（你期望的“完美契合 DDD”）建议按 BC 自包含推进（优先 `bc-iam` 试点）：
+- 每个 BC 至少在 **package** 上自包含三层：`<bc>.domain` / `<bc>.application` / `<bc>.infrastructure`。
+- 更进一步在 **Maven 模块** 上自包含：`bc-iam-domain` / `bc-iam-app` / `bc-iam-infra`（或类似拆分），并由 `start`/组合根统一装配。
+- `eva-*` 技术切片逐步退场：最终仅保留 shared-kernel、统一启动/装配与跨 BC 的极少量集成胶水（严格受控）。
 
 ### 10.3 未完成清单（滚动，供下一会话排期）
 

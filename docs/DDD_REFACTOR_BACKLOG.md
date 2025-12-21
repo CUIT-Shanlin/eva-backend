@@ -12,6 +12,10 @@ scope: 全仓库（离线扫描 + 规则归纳）
 本文档用于后续若干个新会话的“行动框架（行为约束 + 执行模板）”与“待收敛目标池（Backlog）”。
 
 > 说明：目标清单来自离线静态扫描（以 `GatewayImpl` 为主），属于“候选目标粗筛”。每次动手前仍需按调用链复核入口与行为约束。
+>
+> 术语提醒（减少“gateway”历史命名带来的混淆）：
+> - 旧 `*GatewayImpl` 在早期实现中经常同时承载“应用入口 + DB 访问 + 副作用”，并不严格等价于 DDD/六边形里的“出站网关（gateway）”。
+> - 渐进式重构阶段以职责为准：入口逐步收敛到 `bc-*` 的 UseCase；DB/副作用搬运到 Port Adapter；旧 gateway 退化为委托壳（但保留缓存注解触发点，确保行为不变）。
 
 ---
 
@@ -108,7 +112,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - 用户查询装配：`UserQueryGatewayImpl.fileUserEntity` 收敛到 `bc-iam`（落地提交：`3e6f2cb2/8c245098/92a9beb3`）。
 - 系统管理写侧继续收敛（保持行为不变）：
   - 角色/菜单缓存与权限变更副作用收敛到 `bc-iam`：`RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole`、`MenuUpdateGatewayImpl.handleUserMenuCache`（落地提交链：`f8838951/91d13db4/7fce88b8/d6e3bed1/4d650166/46e666f9`）。
-  - 菜单写侧主链路收敛到 `bc-iam`：`MenuUpdateGatewayImpl.updateMenuInfo/deleteMenu/deleteMultipleMenu/createMenu`（落地提交：`HEAD`）。
+  - 菜单写侧主链路收敛到 `bc-iam`：`MenuUpdateGatewayImpl.updateMenuInfo/deleteMenu/deleteMultipleMenu/createMenu`（落地提交：`f022c415`）。
 
 **已完成（2025-12-20）**
 - 评教写侧进一步收敛（保持行为不变）：

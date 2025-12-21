@@ -6,6 +6,18 @@
 
 ---
 
+## 0.0 术语约定（用于减少“gateway”历史命名带来的混淆）
+
+> 背景：本项目早期参考 COLA 命名把很多类叫做 `*GatewayImpl`，但其中相当一部分同时承载了“应用入口 + DB 访问 + 副作用（缓存/日志）”，逐步演化成大泥球。
+>
+> 为了渐进式重构期间沟通一致，本仓库后续文档使用以下约定（不强制立刻改代码命名，但会在文档里严格区分）：
+
+- **旧 gateway（LegacyGateway / 委托壳）**：历史遗留的 `eva-infra/.../*GatewayImpl`，对外接口不变（尤其是缓存注解/切面触发点必须保持），内部逐步退化为“委托到 UseCase”的壳。
+- **UseCase（应用层用例）**：放在 `bc-*/application/usecase`，只做“业务用例入口与编排”，不直接依赖 DB。
+- **Port（应用层端口）**：放在 `bc-*/application/port`，表达 UseCase 的出站依赖（持久化/外部系统/缓存等）。
+- **Port Adapter（基础设施端口适配器）**：通常落在 `eva-infra/.../bc*/adapter`（过渡期），实现 Port 并原样搬运旧 DB/副作用流程（保持行为不变）。
+- **最终形态（目标）**：每个 BC 自含 `domain/application/infrastructure`（模块或至少 package 结构完整），`eva-*` 技术切片逐步退场或仅剩 shared-kernel/组装层。
+
 ## 0.6 本次会话增量总结（2025-12-21，更新至 `HEAD`）
 
 - ✅ 系统管理写侧继续收敛：**菜单写侧主链路**收敛到 `bc-iam`（用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；保持行为不变）。
@@ -20,7 +32,7 @@
     - 端口适配器：`eva-infra/src/main/java/edu/cuit/infra/bciam/adapter/MenuWritePortImpl.java`
     - 旧 gateway（已退化委托壳）：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/user/MenuUpdateGatewayImpl.java`
     - 组合根：`eva-app/src/main/java/edu/cuit/app/config/BcIamConfiguration.java`
-  - 落地提交：`HEAD`
+  - 落地提交：`f022c415`
 - ✅ 最小回归已通过（Java17）：
   - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
 
@@ -800,7 +812,7 @@
 23) ✅ **已完成：系统管理写侧继续收敛（菜单写侧主链路整体收敛到 `bc-iam`，保持行为不变）**
    - 收敛范围：`MenuUpdateGatewayImpl.updateMenuInfo/deleteMenu/deleteMultipleMenu/createMenu`
    - 强约束保持：缓存注解 area/key 与触发时机不变；`deleteMenu` 根节点缓存失效触发两次与递归删除顺序不变；异常文案与日志顺序不变。
-   - 落地提交：`HEAD`
+   - 落地提交：`f022c415`
 
 24) **下一会话推荐重构任务：系统管理写侧继续收敛（角色写侧剩余入口收敛到 `bc-iam`，保持行为不变）**
    - 背景：菜单写侧已闭环收敛，角色写侧仍有多条入口（状态/信息/删除/创建）留在旧 gateway，副作用与校验散落。
@@ -812,3 +824,10 @@
      4) `eva-app`：`BcIamConfiguration` 装配新用例 Bean。
      5) `eva-infra`：旧 `RoleUpdateGatewayImpl` 对应入口退化为委托壳（保留任何缓存注解/切面行为不变）。
      6) 文档闭环：更新 `NEXT_SESSION_HANDOFF.md` / `DDD_REFACTOR_PLAN.md` / `docs/DDD_REFACTOR_BACKLOG.md`，记录提交与行为约束。
+
+25) **中期里程碑建议：BC “自包含三层结构”落地（以 `bc-iam` 先试点）**
+   - 目标：让 `bc-iam` 在模块边界上也更贴近最终形态（最少做到 package 结构完整；更进一步可拆 Maven 子模块）。
+   - 推荐拆分路径（先小步、可回滚、行为不变）：
+     1) 先统一文档与命名：将“旧 gateway = 委托壳 / 入口适配器”的约定固化（本条目已完成）。
+     2) 以 `bc-iam` 为试点：将 `eva-infra/src/main/java/edu/cuit/infra/bciam/adapter/*` 逐步迁移到 `bc-iam` 自己的 `infrastructure`（或 `bc-iam-infra` 子模块），并由 `start`/组合根装配（行为不变）。
+     3) 当 `bc-iam` 完成三层自包含后，再评估把 `eva-domain` 中与 IAM 强相关的类型逐步迁移到 `bc-iam-domain`（谨慎推进，避免牵连其它 BC；共享部分沉淀到 `shared-kernel`）。
