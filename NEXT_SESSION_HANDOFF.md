@@ -18,6 +18,26 @@
 - **Port Adapter（基础设施端口适配器）**：通常落在 `eva-infra/.../bc*/adapter`（过渡期），实现 Port 并原样搬运旧 DB/副作用流程（保持行为不变）。
 - **最终形态（目标）**：每个 BC 自含 `domain/application/infrastructure`（模块或至少 package 结构完整），`eva-*` 技术切片逐步退场或仅剩 shared-kernel/组装层。
 
+## 0.7 本次会话增量总结（2025-12-21，更新至 `HEAD`）
+
+- ✅ 系统管理写侧继续收敛：**角色写侧剩余入口**收敛到 `bc-iam`（用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；保持行为不变）。
+  - 收敛范围（本次条目 24）：`RoleUpdateGatewayImpl.updateRoleInfo/updateRoleStatus/deleteRole/createRole`
+  - 行为快照（供回归对照，顺序必须保持）：  
+    - `updateRoleInfo`：`checkRoleId` →（`cmd.getStatus() == 0` 时）`checkDefaultRole` → `roleMapper.updateById` → `handleRoleUpdateCache` → `LogUtils.logContent(tmp.getRoleName() + "角色(" + tmp.getId() + ")的信息")`
+    - `updateRoleStatus`：`checkRoleId` → `checkDefaultRole` → `roleMapper.update(roleUpdate)` → `handleRoleUpdateCache` → `LogUtils.logContent(tmp.getRoleName() + " 角色(" + tmp.getId() + ")的状态")`
+    - `deleteRole`：`checkRoleId` → `checkDefaultRole` → `roleMapper.deleteById` → `userRoleMapper.delete` → `roleMenuMapper.delete` → `handleRoleUpdateCache` → `LogUtils.logContent(tmp.getRoleName() + "角色(" + tmp.getId() + ")")`
+    - `createRole`：`roleConverter.toRoleDO` →（若重名）`throw BizException("角色名称已存在")` → `roleMapper.insert` → `handleRoleUpdateCache(roleId)`
+    - `handleRoleUpdateCache`：依次失效 `ALL_ROLE/ONE_ROLE/ROLE_MENU`，再按 `sys_user_role.role_id -> user_id` 失效 `ONE_USER_ID/ONE_USER_USERNAME`（用户名 key 允许 `null`）。
+  - 关键落地点（便于快速定位）：
+    - 用例：`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/UpdateRoleInfoUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/UpdateRoleStatusUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/DeleteRoleUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/CreateRoleUseCase.java`
+    - 端口：`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/RoleInfoUpdatePort.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/RoleStatusUpdatePort.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/RoleDeletionPort.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/RoleCreationPort.java`
+    - 端口适配器：`eva-infra/src/main/java/edu/cuit/infra/bciam/adapter/RoleWritePortImpl.java`
+    - 旧 gateway（已退化委托壳）：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/user/RoleUpdateGatewayImpl.java`
+    - 组合根：`eva-app/src/main/java/edu/cuit/app/config/BcIamConfiguration.java`
+  - 落地提交：`64fadb20`
+- ✅ 最小回归已通过（Java17）：
+  - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
+
 ## 0.6 本次会话增量总结（2025-12-21，更新至 `HEAD`）
 
 - ✅ 系统管理写侧继续收敛：**菜单写侧主链路**收敛到 `bc-iam`（用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；保持行为不变）。
@@ -814,16 +834,10 @@
    - 强约束保持：缓存注解 area/key 与触发时机不变；`deleteMenu` 根节点缓存失效触发两次与递归删除顺序不变；异常文案与日志顺序不变。
    - 落地提交：`f022c415`
 
-24) **下一会话推荐重构任务：系统管理写侧继续收敛（角色写侧剩余入口收敛到 `bc-iam`，保持行为不变）**
-   - 背景：菜单写侧已闭环收敛，角色写侧仍有多条入口（状态/信息/删除/创建）留在旧 gateway，副作用与校验散落。
-   - 目标：将 `RoleUpdateGatewayImpl.updateRoleInfo/updateRoleStatus/deleteRole/createRole` 按“用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳”收敛到 `bc-iam`（保持行为不变）。
-   - 建议拆分与里程碑/提交点（每步一条 commit；每步跑最小回归；每步结束先写清下一步里程碑再收尾）：
-     1) Serena：定位四个入口的调用链与行为快照（异常/缓存 key/调用次数/日志顺序）。
-     2) `bc-iam`：新增用例 + 端口（建议按入口拆分：`UpdateRoleInfoUseCase/UpdateRoleStatusUseCase/DeleteRoleUseCase/CreateRoleUseCase`）。
-     3) `eva-infra`：新增端口适配器实现，原样搬运旧逻辑（含 `checkDefaultRole/handleRoleUpdateCache/isRoleNameExisted` 的顺序与缓存失效点）。
-     4) `eva-app`：`BcIamConfiguration` 装配新用例 Bean。
-     5) `eva-infra`：旧 `RoleUpdateGatewayImpl` 对应入口退化为委托壳（保留任何缓存注解/切面行为不变）。
-     6) 文档闭环：更新 `NEXT_SESSION_HANDOFF.md` / `DDD_REFACTOR_PLAN.md` / `docs/DDD_REFACTOR_BACKLOG.md`，记录提交与行为约束。
+24) ✅ **已完成：系统管理写侧继续收敛（角色写侧剩余入口收敛到 `bc-iam`，保持行为不变）**
+   - 收敛范围：`RoleUpdateGatewayImpl.updateRoleInfo/updateRoleStatus/deleteRole/createRole`
+   - 强约束保持：异常文案不变；缓存失效 key 与时机不变；日志文案与触发时机不变；副作用顺序不变。
+   - 落地提交：`64fadb20`
 
 25) **中期里程碑建议：BC “自包含三层结构”落地（以 `bc-iam` 先试点）**
    - 目标：让 `bc-iam` 在模块边界上也更贴近最终形态（最少做到 package 结构完整；更进一步可拆 Maven 子模块）。
