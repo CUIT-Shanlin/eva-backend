@@ -104,6 +104,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
 **已完成（2025-12-21）**
 - IAM 写侧继续收敛（保持行为不变）：
   - 用户删除：`UserUpdateGatewayImpl.deleteUser` 收敛到 `bc-iam`（落地提交：`5f08151c/e23c810a/cccd75a3/2846c689`）。
+- 系统管理读侧渐进收敛（保持行为不变）：
+  - 用户查询装配：`UserQueryGatewayImpl.fileUserEntity` 收敛到 `bc-iam`（落地提交：`3e6f2cb2/8c245098/92a9beb3`）。
 
 **已完成（2025-12-20）**
 - 评教写侧进一步收敛（保持行为不变）：
@@ -238,7 +240,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 候选目标（体积/复杂度相对更高者）：
 - ✅ `eva-infra/.../user/UserUpdateGatewayImpl.assignRole`（~30 LOC，已收敛到 `bc-iam`；落地提交：`16ff60b6/b65d311f/a707ab86`）
 - ✅ `eva-infra/.../user/UserUpdateGatewayImpl.createUser`（~23 LOC，已收敛到 `bc-iam`；落地提交：`c3aa8739/a3232b78/a26e01b3/9e7d46dd`）
-- `eva-infra/.../user/UserQueryGatewayImpl.fileUserEntity`（~30 LOC）
+- ✅ `eva-infra/.../user/UserQueryGatewayImpl.fileUserEntity`（~30 LOC，已收敛到 `bc-iam`；落地提交：`3e6f2cb2/8c245098/92a9beb3`）
 - `eva-infra/.../user/MenuUpdateGatewayImpl.handleUserMenuCache`（~19 LOC）
 - `eva-infra/.../user/RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole`（~17~18 LOC）
 
@@ -266,7 +268,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 如果继续按“写侧优先”的策略推进，下一批候选（高 → 低）建议是：
 
-1) 系统管理读侧渐进收敛：优先 `UserQueryGatewayImpl.fileUserEntity`（保持行为不变）  
+1) 系统管理读侧渐进收敛：继续按 QueryPort 收敛 `UserQueryGatewayImpl.findIdByUsername/findUsernameById/getUserStatus` 等（保持行为不变）  
 2) 评教读侧进一步解耦：拆分 QueryService（任务/记录/统计/模板），保持统计口径不变  
 3) AI 报告 / 审计日志：启动 `bc-ai-report` / `bc-audit` 的最小骨架，并选择 1 条高价值写链路先收敛（保持行为不变）  
 

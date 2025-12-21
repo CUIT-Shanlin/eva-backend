@@ -10,6 +10,8 @@
 
 - ✅ IAM 域写侧继续收敛：`UserUpdateGatewayImpl.deleteUser` 收敛到 `bc-iam`（用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；保持行为不变）。
   - 落地提交链：`5f08151c/e23c810a/cccd75a3/2846c689`
+- ✅ 系统管理读侧渐进收敛：`UserQueryGatewayImpl.fileUserEntity` 收敛到 `bc-iam`（用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；保持行为不变）。
+  - 落地提交链：`3e6f2cb2/8c245098/92a9beb3`
 - ✅ 最小回归已通过（Java17）：
   - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
 
@@ -649,7 +651,6 @@
    - 约束：每个小步完成后都执行 `mvn -pl start -am test -Dmaven.repo.local=.m2/repository` 并据失败补强回归。
 
 16) **当前未收敛清单（供下个会话优先处理）**
-   - 系统管理读侧：`UserQueryGatewayImpl.fileUserEntity` 等仍在旧 gateway（可按 QueryPort 渐进收敛，行为不变）。
    - AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`。
 
 17) ✅ **已完成：IAM 域 `UserUpdateGatewayImpl.deleteUser` 收敛到 `bc-iam`（保持行为不变）**

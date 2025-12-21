@@ -540,6 +540,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - `bc-iam`：用户信息更新写侧已收敛（`updateInfo`：用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；落地提交：`38c31541/6ce61024/db0fd6a3/cb789e21`）。
 - `bc-iam`：用户状态更新写侧已收敛（`updateStatus`：用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；落地提交：`e3fcdbf0/8e82e01f/eb54e13e`；行为快照与下一步拆分详见 `NEXT_SESSION_HANDOFF.md`，补充提交：`e4b94add`）。
 - `bc-iam`：用户删除写侧已收敛（`deleteUser`：用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；落地提交：`5f08151c/e23c810a/cccd75a3/2846c689`）。
+- `bc-iam`：用户查询装配已开始收敛（`fileUserEntity`：用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；落地提交：`3e6f2cb2/8c245098/92a9beb3`）。
 - `bc-course`：多条课程写链路已收敛（导入课表、改课/自助课表、删课、课程类型、课次新增等），旧 gateway 逐步退化为委托壳。
 - `bc-course`：课程导入状态查询 `CourseUpdateGatewayImpl.isImported` 已收敛（QueryPort + 用例 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；落地提交：`4ed055a2/495287c8/f3e8e3cc`）。
 - `course`：课程读侧已结构化（`CourseQueryGatewayImpl` 退化委托壳 + `CourseQueryRepo` 抽取；落地提交：`ba8f2003`）。
