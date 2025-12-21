@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>edu.cuit</groupId>
+        <artifactId>eva-backend</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>bc-iam-infra</artifactId>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <!-- bc-iam：应用层端口/用例 -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>bc-iam</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <!-- 过渡期：复用旧系统基础设施（DAL/组件/Starter），保证行为不变 -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>eva-infra</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+</project>
+

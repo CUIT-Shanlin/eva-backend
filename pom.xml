@@ -21,6 +21,7 @@
     <module>bc-course</module>
     <module>bc-messaging</module>
     <module>bc-iam</module>
+    <module>bc-iam-infra</module>
   </modules>
 
   <properties>
