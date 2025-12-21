@@ -109,7 +109,12 @@
   - ✅ 已完成（条目 26-2）：在 `bc-iam-infra` 创建 DAL 包骨架与资源目录（不迁代码；仅作为后续迁移落点；保持行为不变）。
     - Java 包骨架：`bc-iam-infra/src/main/java/edu/cuit/infra/dal/database/dataobject/user/package-info.java`、`bc-iam-infra/src/main/java/edu/cuit/infra/dal/database/mapper/user/package-info.java`
     - 资源目录占位：`bc-iam-infra/src/main/resources/mapper/user/.gitkeep`
-  - 下一步里程碑（每步一条 commit；每步跑最小回归；保持行为不变）：迁移 `SysUser*`（DO/Mapper/XML）→ 迁移 `SysRole*`/`SysRoleMenu*` → 迁移 `SysMenu*` → 去掉 `bc-iam-infra` 对 `eva-infra` 的依赖
+  - ✅ 已完成（条目 26-3）：新增独立 DAL 子模块 `eva-infra-dal`，并先迁移 `SysUser*`（DO/Mapper/XML）到该模块（保持包名/namespace/SQL 不变；保持行为不变）。
+    - 说明：Serena 引用分析确认 `SysUserMapper` 被 `eva-infra` 内多个模块（course/eva/log/department…）直接使用；若直接迁入 `bc-iam-infra` 并从 `eva-infra` 删除会引入 Maven 循环依赖风险，因此先抽离为共享 DAL 模块以最小可回滚方式推进。
+    - 新模块：`eva-infra-dal/pom.xml`
+    - Java：`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/dataobject/user/SysUserDO.java`、`SysUserRoleDO.java`；`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/mapper/user/SysUserMapper.java`、`SysUserRoleMapper.java`
+    - XML：`eva-infra-dal/src/main/resources/mapper/user/SysUserMapper.xml`、`SysUserRoleMapper.xml`
+  - 下一步里程碑（每步一条 commit；每步跑最小回归；保持行为不变）：按同套路迁移 `SysRole*`/`SysRoleMenu*` → 迁移 `SysMenu*` → 逐步把 `bc-iam-infra` 对 `eva-infra` 的依赖收敛为更小的 shared 模块集合（最终可移除）
 
 ## 0.3 本次会话增量总结（2025-12-21，更新至 `HEAD`）
 
@@ -884,13 +889,14 @@
 
 26) **下一会话推荐重构任务：`bc-iam-infra` 继续收敛（先抽离 IAM DAL，保持行为不变）**
    - 背景：目前 `bc-iam-infra` 仍通过 Maven 依赖 `eva-infra` 来复用 DAL/Starter；端口适配器已迁移，但“基础设施依赖归属”尚未完成闭环。
-   - 目标：将 `edu.cuit.infra.dal.database.*user*`（DO/Mapper 及相关 XML/配置）逐步迁移到 `bc-iam-infra`（或引入更通用的 `shared-infra-dal`，如需多 BC 复用再引入；优先最小可回滚）。
+   - 目标：将 `edu.cuit.infra.dal.database.*user*`（DO/Mapper 及相关 XML/配置）逐步从 `eva-infra` 抽离出来，使 `bc-iam-infra` 最终可去掉对 `eva-infra` 的依赖（保持行为不变）。
+     - 说明：由于 `SysUserMapper` 等被 `eva-infra` 内多个模块直接使用，本阶段优先采用“共享 DAL 子模块（`eva-infra-dal`）”承接迁移，以避免 Maven 循环依赖并保持最小可回滚。
    - 建议拆分与里程碑/提交点（每步一条 commit；每步跑最小回归；每步结束先写清下一步里程碑再收尾）：
      1) ✅ Serena：盘点 `bc-iam-infra/src/main/java/edu/cuit/infra/bciam/adapter/*` 实际依赖的 Mapper/DO 清单（按“user/role/menu”分组）。
         - Mapper：`SysUserMapper`、`SysUserRoleMapper`、`SysRoleMapper`、`SysRoleMenuMapper`、`SysMenuMapper`
         - DO：`SysUserDO`、`SysUserRoleDO`、`SysRoleDO`、`SysRoleMenuDO`、`SysMenuDO`
         - XML：`eva-infra/src/main/resources/mapper/user/SysUserMapper.xml`、`SysUserRoleMapper.xml`、`SysRoleMapper.xml`、`SysRoleMenuMapper.xml`、`SysMenuMapper.xml`
      2) ✅ 新建 `bc-iam-infra` 内部 DAL 包路径（先空骨架 + 资源目录），不迁代码；确保编译通过。
-     3) 迁移 `SysUser*` 相关 DO/Mapper（含 XML 如存在），保证与旧包名/SQL/异常/顺序一致；跑最小回归。
-     4) 迁移 `SysRole*`/`SysMenu*` 相关 DO/Mapper；跑最小回归。
+     3) ✅ 迁移 `SysUser*` 相关 DO/Mapper/XML 到共享模块 `eva-infra-dal`（保持包名/namespace/SQL/异常/顺序一致）；跑最小回归。
+     4) 迁移 `SysRole*`/`SysRoleMenu*`/`SysMenu*` 相关 DO/Mapper/XML 到共享模块 `eva-infra-dal`；跑最小回归。
      5) 去掉 `bc-iam-infra` 对 `eva-infra` 的依赖（或至少只保留必须的 starter），确保仍能通过最小回归。

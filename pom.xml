@@ -12,13 +12,14 @@
     <module>start</module>
     <module>eva-adapter</module>
     <module>eva-app</module>
-    <module>eva-client</module>
-    <module>eva-domain</module>
-    <module>eva-infra</module>
-    <module>eva-base</module>
-    <module>bc-evaluation</module>
-    <module>bc-template</module>
-    <module>bc-course</module>
+	    <module>eva-client</module>
+	    <module>eva-domain</module>
+	    <module>eva-infra-dal</module>
+	    <module>eva-infra</module>
+	    <module>eva-base</module>
+	    <module>bc-evaluation</module>
+	    <module>bc-template</module>
+	    <module>bc-course</module>
     <module>bc-messaging</module>
     <module>bc-iam</module>
     <module>bc-iam-infra</module>

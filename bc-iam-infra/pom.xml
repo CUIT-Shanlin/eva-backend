@@ -26,6 +26,13 @@
             <version>${revision}</version>
         </dependency>
 
+        <!-- DAL：从 eva-infra 渐进式抽离，供多模块复用（保持包名/namespace 不变） -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>eva-infra-dal</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
         <!-- 过渡期：复用旧系统基础设施（DAL/组件/Starter），保证行为不变 -->
         <dependency>
             <groupId>edu.cuit</groupId>
@@ -47,4 +54,3 @@
     </dependencies>
 
 </project>
-

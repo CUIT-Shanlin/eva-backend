@@ -553,6 +553,11 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - 阶段 2.2（已完成）：已在 `bc-iam-infra` 创建 DAL 包路径与资源目录骨架（不迁代码，仅提供后续迁移落点；保持行为不变）：
     - Java：`bc-iam-infra/src/main/java/edu/cuit/infra/dal/database/dataobject/user/package-info.java`、`bc-iam-infra/src/main/java/edu/cuit/infra/dal/database/mapper/user/package-info.java`
     - Resources：`bc-iam-infra/src/main/resources/mapper/user/.gitkeep`
+  - 阶段 2.3（已完成）：新增共享 DAL 子模块 `eva-infra-dal`，并先迁移 `SysUser*`（DO/Mapper/XML）到该模块（保持包名/namespace/SQL 不变；保持行为不变）。
+    - 说明：Serena 引用分析确认 `SysUserMapper` 被 `eva-infra` 内多个模块直接使用；若直接迁入 `bc-iam-infra` 并从 `eva-infra` 删除会引入 Maven 循环依赖风险，因此先抽离为共享 DAL 模块，以最小可回滚方式推进。
+    - 新模块：`eva-infra-dal/pom.xml`
+    - Java：`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/dataobject/user/SysUserDO.java`、`SysUserRoleDO.java`；`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/mapper/user/SysUserMapper.java`、`SysUserRoleMapper.java`
+    - XML：`eva-infra-dal/src/main/resources/mapper/user/SysUserMapper.xml`、`SysUserRoleMapper.xml`
 - AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`。
 - 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分。
 
