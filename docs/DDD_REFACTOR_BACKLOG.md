@@ -116,6 +116,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - 角色写侧剩余入口收敛到 `bc-iam`：`RoleUpdateGatewayImpl.updateRoleInfo/updateRoleStatus/deleteRole/createRole`（落地提交：`64fadb20`）。
 - 中期里程碑推进（保持行为不变）：
   - 引入 `bc-iam-infra` Maven 子模块骨架并接入组合根，为后续迁移 `bciam/adapter/*` 提供落点（落地提交：`42a6f66f`）。
+  - 迁移 `UserBasicQueryPortImpl` 到 `bc-iam-infra`（包名/类名/行为保持不变；落地提交：`070068ec`）。
 
 **已完成（2025-12-20）**
 - 评教写侧进一步收敛（保持行为不变）：
