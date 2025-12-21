@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import edu.cuit.bc.iam.application.usecase.AssignRoleUseCase;
 import edu.cuit.bc.iam.application.usecase.CreateUserUseCase;
+import edu.cuit.bc.iam.application.usecase.DeleteUserUseCase;
 import edu.cuit.bc.iam.application.usecase.UpdateUserInfoUseCase;
 import edu.cuit.bc.iam.application.usecase.UpdateUserStatusUseCase;
 import edu.cuit.client.dto.cmd.user.NewUserCmd;
@@ -52,6 +53,7 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
     private final CreateUserUseCase createUserUseCase;
     private final UpdateUserInfoUseCase updateUserInfoUseCase;
     private final UpdateUserStatusUseCase updateUserStatusUseCase;
+    private final DeleteUserUseCase deleteUserUseCase;
 
     @Override
     public void updateInfo(UpdateUserCmd cmd) {
@@ -67,15 +69,8 @@ public class UserUpdateGatewayImpl implements UserUpdateGateway {
 
     @Override
     public void deleteUser(Integer userId) {
-        SysUserDO tmp = checkIdExistence(userId);
-        checkAdmin(userId);
-        userMapper.deleteById(userId);
-        ldapPersonRepo.deleteById(EvaLdapUtils.getUserLdapNameId(getUsername(userId)));
-        userRoleMapper.delete(Wrappers.lambdaQuery(SysUserRoleDO.class).eq(SysUserRoleDO::getUserId,userId));
-
-        handleUserUpdateCache(userId,tmp.getUsername());
-
-        LogUtils.logContent(tmp.getName() + " 用户(id:" + tmp.getId() + ")");
+        // 历史路径：收敛到 bc-iam 用例，旧 gateway 退化为委托壳（保持行为不变）
+        deleteUserUseCase.execute(userId);
     }
 
     @Override
