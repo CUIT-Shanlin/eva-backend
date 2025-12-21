@@ -545,7 +545,11 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 系统管理读侧：`UserQueryGatewayImpl.fileUserEntity` 与基础查询能力（`findIdByUsername/findUsernameById/getUserStatus/isUsernameExist`）已收敛到 `bc-iam`（保持行为不变；落地提交：`3e6f2cb2/8c245098/92a9beb3`、`9f664229/38384628/de662d1c/8a74faf5`）。
 - 系统管理读侧：`UserQueryGatewayImpl.findAllUserId/findAllUsername/allUser/getUserRoleIds` 已收敛到 `bc-iam`（保持行为不变；落地提交：`56bbafcf/7e5f0a74/bc5fb3c6/6a1332b0`）。
 - 系统管理写侧：角色写侧剩余入口已收敛到 `bc-iam`（保持行为不变；落地提交：`64fadb20`）。
-- 中期里程碑（进行中）：`bc-iam-infra` 子模块骨架已接入组合根，且已完成 `bciam/adapter/*` 迁移；下一步为 IAM DAL 抽离（保持行为不变；落地提交：`42a6f66f/070068ec/03ceb685/02b3e8aa/6b9d2ce7/5aecc747/1c3d4b8c`）。
+- 中期里程碑（进行中）：`bc-iam-infra` 子模块骨架已接入组合根，且已完成 `bciam/adapter/*` 迁移；阶段 2 为 IAM DAL 抽离（保持行为不变；落地提交：`42a6f66f/070068ec/03ceb685/02b3e8aa/6b9d2ce7/5aecc747/1c3d4b8c`）。
+  - 阶段 2.1（已完成）：已用 Serena 盘点 `bc-iam-infra` 适配器对 IAM DAL 的直接依赖清单（后续迁移以此清单为准，避免漏搬/多搬）：
+    - Mapper：`SysUserMapper`、`SysUserRoleMapper`、`SysRoleMapper`、`SysRoleMenuMapper`、`SysMenuMapper`
+    - DO：`SysUserDO`、`SysUserRoleDO`、`SysRoleDO`、`SysRoleMenuDO`、`SysMenuDO`
+    - XML：`eva-infra/src/main/resources/mapper/user/SysUserMapper.xml`、`SysUserRoleMapper.xml`、`SysRoleMapper.xml`、`SysRoleMenuMapper.xml`、`SysMenuMapper.xml`
 - AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`。
 - 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分。
 
