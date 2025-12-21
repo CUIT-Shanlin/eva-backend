@@ -1,6 +1,7 @@
 package edu.cuit.app.config;
 
 import edu.cuit.bc.iam.application.port.UserCreationPort;
+import edu.cuit.bc.iam.application.port.UserBasicQueryPort;
 import edu.cuit.bc.iam.application.port.UserEntityQueryPort;
 import edu.cuit.bc.iam.application.port.UserDeletionPort;
 import edu.cuit.bc.iam.application.port.UserInfoUpdatePort;
@@ -9,8 +10,12 @@ import edu.cuit.bc.iam.application.port.UserStatusUpdatePort;
 import edu.cuit.bc.iam.application.usecase.AssignRoleUseCase;
 import edu.cuit.bc.iam.application.usecase.CreateUserUseCase;
 import edu.cuit.bc.iam.application.usecase.DeleteUserUseCase;
+import edu.cuit.bc.iam.application.usecase.FindUserIdByUsernameUseCase;
+import edu.cuit.bc.iam.application.usecase.FindUsernameByIdUseCase;
 import edu.cuit.bc.iam.application.usecase.FindUserByIdUseCase;
 import edu.cuit.bc.iam.application.usecase.FindUserByUsernameUseCase;
+import edu.cuit.bc.iam.application.usecase.GetUserStatusUseCase;
+import edu.cuit.bc.iam.application.usecase.IsUsernameExistUseCase;
 import edu.cuit.bc.iam.application.usecase.PageUserUseCase;
 import edu.cuit.bc.iam.application.usecase.UpdateUserInfoUseCase;
 import edu.cuit.bc.iam.application.usecase.UpdateUserStatusUseCase;
@@ -61,5 +66,25 @@ public class BcIamConfiguration {
     @Bean
     public PageUserUseCase pageUserUseCase(UserEntityQueryPort queryPort) {
         return new PageUserUseCase(queryPort);
+    }
+
+    @Bean
+    public FindUserIdByUsernameUseCase findUserIdByUsernameUseCase(UserBasicQueryPort queryPort) {
+        return new FindUserIdByUsernameUseCase(queryPort);
+    }
+
+    @Bean
+    public FindUsernameByIdUseCase findUsernameByIdUseCase(UserBasicQueryPort queryPort) {
+        return new FindUsernameByIdUseCase(queryPort);
+    }
+
+    @Bean
+    public GetUserStatusUseCase getUserStatusUseCase(UserBasicQueryPort queryPort) {
+        return new GetUserStatusUseCase(queryPort);
+    }
+
+    @Bean
+    public IsUsernameExistUseCase isUsernameExistUseCase(UserBasicQueryPort queryPort) {
+        return new IsUsernameExistUseCase(queryPort);
     }
 }
