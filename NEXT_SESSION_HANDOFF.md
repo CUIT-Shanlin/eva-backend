@@ -15,7 +15,7 @@
 - **旧 gateway（LegacyGateway / 委托壳）**：历史遗留的 `eva-infra/.../*GatewayImpl`，对外接口不变（尤其是缓存注解/切面触发点必须保持），内部逐步退化为“委托到 UseCase”的壳。
 - **UseCase（应用层用例）**：放在 `bc-*/application/usecase`，只做“业务用例入口与编排”，不直接依赖 DB。
 - **Port（应用层端口）**：放在 `bc-*/application/port`，表达 UseCase 的出站依赖（持久化/外部系统/缓存等）。
-- **Port Adapter（基础设施端口适配器）**：通常落在 `eva-infra/.../bc*/adapter`（过渡期），实现 Port 并原样搬运旧 DB/副作用流程（保持行为不变）。
+- **Port Adapter（基础设施端口适配器）**：过渡期通常落在 `eva-infra/.../bc*/adapter` 或 `bc-*-infra`（子模块），实现 Port 并原样搬运旧 DB/副作用流程（保持行为不变）。
 - **最终形态（目标）**：每个 BC 自含 `domain/application/infrastructure`（模块或至少 package 结构完整），`eva-*` 技术切片逐步退场或仅剩 shared-kernel/组装层。
 
 ## 0.7 本次会话增量总结（2025-12-21，更新至 `HEAD`）
@@ -40,7 +40,7 @@
 
 ## 0.8 本次会话增量总结（2025-12-21，更新至 `HEAD`）
 
-- ✅ 中期里程碑推进：引入 `bc-iam-infra` Maven 子模块骨架（先让“基础设施归属”可落地，后续再逐步迁移 `bciam/adapter/*`；保持行为不变）。
+- ✅ 中期里程碑推进：引入 `bc-iam-infra` Maven 子模块骨架，并完成 `bciam/adapter/*` 端口适配器迁移（保持行为不变）。
   - 组合根：`eva-app` 已依赖 `bc-iam-infra`，确保后续迁移的 Spring Bean 仍在运行时 classpath 上。
   - 落地提交：`42a6f66f`
 - ✅ 迁移第一步：`UserBasicQueryPortImpl` 已从 `eva-infra` 迁移到 `bc-iam-infra`（包名/类名/行为保持不变）。
@@ -868,5 +868,16 @@
    - 推荐拆分路径（先小步、可回滚、行为不变）：
      1) 先统一文档与命名：将“旧 gateway = 委托壳 / 入口适配器”的约定固化（本条目已完成）。
      2) ✅ 以 `bc-iam` 为试点：已引入 `bc-iam-infra` 子模块骨架，并由 `eva-app` 装配（提交：`42a6f66f`）。
-     3) ✅ 已完成：将 `bc-iam-infra/src/main/java/edu/cuit/infra/bciam/adapter/*` 作为新落点，并已完成从 `eva-infra` 的迁移（行为不变）。
-     4) 当 `bc-iam` 完成三层自包含后，再评估把 `eva-domain` 中与 IAM 强相关的类型逐步迁移到 `bc-iam-domain`（谨慎推进，避免牵连其它 BC；共享部分沉淀到 `shared-kernel`）。
+     3) ✅ 已完成：将 `bc-iam-infra/src/main/java/edu/cuit/infra/bciam/adapter/*` 作为新落点，并已完成从 `eva-infra` 的迁移（行为不变；提交链：`070068ec/03ceb685/02b3e8aa/6b9d2ce7/5aecc747/1c3d4b8c`）。
+     4) 下一阶段（仍保持行为不变）：将 IAM 的 DAL（DO/Mapper/SQL）从 `eva-infra` 逐步抽离到 `bc-iam-infra`（或更通用的 shared 模块，后置决策），最终让 `bc-iam-infra` 去掉对 `eva-infra` 的依赖。
+     5) 当 `bc-iam` 完成三层自包含后，再评估把 `eva-domain` 中与 IAM 强相关的类型逐步迁移到 `bc-iam-domain`（谨慎推进，避免牵连其它 BC；共享部分沉淀到 `shared-kernel`）。
+
+26) **下一会话推荐重构任务：`bc-iam-infra` 继续收敛（先抽离 IAM DAL，保持行为不变）**
+   - 背景：目前 `bc-iam-infra` 仍通过 Maven 依赖 `eva-infra` 来复用 DAL/Starter；端口适配器已迁移，但“基础设施依赖归属”尚未完成闭环。
+   - 目标：将 `edu.cuit.infra.dal.database.*user*`（DO/Mapper 及相关 XML/配置）逐步迁移到 `bc-iam-infra`（或引入更通用的 `shared-infra-dal`，如需多 BC 复用再引入；优先最小可回滚）。
+   - 建议拆分与里程碑/提交点（每步一条 commit；每步跑最小回归；每步结束先写清下一步里程碑再收尾）：
+     1) Serena：盘点 `bc-iam-infra/src/main/java/edu/cuit/infra/bciam/adapter/*` 实际依赖的 Mapper/DO 清单（按“user/role/menu”分组）。
+     2) 新建 `bc-iam-infra` 内部 DAL 包路径（先空骨架 + 资源目录），不迁代码；确保编译通过。
+     3) 迁移 `SysUser*` 相关 DO/Mapper（含 XML 如存在），保证与旧包名/SQL/异常/顺序一致；跑最小回归。
+     4) 迁移 `SysRole*`/`SysMenu*` 相关 DO/Mapper；跑最小回归。
+     5) 去掉 `bc-iam-infra` 对 `eva-infra` 的依赖（或至少只保留必须的 starter），确保仍能通过最小回归。

@@ -171,7 +171,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 1) AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`  
 2) 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分（保持统计口径不变）
-3) 中期里程碑：`bc-iam` 三层自包含推进中（已引入 `bc-iam-infra` 骨架，待迁移 `bciam/adapter/*`；保持行为不变）
+3) 中期里程碑：`bc-iam-infra` 已落地并完成 `bciam/adapter/*` 迁移，但 IAM DAL 仍在 `eva-infra`（保持行为不变，待进一步抽离）
 
 ---
 
@@ -289,7 +289,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 1) AI 报告 / 审计日志：启动 `bc-ai-report` / `bc-audit` 的最小骨架，并选择 1 条高价值写链路先收敛（保持行为不变）  
 2) 评教读侧进一步解耦：拆分 QueryService（任务/记录/统计/模板），保持统计口径不变  
-3) `bc-iam` 三层自包含（继续）：将 `eva-infra/.../bciam/adapter/*` 分批迁移到 `bc-iam-infra`（保持行为不变）  
+3) `bc-iam-infra` 继续收敛：逐步抽离 IAM DAL（DO/Mapper/SQL）以去掉对 `eva-infra` 的依赖（保持行为不变）  
 
 ---
 

@@ -520,7 +520,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
    - 菜单写侧主链路（`MenuUpdateGatewayImpl.updateMenuInfo/deleteMenu/deleteMultipleMenu/createMenu`）已收敛到 `bc-iam`（保持行为不变；落地提交：`f022c415`）。
    - 角色写侧剩余入口（`RoleUpdateGatewayImpl.updateRoleInfo/updateRoleStatus/deleteRole/createRole`）已收敛到 `bc-iam`（保持行为不变；落地提交：`64fadb20`）。
 10) **AI 报告 / 审计日志模块化（建议）**：启动 `bc-ai-report` / `bc-audit` 最小骨架，并优先挑选 1 条写链路按同套路收敛（保持行为不变）。
-11) ✅ **BC 自包含三层结构试点（`bc-iam`）**：已引入 `bc-iam-infra` Maven 子模块骨架并接入组合根，且已将 `bciam/adapter/*` 端口适配器从 `eva-infra` 迁移到 `bc-iam-infra`（保持行为不变；落地提交：`42a6f66f/070068ec/03ceb685/02b3e8aa/6b9d2ce7/5aecc747/1c3d4b8c`）。
+11) ✅ **BC 自包含三层结构试点（`bc-iam`，阶段 1：适配器归属）**：已引入 `bc-iam-infra` Maven 子模块骨架并接入组合根，且已将 `bciam/adapter/*` 端口适配器从 `eva-infra` 迁移到 `bc-iam-infra`（保持行为不变；落地提交：`42a6f66f/070068ec/03ceb685/02b3e8aa/6b9d2ce7/5aecc747/1c3d4b8c`）。
+   - 说明：当前 `bc-iam-infra` 仍通过 Maven 依赖 `eva-infra` 来复用 DAL/Starter；阶段 2 再逐步抽离 IAM DAL，使 `bc-iam-infra` 去掉对 `eva-infra` 的依赖（仍保持行为不变）。
 
 ### 10.4 术语澄清与最终目标结构（减少“gateway”混淆）
 
@@ -530,7 +531,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 - **UseCase（应用层用例）**：BC 的写侧入口（`bc-*/application/usecase`），不直接依赖 DB，只依赖 Port。
 - **Port（应用层端口）**：UseCase 的出站依赖抽象（`bc-*/application/port`）。
-- **Port Adapter（基础设施适配器）**：实现 Port、搬运旧 DB/副作用流程（过渡期通常放在 `eva-infra/.../bc*/adapter`）。
+- **Port Adapter（基础设施适配器）**：实现 Port、搬运旧 DB/副作用流程（过渡期通常放在 `eva-infra/.../bc*/adapter` 或 `bc-*-infra` 子模块）。
 - **旧 gateway（委托壳 / 兼容入口）**：历史 `eva-infra/.../*GatewayImpl`，对外接口不变（尤其缓存注解触发点），内部逐步退化为委托到 UseCase。
 
 最终目标（你期望的“完美契合 DDD”）建议按 BC 自包含推进（优先 `bc-iam` 试点）：
@@ -544,7 +545,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 系统管理读侧：`UserQueryGatewayImpl.fileUserEntity` 与基础查询能力（`findIdByUsername/findUsernameById/getUserStatus/isUsernameExist`）已收敛到 `bc-iam`（保持行为不变；落地提交：`3e6f2cb2/8c245098/92a9beb3`、`9f664229/38384628/de662d1c/8a74faf5`）。
 - 系统管理读侧：`UserQueryGatewayImpl.findAllUserId/findAllUsername/allUser/getUserRoleIds` 已收敛到 `bc-iam`（保持行为不变；落地提交：`56bbafcf/7e5f0a74/bc5fb3c6/6a1332b0`）。
 - 系统管理写侧：角色写侧剩余入口已收敛到 `bc-iam`（保持行为不变；落地提交：`64fadb20`）。
-- 中期里程碑（进行中）：已引入 `bc-iam-infra` 子模块骨架并接入组合根，下一步迁移 `eva-infra/.../bciam/adapter/*`（落地提交：`42a6f66f`）。
+- 中期里程碑（进行中）：`bc-iam-infra` 子模块骨架已接入组合根，且已完成 `bciam/adapter/*` 迁移；下一步为 IAM DAL 抽离（保持行为不变；落地提交：`42a6f66f/070068ec/03ceb685/02b3e8aa/6b9d2ce7/5aecc747/1c3d4b8c`）。
 - AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`。
 - 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分。
 
