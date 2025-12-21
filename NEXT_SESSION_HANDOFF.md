@@ -31,7 +31,7 @@
   - 关键落地点（便于快速定位）：
     - 用例：`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/UpdateRoleInfoUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/UpdateRoleStatusUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/DeleteRoleUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/CreateRoleUseCase.java`
     - 端口：`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/RoleInfoUpdatePort.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/RoleStatusUpdatePort.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/RoleDeletionPort.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/RoleCreationPort.java`
-    - 端口适配器：`eva-infra/src/main/java/edu/cuit/infra/bciam/adapter/RoleWritePortImpl.java`
+    - 端口适配器：`bc-iam-infra/src/main/java/edu/cuit/infra/bciam/adapter/RoleWritePortImpl.java`
     - 旧 gateway（已退化委托壳）：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/user/RoleUpdateGatewayImpl.java`
     - 组合根：`eva-app/src/main/java/edu/cuit/app/config/BcIamConfiguration.java`
   - 落地提交：`64fadb20`
@@ -73,7 +73,7 @@
   - 关键落地点（便于快速定位）：
     - 用例：`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/UpdateMenuInfoUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/DeleteMenuUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/DeleteMultipleMenuUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/CreateMenuUseCase.java`
     - 端口：`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/MenuInfoUpdatePort.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/MenuDeletionPort.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/MenuBatchDeletionPort.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/MenuCreationPort.java`
-    - 端口适配器：`eva-infra/src/main/java/edu/cuit/infra/bciam/adapter/MenuWritePortImpl.java`
+    - 端口适配器：`bc-iam-infra/src/main/java/edu/cuit/infra/bciam/adapter/MenuWritePortImpl.java`
     - 旧 gateway（已退化委托壳）：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/user/MenuUpdateGatewayImpl.java`
     - 组合根：`eva-app/src/main/java/edu/cuit/app/config/BcIamConfiguration.java`
   - 落地提交：`f022c415`
@@ -777,7 +777,7 @@
    - 关键落地点（便于快速定位）：
      - 旧 gateway（已退化委托壳）：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/user/UserUpdateGatewayImpl.java`
      - 用例与端口：`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/DeleteUserUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/UserDeletionPort.java`
-     - 端口适配器：`eva-infra/src/main/java/edu/cuit/infra/bciam/adapter/UserDeletionPortImpl.java`
+     - 端口适配器：`bc-iam-infra/src/main/java/edu/cuit/infra/bciam/adapter/UserDeletionPortImpl.java`
      - 组合根：`eva-app/src/main/java/edu/cuit/app/config/BcIamConfiguration.java`
 
 18) ✅ **已完成：系统管理读侧 `UserQueryGatewayImpl.fileUserEntity` 收敛到 `bc-iam`（保持行为不变）**
@@ -791,7 +791,7 @@
    - 关键落地点（便于快速定位）：
      - 用例：`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/FindUserByIdUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/FindUserByUsernameUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/PageUserUseCase.java`
      - 端口：`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/UserEntityQueryPort.java`
-     - 端口适配器：`eva-infra/src/main/java/edu/cuit/infra/bciam/adapter/UserEntityQueryPortImpl.java`
+     - 端口适配器：`bc-iam-infra/src/main/java/edu/cuit/infra/bciam/adapter/UserEntityQueryPortImpl.java`
      - 旧 gateway（已退化委托壳）：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/user/UserQueryGatewayImpl.java`
      - 组合根：`eva-app/src/main/java/edu/cuit/app/config/BcIamConfiguration.java`
 
@@ -803,7 +803,7 @@
    - 关键落地点（便于快速定位）：
      - 用例：`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/FindUserIdByUsernameUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/FindUsernameByIdUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/GetUserStatusUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/IsUsernameExistUseCase.java`
      - 端口：`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/UserBasicQueryPort.java`
-     - 端口适配器：`eva-infra/src/main/java/edu/cuit/infra/bciam/adapter/UserBasicQueryPortImpl.java`
+     - 端口适配器：`bc-iam-infra/src/main/java/edu/cuit/infra/bciam/adapter/UserBasicQueryPortImpl.java`
      - 旧 gateway（已退化委托壳）：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/user/UserQueryGatewayImpl.java`
      - 组合根：`eva-app/src/main/java/edu/cuit/app/config/BcIamConfiguration.java`
 
@@ -815,7 +815,7 @@
    - 关键落地点（便于快速定位）：
      - 用例：`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/FindAllUserIdUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/FindAllUsernameUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/AllUserUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/GetUserRoleIdsUseCase.java`
      - 端口：`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/UserDirectoryQueryPort.java`
-     - 端口适配器：`eva-infra/src/main/java/edu/cuit/infra/bciam/adapter/UserDirectoryQueryPortImpl.java`
+     - 端口适配器：`bc-iam-infra/src/main/java/edu/cuit/infra/bciam/adapter/UserDirectoryQueryPortImpl.java`
      - 旧 gateway（已退化委托壳）：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/user/UserQueryGatewayImpl.java`
      - 组合根：`eva-app/src/main/java/edu/cuit/app/config/BcIamConfiguration.java`
 
@@ -846,7 +846,7 @@
    - 关键落地点（便于快速定位）：
      - 用例：`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/AssignRolePermsUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/DeleteMultipleRoleUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/HandleUserMenuCacheUseCase.java`
      - 端口：`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/RolePermissionAssignmentPort.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/RoleBatchDeletionPort.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/UserMenuCacheInvalidationPort.java`
-     - 端口适配器：`eva-infra/src/main/java/edu/cuit/infra/bciam/adapter/RoleWritePortImpl.java`、`eva-infra/src/main/java/edu/cuit/infra/bciam/adapter/UserMenuCacheInvalidationPortImpl.java`
+     - 端口适配器：`bc-iam-infra/src/main/java/edu/cuit/infra/bciam/adapter/RoleWritePortImpl.java`、`bc-iam-infra/src/main/java/edu/cuit/infra/bciam/adapter/UserMenuCacheInvalidationPortImpl.java`
      - 旧 gateway（已退化委托壳）：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/user/RoleUpdateGatewayImpl.java`、`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/user/MenuUpdateGatewayImpl.java`
      - 组合根：`eva-app/src/main/java/edu/cuit/app/config/BcIamConfiguration.java`
 
@@ -868,5 +868,5 @@
    - 推荐拆分路径（先小步、可回滚、行为不变）：
      1) 先统一文档与命名：将“旧 gateway = 委托壳 / 入口适配器”的约定固化（本条目已完成）。
      2) ✅ 以 `bc-iam` 为试点：已引入 `bc-iam-infra` 子模块骨架，并由 `eva-app` 装配（提交：`42a6f66f`）。
-     3) 逐步迁移：将 `eva-infra/src/main/java/edu/cuit/infra/bciam/adapter/*` 分批迁移到 `bc-iam-infra`（行为不变）。
+     3) ✅ 已完成：将 `bc-iam-infra/src/main/java/edu/cuit/infra/bciam/adapter/*` 作为新落点，并已完成从 `eva-infra` 的迁移（行为不变）。
      4) 当 `bc-iam` 完成三层自包含后，再评估把 `eva-domain` 中与 IAM 强相关的类型逐步迁移到 `bc-iam-domain`（谨慎推进，避免牵连其它 BC；共享部分沉淀到 `shared-kernel`）。
