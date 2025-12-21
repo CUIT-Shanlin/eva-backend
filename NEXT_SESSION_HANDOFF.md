@@ -117,7 +117,7 @@
   - ✅ 已完成（条目 26-4）：继续迁移 `SysRole*`/`SysRoleMenu*`（DO/Mapper/XML）到 `eva-infra-dal`（保持包名/namespace/SQL 不变；保持行为不变）。
     - Java：`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/dataobject/user/SysRoleDO.java`、`SysRoleMenuDO.java`；`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/mapper/user/SysRoleMapper.java`、`SysRoleMenuMapper.java`
     - XML：`eva-infra-dal/src/main/resources/mapper/user/SysRoleMapper.xml`、`SysRoleMenuMapper.xml`
-  - 下一步里程碑（每步一条 commit；每步跑最小回归；保持行为不变）：按同套路迁移 `SysRole*`/`SysRoleMenu*` → 迁移 `SysMenu*` → 逐步把 `bc-iam-infra` 对 `eva-infra` 的依赖收敛为更小的 shared 模块集合（最终可移除）
+  - 下一步里程碑（每步一条 commit；每步跑最小回归；保持行为不变）：迁移 `SysMenu*` → 逐步把 `bc-iam-infra` 对 `eva-infra` 的依赖收敛为更小的 shared 模块集合（最终可移除）
     - 下一步拆分（条目 26-5，建议一条 commit）：迁移 `SysMenu*`（`SysMenuDO` / `SysMenuMapper` / `SysMenuMapper.xml`）到 `eva-infra-dal`，保持包名/namespace/SQL 不变；跑最小回归并记录。
 
 ## 0.3 本次会话增量总结（2025-12-21，更新至 `HEAD`）
