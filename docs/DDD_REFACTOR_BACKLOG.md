@@ -105,6 +105,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - 系统管理写侧继续收敛（保持行为不变）：
   - 已完成 Step1：用 Serena 复核 `RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole` 与 `MenuUpdateGatewayImpl.handleUserMenuCache` 的异常文案、缓存 key/失效顺序与日志顺序，并固化到交接文档，作为后续“原样搬运”的对照基线。
   - 已完成 Step2：新增 `bc-iam` 写侧用例骨架 + 端口，并补齐纯单测（仅验证“委托一次”）。
+  - 已完成 Step3：新增 `eva-infra` 端口适配器并原样搬运角色写侧旧逻辑（`assignPerms/deleteMultipleRole`，含缓存失效与日志顺序），为旧 gateway 委托化做准备。
 
 **已完成（2025-12-21）**
 - IAM 写侧继续收敛（保持行为不变）：
