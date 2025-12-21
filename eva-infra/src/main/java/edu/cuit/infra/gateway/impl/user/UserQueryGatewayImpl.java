@@ -1,80 +1,63 @@
 package edu.cuit.infra.gateway.impl.user;
 
-import cn.hutool.core.util.StrUtil;
-import com.alibaba.cola.exception.SysException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.toolkit.MPJWrappers;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
+import edu.cuit.bc.iam.application.usecase.FindUserByIdUseCase;
+import edu.cuit.bc.iam.application.usecase.FindUserByUsernameUseCase;
+import edu.cuit.bc.iam.application.usecase.PageUserUseCase;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
-import edu.cuit.domain.entity.user.biz.MenuEntity;
-import edu.cuit.domain.entity.user.biz.RoleEntity;
 import edu.cuit.domain.entity.user.biz.UserEntity;
-import edu.cuit.domain.gateway.user.MenuQueryGateway;
-import edu.cuit.domain.gateway.user.RoleQueryGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.infra.convertor.PaginationConverter;
-import edu.cuit.infra.convertor.user.RoleConverter;
 import edu.cuit.infra.convertor.user.UserConverter;
 import edu.cuit.infra.dal.database.dataobject.user.SysRoleDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserRoleDO;
 import edu.cuit.infra.dal.database.mapper.user.*;
 import edu.cuit.infra.enums.cache.UserCacheConstants;
-import edu.cuit.infra.util.QueryUtils;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.cache.aspect.annotation.local.LocalCached;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class UserQueryGatewayImpl implements UserQueryGateway {
 
-    @Autowired
-    @Lazy
-    private UserQueryGateway userQueryGateway;
-
     private final SysUserMapper userMapper;
     private final SysRoleMapper roleMapper;
 
-    private final RoleQueryGateway roleQueryGateway;
-    private final MenuQueryGateway menuQueryGateway;
-
     private final UserConverter userConverter;
-    private final RoleConverter roleConverter;
-    private final PaginationConverter paginationConverter;
 
     private final LocalCacheManager cacheManager;
     private final UserCacheConstants userCacheConstants;
 
+    private final FindUserByIdUseCase findUserByIdUseCase;
+    private final FindUserByUsernameUseCase findUserByUsernameUseCase;
+    private final PageUserUseCase pageUserUseCase;
+
     @Override
     @LocalCached(area = "#{@userCacheConstants.ONE_USER_ID}",key = "#id")
     public Optional<UserEntity> findById(Integer id) {
-        SysUserDO userDO = userMapper.selectById(id);
-        return Optional.ofNullable(fileUserEntity(userDO));
+        // 历史路径：收敛到 bc-iam 用例，旧 gateway 逐步退化为委托壳（保持行为不变）
+        return findUserByIdUseCase.execute(id);
     }
 
     @Override
     @LocalCached(area = "#{@userCacheConstants.ONE_USER_USERNAME}",key = "#username")
     public Optional<UserEntity> findByUsername(String username) {
-        //查询用户
-        LambdaQueryWrapper<SysUserDO> userQuery = Wrappers.lambdaQuery();
-        userQuery.eq(SysUserDO::getUsername,username);
-        SysUserDO userDO = userMapper.selectOne(userQuery);
-        return Optional.ofNullable(fileUserEntity(userDO));
+        // 历史路径：收敛到 bc-iam 用例，旧 gateway 逐步退化为委托壳（保持行为不变）
+        return findUserByUsernameUseCase.execute(username);
     }
 
     @Override
@@ -125,24 +108,8 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
 
     @Override
     public PaginationResultEntity<UserEntity> page(PagingQuery<GenericConditionalQuery> query) {
-        Page<SysUserDO> userPage = Page.of(query.getPage(),query.getSize());
-        GenericConditionalQuery queryObj = query.getQueryObj();
-
-        //查询
-        LambdaQueryWrapper<SysUserDO> userQuery = Wrappers.lambdaQuery();
-        QueryUtils.fileTimeQuery(userQuery,queryObj,SysUserDO::getCreateTime,SysUserDO::getUpdateTime);
-        String keyword = queryObj.getKeyword();
-        userQuery.and(queryWrp -> {
-                    queryWrp.like(keyword != null,SysUserDO::getName,keyword)
-                            .or().like(keyword != null,SysUserDO::getUsername,keyword);
-                });
-        userQuery.orderByDesc(SysUserDO::getCreateTime);
-        Page<SysUserDO> usersPage = userMapper.selectPage(userPage, userQuery);
-
-        //映射
-        List<UserEntity> userEntityList = usersPage.getRecords().stream().map(this::fileUserEntity).toList();
-
-        return paginationConverter.toPaginationEntity(usersPage,userEntityList);
+        // 历史路径：收敛到 bc-iam 用例，旧 gateway 逐步退化为委托壳（保持行为不变）
+        return pageUserUseCase.execute(query);
     }
 
     @Override
@@ -192,36 +159,4 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
         return Optional.ofNullable(userMapper.selectOne(userQuery).getStatus());
     }
 
-    /**
-     * 填充UserEntity字段
-     * @param userDO SysUserDO
-     */
-    private UserEntity fileUserEntity(SysUserDO userDO) {
-        //查询角色
-        LambdaQueryWrapper<SysRoleDO> roleQuery = new LambdaQueryWrapper<>();
-        List<Integer> userRoleIds = userQueryGateway.getUserRoleIds(userDO.getId());
-        List<SysRoleDO> roles;
-        if (userRoleIds.isEmpty()) {
-            roles = List.of();
-        } else {
-            roleQuery.in(SysRoleDO::getId, userRoleIds);
-            roles = roleMapper.selectList(roleQuery);
-        }
-        Supplier<List<RoleEntity>> userRoles = () -> roles.stream()
-                .map(roleDo -> {
-
-                    //查询角色权限菜单
-                    Supplier<List<MenuEntity>> menus = () -> roleQueryGateway.getRoleMenuIds(roleDo.getId())
-                            .stream()
-                            .map(menuId -> menuQueryGateway.getOne(menuId).orElseThrow(() -> {
-                                SysException sysException = new SysException("菜单查询出错，请联系管理员");
-                                log.error("菜单查询出错",sysException);
-                                return sysException;
-                            }))
-                            .toList();
-
-                    return roleConverter.toRoleEntity(roleDo,menus);
-                }).toList();
-        return userConverter.toUserEntity(userDO,userRoles);
-    }
 }

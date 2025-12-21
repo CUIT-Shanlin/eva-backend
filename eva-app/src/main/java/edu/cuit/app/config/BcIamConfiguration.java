@@ -1,6 +1,7 @@
 package edu.cuit.app.config;
 
 import edu.cuit.bc.iam.application.port.UserCreationPort;
+import edu.cuit.bc.iam.application.port.UserEntityQueryPort;
 import edu.cuit.bc.iam.application.port.UserDeletionPort;
 import edu.cuit.bc.iam.application.port.UserInfoUpdatePort;
 import edu.cuit.bc.iam.application.port.UserRoleAssignmentPort;
@@ -8,6 +9,9 @@ import edu.cuit.bc.iam.application.port.UserStatusUpdatePort;
 import edu.cuit.bc.iam.application.usecase.AssignRoleUseCase;
 import edu.cuit.bc.iam.application.usecase.CreateUserUseCase;
 import edu.cuit.bc.iam.application.usecase.DeleteUserUseCase;
+import edu.cuit.bc.iam.application.usecase.FindUserByIdUseCase;
+import edu.cuit.bc.iam.application.usecase.FindUserByUsernameUseCase;
+import edu.cuit.bc.iam.application.usecase.PageUserUseCase;
 import edu.cuit.bc.iam.application.usecase.UpdateUserInfoUseCase;
 import edu.cuit.bc.iam.application.usecase.UpdateUserStatusUseCase;
 import org.springframework.context.annotation.Bean;
@@ -42,5 +46,20 @@ public class BcIamConfiguration {
     @Bean
     public DeleteUserUseCase deleteUserUseCase(UserDeletionPort deletionPort) {
         return new DeleteUserUseCase(deletionPort);
+    }
+
+    @Bean
+    public FindUserByIdUseCase findUserByIdUseCase(UserEntityQueryPort queryPort) {
+        return new FindUserByIdUseCase(queryPort);
+    }
+
+    @Bean
+    public FindUserByUsernameUseCase findUserByUsernameUseCase(UserEntityQueryPort queryPort) {
+        return new FindUserByUsernameUseCase(queryPort);
+    }
+
+    @Bean
+    public PageUserUseCase pageUserUseCase(UserEntityQueryPort queryPort) {
+        return new PageUserUseCase(queryPort);
     }
 }
