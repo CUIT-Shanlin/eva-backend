@@ -741,6 +741,22 @@
      - `assignPerms` 顺序不变：`checkRoleId` → 删除原 `role_menu` → 插入新 `role_menu` → `handleRoleUpdateCache` → `LogUtils.logContent(...)`。
      - `deleteMultipleRole` 顺序不变：先逐个 `checkDefaultRole`/`checkRoleId` 并提前 `handleRoleUpdateCache`，再逐个删除 `sys_role/sys_user_role/sys_role_menu`，最后 `LogUtils.logContent(tmp + " 角色")`。
      - `handleRoleUpdateCache/handleUserMenuCache` 规则不变：失效 `ALL_ROLE/ONE_ROLE/ROLE_MENU/ALL_MENU/ONE_USER_ID/ONE_USER_USERNAME` 等，并保持 `userQueryGateway.findUsernameById(...).orElse(null)` 的空值语义。
+   - 行为快照补充（已用 Serena 复核，便于搬运时逐条对照）：
+     - 角色权限分配（`eva-infra/.../user/RoleUpdateGatewayImpl.assignPerms`）：
+       - `checkRoleId`：`select(id, roleName).eq(id)`；不存在抛 `BizException("角色id: " + id + " 不存在")`。
+       - 删除旧权限：`roleMenuMapper.delete(Wrappers.lambdaUpdate().eq(roleId))`（注意是 update wrapper）。
+       - 插入新权限：逐个 `roleMenuMapper.insert(new SysRoleMenuDO().setMenuId(id).setRoleId(roleId))`（顺序与入参 list 顺序一致）。
+       - 缓存失效：`handleRoleUpdateCache(roleId)` 内部第一个失效为 `invalidateCache(null, userCacheConstants.ALL_ROLE)`；随后按 `ONE_ROLE/ROLE_MENU` 与 `ONE_USER_ID/ONE_USER_USERNAME` 失效（key 都是 `String.valueOf(...)`，用户名 key 允许 `null`）。
+       - 日志：最后 `LogUtils.logContent(tmp.getRoleName() + " 角色(" + tmp.getId() + ")的权限")`（必须最后执行）。
+     - 角色批量删除（`eva-infra/.../user/RoleUpdateGatewayImpl.deleteMultipleRole`）：
+       - 两段循环：第一段逐个 `checkDefaultRole`（默认角色抛 `BizException("默认角色不允许此操作")`）→ `checkRoleId` → 立刻 `handleRoleUpdateCache(roleId)`；第二段再逐个执行删除（`sys_role` → `sys_user_role` → `sys_role_menu`）。
+       - 日志：最后 `LogUtils.logContent(tmp + " 角色")`（`tmp` 为 `List<SysRoleDO>`，来源于第一段循环 `checkRoleId` 返回值）。
+     - 菜单变更触发的用户缓存失效（`eva-infra/.../user/MenuUpdateGatewayImpl.handleUserMenuCache`）：
+       - 先 `invalidateCache(null, userCacheConstants.ALL_MENU)`；再按 `menuId -> roleId -> userId` 链路失效 `ONE_ROLE/ONE_USER_ID/ONE_USER_USERNAME`（用户名 key 允许 `null`）。
+       - 注意 `deleteMenu` 链路中 `handleUserMenuCache(menuId)` 会在 `deleteMenuAndChildren` 内部对每个节点调用一次，且在 `deleteMenu` 方法末尾对根节点再调用一次（即根节点会触发两次失效；必须保持）。
+   - 调用方入口（便于回归对照）：
+     - 角色：`eva-app/src/main/java/edu/cuit/app/service/impl/user/RoleServiceImpl.java` → `roleUpdateGateway.assignPerms/deleteMultipleRole`
+     - 菜单：`eva-app/src/main/java/edu/cuit/app/service/impl/user/MenuServiceImpl.java` → `menuUpdateGateway.updateMenuInfo/deleteMenu/deleteMultipleMenu`
    - 建议拆分提交（每步一条 commit，且每步跑最小回归；每步结束要刷新下一步计划后再结束会话）：
      1) Serena：定位旧实现与调用方，补齐异常文案/缓存 key/失效顺序快照（含 `checkRoleId/checkDefaultRole/handleRoleUpdateCache/handleUserMenuCache`）。
      2) `bc-iam`：新增用例骨架 + 端口（可按“权限分配/批量删除”拆分），并补齐纯单测（只测委托一次）。

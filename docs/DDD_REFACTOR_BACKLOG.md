@@ -101,6 +101,10 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
+**进行中（2025-12-21）**
+- 系统管理写侧继续收敛（保持行为不变）：
+  - 已完成 Step1：用 Serena 复核 `RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole` 与 `MenuUpdateGatewayImpl.handleUserMenuCache` 的异常文案、缓存 key/失效顺序与日志顺序，并固化到交接文档，作为后续“原样搬运”的对照基线。
+
 **已完成（2025-12-21）**
 - IAM 写侧继续收敛（保持行为不变）：
   - 用户删除：`UserUpdateGatewayImpl.deleteUser` 收敛到 `bc-iam`（落地提交：`5f08151c/e23c810a/cccd75a3/2846c689`）。
