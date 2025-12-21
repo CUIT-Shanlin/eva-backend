@@ -6,8 +6,12 @@ import com.github.yulichang.toolkit.MPJWrappers;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import edu.cuit.bc.iam.application.usecase.FindUserIdByUsernameUseCase;
 import edu.cuit.bc.iam.application.usecase.FindUsernameByIdUseCase;
+import edu.cuit.bc.iam.application.usecase.AllUserUseCase;
+import edu.cuit.bc.iam.application.usecase.FindAllUserIdUseCase;
+import edu.cuit.bc.iam.application.usecase.FindAllUsernameUseCase;
 import edu.cuit.bc.iam.application.usecase.FindUserByIdUseCase;
 import edu.cuit.bc.iam.application.usecase.FindUserByUsernameUseCase;
+import edu.cuit.bc.iam.application.usecase.GetUserRoleIdsUseCase;
 import edu.cuit.bc.iam.application.usecase.GetUserStatusUseCase;
 import edu.cuit.bc.iam.application.usecase.IsUsernameExistUseCase;
 import edu.cuit.bc.iam.application.usecase.PageUserUseCase;
@@ -18,7 +22,6 @@ import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.infra.convertor.PaginationConverter;
-import edu.cuit.infra.convertor.user.UserConverter;
 import edu.cuit.infra.dal.database.dataobject.user.SysRoleDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserRoleDO;
@@ -36,10 +39,10 @@ import java.util.Optional;
 @Slf4j
 public class UserQueryGatewayImpl implements UserQueryGateway {
 
-    private final SysUserMapper userMapper;
-    private final SysRoleMapper roleMapper;
-
-    private final UserConverter userConverter;
+    private final FindAllUserIdUseCase findAllUserIdUseCase;
+    private final FindAllUsernameUseCase findAllUsernameUseCase;
+    private final AllUserUseCase allUserUseCase;
+    private final GetUserRoleIdsUseCase getUserRoleIdsUseCase;
 
     private final FindUserByIdUseCase findUserByIdUseCase;
     private final FindUserByUsernameUseCase findUserByUsernameUseCase;
@@ -79,17 +82,15 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
     @Override
     @LocalCached(key = "#{@userCacheConstants.ALL_USER_ID}")
     public List<Integer> findAllUserId() {
-        LambdaQueryWrapper<SysUserDO> userQuery = Wrappers.lambdaQuery();
-        userQuery.select(SysUserDO::getId);
-        return userMapper.selectList(userQuery).stream().map(SysUserDO::getId).toList();
+        // 历史路径：收敛到 bc-iam 用例，旧 gateway 逐步退化为委托壳（保持行为不变）
+        return findAllUserIdUseCase.execute();
     }
 
     @Override
     @LocalCached(key = "#{@userCacheConstants.ALL_USER_USERNAME}")
     public List<String> findAllUsername() {
-        LambdaQueryWrapper<SysUserDO> userQuery = Wrappers.lambdaQuery();
-        userQuery.select(SysUserDO::getUsername);
-        return userMapper.selectList(userQuery).stream().map(SysUserDO::getUsername).toList();
+        // 历史路径：收敛到 bc-iam 用例，旧 gateway 逐步退化为委托壳（保持行为不变）
+        return findAllUsernameUseCase.execute();
     }
 
     @Override
@@ -101,22 +102,15 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
     @Override
     @LocalCached(key = "#{@userCacheConstants.ALL_USER}")
     public List<SimpleResultCO> allUser() {
-        LambdaQueryWrapper<SysUserDO> userQuery = Wrappers.lambdaQuery();
-        userQuery.select(SysUserDO::getId,SysUserDO::getName);
-        return userMapper.selectList(userQuery).stream().map(userConverter::toUserSimpleResult).toList();
+        // 历史路径：收敛到 bc-iam 用例，旧 gateway 逐步退化为委托壳（保持行为不变）
+        return allUserUseCase.execute();
     }
 
     @Override
     @LocalCached(area = "#{@userCacheConstants.USER_ROLE}",key = "#userId")
     public List<Integer> getUserRoleIds(Integer userId) {
-        MPJLambdaWrapper<SysRoleDO> roleQuery = MPJWrappers.lambdaJoin();
-        roleQuery
-                .select(SysRoleDO::getId)
-                .innerJoin(SysUserRoleDO.class,on -> on
-                        .eq(SysUserRoleDO::getUserId,userId))
-                .eq(SysRoleDO::getId,SysUserRoleDO::getRoleId);
-
-        return roleMapper.selectList(roleQuery).stream().map(SysRoleDO::getId).toList();
+        // 历史路径：收敛到 bc-iam 用例，旧 gateway 逐步退化为委托壳（保持行为不变）
+        return getUserRoleIdsUseCase.execute(userId);
     }
 
     @Override
