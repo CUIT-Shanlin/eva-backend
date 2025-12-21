@@ -117,7 +117,11 @@
   - ✅ 已完成（条目 26-4）：继续迁移 `SysRole*`/`SysRoleMenu*`（DO/Mapper/XML）到 `eva-infra-dal`（保持包名/namespace/SQL 不变；保持行为不变）。
     - Java：`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/dataobject/user/SysRoleDO.java`、`SysRoleMenuDO.java`；`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/mapper/user/SysRoleMapper.java`、`SysRoleMenuMapper.java`
     - XML：`eva-infra-dal/src/main/resources/mapper/user/SysRoleMapper.xml`、`SysRoleMenuMapper.xml`
-  - 下一步里程碑（每步一条 commit；每步跑最小回归；保持行为不变）：迁移 `SysMenu*` → 逐步把 `bc-iam-infra` 对 `eva-infra` 的依赖收敛为更小的 shared 模块集合（最终可移除）
+  - ✅ 已完成（条目 26-5）：继续迁移 `SysMenu*`（DO/Mapper/XML）到 `eva-infra-dal`（保持包名/namespace/SQL 不变；保持行为不变）。
+    - Java：`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/dataobject/user/SysMenuDO.java`；`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/mapper/user/SysMenuMapper.java`
+    - XML：`eva-infra-dal/src/main/resources/mapper/user/SysMenuMapper.xml`
+  - 下一步里程碑（每步一条 commit；每步跑最小回归；保持行为不变）：逐步把 `bc-iam-infra` 对 `eva-infra` 的依赖收敛为更小的 shared 模块集合（最终可移除）
+    - 下一步拆分（条目 26-6）：在 `bc-iam-infra` 内盘点“仍必须依赖 `eva-infra` 的类型/Bean”，把确实需要复用的基础设施能力（Starter/LDAP/缓存/工具/转换器…）逐步抽到更小的 shared 模块，再移除 `bc-iam-infra` 对 `eva-infra` 的 Maven 依赖（保持行为不变）。
     - 下一步拆分（条目 26-5，建议一条 commit）：迁移 `SysMenu*`（`SysMenuDO` / `SysMenuMapper` / `SysMenuMapper.xml`）到 `eva-infra-dal`，保持包名/namespace/SQL 不变；跑最小回归并记录。
 
 ## 0.3 本次会话增量总结（2025-12-21，更新至 `HEAD`）
@@ -903,5 +907,5 @@
      2) ✅ 新建 `bc-iam-infra` 内部 DAL 包路径（先空骨架 + 资源目录），不迁代码；确保编译通过。
      3) ✅ 迁移 `SysUser*` 相关 DO/Mapper/XML 到共享模块 `eva-infra-dal`（保持包名/namespace/SQL/异常/顺序一致）；跑最小回归。
      4) ✅ 迁移 `SysRole*`/`SysRoleMenu*` 相关 DO/Mapper/XML 到共享模块 `eva-infra-dal`；跑最小回归。
-     5) 迁移 `SysMenu*` 相关 DO/Mapper/XML 到共享模块 `eva-infra-dal`；跑最小回归。
+     5) ✅ 迁移 `SysMenu*` 相关 DO/Mapper/XML 到共享模块 `eva-infra-dal`；跑最小回归。
      6) 去掉 `bc-iam-infra` 对 `eva-infra` 的依赖（或至少只保留必须的 starter），确保仍能通过最小回归。

@@ -126,6 +126,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已在 `bc-iam-infra` 创建 DAL 包路径与资源目录骨架（不迁代码，仅提供后续迁移落点；保持行为不变）。
   - `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已新增共享 DAL 子模块 `eva-infra-dal`，并先迁移 `SysUser*`（DO/Mapper/XML）到该模块（保持包名/namespace/SQL 不变；保持行为不变）。
   - `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已继续迁移 `SysRole*`/`SysRoleMenu*`（DO/Mapper/XML）到该模块（保持包名/namespace/SQL 不变；保持行为不变）。
+  - `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已继续迁移 `SysMenu*`（DO/Mapper/XML）到该模块（保持包名/namespace/SQL 不变；保持行为不变）。
 
 **已完成（2025-12-20）**
 - 评教写侧进一步收敛（保持行为不变）：
@@ -180,6 +181,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
    - 进展补充：已创建 `bc-iam-infra` 内部 DAL 包/资源骨架（不迁代码）
    - 进展补充：已创建共享 DAL 子模块 `eva-infra-dal`，并完成 `SysUser*` 的迁移（后续继续迁移 `SysRole*`/`SysRoleMenu*`/`SysMenu*`）
    - 进展补充：已完成 `SysRole*`/`SysRoleMenu*` 的迁移（下一步迁移 `SysMenu*`）
+   - 进展补充：已完成 `SysMenu*` 的迁移（下一步：去掉 `bc-iam-infra` 对 `eva-infra` 的依赖）
 
 ---
 
