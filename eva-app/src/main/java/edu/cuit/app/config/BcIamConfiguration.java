@@ -8,13 +8,20 @@ import edu.cuit.bc.iam.application.port.UserDeletionPort;
 import edu.cuit.bc.iam.application.port.UserInfoUpdatePort;
 import edu.cuit.bc.iam.application.port.RoleBatchDeletionPort;
 import edu.cuit.bc.iam.application.port.RolePermissionAssignmentPort;
+import edu.cuit.bc.iam.application.port.MenuBatchDeletionPort;
+import edu.cuit.bc.iam.application.port.MenuCreationPort;
+import edu.cuit.bc.iam.application.port.MenuDeletionPort;
+import edu.cuit.bc.iam.application.port.MenuInfoUpdatePort;
 import edu.cuit.bc.iam.application.port.UserRoleAssignmentPort;
 import edu.cuit.bc.iam.application.port.UserMenuCacheInvalidationPort;
 import edu.cuit.bc.iam.application.port.UserStatusUpdatePort;
 import edu.cuit.bc.iam.application.usecase.AllUserUseCase;
 import edu.cuit.bc.iam.application.usecase.AssignRoleUseCase;
 import edu.cuit.bc.iam.application.usecase.AssignRolePermsUseCase;
+import edu.cuit.bc.iam.application.usecase.CreateMenuUseCase;
 import edu.cuit.bc.iam.application.usecase.CreateUserUseCase;
+import edu.cuit.bc.iam.application.usecase.DeleteMenuUseCase;
+import edu.cuit.bc.iam.application.usecase.DeleteMultipleMenuUseCase;
 import edu.cuit.bc.iam.application.usecase.DeleteUserUseCase;
 import edu.cuit.bc.iam.application.usecase.DeleteMultipleRoleUseCase;
 import edu.cuit.bc.iam.application.usecase.FindAllUserIdUseCase;
@@ -28,6 +35,7 @@ import edu.cuit.bc.iam.application.usecase.GetUserStatusUseCase;
 import edu.cuit.bc.iam.application.usecase.HandleUserMenuCacheUseCase;
 import edu.cuit.bc.iam.application.usecase.IsUsernameExistUseCase;
 import edu.cuit.bc.iam.application.usecase.PageUserUseCase;
+import edu.cuit.bc.iam.application.usecase.UpdateMenuInfoUseCase;
 import edu.cuit.bc.iam.application.usecase.UpdateUserInfoUseCase;
 import edu.cuit.bc.iam.application.usecase.UpdateUserStatusUseCase;
 import org.springframework.context.annotation.Bean;
@@ -132,5 +140,25 @@ public class BcIamConfiguration {
     @Bean
     public HandleUserMenuCacheUseCase handleUserMenuCacheUseCase(UserMenuCacheInvalidationPort invalidationPort) {
         return new HandleUserMenuCacheUseCase(invalidationPort);
+    }
+
+    @Bean
+    public UpdateMenuInfoUseCase updateMenuInfoUseCase(MenuInfoUpdatePort updatePort) {
+        return new UpdateMenuInfoUseCase(updatePort);
+    }
+
+    @Bean
+    public DeleteMenuUseCase deleteMenuUseCase(MenuDeletionPort deletionPort) {
+        return new DeleteMenuUseCase(deletionPort);
+    }
+
+    @Bean
+    public DeleteMultipleMenuUseCase deleteMultipleMenuUseCase(MenuBatchDeletionPort deletionPort) {
+        return new DeleteMultipleMenuUseCase(deletionPort);
+    }
+
+    @Bean
+    public CreateMenuUseCase createMenuUseCase(MenuCreationPort creationPort) {
+        return new CreateMenuUseCase(creationPort);
     }
 }

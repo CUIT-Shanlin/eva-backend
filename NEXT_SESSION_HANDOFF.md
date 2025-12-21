@@ -6,6 +6,24 @@
 
 ---
 
+## 0.6 本次会话增量总结（2025-12-21，更新至 `HEAD`）
+
+- ✅ 系统管理写侧继续收敛：**菜单写侧主链路**收敛到 `bc-iam`（用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；保持行为不变）。
+  - 收敛范围（本次条目 23）：`MenuUpdateGatewayImpl.updateMenuInfo/deleteMenu/deleteMultipleMenu/createMenu`
+  - 行为快照（供回归对照）：
+    - 缓存注解不变：`@LocalCacheInvalidateContainer/@LocalCacheInvalidate` 仍保留在旧 `MenuUpdateGatewayImpl` 方法上，area/key 与触发时机不变。
+    - `deleteMenu` 链路不变：递归删除顺序不变；根节点 `handleUserMenuCache(menuId)` 仍触发两次（一次来自递归末尾、一次来自 `deleteMenu` 方法末尾）。
+    - 异常/日志不变：`BizException("父菜单ID: ... 不存在")`、`BizException("菜单id: ... 不存在")`；`LogUtils.logContent(...)` 文案与时机不变。
+  - 关键落地点（便于快速定位）：
+    - 用例：`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/UpdateMenuInfoUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/DeleteMenuUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/DeleteMultipleMenuUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/CreateMenuUseCase.java`
+    - 端口：`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/MenuInfoUpdatePort.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/MenuDeletionPort.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/MenuBatchDeletionPort.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/MenuCreationPort.java`
+    - 端口适配器：`eva-infra/src/main/java/edu/cuit/infra/bciam/adapter/MenuWritePortImpl.java`
+    - 旧 gateway（已退化委托壳）：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/user/MenuUpdateGatewayImpl.java`
+    - 组合根：`eva-app/src/main/java/edu/cuit/app/config/BcIamConfiguration.java`
+  - 落地提交：`HEAD`
+- ✅ 最小回归已通过（Java17）：
+  - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
+
 ## 0.5 本次会话增量总结（2025-12-21，更新至 `HEAD`）
 
 - ✅ 系统管理写侧继续收敛：**角色/菜单缓存与权限变更副作用**收敛到 `bc-iam`（用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；保持行为不变）。
@@ -779,17 +797,18 @@
 22) **下一会话推荐重构任务：AI 报告 / 审计日志模块化（保持行为不变）**
    - 目标：启动 `bc-ai-report` / `bc-audit` 的最小骨架，并选择 1 条高价值写链路按“用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳”收敛（异常文案与副作用顺序保持不变）。
 
-23) **下一会话推荐重构任务：系统管理写侧继续收敛（菜单写侧主链路整体收敛到 `bc-iam`，保持行为不变）**
-   - 背景：当前已将“菜单变更触发的用户缓存失效”独立为 `bc-iam` 用例（`HandleUserMenuCacheUseCase`），但菜单写侧入口仍在旧 gateway，导致副作用分散、未来拆分困难。
-   - 目标：将 `MenuUpdateGatewayImpl.updateMenuInfo/deleteMenu/deleteMultipleMenu/createMenu` 等写侧入口按同套路收敛到 `bc-iam`（用例 + 端口 + `eva-infra` 适配器 + 旧 gateway 委托壳），并复用已收敛的缓存失效用例（保持调用次数/时机不变）。
-   - 强约束（必须保持）：
-     - `@LocalCacheInvalidateContainer/@LocalCacheInvalidate` 的 area/key 规则与触发时机不变（仍在旧 gateway 方法上生效）。
-     - `deleteMenu` 链路：`deleteMenuAndChildren` 内部的递归删除顺序、以及根节点 `handleUserMenuCache(menuId)` 触发两次（一次来自递归末尾、一次来自 `deleteMenu` 方法末尾）必须保持。
-     - 异常文案不变（例如 `BizException("父菜单ID: ... 不存在")`、`BizException("菜单id: ... 不存在")`），日志 `LogUtils.logContent(...)` 的文案与时机不变。
-   - 建议拆分提交（每步一条 commit，每步跑最小回归；每步结束先写清“下一步里程碑/提交点”再收尾）：
+23) ✅ **已完成：系统管理写侧继续收敛（菜单写侧主链路整体收敛到 `bc-iam`，保持行为不变）**
+   - 收敛范围：`MenuUpdateGatewayImpl.updateMenuInfo/deleteMenu/deleteMultipleMenu/createMenu`
+   - 强约束保持：缓存注解 area/key 与触发时机不变；`deleteMenu` 根节点缓存失效触发两次与递归删除顺序不变；异常文案与日志顺序不变。
+   - 落地提交：`HEAD`
+
+24) **下一会话推荐重构任务：系统管理写侧继续收敛（角色写侧剩余入口收敛到 `bc-iam`，保持行为不变）**
+   - 背景：菜单写侧已闭环收敛，角色写侧仍有多条入口（状态/信息/删除/创建）留在旧 gateway，副作用与校验散落。
+   - 目标：将 `RoleUpdateGatewayImpl.updateRoleInfo/updateRoleStatus/deleteRole/createRole` 按“用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳”收敛到 `bc-iam`（保持行为不变）。
+   - 建议拆分与里程碑/提交点（每步一条 commit；每步跑最小回归；每步结束先写清下一步里程碑再收尾）：
      1) Serena：定位四个入口的调用链与行为快照（异常/缓存 key/调用次数/日志顺序）。
-     2) `bc-iam`：新增用例骨架 + 端口（建议按入口拆分：`UpdateMenuInfoUseCase/DeleteMenuUseCase/DeleteMultipleMenuUseCase/CreateMenuUseCase`），补齐纯单测（只测委托一次）。
-     3) `eva-infra`：新增端口适配器实现，原样搬运旧逻辑（含 `deleteMenuAndChildren/deleteRoleMenu` 的顺序与缓存失效调用点）。
+     2) `bc-iam`：新增用例 + 端口（建议按入口拆分：`UpdateRoleInfoUseCase/UpdateRoleStatusUseCase/DeleteRoleUseCase/CreateRoleUseCase`）。
+     3) `eva-infra`：新增端口适配器实现，原样搬运旧逻辑（含 `checkDefaultRole/handleRoleUpdateCache/isRoleNameExisted` 的顺序与缓存失效点）。
      4) `eva-app`：`BcIamConfiguration` 装配新用例 Bean。
-     5) `eva-infra`：旧 `MenuUpdateGatewayImpl` 入口退化为委托壳（保留注解，确保缓存注解行为不变）。
-     6) 文档闭环：更新 `NEXT_SESSION_HANDOFF.md` / `DDD_REFACTOR_PLAN.md` / `docs/DDD_REFACTOR_BACKLOG.md`，记录提交链与行为约束。
+     5) `eva-infra`：旧 `RoleUpdateGatewayImpl` 对应入口退化为委托壳（保留任何缓存注解/切面行为不变）。
+     6) 文档闭环：更新 `NEXT_SESSION_HANDOFF.md` / `DDD_REFACTOR_PLAN.md` / `docs/DDD_REFACTOR_BACKLOG.md`，记录提交与行为约束。

@@ -108,6 +108,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - 用户查询装配：`UserQueryGatewayImpl.fileUserEntity` 收敛到 `bc-iam`（落地提交：`3e6f2cb2/8c245098/92a9beb3`）。
 - 系统管理写侧继续收敛（保持行为不变）：
   - 角色/菜单缓存与权限变更副作用收敛到 `bc-iam`：`RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole`、`MenuUpdateGatewayImpl.handleUserMenuCache`（落地提交链：`f8838951/91d13db4/7fce88b8/d6e3bed1/4d650166/46e666f9`）。
+  - 菜单写侧主链路收敛到 `bc-iam`：`MenuUpdateGatewayImpl.updateMenuInfo/deleteMenu/deleteMultipleMenu/createMenu`（落地提交：`HEAD`）。
 
 **已完成（2025-12-20）**
 - 评教写侧进一步收敛（保持行为不变）：
@@ -157,7 +158,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 1) AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`  
 2) 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分（保持统计口径不变）
-3) 系统管理写侧：菜单写侧主链路与角色写侧剩余入口仍在旧 gateway（保持行为不变）
+3) 系统管理写侧：角色写侧剩余入口仍在旧 gateway（保持行为不变）
 
 ---
 
@@ -275,7 +276,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 1) AI 报告 / 审计日志：启动 `bc-ai-report` / `bc-audit` 的最小骨架，并选择 1 条高价值写链路先收敛（保持行为不变）  
 2) 评教读侧进一步解耦：拆分 QueryService（任务/记录/统计/模板），保持统计口径不变  
-3) 系统管理写侧继续收敛：将菜单写侧主链路（`MenuUpdateGatewayImpl.updateMenuInfo/deleteMenu/deleteMultipleMenu/createMenu` 等）与角色写侧剩余入口继续收敛到 `bc-iam`（保持行为不变）  
+3) 系统管理写侧继续收敛：将角色写侧剩余入口继续收敛到 `bc-iam`（保持行为不变）  
 
 ---
 
