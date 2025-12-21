@@ -4,8 +4,12 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.yulichang.toolkit.MPJWrappers;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
+import edu.cuit.bc.iam.application.usecase.FindUserIdByUsernameUseCase;
+import edu.cuit.bc.iam.application.usecase.FindUsernameByIdUseCase;
 import edu.cuit.bc.iam.application.usecase.FindUserByIdUseCase;
 import edu.cuit.bc.iam.application.usecase.FindUserByUsernameUseCase;
+import edu.cuit.bc.iam.application.usecase.GetUserStatusUseCase;
+import edu.cuit.bc.iam.application.usecase.IsUsernameExistUseCase;
 import edu.cuit.bc.iam.application.usecase.PageUserUseCase;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.query.PagingQuery;
@@ -19,8 +23,6 @@ import edu.cuit.infra.dal.database.dataobject.user.SysRoleDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserRoleDO;
 import edu.cuit.infra.dal.database.mapper.user.*;
-import edu.cuit.infra.enums.cache.UserCacheConstants;
-import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.cache.aspect.annotation.local.LocalCached;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,12 +41,14 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
 
     private final UserConverter userConverter;
 
-    private final LocalCacheManager cacheManager;
-    private final UserCacheConstants userCacheConstants;
-
     private final FindUserByIdUseCase findUserByIdUseCase;
     private final FindUserByUsernameUseCase findUserByUsernameUseCase;
     private final PageUserUseCase pageUserUseCase;
+
+    private final FindUserIdByUsernameUseCase findUserIdByUsernameUseCase;
+    private final FindUsernameByIdUseCase findUsernameByIdUseCase;
+    private final GetUserStatusUseCase getUserStatusUseCase;
+    private final IsUsernameExistUseCase isUsernameExistUseCase;
 
     @Override
     @LocalCached(area = "#{@userCacheConstants.ONE_USER_ID}",key = "#id")
@@ -62,32 +66,14 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
 
     @Override
     public Optional<Integer> findIdByUsername(String username) {
-
-        Optional<UserEntity> cachedUser = cacheManager.getCache(userCacheConstants.ONE_USER_USERNAME ,username);
-
-        if (cachedUser != null && cachedUser.isPresent()) {
-            return Optional.ofNullable(cachedUser.get().getId());
-        }
-
-        LambdaQueryWrapper<SysUserDO> userQuery = Wrappers.lambdaQuery();
-        userQuery.select(SysUserDO::getId)
-                .eq(SysUserDO::getUsername,username);
-        return Optional.ofNullable(userMapper.selectOne(userQuery)).map(SysUserDO::getId);
+        // 历史路径：收敛到 bc-iam 用例，旧 gateway 逐步退化为委托壳（保持行为不变）
+        return findUserIdByUsernameUseCase.execute(username);
     }
 
     @Override
     public Optional<String> findUsernameById(Integer id) {
-
-        Optional<UserEntity> cachedUser = cacheManager.getCache(userCacheConstants.ONE_USER_ID , String.valueOf(id));
-
-        if (cachedUser != null && cachedUser.isPresent()) {
-            return Optional.ofNullable(cachedUser.get().getUsername());
-        }
-
-        LambdaQueryWrapper<SysUserDO> userQuery = Wrappers.lambdaQuery();
-        userQuery.select(SysUserDO::getUsername)
-                .eq(SysUserDO::getId,id);
-        return Optional.ofNullable(userMapper.selectOne(userQuery)).map(SysUserDO::getUsername);
+        // 历史路径：收敛到 bc-iam 用例，旧 gateway 逐步退化为委托壳（保持行为不变）
+        return findUsernameByIdUseCase.execute(id);
     }
 
     @Override
@@ -135,28 +121,14 @@ public class UserQueryGatewayImpl implements UserQueryGateway {
 
     @Override
     public Boolean isUsernameExist(String username) {
-
-        Optional<UserEntity> cachedUser = cacheManager.getCache(userCacheConstants.ONE_USER_USERNAME ,username);
-        if (cachedUser != null && cachedUser.isPresent()) {
-            return true;
-        }
-
-        return userMapper.exists(Wrappers.lambdaQuery(SysUserDO.class)
-                .select(SysUserDO::getUsername).eq(SysUserDO::getUsername,username));
+        // 历史路径：收敛到 bc-iam 用例，旧 gateway 逐步退化为委托壳（保持行为不变）
+        return isUsernameExistUseCase.execute(username);
     }
 
     @Override
     public Optional<Integer> getUserStatus(Integer id) {
-
-        Optional<UserEntity> cachedUser = cacheManager.getCache(userCacheConstants.ONE_USER_ID , String.valueOf(id));
-        if (cachedUser != null && cachedUser.isPresent()) {
-            return Optional.ofNullable(cachedUser.get().getStatus());
-        }
-
-        LambdaQueryWrapper<SysUserDO> userQuery = Wrappers.lambdaQuery();
-        userQuery.select(SysUserDO::getStatus)
-                .eq(SysUserDO::getId,id);
-        return Optional.ofNullable(userMapper.selectOne(userQuery).getStatus());
+        // 历史路径：收敛到 bc-iam 用例，旧 gateway 逐步退化为委托壳（保持行为不变）
+        return getUserStatusUseCase.execute(id);
     }
 
 }
