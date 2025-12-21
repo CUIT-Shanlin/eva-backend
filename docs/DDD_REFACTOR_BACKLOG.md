@@ -101,6 +101,10 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
+**已完成（2025-12-21）**
+- IAM 写侧继续收敛（保持行为不变）：
+  - 用户删除：`UserUpdateGatewayImpl.deleteUser` 收敛到 `bc-iam`（落地提交：`5f08151c/e23c810a/cccd75a3/2846c689`）。
+
 **已完成（2025-12-20）**
 - 评教写侧进一步收敛（保持行为不变）：
   - 评教模板新增/修改：收敛到 `bc-evaluation`（落地提交：`ea03dbd3`）。
@@ -147,9 +151,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：以下是仍在旧 gateway/技术切片中的能力，优先级按“写侧优先 + 影响范围”排序。
 
-1) IAM 写侧：`UserUpdateGatewayImpl.deleteUser` 仍在旧 gateway（含 LDAP/缓存/日志等副作用，保持行为不变）  
-2) AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`  
-3) 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分（保持统计口径不变）
+1) AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`  
+2) 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分（保持统计口径不变）
 
 ---
 
@@ -263,7 +266,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 如果继续按“写侧优先”的策略推进，下一批候选（高 → 低）建议是：
 
-1) IAM 写侧继续收敛：优先 `UserUpdateGatewayImpl.deleteUser`（保持行为不变）  
+1) 系统管理读侧渐进收敛：优先 `UserQueryGatewayImpl.fileUserEntity`（保持行为不变）  
 2) 评教读侧进一步解耦：拆分 QueryService（任务/记录/统计/模板），保持统计口径不变  
 3) AI 报告 / 审计日志：启动 `bc-ai-report` / `bc-audit` 的最小骨架，并选择 1 条高价值写链路先收敛（保持行为不变）  
 
