@@ -7,7 +7,11 @@ import edu.cuit.bc.iam.application.port.UserEntityQueryPort;
 import edu.cuit.bc.iam.application.port.UserDeletionPort;
 import edu.cuit.bc.iam.application.port.UserInfoUpdatePort;
 import edu.cuit.bc.iam.application.port.RoleBatchDeletionPort;
+import edu.cuit.bc.iam.application.port.RoleCreationPort;
+import edu.cuit.bc.iam.application.port.RoleDeletionPort;
+import edu.cuit.bc.iam.application.port.RoleInfoUpdatePort;
 import edu.cuit.bc.iam.application.port.RolePermissionAssignmentPort;
+import edu.cuit.bc.iam.application.port.RoleStatusUpdatePort;
 import edu.cuit.bc.iam.application.port.MenuBatchDeletionPort;
 import edu.cuit.bc.iam.application.port.MenuCreationPort;
 import edu.cuit.bc.iam.application.port.MenuDeletionPort;
@@ -24,6 +28,7 @@ import edu.cuit.bc.iam.application.usecase.DeleteMenuUseCase;
 import edu.cuit.bc.iam.application.usecase.DeleteMultipleMenuUseCase;
 import edu.cuit.bc.iam.application.usecase.DeleteUserUseCase;
 import edu.cuit.bc.iam.application.usecase.DeleteMultipleRoleUseCase;
+import edu.cuit.bc.iam.application.usecase.DeleteRoleUseCase;
 import edu.cuit.bc.iam.application.usecase.FindAllUserIdUseCase;
 import edu.cuit.bc.iam.application.usecase.FindAllUsernameUseCase;
 import edu.cuit.bc.iam.application.usecase.FindUserIdByUsernameUseCase;
@@ -36,8 +41,11 @@ import edu.cuit.bc.iam.application.usecase.HandleUserMenuCacheUseCase;
 import edu.cuit.bc.iam.application.usecase.IsUsernameExistUseCase;
 import edu.cuit.bc.iam.application.usecase.PageUserUseCase;
 import edu.cuit.bc.iam.application.usecase.UpdateMenuInfoUseCase;
+import edu.cuit.bc.iam.application.usecase.UpdateRoleInfoUseCase;
+import edu.cuit.bc.iam.application.usecase.UpdateRoleStatusUseCase;
 import edu.cuit.bc.iam.application.usecase.UpdateUserInfoUseCase;
 import edu.cuit.bc.iam.application.usecase.UpdateUserStatusUseCase;
+import edu.cuit.bc.iam.application.usecase.CreateRoleUseCase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -135,6 +143,26 @@ public class BcIamConfiguration {
     @Bean
     public DeleteMultipleRoleUseCase deleteMultipleRoleUseCase(RoleBatchDeletionPort deletionPort) {
         return new DeleteMultipleRoleUseCase(deletionPort);
+    }
+
+    @Bean
+    public UpdateRoleInfoUseCase updateRoleInfoUseCase(RoleInfoUpdatePort updatePort) {
+        return new UpdateRoleInfoUseCase(updatePort);
+    }
+
+    @Bean
+    public UpdateRoleStatusUseCase updateRoleStatusUseCase(RoleStatusUpdatePort updatePort) {
+        return new UpdateRoleStatusUseCase(updatePort);
+    }
+
+    @Bean
+    public DeleteRoleUseCase deleteRoleUseCase(RoleDeletionPort deletionPort) {
+        return new DeleteRoleUseCase(deletionPort);
+    }
+
+    @Bean
+    public CreateRoleUseCase createRoleUseCase(RoleCreationPort creationPort) {
+        return new CreateRoleUseCase(creationPort);
     }
 
     @Bean
