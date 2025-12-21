@@ -760,6 +760,10 @@
    - 进展（本次会话进行中）：
      - 已新增 `bc-iam` 写侧用例骨架与端口，并补齐纯单测（仅验证“委托一次”）：`AssignRolePermsUseCase` / `DeleteMultipleRoleUseCase`。
      - 已新增 `eva-infra` 端口适配器并原样搬运角色写侧旧逻辑：`eva-infra/src/main/java/edu/cuit/infra/bciam/adapter/RoleWritePortImpl.java`（覆盖 `assignPerms/deleteMultipleRole`，含缓存失效与日志顺序）。
+     - 已新增“菜单变更触发用户缓存失效”的用例/端口/端口适配器：
+       - 用例：`bc-iam/.../HandleUserMenuCacheUseCase`
+       - 端口：`bc-iam/.../UserMenuCacheInvalidationPort`
+       - 端口适配器：`eva-infra/.../UserMenuCacheInvalidationPortImpl`
      - 下一步：在 `eva-app` 的 `BcIamConfiguration` 装配新用例 Bean，并让旧 `RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole` 退化为委托壳（入口不变、行为不变）。
    - 建议拆分提交（每步一条 commit，且每步跑最小回归；每步结束要刷新下一步计划后再结束会话）：
      1) Serena：定位旧实现与调用方，补齐异常文案/缓存 key/失效顺序快照（含 `checkRoleId/checkDefaultRole/handleRoleUpdateCache/handleUserMenuCache`）。
