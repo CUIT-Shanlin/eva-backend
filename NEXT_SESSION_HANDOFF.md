@@ -757,6 +757,8 @@
    - 调用方入口（便于回归对照）：
      - 角色：`eva-app/src/main/java/edu/cuit/app/service/impl/user/RoleServiceImpl.java` → `roleUpdateGateway.assignPerms/deleteMultipleRole`
      - 菜单：`eva-app/src/main/java/edu/cuit/app/service/impl/user/MenuServiceImpl.java` → `menuUpdateGateway.updateMenuInfo/deleteMenu/deleteMultipleMenu`
+   - 进展（本次会话进行中）：
+     - 已新增 `bc-iam` 写侧用例骨架与端口，并补齐纯单测（仅验证“委托一次”）：`AssignRolePermsUseCase` / `DeleteMultipleRoleUseCase`（下一步开始搬运旧逻辑到 `eva-infra` 端口适配器）。
    - 建议拆分提交（每步一条 commit，且每步跑最小回归；每步结束要刷新下一步计划后再结束会话）：
      1) Serena：定位旧实现与调用方，补齐异常文案/缓存 key/失效顺序快照（含 `checkRoleId/checkDefaultRole/handleRoleUpdateCache/handleUserMenuCache`）。
      2) `bc-iam`：新增用例骨架 + 端口（可按“权限分配/批量删除”拆分），并补齐纯单测（只测委托一次）。
