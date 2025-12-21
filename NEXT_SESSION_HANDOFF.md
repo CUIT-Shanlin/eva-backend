@@ -54,10 +54,13 @@
 - ✅ 迁移第五步：用户写侧端口适配器已分批迁移到 `bc-iam-infra`（包名/类名/行为保持不变）。
   - 范围：`UserCreationPortImpl/UserInfoUpdatePortImpl/UserStatusUpdatePortImpl/UserDeletionPortImpl`
   - 落地提交：`5aecc747`
+- ✅ 迁移第六步：用户查询/分配端口适配器已迁移到 `bc-iam-infra`（包名/类名/行为保持不变）。
+  - 范围：`UserRoleAssignmentPortImpl/UserDirectoryQueryPortImpl/UserEntityQueryPortImpl`
+  - 落地提交：`1c3d4b8c`
   - 下一步拆分与里程碑/提交点（每步一条 commit；每步跑最小回归；每步完成更新三份文档）：
-    1) Serena：梳理剩余 `UserRoleAssignmentPortImpl/UserDirectoryQueryPortImpl/UserEntityQueryPortImpl` 的引用与装配路径（确认仅涉及类位置，不改变注入语义）。
-    2) 依次迁移：`UserRoleAssignmentPortImpl/UserDirectoryQueryPortImpl/UserEntityQueryPortImpl`。
-    3) 完成后：确认 `eva-infra/.../bciam/adapter` 目录下不再残留 IAM 端口适配器；再评估将 IAM DAL 抽离/迁移到 `bc-iam-infra`（后置）。
+    1) Serena：确认 `eva-infra/src/main/java/edu/cuit/infra/bciam/adapter` 不再残留 IAM 端口适配器（以及是否存在旧的 Spring 配置硬引用）。
+    2) 验证：补充一次“启动期校验”（可选，若不跑全量启动则至少保持最小回归通过）。
+    3) 下一阶段（后置）：评估将 IAM DAL（DO/Mapper）从 `eva-infra` 拆出到 `bc-iam-infra` 或独立 `shared-infra-dal`（仍保持行为不变、先搬运后整理）。
 
 ## 0.6 本次会话增量总结（2025-12-21，更新至 `HEAD`）
 
