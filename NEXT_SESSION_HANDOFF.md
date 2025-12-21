@@ -23,6 +23,12 @@
     - `findIdByUsername/findUsernameById` 返回语义不变：缓存命中则 `Optional.ofNullable(cachedUser.get().getId()/getUsername())`；缓存未命中（含 `null` 或 `Optional.empty()`）则回源 DB 并保持 `Optional.ofNullable(selectOne(...)).map(...)`；
     - `getUserStatus` 返回语义不变：缓存命中则 `Optional.ofNullable(cachedUser.get().getStatus())`；缓存未命中回源 DB 并保持 `Optional.ofNullable(selectOne(...).getStatus())`（用户不存在时仍可能触发历史 NPE）；
     - `isUsernameExist` 语义不变：缓存命中直接返回 `true`；否则走 `userMapper.exists(...)`。
+- ✅ 系统管理读侧继续收敛：`UserQueryGatewayImpl.findAllUserId/findAllUsername/allUser/getUserRoleIds` 收敛到 `bc-iam`（用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；保持行为不变）。
+  - 落地提交链：`56bbafcf/7e5f0a74/bc5fb3c6/6a1332b0`
+  - 行为快照（供回归对照）：
+    - 缓存不变：`@LocalCached` 仍保留在旧 `UserQueryGatewayImpl` 上（key/area 与命中语义不变）。
+    - 查询字段不变：`findAllUserId` 仅 select `id`；`findAllUsername` 仅 select `username`；`allUser` 仅 select `id,name` 并沿用 `userConverter.toUserSimpleResult` 映射。
+    - 角色查询不变：`getUserRoleIds` 仍为原 join 条件与返回映射（仅搬运到端口适配器）。
 - ✅ 最小回归已通过（Java17）：
   - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
 
@@ -662,7 +668,6 @@
    - 约束：每个小步完成后都执行 `mvn -pl start -am test -Dmaven.repo.local=.m2/repository` 并据失败补强回归。
 
 16) **当前未收敛清单（供下个会话优先处理）**
-   - 系统管理读侧：`UserQueryGatewayImpl.findAllUserId/findAllUsername/allUser/getUserRoleIds` 等仍在旧 gateway（含 `@LocalCached` 与 join 查询；保持行为不变）。
    - 系统管理（缓存/权限变更副作用）：`MenuUpdateGatewayImpl.handleUserMenuCache`、`RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole` 等仍在旧 gateway（保持行为不变）。
    - 评教读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分（保持统计口径不变）。
    - AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`。
@@ -706,5 +711,17 @@
      - 旧 gateway（已退化委托壳）：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/user/UserQueryGatewayImpl.java`
      - 组合根：`eva-app/src/main/java/edu/cuit/app/config/BcIamConfiguration.java`
 
-20) **下一会话推荐重构任务：AI 报告 / 审计日志模块化（保持行为不变）**
+20) ✅ **已完成：系统管理读侧 `UserQueryGatewayImpl.findAllUserId/findAllUsername/allUser/getUserRoleIds` 收敛到 `bc-iam`（保持行为不变）**
+   - 落地提交链：`56bbafcf/7e5f0a74/bc5fb3c6/6a1332b0`。
+   - 关键约束（行为快照，必须保持）：
+     - 缓存不变：`@LocalCached` 仍保留在旧 `UserQueryGatewayImpl` 上（key/area 与命中语义保持不变）。
+     - 查询/映射不变：字段选择与 `userConverter.toUserSimpleResult` 映射不变；`getUserRoleIds` join 条件不变。
+   - 关键落地点（便于快速定位）：
+     - 用例：`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/FindAllUserIdUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/FindAllUsernameUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/AllUserUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/GetUserRoleIdsUseCase.java`
+     - 端口：`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/UserDirectoryQueryPort.java`
+     - 端口适配器：`eva-infra/src/main/java/edu/cuit/infra/bciam/adapter/UserDirectoryQueryPortImpl.java`
+     - 旧 gateway（已退化委托壳）：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/user/UserQueryGatewayImpl.java`
+     - 组合根：`eva-app/src/main/java/edu/cuit/app/config/BcIamConfiguration.java`
+
+21) **下一会话推荐重构任务：AI 报告 / 审计日志模块化（保持行为不变）**
    - 目标：启动 `bc-ai-report` / `bc-audit` 的最小骨架，并选择 1 条高价值写链路按“用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳”收敛（异常文案与副作用顺序保持不变）。
