@@ -45,13 +45,13 @@
   - 落地提交：`42a6f66f`
 - ✅ 迁移第一步：`UserBasicQueryPortImpl` 已从 `eva-infra` 迁移到 `bc-iam-infra`（包名/类名/行为保持不变）。
   - 落地提交：`070068ec`
+- ✅ 迁移第二步：`RoleWritePortImpl` 已从 `eva-infra` 迁移到 `bc-iam-infra`（包名/类名/行为保持不变）。
+  - 落地提交：`03ceb685`
   - 下一步拆分与里程碑/提交点（每步一条 commit；每步跑最小回归；每步完成更新三份文档）：
-    1) Serena：梳理 `edu.cuit.infra.bciam.adapter.RoleWritePortImpl` 的引用与装配路径（确认迁移仅涉及类位置，不改变注入语义）。
-    2) 迁移 `RoleWritePortImpl`：从 `eva-infra` 移到 `bc-iam-infra`（保持日志/缓存/异常/副作用顺序不变）。
-    3) Serena：梳理 `edu.cuit.infra.bciam.adapter.UserMenuCacheInvalidationPortImpl` 的引用与装配路径（其依赖 `UserBasicQueryPort`）。
-    4) 迁移 `UserMenuCacheInvalidationPortImpl`：同上（保持缓存失效 key 与顺序不变）。
-    5) Serena：梳理 `edu.cuit.infra.bciam.adapter.MenuWritePortImpl` 的引用与装配路径（递归删除/缓存失效链路）。
-    6) 迁移 `MenuWritePortImpl`：同上（涉及递归删除与缓存失效链路，建议单独一条 commit）。
+    1) Serena：梳理 `edu.cuit.infra.bciam.adapter.UserMenuCacheInvalidationPortImpl` 的引用与装配路径（其依赖 `UserBasicQueryPort`）。
+    2) 迁移 `UserMenuCacheInvalidationPortImpl`：从 `eva-infra` 移到 `bc-iam-infra`（保持缓存失效 key 与顺序不变）。
+    3) Serena：梳理 `edu.cuit.infra.bciam.adapter.MenuWritePortImpl` 的引用与装配路径（递归删除/缓存失效链路）。
+    4) 迁移 `MenuWritePortImpl`：同上（涉及递归删除与缓存失效链路，建议单独一条 commit）。
 
 ## 0.6 本次会话增量总结（2025-12-21，更新至 `HEAD`）
 
