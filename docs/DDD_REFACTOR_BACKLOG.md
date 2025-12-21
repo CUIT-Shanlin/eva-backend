@@ -123,6 +123,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - 迁移用户写侧端口适配器到 `bc-iam-infra`：`UserCreationPortImpl/UserInfoUpdatePortImpl/UserStatusUpdatePortImpl/UserDeletionPortImpl`（落地提交：`5aecc747`）。
   - 迁移用户查询/分配端口适配器到 `bc-iam-infra`：`UserRoleAssignmentPortImpl/UserDirectoryQueryPortImpl/UserEntityQueryPortImpl`（落地提交：`1c3d4b8c`）。
   - `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已用 Serena 盘点 `bc-iam-infra` 适配器对 IAM DAL 的直接依赖清单（`SysUser/SysRole/SysMenu` 及关联表的 Mapper/DO/XML），下一步按 `SysUser*` → `SysRole*`/`SysRoleMenu*` → `SysMenu*` 迁移并逐步去掉对 `eva-infra` 的依赖（保持行为不变）。
+  - `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已在 `bc-iam-infra` 创建 DAL 包路径与资源目录骨架（不迁代码，仅提供后续迁移落点；保持行为不变）。
 
 **已完成（2025-12-20）**
 - 评教写侧进一步收敛（保持行为不变）：
@@ -174,6 +175,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 2) 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分（保持统计口径不变）
 3) 中期里程碑：`bc-iam-infra` 已落地并完成 `bciam/adapter/*` 迁移，但 IAM DAL 仍在 `eva-infra`（保持行为不变，待进一步抽离）
    - 进展：已完成依赖盘点（Serena 复核）；待按 `SysUser*` → `SysRole*`/`SysRoleMenu*` → `SysMenu*` 迁移 DO/Mapper/XML，并最终移除 `bc-iam-infra` → `eva-infra` 的 Maven 依赖
+   - 进展补充：已创建 `bc-iam-infra` 内部 DAL 包/资源骨架（不迁代码）
 
 ---
 

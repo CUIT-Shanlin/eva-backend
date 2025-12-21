@@ -106,7 +106,10 @@
   - **DO（当前仍在 `eva-infra`）**：`SysUserDO`、`SysUserRoleDO`、`SysRoleDO`、`SysRoleMenuDO`、`SysMenuDO`
   - **XML（当前仍在 `eva-infra`）**：`eva-infra/src/main/resources/mapper/user/SysUserMapper.xml`、`SysUserRoleMapper.xml`、`SysRoleMapper.xml`、`SysRoleMenuMapper.xml`、`SysMenuMapper.xml`
   - 依赖来源（便于后续搬迁对照）：Mapper/DO 均在 `eva-infra/src/main/java/edu/cuit/infra/dal/database/(mapper|dataobject)/user/`；XML 均在 `eva-infra/src/main/resources/mapper/user/`
-  - 下一步里程碑（每步一条 commit；每步跑最小回归；保持行为不变）：先在 `bc-iam-infra` 创建 DAL 包骨架与资源目录（不迁代码）→ 迁移 `SysUser*` → 迁移 `SysRole*`/`SysRoleMenu*` → 迁移 `SysMenu*` → 去掉 `bc-iam-infra` 对 `eva-infra` 的依赖
+  - ✅ 已完成（条目 26-2）：在 `bc-iam-infra` 创建 DAL 包骨架与资源目录（不迁代码；仅作为后续迁移落点；保持行为不变）。
+    - Java 包骨架：`bc-iam-infra/src/main/java/edu/cuit/infra/dal/database/dataobject/user/package-info.java`、`bc-iam-infra/src/main/java/edu/cuit/infra/dal/database/mapper/user/package-info.java`
+    - 资源目录占位：`bc-iam-infra/src/main/resources/mapper/user/.gitkeep`
+  - 下一步里程碑（每步一条 commit；每步跑最小回归；保持行为不变）：迁移 `SysUser*`（DO/Mapper/XML）→ 迁移 `SysRole*`/`SysRoleMenu*` → 迁移 `SysMenu*` → 去掉 `bc-iam-infra` 对 `eva-infra` 的依赖
 
 ## 0.3 本次会话增量总结（2025-12-21，更新至 `HEAD`）
 
@@ -887,7 +890,7 @@
         - Mapper：`SysUserMapper`、`SysUserRoleMapper`、`SysRoleMapper`、`SysRoleMenuMapper`、`SysMenuMapper`
         - DO：`SysUserDO`、`SysUserRoleDO`、`SysRoleDO`、`SysRoleMenuDO`、`SysMenuDO`
         - XML：`eva-infra/src/main/resources/mapper/user/SysUserMapper.xml`、`SysUserRoleMapper.xml`、`SysRoleMapper.xml`、`SysRoleMenuMapper.xml`、`SysMenuMapper.xml`
-     2) ⏳ 新建 `bc-iam-infra` 内部 DAL 包路径（先空骨架 + 资源目录），不迁代码；确保编译通过。
+     2) ✅ 新建 `bc-iam-infra` 内部 DAL 包路径（先空骨架 + 资源目录），不迁代码；确保编译通过。
      3) 迁移 `SysUser*` 相关 DO/Mapper（含 XML 如存在），保证与旧包名/SQL/异常/顺序一致；跑最小回归。
      4) 迁移 `SysRole*`/`SysMenu*` 相关 DO/Mapper；跑最小回归。
      5) 去掉 `bc-iam-infra` 对 `eva-infra` 的依赖（或至少只保留必须的 starter），确保仍能通过最小回归。
