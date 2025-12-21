@@ -6,6 +6,17 @@
 
 ---
 
+## 0.4 本次会话增量总结（2025-12-21，更新至 `HEAD`）
+
+- ✅ 系统管理读侧继续收敛：`UserQueryGatewayImpl.findIdByUsername/findUsernameById/getUserStatus/isUsernameExist` 收敛到 `bc-iam`（用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；保持行为不变）。
+  - 落地提交链：`9f664229/38384628/de662d1c/8a74faf5`
+- ✅ 系统管理读侧继续收敛：`UserQueryGatewayImpl.findAllUserId/findAllUsername/allUser/getUserRoleIds` 收敛到 `bc-iam`（用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；保持行为不变）。
+  - 落地提交链：`56bbafcf/7e5f0a74/bc5fb3c6/6a1332b0`
+- ✅ 文档同步（交接/计划/Backlog）：
+  - `15cbfefa/c312575c/c641f86b`
+- ✅ 最小回归已通过（Java17）：
+  - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
+
 ## 0.3 本次会话增量总结（2025-12-21，更新至 `HEAD`）
 
 - ✅ IAM 域写侧继续收敛：`UserUpdateGatewayImpl.deleteUser` 收敛到 `bc-iam`（用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；保持行为不变）。
@@ -723,5 +734,20 @@
      - 旧 gateway（已退化委托壳）：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/user/UserQueryGatewayImpl.java`
      - 组合根：`eva-app/src/main/java/edu/cuit/app/config/BcIamConfiguration.java`
 
-21) **下一会话推荐重构任务：AI 报告 / 审计日志模块化（保持行为不变）**
+21) **下一会话推荐重构任务：系统管理写侧（角色/菜单）缓存与权限变更收敛到 `bc-iam`（保持行为不变）**
+   - 背景：权限/菜单/角色变更会触发多层缓存失效与审计日志，当前仍在旧 gateway；属于 IAM 模块化单体的关键“副作用一致性”能力。
+   - 目标：优先收敛 `RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole`（含缓存失效与 `LogUtils.logContent`），再评估是否把菜单写侧（`MenuUpdateGatewayImpl`）整体收敛到 `bc-iam`。
+   - 行为快照（必须保持）：
+     - `assignPerms` 顺序不变：`checkRoleId` → 删除原 `role_menu` → 插入新 `role_menu` → `handleRoleUpdateCache` → `LogUtils.logContent(...)`。
+     - `deleteMultipleRole` 顺序不变：先逐个 `checkDefaultRole`/`checkRoleId` 并提前 `handleRoleUpdateCache`，再逐个删除 `sys_role/sys_user_role/sys_role_menu`，最后 `LogUtils.logContent(tmp + " 角色")`。
+     - `handleRoleUpdateCache/handleUserMenuCache` 规则不变：失效 `ALL_ROLE/ONE_ROLE/ROLE_MENU/ALL_MENU/ONE_USER_ID/ONE_USER_USERNAME` 等，并保持 `userQueryGateway.findUsernameById(...).orElse(null)` 的空值语义。
+   - 建议拆分提交（每步一条 commit，且每步跑最小回归；每步结束要刷新下一步计划后再结束会话）：
+     1) Serena：定位旧实现与调用方，补齐异常文案/缓存 key/失效顺序快照（含 `checkRoleId/checkDefaultRole/handleRoleUpdateCache/handleUserMenuCache`）。
+     2) `bc-iam`：新增用例骨架 + 端口（可按“权限分配/批量删除”拆分），并补齐纯单测（只测委托一次）。
+     3) `eva-infra`：新增端口适配器实现，原样搬运旧逻辑（SQL 条件/顺序/日志/缓存失效清单保持不变）。
+     4) `eva-app`：在 `BcIamConfiguration` 装配新用例 Bean。
+     5) `eva-infra`：旧 `RoleUpdateGatewayImpl`（以及必要时 `MenuUpdateGatewayImpl`）对应方法退化为委托壳（入口不变）。
+     6) 文档闭环：更新 `NEXT_SESSION_HANDOFF.md` / `DDD_REFACTOR_PLAN.md` / `docs/DDD_REFACTOR_BACKLOG.md`，记录提交链与行为约束。
+
+22) **下一会话推荐重构任务：AI 报告 / 审计日志模块化（保持行为不变）**
    - 目标：启动 `bc-ai-report` / `bc-audit` 的最小骨架，并选择 1 条高价值写链路按“用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳”收敛（异常文案与副作用顺序保持不变）。

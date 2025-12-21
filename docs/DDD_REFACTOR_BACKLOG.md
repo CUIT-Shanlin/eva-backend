@@ -153,8 +153,9 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：以下是仍在旧 gateway/技术切片中的能力，优先级按“写侧优先 + 影响范围”排序。
 
-1) AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`  
-2) 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分（保持统计口径不变）
+1) 系统管理（缓存/权限变更副作用）：`MenuUpdateGatewayImpl.handleUserMenuCache`、`RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole` 等仍在旧 gateway（保持行为不变）
+2) AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`  
+3) 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分（保持统计口径不变）
 
 ---
 
@@ -270,8 +271,9 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 如果继续按“写侧优先”的策略推进，下一批候选（高 → 低）建议是：
 
-1) AI 报告 / 审计日志：启动 `bc-ai-report` / `bc-audit` 的最小骨架，并选择 1 条高价值写链路先收敛（保持行为不变）  
-2) 评教读侧进一步解耦：拆分 QueryService（任务/记录/统计/模板），保持统计口径不变  
+1) 系统管理写侧继续收敛：优先收敛 `RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole` 与菜单变更触发的缓存失效（`MenuUpdateGatewayImpl.handleUserMenuCache` 等），保持行为不变  
+2) AI 报告 / 审计日志：启动 `bc-ai-report` / `bc-audit` 的最小骨架，并选择 1 条高价值写链路先收敛（保持行为不变）  
+3) 评教读侧进一步解耦：拆分 QueryService（任务/记录/统计/模板），保持统计口径不变  
 
 ---
 

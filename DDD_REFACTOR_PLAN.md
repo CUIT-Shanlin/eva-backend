@@ -513,7 +513,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 5) **评教读侧进一步解耦**：按用例维度拆分 QueryService（任务/记录/统计/模板），将 query 端口逐步迁到 `bc-evaluation` 应用层，`eva-infra` 仅保留实现（行为不变）。  
    - 进展：已拆分统计/导出、任务、记录、模板查询端口（`EvaStatisticsQueryPort` / `EvaTaskQueryPort` / `EvaRecordQueryPort` / `EvaTemplateQueryPort`），应用层开始迁移，行为保持不变；旧 `EvaQueryGatewayImpl` 已移除。
 6) ✅ **IAM 写侧继续收敛**：`UserUpdateGatewayImpl.deleteUser` 已收敛到 `bc-iam`（含 LDAP 删除、角色解绑、缓存失效/日志等副作用，保持行为不变；落地提交：`5f08151c/e23c810a/cccd75a3/2846c689`）。
-7) ✅ **系统管理读侧渐进收敛**：`UserQueryGatewayImpl.findIdByUsername/findUsernameById/getUserStatus/isUsernameExist` 已收敛到 `bc-iam`（含缓存读写与 Optional 语义，保持行为不变；落地提交：`9f664229/38384628/de662d1c/8a74faf5`）。
+7) ✅ **系统管理读侧渐进收敛**：`UserQueryGatewayImpl` 的用户查询能力已收敛到 `bc-iam`（保持行为不变；落地提交：`3e6f2cb2/8c245098/92a9beb3`、`9f664229/38384628/de662d1c/8a74faf5`、`56bbafcf/7e5f0a74/bc5fb3c6/6a1332b0`）。
+8) **系统管理写侧继续收敛**：优先收敛 `RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole` 与菜单变更触发的缓存失效（`MenuUpdateGatewayImpl.handleUserMenuCache` 等），按“用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳”套路推进（保持行为不变）。
 
 ### 10.3 未完成清单（滚动，供下一会话排期）
 
