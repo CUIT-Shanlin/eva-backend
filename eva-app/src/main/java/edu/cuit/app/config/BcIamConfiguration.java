@@ -2,15 +2,20 @@ package edu.cuit.app.config;
 
 import edu.cuit.bc.iam.application.port.UserCreationPort;
 import edu.cuit.bc.iam.application.port.UserBasicQueryPort;
+import edu.cuit.bc.iam.application.port.UserDirectoryQueryPort;
 import edu.cuit.bc.iam.application.port.UserEntityQueryPort;
 import edu.cuit.bc.iam.application.port.UserDeletionPort;
 import edu.cuit.bc.iam.application.port.UserInfoUpdatePort;
 import edu.cuit.bc.iam.application.port.UserRoleAssignmentPort;
 import edu.cuit.bc.iam.application.port.UserStatusUpdatePort;
+import edu.cuit.bc.iam.application.usecase.AllUserUseCase;
 import edu.cuit.bc.iam.application.usecase.AssignRoleUseCase;
 import edu.cuit.bc.iam.application.usecase.CreateUserUseCase;
 import edu.cuit.bc.iam.application.usecase.DeleteUserUseCase;
+import edu.cuit.bc.iam.application.usecase.FindAllUserIdUseCase;
+import edu.cuit.bc.iam.application.usecase.FindAllUsernameUseCase;
 import edu.cuit.bc.iam.application.usecase.FindUserIdByUsernameUseCase;
+import edu.cuit.bc.iam.application.usecase.GetUserRoleIdsUseCase;
 import edu.cuit.bc.iam.application.usecase.FindUsernameByIdUseCase;
 import edu.cuit.bc.iam.application.usecase.FindUserByIdUseCase;
 import edu.cuit.bc.iam.application.usecase.FindUserByUsernameUseCase;
@@ -86,5 +91,25 @@ public class BcIamConfiguration {
     @Bean
     public IsUsernameExistUseCase isUsernameExistUseCase(UserBasicQueryPort queryPort) {
         return new IsUsernameExistUseCase(queryPort);
+    }
+
+    @Bean
+    public FindAllUserIdUseCase findAllUserIdUseCase(UserDirectoryQueryPort queryPort) {
+        return new FindAllUserIdUseCase(queryPort);
+    }
+
+    @Bean
+    public FindAllUsernameUseCase findAllUsernameUseCase(UserDirectoryQueryPort queryPort) {
+        return new FindAllUsernameUseCase(queryPort);
+    }
+
+    @Bean
+    public AllUserUseCase allUserUseCase(UserDirectoryQueryPort queryPort) {
+        return new AllUserUseCase(queryPort);
+    }
+
+    @Bean
+    public GetUserRoleIdsUseCase getUserRoleIdsUseCase(UserDirectoryQueryPort queryPort) {
+        return new GetUserRoleIdsUseCase(queryPort);
     }
 }
