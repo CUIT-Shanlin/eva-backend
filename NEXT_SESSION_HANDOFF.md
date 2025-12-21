@@ -51,11 +51,13 @@
   - 落地提交：`02b3e8aa`
 - ✅ 迁移第四步：`MenuWritePortImpl` 已从 `eva-infra` 迁移到 `bc-iam-infra`（包名/类名/行为保持不变）。
   - 落地提交：`6b9d2ce7`
+- ✅ 迁移第五步：用户写侧端口适配器已分批迁移到 `bc-iam-infra`（包名/类名/行为保持不变）。
+  - 范围：`UserCreationPortImpl/UserInfoUpdatePortImpl/UserStatusUpdatePortImpl/UserDeletionPortImpl`
+  - 落地提交：`5aecc747`
   - 下一步拆分与里程碑/提交点（每步一条 commit；每步跑最小回归；每步完成更新三份文档）：
-    1) Serena：梳理剩余 `edu.cuit.infra.bciam.adapter.User*PortImpl` 的引用与装配路径（确认仅涉及类位置，不改变注入语义）。
-    2) 依次迁移：`UserCreationPortImpl/UserInfoUpdatePortImpl/UserStatusUpdatePortImpl/UserDeletionPortImpl`。
-    3) 依次迁移：`UserRoleAssignmentPortImpl/UserDirectoryQueryPortImpl/UserEntityQueryPortImpl`。
-    4) 完成后：确认 `eva-infra/.../bciam/adapter` 目录下不再残留 IAM 端口适配器；再评估将 IAM DAL 抽离/迁移到 `bc-iam-infra`（后置）。
+    1) Serena：梳理剩余 `UserRoleAssignmentPortImpl/UserDirectoryQueryPortImpl/UserEntityQueryPortImpl` 的引用与装配路径（确认仅涉及类位置，不改变注入语义）。
+    2) 依次迁移：`UserRoleAssignmentPortImpl/UserDirectoryQueryPortImpl/UserEntityQueryPortImpl`。
+    3) 完成后：确认 `eva-infra/.../bciam/adapter` 目录下不再残留 IAM 端口适配器；再评估将 IAM DAL 抽离/迁移到 `bc-iam-infra`（后置）。
 
 ## 0.6 本次会话增量总结（2025-12-21，更新至 `HEAD`）
 
