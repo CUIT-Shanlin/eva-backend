@@ -1,11 +1,13 @@
 package edu.cuit.app.config;
 
 import edu.cuit.bc.iam.application.port.UserCreationPort;
+import edu.cuit.bc.iam.application.port.UserDeletionPort;
 import edu.cuit.bc.iam.application.port.UserInfoUpdatePort;
 import edu.cuit.bc.iam.application.port.UserRoleAssignmentPort;
 import edu.cuit.bc.iam.application.port.UserStatusUpdatePort;
 import edu.cuit.bc.iam.application.usecase.AssignRoleUseCase;
 import edu.cuit.bc.iam.application.usecase.CreateUserUseCase;
+import edu.cuit.bc.iam.application.usecase.DeleteUserUseCase;
 import edu.cuit.bc.iam.application.usecase.UpdateUserInfoUseCase;
 import edu.cuit.bc.iam.application.usecase.UpdateUserStatusUseCase;
 import org.springframework.context.annotation.Bean;
@@ -35,5 +37,10 @@ public class BcIamConfiguration {
     @Bean
     public UpdateUserStatusUseCase updateUserStatusUseCase(UserStatusUpdatePort statusUpdatePort) {
         return new UpdateUserStatusUseCase(statusUpdatePort);
+    }
+
+    @Bean
+    public DeleteUserUseCase deleteUserUseCase(UserDeletionPort deletionPort) {
+        return new DeleteUserUseCase(deletionPort);
     }
 }
