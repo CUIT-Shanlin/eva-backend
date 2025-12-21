@@ -75,3 +75,4 @@ public class UserBasicQueryPortImpl implements UserBasicQueryPort {
                 Wrappers.lambdaQuery(SysUserDO.class).select(SysUserDO::getUsername).eq(SysUserDO::getUsername, username));
     }
 }
+
