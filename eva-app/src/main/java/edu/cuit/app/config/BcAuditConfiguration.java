@@ -1,5 +1,8 @@
 package edu.cuit.app.config;
 
+import edu.cuit.bc.audit.application.port.LogInsertionPort;
+import edu.cuit.bc.audit.application.usecase.InsertLogUseCase;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -9,5 +12,8 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class BcAuditConfiguration {
+    @Bean
+    public InsertLogUseCase insertLogUseCase(LogInsertionPort insertionPort) {
+        return new InsertLogUseCase(insertionPort);
+    }
 }
-

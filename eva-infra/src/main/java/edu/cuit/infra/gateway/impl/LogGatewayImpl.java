@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import edu.cuit.bc.audit.application.usecase.InsertLogUseCase;
 import edu.cuit.client.bo.SysLogBO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
@@ -59,6 +60,8 @@ public class LogGatewayImpl implements LogGateway {
 
     private final UserQueryGateway userQueryGateway;
 
+    private final InsertLogUseCase insertLogUseCase;
+
     private final Executor executor;
 
     @Override
@@ -104,8 +107,7 @@ public class LogGatewayImpl implements LogGateway {
     @Override
     public void insertLog(SysLogBO logBO) {
         CompletableFuture.runAsync(() -> {
-            SysLogDO logDO = logConverter.toLogDO(logBO, userQueryGateway.findIdByUsername(logBO.getUserId()).orElse(null));
-            logMapper.insert(logDO);
+            insertLogUseCase.insertLog(logBO);
         }, executor);
     }
 
