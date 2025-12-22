@@ -40,11 +40,15 @@
             <version>${revision}</version>
         </dependency>
 
-        <!-- 过渡期：复用旧系统基础设施（DAL/组件/Starter），保证行为不变 -->
+        <!-- bc-iam-infra 运行期仍由组合根（start + eva-infra 等）装配；此处仅保留编译期所需依赖，避免反向耦合 -->
         <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>eva-infra</artifactId>
-            <version>${revision}</version>
+            <groupId>edu.cuit.zhuyimeng</groupId>
+            <artifactId>zym-spring-boot-starter-cache</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>edu.cuit.zhuyimeng</groupId>
+            <artifactId>zym-spring-boot-starter-logging</artifactId>
         </dependency>
 
         <dependency>
