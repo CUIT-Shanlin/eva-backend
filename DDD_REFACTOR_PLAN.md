@@ -569,6 +569,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
     - 缓存常量：`edu.cuit.infra.enums.cache.{UserCacheConstants,CourseCacheConstants}`
     - LDAP：`edu.cuit.infra.dal.ldap.repo.LdapPersonRepo`、`edu.cuit.infra.util.EvaLdapUtils`
     - 工具：`edu.cuit.infra.util.QueryUtils`
+  - 阶段 2.7（已完成）：新增 shared 子模块骨架 `eva-infra-shared`（不迁代码，仅作为后续从 `eva-infra` 抽离 Converter/LDAP/缓存常量/工具等的落点；保持行为不变）。
+    - 新模块：`eva-infra-shared/pom.xml`
 - AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`。
 - 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分。
 

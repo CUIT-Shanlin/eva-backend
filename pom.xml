@@ -15,6 +15,7 @@
 	    <module>eva-client</module>
 	    <module>eva-domain</module>
 	    <module>eva-infra-dal</module>
+	    <module>eva-infra-shared</module>
 	    <module>eva-infra</module>
 	    <module>eva-base</module>
 	    <module>bc-evaluation</module>
