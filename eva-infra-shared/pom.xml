@@ -26,6 +26,17 @@
         </dependency>
 
         <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>eva-client</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>edu.cuit.zhuyimeng</groupId>
+            <artifactId>zym-spring-boot-starter-jdbc</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
