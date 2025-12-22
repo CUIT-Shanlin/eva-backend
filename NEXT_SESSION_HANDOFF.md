@@ -121,8 +121,13 @@
     - Java：`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/dataobject/user/SysMenuDO.java`；`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/mapper/user/SysMenuMapper.java`
     - XML：`eva-infra-dal/src/main/resources/mapper/user/SysMenuMapper.xml`
   - 下一步里程碑（每步一条 commit；每步跑最小回归；保持行为不变）：逐步把 `bc-iam-infra` 对 `eva-infra` 的依赖收敛为更小的 shared 模块集合（最终可移除）
-    - 下一步拆分（条目 26-6）：在 `bc-iam-infra` 内盘点“仍必须依赖 `eva-infra` 的类型/Bean”，把确实需要复用的基础设施能力（Starter/LDAP/缓存/工具/转换器…）逐步抽到更小的 shared 模块，再移除 `bc-iam-infra` 对 `eva-infra` 的 Maven 依赖（保持行为不变）。
-    - 下一步拆分（条目 26-5，建议一条 commit）：迁移 `SysMenu*`（`SysMenuDO` / `SysMenuMapper` / `SysMenuMapper.xml`）到 `eva-infra-dal`，保持包名/namespace/SQL 不变；跑最小回归并记录。
+    - ✅ 已完成（条目 26-6-1）：盘点 `bc-iam-infra` 仍依赖 `eva-infra` 的类型清单（为后续去依赖做最小闭包拆分；保持行为不变）：
+      - 转换器：`edu.cuit.infra.convertor.PaginationConverter`、`edu.cuit.infra.convertor.user.{MenuConvertor,RoleConverter,UserConverter,LdapUserConvertor}`
+      - 缓存常量：`edu.cuit.infra.enums.cache.{UserCacheConstants,CourseCacheConstants}`
+      - LDAP 相关：`edu.cuit.infra.dal.ldap.repo.LdapPersonRepo`、`edu.cuit.infra.util.EvaLdapUtils`
+      - 查询工具：`edu.cuit.infra.util.QueryUtils`
+    - 下一步拆分（条目 26-6-2）：把上面这些“被 `bc-iam-infra` 直接使用”的基础设施能力从 `eva-infra` 抽到更小的 shared 模块（保持包名不变），并让 `bc-iam-infra` 依赖该 shared 模块（保持行为不变；每步跑最小回归并提交）。
+    - 下一步拆分（条目 26-6-3）：移除 `bc-iam-infra` 对 `eva-infra` 的 Maven 依赖，仅保留 `eva-infra-dal` + 必要 shared 模块；跑最小回归并提交（保持行为不变）。
 
 ## 0.3 本次会话增量总结（2025-12-21，更新至 `HEAD`）
 
@@ -908,4 +913,5 @@
      3) ✅ 迁移 `SysUser*` 相关 DO/Mapper/XML 到共享模块 `eva-infra-dal`（保持包名/namespace/SQL/异常/顺序一致）；跑最小回归。
      4) ✅ 迁移 `SysRole*`/`SysRoleMenu*` 相关 DO/Mapper/XML 到共享模块 `eva-infra-dal`；跑最小回归。
      5) ✅ 迁移 `SysMenu*` 相关 DO/Mapper/XML 到共享模块 `eva-infra-dal`；跑最小回归。
-     6) 去掉 `bc-iam-infra` 对 `eva-infra` 的依赖（或至少只保留必须的 starter），确保仍能通过最小回归。
+     6) ✅ 盘点 `bc-iam-infra` 仍依赖 `eva-infra` 的类型/Bean 清单（含 Converter/LDAP/缓存常量/工具等），作为后续 shared 模块拆分输入；跑最小回归。
+     7) 去掉 `bc-iam-infra` 对 `eva-infra` 的依赖（或至少只保留必须的 starter），确保仍能通过最小回归。

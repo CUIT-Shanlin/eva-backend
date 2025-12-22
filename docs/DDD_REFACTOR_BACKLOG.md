@@ -127,6 +127,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已新增共享 DAL 子模块 `eva-infra-dal`，并先迁移 `SysUser*`（DO/Mapper/XML）到该模块（保持包名/namespace/SQL 不变；保持行为不变）。
   - `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已继续迁移 `SysRole*`/`SysRoleMenu*`（DO/Mapper/XML）到该模块（保持包名/namespace/SQL 不变；保持行为不变）。
   - `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已继续迁移 `SysMenu*`（DO/Mapper/XML）到该模块（保持包名/namespace/SQL 不变；保持行为不变）。
+  - `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已完成 `bc-iam-infra` 仍依赖 `eva-infra` 的类型清单盘点（Converter/LDAP/缓存常量/工具），为后续移除 Maven 依赖做最小闭包拆分输入（保持行为不变）。
 
 **已完成（2025-12-20）**
 - 评教写侧进一步收敛（保持行为不变）：
@@ -182,6 +183,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
    - 进展补充：已创建共享 DAL 子模块 `eva-infra-dal`，并完成 `SysUser*` 的迁移（后续继续迁移 `SysRole*`/`SysRoleMenu*`/`SysMenu*`）
    - 进展补充：已完成 `SysRole*`/`SysRoleMenu*` 的迁移（下一步迁移 `SysMenu*`）
    - 进展补充：已完成 `SysMenu*` 的迁移（下一步：去掉 `bc-iam-infra` 对 `eva-infra` 的依赖）
+   - 进展补充：已完成“仍依赖 `eva-infra` 的类型清单”盘点，下一步把这些类型抽到更小的 shared 模块后再移除依赖
 
 ---
 
