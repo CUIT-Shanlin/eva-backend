@@ -43,6 +43,12 @@
         </dependency>
 
         <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>eva-infra-dal</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
             <groupId>edu.cuit.zhuyimeng</groupId>
             <artifactId>zym-spring-boot-starter-jdbc</artifactId>
         </dependency>
