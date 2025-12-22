@@ -121,11 +121,11 @@
     - Java：`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/dataobject/user/SysMenuDO.java`；`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/mapper/user/SysMenuMapper.java`
     - XML：`eva-infra-dal/src/main/resources/mapper/user/SysMenuMapper.xml`
   - 下一步里程碑（每步一条 commit；每步跑最小回归；保持行为不变）：逐步把 `bc-iam-infra` 对 `eva-infra` 的依赖收敛为更小的 shared 模块集合（最终可移除）
-    - ✅ 已完成（条目 26-6-1）：盘点 `bc-iam-infra` 仍依赖 `eva-infra` 的类型清单（为后续去依赖做最小闭包拆分；保持行为不变）：
-      - 转换器：`edu.cuit.infra.convertor.PaginationConverter`、`edu.cuit.infra.convertor.user.{MenuConvertor,RoleConverter,UserConverter,LdapUserConvertor}`
-      - 缓存常量：`edu.cuit.infra.enums.cache.{UserCacheConstants,CourseCacheConstants}`
-      - LDAP 相关：`edu.cuit.infra.dal.ldap.repo.LdapPersonRepo`、`edu.cuit.infra.util.EvaLdapUtils`
-      - 查询工具：`edu.cuit.infra.util.QueryUtils`
+	    - ✅ 已完成（条目 26-6-1）：盘点 `bc-iam-infra` 仍依赖 `eva-infra` 的类型清单（为后续去依赖做最小闭包拆分；保持行为不变）：
+	      - 转换器：`edu.cuit.infra.convertor.PaginationConverter`（已迁至 `eva-infra-shared`，落地：`54d5fecd`）、`edu.cuit.infra.convertor.user.{MenuConvertor,RoleConverter,UserConverter,LdapUserConvertor}`
+	      - 缓存常量：`edu.cuit.infra.enums.cache.{UserCacheConstants,CourseCacheConstants}`
+	      - LDAP 相关：`edu.cuit.infra.dal.ldap.repo.LdapPersonRepo`、`edu.cuit.infra.util.EvaLdapUtils`
+	      - 查询工具：`edu.cuit.infra.util.QueryUtils`
     - ✅ 已完成（条目 26-6-2a）：新增 shared 子模块骨架 `eva-infra-shared`（不迁代码，仅作为后续抽离落点；保持行为不变）。
       - 新模块：`eva-infra-shared/pom.xml`
     - ✅ 已完成（条目 26-6-2b1）：迁移 IAM 相关缓存常量到 `eva-infra-shared`（保持包名不变；保持行为不变）。
@@ -134,11 +134,18 @@
     - ✅ 已完成（条目 26-6-2b2）：迁移查询工具 `QueryUtils` 到 `eva-infra-shared`（保持包名不变；保持行为不变）。
       - Java：`eva-infra-shared/src/main/java/edu/cuit/infra/util/QueryUtils.java`
       - 依赖：`eva-infra-shared/pom.xml` 增加对 `eva-client` 与 `zym-spring-boot-starter-jdbc` 的依赖（保持 MyBatis-Plus QueryWrapper/Page 等 API 不变）
-    - ✅ 已完成（条目 26-6-2c1）：迁移 `EntityFactory` 到 `eva-infra-shared`（保持包名不变；保持行为不变）。
-      - Java：`eva-infra-shared/src/main/java/edu/cuit/infra/convertor/EntityFactory.java`
-      - 依赖：`eva-infra-shared/pom.xml` 增加 `mapstruct-plus-spring-boot-starter`；并增加对 `eva-domain` 的依赖以保留 `hutool SpringUtil` 与 `cola SysException` 的依赖来源（行为不变）
-    - 下一步拆分（条目 26-6-2）：把上面这些“被 `bc-iam-infra` 直接使用”的基础设施能力从 `eva-infra` 抽到更小的 shared 模块（保持包名不变），并让 `bc-iam-infra` 依赖该 shared 模块（保持行为不变；每步跑最小回归并提交）。
-    - 下一步拆分（条目 26-6-3）：移除 `bc-iam-infra` 对 `eva-infra` 的 Maven 依赖，仅保留 `eva-infra-dal` + 必要 shared 模块；跑最小回归并提交（保持行为不变）。
+	    - ✅ 已完成（条目 26-6-2c1）：迁移 `EntityFactory` 到 `eva-infra-shared`（保持包名不变；保持行为不变）。
+	      - Java：`eva-infra-shared/src/main/java/edu/cuit/infra/convertor/EntityFactory.java`
+	      - 依赖：`eva-infra-shared/pom.xml` 增加 `mapstruct-plus-spring-boot-starter`；并增加对 `eva-domain` 的依赖以保留 `hutool SpringUtil` 与 `cola SysException` 的依赖来源（行为不变）
+	    - ✅ 已完成（条目 26-6-2c2）：迁移 `PaginationConverter` 到 `eva-infra-shared`（保持包名不变；保持行为不变）。
+	      - Java：`eva-infra-shared/src/main/java/edu/cuit/infra/convertor/PaginationConverter.java`
+	      - 依赖：`eva-infra-shared/pom.xml` 增加对 `eva-infra-dal` 的依赖以保持编译闭包（行为不变）
+	      - 落地提交：`54d5fecd`
+	    - 下一步拆分（条目 26-6-2，建议拆分为 3 个提交点；每步跑最小回归；保持行为不变）：
+	      - 条目 26-6-2c3：迁移 `edu.cuit.infra.convertor.user.{MenuConvertor,RoleConverter,UserConverter,LdapUserConvertor}` 到 `eva-infra-shared`（保持包名不变）
+	      - 条目 26-6-2d1：迁移 `edu.cuit.infra.dal.ldap.repo.LdapPersonRepo` 到 `eva-infra-shared`（保持包名不变）
+	      - 条目 26-6-2d2：迁移 `edu.cuit.infra.util.EvaLdapUtils` 到 `eva-infra-shared`（保持包名不变）
+	    - 下一步拆分（条目 26-6-3）：移除 `bc-iam-infra` 对 `eva-infra` 的 Maven 依赖，仅保留 `eva-infra-dal` + 必要 shared 模块；跑最小回归并提交（保持行为不变）。
 
 ## 0.3 本次会话增量总结（2025-12-21，更新至 `HEAD`）
 

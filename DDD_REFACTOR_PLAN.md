@@ -565,7 +565,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
     - Java：`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/dataobject/user/SysMenuDO.java`；`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/mapper/user/SysMenuMapper.java`
     - XML：`eva-infra-dal/src/main/resources/mapper/user/SysMenuMapper.xml`
   - 阶段 2.6（已完成）：盘点 `bc-iam-infra` 仍依赖 `eva-infra` 的类型清单（为后续移除依赖做最小闭包拆分输入；保持行为不变）：
-    - 转换器：`edu.cuit.infra.convertor.PaginationConverter`、`edu.cuit.infra.convertor.user.{MenuConvertor,RoleConverter,UserConverter,LdapUserConvertor}`
+    - 转换器：`edu.cuit.infra.convertor.PaginationConverter`（已迁至 `eva-infra-shared`：`54d5fecd`）、`edu.cuit.infra.convertor.user.{MenuConvertor,RoleConverter,UserConverter,LdapUserConvertor}`
     - 缓存常量：`edu.cuit.infra.enums.cache.{UserCacheConstants,CourseCacheConstants}`
     - LDAP：`edu.cuit.infra.dal.ldap.repo.LdapPersonRepo`、`edu.cuit.infra.util.EvaLdapUtils`
     - 工具：`edu.cuit.infra.util.QueryUtils`
@@ -580,6 +580,9 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - 阶段 2.10（已完成）：迁移 `EntityFactory` 到 `eva-infra-shared`（保持包名不变；保持行为不变）。
     - Java：`eva-infra-shared/src/main/java/edu/cuit/infra/convertor/EntityFactory.java`
     - 依赖：`eva-infra-shared/pom.xml` 增加 `mapstruct-plus-spring-boot-starter`；并增加对 `eva-domain` 的依赖以保留 `hutool SpringUtil` 与 `cola SysException` 的依赖来源
+  - 阶段 2.11（已完成）：迁移 `PaginationConverter` 到 `eva-infra-shared`（保持包名不变；保持行为不变；落地提交：`54d5fecd`）。
+    - Java：`eva-infra-shared/src/main/java/edu/cuit/infra/convertor/PaginationConverter.java`
+    - 依赖：`eva-infra-shared/pom.xml` 增加对 `eva-infra-dal` 的依赖以保持编译闭包（行为不变）
 - AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`。
 - 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分。
 
