@@ -567,7 +567,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - 阶段 2.6（已完成）：盘点 `bc-iam-infra` 仍依赖 `eva-infra` 的类型清单（为后续移除依赖做最小闭包拆分输入；保持行为不变）：
     - 转换器：`edu.cuit.infra.convertor.PaginationConverter`（已迁至 `eva-infra-shared`：`54d5fecd`）、`edu.cuit.infra.convertor.user.{MenuConvertor,RoleConverter,UserConverter}`（已迁至 `eva-infra-shared`：`6c798f1b`）、`edu.cuit.infra.convertor.user.LdapUserConvertor`（待迁移）
     - 缓存常量：`edu.cuit.infra.enums.cache.{UserCacheConstants,CourseCacheConstants}`
-    - LDAP：`edu.cuit.infra.dal.ldap.{dataobject,repo}.*`（已迁至 `eva-infra-shared`：`aca70b8b`）、`edu.cuit.infra.util.EvaLdapUtils`（待迁移）
+    - LDAP：`edu.cuit.infra.dal.ldap.{dataobject,repo}.*`（已迁至 `eva-infra-shared`：`aca70b8b`）、`edu.cuit.infra.util.EvaLdapUtils` + `edu.cuit.infra.{enums.LdapConstants,property.EvaLdapProperties}`（已迁至 `eva-infra-shared`：`3165180c`）
     - 工具：`edu.cuit.infra.util.QueryUtils`
   - 阶段 2.7（已完成）：新增 shared 子模块骨架 `eva-infra-shared`（不迁代码，仅作为后续从 `eva-infra` 抽离 Converter/LDAP/缓存常量/工具等的落点；保持行为不变）。
     - 新模块：`eva-infra-shared/pom.xml`
@@ -588,6 +588,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - 阶段 2.13（已完成）：迁移 LDAP DO/Repo 到 `eva-infra-shared`（保持包名不变；保持行为不变；落地提交：`aca70b8b`）。
     - Java：`eva-infra-shared/src/main/java/edu/cuit/infra/dal/ldap/dataobject/{LdapGroupDO,LdapPersonDO}.java`、`eva-infra-shared/src/main/java/edu/cuit/infra/dal/ldap/repo/{LdapGroupRepo,LdapPersonRepo}.java`
     - 依赖：`eva-infra-shared/pom.xml` 增加 `spring-boot-starter-data-ldap`
+  - 阶段 2.14（已完成）：迁移 `EvaLdapUtils` 相关类型到 `eva-infra-shared`（保持包名不变；保持行为不变；落地提交：`3165180c`）。
+    - Java：`eva-infra-shared/src/main/java/edu/cuit/infra/util/EvaLdapUtils.java`、`eva-infra-shared/src/main/java/edu/cuit/infra/enums/LdapConstants.java`、`eva-infra-shared/src/main/java/edu/cuit/infra/property/EvaLdapProperties.java`
 - AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`。
 - 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分。
 

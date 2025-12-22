@@ -109,6 +109,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已将 `PaginationConverter` 迁移到 `eva-infra-shared`（保持包名不变；保持行为不变；落地提交：`54d5fecd`）。
 - `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已将 `MenuConvertor/RoleConverter/UserConverter` 迁移到 `eva-infra-shared`（保持包名不变；保持行为不变；落地提交：`6c798f1b`）。
 - `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已将 `edu.cuit.infra.dal.ldap.*`（DO/Repo）迁移到 `eva-infra-shared`（保持包名不变；保持行为不变；落地提交：`aca70b8b`）。
+- `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已将 `EvaLdapUtils/LdapConstants/EvaLdapProperties` 迁移到 `eva-infra-shared`（保持包名不变；保持行为不变；落地提交：`3165180c`）。
 
 **已完成（2025-12-21）**
 - IAM 写侧继续收敛（保持行为不变）：
@@ -189,7 +190,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 3) 中期里程碑：`bc-iam-infra` 已落地并完成 `bciam/adapter/*` 迁移；IAM DAL 已抽到共享模块 `eva-infra-dal`，但 `bc-iam-infra` 仍依赖 `eva-infra`（保持行为不变，待进一步去依赖）
    - 进展：已完成 `SysUser*`/`SysRole*`/`SysRoleMenu*`/`SysMenu*`（DO/Mapper/XML）迁移到 `eva-infra-dal`（保持包名/namespace/SQL 不变）
    - 进展补充：已完成“仍依赖 `eva-infra` 的类型清单”盘点，进入 shared 拆分阶段（Converter/LDAP/缓存常量/工具）
-   - 进展补充：已迁移 `UserCacheConstants/CourseCacheConstants`、`QueryUtils`、`EntityFactory`、`PaginationConverter`、`convertor.user.{MenuConvertor,RoleConverter,UserConverter}`、`dal.ldap.*` 到 `eva-infra-shared`（落地提交：`1d9ad590/9d8cfa01/cc33f0f7/54d5fecd/6c798f1b/aca70b8b`；保持包名不变）
+   - 进展补充：已迁移 `UserCacheConstants/CourseCacheConstants`、`QueryUtils`、`EntityFactory`、`PaginationConverter`、`convertor.user.{MenuConvertor,RoleConverter,UserConverter}`、`dal.ldap.*`、`EvaLdapUtils/LdapConstants/EvaLdapProperties` 到 `eva-infra-shared`（落地提交：`1d9ad590/9d8cfa01/cc33f0f7/54d5fecd/6c798f1b/aca70b8b/3165180c`；保持包名不变）
    - 下一步：迁移 `LdapUserConvertor` 与 LDAP 相关类型到 `eva-infra-shared`，然后移除 `bc-iam-infra` → `eva-infra` 的 Maven 依赖（保持行为不变）
 
 ---
