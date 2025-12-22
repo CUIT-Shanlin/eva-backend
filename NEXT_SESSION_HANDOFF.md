@@ -134,6 +134,9 @@
     - ✅ 已完成（条目 26-6-2b2）：迁移查询工具 `QueryUtils` 到 `eva-infra-shared`（保持包名不变；保持行为不变）。
       - Java：`eva-infra-shared/src/main/java/edu/cuit/infra/util/QueryUtils.java`
       - 依赖：`eva-infra-shared/pom.xml` 增加对 `eva-client` 与 `zym-spring-boot-starter-jdbc` 的依赖（保持 MyBatis-Plus QueryWrapper/Page 等 API 不变）
+    - ✅ 已完成（条目 26-6-2c1）：迁移 `EntityFactory` 到 `eva-infra-shared`（保持包名不变；保持行为不变）。
+      - Java：`eva-infra-shared/src/main/java/edu/cuit/infra/convertor/EntityFactory.java`
+      - 依赖：`eva-infra-shared/pom.xml` 增加 `mapstruct-plus-spring-boot-starter`；并增加对 `eva-domain` 的依赖以保留 `hutool SpringUtil` 与 `cola SysException` 的依赖来源（行为不变）
     - 下一步拆分（条目 26-6-2）：把上面这些“被 `bc-iam-infra` 直接使用”的基础设施能力从 `eva-infra` 抽到更小的 shared 模块（保持包名不变），并让 `bc-iam-infra` 依赖该 shared 模块（保持行为不变；每步跑最小回归并提交）。
     - 下一步拆分（条目 26-6-3）：移除 `bc-iam-infra` 对 `eva-infra` 的 Maven 依赖，仅保留 `eva-infra-dal` + 必要 shared 模块；跑最小回归并提交（保持行为不变）。
 

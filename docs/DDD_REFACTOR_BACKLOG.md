@@ -131,6 +131,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已新增 shared 子模块骨架 `eva-infra-shared`，作为后续从 `eva-infra` 抽离 Converter/LDAP/缓存常量/工具等的落点（保持行为不变）。
   - `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已将 IAM 相关缓存常量（`UserCacheConstants`/`CourseCacheConstants`）迁移到 `eva-infra-shared`，并补齐 `eva-infra` 与 `bc-iam-infra` 的 Maven 依赖（保持行为不变）。
   - `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已将查询工具 `QueryUtils` 迁移到 `eva-infra-shared`（保持包名不变；保持行为不变）。
+  - `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已将 `EntityFactory` 迁移到 `eva-infra-shared`（保持包名不变；保持行为不变）。
 
 **已完成（2025-12-20）**
 - 评教写侧进一步收敛（保持行为不变）：
