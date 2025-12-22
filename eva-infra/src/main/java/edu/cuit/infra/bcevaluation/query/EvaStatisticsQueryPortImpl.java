@@ -23,7 +23,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class EvaStatisticsQueryPortImpl implements EvaStatisticsQueryPort {
-    private final EvaQueryRepo repo;
+    private final EvaStatisticsQueryRepo repo;
 
     @Override
     public Optional<EvaScoreInfoCO> evaScoreStatisticsInfo(Integer semId, Number score) {
