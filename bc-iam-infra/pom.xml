@@ -33,6 +33,13 @@
             <version>${revision}</version>
         </dependency>
 
+        <!-- shared：从 eva-infra 渐进式抽离的可复用基础设施能力（Converter/LDAP/缓存常量/工具等） -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>eva-infra-shared</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
         <!-- 过渡期：复用旧系统基础设施（DAL/组件/Starter），保证行为不变 -->
         <dependency>
             <groupId>edu.cuit</groupId>

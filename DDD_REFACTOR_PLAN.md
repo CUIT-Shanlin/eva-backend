@@ -571,6 +571,9 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
     - 工具：`edu.cuit.infra.util.QueryUtils`
   - 阶段 2.7（已完成）：新增 shared 子模块骨架 `eva-infra-shared`（不迁代码，仅作为后续从 `eva-infra` 抽离 Converter/LDAP/缓存常量/工具等的落点；保持行为不变）。
     - 新模块：`eva-infra-shared/pom.xml`
+  - 阶段 2.8（已完成）：迁移 IAM 相关缓存常量到 `eva-infra-shared`（保持包名不变；保持行为不变）。
+    - Java：`eva-infra-shared/src/main/java/edu/cuit/infra/enums/cache/UserCacheConstants.java`、`CourseCacheConstants.java`
+    - 依赖：`eva-infra-shared/pom.xml` 增加 `spring-context`（保留 `@Component`）；`eva-infra/pom.xml` 与 `bc-iam-infra/pom.xml` 增加对 `eva-infra-shared` 的依赖
 - AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`。
 - 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分。
 
