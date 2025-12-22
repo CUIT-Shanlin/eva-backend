@@ -31,7 +31,7 @@
   - ✅ 最小回归已通过（Java17）：  
     - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
 - ✅ 文档同步已完成（交接/计划/Backlog）：`940697fc`
-- ⚠️ 条目 25：当前交接文档未单独记录“条目 25”的定义/边界（可能已被后续拆分计划吸收）。若你要严格按 24/25/26 推进，建议下一会话先补齐条目 25 的目标描述与验收口径（只补文档，不改代码）。
+- ✅ 提交点 0（纯文档闭环）：已补齐“条目 25”的定义/边界与验收口径（本文件 + `DDD_REFACTOR_PLAN.md` + `docs/DDD_REFACTOR_BACKLOG.md`；只改文档，不改代码），避免后续新会话对 24/25/26 的分界理解不一致。
 
 ## 0.10 下一步拆分与里程碑/提交点（下一会话开始前先读完本节）
 
@@ -43,6 +43,22 @@
 - 提交点 A（结构落点，不迁业务）：启动 `bc-ai-report` / `bc-audit` 的最小 Maven 子模块骨架，并接入组合根（仅创建落点与 wiring，不改业务语义）。
 - 提交点 B（写侧收敛，挑 1 条链路）：在 AI 报告或审计日志中挑选 1 条高价值写链路，按“用例 + 端口 + 端口适配器 + 旧 gateway 委托壳”收敛（缓存注解/日志/异常文案/副作用顺序完全不变）。
 - 提交点 C（读侧继续拆）：继续拆分 `EvaQueryRepo`（优先选 1 个主题：任务/记录/统计/模板），只做内部结构化，不改统计口径与异常文案。
+
+### 条目 25（定义 / 边界 / 验收口径）
+
+> 背景：历史上“条目 24/25/26”作为会话推进索引使用；其中 24/26 已落地，但 25 的定义容易被“提交点 A/B/C”新拆分吸收，导致不同会话对边界理解不一致。
+
+- **定义**：**AI 报告 / 审计日志模块化试点**。目标是为后续写侧收敛提供稳定落点（BC 模块骨架 + 组合根 wiring），并按既有套路先收敛 1 条写链路（行为保持不变）。
+- **包含范围（本条目对应提交点 A + B）**：
+  - **A：结构落点**：新增 `bc-ai-report` / `bc-audit` Maven 子模块骨架（只建目录/依赖/包结构/最小配置），并接入组合根（仅 wiring，不迁业务语义）。
+  - **B：写侧收敛（挑 1 条链路）**：从 AI 报告或审计日志中选 1 条写链路，按“UseCase + Port + Port Adapter + 旧 gateway 委托壳”收敛，确保旧入口对外接口/注解触发点不变。
+- **不包含范围**：
+  - 不包含 `EvaQueryRepo` 的读侧拆分（提交点 C）。
+  - 不做任何业务语义调整；**缓存/日志/异常文案/副作用顺序完全不变**。
+- **验收口径（必须同时满足）**：
+  1) `mvn -pl start -am test ...` 最小回归通过（命令见本节下方）；  
+  2) 组合根 wiring 完整（Spring Bean 可被扫描/装配，且不引入 Maven 循环依赖）；  
+  3) 提交点 B 所选链路：旧 gateway 退化为委托壳后，**缓存注解/日志/异常文案/副作用顺序完全不变**（以变更前行为快照对照）。
 - 最小回归命令（每步结束必跑，Java17）：  
   - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
 
