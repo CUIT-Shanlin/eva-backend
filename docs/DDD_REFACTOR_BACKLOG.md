@@ -108,6 +108,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 **已完成（2025-12-22）**
 - 提交点 0（纯文档闭环）：已补齐“条目 25”的定义/边界与验收口径（只改文档，不改代码；落地提交：`1adc80bd`）。
 - 提交点 A（结构落点，不迁业务）：已启动 `bc-ai-report` / `bc-audit` 最小 Maven 子模块骨架并接入组合根（仅落点与 wiring，不迁业务语义；落地提交：`a30a1ff9`）。
+- 提交点 B（写侧收敛，选审计日志链路）：已将 `LogGatewayImpl.insertLog` 收敛为“用例 + 端口 + 适配器 + 旧 gateway 委托壳”（保持行为不变；落地提交：`b0b72263`）。
 - `bc-iam-infra` 阶段 2（IAM DAL 抽离 + shared 拆分 + 去依赖）已闭环完成（关键落地：`2ad911ea`；细节见 `NEXT_SESSION_HANDOFF.md`；保持行为不变）。
 - `bc-iam-infra` 阶段 2（IAM DAL 抽离）：已将 `PaginationConverter` 迁移到 `eva-infra-shared`（保持包名不变；保持行为不变；落地提交：`54d5fecd`）。
 - `bc-iam-infra` 阶段 2（IAM DAL 抽离）：已将 `MenuConvertor/RoleConverter/UserConverter` 迁移到 `eva-infra-shared`（保持包名不变；保持行为不变；落地提交：`6c798f1b`）。
@@ -180,7 +181,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：以下是仍在旧 gateway/技术切片中的能力，优先级按“写侧优先 + 影响范围”排序。
 
-1) AI 报告 / 审计日志（条目 25）：已完成提交点 A（模块骨架 + 组合根 wiring；落地提交：`a30a1ff9`），待提交点 B（挑 1 条写链路收敛，行为保持不变）  
+1) AI 报告 / 审计日志（条目 25）：已完成提交点 A（模块骨架 + 组合根 wiring；落地提交：`a30a1ff9`），已完成提交点 B（审计日志写入 `LogGatewayImpl.insertLog`；落地提交：`b0b72263`）  
    - 边界：条目 25 = 提交点 A + 提交点 B；不包含提交点 C（读侧 `EvaQueryRepo` 拆分）。
    - 验收：缓存/日志/异常文案/副作用顺序完全不变 + 最小回归通过（以 `NEXT_SESSION_HANDOFF.md` 为准）。
 2) 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分（保持统计口径不变）
