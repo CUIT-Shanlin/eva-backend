@@ -154,11 +154,13 @@
 	    - ✅ 已完成（条目 26-6-2d3）：迁移 `LdapUserConvertor` 到 `eva-infra-shared`（保持包名不变；保持行为不变）。
 	      - Java：`eva-infra-shared/src/main/java/edu/cuit/infra/convertor/user/LdapUserConvertor.java`
 	      - 落地提交：`0dc0ddc8`
-	    - 下一步拆分（条目 26-6-2，建议拆分为 2~3 个提交点；每步跑最小回归；保持行为不变）：
+	    - 条目 26-6-2 拆分提交点（均已完成；每步均跑最小回归；保持行为不变）：
 	      - ✅ 条目 26-6-2d1：迁移 `edu.cuit.infra.dal.ldap.*`（Repo + DO）到 `eva-infra-shared`（保持包名不变；落地：`aca70b8b`）
 	      - ✅ 条目 26-6-2d2：迁移 `edu.cuit.infra.util.EvaLdapUtils` + `edu.cuit.infra.{enums.LdapConstants,property.EvaLdapProperties}` 到 `eva-infra-shared`（保持包名不变；落地：`3165180c`）
 	      - ✅ 条目 26-6-2d3：迁移 `edu.cuit.infra.convertor.user.LdapUserConvertor` 到 `eva-infra-shared`（保持包名不变；落地：`0dc0ddc8`）
-	    - 下一步拆分（条目 26-6-3）：移除 `bc-iam-infra` 对 `eva-infra` 的 Maven 依赖，仅保留 `eva-infra-dal` + 必要 shared 模块；跑最小回归并提交（保持行为不变）。
+	    - ✅ 已完成（条目 26-6-3）：移除 `bc-iam-infra` 对 `eva-infra` 的 Maven 依赖（保持行为不变）。
+	      - 依赖：`bc-iam-infra/pom.xml` 移除 `eva-infra`，补齐 `zym-spring-boot-starter-cache` + `zym-spring-boot-starter-logging` 编译依赖（行为不变）
+	      - 落地提交：`2ad911ea`
 
 ## 0.3 本次会话增量总结（2025-12-21，更新至 `HEAD`）
 
