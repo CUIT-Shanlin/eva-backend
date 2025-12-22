@@ -31,7 +31,8 @@
   - ✅ 最小回归已通过（Java17）：  
     - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
 - ✅ 文档同步已完成（交接/计划/Backlog）：`940697fc`
-- ✅ 提交点 0（纯文档闭环）：已补齐“条目 25”的定义/边界与验收口径（本文件 + `DDD_REFACTOR_PLAN.md` + `docs/DDD_REFACTOR_BACKLOG.md`；只改文档，不改代码），避免后续新会话对 24/25/26 的分界理解不一致。
+- ✅ 提交点 0（纯文档闭环）：已补齐“条目 25”的定义/边界与验收口径（本文件 + `DDD_REFACTOR_PLAN.md` + `docs/DDD_REFACTOR_BACKLOG.md`；只改文档，不改代码），避免后续新会话对 24/25/26 的分界理解不一致（落地提交：`1adc80bd`）。
+- ✅ 提交点 A（结构落点，不迁业务）：已启动 `bc-ai-report` / `bc-audit` 最小 Maven 子模块骨架并接入组合根（仅落点与 wiring，不迁业务语义；落地提交：`a30a1ff9`）。
 
 ## 0.10 下一步拆分与里程碑/提交点（下一会话开始前先读完本节）
 
@@ -39,8 +40,8 @@
 >
 > 规则提醒：每个小提交都必须做到：Serena 符号级定位/引用分析 → **最小回归** → `git commit` → 同步三份文档（本文件 + `DDD_REFACTOR_PLAN.md` + `docs/DDD_REFACTOR_BACKLOG.md`）。
 
-- 提交点 0（可选，纯文档闭环）：补齐“条目 25”的定义/边界与验收口径（只改文档，不改代码），避免后续新会话对 24/25/26 的分界理解不一致。
-- 提交点 A（结构落点，不迁业务）：启动 `bc-ai-report` / `bc-audit` 的最小 Maven 子模块骨架，并接入组合根（仅创建落点与 wiring，不改业务语义）。
+- ✅ 提交点 0（纯文档闭环）：补齐“条目 25”的定义/边界与验收口径（只改文档，不改代码；落地提交：`1adc80bd`）。
+- ✅ 提交点 A（结构落点，不迁业务）：启动 `bc-ai-report` / `bc-audit` 的最小 Maven 子模块骨架，并接入组合根（仅创建落点与 wiring；落地提交：`a30a1ff9`）。
 - 提交点 B（写侧收敛，挑 1 条链路）：在 AI 报告或审计日志中挑选 1 条高价值写链路，按“用例 + 端口 + 端口适配器 + 旧 gateway 委托壳”收敛（缓存注解/日志/异常文案/副作用顺序完全不变）。
 - 提交点 C（读侧继续拆）：继续拆分 `EvaQueryRepo`（优先选 1 个主题：任务/记录/统计/模板），只做内部结构化，不改统计口径与异常文案。
 
