@@ -35,6 +35,7 @@
 - ✅ 提交点 A（结构落点，不迁业务）：已启动 `bc-ai-report` / `bc-audit` 最小 Maven 子模块骨架并接入组合根（仅落点与 wiring，不迁业务语义；落地提交：`a30a1ff9`）。
 - ✅ 提交点 B（写侧收敛，选审计日志链路）：已将 **审计日志写入** `LogGatewayImpl.insertLog` 收敛为“用例 + 端口 + 端口适配器 + 旧 gateway 委托壳”（保持行为不变；落地提交：`b0b72263`）。
   - 行为快照（必须保持）：旧 `LogGatewayImpl.insertLog` 仍在 **同一处** 通过 `CompletableFuture.runAsync(..., executor)` 异步触发；异步线程内的字段补齐与 `logMapper.insert` 已搬运到 `bc-audit` 的端口适配器（无异常文案/缓存副作用变化）。
+- ✅ 提交点 C（读侧继续拆，统计主题）：已从 `EvaQueryRepo` 抽出 `EvaStatisticsQueryRepo`，并将 `EvaStatisticsQueryPortImpl` 的依赖收敛到该接口（仅接口拆分；统计口径/异常文案不变；落地提交：`d5b07247`）。
 
 ## 0.10 下一步拆分与里程碑/提交点（下一会话开始前先读完本节）
 
@@ -45,7 +46,7 @@
 - ✅ 提交点 0（纯文档闭环）：补齐“条目 25”的定义/边界与验收口径（只改文档，不改代码；落地提交：`1adc80bd`）。
 - ✅ 提交点 A（结构落点，不迁业务）：启动 `bc-ai-report` / `bc-audit` 的最小 Maven 子模块骨架，并接入组合根（仅创建落点与 wiring；落地提交：`a30a1ff9`）。
 - ✅ 提交点 B（写侧收敛，挑 1 条链路）：已完成（审计日志写入链路：`LogGatewayImpl.insertLog`；落地提交：`b0b72263`）。
-- 提交点 C（读侧继续拆）：继续拆分 `EvaQueryRepo`（优先选 1 个主题：任务/记录/统计/模板），只做内部结构化，不改统计口径与异常文案。
+- ✅ 提交点 C（读侧继续拆，统计主题）：已完成（`EvaStatisticsQueryRepo` 抽取 + 端口依赖收敛；落地提交：`d5b07247`）。
 
 ### 条目 25（定义 / 边界 / 验收口径）
 
