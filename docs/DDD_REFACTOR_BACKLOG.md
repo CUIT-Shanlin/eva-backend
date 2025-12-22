@@ -105,13 +105,14 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
-**进行中（2025-12-22）**
-- `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已将 `PaginationConverter` 迁移到 `eva-infra-shared`（保持包名不变；保持行为不变；落地提交：`54d5fecd`）。
-- `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已将 `MenuConvertor/RoleConverter/UserConverter` 迁移到 `eva-infra-shared`（保持包名不变；保持行为不变；落地提交：`6c798f1b`）。
-- `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已将 `edu.cuit.infra.dal.ldap.*`（DO/Repo）迁移到 `eva-infra-shared`（保持包名不变；保持行为不变；落地提交：`aca70b8b`）。
-- `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已将 `EvaLdapUtils/LdapConstants/EvaLdapProperties` 迁移到 `eva-infra-shared`（保持包名不变；保持行为不变；落地提交：`3165180c`）。
-- `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已将 `LdapUserConvertor` 迁移到 `eva-infra-shared`（保持包名不变；保持行为不变；落地提交：`0dc0ddc8`）。
-- `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已移除 `bc-iam-infra` → `eva-infra` 的 Maven 依赖（保持行为不变；落地提交：`2ad911ea`）。
+**已完成（2025-12-22）**
+- `bc-iam-infra` 阶段 2（IAM DAL 抽离 + shared 拆分 + 去依赖）已闭环完成（关键落地：`2ad911ea`；细节见 `NEXT_SESSION_HANDOFF.md`；保持行为不变）。
+- `bc-iam-infra` 阶段 2（IAM DAL 抽离）：已将 `PaginationConverter` 迁移到 `eva-infra-shared`（保持包名不变；保持行为不变；落地提交：`54d5fecd`）。
+- `bc-iam-infra` 阶段 2（IAM DAL 抽离）：已将 `MenuConvertor/RoleConverter/UserConverter` 迁移到 `eva-infra-shared`（保持包名不变；保持行为不变；落地提交：`6c798f1b`）。
+- `bc-iam-infra` 阶段 2（IAM DAL 抽离）：已将 `edu.cuit.infra.dal.ldap.*`（DO/Repo）迁移到 `eva-infra-shared`（保持包名不变；保持行为不变；落地提交：`aca70b8b`）。
+- `bc-iam-infra` 阶段 2（IAM DAL 抽离）：已将 `EvaLdapUtils/LdapConstants/EvaLdapProperties` 迁移到 `eva-infra-shared`（保持包名不变；保持行为不变；落地提交：`3165180c`）。
+- `bc-iam-infra` 阶段 2（IAM DAL 抽离）：已将 `LdapUserConvertor` 迁移到 `eva-infra-shared`（保持包名不变；保持行为不变；落地提交：`0dc0ddc8`）。
+- `bc-iam-infra` 阶段 2（IAM DAL 抽离）：已移除 `bc-iam-infra` → `eva-infra` 的 Maven 依赖（保持行为不变；落地提交：`2ad911ea`）。
 
 **已完成（2025-12-21）**
 - IAM 写侧继续收敛（保持行为不变）：
@@ -130,16 +131,6 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - 迁移 `MenuWritePortImpl` 到 `bc-iam-infra`（包名/类名/行为保持不变；落地提交：`6b9d2ce7`）。
   - 迁移用户写侧端口适配器到 `bc-iam-infra`：`UserCreationPortImpl/UserInfoUpdatePortImpl/UserStatusUpdatePortImpl/UserDeletionPortImpl`（落地提交：`5aecc747`）。
   - 迁移用户查询/分配端口适配器到 `bc-iam-infra`：`UserRoleAssignmentPortImpl/UserDirectoryQueryPortImpl/UserEntityQueryPortImpl`（落地提交：`1c3d4b8c`）。
-  - `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已用 Serena 盘点 `bc-iam-infra` 适配器对 IAM DAL 的直接依赖清单（`SysUser/SysRole/SysMenu` 及关联表的 Mapper/DO/XML），并已完成迁移到共享模块 `eva-infra-dal`，现进入“去掉 `bc-iam-infra` → `eva-infra` 依赖”的 shared 拆分阶段（保持行为不变）。
-  - `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已在 `bc-iam-infra` 创建 DAL 包路径与资源目录骨架（不迁代码，仅提供后续迁移落点；保持行为不变）。
-  - `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已新增共享 DAL 子模块 `eva-infra-dal`，并先迁移 `SysUser*`（DO/Mapper/XML）到该模块（保持包名/namespace/SQL 不变；保持行为不变）。
-  - `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已继续迁移 `SysRole*`/`SysRoleMenu*`（DO/Mapper/XML）到该模块（保持包名/namespace/SQL 不变；保持行为不变）。
-  - `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已继续迁移 `SysMenu*`（DO/Mapper/XML）到该模块（保持包名/namespace/SQL 不变；保持行为不变）。
-  - `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已完成 `bc-iam-infra` 仍依赖 `eva-infra` 的类型清单盘点（Converter/LDAP/缓存常量/工具），为后续移除 Maven 依赖做最小闭包拆分输入（保持行为不变）。
-  - `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已新增 shared 子模块骨架 `eva-infra-shared`，作为后续从 `eva-infra` 抽离 Converter/LDAP/缓存常量/工具等的落点（保持行为不变）。
-  - `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已将 IAM 相关缓存常量（`UserCacheConstants`/`CourseCacheConstants`）迁移到 `eva-infra-shared`，并补齐 `eva-infra` 与 `bc-iam-infra` 的 Maven 依赖（保持行为不变）。
-  - `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已将查询工具 `QueryUtils` 迁移到 `eva-infra-shared`（保持包名不变；保持行为不变）。
-  - `bc-iam-infra` 阶段 2（IAM DAL 抽离，进行中）：已将 `EntityFactory` 迁移到 `eva-infra-shared`（保持包名不变；保持行为不变）。
 
 **已完成（2025-12-20）**
 - 评教写侧进一步收敛（保持行为不变）：

@@ -521,7 +521,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
    - 角色写侧剩余入口（`RoleUpdateGatewayImpl.updateRoleInfo/updateRoleStatus/deleteRole/createRole`）已收敛到 `bc-iam`（保持行为不变；落地提交：`64fadb20`）。
 10) **AI 报告 / 审计日志模块化（建议）**：启动 `bc-ai-report` / `bc-audit` 最小骨架，并优先挑选 1 条写链路按同套路收敛（保持行为不变）。
 11) ✅ **BC 自包含三层结构试点（`bc-iam`，阶段 1：适配器归属）**：已引入 `bc-iam-infra` Maven 子模块骨架并接入组合根，且已将 `bciam/adapter/*` 端口适配器从 `eva-infra` 迁移到 `bc-iam-infra`（保持行为不变；落地提交：`42a6f66f/070068ec/03ceb685/02b3e8aa/6b9d2ce7/5aecc747/1c3d4b8c`）。
-   - 说明：当前 `bc-iam-infra` 仍通过 Maven 依赖 `eva-infra` 来复用 DAL/Starter；阶段 2 再逐步抽离 IAM DAL，使 `bc-iam-infra` 去掉对 `eva-infra` 的依赖（仍保持行为不变）。
+   - 说明：阶段 2（IAM DAL 抽离 + shared 拆分 + 去依赖）已完成，`bc-iam-infra` 已不再依赖 `eva-infra`（落地提交：`2ad911ea`；保持行为不变）。
 
 ### 10.4 术语澄清与最终目标结构（减少“gateway”混淆）
 
@@ -541,11 +541,17 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 ### 10.3 未完成清单（滚动，供下一会话排期）
 
+- 下一步建议（从下一会话起；每步 1 次最小回归 + 1 次提交 + 文档同步；保持行为不变）：
+  - 提交点 0（可选，纯文档闭环）：补齐“条目 25”的定义/边界与验收口径（只改文档，不改代码），避免新会话对 24/25/26 的分界理解不一致
+  - 提交点 A：启动 `bc-ai-report` / `bc-audit` 最小骨架并接入组合根（仅落点，不迁业务语义）
+  - 提交点 B：为 AI 报告或审计日志挑选 1 条写链路，按“用例 + 端口 + 适配器 + 旧 gateway 委托壳”收敛（缓存/日志/异常文案/副作用顺序完全不变）
+  - 提交点 C：读侧继续拆分 `EvaQueryRepo`（优先选 1 个主题：任务/记录/统计/模板；统计口径不变）
+
 - IAM 域：开始引入 `bc-iam`，已收敛 `UserUpdateGatewayImpl.assignRole/createUser/updateInfo/updateStatus/deleteUser`（落地提交：`16ff60b6/b65d311f/a707ab86`、`c3aa8739/a3232b78/a26e01b3/9e7d46dd`、`38c31541/6ce61024/db0fd6a3/cb789e21`、`e3fcdbf0/8e82e01f/eb54e13e`、`5f08151c/e23c810a/cccd75a3/2846c689`，保持行为不变）。
 - 系统管理读侧：`UserQueryGatewayImpl.fileUserEntity` 与基础查询能力（`findIdByUsername/findUsernameById/getUserStatus/isUsernameExist`）已收敛到 `bc-iam`（保持行为不变；落地提交：`3e6f2cb2/8c245098/92a9beb3`、`9f664229/38384628/de662d1c/8a74faf5`）。
 - 系统管理读侧：`UserQueryGatewayImpl.findAllUserId/findAllUsername/allUser/getUserRoleIds` 已收敛到 `bc-iam`（保持行为不变；落地提交：`56bbafcf/7e5f0a74/bc5fb3c6/6a1332b0`）。
 - 系统管理写侧：角色写侧剩余入口已收敛到 `bc-iam`（保持行为不变；落地提交：`64fadb20`）。
-- 中期里程碑（进行中）：`bc-iam-infra` 子模块骨架已接入组合根，且已完成 `bciam/adapter/*` 迁移；阶段 2 为 IAM DAL 抽离（保持行为不变；落地提交：`42a6f66f/070068ec/03ceb685/02b3e8aa/6b9d2ce7/5aecc747/1c3d4b8c`）。
+- ✅ 中期里程碑（已完成）：`bc-iam-infra` 子模块骨架已接入组合根并完成 `bciam/adapter/*` 迁移，且阶段 2（IAM DAL 抽离 + shared 拆分 + 去依赖）已闭环（保持行为不变；阶段 1 落地：`42a6f66f/070068ec/03ceb685/02b3e8aa/6b9d2ce7/5aecc747/1c3d4b8c`；阶段 2 去依赖落地：`2ad911ea`）。
   - 阶段 2.1（已完成）：已用 Serena 盘点 `bc-iam-infra` 适配器对 IAM DAL 的直接依赖清单（后续迁移以此清单为准，避免漏搬/多搬）：
     - Mapper：`SysUserMapper`、`SysUserRoleMapper`、`SysRoleMapper`、`SysRoleMenuMapper`、`SysMenuMapper`
     - DO：`SysUserDO`、`SysUserRoleDO`、`SysRoleDO`、`SysRoleMenuDO`、`SysMenuDO`
