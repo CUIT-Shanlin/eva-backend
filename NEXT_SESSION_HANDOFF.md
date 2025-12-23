@@ -37,6 +37,7 @@
 - ✅ 评教 BC 自包含三层结构试点（阶段 1：引入 `bc-evaluation-infra`）：迁移评教读侧查询（QueryPortImpl + QueryRepo/Repository）从 `eva-infra` 到 `bc-evaluation-infra`，并将 course/eva DAL（DO/Mapper/XML）迁移到 `eva-infra-dal`、将 `CourseConvertor`/`EvaConvertor`/`EvaCacheConstants`/`CourseFormat` 迁移到 `eva-infra-shared`（均保持包名不变；保持行为不变；落地提交：`be6dc05c`）。
 - ✅ 评教 BC 自包含三层结构试点（阶段 2：写侧 Repo 迁移）：迁移评教写侧端口适配器/Repo（`eva-infra/src/main/java/edu/cuit/infra/bcevaluation/repository/*`）到 `bc-evaluation-infra`，并将 `CalculateClassTime` 迁移到 `eva-infra-shared` 以保持 `bc-evaluation-infra` 不依赖 `eva-infra`（均保持包名/行为不变；落地提交：`24e7f6c9`）。
 - ✅ 提交点 C-1（读侧门面加固，可选）：清理 `EvaQueryRepository` 中已无引用的历史私有实现/冗余依赖，使其成为纯委托壳（保持行为不变；落地提交：`73fc6c14`；三文档同步：`083b5807`）。
+- ✅ 提交点 C-2-1（读侧仓储瘦身，可选，进行中）：清理 `EvaRecordQueryRepository` 无用 import（保持行为不变；落地提交：`e2a2a717`）。
 - ✅ 文档：本次会话三文档同步提交链（按发生顺序）：`c0f7362b/61b0dfa4/68895003/ebff7002/4e52d74c/53832c45/c285701f/095979c8/a0e870f5/24e7f6c9/679076b7/73fc6c14/083b5807`（之后以 `HEAD` 为准）。
 - ✅ 以上每步最小回归均已通过（Java17）：  
   - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
@@ -65,7 +66,7 @@
 - ✅ 提交点 C-1（读侧门面加固，可选）：已完成（清理 `EvaQueryRepository` 为纯委托壳；落地提交：`73fc6c14`；三文档同步：`083b5807`）。
 
 下一会话建议（继续按“每步=回归+提交+三文档同步”）：
-1) **提交点 C（后续，可选，剩余）**：已完成 C-1（清理 `EvaQueryRepository` 纯委托壳；落地：`73fc6c14`；三文档同步：`083b5807`）。后续如仍需要，继续按“每次只删可证实无引用代码”的原则，盘点评教读侧四主题仓储中残留的历史私有实现/冗余依赖并逐步清理（保持口径/异常文案不变）。
+1) **提交点 C（后续，可选，剩余）**：已完成 C-1（清理 `EvaQueryRepository` 纯委托壳；落地：`73fc6c14`；三文档同步：`083b5807`）。后续如仍需要，继续按“每次只删可证实无引用代码”的原则，盘点评教读侧四主题仓储中残留的历史私有实现/冗余依赖并逐步清理（保持口径/异常文案不变；已完成 C-2-1：`e2a2a717`）。
 
 ## 0.12 当前总体进度概览（2025-12-23，更新至 `HEAD`）
 
