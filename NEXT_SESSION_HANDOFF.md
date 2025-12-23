@@ -34,7 +34,8 @@
 - ✅ 提交点 C5-2（读侧实现继续拆，记录主题）：新增 `EvaRecordQueryRepository` 承接 `EvaRecordQueryRepo` 实现，`EvaQueryRepository` 中对应方法退化为委托（口径/异常文案不变；落地提交：`985f7802`；三文档同步：`68895003`）。
 - ✅ 提交点 C5-3（读侧实现继续拆，任务主题）：新增 `EvaTaskQueryRepository` 承接 `EvaTaskQueryRepo` 实现，`EvaQueryRepository` 中对应方法退化为委托（口径/异常文案不变；落地提交：`d467c65e`；三文档同步：`ebff7002`）。
 - ✅ 提交点 C5-4（读侧实现继续拆，模板主题）：新增 `EvaTemplateQueryRepository` 承接 `EvaTemplateQueryRepo` 实现，`EvaQueryRepository` 中模板相关方法退化为委托（口径/异常文案不变；落地提交：`a550675a`）。
-- ✅ 文档：本次会话三文档同步提交链（按发生顺序）：`c0f7362b/61b0dfa4/68895003/ebff7002`。
+- ✅ 评教 BC 自包含三层结构试点（阶段 1：引入 `bc-evaluation-infra`）：迁移评教读侧查询（QueryPortImpl + QueryRepo/Repository）从 `eva-infra` 到 `bc-evaluation-infra`，并将 course/eva DAL（DO/Mapper/XML）迁移到 `eva-infra-dal`、将 `CourseConvertor`/`EvaConvertor`/`EvaCacheConstants`/`CourseFormat` 迁移到 `eva-infra-shared`（均保持包名不变；保持行为不变；落地提交：`be6dc05c`）。
+- ✅ 文档：本次会话三文档同步提交链（按发生顺序）：`c0f7362b/61b0dfa4/68895003/ebff7002/4e52d74c`。
 - ✅ 以上每步最小回归均已通过（Java17）：  
   - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
 
@@ -57,16 +58,18 @@
 - ✅ 提交点 C5-2（读侧实现继续拆，记录主题）：已完成（抽出 `EvaRecordQueryRepository`；落地提交：`985f7802`；三文档同步：`68895003`）。
 - ✅ 提交点 C5-3（读侧实现继续拆，任务主题）：已完成（抽出 `EvaTaskQueryRepository`；落地提交：`d467c65e`；三文档同步：`ebff7002`）。
 - ✅ 提交点 C5-4（读侧实现继续拆，模板主题）：已完成（抽出 `EvaTemplateQueryRepository`；落地提交：`a550675a`）。
+- ✅ 评教 BC 自包含三层结构试点（阶段 1：引入 `bc-evaluation-infra`）：已完成（评教读侧查询迁移 + course/eva DAL 迁移 + shared 迁移；落地提交：`be6dc05c`）。
 
 下一会话建议（继续按“每步=回归+提交+三文档同步”）：
-1) **提交点 C（后续，可选）**：盘点 `EvaQueryRepository` 是否仍残留非委托实现；如有则继续把剩余私有工具/实体组装内聚到对应主题仓储（保持口径/异常文案不变）。
+1) **评教 BC 自包含三层结构试点（阶段 2）**：迁移 `eva-infra/src/main/java/edu/cuit/infra/bcevaluation/repository/*` 到 `bc-evaluation-infra`（保持包名/行为不变；每步回归+提交+三文档同步）。
+2) **提交点 C（后续，可选）**：盘点 `EvaQueryRepository` 是否仍残留非委托实现；如有则继续把剩余私有工具/实体组装内聚到对应主题仓储（保持口径/异常文案不变）。
 
 ## 0.12 当前总体进度概览（2025-12-23，更新至 `HEAD`）
 
 > 用于回答“现在总进度到哪了”，避免每次会话重新盘点。
 
 - **bc-iam（系统管理/IAM）**：已完成大量写侧/读侧收敛，且引入 `bc-iam-infra` 并完成 DAL/shared 拆分与去依赖闭环（见历史提交点与文档记录）。
-- **bc-evaluation（评教）**：写侧主链路（任务发布/删除/模板）已按“用例+端口+适配器+委托壳”收敛；读侧已完成 QueryPort 拆分、四主题接口拆分（统计/记录/任务/模板）与四主题实现拆分（C5-1/2/3/4），`EvaQueryRepository` 已退化为委托壳（保持口径/异常文案不变）。
+- **bc-evaluation（评教）**：写侧主链路（任务发布/删除/模板）已按“用例+端口+适配器+委托壳”收敛；读侧已完成 QueryPort 拆分、四主题接口拆分（统计/记录/任务/模板）与四主题实现拆分（C5-1/2/3/4），且已引入 `bc-evaluation-infra` 承接读侧查询实现（保持口径/异常文案不变）。
 - **bc-audit（审计日志）**：已完成 `LogGatewayImpl.insertLog` 写链路收敛（异步触发点保留在旧入口，落库与字段补齐在端口适配器）。
 - **bc-ai-report（AI 报告）**：已完成模块骨架接入组合根；导出写链路已收敛为“用例+端口+端口适配器+旧入口委托壳”，且旧入口已进一步退化为纯委托壳（保持行为不变）。
 - **bc-course（课程）**：读侧已将 `CourseQueryGatewayImpl` 退化委托壳并抽出 QueryRepo/Repository（保持行为不变）。

@@ -556,6 +556,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - ✅ 提交点 C5-2（记录主题实现拆分）：新增 `EvaRecordQueryRepository` 承接 `EvaRecordQueryRepo` 实现，`EvaQueryRepository` 的记录方法退化为委托（口径/异常文案不变；落地提交：`985f7802`）
   - ✅ 提交点 C5-3（任务主题实现拆分）：新增 `EvaTaskQueryRepository` 承接 `EvaTaskQueryRepo` 实现，`EvaQueryRepository` 的任务方法退化为委托（口径/异常文案不变；落地提交：`d467c65e`）
   - ✅ 提交点 C5-4（模板主题实现拆分）：新增 `EvaTemplateQueryRepository` 承接 `EvaTemplateQueryRepo` 实现，`EvaQueryRepository` 的模板方法退化为委托（口径/异常文案不变；落地提交：`a550675a`）
+  - ✅ 提交点 D1（`bc-evaluation-infra` 阶段 1：评教读侧查询迁移 + DAL/shared 拆分）：引入 `bc-evaluation-infra` 并迁移评教读侧查询（QueryPortImpl + QueryRepo/Repository），同时将 course/eva DAL（DO/Mapper/XML）迁移到 `eva-infra-dal`、将 `CourseConvertor`/`EvaConvertor`/`EvaCacheConstants`/`CourseFormat` 迁移到 `eva-infra-shared`（保持包名不变；保持行为不变；落地提交：`be6dc05c`）
+  - ⏳ 提交点 D2（`bc-evaluation-infra` 阶段 2：评教写侧端口适配器迁移）：迁移 `eva-infra/src/main/java/edu/cuit/infra/bcevaluation/repository/*` 到 `bc-evaluation-infra`（保持包名/行为不变）
   - 提交点 C（后续，可选）：在 C5-4 完成后，视情况继续把 `EvaQueryRepository` 剩余私有工具/实体组装进一步内聚到对应主题仓储（仍保持口径/异常文案不变）
 
 #### 条目 25（定义 / 边界 / 验收口径）
