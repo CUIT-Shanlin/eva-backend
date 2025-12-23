@@ -18,7 +18,7 @@
 - **Port Adapter（基础设施端口适配器）**：过渡期通常落在 `eva-infra/.../bc*/adapter` 或 `bc-*-infra`（子模块），实现 Port 并原样搬运旧 DB/副作用流程（保持行为不变）。
 - **最终形态（目标）**：每个 BC 自含 `domain/application/infrastructure`（模块或至少 package 结构完整），`eva-*` 技术切片逐步退场或仅剩 shared-kernel/组装层。
 
-## 0.9 本次会话增量总结（2025-12-23，更新至 `HEAD=14cc9cdd`）
+## 0.9 本次会话增量总结（2025-12-23，更新至 `HEAD=4a4f4457`）
 
 - ✅ 提交点 0（纯文档闭环）：补齐“条目 25”的定义/边界与验收口径（只改文档，不改代码；落地提交：`1adc80bd`）。
 - ✅ 提交点 A（结构落点，不迁业务）：启动 `bc-ai-report` / `bc-audit` 最小 Maven 子模块骨架并接入组合根（落地提交：`a30a1ff9`）。
@@ -68,7 +68,7 @@
 你是资深全栈架构师/技术导师，只用中文回答。
 
 仓库：/home/lystran/programming/java/web/eva-backend  
-先确认：分支必须是 ddd；HEAD 必须 >= 2e4c4923（当前参考 HEAD=14cc9cdd）。
+先确认：分支必须是 ddd；HEAD 必须 >= 2e4c4923（当前参考 HEAD=4a4f4457）。
 
 强约束（必须严格执行）：
 - 只做重构，不改业务语义；缓存/日志/异常文案/副作用顺序完全不变
