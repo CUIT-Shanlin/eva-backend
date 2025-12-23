@@ -520,6 +520,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
    - 菜单写侧主链路（`MenuUpdateGatewayImpl.updateMenuInfo/deleteMenu/deleteMultipleMenu/createMenu`）已收敛到 `bc-iam`（保持行为不变；落地提交：`f022c415`）。
    - 角色写侧剩余入口（`RoleUpdateGatewayImpl.updateRoleInfo/updateRoleStatus/deleteRole/createRole`）已收敛到 `bc-iam`（保持行为不变；落地提交：`64fadb20`）。
 10) **AI 报告 / 审计日志模块化（建议）**：启动 `bc-ai-report` / `bc-audit` 最小骨架，并优先挑选 1 条写链路按同套路收敛（保持行为不变）。
+   - 进展：已完成骨架与组合根 wiring（提交点 A：`a30a1ff9`）；已完成审计日志写链路收敛（提交点 B：`b0b72263`）；已完成 AI 报告导出链路收敛（提交点 B2：`c68b3174`）。
 11) ✅ **BC 自包含三层结构试点（`bc-iam`，阶段 1：适配器归属）**：已引入 `bc-iam-infra` Maven 子模块骨架并接入组合根，且已将 `bciam/adapter/*` 端口适配器从 `eva-infra` 迁移到 `bc-iam-infra`（保持行为不变；落地提交：`42a6f66f/070068ec/03ceb685/02b3e8aa/6b9d2ce7/5aecc747/1c3d4b8c`）。
    - 说明：阶段 2（IAM DAL 抽离 + shared 拆分 + 去依赖）已完成，`bc-iam-infra` 已不再依赖 `eva-infra`（落地提交：`2ad911ea`；保持行为不变）。
 

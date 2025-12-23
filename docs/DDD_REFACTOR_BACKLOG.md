@@ -114,7 +114,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - 提交点 C2（记录主题，第一步）：已从 `EvaQueryRepo` 抽出 `EvaRecordQueryRepo`，并将 `EvaRecordQueryPortImpl` 的依赖收敛到该接口（口径/异常文案不变；落地提交：`cae1a15c`）。
 - 提交点 C3（任务主题，第一步）：已从 `EvaQueryRepo` 抽出 `EvaTaskQueryRepo`，并将 `EvaTaskQueryPortImpl` 的依赖收敛到该接口（口径/异常文案不变；落地提交：`82427967`）。
 - 提交点 C4（模板主题，第一步）：已从 `EvaQueryRepo` 抽出 `EvaTemplateQueryRepo`，并将 `EvaTemplateQueryPortImpl` 的依赖收敛到该接口（口径/异常文案不变；落地提交：`889ec9b0`）。
-- 提交点 B2（AI 报告写链路，导出）：`AiCourseAnalysisService.exportDocData` 收敛为“用例 + 端口 + 端口适配器 + 旧入口委托壳”（日志/异常文案不变；落地提交：`c68b3174`）。
+- 文档：汇总当前重构总进度并同步状态（落地提交：`bd9c6d7e`）。
 
 **已完成（2025-12-22）**
 - `bc-iam-infra` 阶段 2（IAM DAL 抽离 + shared 拆分 + 去依赖）已闭环完成（关键落地：`2ad911ea`；细节见 `NEXT_SESSION_HANDOFF.md`；保持行为不变）。

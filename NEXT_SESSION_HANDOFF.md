@@ -29,6 +29,7 @@
 - ✅ 提交点 C3（读侧继续拆，任务主题）：从 `EvaQueryRepo` 抽出 `EvaTaskQueryRepo`，并将 `EvaTaskQueryPortImpl` 依赖收敛到该接口（口径/异常文案不变；落地提交：`82427967`）。
 - ✅ 提交点 C4（读侧继续拆，模板主题）：从 `EvaQueryRepo` 抽出 `EvaTemplateQueryRepo`，并将 `EvaTemplateQueryPortImpl` 依赖收敛到该接口（口径/异常文案不变；落地提交：`889ec9b0`）。
 - ✅ 提交点 B2（AI 报告写链路，导出）：`AiCourseAnalysisService.exportDocData` 收敛为“用例 + 端口 + 端口适配器 + 旧入口委托壳”（日志/异常文案不变；落地提交：`c68b3174`）。
+- ✅ 文档：汇总当前重构总进度并同步状态（落地提交：`bd9c6d7e`）。
 - ✅ 以上每步最小回归均已通过（Java17）：  
   - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
 
