@@ -555,7 +555,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - ✅ 提交点 C5-1（统计主题实现拆分）：新增 `EvaStatisticsQueryRepository` 承接 `EvaStatisticsQueryRepo` 实现，`EvaQueryRepository` 的统计方法退化为委托（口径/异常文案不变；落地提交：`9e0a8d28`）
   - ✅ 提交点 C5-2（记录主题实现拆分）：新增 `EvaRecordQueryRepository` 承接 `EvaRecordQueryRepo` 实现，`EvaQueryRepository` 的记录方法退化为委托（口径/异常文案不变；落地提交：`985f7802`）
   - ✅ 提交点 C5-3（任务主题实现拆分）：新增 `EvaTaskQueryRepository` 承接 `EvaTaskQueryRepo` 实现，`EvaQueryRepository` 的任务方法退化为委托（口径/异常文案不变；落地提交：`d467c65e`）
-  - 提交点 C（后续）：继续按主题拆评教读侧（接口已完成统计/记录/任务/模板四主题拆分；下一步聚焦拆 `EvaQueryRepository` 的实现），并让对应 QueryPort 依赖逐步收敛（口径/异常文案不变）
+  - ⏳ 提交点 C5-4（模板主题实现拆分）：新增 `EvaTemplateQueryRepository` 承接 `EvaTemplateQueryRepo` 实现，`EvaQueryRepository` 的模板方法退化为委托（口径/异常文案不变）
+  - 提交点 C（后续）：在 C5-4 完成后，视情况继续把 `EvaQueryRepository` 剩余私有工具/实体组装进一步内聚（仍保持口径/异常文案不变）
 
 #### 条目 25（定义 / 边界 / 验收口径）
 

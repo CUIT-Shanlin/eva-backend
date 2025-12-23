@@ -30,10 +30,10 @@
 - ✅ 提交点 C4（读侧继续拆，模板主题）：从 `EvaQueryRepo` 抽出 `EvaTemplateQueryRepo`，并将 `EvaTemplateQueryPortImpl` 依赖收敛到该接口（口径/异常文案不变；落地提交：`889ec9b0`）。
 - ✅ 提交点 B2（AI 报告写链路，导出）：`AiCourseAnalysisService.exportDocData` 收敛为“用例 + 端口 + 端口适配器 + 旧入口委托壳”（日志/异常文案不变；落地提交：`c68b3174`）。
 - ✅ 提交点 B3（AI 报告写链路，导出）：`AiCourseAnalysisService.exportDocData` 进一步退化为“纯委托壳”（把 userId 解析/analysis 编排从旧入口迁出；保持行为不变；落地提交：`7f4b3358`）。
-- ✅ 提交点 C5-1（读侧实现继续拆，统计主题）：新增 `EvaStatisticsQueryRepository` 承接 `EvaStatisticsQueryRepo` 实现，`EvaQueryRepository` 中对应方法退化为委托（口径/异常文案不变；落地提交：`9e0a8d28`）。
-- ✅ 提交点 C5-2（读侧实现继续拆，记录主题）：新增 `EvaRecordQueryRepository` 承接 `EvaRecordQueryRepo` 实现，`EvaQueryRepository` 中对应方法退化为委托（口径/异常文案不变；落地提交：`985f7802`）。
-- ✅ 提交点 C5-3（读侧实现继续拆，任务主题）：新增 `EvaTaskQueryRepository` 承接 `EvaTaskQueryRepo` 实现，`EvaQueryRepository` 中对应方法退化为委托（口径/异常文案不变；落地提交：`d467c65e`）。
-- ✅ 文档：汇总当前重构总进度并同步状态（落地提交：`bd9c6d7e`）。
+- ✅ 提交点 C5-1（读侧实现继续拆，统计主题）：新增 `EvaStatisticsQueryRepository` 承接 `EvaStatisticsQueryRepo` 实现，`EvaQueryRepository` 中对应方法退化为委托（口径/异常文案不变；落地提交：`9e0a8d28`；三文档同步：`61b0dfa4`）。
+- ✅ 提交点 C5-2（读侧实现继续拆，记录主题）：新增 `EvaRecordQueryRepository` 承接 `EvaRecordQueryRepo` 实现，`EvaQueryRepository` 中对应方法退化为委托（口径/异常文案不变；落地提交：`985f7802`；三文档同步：`68895003`）。
+- ✅ 提交点 C5-3（读侧实现继续拆，任务主题）：新增 `EvaTaskQueryRepository` 承接 `EvaTaskQueryRepo` 实现，`EvaQueryRepository` 中对应方法退化为委托（口径/异常文案不变；落地提交：`d467c65e`；三文档同步：`ebff7002`）。
+- ✅ 文档：本次会话三文档同步提交链（按发生顺序）：`c0f7362b/61b0dfa4/68895003/ebff7002`。
 - ✅ 以上每步最小回归均已通过（Java17）：  
   - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
 
@@ -52,9 +52,9 @@
 - ✅ 提交点 C4（读侧继续拆，模板主题）：已完成（`EvaTemplateQueryRepo` 抽取 + 端口依赖收敛；落地提交：`889ec9b0`）。
 - ✅ 提交点 B2（AI 报告写链路，导出）：已完成（`AiCourseAnalysisService.exportDocData` 收敛；落地提交：`c68b3174`）。
 - ✅ 提交点 B3（可选，AI 报告写链路继续瘦身委托壳）：已完成（`AiCourseAnalysisService.exportDocData` 进一步退化为纯委托壳；落地提交：`7f4b3358`）。
-- ✅ 提交点 C5-1（读侧实现继续拆，统计主题）：已完成（抽出 `EvaStatisticsQueryRepository`；落地提交：`9e0a8d28`）。
-- ✅ 提交点 C5-2（读侧实现继续拆，记录主题）：已完成（抽出 `EvaRecordQueryRepository`；落地提交：`985f7802`）。
-- ✅ 提交点 C5-3（读侧实现继续拆，任务主题）：已完成（抽出 `EvaTaskQueryRepository`；落地提交：`d467c65e`）。
+- ✅ 提交点 C5-1（读侧实现继续拆，统计主题）：已完成（抽出 `EvaStatisticsQueryRepository`；落地提交：`9e0a8d28`；三文档同步：`61b0dfa4`）。
+- ✅ 提交点 C5-2（读侧实现继续拆，记录主题）：已完成（抽出 `EvaRecordQueryRepository`；落地提交：`985f7802`；三文档同步：`68895003`）。
+- ✅ 提交点 C5-3（读侧实现继续拆，任务主题）：已完成（抽出 `EvaTaskQueryRepository`；落地提交：`d467c65e`；三文档同步：`ebff7002`）。
 
 下一会话建议（继续按“每步=回归+提交+三文档同步”）：
 1) **C5-4（读侧实现继续拆，模板主题）**：抽出 `EvaTemplateQueryRepository` 承接 `EvaTemplateQueryRepo` 实现，并让 `EvaQueryRepository` 的模板主题方法退化为委托（保持口径/异常文案不变）。
@@ -119,6 +119,7 @@
 - 提交点 C5-1（统计主题实现拆分）：已抽出 `EvaStatisticsQueryRepository`（`9e0a8d28`）
 - 提交点 C5-2（记录主题实现拆分）：已抽出 `EvaRecordQueryRepository`（`985f7802`）
 - 提交点 C5-3（任务主题实现拆分）：已抽出 `EvaTaskQueryRepository`（`d467c65e`）
+  - 三文档同步提交：`61b0dfa4/68895003/ebff7002`
 
 下一步提交点（建议优先级）：
 1) C5-4：继续拆 `EvaQueryRepository` 的实现（模板主题，行为不变）
