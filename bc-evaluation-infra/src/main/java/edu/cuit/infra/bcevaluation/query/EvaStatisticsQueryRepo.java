@@ -1,6 +1,10 @@
 package edu.cuit.infra.bcevaluation.query;
 
-import edu.cuit.client.dto.clientobject.eva.*;
+import edu.cuit.client.dto.clientobject.eva.EvaScoreInfoCO;
+import edu.cuit.client.dto.clientobject.eva.EvaSituationCO;
+import edu.cuit.client.dto.clientobject.eva.EvaWeekAddCO;
+import edu.cuit.client.dto.clientobject.eva.PastTimeEvaDetailCO;
+import edu.cuit.client.dto.clientobject.eva.ScoreRangeCourseCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
 import edu.cuit.client.dto.query.PagingQuery;
@@ -42,4 +46,3 @@ public interface EvaStatisticsQueryRepo {
 
     List<Integer> getCountAbEva(Integer semId, Integer userId);
 }
-
