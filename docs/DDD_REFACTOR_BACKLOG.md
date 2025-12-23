@@ -111,6 +111,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - 条目 25 / 提交点 B：审计日志写入 `LogGatewayImpl.insertLog` 收敛为“用例 + 端口 + 适配器 + 旧 gateway 委托壳”（保持行为不变；落地提交：`b0b72263`）。
 - 提交点 C（统计主题，第一步）：已从 `EvaQueryRepo` 抽出 `EvaStatisticsQueryRepo`，并将 `EvaStatisticsQueryPortImpl` 的依赖收敛到该接口（统计口径/异常文案不变；落地提交：`d5b07247`）。
 - 提交点 C2（记录主题，第一步）：已从 `EvaQueryRepo` 抽出 `EvaRecordQueryRepo`，并将 `EvaRecordQueryPortImpl` 的依赖收敛到该接口（口径/异常文案不变；落地提交：`cae1a15c`）。
+- 提交点 C3（任务主题，第一步）：已从 `EvaQueryRepo` 抽出 `EvaTaskQueryRepo`，并将 `EvaTaskQueryPortImpl` 的依赖收敛到该接口（口径/异常文案不变；落地提交：`82427967`）。
 
 **已完成（2025-12-22）**
 - `bc-iam-infra` 阶段 2（IAM DAL 抽离 + shared 拆分 + 去依赖）已闭环完成（关键落地：`2ad911ea`；细节见 `NEXT_SESSION_HANDOFF.md`；保持行为不变）。
@@ -188,7 +189,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 1) AI 报告 / 审计日志（条目 25）：已完成提交点 A（模块骨架 + 组合根 wiring；落地提交：`a30a1ff9`），已完成提交点 B（审计日志写入 `LogGatewayImpl.insertLog`；落地提交：`b0b72263`）  
    - 边界：条目 25 = 提交点 A + 提交点 B；不包含提交点 C（读侧 `EvaQueryRepo` 拆分）。
    - 验收：缓存/日志/异常文案/副作用顺序完全不变 + 最小回归通过（以 `NEXT_SESSION_HANDOFF.md` 为准）。
-2) 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分（保持口径不变；已拆统计：`d5b07247`，已拆记录：`cae1a15c`，待继续拆任务/模板）
+2) 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分（保持口径不变；已拆统计：`d5b07247`，已拆记录：`cae1a15c`，已拆任务：`82427967`，待继续拆模板）
 
 ---
 

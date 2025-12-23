@@ -26,6 +26,7 @@
   - 行为快照（必须保持）：旧 `LogGatewayImpl.insertLog` 仍在同一处通过 `CompletableFuture.runAsync(..., executor)` 异步触发；异步线程内的字段补齐与 `logMapper.insert` 已搬运到 `bc-audit` 的端口适配器（无异常文案/缓存副作用变化）。
 - ✅ 提交点 C（读侧继续拆，统计主题）：从 `EvaQueryRepo` 抽出 `EvaStatisticsQueryRepo`，并将 `EvaStatisticsQueryPortImpl` 依赖收敛到该接口（统计口径/异常文案不变；落地提交：`d5b07247`）。
 - ✅ 提交点 C2（读侧继续拆，记录主题）：从 `EvaQueryRepo` 抽出 `EvaRecordQueryRepo`，并将 `EvaRecordQueryPortImpl` 依赖收敛到该接口（口径/异常文案不变；落地提交：`cae1a15c`）。
+- ✅ 提交点 C3（读侧继续拆，任务主题）：从 `EvaQueryRepo` 抽出 `EvaTaskQueryRepo`，并将 `EvaTaskQueryPortImpl` 依赖收敛到该接口（口径/异常文案不变；落地提交：`82427967`）。
 - ✅ 以上每步最小回归均已通过（Java17）：  
   - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
 
@@ -40,11 +41,11 @@
 - ✅ 提交点 B（写侧收敛，挑 1 条链路）：已完成（审计日志写入 `LogGatewayImpl.insertLog`；落地提交：`b0b72263`）。
 - ✅ 提交点 C（读侧继续拆，统计主题）：已完成第一步（`EvaStatisticsQueryRepo` 抽取 + 端口依赖收敛；落地提交：`d5b07247`）。
 - ✅ 提交点 C2（读侧继续拆，记录主题）：已完成（`EvaRecordQueryRepo` 抽取 + 端口依赖收敛；落地提交：`cae1a15c`）。
+- ✅ 提交点 C3（读侧继续拆，任务主题）：已完成（`EvaTaskQueryRepo` 抽取 + 端口依赖收敛；落地提交：`82427967`）。
 
 下一会话建议（继续按“每步=回归+提交+三文档同步”）：
-1) **C3（读侧继续拆，任务主题）**：从 `EvaQueryRepo` 抽 `EvaTaskQueryRepo`，并让“任务读侧端口”依赖收敛到该接口（口径/异常文案不变）。  
-2) **C4（读侧继续拆，模板主题）**：从 `EvaQueryRepo` 抽 `EvaTemplateQueryRepo`，并收敛模板读侧依赖（口径/异常文案不变）。  
-3) **B2（可选，AI 报告写链路再收敛一条）**：优先从 `AiCourseAnalysisService` 的报告导出/保存相关链路挑 1 条写链路，按同套路收敛（缓存/日志/异常文案/副作用顺序完全不变）。
+1) **C4（读侧继续拆，模板主题）**：从 `EvaQueryRepo` 抽 `EvaTemplateQueryRepo`，并收敛模板读侧依赖（口径/异常文案不变）。  
+2) **B2（可选，AI 报告写链路再收敛一条）**：优先从 `AiCourseAnalysisService` 的报告导出/保存相关链路挑 1 条写链路，按同套路收敛（缓存/日志/异常文案/副作用顺序完全不变）。
 
 ### 条目 25（定义 / 边界 / 验收口径）
 
@@ -89,11 +90,11 @@
 - 提交点 B：审计日志写入 `LogGatewayImpl.insertLog` 已按“用例+端口+适配器+委托壳”收敛（`b0b72263`）
 - 提交点 C（统计主题）：已抽出 `EvaStatisticsQueryRepo` 并收敛端口依赖（`d5b07247`）
 - 提交点 C2（记录主题）：已抽出 `EvaRecordQueryRepo` 并收敛端口依赖（`cae1a15c`）
+- 提交点 C3（任务主题）：已抽出 `EvaTaskQueryRepo` 并收敛端口依赖（`82427967`）
 
 下一步提交点（建议优先级）：
-1) C3：继续拆 `EvaQueryRepo`（任务主题），只做结构化，口径/异常文案不变
-2) C4：继续拆 `EvaQueryRepo`（模板主题），只做结构化，口径/异常文案不变
-3) B2（可选）：从 AI 报告链路再挑 1 条写链路做同套路收敛（行为不变）
+1) C4：继续拆 `EvaQueryRepo`（模板主题），只做结构化，口径/异常文案不变
+2) B2（可选）：从 AI 报告链路再挑 1 条写链路做同套路收敛（行为不变）
 
 每步最小回归命令（每步结束都跑）：
 export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\"$JAVA_HOME/bin:$PATH\" \\
