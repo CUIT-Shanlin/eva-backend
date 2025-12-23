@@ -100,6 +100,7 @@ public class EvaQueryRepository implements EvaQueryRepo {
     private final EvaStatisticsQueryRepository evaStatisticsQueryRepository;
     private final EvaRecordQueryRepository evaRecordQueryRepository;
     private final EvaTaskQueryRepository evaTaskQueryRepository;
+    private final EvaTemplateQueryRepository evaTemplateQueryRepository;
 
     @Override
     public PaginationResultEntity<EvaRecordEntity> pageEvaRecord(Integer semId, PagingQuery<EvaLogConditionalQuery> query) {
@@ -113,23 +114,7 @@ public class EvaQueryRepository implements EvaQueryRepo {
 
     @Override
     public PaginationResultEntity<EvaTemplateEntity> pageEvaTemplate(Integer semId, PagingQuery<GenericConditionalQuery> query) {
-
-        Page<FormTemplateDO> page =new Page<>(query.getPage(),query.getSize());
-        QueryWrapper<FormTemplateDO> queryWrapper = new QueryWrapper<>();
-        QueryUtils.fileTimeQuery(queryWrapper,query.getQueryObj());
-        if(query.getQueryObj().getKeyword()!=null&&StringUtils.isNotBlank(query.getQueryObj().getKeyword())){
-            queryWrapper.like(query.getQueryObj().getKeyword()!=null,"name",query.getQueryObj().getKeyword());
-        }
-        queryWrapper.orderByDesc("create_time");
-        Page<FormTemplateDO> formTemplateDOPage = formTemplateMapper.selectPage(page, queryWrapper);
-        if(CollectionUtil.isEmpty(formTemplateDOPage.getRecords())){
-            List list=new ArrayList();
-            return paginationConverter.toPaginationEntity(page,list);
-        }
-
-        List<EvaTemplateEntity> evaTemplateEntities=formTemplateDOPage.getRecords().stream().map(pageEvaTemplateDO -> evaConvertor.ToEvaTemplateEntity(pageEvaTemplateDO)).toList();
-        return paginationConverter.toPaginationEntity(page,evaTemplateEntities);
-
+        return evaTemplateQueryRepository.pageEvaTemplate(semId, query);
     }
 
 
@@ -206,43 +191,7 @@ public class EvaQueryRepository implements EvaQueryRepo {
 //zjok
     @Override
     public Optional<String> getTaskTemplate(Integer taskId, Integer semId) {
-        //任务
-        List<Integer> evaTaskIdS=getEvaTaskIdS(semId);
-        if(CollectionUtil.isEmpty(evaTaskIdS)){
-            throw new QueryException("并没有找到相关任务");
-        }
-        EvaTaskDO evaTaskDO=evaTaskMapper.selectOne(new QueryWrapper<EvaTaskDO>().in("id",evaTaskIdS).eq("id",taskId));
-        if(evaTaskDO==null){
-            throw new QueryException("无法找到该任务");
-        }
-        CourInfDO courInfDO=courInfMapper.selectById(evaTaskDO.getCourInfId());
-        if(courInfDO==null){
-            throw new QueryException("并没有找到相关课程详情");
-        }
-        //1.直接去快照那边拿到
-        CourOneEvaTemplateDO courOneEvaTemplateDO=courOneEvaTemplateMapper.selectOne(new QueryWrapper<CourOneEvaTemplateDO>().eq("course_id",courInfDO.getCourseId()));
-        //2.去课程那边拿到
-        CourseDO courseDO=courseMapper.selectById(courInfDO.getCourseId());
-        FormTemplateDO formTemplateDO=formTemplateMapper.selectOne(new QueryWrapper<FormTemplateDO>().eq("id",courseDO.getTemplateId()));
-
-        if(courOneEvaTemplateDO==null&&formTemplateDO==null){
-            throw new QueryException("快照模板和评教模板都没有相关数据");
-        }
-
-        if(courOneEvaTemplateDO!=null){
-            if(courOneEvaTemplateDO.getFormTemplate()==null){
-                return Optional.empty();
-            }
-            String s1 = CourseFormat.toFormat(courOneEvaTemplateDO.getFormTemplate());
-            JSONObject jsonObject= new JSONObject(s1);
-            String s=jsonObject.getStr("props");
-            return Optional.of(s);
-        }else {
-            if(formTemplateDO.getProps()==null){
-                return Optional.empty();
-            }
-            return Optional.of(formTemplateDO.getProps());
-        }
+        return evaTemplateQueryRepository.getTaskTemplate(taskId, semId);
     }
 
     @Override
@@ -252,20 +201,7 @@ public class EvaQueryRepository implements EvaQueryRepo {
 
     @Override
     public List<EvaTemplateEntity> getAllTemplate() {
-        List<FormTemplateDO> getCached=localCacheManager.getCache(null,evaCacheConstants.TEMPLATE_LIST);
-        if(CollectionUtil.isEmpty(getCached)) {
-            List<FormTemplateDO> formTemplateDOS = formTemplateMapper.selectList(null);
-            localCacheManager.putCache(null,evaCacheConstants.TEMPLATE_LIST,formTemplateDOS);
-            getCached=localCacheManager.getCache(null,evaCacheConstants.TEMPLATE_LIST);
-            if (CollectionUtil.isEmpty(formTemplateDOS)) {
-                List list = new ArrayList();
-                return list;
-            }
-            List<EvaTemplateEntity> evaTemplateEntities = formTemplateDOS.stream().map(formTemplateDO -> evaConvertor.ToEvaTemplateEntity(formTemplateDO)).toList();
-            return evaTemplateEntities;
-        }else {
-            return getCached.stream().map(formTemplateDO -> evaConvertor.ToEvaTemplateEntity(formTemplateDO)).toList();
-        }
+        return evaTemplateQueryRepository.getAllTemplate();
     }
 
     @Override
