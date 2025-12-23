@@ -17,7 +17,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class EvaTaskQueryPortImpl implements EvaTaskQueryPort {
-    private final EvaQueryRepo repo;
+    private final EvaTaskQueryRepo repo;
 
     @Override
     public PaginationResultEntity<EvaTaskEntity> pageEvaUnfinishedTask(Integer semId, PagingQuery<EvaTaskConditionalQuery> taskQuery) {
