@@ -17,7 +17,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class EvaTemplateQueryPortImpl implements EvaTemplateQueryPort {
-    private final EvaQueryRepo repo;
+    private final EvaTemplateQueryRepo repo;
 
     @Override
     public PaginationResultEntity<EvaTemplateEntity> pageEvaTemplate(Integer semId, PagingQuery<GenericConditionalQuery> query) {
