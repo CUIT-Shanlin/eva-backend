@@ -548,7 +548,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - ✅ 提交点 C（统计主题，第一步）：读侧拆分 `EvaQueryRepo` 的统计接口为 `EvaStatisticsQueryRepo`，并让 `EvaStatisticsQueryPortImpl` 依赖收敛（统计口径不变；落地提交：`d5b07247`）
   - ✅ 提交点 C2（记录主题）：读侧拆分 `EvaQueryRepo` 的记录接口为 `EvaRecordQueryRepo`，并让 `EvaRecordQueryPortImpl` 依赖收敛（口径/异常文案不变；落地提交：`cae1a15c`）
   - ✅ 提交点 C3（任务主题）：读侧拆分 `EvaQueryRepo` 的任务接口为 `EvaTaskQueryRepo`，并让 `EvaTaskQueryPortImpl` 依赖收敛（口径/异常文案不变；落地提交：`82427967`）
-  - 提交点 C（后续）：继续按主题拆 `EvaQueryRepo`（优先模板），并让对应 QueryPort 依赖逐步收敛（口径/异常文案不变）
+  - ✅ 提交点 C4（模板主题）：读侧拆分 `EvaQueryRepo` 的模板接口为 `EvaTemplateQueryRepo`，并让 `EvaTemplateQueryPortImpl` 依赖收敛（口径/异常文案不变；落地提交：`889ec9b0`）
+  - 提交点 C（后续）：继续按主题拆 `EvaQueryRepo`（已完成统计/记录/任务/模板四主题的接口拆分，后续再视情况继续细分），并让对应 QueryPort 依赖逐步收敛（口径/异常文案不变）
 
 #### 条目 25（定义 / 边界 / 验收口径）
 
