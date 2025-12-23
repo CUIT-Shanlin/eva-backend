@@ -114,6 +114,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - 提交点 C5-1（读侧实现继续拆，统计主题）：新增 `EvaStatisticsQueryRepository` 承接 `EvaStatisticsQueryRepo` 实现，`EvaQueryRepository` 的统计方法退化为委托（口径/异常文案不变；落地提交：`9e0a8d28`）。
 - 提交点 C5-2（读侧实现继续拆，记录主题）：新增 `EvaRecordQueryRepository` 承接 `EvaRecordQueryRepo` 实现，`EvaQueryRepository` 的记录方法退化为委托（口径/异常文案不变；落地提交：`985f7802`）。
 - 提交点 C5-3（读侧实现继续拆，任务主题）：新增 `EvaTaskQueryRepository` 承接 `EvaTaskQueryRepo` 实现，`EvaQueryRepository` 的任务方法退化为委托（口径/异常文案不变；落地提交：`d467c65e`）。
+- 提交点 C5-4（读侧实现继续拆，模板主题）：新增 `EvaTemplateQueryRepository` 承接 `EvaTemplateQueryRepo` 实现，`EvaQueryRepository` 的模板方法退化为委托（口径/异常文案不变；落地提交：`a550675a`）。
 - 提交点 C（统计主题，第一步）：已从 `EvaQueryRepo` 抽出 `EvaStatisticsQueryRepo`，并将 `EvaStatisticsQueryPortImpl` 的依赖收敛到该接口（统计口径/异常文案不变；落地提交：`d5b07247`）。
 - 提交点 C2（记录主题，第一步）：已从 `EvaQueryRepo` 抽出 `EvaRecordQueryRepo`，并将 `EvaRecordQueryPortImpl` 的依赖收敛到该接口（口径/异常文案不变；落地提交：`cae1a15c`）。
 - 提交点 C3（任务主题，第一步）：已从 `EvaQueryRepo` 抽出 `EvaTaskQueryRepo`，并将 `EvaTaskQueryPortImpl` 的依赖收敛到该接口（口径/异常文案不变；落地提交：`82427967`）。
@@ -197,7 +198,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
    - 补充进展（条目 25 之外）：已完成提交点 B2（AI 报告导出链路收敛；落地提交：`c68b3174`）；已完成提交点 B3（旧入口进一步退化为纯委托壳；落地提交：`7f4b3358`）。
    - 边界：条目 25 = 提交点 A + 提交点 B；不包含提交点 C（读侧 `EvaQueryRepo` 拆分）。
    - 验收：缓存/日志/异常文案/副作用顺序完全不变 + 最小回归通过（以 `NEXT_SESSION_HANDOFF.md` 为准）。
-2) 读侧：`EvaQueryRepository` 仍为大聚合查询实现，需继续拆分（保持口径/异常文案不变；接口已完成统计/记录/任务/模板四主题拆分：`d5b07247/cae1a15c/82427967/889ec9b0`；实现侧已完成统计/记录/任务主题拆分：`9e0a8d28/985f7802/d467c65e`；下一步优先 C5-4：模板主题实现拆分）
+2) 读侧：`EvaQueryRepository` 的实现侧已按主题拆分并退化为委托壳（保持口径/异常文案不变；接口拆分：`d5b07247/cae1a15c/82427967/889ec9b0`；实现拆分：`9e0a8d28/985f7802/d467c65e/a550675a`），后续可选继续内聚残留私有工具/实体组装到对应主题仓储（仍保持行为不变）
 
 ---
 
@@ -314,7 +315,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 如果继续按“写侧优先”的策略推进，下一批候选（高 → 低）建议是：
 
 1) AI 报告：继续将 `AiCourseAnalysisService` 等入口的写链路收敛到 `bc-ai-report`（当前已完成导出链路 B2：`c68b3174`；旧入口已进一步退化为纯委托壳 B3：`7f4b3358`；后续可继续收敛“保存/落库/记录”等链路），保持行为不变  
-2) 评教读侧：在接口已按主题拆分（统计/记录/任务/模板）且实现侧已完成统计/记录/任务主题拆分后，继续拆 `EvaQueryRepository` 的实现为更小的类（下一步优先 C5-4：模板主题实现拆分；保持口径/异常文案不变）  
+2) 评教读侧：接口与实现均已按主题拆分（统计/记录/任务/模板），`EvaQueryRepository` 已退化委托壳（保持口径/异常文案不变）。后续优先级可选：将 QueryPort 逐步迁移到 `bc-evaluation` 应用层，`eva-infra` 仅保留实现（仍保持行为不变）  
 
 ---
 
