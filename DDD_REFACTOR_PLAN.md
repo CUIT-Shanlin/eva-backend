@@ -552,6 +552,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - ✅ 提交点 C4（模板主题）：读侧拆分 `EvaQueryRepo` 的模板接口为 `EvaTemplateQueryRepo`，并让 `EvaTemplateQueryPortImpl` 依赖收敛（口径/异常文案不变；落地提交：`889ec9b0`）
   - ✅ 提交点 B2（AI 报告写链路，导出）：`AiCourseAnalysisService.exportDocData` 收敛为“用例 + 端口 + 端口适配器 + 旧入口委托壳”（日志/异常文案不变；落地提交：`c68b3174`）
   - ✅ 提交点 B3（AI 报告写链路，导出）：`AiCourseAnalysisService.exportDocData` 进一步退化为“纯委托壳”（日志/异常文案不变；落地提交：`7f4b3358`）
+  - ✅ 提交点 C5-1（统计主题实现拆分）：新增 `EvaStatisticsQueryRepository` 承接 `EvaStatisticsQueryRepo` 实现，`EvaQueryRepository` 的统计方法退化为委托（口径/异常文案不变；落地提交：`9e0a8d28`）
   - 提交点 C（后续）：继续按主题拆评教读侧（接口已完成统计/记录/任务/模板四主题拆分；下一步聚焦拆 `EvaQueryRepository` 的实现），并让对应 QueryPort 依赖逐步收敛（口径/异常文案不变）
 
 #### 条目 25（定义 / 边界 / 验收口径）
