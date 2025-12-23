@@ -28,6 +28,7 @@
 - ✅ 提交点 C2（读侧继续拆，记录主题）：从 `EvaQueryRepo` 抽出 `EvaRecordQueryRepo`，并将 `EvaRecordQueryPortImpl` 依赖收敛到该接口（口径/异常文案不变；落地提交：`cae1a15c`）。
 - ✅ 提交点 C3（读侧继续拆，任务主题）：从 `EvaQueryRepo` 抽出 `EvaTaskQueryRepo`，并将 `EvaTaskQueryPortImpl` 依赖收敛到该接口（口径/异常文案不变；落地提交：`82427967`）。
 - ✅ 提交点 C4（读侧继续拆，模板主题）：从 `EvaQueryRepo` 抽出 `EvaTemplateQueryRepo`，并将 `EvaTemplateQueryPortImpl` 依赖收敛到该接口（口径/异常文案不变；落地提交：`889ec9b0`）。
+- ✅ 提交点 B2（AI 报告写链路，导出）：`AiCourseAnalysisService.exportDocData` 收敛为“用例 + 端口 + 端口适配器 + 旧入口委托壳”（日志/异常文案不变；落地提交：`c68b3174`）。
 - ✅ 以上每步最小回归均已通过（Java17）：  
   - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
 
@@ -44,9 +45,11 @@
 - ✅ 提交点 C2（读侧继续拆，记录主题）：已完成（`EvaRecordQueryRepo` 抽取 + 端口依赖收敛；落地提交：`cae1a15c`）。
 - ✅ 提交点 C3（读侧继续拆，任务主题）：已完成（`EvaTaskQueryRepo` 抽取 + 端口依赖收敛；落地提交：`82427967`）。
 - ✅ 提交点 C4（读侧继续拆，模板主题）：已完成（`EvaTemplateQueryRepo` 抽取 + 端口依赖收敛；落地提交：`889ec9b0`）。
+- ✅ 提交点 B2（AI 报告写链路，导出）：已完成（`AiCourseAnalysisService.exportDocData` 收敛；落地提交：`c68b3174`）。
 
 下一会话建议（继续按“每步=回归+提交+三文档同步”）：
-1) **B2（可选，AI 报告写链路再收敛一条）**：优先从 `AiCourseAnalysisService` 的报告导出/保存相关链路挑 1 条写链路，按同套路收敛（缓存/日志/异常文案/副作用顺序完全不变）。
+1) **B3（可选，AI 报告写链路继续瘦身委托壳）**：将 `AiCourseAnalysisService.exportDocData` 进一步退化为“纯委托壳”（把 userId 解析/analysis 编排也迁到 `bc-ai-report` 用例 + 端口），保持行为不变。  
+2) **C5（读侧实现继续拆）**：将 `EvaQueryRepository` 按统计/记录/任务/模板拆为更小的实现类（接口已拆完；保持口径/异常文案不变）。
 
 ### 条目 25（定义 / 边界 / 验收口径）
 
@@ -93,9 +96,11 @@
 - 提交点 C2（记录主题）：已抽出 `EvaRecordQueryRepo` 并收敛端口依赖（`cae1a15c`）
 - 提交点 C3（任务主题）：已抽出 `EvaTaskQueryRepo` 并收敛端口依赖（`82427967`）
 - 提交点 C4（模板主题）：已抽出 `EvaTemplateQueryRepo` 并收敛端口依赖（`889ec9b0`）
+- 提交点 B2（AI 报告导出）：`AiCourseAnalysisService.exportDocData` 已按“用例+端口+端口适配器+委托壳”收敛（`c68b3174`）
 
 下一步提交点（建议优先级）：
-1) B2（可选）：从 AI 报告链路再挑 1 条写链路做同套路收敛（行为不变）
+1) B3（可选）：AI 报告导出链路进一步退化为纯委托壳（行为不变）
+2) C5：继续拆 `EvaQueryRepository` 的实现（行为不变）
 
 每步最小回归命令（每步结束都跑）：
 export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\"$JAVA_HOME/bin:$PATH\" \\

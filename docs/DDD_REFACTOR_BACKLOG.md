@@ -113,6 +113,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - 提交点 C2（记录主题，第一步）：已从 `EvaQueryRepo` 抽出 `EvaRecordQueryRepo`，并将 `EvaRecordQueryPortImpl` 的依赖收敛到该接口（口径/异常文案不变；落地提交：`cae1a15c`）。
 - 提交点 C3（任务主题，第一步）：已从 `EvaQueryRepo` 抽出 `EvaTaskQueryRepo`，并将 `EvaTaskQueryPortImpl` 的依赖收敛到该接口（口径/异常文案不变；落地提交：`82427967`）。
 - 提交点 C4（模板主题，第一步）：已从 `EvaQueryRepo` 抽出 `EvaTemplateQueryRepo`，并将 `EvaTemplateQueryPortImpl` 的依赖收敛到该接口（口径/异常文案不变；落地提交：`889ec9b0`）。
+- 提交点 B2（AI 报告写链路，导出）：`AiCourseAnalysisService.exportDocData` 收敛为“用例 + 端口 + 端口适配器 + 旧入口委托壳”（日志/异常文案不变；落地提交：`c68b3174`）。
 
 **已完成（2025-12-22）**
 - `bc-iam-infra` 阶段 2（IAM DAL 抽离 + shared 拆分 + 去依赖）已闭环完成（关键落地：`2ad911ea`；细节见 `NEXT_SESSION_HANDOFF.md`；保持行为不变）。
@@ -306,8 +307,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 如果继续按“写侧优先”的策略推进，下一批候选（高 → 低）建议是：
 
-1) AI 报告：从 `AiCourseAnalysisService` 等入口挑 1 条“写链路”（导出/落库/记录等），按“用例 + 端口 + 适配器 + 旧 gateway 委托壳”继续收敛（保持行为不变）  
-2) 评教读侧继续拆：继续按主题拆 `EvaQueryRepo`（优先记录/任务/模板；统计已抽取 `d5b07247`），保持统计口径不变  
+1) AI 报告：继续将 `AiCourseAnalysisService` 等入口的写链路收敛到 `bc-ai-report`（当前已完成导出链路 B2：`c68b3174`；后续可继续收敛“保存/落库/记录”等链路），保持行为不变  
+2) 评教读侧：在接口已按主题拆分（统计/记录/任务/模板）后，继续拆 `EvaQueryRepository` 的实现为更小的类（保持口径/异常文案不变）  
 
 ---
 
