@@ -2,11 +2,10 @@ package edu.cuit.app.service.impl.ai;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.alibaba.cola.exception.BizException;
-import com.alibaba.cola.exception.SysException;
 import dev.langchain4j.community.model.dashscope.QwenChatModel;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.service.AiServices;
-import edu.cuit.bc.aireport.application.usecase.ExportAiReportDocUseCase;
+import edu.cuit.bc.aireport.application.usecase.ExportAiReportDocByUsernameUseCase;
 import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.client.api.ai.IAiCourseAnalysisService;
 import edu.cuit.client.api.course.IUserCourseService;
@@ -22,11 +21,8 @@ import edu.cuit.infra.ai.aiservice.CourseAiServices;
 import edu.cuit.infra.ai.util.MessageUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,15 +38,11 @@ public class AiCourseAnalysisService implements IAiCourseAnalysisService {
     private final EvaRecordQueryPort evaRecordQueryPort;
     private final UserQueryGateway userQueryGateway;
     private final EvaConfigGateway evaConfigGateway;
-    private final ExportAiReportDocUseCase exportAiReportDocUseCase;
+    private final ExportAiReportDocByUsernameUseCase exportAiReportDocByUsernameUseCase;
 
     private final QwenChatModel qwenMaxChatModel;
     private final QwenChatModel qwenTurboChatModel;
     private final QwenChatModel deepseekChatModel;
-
-    @Autowired
-    @Lazy
-    private IAiCourseAnalysisService iAiCourseAnalysisService;
 
     @Override
     @CheckSemId
@@ -148,21 +140,6 @@ public class AiCourseAnalysisService implements IAiCourseAnalysisService {
 
     @Override
     public byte[] exportDocData(Integer semId) {
-
-        Integer userId = userQueryGateway.findIdByUsername(((String) StpUtil.getLoginId()))
-                .orElseThrow(() -> {
-                    SysException e = new SysException("用户数据查找失败，请联系管理员");
-                    log.error("系统异常", e);
-                    return e;
-                });
-
-        AiAnalysisBO analysis = iAiCourseAnalysisService.analysis(semId, userId);
-        try {
-            return exportAiReportDocUseCase.exportDocData(analysis);
-        } catch (IOException e) {
-            log.error("AI报告导出失败",e);
-            throw new SysException("报告导出失败，请联系管理员");
-        }
-
+        return exportAiReportDocByUsernameUseCase.exportDocData(semId, ((String) StpUtil.getLoginId()));
     }
 }
