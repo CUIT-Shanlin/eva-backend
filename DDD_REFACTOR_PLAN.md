@@ -545,7 +545,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - ✅ 提交点 0（纯文档闭环）：补齐“条目 25”的定义/边界与验收口径（只改文档，不改代码；落地提交：`1adc80bd`），避免新会话对 24/25/26 的分界理解不一致
   - ✅ 提交点 A：启动 `bc-ai-report` / `bc-audit` 最小骨架并接入组合根（仅落点，不迁业务语义；落地提交：`a30a1ff9`）
   - ✅ 提交点 B：为 AI 报告或审计日志挑选 1 条写链路，按“用例 + 端口 + 适配器 + 旧 gateway 委托壳”收敛（审计日志写入：`LogGatewayImpl.insertLog`；保持行为不变；落地提交：`b0b72263`）
-  - ✅ 提交点 C（统计主题）：读侧拆分 `EvaQueryRepo` 的统计接口为 `EvaStatisticsQueryRepo`，并让 `EvaStatisticsQueryPortImpl` 依赖收敛（统计口径不变；落地提交：`d5b07247`）
+  - ✅ 提交点 C（统计主题，第一步）：读侧拆分 `EvaQueryRepo` 的统计接口为 `EvaStatisticsQueryRepo`，并让 `EvaStatisticsQueryPortImpl` 依赖收敛（统计口径不变；落地提交：`d5b07247`）
+  - 提交点 C（后续）：继续按主题拆 `EvaQueryRepo`（优先记录/任务/模板），并让对应 QueryPort 依赖逐步收敛（口径/异常文案不变）
 
 #### 条目 25（定义 / 边界 / 验收口径）
 

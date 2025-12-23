@@ -18,24 +18,15 @@
 - **Port Adapter（基础设施端口适配器）**：过渡期通常落在 `eva-infra/.../bc*/adapter` 或 `bc-*-infra`（子模块），实现 Port 并原样搬运旧 DB/副作用流程（保持行为不变）。
 - **最终形态（目标）**：每个 BC 自含 `domain/application/infrastructure`（模块或至少 package 结构完整），`eva-*` 技术切片逐步退场或仅剩 shared-kernel/组装层。
 
-## 0.9 本次会话增量总结（2025-12-22，更新至 `HEAD`）
+## 0.9 本次会话增量总结（2025-12-23，更新至 `HEAD=14cc9cdd`）
 
-- ✅ 条目 26（`bc-iam-infra` 阶段 2：IAM DAL 抽离 → **去掉对 `eva-infra` 的依赖**）已完成：将 `bc-iam-infra` 适配器仍直接使用的 Converter/LDAP/工具等从 `eva-infra` 迁移到 `eva-infra-shared`（**保持包名不变**），并最终移除 `bc-iam-infra` → `eva-infra` Maven 依赖（保持行为不变）。
-  - 迁移链路（按提交顺序）：  
-    - `54d5fecd`：迁移 `PaginationConverter` 到 `eva-infra-shared`  
-    - `6c798f1b`：迁移 `convertor.user.{MenuConvertor,RoleConverter,UserConverter}` 到 `eva-infra-shared`  
-    - `aca70b8b`：迁移 `edu.cuit.infra.dal.ldap.*`（DO/Repo）到 `eva-infra-shared`（并补齐 `spring-boot-starter-data-ldap`）  
-    - `3165180c`：迁移 `EvaLdapUtils/LdapConstants/EvaLdapProperties` 到 `eva-infra-shared`  
-    - `0dc0ddc8`：迁移 `LdapUserConvertor` 到 `eva-infra-shared`  
-    - `2ad911ea`：移除 `bc-iam-infra` 对 `eva-infra` 的 Maven 依赖（补齐 `zym-spring-boot-starter-cache` + `zym-spring-boot-starter-logging` 编译依赖；保持行为不变）
-  - ✅ 最小回归已通过（Java17）：  
-    - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
-- ✅ 文档同步已完成（交接/计划/Backlog）：`940697fc`
-- ✅ 提交点 0（纯文档闭环）：已补齐“条目 25”的定义/边界与验收口径（本文件 + `DDD_REFACTOR_PLAN.md` + `docs/DDD_REFACTOR_BACKLOG.md`；只改文档，不改代码），避免后续新会话对 24/25/26 的分界理解不一致（落地提交：`1adc80bd`）。
-- ✅ 提交点 A（结构落点，不迁业务）：已启动 `bc-ai-report` / `bc-audit` 最小 Maven 子模块骨架并接入组合根（仅落点与 wiring，不迁业务语义；落地提交：`a30a1ff9`）。
-- ✅ 提交点 B（写侧收敛，选审计日志链路）：已将 **审计日志写入** `LogGatewayImpl.insertLog` 收敛为“用例 + 端口 + 端口适配器 + 旧 gateway 委托壳”（保持行为不变；落地提交：`b0b72263`）。
-  - 行为快照（必须保持）：旧 `LogGatewayImpl.insertLog` 仍在 **同一处** 通过 `CompletableFuture.runAsync(..., executor)` 异步触发；异步线程内的字段补齐与 `logMapper.insert` 已搬运到 `bc-audit` 的端口适配器（无异常文案/缓存副作用变化）。
-- ✅ 提交点 C（读侧继续拆，统计主题）：已从 `EvaQueryRepo` 抽出 `EvaStatisticsQueryRepo`，并将 `EvaStatisticsQueryPortImpl` 的依赖收敛到该接口（仅接口拆分；统计口径/异常文案不变；落地提交：`d5b07247`）。
+- ✅ 提交点 0（纯文档闭环）：补齐“条目 25”的定义/边界与验收口径（只改文档，不改代码；落地提交：`1adc80bd`）。
+- ✅ 提交点 A（结构落点，不迁业务）：启动 `bc-ai-report` / `bc-audit` 最小 Maven 子模块骨架并接入组合根（落地提交：`a30a1ff9`）。
+- ✅ 提交点 B（写侧收敛，选审计日志链路）：审计日志写入 `LogGatewayImpl.insertLog` 收敛为“用例 + 端口 + 端口适配器 + 旧 gateway 委托壳”（落地提交：`b0b72263`）。
+  - 行为快照（必须保持）：旧 `LogGatewayImpl.insertLog` 仍在同一处通过 `CompletableFuture.runAsync(..., executor)` 异步触发；异步线程内的字段补齐与 `logMapper.insert` 已搬运到 `bc-audit` 的端口适配器（无异常文案/缓存副作用变化）。
+- ✅ 提交点 C（读侧继续拆，统计主题）：从 `EvaQueryRepo` 抽出 `EvaStatisticsQueryRepo`，并将 `EvaStatisticsQueryPortImpl` 依赖收敛到该接口（统计口径/异常文案不变；落地提交：`d5b07247`）。
+- ✅ 以上每步最小回归均已通过（Java17）：  
+  - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
 
 ## 0.10 下一步拆分与里程碑/提交点（下一会话开始前先读完本节）
 
@@ -43,10 +34,16 @@
 >
 > 规则提醒：每个小提交都必须做到：Serena 符号级定位/引用分析 → **最小回归** → `git commit` → 同步三份文档（本文件 + `DDD_REFACTOR_PLAN.md` + `docs/DDD_REFACTOR_BACKLOG.md`）。
 
-- ✅ 提交点 0（纯文档闭环）：补齐“条目 25”的定义/边界与验收口径（只改文档，不改代码；落地提交：`1adc80bd`）。
-- ✅ 提交点 A（结构落点，不迁业务）：启动 `bc-ai-report` / `bc-audit` 的最小 Maven 子模块骨架，并接入组合根（仅创建落点与 wiring；落地提交：`a30a1ff9`）。
-- ✅ 提交点 B（写侧收敛，挑 1 条链路）：已完成（审计日志写入链路：`LogGatewayImpl.insertLog`；落地提交：`b0b72263`）。
-- ✅ 提交点 C（读侧继续拆，统计主题）：已完成（`EvaStatisticsQueryRepo` 抽取 + 端口依赖收敛；落地提交：`d5b07247`）。
+- ✅ 提交点 0（纯文档闭环）：已完成（落地提交：`1adc80bd`）。
+- ✅ 提交点 A（结构落点，不迁业务）：已完成（落地提交：`a30a1ff9`）。
+- ✅ 提交点 B（写侧收敛，挑 1 条链路）：已完成（审计日志写入 `LogGatewayImpl.insertLog`；落地提交：`b0b72263`）。
+- ✅ 提交点 C（读侧继续拆，统计主题）：已完成第一步（`EvaStatisticsQueryRepo` 抽取 + 端口依赖收敛；落地提交：`d5b07247`）。
+
+下一会话建议（继续按“每步=回归+提交+三文档同步”）：
+1) **C2（读侧继续拆，优先记录主题）**：从 `EvaQueryRepo` 继续抽 `EvaRecordQueryRepo`，并让“记录读侧端口”依赖收敛到该接口（统计口径/异常文案不变）。  
+2) **C3（读侧继续拆，任务主题）**：从 `EvaQueryRepo` 抽 `EvaTaskQueryRepo`，并让“任务读侧端口”依赖收敛到该接口（口径/异常文案不变）。  
+3) **C4（读侧继续拆，模板主题）**：从 `EvaQueryRepo` 抽 `EvaTemplateQueryRepo`，并收敛模板读侧依赖（口径/异常文案不变）。  
+4) **B2（可选，AI 报告写链路再收敛一条）**：优先从 `AiCourseAnalysisService` 的报告导出/保存相关链路挑 1 条写链路，按同套路收敛（缓存/日志/异常文案/副作用顺序完全不变）。
 
 ### 条目 25（定义 / 边界 / 验收口径）
 
@@ -65,6 +62,43 @@
   3) 提交点 B 所选链路：旧 gateway 退化为委托壳后，**缓存注解/日志/异常文案/副作用顺序完全不变**（以变更前行为快照对照）。
 - 最小回归命令（每步结束必跑，Java17）：  
   - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
+
+## 0.11 新对话开启提示词（直接复制粘贴）
+
+你是资深全栈架构师/技术导师，只用中文回答。
+
+仓库：/home/lystran/programming/java/web/eva-backend  
+先确认：分支必须是 ddd；HEAD 必须 >= 2e4c4923（当前参考 HEAD=14cc9cdd）。
+
+强约束（必须严格执行）：
+- 只做重构，不改业务语义；缓存/日志/异常文案/副作用顺序完全不变
+- 必须使用 Serena 做符号级定位与引用分析
+- 每个小步骤结束：跑最小回归 → git commit → 更新 NEXT_SESSION_HANDOFF.md / DDD_REFACTOR_PLAN.md / docs/DDD_REFACTOR_BACKLOG.md
+- 每次结束对话前：先写清“下一步拆分与里程碑/提交点”
+
+开始前按顺序阅读（重点章节同旧要求）：
+1) NEXT_SESSION_HANDOFF.md（重点看 0.0、0.9、0.10、0.11，以及条目 24/25/26）
+2) DDD_REFACTOR_PLAN.md（重点看 10.2/10.3/10.4）
+3) docs/DDD_REFACTOR_BACKLOG.md（重点看 4.2、4.3、6）
+4) data/ 与 data/doc/（如需核对表/字段语义）
+
+当前状态（已闭环）：
+- 提交点 0：条目 25 定义/边界/验收口径已补齐（`1adc80bd`）
+- 提交点 A：`bc-ai-report` / `bc-audit` 最小骨架已接入组合根（`a30a1ff9`）
+- 提交点 B：审计日志写入 `LogGatewayImpl.insertLog` 已按“用例+端口+适配器+委托壳”收敛（`b0b72263`）
+- 提交点 C（统计主题）：已抽出 `EvaStatisticsQueryRepo` 并收敛端口依赖（`d5b07247`）
+
+下一步提交点（建议优先级）：
+1) C2：继续拆 `EvaQueryRepo`（优先“记录”主题），只做结构化，统计口径/异常文案不变
+2) C3：继续拆 `EvaQueryRepo`（任务主题）
+3) C4：继续拆 `EvaQueryRepo`（模板主题）
+4) B2（可选）：从 AI 报告链路再挑 1 条写链路做同套路收敛（行为不变）
+
+每步最小回归命令（每步结束都跑）：
+export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\"$JAVA_HOME/bin:$PATH\" \\
+&& mvn -pl start -am test \\
+-Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest \\
+-Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository
 
 ## 0.7 本次会话增量总结（2025-12-21，更新至 `HEAD`）
 
