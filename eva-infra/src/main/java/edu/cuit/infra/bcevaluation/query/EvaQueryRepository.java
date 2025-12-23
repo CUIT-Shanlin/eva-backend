@@ -98,153 +98,11 @@ public class EvaQueryRepository implements EvaQueryRepo {
     private final LocalCacheManager localCacheManager;
     private final UserCacheConstants userCacheConstants;
     private final EvaStatisticsQueryRepository evaStatisticsQueryRepository;
+    private final EvaRecordQueryRepository evaRecordQueryRepository;
 
     @Override
     public PaginationResultEntity<EvaRecordEntity> pageEvaRecord(Integer semId, PagingQuery<EvaLogConditionalQuery> query) {
-        //课程
-        Page<FormRecordDO> pageLog=new Page<>(query.getPage(),query.getSize());
-
-        QueryWrapper<CourseDO> courseWrapper=new QueryWrapper<CourseDO>();
-        if(CollectionUtil.isNotEmpty(subjectMapper.selectList(new QueryWrapper<SubjectDO>().like(query.getQueryObj().getKeyword()!=null,"name",query.getQueryObj().getKeyword())))){
-            List<SubjectDO> subjectDOS=subjectMapper.selectList(new QueryWrapper<SubjectDO>().like("name",query.getQueryObj().getKeyword()));
-            List<Integer> subjectIds=subjectDOS.stream().map(SubjectDO::getId).toList();
-            if(CollectionUtil.isNotEmpty(subjectIds)){
-                courseWrapper.in("subject_id",subjectIds);
-            }
-        }
-        if(CollectionUtil.isEmpty(subjectMapper.selectList(new QueryWrapper<SubjectDO>().like("name",query.getQueryObj().getKeyword())))
-                &&query.getQueryObj().getKeyword()!=null){
-            List list=new ArrayList();
-            return paginationConverter.toPaginationEntity(pageLog,list);
-        }
-        if(CollectionUtil.isNotEmpty(query.getQueryObj().getCourseTimes())) {
-            List<CourInfDO> newCourInfDOS = new ArrayList<>();
-            List<FormRecordDO> formRecordDOS=formRecordMapper.selectList(null);
-            if(CollectionUtil.isEmpty(formRecordDOS)){
-                List list=new ArrayList();
-                return paginationConverter.toPaginationEntity(pageLog,list);
-            }
-            List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>()
-                    .in("id",formRecordDOS.stream().map(FormRecordDO::getTaskId).toList()));
-            if(CollectionUtil.isEmpty(evaTaskDOS)){
-                List list=new ArrayList();
-                return paginationConverter.toPaginationEntity(pageLog,list);
-            }
-            List<CourInfDO> courInfDOS=courInfMapper.selectList(new QueryWrapper<CourInfDO>()
-                    .in("id",evaTaskDOS.stream().map(EvaTaskDO::getCourInfId).toList()));
-            if(CollectionUtil.isEmpty(courInfDOS)){
-                List list=new ArrayList();
-                return paginationConverter.toPaginationEntity(pageLog,list);
-            }
-            if (query.getQueryObj().getCourseTimes() != null) {
-                for (int i = 0; i < query.getQueryObj().getCourseTimes().size(); i++) {
-                    for (int j = 0; j < courInfDOS.size(); j++) {
-                        if (courInfDOS.get(j).getWeek() == query.getQueryObj().getCourseTimes().get(i).getWeek()) {
-                            if (courInfDOS.get(j).getDay() == query.getQueryObj().getCourseTimes().get(i).getDay()) {
-                                if (courInfDOS.get(j).getStartTime() == query.getQueryObj().getCourseTimes().get(i).getStartTime()) {
-                                    if (courInfDOS.get(j).getEndTime() == query.getQueryObj().getCourseTimes().get(i).getEndTime()) {
-                                        newCourInfDOS.add(courInfDOS.get(j));
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            List<Integer> courInfIds=newCourInfDOS.stream().map(CourInfDO::getId).toList();
-            if(CollectionUtil.isEmpty(courInfIds)){
-                List list=new ArrayList();
-                return paginationConverter.toPaginationEntity(pageLog,list);
-            }
-            List<CourInfDO> courInfDOS1=courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("id",courInfIds));
-            List<Integer> courseIds1=courInfDOS1.stream().map(CourInfDO::getCourseId).toList();
-            if(CollectionUtil.isEmpty(courseIds1)){
-                List list=new ArrayList();
-                return paginationConverter.toPaginationEntity(pageLog,list);
-            }
-            courseWrapper.in("id",courseIds1);
-        }
-
-        if(query.getQueryObj().getDepartmentName()!=null&&StringUtils.isNotBlank(query.getQueryObj().getDepartmentName())){
-            List<Integer> sysUserIds=sysUserMapper.selectList(new QueryWrapper<SysUserDO>().eq(query.getQueryObj().getKeyword()!=null,"department",query.getQueryObj().getDepartmentName()))
-                    .stream().map(SysUserDO::getId).toList();
-            if(CollectionUtil.isEmpty(sysUserIds)){
-                List list=new ArrayList();
-                return paginationConverter.toPaginationEntity(pageLog,list);
-            }
-            courseWrapper.in("teacher_id",sysUserIds);
-        }
-        if(CollectionUtil.isNotEmpty(query.getQueryObj().getCourseIds())){//课程id变成科目id
-            courseWrapper.in("subject_id",query.getQueryObj().getCourseIds());
-        }
-        if(semId!=null){
-            courseWrapper.eq("semester_id",semId);
-        }
-        if(CollectionUtil.isNotEmpty(query.getQueryObj().getTeacherIds())){
-            courseWrapper.in(query.getQueryObj().getKeyword()!=null,"teacher_id",query.getQueryObj().getTeacherIds());
-        }
-        List<CourseDO> courseDOList=courseMapper.selectList(courseWrapper);
-
-        List<Integer> courseIds=courseDOList.stream().map(CourseDO::getId).toList();
-        if(CollectionUtil.isEmpty(courseIds)){
-            List list=new ArrayList();
-            return paginationConverter.toPaginationEntity(pageLog,list);
-        }
-        //任务
-
-        QueryWrapper<EvaTaskDO> evaTaskWrapper=new QueryWrapper<EvaTaskDO>();
-        List<CourInfDO> courInfDOS=courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id",courseIds));
-        List<Integer> courseInfoIds=courInfDOS.stream().map(CourInfDO::getId).toList();
-        if(CollectionUtil.isEmpty(courseInfoIds)){
-            List list=new ArrayList();
-            return paginationConverter.toPaginationEntity(pageLog,list);
-        }
-        evaTaskWrapper.in("cour_inf_id",courseInfoIds);
-
-        if(CollectionUtil.isNotEmpty(query.getQueryObj().getEvaTeacherIds())){
-            evaTaskWrapper.in(query.getQueryObj().getEvaTeacherIds()!=null,"teacher_id",query.getQueryObj().getEvaTeacherIds());
-        }
-        if(query.getQueryObj().getStartEvaluateTime()!=null&&StringUtils.isNotBlank(query.getQueryObj().getStartEvaluateTime())){
-            evaTaskWrapper.ge(query.getQueryObj().getStartEvaluateTime()!=null,"create_time",query.getQueryObj().getStartEvaluateTime());
-        }
-
-        List<SingleCourseEntity> courseEntities=getListCurInfoEntities(courInfDOS);
-
-        List<EvaTaskDO> evaTaskDOList=evaTaskMapper.selectList(evaTaskWrapper);
-
-        List<Integer> userIds=evaTaskDOList.stream().map(EvaTaskDO::getTeacherId).toList();
-        if(CollectionUtil.isEmpty(userIds)){
-            List list=new ArrayList();
-            return paginationConverter.toPaginationEntity(pageLog,list);
-        }
-        List<SysUserDO> sysUserDOS=sysUserMapper.selectList(new QueryWrapper<SysUserDO>().in("id",userIds));
-        if(CollectionUtil.isEmpty(sysUserDOS)){
-            List list=new ArrayList();
-            return paginationConverter.toPaginationEntity(pageLog,list);
-        }
-        List<UserEntity> userEntities=sysUserDOS.stream().map(sysUserDO->toUserEntity(sysUserDO.getId())).toList();
-
-        List<EvaTaskEntity> evaTaskEntities=getEvaTaskEntities(evaTaskDOList,userEntities,courseEntities);
-
-        QueryWrapper<FormRecordDO> formRecordWrapper=new QueryWrapper<FormRecordDO>();
-        if(CollectionUtil.isEmpty(evaTaskDOList.stream().map(EvaTaskDO::getId).toList())){
-            List list=new ArrayList();
-            return paginationConverter.toPaginationEntity(pageLog,list);
-        }
-        formRecordWrapper.in("task_id",evaTaskDOList.stream().map(EvaTaskDO::getId).toList());
-
-        if(query.getQueryObj().getEndEvaluateTime()!=null&&StringUtils.isNotBlank(query.getQueryObj().getEndEvaluateTime())){
-            formRecordWrapper.le(query.getQueryObj().getEndEvaluateTime()!=null,"create_time",query.getQueryObj().getEndEvaluateTime());
-        }
-
-        formRecordWrapper.orderByDesc("create_time");
-        pageLog = formRecordMapper.selectPage(pageLog,formRecordWrapper);
-        List<FormRecordDO> records = pageLog.getRecords();
-        List<EvaRecordEntity> list = records.stream().map(formRecordDO->evaConvertor.ToEvaRecordEntity(formRecordDO,
-                ()->evaTaskEntities.stream().filter(evaTaskDO->evaTaskDO.getId()
-                        .equals(formRecordDO.getTaskId())).findFirst().get())).toList();
-
-        return paginationConverter.toPaginationEntity(pageLog,list);
+        return evaRecordQueryRepository.pageEvaRecord(semId, query);
     }
 
     @Override
@@ -416,149 +274,12 @@ public class EvaQueryRepository implements EvaQueryRepo {
     //zjok
     @Override
     public List<EvaRecordEntity> getEvaLogInfo(Integer evaUserId,Integer id,String keyword){
-        List<CourseDO> courseDOS;
-        QueryWrapper<CourseDO> query=new QueryWrapper<CourseDO>();
-
-        if(keyword!=null&&StringUtils.isNotBlank(keyword)) {
-            //根据关键字来查询相关的课程或者老师
-            QueryWrapper<SysUserDO> teacherWrapper = new QueryWrapper<>();
-            teacherWrapper.like("name", keyword);
-            List<Integer> teacherIds = sysUserMapper.selectList(teacherWrapper).stream().map(SysUserDO::getId).toList();
-            //关键字查询课程名称subject->课程->课程详情
-            QueryWrapper<SubjectDO> subjectWrapper = new QueryWrapper<>();
-            subjectWrapper.like("name", keyword);
-            List<Integer> subjectIds = subjectMapper.selectList(subjectWrapper).stream().map(SubjectDO::getId).toList();
-
-            if (CollectionUtil.isNotEmpty(teacherIds) || CollectionUtil.isNotEmpty(subjectIds)) {
-                if(CollectionUtil.isNotEmpty(teacherIds) && CollectionUtil.isNotEmpty(subjectIds)) {
-                    query.in("teacher_id", teacherIds);
-                    query.or();
-                    query.in("subject_id", subjectIds);
-                }else {
-                    //评教记录-》评教任务-》课程详情表->课程表->学期id
-                    if (CollectionUtil.isNotEmpty(teacherIds)) {
-                        query.in("teacher_id", teacherIds);
-                    }
-                    if (CollectionUtil.isNotEmpty(subjectIds)) {
-                        query.in("subject_id", subjectIds);
-                    }
-                }
-            }else{
-                List list=new ArrayList();
-                return list;
-            }
-        }
-        if(id!=null){
-            query.eq("semester_id",id);
-        }
-        courseDOS=courseMapper.selectList(query);
-
-        //eva任务->课程详情表->课程表->学期id
-        List<Integer> courseIds=courseDOS.stream().map(CourseDO::getId).toList();
-        if(CollectionUtil.isEmpty(courseIds)){
-            List list=new ArrayList();
-            return list;
-        }
-        List<CourInfDO> courInfDOS;
-        if(CollectionUtil.isEmpty(courseIds)){
-            List list=new ArrayList();
-            return list;
-        }else {
-            courInfDOS = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", courseIds));
-        }
-        List<Integer> courInfIds=courInfDOS.stream().map(CourInfDO::getId).toList();
-        List<EvaTaskDO> evaTaskDOS;
-        if(CollectionUtil.isEmpty(courInfIds)){
-            List list=new ArrayList();
-            return list;
-        }else {
-            evaTaskDOS = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id", courInfIds).eq("teacher_id", evaUserId));
-        }
-        List<Integer> evaTaskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
-        List<FormRecordDO> formRecordDOS;
-        if(CollectionUtil.isEmpty(evaTaskDOS)){
-            List list=new ArrayList();
-            return list;
-        }else {
-            formRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIds));
-        }
-
-        if(CollectionUtil.isEmpty(formRecordDOS)){
-            List list=new ArrayList();
-            return list;
-        }
-        List<SingleCourseEntity> courseEntities=courInfDOS.stream().map(courInfDO -> courseConvertor.toSingleCourseEntity(
-                ()->toCourseEntity(courInfDO.getCourseId(),courseMapper.selectById(courInfDO.getCourseId()).getSemesterId()),courInfDO)).toList();
-
-        SysUserDO teacher=sysUserMapper.selectById(evaUserId);
-        List<SysUserDO> teachers=new ArrayList<>();
-        teachers.add(teacher);
-
-        List<UserEntity> userEntities=teachers.stream().map(sysUserDO->toUserEntity(sysUserDO.getId())).toList();
-
-        List<EvaTaskEntity> evaTaskEntityList=getEvaTaskEntities(evaTaskDOS,userEntities,courseEntities);
-
-        return getRecordEntities(formRecordDOS,evaTaskEntityList);
+        return evaRecordQueryRepository.getEvaLogInfo(evaUserId, id, keyword);
     }
     //zjok
     @Override
     public List<EvaRecordEntity> getEvaEdLogInfo(Integer userId, Integer semId, Integer courseId) {
-        //课程id ->课程->courInfo->evaTask->record
-        List<CourInfDO> courInfDOs=new ArrayList<>();
-        if(courseId!=null&&courseId>0){
-            courInfDOs=courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id",courseId));
-        }else{
-            QueryWrapper<CourseDO> courseDOQueryWrapper=new QueryWrapper<CourseDO>();
-            if(semId!=null){
-                courseDOQueryWrapper.eq("semester_id",semId).eq("teacher_id",userId);
-            }else{
-                courseDOQueryWrapper.eq("teacher_id",userId);
-            }
-            List<CourseDO> courseDO=courseMapper.selectList(courseDOQueryWrapper);
-            List<Integer> couIds=courseDO.stream().map(CourseDO::getId).toList();
-            if(CollectionUtil.isEmpty(couIds)){
-                List list=new ArrayList();
-                return list;
-            }else {
-                courInfDOs=courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id",couIds));
-            }
-        }
-        List<Integer> courInfoIds=courInfDOs.stream().map(CourInfDO::getId).toList();
-        if(CollectionUtil.isEmpty(courInfoIds)){
-            List list=new ArrayList();
-            return list;
-        }
-        List<EvaTaskDO> evaTaskDOS;
-        if(CollectionUtil.isEmpty(courInfoIds)){
-            List list=new ArrayList();
-            return list;
-        }else {
-            evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id",courInfoIds));
-        }
-        List<Integer> evaTaskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
-        List<FormRecordDO> formRecordDOS;
-        if(CollectionUtil.isEmpty(evaTaskIds)){
-            List list=new ArrayList();
-            return list;
-        }else {
-            formRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIds));
-        }
-        //是评教老师，不能用userId
-        List<SysUserDO> sysUserDOS;
-        List<Integer> userIds=evaTaskDOS.stream().map(EvaTaskDO::getTeacherId).toList();
-        if(CollectionUtil.isEmpty(userIds)){
-            List list=new ArrayList();
-            return list;
-        }else {
-            sysUserDOS=sysUserMapper.selectList(new QueryWrapper<SysUserDO>().in("id",userIds));
-        }
-        List<UserEntity> userEntities=sysUserDOS.stream().map(sysUserDO->toUserEntity(sysUserDO.getId())).toList();
-
-        List<SingleCourseEntity> singleCourseEntities=courInfDOs.stream().map(courInfDO -> courseConvertor.toSingleCourseEntity(
-                ()->toCourseEntity(courInfDO.getCourseId(),courseMapper.selectById(courInfDO.getCourseId()).getSemesterId()),courInfDO)).toList();
-        List<EvaTaskEntity> evaTaskEntities=getEvaTaskEntities(evaTaskDOS,userEntities,singleCourseEntities);
-
-        return getRecordEntities(formRecordDOS,evaTaskEntities);
+        return evaRecordQueryRepository.getEvaEdLogInfo(userId, semId, courseId);
     }
 
     //zjok
@@ -725,37 +446,17 @@ public class EvaQueryRepository implements EvaQueryRepo {
 
     @Override
     public Optional<Double> getScoreFromRecord(String prop) {
-        Double score =stringToSumAver(prop);
-        return Optional.of(score);
+        return evaRecordQueryRepository.getScoreFromRecord(prop);
     }
 
     @Override
     public Optional<Integer> getEvaNumByCourInfo(Integer courInfId) {
-        //通过courInfoId->任务-》记录
-        List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id",courInfId));
-        List<Integer> evaTaskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
-        if(CollectionUtil.isEmpty(evaTaskIds)){
-            throw new QueryException("并没有找到相关任务");
-        }
-        List<FormRecordDO> formRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIds));
-        return Optional.of(formRecordDOS.size());
+        return evaRecordQueryRepository.getEvaNumByCourInfo(courInfId);
     }
 
     @Override
     public Optional<Integer> getEvaNumByCourse(Integer courseId) {
-        CourseDO courseDO=courseMapper.selectById(courseId);
-        List<CourInfDO> courInfDOS=courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id",courseDO.getId()));
-        List<Integer> courInfoIds=courInfDOS.stream().map(CourInfDO::getId).toList();
-        if(CollectionUtil.isEmpty(courInfoIds)){
-            return Optional.of(0);
-        }
-        List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id",courInfoIds));
-        List<Integer> evaTaskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
-        if(CollectionUtil.isEmpty(evaTaskIds)){
-            return Optional.of(0);
-        }
-        List<FormRecordDO> formRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIds));
-        return Optional.of(formRecordDOS.size());
+        return evaRecordQueryRepository.getEvaNumByCourse(courseId);
     }
 
     @Override
@@ -765,101 +466,22 @@ public class EvaQueryRepository implements EvaQueryRepo {
 
     @Override
     public List<EvaRecordEntity> getRecordByCourse(Integer courseId) {
-        List<CourInfDO> courInfDOS=courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id",courseId));
-        if(CollectionUtil.isEmpty(courInfDOS)){
-            return List.of();
-        }
-        List<Integer> courInfoIds=courInfDOS.stream().map(CourInfDO::getId).toList();
-        List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id",courInfoIds));
-        if(CollectionUtil.isEmpty(evaTaskDOS)){
-            return List.of();
-        }
-        List<Integer> evaTaskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
-        List<FormRecordDO> formRecordDOS=formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id",evaTaskIds));
-        if(CollectionUtil.isEmpty(formRecordDOS)){
-            return List.of();
-        }
-        List<UserEntity> userEntities=new ArrayList<>();
-        userEntities.add(toUserEntity(courseMapper.selectById(courseId).getTeacherId()));
-        List<SingleCourseEntity> singleCourseEntities=getListCurInfoEntities(courInfDOS);
-        if(CollectionUtil.isEmpty(singleCourseEntities)) {
-            return List.of();
-        }
-        List<EvaTaskEntity> evaTaskEntities=getEvaTaskEntities(evaTaskDOS,userEntities,singleCourseEntities);
-        if(CollectionUtil.isEmpty(evaTaskEntities)) {
-            return List.of();
-        }
-        List<EvaRecordEntity> evaRecordEntities = getRecordEntities(formRecordDOS, evaTaskEntities);
-        if(CollectionUtil.isEmpty(evaRecordEntities)){
-            return List.of();
-        }
-        return evaRecordEntities;
+        return evaRecordQueryRepository.getRecordByCourse(courseId);
     }
 
     @Override
     public Optional<Double> getScoreByProp(String prop) {
-        if(prop==null){
-            return Optional.of(-1.0);
-        }
-        Double score=0.0;
-        JSONArray jsonArray;
-        try {
-            jsonArray = JSONUtil.parseArray(prop, JSONConfig.create()
-                    .setIgnoreError(true));
-        }catch (Exception e){
-            throw new SysException("jsonObject 数据对象转化失败");
-        }
-        Iterator<Object> iterator = jsonArray.iterator();
-        if(jsonArray.size()==0){
-            return Optional.of(-1.0);
-        }
-        while(iterator.hasNext()){
-            JSONObject jsonObject = (JSONObject) iterator.next();
-            // 处理jsonObject
-            score=score+Double.parseDouble(jsonObject.get("score").toString());
-        }
-        return Optional.of(score/jsonArray.size());
+        return evaRecordQueryRepository.getScoreByProp(prop);
     }
 
     @Override
     public List<Double> getScoresByProp(String props) {
-        if(props==null){
-            return List.of();
-        }
-        Double score=0.0;
-        JSONArray jsonArray;
-        try {
-            jsonArray = JSONUtil.parseArray(props, JSONConfig.create()
-                    .setIgnoreError(true));
-        }catch (Exception e){
-            throw new SysException("jsonObject 数据对象转化失败");
-        }
-        if(jsonArray.isEmpty()){
-            return List.of();
-        }
-        return jsonArray.stream()
-                .map(jsonObject -> Double.parseDouble(((JSONObject) jsonObject).get("score").toString()))
-                .toList();
+        return evaRecordQueryRepository.getScoresByProp(props);
     }
 
     @Override
     public Map<String, Double> getScorePropMapByProp(String props) {
-        if(props==null){
-            return Map.of();
-        }
-        Double score=0.0;
-        JSONArray jsonArray;
-        try {
-            jsonArray = JSONUtil.parseArray(props, JSONConfig.create()
-                    .setIgnoreError(true));
-        }catch (Exception e){
-            throw new SysException("jsonObject 数据对象转化失败");
-        }
-        if(jsonArray.isEmpty()){
-            return Map.of();
-        }
-        return jsonArray.stream().collect(Collectors
-                .toMap(obj -> ((JSONObject) obj).getStr("prop"),obj -> ((JSONObject) obj).getDouble("score")));
+        return evaRecordQueryRepository.getScorePropMapByProp(props);
     }
 
     @Override
