@@ -1,7 +1,6 @@
 /**
- * bc-ai-report 应用层（用例与端口）。
+ * bc-ai-report 应用层（UseCase/Port）。
  *
- * <p>说明：提交点 A 仅创建落点与 wiring，不迁移任何业务语义。</p>
+ * <p>渐进式重构阶段：仅做结构化拆分与依赖隔离，保持行为不变。</p>
  */
 package edu.cuit.bc.aireport.application;
-

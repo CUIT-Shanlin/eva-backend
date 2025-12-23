@@ -1,5 +1,8 @@
 package edu.cuit.app.config;
 
+import edu.cuit.bc.aireport.application.port.AiReportDocExportPort;
+import edu.cuit.bc.aireport.application.usecase.ExportAiReportDocUseCase;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -9,5 +12,8 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class BcAiReportConfiguration {
+    @Bean
+    public ExportAiReportDocUseCase exportAiReportDocUseCase(AiReportDocExportPort exportPort) {
+        return new ExportAiReportDocUseCase(exportPort);
+    }
 }
-

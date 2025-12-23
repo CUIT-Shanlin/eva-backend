@@ -1,7 +1,6 @@
 /**
- * bc-ai-report 应用层用例（写侧入口）。
+ * bc-ai-report 应用层用例（UseCase）。
  *
- * <p>说明：提交点 A 仅创建落点与 wiring，不迁移任何业务语义。</p>
+ * <p>仅做编排与依赖隔离，具体导出实现留在端口适配器。</p>
  */
 package edu.cuit.bc.aireport.application.usecase;
-

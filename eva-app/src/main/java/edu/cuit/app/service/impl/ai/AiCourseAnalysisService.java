@@ -6,8 +6,8 @@ import com.alibaba.cola.exception.SysException;
 import dev.langchain4j.community.model.dashscope.QwenChatModel;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.service.AiServices;
+import edu.cuit.bc.aireport.application.usecase.ExportAiReportDocUseCase;
 import edu.cuit.app.aop.CheckSemId;
-import edu.cuit.app.poi.ai.AiReportExporter;
 import edu.cuit.client.api.ai.IAiCourseAnalysisService;
 import edu.cuit.client.api.course.IUserCourseService;
 import edu.cuit.client.bo.ai.AiAnalysisBO;
@@ -22,13 +22,10 @@ import edu.cuit.infra.ai.aiservice.CourseAiServices;
 import edu.cuit.infra.ai.util.MessageUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,6 +42,7 @@ public class AiCourseAnalysisService implements IAiCourseAnalysisService {
     private final EvaRecordQueryPort evaRecordQueryPort;
     private final UserQueryGateway userQueryGateway;
     private final EvaConfigGateway evaConfigGateway;
+    private final ExportAiReportDocUseCase exportAiReportDocUseCase;
 
     private final QwenChatModel qwenMaxChatModel;
     private final QwenChatModel qwenTurboChatModel;
@@ -159,13 +157,8 @@ public class AiCourseAnalysisService implements IAiCourseAnalysisService {
                 });
 
         AiAnalysisBO analysis = iAiCourseAnalysisService.analysis(semId, userId);
-        XWPFDocument document = new AiReportExporter().generateReport(analysis);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
-            document.write(outputStream);
-            byte[] bytes = outputStream.toByteArray();
-            outputStream.close();
-            return bytes;
+            return exportAiReportDocUseCase.exportDocData(analysis);
         } catch (IOException e) {
             log.error("AI报告导出失败",e);
             throw new SysException("报告导出失败，请联系管理员");

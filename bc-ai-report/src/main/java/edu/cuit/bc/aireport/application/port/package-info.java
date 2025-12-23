@@ -1,7 +1,6 @@
 /**
- * bc-ai-report 应用层端口（UseCase 的出站依赖抽象）。
+ * bc-ai-report 应用层端口（Port）。
  *
- * <p>说明：提交点 A 仅创建落点与 wiring，不迁移任何业务语义。</p>
+ * <p>UseCase 的出站依赖抽象，过渡期由旧系统实现适配。</p>
  */
 package edu.cuit.bc.aireport.application.port;
-
