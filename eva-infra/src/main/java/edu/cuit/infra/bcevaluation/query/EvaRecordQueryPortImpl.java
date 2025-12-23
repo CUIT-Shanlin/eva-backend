@@ -18,7 +18,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class EvaRecordQueryPortImpl implements EvaRecordQueryPort {
-    private final EvaQueryRepo repo;
+    private final EvaRecordQueryRepo repo;
 
     @Override
     public PaginationResultEntity<EvaRecordEntity> pageEvaRecord(Integer semId, PagingQuery<EvaLogConditionalQuery> evaLogQuery) {
