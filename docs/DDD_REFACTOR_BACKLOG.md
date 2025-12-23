@@ -110,6 +110,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - 条目 25 / 提交点 A：启动 `bc-ai-report` / `bc-audit` 最小 Maven 子模块骨架并接入组合根（仅落点与 wiring，不迁业务语义；落地提交：`a30a1ff9`）。
 - 条目 25 / 提交点 B：审计日志写入 `LogGatewayImpl.insertLog` 收敛为“用例 + 端口 + 适配器 + 旧 gateway 委托壳”（保持行为不变；落地提交：`b0b72263`）。
 - 提交点 B2（AI 报告写链路，导出）：`AiCourseAnalysisService.exportDocData` 收敛为“用例 + 端口 + 端口适配器 + 旧入口委托壳”（日志/异常文案不变；落地提交：`c68b3174`）。
+- 提交点 B3（AI 报告写链路，导出）：`AiCourseAnalysisService.exportDocData` 进一步退化为“纯委托壳”（日志/异常文案不变；落地提交：`7f4b3358`）。
 - 提交点 C（统计主题，第一步）：已从 `EvaQueryRepo` 抽出 `EvaStatisticsQueryRepo`，并将 `EvaStatisticsQueryPortImpl` 的依赖收敛到该接口（统计口径/异常文案不变；落地提交：`d5b07247`）。
 - 提交点 C2（记录主题，第一步）：已从 `EvaQueryRepo` 抽出 `EvaRecordQueryRepo`，并将 `EvaRecordQueryPortImpl` 的依赖收敛到该接口（口径/异常文案不变；落地提交：`cae1a15c`）。
 - 提交点 C3（任务主题，第一步）：已从 `EvaQueryRepo` 抽出 `EvaTaskQueryRepo`，并将 `EvaTaskQueryPortImpl` 的依赖收敛到该接口（口径/异常文案不变；落地提交：`82427967`）。
@@ -190,7 +191,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：以下是仍在旧 gateway/技术切片中的能力，优先级按“写侧优先 + 影响范围”排序。
 
 1) AI 报告 / 审计日志（条目 25）：已完成提交点 A（模块骨架 + 组合根 wiring；落地提交：`a30a1ff9`），已完成提交点 B（审计日志写入 `LogGatewayImpl.insertLog`；落地提交：`b0b72263`）  
-   - 补充进展（条目 25 之外）：已完成提交点 B2（AI 报告导出链路收敛；落地提交：`c68b3174`）。
+   - 补充进展（条目 25 之外）：已完成提交点 B2（AI 报告导出链路收敛；落地提交：`c68b3174`）；已完成提交点 B3（旧入口进一步退化为纯委托壳；落地提交：`7f4b3358`）。
    - 边界：条目 25 = 提交点 A + 提交点 B；不包含提交点 C（读侧 `EvaQueryRepo` 拆分）。
    - 验收：缓存/日志/异常文案/副作用顺序完全不变 + 最小回归通过（以 `NEXT_SESSION_HANDOFF.md` 为准）。
 2) 读侧：`EvaQueryRepository` 仍为大聚合查询实现，需继续拆分（保持口径/异常文案不变；接口已完成统计/记录/任务/模板四主题拆分：`d5b07247/cae1a15c/82427967/889ec9b0`）

@@ -29,6 +29,7 @@
 - ✅ 提交点 C3（读侧继续拆，任务主题）：从 `EvaQueryRepo` 抽出 `EvaTaskQueryRepo`，并将 `EvaTaskQueryPortImpl` 依赖收敛到该接口（口径/异常文案不变；落地提交：`82427967`）。
 - ✅ 提交点 C4（读侧继续拆，模板主题）：从 `EvaQueryRepo` 抽出 `EvaTemplateQueryRepo`，并将 `EvaTemplateQueryPortImpl` 依赖收敛到该接口（口径/异常文案不变；落地提交：`889ec9b0`）。
 - ✅ 提交点 B2（AI 报告写链路，导出）：`AiCourseAnalysisService.exportDocData` 收敛为“用例 + 端口 + 端口适配器 + 旧入口委托壳”（日志/异常文案不变；落地提交：`c68b3174`）。
+- ✅ 提交点 B3（AI 报告写链路，导出）：`AiCourseAnalysisService.exportDocData` 进一步退化为“纯委托壳”（把 userId 解析/analysis 编排从旧入口迁出；保持行为不变；落地提交：`7f4b3358`）。
 - ✅ 文档：汇总当前重构总进度并同步状态（落地提交：`bd9c6d7e`）。
 - ✅ 以上每步最小回归均已通过（Java17）：  
   - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
@@ -47,10 +48,10 @@
 - ✅ 提交点 C3（读侧继续拆，任务主题）：已完成（`EvaTaskQueryRepo` 抽取 + 端口依赖收敛；落地提交：`82427967`）。
 - ✅ 提交点 C4（读侧继续拆，模板主题）：已完成（`EvaTemplateQueryRepo` 抽取 + 端口依赖收敛；落地提交：`889ec9b0`）。
 - ✅ 提交点 B2（AI 报告写链路，导出）：已完成（`AiCourseAnalysisService.exportDocData` 收敛；落地提交：`c68b3174`）。
+- ✅ 提交点 B3（可选，AI 报告写链路继续瘦身委托壳）：已完成（`AiCourseAnalysisService.exportDocData` 进一步退化为纯委托壳；落地提交：`7f4b3358`）。
 
 下一会话建议（继续按“每步=回归+提交+三文档同步”）：
-1) **B3（可选，AI 报告写链路继续瘦身委托壳）**：将 `AiCourseAnalysisService.exportDocData` 进一步退化为“纯委托壳”（把 userId 解析/analysis 编排也迁到 `bc-ai-report` 用例 + 端口），保持行为不变。  
-2) **C5（读侧实现继续拆）**：将 `EvaQueryRepository` 按统计/记录/任务/模板拆为更小的实现类（接口已拆完；保持口径/异常文案不变）。
+1) **C5（读侧实现继续拆）**：将 `EvaQueryRepository` 按统计/记录/任务/模板拆为更小的实现类（接口已拆完；保持口径/异常文案不变）。
 
 ## 0.12 当前总体进度概览（2025-12-23，更新至 `HEAD`）
 
@@ -59,7 +60,7 @@
 - **bc-iam（系统管理/IAM）**：已完成大量写侧/读侧收敛，且引入 `bc-iam-infra` 并完成 DAL/shared 拆分与去依赖闭环（见历史提交点与文档记录）。
 - **bc-evaluation（评教）**：写侧主链路（任务发布/删除/模板）已按“用例+端口+适配器+委托壳”收敛；读侧已完成 QueryPort 拆分与 `EvaQueryRepo` 的四主题接口拆分（统计/记录/任务/模板），下一步聚焦拆 `EvaQueryRepository` 实现。
 - **bc-audit（审计日志）**：已完成 `LogGatewayImpl.insertLog` 写链路收敛（异步触发点保留在旧入口，落库与字段补齐在端口适配器）。
-- **bc-ai-report（AI 报告）**：已完成模块骨架接入组合根；并新增一条写链路（导出）收敛为“用例+端口+端口适配器+旧入口委托壳”。
+- **bc-ai-report（AI 报告）**：已完成模块骨架接入组合根；导出写链路已收敛为“用例+端口+端口适配器+旧入口委托壳”，且旧入口已进一步退化为纯委托壳（保持行为不变）。
 - **bc-course（课程）**：读侧已将 `CourseQueryGatewayImpl` 退化委托壳并抽出 QueryRepo/Repository（保持行为不变）。
 
 ### 条目 25（定义 / 边界 / 验收口径）
@@ -108,10 +109,10 @@
 - 提交点 C3（任务主题）：已抽出 `EvaTaskQueryRepo` 并收敛端口依赖（`82427967`）
 - 提交点 C4（模板主题）：已抽出 `EvaTemplateQueryRepo` 并收敛端口依赖（`889ec9b0`）
 - 提交点 B2（AI 报告导出）：`AiCourseAnalysisService.exportDocData` 已按“用例+端口+端口适配器+委托壳”收敛（`c68b3174`）
+- 提交点 B3（AI 报告导出）：`AiCourseAnalysisService.exportDocData` 已进一步退化为纯委托壳（`7f4b3358`）
 
 下一步提交点（建议优先级）：
-1) B3（可选）：AI 报告导出链路进一步退化为纯委托壳（行为不变）
-2) C5：继续拆 `EvaQueryRepository` 的实现（行为不变）
+1) C5：继续拆 `EvaQueryRepository` 的实现（行为不变）
 
 每步最小回归命令（每步结束都跑）：
 export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\"$JAVA_HOME/bin:$PATH\" \\
