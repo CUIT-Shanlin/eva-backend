@@ -559,7 +559,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - ✅ 提交点 D1（`bc-evaluation-infra` 阶段 1：评教读侧查询迁移 + DAL/shared 拆分）：引入 `bc-evaluation-infra` 并迁移评教读侧查询（QueryPortImpl + QueryRepo/Repository），同时将 course/eva DAL（DO/Mapper/XML）迁移到 `eva-infra-dal`、将 `CourseConvertor`/`EvaConvertor`/`EvaCacheConstants`/`CourseFormat` 迁移到 `eva-infra-shared`（保持包名不变；保持行为不变；落地提交：`be6dc05c`）
 - ✅ 提交点 D2（`bc-evaluation-infra` 阶段 2：评教写侧端口适配器迁移）：迁移 `eva-infra/src/main/java/edu/cuit/infra/bcevaluation/repository/*` 到 `bc-evaluation-infra`；并将 `CalculateClassTime` 迁移到 `eva-infra-shared` 以保持 `bc-evaluation-infra` 不依赖 `eva-infra`（保持包名/行为不变；落地提交：`24e7f6c9`）
 - ✅ 提交点 C-1（后续，可选，读侧门面加固）：清理 `EvaQueryRepository` 中已无引用的历史私有实现/冗余依赖，使其成为纯委托壳（保持口径/异常文案不变；落地提交：`73fc6c14`；三文档同步：`083b5807`）
-- 提交点 C-2（后续，可选，读侧仓储瘦身）：继续盘点评教读侧四主题仓储（`bc-evaluation-infra/src/main/java/edu/cuit/infra/bcevaluation/query/*QueryRepository.java`）残留的历史私有实现/冗余依赖，按“每次只删可证实无引用代码”的原则逐步清理（仍保持口径/异常文案不变；每步最小回归+提交+三文档同步；进展：已完成 C-2-1：`e2a2a717`；已完成 C-2-2：`8b76375f`；已完成 C-2-3：`4a317344`；已完成 C-2-4：`dba6e31d`；下一步建议：继续用 Serena 做“私有字段/方法仅定义未调用”的引用证明后再删，若无候选则可关闭 C-2）
+- ✅ 提交点 C-2（后续，可选，读侧仓储瘦身）：继续盘点评教读侧四主题仓储（`bc-evaluation-infra/src/main/java/edu/cuit/infra/bcevaluation/query/*QueryRepository.java`）残留的历史私有实现/冗余依赖，按“每次只删可证实无引用代码”的原则逐步清理（仍保持口径/异常文案不变；每步最小回归+提交+三文档同步；进展：已完成 C-2-1：`e2a2a717`；已完成 C-2-2：`8b76375f`；已完成 C-2-3：`4a317344`；已完成 C-2-4：`dba6e31d`；已完成 C-2-5：`5c1a03bc`；结论：四主题仓储未发现可证实无引用项，因此关闭 C-2）
 - 提交点 C（后续，可选，剩余）：在 C5-4 完成后，视情况继续盘点评教读侧 query 实现残留私有工具/实体组装并内聚到对应主题仓储（仍保持口径/异常文案不变）
 
 #### 条目 25（定义 / 边界 / 验收口径）

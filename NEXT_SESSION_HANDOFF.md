@@ -41,6 +41,7 @@
 - ✅ 提交点 C-2-2（读侧仓储瘦身，可选）：清理 `EvaRecordQueryRepository` 冗余通配 import（保持行为不变；落地提交：`8b76375f`）。
 - ✅ 提交点 C-2-3（读侧仓储瘦身，可选）：清理 `EvaQueryRepo` 冗余 import（保持行为不变；落地提交：`4a317344`）。
 - ✅ 提交点 C-2-4（读侧仓储瘦身，可选）：清理 `EvaStatisticsQueryRepo` 通配 import（保持行为不变；落地提交：`dba6e31d`）。
+- ✅ 提交点 C-2-5（读侧仓储瘦身，可选）：使用 Serena 盘点评教读侧四主题仓储（`bc-evaluation-infra/src/main/java/edu/cuit/infra/bcevaluation/query/*QueryRepository.java`）的私有字段/私有方法/内部类引用，未发现“仅定义未被调用”的可删项；因此将 C-2 视为“已无进一步可证实无引用项”并关闭（保持行为不变；落地提交：`5c1a03bc`）。
 - ✅ 文档：本次会话三文档同步提交链（按发生顺序）：`c0f7362b/61b0dfa4/68895003/ebff7002/4e52d74c/53832c45/c285701f/095979c8/a0e870f5/24e7f6c9/679076b7/73fc6c14/083b5807/73241fa2/3054dede/3bc127a5/965f551b`（之后以 `HEAD` 为准）。
 - ✅ 以上每步最小回归均已通过（Java17）：  
   - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
@@ -70,7 +71,7 @@
 
 下一会话建议（继续按“每步=回归+提交+三文档同步”）：
 1) **提交点 C（后续，可选，剩余）**：已完成 C-1（清理 `EvaQueryRepository` 纯委托壳；落地：`73fc6c14`；三文档同步：`083b5807`）。后续如仍需要，继续按“每次只删可证实无引用代码”的原则，盘点评教读侧四主题仓储中残留的历史私有实现/冗余依赖并逐步清理（保持口径/异常文案不变；已完成 C-2-1：`e2a2a717`；已完成 C-2-2：`8b76375f`；已完成 C-2-3：`4a317344`；已完成 C-2-4：`dba6e31d`）。下一步建议：
-   - C-2-5：继续聚焦 `bc-evaluation-infra/src/main/java/edu/cuit/infra/bcevaluation/query/*QueryRepository.java` 内部，优先找“仅定义未被调用”的私有字段/私有方法/内部类（用 Serena 引用分析证明后再删）；若连续多轮无候选，则将 C-2 视为“已无进一步可证实无引用项”，关闭该提交点。
+   - ✅ C-2-5：已完成盘点并确认无可证实无引用项，因此已关闭 C-2（落地：`5c1a03bc`）。
 
 ## 0.12 当前总体进度概览（2025-12-23，更新至 `HEAD`）
 
@@ -140,10 +141,11 @@
 - 提交点 D2（评教 BC 自包含三层结构试点，阶段 2）：已迁移评教写侧 Repo（`eva-infra/src/main/java/edu/cuit/infra/bcevaluation/repository/*`）到 `bc-evaluation-infra`（保持包名/行为不变；落地提交：`24e7f6c9`）
   - 同步：为保持 `bc-evaluation-infra` 不依赖 `eva-infra`，已将 `CalculateClassTime` 迁移到 `eva-infra-shared`（保持包名不变）
 - 提交点 C-1（读侧门面加固，可选）：已清理 `EvaQueryRepository` 为纯委托壳（移除已无引用的历史私有实现/冗余依赖；保持行为不变；落地提交：`73fc6c14`；三文档同步：`083b5807`）
-- 提交点 C-2（读侧仓储瘦身，可选）：已推进到 C-2-4（清理无引用/通配 import，保持行为不变；落地提交：`e2a2a717/8b76375f/4a317344/dba6e31d`）
+- 提交点 C-2（读侧仓储瘦身，可选）：已完成 C-2-5 并关闭（盘点评教四主题 QueryRepository 未发现可证实无引用项，保持行为不变；落地：`e2a2a717/8b76375f/4a317344/dba6e31d/5c1a03bc`）
 
 下一步提交点（建议优先级）：
-1) 提交点 C-2（后续，可选，剩余）：继续盘点评教读侧四主题仓储（`bc-evaluation-infra/src/main/java/edu/cuit/infra/bcevaluation/query/*QueryRepository.java`）残留的历史私有实现/冗余依赖，按“每次只删可证实无引用代码”的原则逐步清理（行为不变；已完成 C-2-1~C-2-4：`e2a2a717/8b76375f/4a317344/dba6e31d`）。建议下一步：优先用 Serena 逐一验证四主题仓储是否存在“仅定义未被调用”的私有字段/方法；若无则记录“无可删项”并考虑关闭 C-2。
+1) 条目 25（AI 报告 / 审计日志模块化试点，后续）：按“写侧优先”继续挑选 AI 报告剩余写链路（保存/落库/记录等）按同套路收敛（保持行为不变；参考 `docs/DDD_REFACTOR_BACKLOG.md` 第 6 节）。
+2) 提交点 C（后续，可选，剩余）：如仍需继续读侧收敛，优先在 `bc-evaluation` 应用层按用例维度继续内聚 query 端口（不改口径/异常文案/副作用顺序）。
 
 每步最小回归命令（每步结束都跑）：
 export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\"$JAVA_HOME/bin:$PATH\" \\
