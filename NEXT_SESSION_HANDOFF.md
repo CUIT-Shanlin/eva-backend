@@ -35,6 +35,7 @@
 - ✅ 提交点 B5（AI 报告写链路，用户名解析）：`ExportAiReportDocByUsernameUseCase` 内部依赖收敛：将 username → userId 的查询抽为 `bc-ai-report` 端口 + `eva-app` 端口适配器，保持异常文案与日志顺序不变（落地提交：`d7df8657`）。
 - ✅ 需求变更（BC 模块组织方式）：BC 采用“**单顶层聚合模块 + 内部 `domain/application/infrastructure` 子模块**”组织方式，不再新增 `bc-*-infra` 平铺模块；历史平铺模块后续按里程碑折叠归位（仅改文档口径，不改代码语义；落地提交：`940b65ad`）。
 - ✅ 需求补充（拆解 `eva-client`，并允许改包名）：后续重构将把 `edu.cuit.client.*` 下 BO/CO/DTO 等对象按业务归属迁入对应 BC（允许调整包名以归位到 `bc-xxx/application` 的 `contract/dto`）；跨 BC 复用对象再沉淀到 shared-kernel（落地提交：`a4c6bae8`）。
+- ✅ 文档补强（结构性里程碑路线）：进一步明确“一个 BC 一个顶层聚合模块 + `domain/application/infrastructure` 子模块”落地方式，并补齐拆 `eva-client` 的推荐拆分步骤（只改文档口径；落地提交：`0c87c31a`）。
 - ✅ 提交点 C5-1（读侧实现继续拆，统计主题）：新增 `EvaStatisticsQueryRepository` 承接 `EvaStatisticsQueryRepo` 实现，`EvaQueryRepository` 中对应方法退化为委托（口径/异常文案不变；落地提交：`9e0a8d28`；三文档同步：`61b0dfa4`）。
 - ✅ 提交点 C5-2（读侧实现继续拆，记录主题）：新增 `EvaRecordQueryRepository` 承接 `EvaRecordQueryRepo` 实现，`EvaQueryRepository` 中对应方法退化为委托（口径/异常文案不变；落地提交：`985f7802`；三文档同步：`68895003`）。
 - ✅ 提交点 C5-3（读侧实现继续拆，任务主题）：新增 `EvaTaskQueryRepository` 承接 `EvaTaskQueryRepo` 实现，`EvaQueryRepository` 中对应方法退化为委托（口径/异常文案不变；落地提交：`d467c65e`；三文档同步：`ebff7002`）。
@@ -116,7 +117,7 @@
 
 仓库：/home/lystran/programming/java/web/eva-backend  
 先确认：分支必须是 ddd；HEAD 必须 >= 2e4c4923（运行 `git rev-parse HEAD` 确认）。
-当前交接基线（用于对照）：以 `git rev-parse --short HEAD` 输出为准（本文档最后同步提交以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准；截至 2025-12-24，本文件最近一次同步提交为 `a4c6bae8`）。
+当前交接基线（用于对照）：以 `git rev-parse --short HEAD` 输出为准（本文档最后同步提交以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准，不在文内固化 commitId，避免后续会话滚动更新遗漏）。
 
 强约束（必须严格执行）：
 - 只做重构，不改业务语义；缓存/日志/异常文案/副作用顺序完全不变
