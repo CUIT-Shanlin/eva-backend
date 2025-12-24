@@ -17,7 +17,7 @@
 - **Port（应用层端口）**：放在 `bc-*/application/port`，表达 UseCase 的出站依赖（持久化/外部系统/缓存等）。
 - **Port Adapter（基础设施端口适配器）**：实现 Port 并原样搬运旧 DB/副作用流程（保持行为不变）。过渡期可能落在 `eva-infra/.../bc*/adapter` 或历史过渡模块 `bc-*-infra`；**需求变更后**不再新增 `bc-*-infra` 平铺模块，新增适配器优先归位到目标 BC 的 `infrastructure` 子模块（见下方“最终形态”）。
 - **最终形态（目标，2025-12-24 需求变更）**：每个 BC 在仓库中只占用 **一个顶层目录/聚合模块**（例如 `bc-iam/`、`bc-evaluation/`），其内部按职责拆为 `domain/application/infrastructure` **子模块**（或至少 package 结构完整）；`eva-*` 技术切片逐步退场或仅保留 shared-kernel/统一装配与极少量跨 BC 胶水。为保持可回滚，当前已存在的 `bc-*-infra` 作为过渡形态保留一段时间，后续按里程碑“折叠归位”到对应 BC 内部子模块。
-- **需求补充（2025-12-24）**：逐步拆解 `eva-client`：将 `edu.cuit.client.*` 下的 BO/CO/DTO 等“边界协议对象”按业务归属迁入对应 BC（优先放在 BC 的 `application` 子模块下的 `contract/dto` 包，避免领域层污染）；确实跨 BC 复用的对象再沉淀到 shared-kernel，最终让 `eva-client` 退出主干依赖。
+- **需求补充（2025-12-24）**：逐步拆解 `eva-client`：将 `edu.cuit.client.*` 下的 BO/CO/DTO 等“边界协议对象”按业务归属迁入对应 BC（优先放在 BC 的 `application` 子模块下的 `contract/dto` 包，避免领域层污染；**允许改包名**以完成归位）；确实跨 BC 复用的对象再沉淀到 shared-kernel，最终让 `eva-client` 退出主干依赖。
 
 ## 0.9 本次会话增量总结（2025-12-24，更新至 `HEAD`）
 
@@ -34,6 +34,7 @@
 - ✅ 提交点 B4（AI 报告写链路，analysis）：`AiCourseAnalysisService.analysis` 收敛为“用例 + 端口 + 端口适配器 + 旧入口委托壳”（保持 `@CheckSemId` 切面触发点不变；日志/异常文案不变；落地提交：`a8150e7f`）。
 - ✅ 提交点 B5（AI 报告写链路，用户名解析）：`ExportAiReportDocByUsernameUseCase` 内部依赖收敛：将 username → userId 的查询抽为 `bc-ai-report` 端口 + `eva-app` 端口适配器，保持异常文案与日志顺序不变（落地提交：`d7df8657`）。
 - ✅ 需求变更（BC 模块组织方式）：BC 采用“**单顶层聚合模块 + 内部 `domain/application/infrastructure` 子模块**”组织方式，不再新增 `bc-*-infra` 平铺模块；历史平铺模块后续按里程碑折叠归位（仅改文档口径，不改代码语义；落地提交：`940b65ad`）。
+- ✅ 需求补充（拆解 `eva-client`，并允许改包名）：后续重构将把 `edu.cuit.client.*` 下 BO/CO/DTO 等对象按业务归属迁入对应 BC（允许调整包名以归位到 `bc-xxx/application` 的 `contract/dto`）；跨 BC 复用对象再沉淀到 shared-kernel（落地提交：`a4c6bae8`）。
 - ✅ 提交点 C5-1（读侧实现继续拆，统计主题）：新增 `EvaStatisticsQueryRepository` 承接 `EvaStatisticsQueryRepo` 实现，`EvaQueryRepository` 中对应方法退化为委托（口径/异常文案不变；落地提交：`9e0a8d28`；三文档同步：`61b0dfa4`）。
 - ✅ 提交点 C5-2（读侧实现继续拆，记录主题）：新增 `EvaRecordQueryRepository` 承接 `EvaRecordQueryRepo` 实现，`EvaQueryRepository` 中对应方法退化为委托（口径/异常文案不变；落地提交：`985f7802`；三文档同步：`68895003`）。
 - ✅ 提交点 C5-3（读侧实现继续拆，任务主题）：新增 `EvaTaskQueryRepository` 承接 `EvaTaskQueryRepo` 实现，`EvaQueryRepository` 中对应方法退化为委托（口径/异常文案不变；落地提交：`d467c65e`；三文档同步：`ebff7002`）。
@@ -76,8 +77,10 @@
 - ✅ 提交点 C-1（读侧门面加固，可选）：已完成（清理 `EvaQueryRepository` 为纯委托壳；落地提交：`73fc6c14`；三文档同步：`083b5807`）。
 
 下一会话建议（继续按“每步=回归+提交+三文档同步”）：
-1) **条目 25（AI 报告 / 审计日志模块化试点，后续）**：按“写侧优先”继续挑选 AI 报告剩余写链路（保存/落库/记录等）按同套路收敛（保持行为不变；参考 `docs/DDD_REFACTOR_BACKLOG.md` 第 6 节）。
-2) **提交点 C（后续，可选，剩余）**：如仍需继续读侧收敛，优先在 `bc-evaluation` 应用层按用例维度继续内聚 query 端口（不改口径/异常文案/副作用顺序）。
+1) **结构性里程碑 S0（优先）**：按“单个 BC 试点 → 再推广”的方式，把 `bc-xxx` 改为“顶层聚合模块 + `domain/application/infrastructure` 子模块”，并将历史平铺模块（`bc-xxx-infra`）折叠归位到 `bc-xxx/infrastructure`（保持行为不变；参考 `docs/DDD_REFACTOR_BACKLOG.md` 第 6 节）。
+2) **结构性里程碑 S0.1（优先）**：逐步拆解 `eva-client`，按 BC 归属迁移 BO/CO/DTO（允许改包名以归位到 `bc-xxx/application` 的 `contract/dto`；每次只迁一个小包/小类簇，保持行为不变；参考 `docs/DDD_REFACTOR_BACKLOG.md` 第 6 节）。
+3) **条目 25（后续）**：AI 报告继续挑选剩余写链路（保存/落库/记录等）按同套路收敛（保持行为不变）。
+4) **提交点 C（后续，可选）**：如仍需继续读侧收敛，优先在 `bc-evaluation` 应用层按用例维度继续内聚 query 端口（不改口径/异常文案/副作用顺序）。
 
 ## 0.12 当前总体进度概览（2025-12-24，更新至 `HEAD`）
 
@@ -113,7 +116,7 @@
 
 仓库：/home/lystran/programming/java/web/eva-backend  
 先确认：分支必须是 ddd；HEAD 必须 >= 2e4c4923（运行 `git rev-parse HEAD` 确认）。
-当前交接基线（用于对照）：以 `git rev-parse --short HEAD` 输出为准（本文档最后同步提交以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准）
+当前交接基线（用于对照）：以 `git rev-parse --short HEAD` 输出为准（本文档最后同步提交以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准；截至 2025-12-24，本文件最近一次同步提交为 `a4c6bae8`）。
 
 强约束（必须严格执行）：
 - 只做重构，不改业务语义；缓存/日志/异常文案/副作用顺序完全不变
@@ -126,6 +129,10 @@
 2) DDD_REFACTOR_PLAN.md（重点看 10.2/10.3/10.4）
 3) docs/DDD_REFACTOR_BACKLOG.md（重点看 4.2、4.3、6）
 4) data/ 与 data/doc/（如需核对表/字段语义）
+
+本会话目标（优先做这个）：
+- S0：按“一个 BC 一个顶层聚合模块”的新结构，把 `bc-iam` 或 `bc-evaluation` 先做 1 个试点：落地 `domain/application/infrastructure` 子模块，并把对应 `bc-*-infra` 平铺过渡模块折叠归位（保持行为不变）。
+- S0.1：开始拆解 `eva-client`：优先从 `bc-iam` 相关对象迁移（`NewUserCmd/UpdateUserCmd/PagingQuery/GenericConditionalQuery/SimpleResultCO` 等），允许改包名以归位到 `bc-iam/application` 的 `contract/dto`（保持行为不变）。
 
 当前状态（已闭环）：
 - 提交点 0：条目 25 定义/边界/验收口径已补齐（`1adc80bd`）

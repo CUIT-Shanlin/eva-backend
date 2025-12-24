@@ -333,6 +333,19 @@ scope: 全仓库（离线扫描 + 规则归纳）
 1) AI 报告：继续将 `AiCourseAnalysisService` 等入口的写链路收敛到 `bc-ai-report`（当前已完成导出链路 B2：`c68b3174`；旧入口已进一步退化为纯委托壳 B3：`7f4b3358`；后续可继续收敛“保存/落库/记录”等链路），保持行为不变  
 2) 评教 BC 自包含三层结构：已完成阶段 1（读侧查询迁移：`be6dc05c`）与阶段 2（写侧 Repo 迁移：`24e7f6c9`），并已完成读侧门面加固 C-1（清理 `EvaQueryRepository` 为纯委托壳：`73fc6c14`）。C-2（读侧仓储瘦身）已完成盘点并关闭（落地：`5c1a03bc`）。  
 
+补充说明（避免后续会话口径漂移）：
+
+- 结构性里程碑 0（S0）建议拆分步骤（每步最小回归 + 提交 + 三文档同步）：
+  1) 先选 **单个 BC 试点**（推荐从 `bc-iam` 或 `bc-evaluation` 开始）：将 `bc-xxx/pom.xml` 改为聚合 `pom`（仅改 Maven/目录，不改业务语义）。
+  2) 在 `bc-xxx/` 下创建 `domain/application/infrastructure` 三个子模块目录与 `pom.xml`，并把现有 `bc-xxx` 源码按职责“搬运归位”（只搬运/改包引用，逻辑不改；允许改包名）。
+  3) 将历史平铺过渡模块 `bc-xxx-infra` 的源码迁入 `bc-xxx/infrastructure` 子模块，root `pom.xml` 仅保留 `<module>bc-xxx</module>`（实现“一个 BC 一条 module”）。
+  4) 每个 BC 闭环后，再按相同套路推进下一个 BC；避免一次性全仓库搬迁导致回滚困难。
+- 结构性里程碑 0.1（S0.1，拆 `eva-client`）建议拆分步骤：
+  1) 用 Serena 盘点 `eva-client` 下对象在各 BC/技术切片中的引用分布，先形成“归属映射表”（按 BC：IAM/Course/Evaluation/Template/Messaging/Audit/AIReport…）。
+  2) **先迁移边界协议对象**（BO/CO/DTO/Query/Cmd）：按 BC 归属迁入 BC 的 `application` 子模块下 `contract/dto`（允许改包名，以归位到 `edu.cuit.bc.xxx.application.contract...`）。
+  3) 对确实跨 BC 复用的通用对象（如分页、通用查询条件、通用返回体等）再沉淀到 shared-kernel（严格控范围，避免变成“新 eva-client”）。
+  4) 迁移顺序建议：先从依赖面最集中的 `bc-iam` 开始（例如 `NewUserCmd/UpdateUserCmd/PagingQuery/GenericConditionalQuery/SimpleResultCO` 等），每次只迁一个小包/小类簇，确保可回滚。
+
 ---
 
 ## 7. 与交接文档的关系
