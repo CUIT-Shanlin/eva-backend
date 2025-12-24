@@ -1,6 +1,8 @@
 package edu.cuit.app.config;
 
 import edu.cuit.bc.aireport.application.port.AiReportDocExportPort;
+import edu.cuit.bc.aireport.application.port.AiReportAnalysisPort;
+import edu.cuit.bc.aireport.application.usecase.AnalyseAiReportUseCase;
 import edu.cuit.bc.aireport.application.usecase.ExportAiReportDocByUsernameUseCase;
 import edu.cuit.bc.aireport.application.usecase.ExportAiReportDocUseCase;
 import edu.cuit.client.api.ai.IAiCourseAnalysisService;
@@ -16,6 +18,11 @@ import org.springframework.context.annotation.Lazy;
  */
 @Configuration
 public class BcAiReportConfiguration {
+    @Bean
+    public AnalyseAiReportUseCase analyseAiReportUseCase(AiReportAnalysisPort analysisPort) {
+        return new AnalyseAiReportUseCase(analysisPort);
+    }
+
     @Bean
     public ExportAiReportDocUseCase exportAiReportDocUseCase(AiReportDocExportPort exportPort) {
         return new ExportAiReportDocUseCase(exportPort);
