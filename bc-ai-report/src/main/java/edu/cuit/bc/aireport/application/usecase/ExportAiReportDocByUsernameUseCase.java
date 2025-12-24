@@ -1,9 +1,9 @@
 package edu.cuit.bc.aireport.application.usecase;
 
 import com.alibaba.cola.exception.SysException;
+import edu.cuit.bc.aireport.application.port.AiReportUserIdQueryPort;
 import edu.cuit.client.api.ai.IAiCourseAnalysisService;
 import edu.cuit.client.bo.ai.AiAnalysisBO;
-import edu.cuit.domain.gateway.user.UserQueryGateway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,22 +18,22 @@ import java.util.Objects;
 public class ExportAiReportDocByUsernameUseCase {
     private static final Logger log = LoggerFactory.getLogger("edu.cuit.app.service.impl.ai.AiCourseAnalysisService");
 
-    private final UserQueryGateway userQueryGateway;
+    private final AiReportUserIdQueryPort userIdQueryPort;
     private final IAiCourseAnalysisService aiCourseAnalysisService;
     private final ExportAiReportDocUseCase exportAiReportDocUseCase;
 
     public ExportAiReportDocByUsernameUseCase(
-            UserQueryGateway userQueryGateway,
+            AiReportUserIdQueryPort userIdQueryPort,
             IAiCourseAnalysisService aiCourseAnalysisService,
             ExportAiReportDocUseCase exportAiReportDocUseCase
     ) {
-        this.userQueryGateway = Objects.requireNonNull(userQueryGateway, "userQueryGateway");
+        this.userIdQueryPort = Objects.requireNonNull(userIdQueryPort, "userIdQueryPort");
         this.aiCourseAnalysisService = Objects.requireNonNull(aiCourseAnalysisService, "aiCourseAnalysisService");
         this.exportAiReportDocUseCase = Objects.requireNonNull(exportAiReportDocUseCase, "exportAiReportDocUseCase");
     }
 
     public byte[] exportDocData(Integer semId, String username) {
-        Integer userId = userQueryGateway.findIdByUsername(username)
+        Integer userId = userIdQueryPort.findIdByUsername(username)
                 .orElseThrow(() -> {
                     SysException e = new SysException("用户数据查找失败，请联系管理员");
                     log.error("系统异常", e);

@@ -3,10 +3,10 @@ package edu.cuit.app.config;
 import edu.cuit.bc.aireport.application.port.AiReportDocExportPort;
 import edu.cuit.bc.aireport.application.port.AiReportAnalysisPort;
 import edu.cuit.bc.aireport.application.usecase.AnalyseAiReportUseCase;
+import edu.cuit.bc.aireport.application.port.AiReportUserIdQueryPort;
 import edu.cuit.bc.aireport.application.usecase.ExportAiReportDocByUsernameUseCase;
 import edu.cuit.bc.aireport.application.usecase.ExportAiReportDocUseCase;
 import edu.cuit.client.api.ai.IAiCourseAnalysisService;
-import edu.cuit.domain.gateway.user.UserQueryGateway;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -30,10 +30,10 @@ public class BcAiReportConfiguration {
 
     @Bean
     public ExportAiReportDocByUsernameUseCase exportAiReportDocByUsernameUseCase(
-            UserQueryGateway userQueryGateway,
+            AiReportUserIdQueryPort userIdQueryPort,
             @Lazy IAiCourseAnalysisService aiCourseAnalysisService,
             ExportAiReportDocUseCase exportAiReportDocUseCase
     ) {
-        return new ExportAiReportDocByUsernameUseCase(userQueryGateway, aiCourseAnalysisService, exportAiReportDocUseCase);
+        return new ExportAiReportDocByUsernameUseCase(userIdQueryPort, aiCourseAnalysisService, exportAiReportDocUseCase);
     }
 }
