@@ -61,7 +61,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
    - `Command/UseCase/Port(Repository)`：usecase 只做委托 + 必要的入参非空（按团队已有范式）。
    - 新增纯单测：只测 NPE 与“委托端口一次”，不测业务规则（规则以旧实现为准）。
 3. **infra 端口适配器实现旧逻辑**
-   - 新增 `eva-infra/.../bccxxx/adapter/*RepositoryImpl`；
+   - 需求变更（2025-12-24）：新增适配器优先落在目标 BC 的 `infrastructure` 子模块（例如 `bc-xxx/infrastructure/...`）；
+   - 过渡期如仍需落在 `eva-infra/.../bcxxx/adapter` 或历史过渡模块 `bc-xxx-infra`，必须在文档中标注“后续折叠归位”的计划与里程碑；
    - 将旧 gateway 的业务流程 **原样搬运**（包含异常文案、删除顺序、日志、缓存等）。
 4. **旧 gateway 退化为委托壳**
    - gateway 仅负责：构造 command → 调用 usecase → 返回历史签名（必要时 `return null`）。
@@ -325,6 +326,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 如果继续按“写侧优先”的策略推进，下一批候选（高 → 低）建议是：
 
+0) 结构性里程碑（需求变更，2025-12-24）：将“BC=一个顶层聚合模块、内部 `domain/application/infrastructure` 为子模块”的结构落地到目录与 Maven 结构中，并把历史平铺过渡模块（`bc-iam-infra`、`bc-evaluation-infra` 等）折叠归位到对应 BC 内部子模块（每步可回滚；保持行为不变）。  
 1) AI 报告：继续将 `AiCourseAnalysisService` 等入口的写链路收敛到 `bc-ai-report`（当前已完成导出链路 B2：`c68b3174`；旧入口已进一步退化为纯委托壳 B3：`7f4b3358`；后续可继续收敛“保存/落库/记录”等链路），保持行为不变  
 2) 评教 BC 自包含三层结构：已完成阶段 1（读侧查询迁移：`be6dc05c`）与阶段 2（写侧 Repo 迁移：`24e7f6c9`），并已完成读侧门面加固 C-1（清理 `EvaQueryRepository` 为纯委托壳：`73fc6c14`）。C-2（读侧仓储瘦身）已完成盘点并关闭（落地：`5c1a03bc`）。  
 

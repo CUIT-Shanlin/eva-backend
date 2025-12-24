@@ -15,8 +15,8 @@
 - **旧 gateway（LegacyGateway / 委托壳）**：历史遗留的 `eva-infra/.../*GatewayImpl`，对外接口不变（尤其是缓存注解/切面触发点必须保持），内部逐步退化为“委托到 UseCase”的壳。
 - **UseCase（应用层用例）**：放在 `bc-*/application/usecase`，只做“业务用例入口与编排”，不直接依赖 DB。
 - **Port（应用层端口）**：放在 `bc-*/application/port`，表达 UseCase 的出站依赖（持久化/外部系统/缓存等）。
-- **Port Adapter（基础设施端口适配器）**：过渡期通常落在 `eva-infra/.../bc*/adapter` 或 `bc-*-infra`（子模块），实现 Port 并原样搬运旧 DB/副作用流程（保持行为不变）。
-- **最终形态（目标）**：每个 BC 自含 `domain/application/infrastructure`（模块或至少 package 结构完整），`eva-*` 技术切片逐步退场或仅剩 shared-kernel/组装层。
+- **Port Adapter（基础设施端口适配器）**：实现 Port 并原样搬运旧 DB/副作用流程（保持行为不变）。过渡期可能落在 `eva-infra/.../bc*/adapter` 或历史过渡模块 `bc-*-infra`；**需求变更后**不再新增 `bc-*-infra` 平铺模块，新增适配器优先归位到目标 BC 的 `infrastructure` 子模块（见下方“最终形态”）。
+- **最终形态（目标，2025-12-24 需求变更）**：每个 BC 在仓库中只占用 **一个顶层目录/聚合模块**（例如 `bc-iam/`、`bc-evaluation/`），其内部按职责拆为 `domain/application/infrastructure` **子模块**（或至少 package 结构完整）；`eva-*` 技术切片逐步退场或仅保留 shared-kernel/统一装配与极少量跨 BC 胶水。为保持可回滚，当前已存在的 `bc-*-infra` 作为过渡形态保留一段时间，后续按里程碑“折叠归位”到对应 BC 内部子模块。
 
 ## 0.9 本次会话增量总结（2025-12-24，更新至 `HEAD`）
 
@@ -77,14 +77,14 @@
 1) **条目 25（AI 报告 / 审计日志模块化试点，后续）**：按“写侧优先”继续挑选 AI 报告剩余写链路（保存/落库/记录等）按同套路收敛（保持行为不变；参考 `docs/DDD_REFACTOR_BACKLOG.md` 第 6 节）。
 2) **提交点 C（后续，可选，剩余）**：如仍需继续读侧收敛，优先在 `bc-evaluation` 应用层按用例维度继续内聚 query 端口（不改口径/异常文案/副作用顺序）。
 
-## 0.12 当前总体进度概览（2025-12-23，更新至 `HEAD`）
+## 0.12 当前总体进度概览（2025-12-24，更新至 `HEAD`）
 
 > 用于回答“现在总进度到哪了”，避免每次会话重新盘点。
 
-- **bc-iam（系统管理/IAM）**：已完成大量写侧/读侧收敛，且引入 `bc-iam-infra` 并完成 DAL/shared 拆分与去依赖闭环（见历史提交点与文档记录）。
-- **bc-evaluation（评教）**：写侧主链路（任务发布/删除/模板）已按“用例+端口+适配器+委托壳”收敛；且已完成 `bc-evaluation-infra` 阶段 1（读侧迁移）与阶段 2（写侧 Repo 迁移；`CalculateClassTime` 迁移到 `eva-infra-shared` 以避免 `bc-evaluation-infra` 依赖 `eva-infra`），并已清理 `EvaQueryRepository` 为纯委托壳（`73fc6c14`），均保持包名/行为不变。
+- **bc-iam（系统管理/IAM）**：已完成大量写侧/读侧收敛；历史上通过平铺过渡模块 `bc-iam-infra` 完成适配器归属与去 `eva-infra` 依赖闭环（见历史提交点）。**按 2025-12-24 需求变更**：后续将把该过渡模块“折叠归位”到 `bc-iam/` 内部 `infrastructure` 子模块。
+- **bc-evaluation（评教）**：写侧主链路（任务发布/删除/模板）已按“用例+端口+适配器+委托壳”收敛；历史上通过平铺过渡模块 `bc-evaluation-infra` 完成读侧迁移与写侧 Repo 迁移，并通过 `eva-infra-shared`/`eva-infra-dal` 解决跨 BC 共享（均保持包名/行为不变）。**按 2025-12-24 需求变更**：后续将把该过渡模块“折叠归位”到 `bc-evaluation/` 内部 `infrastructure` 子模块。
 - **bc-audit（审计日志）**：已完成 `LogGatewayImpl.insertLog` 写链路收敛（异步触发点保留在旧入口，落库与字段补齐在端口适配器）。
-- **bc-ai-report（AI 报告）**：已完成模块骨架接入组合根；导出写链路已收敛为“用例+端口+端口适配器+旧入口委托壳”，且旧入口已进一步退化为纯委托壳（保持行为不变）。
+- **bc-ai-report（AI 报告）**：已完成模块骨架接入组合根；导出写链路、analysis 与用户名解析已逐步收敛为“用例+端口+端口适配器+旧入口委托壳”（保持行为不变）。按 2025-12-24 需求变更：后续不再新增 `bc-ai-report-infra` 平铺模块，新增适配器归位到 `bc-ai-report/` 内部 `infrastructure` 子模块（或先落在 `eva-app`，再按里程碑折叠归位）。
 - **bc-course（课程）**：读侧已将 `CourseQueryGatewayImpl` 退化委托壳并抽出 QueryRepo/Repository（保持行为不变）。
 
 ### 条目 25（定义 / 边界 / 验收口径）
@@ -150,6 +150,7 @@
 - 提交点 C-2（读侧仓储瘦身，可选）：已完成 C-2-5 并关闭（盘点评教四主题 QueryRepository 未发现可证实无引用项，保持行为不变；落地：`e2a2a717/8b76375f/4a317344/dba6e31d/5c1a03bc`）
 
 下一步提交点（建议优先级）：
+0) **结构性里程碑（需求变更落地，推荐下一会话优先）**：将“BC=一个顶层聚合模块、内部 `domain/application/infrastructure` 为子模块”的结构落地到真实目录与 Maven 结构中；并把历史平铺过渡模块（`bc-iam-infra`、`bc-evaluation-infra` 等）按“每步可回滚、行为不变”的方式折叠归位到对应 BC 内部子模块。
 1) 条目 25（AI 报告 / 审计日志模块化试点，后续）：按“写侧优先”继续挑选 AI 报告剩余写链路（保存/落库/记录等）按同套路收敛（保持行为不变；参考 `docs/DDD_REFACTOR_BACKLOG.md` 第 6 节）。
 2) 提交点 C（后续，可选，剩余）：如仍需继续读侧收敛，优先在 `bc-evaluation` 应用层按用例维度继续内聚 query 端口（不改口径/异常文案/副作用顺序）。
 

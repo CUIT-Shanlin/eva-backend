@@ -521,7 +521,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
    - 角色写侧剩余入口（`RoleUpdateGatewayImpl.updateRoleInfo/updateRoleStatus/deleteRole/createRole`）已收敛到 `bc-iam`（保持行为不变；落地提交：`64fadb20`）。
 10) **AI 报告 / 审计日志模块化（建议）**：启动 `bc-ai-report` / `bc-audit` 最小骨架，并优先挑选 1 条写链路按同套路收敛（保持行为不变）。
    - 进展：已完成骨架与组合根 wiring（提交点 A：`a30a1ff9`）；已完成审计日志写链路收敛（提交点 B：`b0b72263`）；已完成 AI 报告导出链路收敛（提交点 B2：`c68b3174`）；已完成导出旧入口进一步退化为纯委托壳（提交点 B3：`7f4b3358`）。
-11) ✅ **BC 自包含三层结构试点（`bc-iam`，阶段 1：适配器归属）**：已引入 `bc-iam-infra` Maven 子模块骨架并接入组合根，且已将 `bciam/adapter/*` 端口适配器从 `eva-infra` 迁移到 `bc-iam-infra`（保持行为不变；落地提交：`42a6f66f/070068ec/03ceb685/02b3e8aa/6b9d2ce7/5aecc747/1c3d4b8c`）。
+11) ✅ **BC 自包含三层结构试点（`bc-iam`，阶段 1：适配器归属）**：已引入平铺过渡模块 `bc-iam-infra` 并接入组合根，且已将 `bciam/adapter/*` 端口适配器从 `eva-infra` 迁移到 `bc-iam-infra`（保持行为不变；落地提交：`42a6f66f/070068ec/03ceb685/02b3e8aa/6b9d2ce7/5aecc747/1c3d4b8c`）。
    - 说明：阶段 2（IAM DAL 抽离 + shared 拆分 + 去依赖）已完成，`bc-iam-infra` 已不再依赖 `eva-infra`（落地提交：`2ad911ea`；保持行为不变）。
 
 ### 10.4 术语澄清与最终目标结构（减少“gateway”混淆）
@@ -532,17 +532,18 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 - **UseCase（应用层用例）**：BC 的写侧入口（`bc-*/application/usecase`），不直接依赖 DB，只依赖 Port。
 - **Port（应用层端口）**：UseCase 的出站依赖抽象（`bc-*/application/port`）。
-- **Port Adapter（基础设施适配器）**：实现 Port、搬运旧 DB/副作用流程（过渡期通常放在 `eva-infra/.../bc*/adapter` 或 `bc-*-infra` 子模块）。
+- **Port Adapter（基础设施适配器）**：实现 Port、搬运旧 DB/副作用流程。过渡期可能放在 `eva-infra/.../bc*/adapter` 或历史过渡模块 `bc-*-infra`；**需求变更后**不再新增 `bc-*-infra` 平铺模块，新增适配器优先归位到目标 BC 的 `infrastructure` 子模块（见下方“最终目标结构”）。
 - **旧 gateway（委托壳 / 兼容入口）**：历史 `eva-infra/.../*GatewayImpl`，对外接口不变（尤其缓存注解触发点），内部逐步退化为委托到 UseCase。
 
 最终目标（你期望的“完美契合 DDD”）建议按 BC 自包含推进（优先 `bc-iam` 试点）：
 - 每个 BC 至少在 **package** 上自包含三层：`<bc>.domain` / `<bc>.application` / `<bc>.infrastructure`。
-- 更进一步在 **Maven 模块** 上自包含：`bc-iam-domain` / `bc-iam-app` / `bc-iam-infra`（或类似拆分），并由 `start`/组合根统一装配。
+- **需求变更（2025-12-24）**：每个 BC 在仓库中只占用 **一个顶层目录/聚合模块**（例如 `bc-iam/`），其内部按职责拆为 `domain/application/infrastructure` **子模块**（例如 `bc-iam/domain`、`bc-iam/application`、`bc-iam/infrastructure`），并由 `start`/组合根统一装配。历史上已存在的 `bc-iam-infra`、`bc-evaluation-infra` 等平铺模块作为过渡形态保留，后续按“折叠归位”里程碑迁入对应 BC 的内部子模块。
 - `eva-*` 技术切片逐步退场：最终仅保留 shared-kernel、统一启动/装配与跨 BC 的极少量集成胶水（严格受控）。
 
 ### 10.3 未完成清单（滚动，供下一会话排期）
 
 - 下一步建议（从下一会话起；每步 1 次最小回归 + 1 次提交 + 文档同步；保持行为不变）：
+  - 结构性里程碑 S0（需求变更，2025-12-24）：将“BC=一个顶层聚合模块、内部 `domain/application/infrastructure` 为子模块”的结构落地到真实目录与 Maven 结构中，并把历史平铺过渡模块（`bc-iam-infra`、`bc-evaluation-infra` 等）折叠归位到对应 BC 内部子模块（每步可回滚；保持行为不变）。
   - ✅ 提交点 0（纯文档闭环）：补齐“条目 25”的定义/边界与验收口径（只改文档，不改代码；落地提交：`1adc80bd`），避免新会话对 24/25/26 的分界理解不一致
   - ✅ 提交点 A：启动 `bc-ai-report` / `bc-audit` 最小骨架并接入组合根（仅落点，不迁业务语义；落地提交：`a30a1ff9`）
   - ✅ 提交点 B：为 AI 报告或审计日志挑选 1 条写链路，按“用例 + 端口 + 适配器 + 旧 gateway 委托壳”收敛（审计日志写入：`LogGatewayImpl.insertLog`；保持行为不变；落地提交：`b0b72263`）
