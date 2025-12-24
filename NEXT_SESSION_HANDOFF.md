@@ -17,6 +17,7 @@
 - **Port（应用层端口）**：放在 `bc-*/application/port`，表达 UseCase 的出站依赖（持久化/外部系统/缓存等）。
 - **Port Adapter（基础设施端口适配器）**：实现 Port 并原样搬运旧 DB/副作用流程（保持行为不变）。过渡期可能落在 `eva-infra/.../bc*/adapter` 或历史过渡模块 `bc-*-infra`；**需求变更后**不再新增 `bc-*-infra` 平铺模块，新增适配器优先归位到目标 BC 的 `infrastructure` 子模块（见下方“最终形态”）。
 - **最终形态（目标，2025-12-24 需求变更）**：每个 BC 在仓库中只占用 **一个顶层目录/聚合模块**（例如 `bc-iam/`、`bc-evaluation/`），其内部按职责拆为 `domain/application/infrastructure` **子模块**（或至少 package 结构完整）；`eva-*` 技术切片逐步退场或仅保留 shared-kernel/统一装配与极少量跨 BC 胶水。为保持可回滚，当前已存在的 `bc-*-infra` 作为过渡形态保留一段时间，后续按里程碑“折叠归位”到对应 BC 内部子模块。
+- **需求补充（2025-12-24）**：逐步拆解 `eva-client`：将 `edu.cuit.client.*` 下的 BO/CO/DTO 等“边界协议对象”按业务归属迁入对应 BC（优先放在 BC 的 `application` 子模块下的 `contract/dto` 包，避免领域层污染）；确实跨 BC 复用的对象再沉淀到 shared-kernel，最终让 `eva-client` 退出主干依赖。
 
 ## 0.9 本次会话增量总结（2025-12-24，更新至 `HEAD`）
 
@@ -152,6 +153,7 @@
 
 下一步提交点（建议优先级）：
 0) **结构性里程碑（需求变更落地，推荐下一会话优先）**：将“BC=一个顶层聚合模块、内部 `domain/application/infrastructure` 为子模块”的结构落地到真实目录与 Maven 结构中；并把历史平铺过渡模块（`bc-iam-infra`、`bc-evaluation-infra` 等）按“每步可回滚、行为不变”的方式折叠归位到对应 BC 内部子模块。
+0.1) **结构性里程碑（需求变更落地，后续紧随其后）**：逐步拆解 `eva-client`，将各类 BO/CO/DTO 等“边界协议对象”按 BC 归属折叠归位到对应 BC（优先落在 `bc-xxx/application`）；跨 BC 通用对象再沉淀到 shared-kernel；每步最小回归+提交+三文档同步。
 1) 条目 25（AI 报告 / 审计日志模块化试点，后续）：按“写侧优先”继续挑选 AI 报告剩余写链路（保存/落库/记录等）按同套路收敛（保持行为不变；参考 `docs/DDD_REFACTOR_BACKLOG.md` 第 6 节）。
 2) 提交点 C（后续，可选，剩余）：如仍需继续读侧收敛，优先在 `bc-evaluation` 应用层按用例维度继续内聚 query 端口（不改口径/异常文案/副作用顺序）。
 
