@@ -31,6 +31,7 @@
 - ✅ 提交点 B2（AI 报告写链路，导出）：`AiCourseAnalysisService.exportDocData` 收敛为“用例 + 端口 + 端口适配器 + 旧入口委托壳”（日志/异常文案不变；落地提交：`c68b3174`）。
 - ✅ 提交点 B3（AI 报告写链路，导出）：`AiCourseAnalysisService.exportDocData` 进一步退化为“纯委托壳”（把 userId 解析/analysis 编排从旧入口迁出；保持行为不变；落地提交：`7f4b3358`）。
 - ✅ 提交点 B4（AI 报告写链路，analysis）：`AiCourseAnalysisService.analysis` 收敛为“用例 + 端口 + 端口适配器 + 旧入口委托壳”（保持 `@CheckSemId` 切面触发点不变；日志/异常文案不变；落地提交：`a8150e7f`）。
+- ✅ 提交点 B5（AI 报告写链路，用户名解析）：`ExportAiReportDocByUsernameUseCase` 内部依赖收敛：将 username → userId 的查询抽为 `bc-ai-report` 端口 + `eva-app` 端口适配器，保持异常文案与日志顺序不变（落地提交：`d7df8657`）。
 - ✅ 提交点 C5-1（读侧实现继续拆，统计主题）：新增 `EvaStatisticsQueryRepository` 承接 `EvaStatisticsQueryRepo` 实现，`EvaQueryRepository` 中对应方法退化为委托（口径/异常文案不变；落地提交：`9e0a8d28`；三文档同步：`61b0dfa4`）。
 - ✅ 提交点 C5-2（读侧实现继续拆，记录主题）：新增 `EvaRecordQueryRepository` 承接 `EvaRecordQueryRepo` 实现，`EvaQueryRepository` 中对应方法退化为委托（口径/异常文案不变；落地提交：`985f7802`；三文档同步：`68895003`）。
 - ✅ 提交点 C5-3（读侧实现继续拆，任务主题）：新增 `EvaTaskQueryRepository` 承接 `EvaTaskQueryRepo` 实现，`EvaQueryRepository` 中对应方法退化为委托（口径/异常文案不变；落地提交：`d467c65e`；三文档同步：`ebff7002`）。
@@ -63,6 +64,7 @@
 - ✅ 提交点 B2（AI 报告写链路，导出）：已完成（`AiCourseAnalysisService.exportDocData` 收敛；落地提交：`c68b3174`）。
 - ✅ 提交点 B3（可选，AI 报告写链路继续瘦身委托壳）：已完成（`AiCourseAnalysisService.exportDocData` 进一步退化为纯委托壳；落地提交：`7f4b3358`）。
 - ✅ 提交点 B4（AI 报告写链路，analysis）：已完成（`AiCourseAnalysisService.analysis` 收敛为“用例+端口+适配器+委托壳”；落地提交：`a8150e7f`）。
+- ✅ 提交点 B5（AI 报告写链路，用户名解析）：已完成（username → userId 查询抽为 `bc-ai-report` 端口 + `eva-app` 端口适配器；落地提交：`d7df8657`）。
 - ✅ 提交点 C5-1（读侧实现继续拆，统计主题）：已完成（抽出 `EvaStatisticsQueryRepository`；落地提交：`9e0a8d28`；三文档同步：`61b0dfa4`）。
 - ✅ 提交点 C5-2（读侧实现继续拆，记录主题）：已完成（抽出 `EvaRecordQueryRepository`；落地提交：`985f7802`；三文档同步：`68895003`）。
 - ✅ 提交点 C5-3（读侧实现继续拆，任务主题）：已完成（抽出 `EvaTaskQueryRepository`；落地提交：`d467c65e`；三文档同步：`ebff7002`）。
@@ -134,6 +136,7 @@
 - 提交点 B2（AI 报告导出）：`AiCourseAnalysisService.exportDocData` 已按“用例+端口+端口适配器+委托壳”收敛（`c68b3174`）
 - 提交点 B3（AI 报告导出）：`AiCourseAnalysisService.exportDocData` 已进一步退化为纯委托壳（`7f4b3358`）
 - 提交点 B4（AI 报告 analysis）：`AiCourseAnalysisService.analysis` 已按“用例+端口+端口适配器+委托壳”收敛（`a8150e7f`）
+- 提交点 B5（AI 报告用户名解析）：`ExportAiReportDocByUsernameUseCase` 的 username → userId 查询已抽为 `bc-ai-report` 端口 + `eva-app` 端口适配器（`d7df8657`）
 - 提交点 C5-1（统计主题实现拆分）：已抽出 `EvaStatisticsQueryRepository`（`9e0a8d28`）
 - 提交点 C5-2（记录主题实现拆分）：已抽出 `EvaRecordQueryRepository`（`985f7802`）
 - 提交点 C5-3（任务主题实现拆分）：已抽出 `EvaTaskQueryRepository`（`d467c65e`）
