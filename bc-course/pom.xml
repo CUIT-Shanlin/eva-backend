@@ -33,6 +33,13 @@
             <version>${revision}</version>
         </dependency>
 
+        <!-- 评教域协议对象：逐步从 eva-client 迁移到 bc-evaluation/contract（保持 package 不变） -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>bc-evaluation-contract</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
