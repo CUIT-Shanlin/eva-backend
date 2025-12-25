@@ -196,6 +196,10 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
 -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest \\
 -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository
 
+工具调用简报（用于继续 S0.1/S0.1-2 的引用盘点）：
+- Serena `search_for_pattern`：用于快速盘点跨 BC 引用（例如 `import\\s+edu\\.cuit\\.client\\.dto\\.query\\.PagingQuery`、`import\\s+edu\\.cuit\\.client\\.dto\\.query\\.condition\\.GenericConditionalQuery`、`import\\s+edu\\.cuit\\.client\\.dto\\.clientobject\\.SimpleResultCO`、`import\\s+edu\\.cuit\\.client\\.dto\\.clientobject\\.PaginationQueryResultCO`）；日期=2025-12-25。
+- Serena `find_symbol`/`find_referencing_symbols`：用于对目标通用类型/QueryCondition 做符号级定位与引用分析（确保“只重构不改行为”）。
+
 ## 0.7 本次会话增量总结（2025-12-21，更新至 `HEAD`）
 
 - ✅ 系统管理写侧继续收敛：**角色写侧剩余入口**收敛到 `bc-iam`（用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；保持行为不变）。
