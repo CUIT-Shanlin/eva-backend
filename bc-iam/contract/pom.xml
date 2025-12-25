@@ -20,13 +20,6 @@
     </properties>
 
     <dependencies>
-        <!-- 过渡期：复用 eva-client 中的通用 DTO/校验器（逐步拆解后再收敛） -->
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>eva-client</artifactId>
-            <version>${revision}</version>
-        </dependency>
-
         <!-- 过渡期：contract 显式依赖 shared-kernel，避免“经由 eva-client 间接依赖”导致边界不清 -->
         <dependency>
             <groupId>edu.cuit</groupId>
