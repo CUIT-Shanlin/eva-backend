@@ -558,8 +558,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 				         - 进展：已将 `EvaConfig` 从 `eva-client` 迁移到 `bc-evaluation/contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`438d38bf`）。
 				         - 进展：已将 `DateEvaNumCO/TimeEvaNumCO/MoreDateEvaNumCO/SimpleEvaPercentCO/SimplePercentCO/FormPropCO` 从 `eva-client` 迁移到 `bc-evaluation/contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`c2d8a8b1`）。
 				         - 进展：已将课程时间模型 `dto/data/course/CourseTime` 从 `eva-client` 迁移到 `shared-kernel`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`5f21b5ce`）。
-				         - 下一步（建议顺序，保持行为不变）：继续盘点并迁移 `bc-evaluation/contract` 仍依赖且仍物理位于 `eva-client` 的类型，目标是最终让 `bc-evaluation-contract` 去除对 `eva-client` 的直依赖。
-				           - 建议优先关注：在“可证实不再需要”的前提下，移除 `bc-evaluation-contract` 对 `eva-client` 的直依赖（用 Serena 盘点残留引用与依赖面；保持行为不变）。
+				         - 进展：已在“可证实不再需要”的前提下移除 `bc-evaluation-contract` → `eva-client` 直依赖（保持行为不变；最小回归通过；落地提交：`cf2001ef`）。
+				         - 下一步（建议顺序，保持行为不变）：继续迁移评教域仍留在 `eva-client` 的协议对象（P1.2 继续推进；建议优先保持 `package` 不变以降风险）。
 				      4) 对 `PagingQuery/GenericConditionalQuery/SimpleResultCO/PaginationQueryResultCO` 等通用对象先用 Serena 盘点引用范围：跨 BC 则沉淀 shared-kernel，避免误迁到某个 BC。
 				         - 进展：已新增 `shared-kernel` 子模块，并将 `PagingQuery/ConditionalQuery/GenericConditionalQuery/SimpleResultCO/PaginationQueryResultCO` 从 `eva-client` 迁移到 `shared-kernel`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`a25815b2`）。
 				         - 进展：`bc-iam-contract` / `bc-evaluation-contract` 已增加对 `shared-kernel` 的直依赖（暂保留 `eva-client` 以可回滚；最小回归通过；落地提交：`3a0ac086`）。
