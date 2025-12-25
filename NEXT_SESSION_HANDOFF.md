@@ -37,6 +37,7 @@
 - ✅ 结构性里程碑 S0（`bc-iam` 试点，阶段 1）：将 `bc-iam` 折叠为顶层聚合模块 `bc-iam-parent`，并在其内部落地 `domain/application/infrastructure` 子模块；同时将历史平铺模块 `bc-iam-infra` 折叠归位到 `bc-iam/infrastructure`（artifactId/包名保持不变；最小回归通过；落地提交：`0b5c5383`）。
 - ✅ 结构性里程碑 S0.1（拆解 `eva-client`，`bc-iam` 先行）：将 `eva-client` 下 IAM 协议对象（`api/user/*` + `dto/cmd/user/*`）迁移到 `bc-iam/contract` 子模块（包名归位到 `edu.cuit.bc.iam.application.contract...`），并全仓库更新引用（保持行为不变；最小回归通过；落地提交：`dc3727fa`）。
 - ✅ 结构性里程碑 S0（`bc-evaluation` 试点）：将 `bc-evaluation` 折叠为顶层聚合模块 `bc-evaluation-parent`，并在其内部落地 `domain/application/infrastructure` 子模块；同时将历史平铺模块 `bc-evaluation-infra` 折叠归位到 `bc-evaluation/infrastructure`（artifactId/包名保持不变；最小回归通过；落地提交：`4db04d1c`）。
+- ✅ 结构性里程碑 S0.1（拆解 `eva-client`，`bc-iam` 继续推进）：将 `dto/clientobject/user/*` 中与 IAM 直接相关的 8 个 CO（`UserInfoCO/UserDetailCO/RoleInfoCO/SimpleRoleInfoCO/MenuCO/GenericMenuSectionCO/RouterDetailCO/RouterMeta`）从 `eva-client` 迁移到 `bc-iam-contract`（包名归位到 `edu.cuit.bc.iam.application.contract.dto.clientobject.user`），并全仓库更新引用（保持行为不变；最小回归通过；落地提交：`c1a51199`）。
 - ✅ 本次会话提交链（按发生顺序，便于回溯/回滚）：`0b5c5383`（S0 代码）→ `4cb84e4b`（S0 三文档同步）→ `dc3727fa`（S0.1 代码）→ `791c4f42`（S0.1 三文档同步）。
 - ✅ 需求补充（拆解 `eva-client`，并允许改包名）：后续重构将把 `edu.cuit.client.*` 下 BO/CO/DTO 等对象按业务归属迁入对应 BC（允许调整包名以归位到 `bc-xxx/application` 的 `contract/dto`）；跨 BC 复用对象再沉淀到 shared-kernel（落地提交：`a4c6bae8`）。
 - ✅ 文档补强（结构性里程碑路线）：进一步明确“一个 BC 一个顶层聚合模块 + `domain/application/infrastructure` 子模块”落地方式，并补齐拆 `eva-client` 的推荐拆分步骤（只改文档口径；落地提交：`0c87c31a`）。
@@ -136,8 +137,8 @@
 4) data/ 与 data/doc/（如需核对表/字段语义）
 
 本会话目标（优先做这个）：
-- S0：按“一个 BC 一个顶层聚合模块”的新结构，把 `bc-evaluation` 作为下一试点：落地 `domain/application/infrastructure` 子模块，并把 `bc-evaluation-infra` 折叠归位到 `bc-evaluation/infrastructure`（保持行为不变）。
-- S0.1：继续拆解 `eva-client`：优先从 `bc-iam` 相关对象迁移（下一批建议从 `dto/clientobject/user/*` 开始），允许改包名以归位到 `bc-iam-contract` 的 `edu.cuit.bc.iam.application.contract.dto`（保持行为不变）。
+- ✅ S0：已完成：以 `bc-evaluation` 为试点落地 `domain/application/infrastructure` 子模块，并把 `bc-evaluation-infra` 折叠归位到 `bc-evaluation/infrastructure`（保持行为不变；落地提交：`4db04d1c`；三文档同步：`135b9e6b`）。
+- ⏳ S0.1：继续拆解 `eva-client`（`bc-iam` 继续推进）：已完成 `dto/clientobject/user/*` 中 8 个 IAM 相关 CO 迁移到 `bc-iam-contract`（落地提交：`c1a51199`）。剩余 `UnqualifiedUserInfoCO/UnqualifiedUserResultCO` 当前仍被 `IEvaStatisticsService`/评教统计链路引用，暂留 `eva-client`，下一步需先明确归属（更偏 `bc-evaluation` 或 shared-kernel）后再迁移（保持行为不变）。
 
 当前状态（已闭环）：
 - 提交点 0：条目 25 定义/边界/验收口径已补齐（`1adc80bd`）
