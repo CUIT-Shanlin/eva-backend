@@ -38,7 +38,8 @@
 - ✅ 结构性里程碑 S0.1（拆解 `eva-client`，`bc-iam` 先行）：将 `eva-client` 下 IAM 协议对象（`api/user/*` + `dto/cmd/user/*`）迁移到 `bc-iam/contract` 子模块（包名归位到 `edu.cuit.bc.iam.application.contract...`），并全仓库更新引用（保持行为不变；最小回归通过；落地提交：`dc3727fa`）。
 - ✅ 结构性里程碑 S0（`bc-evaluation` 试点）：将 `bc-evaluation` 折叠为顶层聚合模块 `bc-evaluation-parent`，并在其内部落地 `domain/application/infrastructure` 子模块；同时将历史平铺模块 `bc-evaluation-infra` 折叠归位到 `bc-evaluation/infrastructure`（artifactId/包名保持不变；最小回归通过；落地提交：`4db04d1c`）。
 - ✅ 结构性里程碑 S0.1（拆解 `eva-client`，`bc-iam` 继续推进）：将 `dto/clientobject/user/*` 中与 IAM 直接相关的 8 个 CO（`UserInfoCO/UserDetailCO/RoleInfoCO/SimpleRoleInfoCO/MenuCO/GenericMenuSectionCO/RouterDetailCO/RouterMeta`）从 `eva-client` 迁移到 `bc-iam-contract`（包名归位到 `edu.cuit.bc.iam.application.contract.dto.clientobject.user`），并全仓库更新引用（保持行为不变；最小回归通过；落地提交：`c1a51199`）。
-- ✅ 本次会话提交链（按发生顺序，便于回溯/回滚）：`0b5c5383`（S0 代码）→ `4cb84e4b`（S0 三文档同步）→ `dc3727fa`（S0.1 代码）→ `791c4f42`（S0.1 三文档同步）。
+- ✅ P1（评教统计协议归属，继续拆 `eva-client`）：新增 `bc-evaluation-contract` 子模块，并将 `IEvaStatisticsService` + 未达标用户协议对象 `UnqualifiedUserInfoCO/UnqualifiedUserResultCO` 从 `eva-client` 迁移到 `bc-evaluation/contract`（保持 `package edu.cuit.client.*` 不变，仅物理归属与依赖收敛；保持行为不变；最小回归通过；落地提交：`978e3535`）。
+- ✅ 本次会话提交链（按发生顺序，便于回溯/回滚）：`4db04d1c`（S0 代码）→ `135b9e6b`（S0 三文档同步）→ `c1a51199`（S0.1 代码）→ `e093900f`（S0.1 三文档同步）→ `978e3535`（P1 代码）→ `4e9e22f3`（P1 三文档同步）。
 - ✅ 需求补充（拆解 `eva-client`，并允许改包名）：后续重构将把 `edu.cuit.client.*` 下 BO/CO/DTO 等对象按业务归属迁入对应 BC（允许调整包名以归位到 `bc-xxx/application` 的 `contract/dto`）；跨 BC 复用对象再沉淀到 shared-kernel（落地提交：`a4c6bae8`）。
 - ✅ 文档补强（结构性里程碑路线）：进一步明确“一个 BC 一个顶层聚合模块 + `domain/application/infrastructure` 子模块”落地方式，并补齐拆 `eva-client` 的推荐拆分步骤（只改文档口径；落地提交：`0c87c31a`）。
 - ✅ 提交点 C5-1（读侧实现继续拆，统计主题）：新增 `EvaStatisticsQueryRepository` 承接 `EvaStatisticsQueryRepo` 实现，`EvaQueryRepository` 中对应方法退化为委托（口径/异常文案不变；落地提交：`9e0a8d28`；三文档同步：`61b0dfa4`）。
@@ -84,9 +85,11 @@
 
 下一会话建议（继续按“每步=回归+提交+三文档同步”）：
 1) ✅ **结构性里程碑 S0（`bc-evaluation` 试点）**：已完成：将 `bc-evaluation` 折叠为顶层聚合模块 `bc-evaluation-parent`，并在其内部落地 `domain/application/infrastructure` 子模块；同时将历史平铺模块 `bc-evaluation-infra` 折叠归位到 `bc-evaluation/infrastructure`（artifactId/包名/行为不变；落地提交：`4db04d1c`）。
-2) **结构性里程碑 S0.1（优先，继续拆 `eva-client`，`bc-iam` 继续推进）**：在 `bc-iam-contract` 里继续迁移 IAM 专属的 CO/Query（优先 `dto/clientobject/user/*` 与 IAM 查询条件），保持行为不变；跨 BC 通用对象暂留 `eva-client`，后续再沉淀到 shared-kernel。
-3) **S0.1（并行准备，避免误迁）**：用 Serena 先盘点 `PagingQuery/GenericConditionalQuery/SimpleResultCO/PaginationQueryResultCO` 的跨 BC 引用范围；若确属通用对象，再迁入 shared-kernel（避免把“通用对象”误塞进 `bc-iam-contract`）。
-4) **条目 25（后续）**：AI 报告继续挑选剩余写链路（保存/落库/记录等）按同套路收敛（保持行为不变）。
+2) ✅ **P1（评教统计协议归属）**：已完成：新增 `bc-evaluation-contract`，并迁移 `IEvaStatisticsService` + `UnqualifiedUserInfoCO/UnqualifiedUserResultCO` 从 `eva-client` 到 `bc-evaluation/contract`（保持 `package` 不变；落地提交：`978e3535`）。
+3) **P1.1（优先，继续拆 `eva-client`，评教域）**：继续迁移 `IEvaStatisticsService` 仍依赖的评教协议对象（优先 `edu.cuit.client.dto.clientobject.eva.*`、`UnqualifiedUserConditionalQuery`），逐步收敛到 `bc-evaluation/contract`（建议先保持 `package` 不变以降风险；每步用 Serena 盘点引用 → 最小回归 → 提交 → 三文档同步）。
+4) **S0.1（优先，继续拆 `eva-client`，`bc-iam` 继续推进）**：在 `bc-iam-contract` 里继续迁移 IAM 专属的 Query/CO（优先 IAM 查询条件，例如 `MenuConditionalQuery` 等），保持行为不变。
+5) **S0.1（并行准备，避免误迁）**：用 Serena 先盘点 `PagingQuery/GenericConditionalQuery/SimpleResultCO/PaginationQueryResultCO` 的跨 BC 引用范围；若确属通用对象，再迁入 shared-kernel（避免把“通用对象”误塞进某个 BC contract）。
+6) **条目 25（后续）**：AI 报告继续挑选剩余写链路（保存/落库/记录等）按同套路收敛（保持行为不变）。
 
 ## 0.12 当前总体进度概览（2025-12-25，更新至 `HEAD`）
 
@@ -94,6 +97,7 @@
 
 - **bc-iam（系统管理/IAM）**：已完成大量写侧/读侧收敛；历史上通过平铺过渡模块 `bc-iam-infra` 完成适配器归属与去 `eva-infra` 依赖闭环（见历史提交点）。**按 2025-12-24 需求变更**：已将该过渡模块折叠归位到 `bc-iam/infrastructure` 子模块（落地提交：`0b5c5383`），并新增 `bc-iam-contract` 子模块承接 IAM 协议对象迁移（落地提交：`dc3727fa`）。
 - **bc-evaluation（评教）**：写侧主链路（任务发布/删除/模板）已按“用例+端口+适配器+委托壳”收敛；历史上通过平铺过渡模块 `bc-evaluation-infra` 完成读侧迁移与写侧 Repo 迁移，并通过 `eva-infra-shared`/`eva-infra-dal` 解决跨 BC 共享（均保持包名/行为不变）。**按 2025-12-24 需求变更**：已将该过渡模块折叠归位到 `bc-evaluation/infrastructure` 子模块（落地提交：`4db04d1c`）。
+- **bc-evaluation（评教，contract）**：已新增 `bc-evaluation-contract` 并迁移评教统计接口 `IEvaStatisticsService` + 未达标用户协议对象 `UnqualifiedUserInfoCO/UnqualifiedUserResultCO`（保持 `package edu.cuit.client.*` 不变，仅物理归属与依赖收敛；保持行为不变；落地提交：`978e3535`）。
 - **bc-audit（审计日志）**：已完成 `LogGatewayImpl.insertLog` 写链路收敛（异步触发点保留在旧入口，落库与字段补齐在端口适配器）。
 - **bc-ai-report（AI 报告）**：已完成模块骨架接入组合根；导出写链路、analysis 与用户名解析已逐步收敛为“用例+端口+端口适配器+旧入口委托壳”（保持行为不变）。按 2025-12-24 需求变更：后续不再新增 `bc-ai-report-infra` 平铺模块，新增适配器归位到 `bc-ai-report/` 内部 `infrastructure` 子模块（或先落在 `eva-app`，再按里程碑折叠归位）。
 - **bc-course（课程）**：读侧已将 `CourseQueryGatewayImpl` 退化委托壳并抽出 QueryRepo/Repository（保持行为不变）。
@@ -137,8 +141,9 @@
 4) data/ 与 data/doc/（如需核对表/字段语义）
 
 本会话目标（优先做这个）：
-- ✅ S0：已完成：以 `bc-evaluation` 为试点落地 `domain/application/infrastructure` 子模块，并把 `bc-evaluation-infra` 折叠归位到 `bc-evaluation/infrastructure`（保持行为不变；落地提交：`4db04d1c`；三文档同步：`135b9e6b`）。
-- ✅ S0.1：继续拆解 `eva-client`（评教统计协议归属）：已将 `IEvaStatisticsService` + `UnqualifiedUserInfoCO/UnqualifiedUserResultCO` 从 `eva-client` 迁移到 `bc-evaluation/contract` 子模块（当前保持 `package` 不变，仅物理归属与依赖收敛；保持行为不变；落地提交：`978e3535`）。
+- **P1.1（优先，评教域继续拆 `eva-client`）**：继续迁移 `IEvaStatisticsService` 仍依赖的评教协议对象（优先 `edu.cuit.client.dto.clientobject.eva.*`、`UnqualifiedUserConditionalQuery`）到 `bc-evaluation/contract`；建议先保持 `package` 不变以降风险（保持行为不变）。
+- **S0.1（IAM 继续推进）**：在 `bc-iam-contract` 里继续迁移 IAM 专属的 Query/CO（优先 IAM 查询条件，例如 `MenuConditionalQuery` 等），保持行为不变。
+- **S0.1（并行准备，避免误迁）**：用 Serena 先盘点 `PagingQuery/GenericConditionalQuery/SimpleResultCO/PaginationQueryResultCO` 的跨 BC 引用范围；若确属通用对象，再迁入 shared-kernel（避免把“通用对象”误塞进某个 BC contract）。
 
 当前状态（已闭环）：
 - 提交点 0：条目 25 定义/边界/验收口径已补齐（`1adc80bd`）
@@ -165,12 +170,15 @@
 - 提交点 C-2（读侧仓储瘦身，可选）：已完成 C-2-5 并关闭（盘点评教四主题 QueryRepository 未发现可证实无引用项，保持行为不变；落地：`e2a2a717/8b76375f/4a317344/dba6e31d/5c1a03bc`）
 - 结构性里程碑 S0：`bc-iam` 已折叠为 `bc-iam-parent` + `domain/application/contract/infrastructure` 子模块，且 `bc-iam-infra` 已折叠归位到 `bc-iam/infrastructure`（`0b5c5383`）
 - 结构性里程碑 S0.1：`eva-client` 下 IAM 协议对象（`api/user/*` + `dto/cmd/user/*`）已迁移到 `bc-iam/contract`（`dc3727fa`）
+- 结构性里程碑 S0：`bc-evaluation` 已折叠为 `bc-evaluation-parent` + `domain/application/contract/infrastructure` 子模块，且 `bc-evaluation-infra` 已折叠归位到 `bc-evaluation/infrastructure`（`4db04d1c`）
+- 结构性里程碑 S0.1：已迁移 IAM `dto/clientobject/user/*` 中与 IAM 直接相关的 8 个 CO 到 `bc-iam-contract`（包名归位；`c1a51199`）
+- P1：已新增 `bc-evaluation-contract` 并迁移 `IEvaStatisticsService` + `UnqualifiedUserInfoCO/UnqualifiedUserResultCO` 到 `bc-evaluation/contract`（保持 `package` 不变；`978e3535`）
 
 下一步提交点（建议优先级）：
-0) **结构性里程碑（需求变更落地，推荐下一会话优先）**：将“BC=一个顶层聚合模块、内部 `domain/application/infrastructure` 为子模块”的结构落地到真实目录与 Maven 结构中；并把历史平铺过渡模块（`bc-iam-infra`、`bc-evaluation-infra` 等）按“每步可回滚、行为不变”的方式折叠归位到对应 BC 内部子模块。
-0.1) **结构性里程碑（需求变更落地，后续紧随其后）**：逐步拆解 `eva-client`，将各类 BO/CO/DTO 等“边界协议对象”按 BC 归属折叠归位到对应 BC（优先落在 `bc-xxx/application`）；跨 BC 通用对象再沉淀到 shared-kernel；每步最小回归+提交+三文档同步。
-1) 条目 25（AI 报告 / 审计日志模块化试点，后续）：按“写侧优先”继续挑选 AI 报告剩余写链路（保存/落库/记录等）按同套路收敛（保持行为不变；参考 `docs/DDD_REFACTOR_BACKLOG.md` 第 6 节）。
-2) 提交点 C（后续，可选，剩余）：如仍需继续读侧收敛，优先在 `bc-evaluation` 应用层按用例维度继续内聚 query 端口（不改口径/异常文案/副作用顺序）。
+1) **P1.1（优先，评教域继续拆 `eva-client`）**：继续迁移 `IEvaStatisticsService` 仍依赖的协议对象（优先 `edu.cuit.client.dto.clientobject.eva.*`、`UnqualifiedUserConditionalQuery`）到 `bc-evaluation/contract`，建议先保持 `package` 不变（保持行为不变）。
+2) **S0.1（IAM 继续推进）**：继续迁移 IAM 查询条件/CO 到 `bc-iam-contract`（先迁纯 IAM 的 query/condition；保持行为不变）。
+3) **S0.1（并行准备）**：用 Serena 盘点 `PagingQuery/GenericConditionalQuery/SimpleResultCO/PaginationQueryResultCO` 的跨 BC 引用范围；跨 BC 则沉淀 shared-kernel（保持行为不变）。
+4) **条目 25（后续）**：AI 报告继续挑选剩余写链路（保存/落库/记录等）按同套路收敛（保持行为不变；参考 `docs/DDD_REFACTOR_BACKLOG.md` 第 6 节）。
 
 每步最小回归命令（每步结束都跑）：
 export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\"$JAVA_HOME/bin:$PATH\" \\
