@@ -138,7 +138,7 @@
 
 本会话目标（优先做这个）：
 - ✅ S0：已完成：以 `bc-evaluation` 为试点落地 `domain/application/infrastructure` 子模块，并把 `bc-evaluation-infra` 折叠归位到 `bc-evaluation/infrastructure`（保持行为不变；落地提交：`4db04d1c`；三文档同步：`135b9e6b`）。
-- ⏳ S0.1：继续拆解 `eva-client`（`bc-iam` 继续推进）：已完成 `dto/clientobject/user/*` 中 8 个 IAM 相关 CO 迁移到 `bc-iam-contract`（落地提交：`c1a51199`）。剩余 `UnqualifiedUserInfoCO/UnqualifiedUserResultCO` 当前仍被 `IEvaStatisticsService`/评教统计链路引用，暂留 `eva-client`，下一步需先明确归属（更偏 `bc-evaluation` 或 shared-kernel）后再迁移（保持行为不变）。
+- ✅ S0.1：继续拆解 `eva-client`（评教统计协议归属）：已将 `IEvaStatisticsService` + `UnqualifiedUserInfoCO/UnqualifiedUserResultCO` 从 `eva-client` 迁移到 `bc-evaluation/contract` 子模块（当前保持 `package` 不变，仅物理归属与依赖收敛；保持行为不变；落地提交：`978e3535`）。
 
 当前状态（已闭环）：
 - 提交点 0：条目 25 定义/边界/验收口径已补齐（`1adc80bd`）

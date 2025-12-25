@@ -112,7 +112,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - 结构性里程碑 S0（`bc-evaluation` 试点）：将 `bc-evaluation` 折叠为顶层聚合模块 `bc-evaluation-parent`，并在其内部落地 `domain/application/infrastructure` 子模块；同时将历史平铺模块 `bc-evaluation-infra` 折叠归位到 `bc-evaluation/infrastructure`（artifactId/包名保持不变；最小回归通过；落地提交：`4db04d1c`）。
 - 结构性里程碑 S0.1（拆解 `eva-client`，`bc-iam` 先行）：将 IAM 协议对象（`api/user/*` + `dto/cmd/user/*`）从 `eva-client` 迁移到 `bc-iam/contract`（包名归位到 `edu.cuit.bc.iam.application.contract...`；全仓库引用更新；最小回归通过；落地提交：`dc3727fa`）。
 - 结构性里程碑 S0.1（拆解 `eva-client`，`bc-iam` 继续推进）：迁移 `dto/clientobject/user/*` 中与 IAM 直接相关的 8 个 CO（`UserInfoCO/UserDetailCO/RoleInfoCO/SimpleRoleInfoCO/MenuCO/GenericMenuSectionCO/RouterDetailCO/RouterMeta`）到 `bc-iam-contract`（包名归位到 `edu.cuit.bc.iam.application.contract.dto.clientobject.user`；全仓库引用更新；最小回归通过；落地提交：`c1a51199`）。
-  - 下一步（滚动计划）：剩余 `UnqualifiedUserInfoCO/UnqualifiedUserResultCO` 当前仍被 `IEvaStatisticsService`/评教统计链路引用，暂留 `eva-client`，后续需先明确归属（更偏 `bc-evaluation` 或 shared-kernel）后再迁移。
+  - 下一步（滚动计划）：继续迁移评教域内仍留在 `eva-client` 的其它协议对象（例如 `edu.cuit.client.dto.clientobject.eva.*`、`UnqualifiedUserConditionalQuery` 等），逐步收敛到 `bc-evaluation/contract`（每步可回滚；保持行为不变）。
 
 **已完成（2025-12-24）**
 - 文档：需求变更（BC 模块组织方式）：BC 采用“单顶层聚合模块 + 内部 `domain/application/infrastructure` 子模块”组织方式，不再新增 `bc-*-infra` 平铺模块；历史平铺模块后续按里程碑折叠归位（仅文档口径调整；落地提交：`940b65ad`）。
