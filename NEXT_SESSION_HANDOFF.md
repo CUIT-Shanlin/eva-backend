@@ -19,7 +19,7 @@
 - **最终形态（目标，2025-12-24 需求变更）**：每个 BC 在仓库中只占用 **一个顶层目录/聚合模块**（例如 `bc-iam/`、`bc-evaluation/`），其内部按职责拆为 `domain/application/infrastructure` **子模块**（或至少 package 结构完整）；`eva-*` 技术切片逐步退场或仅保留 shared-kernel/统一装配与极少量跨 BC 胶水。为保持可回滚，当前已存在的 `bc-*-infra` 作为过渡形态保留一段时间，后续按里程碑“折叠归位”到对应 BC 内部子模块。
 - **需求补充（2025-12-24）**：逐步拆解 `eva-client`：将 `edu.cuit.client.*` 下的 BO/CO/DTO 等“边界协议对象”按业务归属迁入对应 BC（优先放在 BC 的 `application` 子模块下的 `contract/dto` 包，避免领域层污染；**允许改包名**以完成归位）；确实跨 BC 复用的对象再沉淀到 shared-kernel，最终让 `eva-client` 退出主干依赖。
 
-## 0.9 本次会话增量总结（2025-12-24，更新至 `HEAD`）
+## 0.9 本次会话增量总结（2025-12-25，更新至 `HEAD`）
 
 - ✅ 提交点 0（纯文档闭环）：补齐“条目 25”的定义/边界与验收口径（只改文档，不改代码；落地提交：`1adc80bd`）。
 - ✅ 提交点 A（结构落点，不迁业务）：启动 `bc-ai-report` / `bc-audit` 最小 Maven 子模块骨架并接入组合根（落地提交：`a30a1ff9`）。
@@ -34,6 +34,7 @@
 - ✅ 提交点 B4（AI 报告写链路，analysis）：`AiCourseAnalysisService.analysis` 收敛为“用例 + 端口 + 端口适配器 + 旧入口委托壳”（保持 `@CheckSemId` 切面触发点不变；日志/异常文案不变；落地提交：`a8150e7f`）。
 - ✅ 提交点 B5（AI 报告写链路，用户名解析）：`ExportAiReportDocByUsernameUseCase` 内部依赖收敛：将 username → userId 的查询抽为 `bc-ai-report` 端口 + `eva-app` 端口适配器，保持异常文案与日志顺序不变（落地提交：`d7df8657`）。
 - ✅ 需求变更（BC 模块组织方式）：BC 采用“**单顶层聚合模块 + 内部 `domain/application/infrastructure` 子模块**”组织方式，不再新增 `bc-*-infra` 平铺模块；历史平铺模块后续按里程碑折叠归位（仅改文档口径，不改代码语义；落地提交：`940b65ad`）。
+- ✅ 结构性里程碑 S0（`bc-iam` 试点，阶段 1）：将 `bc-iam` 折叠为顶层聚合模块 `bc-iam-parent`，并在其内部落地 `domain/application/infrastructure` 子模块；同时将历史平铺模块 `bc-iam-infra` 折叠归位到 `bc-iam/infrastructure`（artifactId/包名保持不变；最小回归通过；落地提交：`0b5c5383`）。
 - ✅ 需求补充（拆解 `eva-client`，并允许改包名）：后续重构将把 `edu.cuit.client.*` 下 BO/CO/DTO 等对象按业务归属迁入对应 BC（允许调整包名以归位到 `bc-xxx/application` 的 `contract/dto`）；跨 BC 复用对象再沉淀到 shared-kernel（落地提交：`a4c6bae8`）。
 - ✅ 文档补强（结构性里程碑路线）：进一步明确“一个 BC 一个顶层聚合模块 + `domain/application/infrastructure` 子模块”落地方式，并补齐拆 `eva-client` 的推荐拆分步骤（只改文档口径；落地提交：`0c87c31a`）。
 - ✅ 提交点 C5-1（读侧实现继续拆，统计主题）：新增 `EvaStatisticsQueryRepository` 承接 `EvaStatisticsQueryRepo` 实现，`EvaQueryRepository` 中对应方法退化为委托（口径/异常文案不变；落地提交：`9e0a8d28`；三文档同步：`61b0dfa4`）。
@@ -83,11 +84,11 @@
 3) **条目 25（后续）**：AI 报告继续挑选剩余写链路（保存/落库/记录等）按同套路收敛（保持行为不变）。
 4) **提交点 C（后续，可选）**：如仍需继续读侧收敛，优先在 `bc-evaluation` 应用层按用例维度继续内聚 query 端口（不改口径/异常文案/副作用顺序）。
 
-## 0.12 当前总体进度概览（2025-12-24，更新至 `HEAD`）
+## 0.12 当前总体进度概览（2025-12-25，更新至 `HEAD`）
 
 > 用于回答“现在总进度到哪了”，避免每次会话重新盘点。
 
-- **bc-iam（系统管理/IAM）**：已完成大量写侧/读侧收敛；历史上通过平铺过渡模块 `bc-iam-infra` 完成适配器归属与去 `eva-infra` 依赖闭环（见历史提交点）。**按 2025-12-24 需求变更**：后续将把该过渡模块“折叠归位”到 `bc-iam/` 内部 `infrastructure` 子模块。
+- **bc-iam（系统管理/IAM）**：已完成大量写侧/读侧收敛；历史上通过平铺过渡模块 `bc-iam-infra` 完成适配器归属与去 `eva-infra` 依赖闭环（见历史提交点）。**按 2025-12-24 需求变更**：已将该过渡模块折叠归位到 `bc-iam/infrastructure` 子模块（落地提交：`0b5c5383`）。
 - **bc-evaluation（评教）**：写侧主链路（任务发布/删除/模板）已按“用例+端口+适配器+委托壳”收敛；历史上通过平铺过渡模块 `bc-evaluation-infra` 完成读侧迁移与写侧 Repo 迁移，并通过 `eva-infra-shared`/`eva-infra-dal` 解决跨 BC 共享（均保持包名/行为不变）。**按 2025-12-24 需求变更**：后续将把该过渡模块“折叠归位”到 `bc-evaluation/` 内部 `infrastructure` 子模块。
 - **bc-audit（审计日志）**：已完成 `LogGatewayImpl.insertLog` 写链路收敛（异步触发点保留在旧入口，落库与字段补齐在端口适配器）。
 - **bc-ai-report（AI 报告）**：已完成模块骨架接入组合根；导出写链路、analysis 与用户名解析已逐步收敛为“用例+端口+端口适配器+旧入口委托壳”（保持行为不变）。按 2025-12-24 需求变更：后续不再新增 `bc-ai-report-infra` 平铺模块，新增适配器归位到 `bc-ai-report/` 内部 `infrastructure` 子模块（或先落在 `eva-app`，再按里程碑折叠归位）。
@@ -182,9 +183,9 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
     - `createRole`：`roleConverter.toRoleDO` →（若重名）`throw BizException("角色名称已存在")` → `roleMapper.insert` → `handleRoleUpdateCache(roleId)`
     - `handleRoleUpdateCache`：依次失效 `ALL_ROLE/ONE_ROLE/ROLE_MENU`，再按 `sys_user_role.role_id -> user_id` 失效 `ONE_USER_ID/ONE_USER_USERNAME`（用户名 key 允许 `null`）。
   - 关键落地点（便于快速定位）：
-    - 用例：`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/UpdateRoleInfoUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/UpdateRoleStatusUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/DeleteRoleUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/CreateRoleUseCase.java`
-    - 端口：`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/RoleInfoUpdatePort.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/RoleStatusUpdatePort.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/RoleDeletionPort.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/RoleCreationPort.java`
-    - 端口适配器：`bc-iam-infra/src/main/java/edu/cuit/infra/bciam/adapter/RoleWritePortImpl.java`
+    - 用例：`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/usecase/UpdateRoleInfoUseCase.java`、`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/usecase/UpdateRoleStatusUseCase.java`、`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/usecase/DeleteRoleUseCase.java`、`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/usecase/CreateRoleUseCase.java`
+    - 端口：`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/port/RoleInfoUpdatePort.java`、`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/port/RoleStatusUpdatePort.java`、`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/port/RoleDeletionPort.java`、`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/port/RoleCreationPort.java`
+    - 端口适配器：`bc-iam/infrastructure/src/main/java/edu/cuit/infra/bciam/adapter/RoleWritePortImpl.java`
     - 旧 gateway（已退化委托壳）：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/user/RoleUpdateGatewayImpl.java`
     - 组合根：`eva-app/src/main/java/edu/cuit/app/config/BcIamConfiguration.java`
   - 落地提交：`64fadb20`
@@ -224,9 +225,9 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
     - `deleteMenu` 链路不变：递归删除顺序不变；根节点 `handleUserMenuCache(menuId)` 仍触发两次（一次来自递归末尾、一次来自 `deleteMenu` 方法末尾）。
     - 异常/日志不变：`BizException("父菜单ID: ... 不存在")`、`BizException("菜单id: ... 不存在")`；`LogUtils.logContent(...)` 文案与时机不变。
   - 关键落地点（便于快速定位）：
-    - 用例：`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/UpdateMenuInfoUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/DeleteMenuUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/DeleteMultipleMenuUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/CreateMenuUseCase.java`
-    - 端口：`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/MenuInfoUpdatePort.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/MenuDeletionPort.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/MenuBatchDeletionPort.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/MenuCreationPort.java`
-    - 端口适配器：`bc-iam-infra/src/main/java/edu/cuit/infra/bciam/adapter/MenuWritePortImpl.java`
+    - 用例：`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/usecase/UpdateMenuInfoUseCase.java`、`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/usecase/DeleteMenuUseCase.java`、`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/usecase/DeleteMultipleMenuUseCase.java`、`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/usecase/CreateMenuUseCase.java`
+    - 端口：`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/port/MenuInfoUpdatePort.java`、`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/port/MenuDeletionPort.java`、`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/port/MenuBatchDeletionPort.java`、`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/port/MenuCreationPort.java`
+    - 端口适配器：`bc-iam/infrastructure/src/main/java/edu/cuit/infra/bciam/adapter/MenuWritePortImpl.java`
     - 旧 gateway（已退化委托壳）：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/user/MenuUpdateGatewayImpl.java`
     - 组合根：`eva-app/src/main/java/edu/cuit/app/config/BcIamConfiguration.java`
   - 落地提交：`f022c415`
@@ -260,8 +261,8 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
   - **XML（当前仍在 `eva-infra`）**：`eva-infra/src/main/resources/mapper/user/SysUserMapper.xml`、`SysUserRoleMapper.xml`、`SysRoleMapper.xml`、`SysRoleMenuMapper.xml`、`SysMenuMapper.xml`
   - 依赖来源（便于后续搬迁对照）：Mapper/DO 均在 `eva-infra/src/main/java/edu/cuit/infra/dal/database/(mapper|dataobject)/user/`；XML 均在 `eva-infra/src/main/resources/mapper/user/`
   - ✅ 已完成（条目 26-2）：在 `bc-iam-infra` 创建 DAL 包骨架与资源目录（不迁代码；仅作为后续迁移落点；保持行为不变）。
-    - Java 包骨架：`bc-iam-infra/src/main/java/edu/cuit/infra/dal/database/dataobject/user/package-info.java`、`bc-iam-infra/src/main/java/edu/cuit/infra/dal/database/mapper/user/package-info.java`
-    - 资源目录占位：`bc-iam-infra/src/main/resources/mapper/user/.gitkeep`
+    - Java 包骨架：`bc-iam/infrastructure/src/main/java/edu/cuit/infra/dal/database/dataobject/user/package-info.java`、`bc-iam/infrastructure/src/main/java/edu/cuit/infra/dal/database/mapper/user/package-info.java`
+    - 资源目录占位：`bc-iam/infrastructure/src/main/resources/mapper/user/.gitkeep`
   - ✅ 已完成（条目 26-3）：新增独立 DAL 子模块 `eva-infra-dal`，并先迁移 `SysUser*`（DO/Mapper/XML）到该模块（保持包名/namespace/SQL 不变；保持行为不变）。
     - 说明：Serena 引用分析确认 `SysUserMapper` 被 `eva-infra` 内多个模块（course/eva/log/department…）直接使用；若直接迁入 `bc-iam-infra` 并从 `eva-infra` 删除会引入 Maven 循环依赖风险，因此先抽离为共享 DAL 模块以最小可回滚方式推进。
     - 新模块：`eva-infra-dal/pom.xml`
@@ -990,8 +991,8 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
      - 缓存 key/area 不变：沿用旧 `handleUserUpdateCache` 失效清单（含 `COURSE_LIST_BY_SEM` 等）。
    - 关键落地点（便于快速定位）：
      - 旧 gateway（已退化委托壳）：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/user/UserUpdateGatewayImpl.java`
-     - 用例与端口：`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/DeleteUserUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/UserDeletionPort.java`
-     - 端口适配器：`bc-iam-infra/src/main/java/edu/cuit/infra/bciam/adapter/UserDeletionPortImpl.java`
+     - 用例与端口：`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/usecase/DeleteUserUseCase.java`、`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/port/UserDeletionPort.java`
+     - 端口适配器：`bc-iam/infrastructure/src/main/java/edu/cuit/infra/bciam/adapter/UserDeletionPortImpl.java`
      - 组合根：`eva-app/src/main/java/edu/cuit/app/config/BcIamConfiguration.java`
 
 18) ✅ **已完成：系统管理读侧 `UserQueryGatewayImpl.fileUserEntity` 收敛到 `bc-iam`（保持行为不变）**
@@ -1003,9 +1004,9 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
      - 组合方式不变：角色来源仍为 `userQueryGateway.getUserRoleIds(userId)`；菜单来源仍为 `roleQueryGateway.getRoleMenuIds(roleId)` 并逐个 `menuQueryGateway.getOne(menuId)`。
      - 缓存不变：`findById/findByUsername/page` 的 `@LocalCached` 仍保留在旧 `UserQueryGatewayImpl` 上（入口不变）。
    - 关键落地点（便于快速定位）：
-     - 用例：`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/FindUserByIdUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/FindUserByUsernameUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/PageUserUseCase.java`
-     - 端口：`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/UserEntityQueryPort.java`
-     - 端口适配器：`bc-iam-infra/src/main/java/edu/cuit/infra/bciam/adapter/UserEntityQueryPortImpl.java`
+     - 用例：`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/usecase/FindUserByIdUseCase.java`、`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/usecase/FindUserByUsernameUseCase.java`、`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/usecase/PageUserUseCase.java`
+     - 端口：`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/port/UserEntityQueryPort.java`
+     - 端口适配器：`bc-iam/infrastructure/src/main/java/edu/cuit/infra/bciam/adapter/UserEntityQueryPortImpl.java`
      - 旧 gateway（已退化委托壳）：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/user/UserQueryGatewayImpl.java`
      - 组合根：`eva-app/src/main/java/edu/cuit/app/config/BcIamConfiguration.java`
 
@@ -1015,9 +1016,9 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
      - 缓存读取语义不变：仍需先尝试读取 `LocalCacheManager` 中的 `ONE_USER_ID/ONE_USER_USERNAME`（key 分别为 `String.valueOf(id)` 与 `username`）。
      - 返回值语义不变：`findIdByUsername/findUsernameById/getUserStatus` 仍保持历史 `Optional/null/NPE` 表现（尤其 `getUserStatus` 在 DB 回源时仍可能触发历史 NPE）。
    - 关键落地点（便于快速定位）：
-     - 用例：`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/FindUserIdByUsernameUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/FindUsernameByIdUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/GetUserStatusUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/IsUsernameExistUseCase.java`
-     - 端口：`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/UserBasicQueryPort.java`
-     - 端口适配器：`bc-iam-infra/src/main/java/edu/cuit/infra/bciam/adapter/UserBasicQueryPortImpl.java`
+     - 用例：`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/usecase/FindUserIdByUsernameUseCase.java`、`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/usecase/FindUsernameByIdUseCase.java`、`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/usecase/GetUserStatusUseCase.java`、`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/usecase/IsUsernameExistUseCase.java`
+     - 端口：`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/port/UserBasicQueryPort.java`
+     - 端口适配器：`bc-iam/infrastructure/src/main/java/edu/cuit/infra/bciam/adapter/UserBasicQueryPortImpl.java`
      - 旧 gateway（已退化委托壳）：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/user/UserQueryGatewayImpl.java`
      - 组合根：`eva-app/src/main/java/edu/cuit/app/config/BcIamConfiguration.java`
 
@@ -1027,9 +1028,9 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
      - 缓存不变：`@LocalCached` 仍保留在旧 `UserQueryGatewayImpl` 上（key/area 与命中语义保持不变）。
      - 查询/映射不变：字段选择与 `userConverter.toUserSimpleResult` 映射不变；`getUserRoleIds` join 条件不变。
    - 关键落地点（便于快速定位）：
-     - 用例：`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/FindAllUserIdUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/FindAllUsernameUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/AllUserUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/GetUserRoleIdsUseCase.java`
-     - 端口：`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/UserDirectoryQueryPort.java`
-     - 端口适配器：`bc-iam-infra/src/main/java/edu/cuit/infra/bciam/adapter/UserDirectoryQueryPortImpl.java`
+     - 用例：`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/usecase/FindAllUserIdUseCase.java`、`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/usecase/FindAllUsernameUseCase.java`、`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/usecase/AllUserUseCase.java`、`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/usecase/GetUserRoleIdsUseCase.java`
+     - 端口：`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/port/UserDirectoryQueryPort.java`
+     - 端口适配器：`bc-iam/infrastructure/src/main/java/edu/cuit/infra/bciam/adapter/UserDirectoryQueryPortImpl.java`
      - 旧 gateway（已退化委托壳）：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/user/UserQueryGatewayImpl.java`
      - 组合根：`eva-app/src/main/java/edu/cuit/app/config/BcIamConfiguration.java`
 
@@ -1058,9 +1059,9 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
      - 菜单：`eva-app/src/main/java/edu/cuit/app/service/impl/user/MenuServiceImpl.java` → `menuUpdateGateway.updateMenuInfo/deleteMenu/deleteMultipleMenu`
    - 落地提交链：`f8838951/91d13db4/7fce88b8/d6e3bed1/4d650166/46e666f9`
    - 关键落地点（便于快速定位）：
-     - 用例：`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/AssignRolePermsUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/DeleteMultipleRoleUseCase.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/usecase/HandleUserMenuCacheUseCase.java`
-     - 端口：`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/RolePermissionAssignmentPort.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/RoleBatchDeletionPort.java`、`bc-iam/src/main/java/edu/cuit/bc/iam/application/port/UserMenuCacheInvalidationPort.java`
-     - 端口适配器：`bc-iam-infra/src/main/java/edu/cuit/infra/bciam/adapter/RoleWritePortImpl.java`、`bc-iam-infra/src/main/java/edu/cuit/infra/bciam/adapter/UserMenuCacheInvalidationPortImpl.java`
+     - 用例：`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/usecase/AssignRolePermsUseCase.java`、`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/usecase/DeleteMultipleRoleUseCase.java`、`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/usecase/HandleUserMenuCacheUseCase.java`
+     - 端口：`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/port/RolePermissionAssignmentPort.java`、`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/port/RoleBatchDeletionPort.java`、`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/port/UserMenuCacheInvalidationPort.java`
+     - 端口适配器：`bc-iam/infrastructure/src/main/java/edu/cuit/infra/bciam/adapter/RoleWritePortImpl.java`、`bc-iam/infrastructure/src/main/java/edu/cuit/infra/bciam/adapter/UserMenuCacheInvalidationPortImpl.java`
      - 旧 gateway（已退化委托壳）：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/user/RoleUpdateGatewayImpl.java`、`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/user/MenuUpdateGatewayImpl.java`
      - 组合根：`eva-app/src/main/java/edu/cuit/app/config/BcIamConfiguration.java`
 
@@ -1082,7 +1083,7 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
    - 推荐拆分路径（先小步、可回滚、行为不变）：
      1) 先统一文档与命名：将“旧 gateway = 委托壳 / 入口适配器”的约定固化（本条目已完成）。
      2) ✅ 以 `bc-iam` 为试点：已引入 `bc-iam-infra` 子模块骨架，并由 `eva-app` 装配（提交：`42a6f66f`）。
-     3) ✅ 已完成：将 `bc-iam-infra/src/main/java/edu/cuit/infra/bciam/adapter/*` 作为新落点，并已完成从 `eva-infra` 的迁移（行为不变；提交链：`070068ec/03ceb685/02b3e8aa/6b9d2ce7/5aecc747/1c3d4b8c`）。
+    3) ✅ 已完成：将 `bc-iam/infrastructure/src/main/java/edu/cuit/infra/bciam/adapter/*` 作为新落点，并已完成从 `eva-infra` 的迁移（行为不变；提交链：`070068ec/03ceb685/02b3e8aa/6b9d2ce7/5aecc747/1c3d4b8c`）。
      4) 下一阶段（仍保持行为不变）：将 IAM 的 DAL（DO/Mapper/SQL）从 `eva-infra` 逐步抽离到 `bc-iam-infra`（或更通用的 shared 模块，后置决策），最终让 `bc-iam-infra` 去掉对 `eva-infra` 的依赖。
      5) 当 `bc-iam` 完成三层自包含后，再评估把 `eva-domain` 中与 IAM 强相关的类型逐步迁移到 `bc-iam-domain`（谨慎推进，避免牵连其它 BC；共享部分沉淀到 `shared-kernel`）。
 
@@ -1091,7 +1092,7 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
    - 目标：将 `edu.cuit.infra.dal.database.*user*`（DO/Mapper 及相关 XML/配置）逐步从 `eva-infra` 抽离出来，使 `bc-iam-infra` 最终可去掉对 `eva-infra` 的依赖（保持行为不变）。
      - 说明：由于 `SysUserMapper` 等被 `eva-infra` 内多个模块直接使用，本阶段优先采用“共享 DAL 子模块（`eva-infra-dal`）”承接迁移，以避免 Maven 循环依赖并保持最小可回滚。
    - 建议拆分与里程碑/提交点（每步一条 commit；每步跑最小回归；每步结束先写清下一步里程碑再收尾）：
-     1) ✅ Serena：盘点 `bc-iam-infra/src/main/java/edu/cuit/infra/bciam/adapter/*` 实际依赖的 Mapper/DO 清单（按“user/role/menu”分组）。
+    1) ✅ Serena：盘点 `bc-iam/infrastructure/src/main/java/edu/cuit/infra/bciam/adapter/*` 实际依赖的 Mapper/DO 清单（按“user/role/menu”分组）。
         - Mapper：`SysUserMapper`、`SysUserRoleMapper`、`SysRoleMapper`、`SysRoleMenuMapper`、`SysMenuMapper`
         - DO：`SysUserDO`、`SysUserRoleDO`、`SysRoleDO`、`SysRoleMenuDO`、`SysMenuDO`
         - XML：`eva-infra/src/main/resources/mapper/user/SysUserMapper.xml`、`SysUserRoleMapper.xml`、`SysRoleMapper.xml`、`SysRoleMenuMapper.xml`、`SysMenuMapper.xml`
