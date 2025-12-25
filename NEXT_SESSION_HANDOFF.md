@@ -142,9 +142,9 @@
 4) data/ 与 data/doc/（如需核对表/字段语义）
 
 本会话目标（优先做这个）：
-- **P1.1（优先，评教域继续拆 `eva-client`）**：继续迁移 `IEvaStatisticsService` 仍依赖的评教协议对象（优先 `edu.cuit.client.dto.clientobject.eva.*`、`UnqualifiedUserConditionalQuery`）到 `bc-evaluation/contract`；建议先保持 `package` 不变以降风险（保持行为不变）。
+- **S0.1（并行准备，避免误迁）**：用 Serena 先盘点 `PagingQuery/GenericConditionalQuery/SimpleResultCO/PaginationQueryResultCO` 的跨 BC 引用范围；跨 BC 则沉淀 shared-kernel（避免把“通用对象”误塞进某个 BC contract；保持行为不变）。
 - **S0.1（IAM 继续推进）**：在 `bc-iam-contract` 里继续迁移 IAM 专属的 Query/CO（优先 IAM 查询条件，例如 `MenuConditionalQuery` 等），保持行为不变。
-- **S0.1（并行准备，避免误迁）**：用 Serena 先盘点 `PagingQuery/GenericConditionalQuery/SimpleResultCO/PaginationQueryResultCO` 的跨 BC 引用范围；若确属通用对象，再迁入 shared-kernel（避免把“通用对象”误塞进某个 BC contract）。
+- **P1.2（评教域继续拆 `eva-client`）**：继续迁移评教域仍留在 `eva-client` 的 query/condition（例如 `EvaTaskConditionalQuery/EvaLogConditionalQuery` 等，先用 Serena 盘点引用范围后再迁移）到 `bc-evaluation/contract`；建议先保持 `package` 不变以降风险（保持行为不变）。
 
 当前状态（已闭环）：
 - 提交点 0：条目 25 定义/边界/验收口径已补齐（`1adc80bd`）
@@ -169,6 +169,7 @@
   - 同步：为保持 `bc-evaluation-infra` 不依赖 `eva-infra`，已将 `CalculateClassTime` 迁移到 `eva-infra-shared`（保持包名不变）
 - 提交点 C-1（读侧门面加固，可选）：已清理 `EvaQueryRepository` 为纯委托壳（移除已无引用的历史私有实现/冗余依赖；保持行为不变；落地提交：`73fc6c14`；三文档同步：`083b5807`）
 - 提交点 C-2（读侧仓储瘦身，可选）：已完成 C-2-5 并关闭（盘点评教四主题 QueryRepository 未发现可证实无引用项，保持行为不变；落地：`e2a2a717/8b76375f/4a317344/dba6e31d/5c1a03bc`）
+- P1.1：已迁移 `edu.cuit.client.dto.clientobject.eva.*` + `UnqualifiedUserConditionalQuery` 到 `bc-evaluation/contract`（保持 `package` 不变）；并迁移评教 API 接口（`IEvaConfigService/IEvaRecordService/IEvaTaskService/IEvaTemplateService/IUserEvaService`）到 `bc-evaluation/contract`（保持 `package` 不变）；并将课程域协议接口与 CO（`edu.cuit.client.api.course.*`、`CourseDetailCO/CourseModelCO/SingleCourseDetailCO`）迁移到 `bc-course`（保持行为不变；`6eb0125d`）
 - 结构性里程碑 S0：`bc-iam` 已折叠为 `bc-iam-parent` + `domain/application/contract/infrastructure` 子模块，且 `bc-iam-infra` 已折叠归位到 `bc-iam/infrastructure`（`0b5c5383`）
 - 结构性里程碑 S0.1：`eva-client` 下 IAM 协议对象（`api/user/*` + `dto/cmd/user/*`）已迁移到 `bc-iam/contract`（`dc3727fa`）
 - 结构性里程碑 S0：`bc-evaluation` 已折叠为 `bc-evaluation-parent` + `domain/application/contract/infrastructure` 子模块，且 `bc-evaluation-infra` 已折叠归位到 `bc-evaluation/infrastructure`（`4db04d1c`）
