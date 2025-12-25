@@ -554,6 +554,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 		         - 进展：已将 `edu.cuit.client.dto.clientobject.eva.*` + `UnqualifiedUserConditionalQuery` 从 `eva-client` 迁移到 `bc-evaluation/contract`（保持 `package` 不变）；并将评教 API 接口（`IEvaConfigService/IEvaRecordService/IEvaTaskService/IEvaTemplateService/IUserEvaService`）迁移到 `bc-evaluation/contract`（保持 `package` 不变）；同时将课程域协议接口与 CO（`edu.cuit.client.api.course.*`、`CourseDetailCO/CourseModelCO/SingleCourseDetailCO`）从 `eva-client` 迁移到 `bc-course`，避免 `eva-client` 反向依赖评教 CO（保持行为不变；最小回归通过；落地提交：`6eb0125d`）。
 			      4) 对 `PagingQuery/GenericConditionalQuery/SimpleResultCO/PaginationQueryResultCO` 等通用对象先用 Serena 盘点引用范围：跨 BC 则沉淀 shared-kernel，避免误迁到某个 BC。
 			         - 进展：已新增 `shared-kernel` 子模块，并将 `PagingQuery/ConditionalQuery/GenericConditionalQuery/SimpleResultCO/PaginationQueryResultCO` 从 `eva-client` 迁移到 `shared-kernel`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`a25815b2`）。
+			         - 下一步：逐步让各 BC 的 `contract` 直接依赖 `shared-kernel`，并在“可证实不再需要”的前提下分阶段削减对 `eva-client` 的依赖范围（保持行为不变）。
   - ✅ 提交点 0（纯文档闭环）：补齐“条目 25”的定义/边界与验收口径（只改文档，不改代码；落地提交：`1adc80bd`），避免新会话对 24/25/26 的分界理解不一致
   - ✅ 提交点 A：启动 `bc-ai-report` / `bc-audit` 最小骨架并接入组合根（仅落点，不迁业务语义；落地提交：`a30a1ff9`）
   - ✅ 提交点 B：为 AI 报告或审计日志挑选 1 条写链路，按“用例 + 端口 + 适配器 + 旧 gateway 委托壳”收敛（审计日志写入：`LogGatewayImpl.insertLog`；保持行为不变；落地提交：`b0b72263`）

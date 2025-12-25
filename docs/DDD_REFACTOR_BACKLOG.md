@@ -115,7 +115,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - P1（评教统计协议归属，继续拆 `eva-client`）：新增 `bc-evaluation-contract` 子模块，并迁移评教统计接口 `IEvaStatisticsService` + 未达标用户协议对象 `UnqualifiedUserInfoCO/UnqualifiedUserResultCO` 到 `bc-evaluation/contract`（保持 `package` 不变；最小回归通过；落地提交：`978e3535`）。
 - P1.1（评教域继续拆 `eva-client`，协议对象归属）：迁移 `edu.cuit.client.dto.clientobject.eva.*` + `UnqualifiedUserConditionalQuery` 到 `bc-evaluation/contract`（保持 `package` 不变）；并将评教 API 接口（`IEvaConfigService/IEvaRecordService/IEvaTaskService/IEvaTemplateService/IUserEvaService`）从 `eva-client` 迁移到 `bc-evaluation/contract`（保持 `package` 不变）；同时将课程域协议接口与 CO（`edu.cuit.client.api.course.*`、`CourseDetailCO/CourseModelCO/SingleCourseDetailCO`）从 `eva-client` 迁移到 `bc-course`，以避免 `eva-client` 反向依赖评教 CO（保持行为不变；最小回归通过；落地提交：`6eb0125d`）。
 - S0.1（通用对象沉淀 shared-kernel，避免误迁）：用 Serena 盘点 `PagingQuery/GenericConditionalQuery/SimpleResultCO/PaginationQueryResultCO` 的跨 BC 引用范围，确认跨 BC 复用后，新增 `shared-kernel` 子模块并将上述通用类型（含 `ConditionalQuery`）从 `eva-client` 迁移到 `shared-kernel`（保持 `package edu.cuit.client.*` 不变；保持行为不变；最小回归通过；落地提交：`a25815b2`）。
-  - 下一步（滚动计划）：逐步让各 BC 的 `contract` 直接依赖 `shared-kernel`，并分阶段削减对 `eva-client` 的依赖范围（每步可回滚；保持行为不变）。
+  - 下一步（滚动计划）：逐步让各 BC 的 `contract` 直接依赖 `shared-kernel`，并在“可证实不再需要”的前提下分阶段削减对 `eva-client` 的依赖范围（建议拆分：先加直依赖，再去 `eva-client`；每步可回滚；保持行为不变）。
 
 **已完成（2025-12-24）**
 - 文档：需求变更（BC 模块组织方式）：BC 采用“单顶层聚合模块 + 内部 `domain/application/infrastructure` 子模块”组织方式，不再新增 `bc-*-infra` 平铺模块；历史平铺模块后续按里程碑折叠归位（仅文档口径调整；落地提交：`940b65ad`）。

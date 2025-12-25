@@ -181,6 +181,11 @@
 
 下一步提交点（建议优先级）：
 1) **S0.1（收敛依赖，避免“shared-kernel 有名无实”）**：逐步让各 BC 的 `contract` 直接依赖 `shared-kernel`，并分阶段削减对 `eva-client` 的依赖范围（每步可回滚；保持行为不变）。
+   - 建议拆分（每步 1 次最小回归 + 1 次提交 + 三文档同步）：
+     1) Serena：盘点 `bc-evaluation/contract` 仍直接/间接依赖 `eva-client` 的类型清单（按 `dto/data/query/api` 分组），判断是否可把依赖收敛到 `shared-kernel`（保持行为不变）。
+     2) `bc-evaluation/contract`：增加对 `shared-kernel` 的**直依赖**；若确认不再需要 `eva-client` 的其它类型，则移除 `eva-client` 依赖（保持行为不变）。
+     3) `bc-iam/contract`：同上（先“加直依赖”，再“可证实无引用后去依赖”）。
+     4) `bc-course`：补齐对 `shared-kernel` 的直依赖（课程接口已使用 `PagingQuery/GenericConditionalQuery` 等通用类型）。
 2) **S0.1（IAM 继续推进）**：继续迁移 IAM 查询条件/CO 到 `bc-iam-contract`（先迁纯 IAM 的 query/condition；保持行为不变）。
 3) **P1.2（评教域继续拆 `eva-client`）**：继续迁移评教域仍留在 `eva-client` 的 query/condition（例如 `EvaTaskConditionalQuery/EvaLogConditionalQuery` 等，先用 Serena 盘点引用范围后再迁移），逐步收敛到 `bc-evaluation/contract`（建议先保持 `package` 不变；保持行为不变）。
 4) **条目 25（后续）**：AI 报告继续挑选剩余写链路（保存/落库/记录等）按同套路收敛（保持行为不变；参考 `docs/DDD_REFACTOR_BACKLOG.md` 第 6 节）。
