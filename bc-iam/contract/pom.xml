@@ -34,6 +34,18 @@
             <version>${revision}</version>
         </dependency>
 
+        <!-- IAM contract 中存在对通用枚举/工具的引用：显式声明依赖，避免隐式经由其它模块传递 -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>eva-base-common</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
