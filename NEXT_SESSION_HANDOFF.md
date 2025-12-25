@@ -36,6 +36,7 @@
 - ✅ 需求变更（BC 模块组织方式）：BC 采用“**单顶层聚合模块 + 内部 `domain/application/infrastructure` 子模块**”组织方式，不再新增 `bc-*-infra` 平铺模块；历史平铺模块后续按里程碑折叠归位（仅改文档口径，不改代码语义；落地提交：`940b65ad`）。
 - ✅ 结构性里程碑 S0（`bc-iam` 试点，阶段 1）：将 `bc-iam` 折叠为顶层聚合模块 `bc-iam-parent`，并在其内部落地 `domain/application/infrastructure` 子模块；同时将历史平铺模块 `bc-iam-infra` 折叠归位到 `bc-iam/infrastructure`（artifactId/包名保持不变；最小回归通过；落地提交：`0b5c5383`）。
 - ✅ 结构性里程碑 S0.1（拆解 `eva-client`，`bc-iam` 先行）：将 `eva-client` 下 IAM 协议对象（`api/user/*` + `dto/cmd/user/*`）迁移到 `bc-iam/contract` 子模块（包名归位到 `edu.cuit.bc.iam.application.contract...`），并全仓库更新引用（保持行为不变；最小回归通过；落地提交：`dc3727fa`）。
+- ✅ 结构性里程碑 S0（`bc-evaluation` 试点）：将 `bc-evaluation` 折叠为顶层聚合模块 `bc-evaluation-parent`，并在其内部落地 `domain/application/infrastructure` 子模块；同时将历史平铺模块 `bc-evaluation-infra` 折叠归位到 `bc-evaluation/infrastructure`（artifactId/包名保持不变；最小回归通过；落地提交：`4db04d1c`）。
 - ✅ 本次会话提交链（按发生顺序，便于回溯/回滚）：`0b5c5383`（S0 代码）→ `4cb84e4b`（S0 三文档同步）→ `dc3727fa`（S0.1 代码）→ `791c4f42`（S0.1 三文档同步）。
 - ✅ 需求补充（拆解 `eva-client`，并允许改包名）：后续重构将把 `edu.cuit.client.*` 下 BO/CO/DTO 等对象按业务归属迁入对应 BC（允许调整包名以归位到 `bc-xxx/application` 的 `contract/dto`）；跨 BC 复用对象再沉淀到 shared-kernel（落地提交：`a4c6bae8`）。
 - ✅ 文档补强（结构性里程碑路线）：进一步明确“一个 BC 一个顶层聚合模块 + `domain/application/infrastructure` 子模块”落地方式，并补齐拆 `eva-client` 的推荐拆分步骤（只改文档口径；落地提交：`0c87c31a`）。
@@ -50,7 +51,7 @@
 - ✅ 提交点 C-2-2（读侧仓储瘦身，可选）：清理 `EvaRecordQueryRepository` 冗余通配 import（保持行为不变；落地提交：`8b76375f`）。
 - ✅ 提交点 C-2-3（读侧仓储瘦身，可选）：清理 `EvaQueryRepo` 冗余 import（保持行为不变；落地提交：`4a317344`）。
 - ✅ 提交点 C-2-4（读侧仓储瘦身，可选）：清理 `EvaStatisticsQueryRepo` 通配 import（保持行为不变；落地提交：`dba6e31d`）。
-- ✅ 提交点 C-2-5（读侧仓储瘦身，可选）：使用 Serena 盘点评教读侧四主题仓储（`bc-evaluation-infra/src/main/java/edu/cuit/infra/bcevaluation/query/*QueryRepository.java`）的私有字段/私有方法/内部类引用，未发现“仅定义未被调用”的可删项；因此将 C-2 视为“已无进一步可证实无引用项”并关闭（保持行为不变；落地提交：`5c1a03bc`）。
+- ✅ 提交点 C-2-5（读侧仓储瘦身，可选）：使用 Serena 盘点评教读侧四主题仓储（`bc-evaluation/infrastructure/src/main/java/edu/cuit/infra/bcevaluation/query/*QueryRepository.java`）的私有字段/私有方法/内部类引用，未发现“仅定义未被调用”的可删项；因此将 C-2 视为“已无进一步可证实无引用项”并关闭（保持行为不变；落地提交：`5c1a03bc`）。
 - ✅ 文档同步（以 Git 为准，不在文内滚动固化 commitId）：使用 `git log -n 1 -- NEXT_SESSION_HANDOFF.md`、`git log -n 1 -- DDD_REFACTOR_PLAN.md`、`git log -n 1 -- docs/DDD_REFACTOR_BACKLOG.md` 获取各文档的最新同步提交。
 - ✅ 以上每步最小回归均已通过（Java17）：  
   - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
@@ -81,7 +82,7 @@
 - ✅ 提交点 C-1（读侧门面加固，可选）：已完成（清理 `EvaQueryRepository` 为纯委托壳；落地提交：`73fc6c14`；三文档同步：`083b5807`）。
 
 下一会话建议（继续按“每步=回归+提交+三文档同步”）：
-1) **结构性里程碑 S0（优先，下一试点建议 `bc-evaluation`）**：将 `bc-evaluation` 改为“顶层聚合模块 + `domain/application/infrastructure` 子模块”，并将历史平铺模块 `bc-evaluation-infra` 折叠归位到 `bc-evaluation/infrastructure`（保持 artifactId/包名/行为不变）。
+1) ✅ **结构性里程碑 S0（`bc-evaluation` 试点）**：已完成：将 `bc-evaluation` 折叠为顶层聚合模块 `bc-evaluation-parent`，并在其内部落地 `domain/application/infrastructure` 子模块；同时将历史平铺模块 `bc-evaluation-infra` 折叠归位到 `bc-evaluation/infrastructure`（artifactId/包名/行为不变；落地提交：`4db04d1c`）。
 2) **结构性里程碑 S0.1（优先，继续拆 `eva-client`，`bc-iam` 继续推进）**：在 `bc-iam-contract` 里继续迁移 IAM 专属的 CO/Query（优先 `dto/clientobject/user/*` 与 IAM 查询条件），保持行为不变；跨 BC 通用对象暂留 `eva-client`，后续再沉淀到 shared-kernel。
 3) **S0.1（并行准备，避免误迁）**：用 Serena 先盘点 `PagingQuery/GenericConditionalQuery/SimpleResultCO/PaginationQueryResultCO` 的跨 BC 引用范围；若确属通用对象，再迁入 shared-kernel（避免把“通用对象”误塞进 `bc-iam-contract`）。
 4) **条目 25（后续）**：AI 报告继续挑选剩余写链路（保存/落库/记录等）按同套路收敛（保持行为不变）。
@@ -91,7 +92,7 @@
 > 用于回答“现在总进度到哪了”，避免每次会话重新盘点。
 
 - **bc-iam（系统管理/IAM）**：已完成大量写侧/读侧收敛；历史上通过平铺过渡模块 `bc-iam-infra` 完成适配器归属与去 `eva-infra` 依赖闭环（见历史提交点）。**按 2025-12-24 需求变更**：已将该过渡模块折叠归位到 `bc-iam/infrastructure` 子模块（落地提交：`0b5c5383`），并新增 `bc-iam-contract` 子模块承接 IAM 协议对象迁移（落地提交：`dc3727fa`）。
-- **bc-evaluation（评教）**：写侧主链路（任务发布/删除/模板）已按“用例+端口+适配器+委托壳”收敛；历史上通过平铺过渡模块 `bc-evaluation-infra` 完成读侧迁移与写侧 Repo 迁移，并通过 `eva-infra-shared`/`eva-infra-dal` 解决跨 BC 共享（均保持包名/行为不变）。**按 2025-12-24 需求变更**：后续将把该过渡模块“折叠归位”到 `bc-evaluation/` 内部 `infrastructure` 子模块。
+- **bc-evaluation（评教）**：写侧主链路（任务发布/删除/模板）已按“用例+端口+适配器+委托壳”收敛；历史上通过平铺过渡模块 `bc-evaluation-infra` 完成读侧迁移与写侧 Repo 迁移，并通过 `eva-infra-shared`/`eva-infra-dal` 解决跨 BC 共享（均保持包名/行为不变）。**按 2025-12-24 需求变更**：已将该过渡模块折叠归位到 `bc-evaluation/infrastructure` 子模块（落地提交：`4db04d1c`）。
 - **bc-audit（审计日志）**：已完成 `LogGatewayImpl.insertLog` 写链路收敛（异步触发点保留在旧入口，落库与字段补齐在端口适配器）。
 - **bc-ai-report（AI 报告）**：已完成模块骨架接入组合根；导出写链路、analysis 与用户名解析已逐步收敛为“用例+端口+端口适配器+旧入口委托壳”（保持行为不变）。按 2025-12-24 需求变更：后续不再新增 `bc-ai-report-infra` 平铺模块，新增适配器归位到 `bc-ai-report/` 内部 `infrastructure` 子模块（或先落在 `eva-app`，再按里程碑折叠归位）。
 - **bc-course（课程）**：读侧已将 `CourseQueryGatewayImpl` 退化委托壳并抽出 QueryRepo/Repository（保持行为不变）。

@@ -546,7 +546,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 		  - 结构性里程碑 S0.1（需求变更，2025-12-24）：逐步拆解 `eva-client`：按 BC 归属迁移 BO/CO/DTO（允许改包名以归位到 BC 的 `application/contract/dto`）；新增对象不再进入 `eva-client`；跨 BC 通用对象沉淀到 shared-kernel（每步可回滚；保持行为不变）。
 		    - ✅ 进展（2025-12-25）：已在 `bc-iam` 下新增 `bc-iam-contract` 子模块，并将 IAM 协议对象（`api/user/*` + `dto/cmd/user/*`）从 `eva-client` 迁移到 `bc-iam/contract`（包名归位到 `edu.cuit.bc.iam.application.contract...`；全仓库引用已更新；最小回归通过；落地提交：`dc3727fa`）。
 		    - 下一步（建议顺序，仍按“每步=最小回归+提交+三文档同步”）：
-		      1) 以 `bc-evaluation` 作为 S0 下一试点：折叠 `bc-evaluation-infra` → `bc-evaluation/infrastructure`，落地 `bc-evaluation-parent` + `domain/application/infrastructure`。
+		      1) ✅ 以 `bc-evaluation` 作为 S0 试点：折叠 `bc-evaluation-infra` → `bc-evaluation/infrastructure`，落地 `bc-evaluation-parent` + `domain/application/infrastructure`（已完成；落地提交：`4db04d1c`）。
 		      2) 在 `bc-iam-contract` 继续迁移 IAM 专属协议对象：优先 `dto/clientobject/user/*` 与 IAM 查询条件。
 		      3) 对 `PagingQuery/GenericConditionalQuery/SimpleResultCO/PaginationQueryResultCO` 等通用对象先用 Serena 盘点引用范围：跨 BC 则沉淀 shared-kernel，避免误迁到 IAM。
   - ✅ 提交点 0（纯文档闭环）：补齐“条目 25”的定义/边界与验收口径（只改文档，不改代码；落地提交：`1adc80bd`），避免新会话对 24/25/26 的分界理解不一致
@@ -567,7 +567,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - ✅ 提交点 D1（`bc-evaluation-infra` 阶段 1：评教读侧查询迁移 + DAL/shared 拆分）：引入 `bc-evaluation-infra` 并迁移评教读侧查询（QueryPortImpl + QueryRepo/Repository），同时将 course/eva DAL（DO/Mapper/XML）迁移到 `eva-infra-dal`、将 `CourseConvertor`/`EvaConvertor`/`EvaCacheConstants`/`CourseFormat` 迁移到 `eva-infra-shared`（保持包名不变；保持行为不变；落地提交：`be6dc05c`）
 - ✅ 提交点 D2（`bc-evaluation-infra` 阶段 2：评教写侧端口适配器迁移）：迁移 `eva-infra/src/main/java/edu/cuit/infra/bcevaluation/repository/*` 到 `bc-evaluation-infra`；并将 `CalculateClassTime` 迁移到 `eva-infra-shared` 以保持 `bc-evaluation-infra` 不依赖 `eva-infra`（保持包名/行为不变；落地提交：`24e7f6c9`）
 - ✅ 提交点 C-1（后续，可选，读侧门面加固）：清理 `EvaQueryRepository` 中已无引用的历史私有实现/冗余依赖，使其成为纯委托壳（保持口径/异常文案不变；落地提交：`73fc6c14`；三文档同步：`083b5807`）
-- ✅ 提交点 C-2（后续，可选，读侧仓储瘦身）：继续盘点评教读侧四主题仓储（`bc-evaluation-infra/src/main/java/edu/cuit/infra/bcevaluation/query/*QueryRepository.java`）残留的历史私有实现/冗余依赖，按“每次只删可证实无引用代码”的原则逐步清理（仍保持口径/异常文案不变；每步最小回归+提交+三文档同步；进展：已完成 C-2-1：`e2a2a717`；已完成 C-2-2：`8b76375f`；已完成 C-2-3：`4a317344`；已完成 C-2-4：`dba6e31d`；已完成 C-2-5：`5c1a03bc`；结论：四主题仓储未发现可证实无引用项，因此关闭 C-2）
+- ✅ 提交点 C-2（后续，可选，读侧仓储瘦身）：继续盘点评教读侧四主题仓储（`bc-evaluation/infrastructure/src/main/java/edu/cuit/infra/bcevaluation/query/*QueryRepository.java`）残留的历史私有实现/冗余依赖，按“每次只删可证实无引用代码”的原则逐步清理（仍保持口径/异常文案不变；每步最小回归+提交+三文档同步；进展：已完成 C-2-1：`e2a2a717`；已完成 C-2-2：`8b76375f`；已完成 C-2-3：`4a317344`；已完成 C-2-4：`dba6e31d`；已完成 C-2-5：`5c1a03bc`；结论：四主题仓储未发现可证实无引用项，因此关闭 C-2）
 - 提交点 C（后续，可选，剩余）：在 C5-4 完成后，视情况继续盘点评教读侧 query 实现残留私有工具/实体组装并内聚到对应主题仓储（仍保持口径/异常文案不变）
 
 #### 条目 25（定义 / 边界 / 验收口径）
