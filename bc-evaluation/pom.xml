@@ -14,9 +14,9 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>contract</module>
         <module>domain</module>
         <module>application</module>
         <module>infrastructure</module>
     </modules>
 </project>
-

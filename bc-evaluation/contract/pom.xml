@@ -6,12 +6,12 @@
 
     <parent>
         <groupId>edu.cuit</groupId>
-        <artifactId>eva-backend</artifactId>
+        <artifactId>bc-evaluation-parent</artifactId>
         <version>${revision}</version>
-        <relativePath>../../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>bc-evaluation</artifactId>
+    <artifactId>bc-evaluation-contract</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -20,27 +20,19 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>bc-evaluation-contract</artifactId>
-            <version>${revision}</version>
-        </dependency>
+        <!-- 过渡期：复用 eva-client 中的通用 DTO/Query（逐步拆解后再收敛） -->
         <dependency>
             <groupId>edu.cuit</groupId>
             <artifactId>eva-client</artifactId>
             <version>${revision}</version>
         </dependency>
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>eva-domain</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <!-- 领域模型尽量保持纯净；如需 Lombok 简化代码，可用 dependencyManagement 的版本 -->
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
@@ -48,3 +40,4 @@
         </dependency>
     </dependencies>
 </project>
+

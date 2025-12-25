@@ -49,6 +49,12 @@
 
         <dependency>
             <groupId>edu.cuit</groupId>
+            <artifactId>bc-evaluation-contract</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>edu.cuit</groupId>
             <artifactId>eva-infra-dal</artifactId>
             <version>${revision}</version>
         </dependency>
