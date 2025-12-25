@@ -1,6 +1,6 @@
 package edu.cuit.bc.iam.application.port;
 
-import edu.cuit.client.dto.cmd.user.UpdateMenuCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.UpdateMenuCmd;
 
 /**
  * 菜单信息更新端口（写侧持久化/外部依赖）。

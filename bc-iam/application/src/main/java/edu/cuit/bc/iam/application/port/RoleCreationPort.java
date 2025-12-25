@@ -1,6 +1,6 @@
 package edu.cuit.bc.iam.application.port;
 
-import edu.cuit.client.dto.cmd.user.NewRoleCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.NewRoleCmd;
 
 /**
  * 角色创建端口（写侧持久化/外部依赖）。

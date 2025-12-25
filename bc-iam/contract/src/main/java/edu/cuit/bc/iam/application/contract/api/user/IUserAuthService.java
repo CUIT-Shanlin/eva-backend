@@ -1,6 +1,6 @@
-package edu.cuit.client.api.user;
+package edu.cuit.bc.iam.application.contract.api.user;
 
-import edu.cuit.client.dto.cmd.user.UserLoginCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.UserLoginCmd;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**

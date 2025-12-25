@@ -1,7 +1,7 @@
 package edu.cuit.bc.iam.application.usecase;
 
 import edu.cuit.bc.iam.application.port.UserCreationPort;
-import edu.cuit.client.dto.cmd.user.NewUserCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.NewUserCmd;
 
 /**
  * 创建用户用例（写模型入口）。

@@ -1,9 +1,9 @@
 package edu.cuit.adapter.controller.user.update;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
-import edu.cuit.client.api.user.IMenuService;
-import edu.cuit.client.dto.cmd.user.NewMenuCmd;
-import edu.cuit.client.dto.cmd.user.UpdateMenuCmd;
+import edu.cuit.bc.iam.application.contract.api.user.IMenuService;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.NewMenuCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.UpdateMenuCmd;
 import edu.cuit.common.enums.LogModule;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import edu.cuit.zhuyimeng.framework.logging.aspect.annotation.OperateLog;

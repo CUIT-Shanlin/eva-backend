@@ -1,7 +1,7 @@
 package edu.cuit.bc.iam.application.usecase;
 
 import edu.cuit.bc.iam.application.port.UserInfoUpdatePort;
-import edu.cuit.client.dto.cmd.user.UpdateUserCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.UpdateUserCmd;
 
 /**
  * 更新用户信息用例（写模型入口）。

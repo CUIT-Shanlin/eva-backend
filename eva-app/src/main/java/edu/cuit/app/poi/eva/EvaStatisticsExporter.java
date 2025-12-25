@@ -5,7 +5,7 @@ import edu.cuit.app.poi.util.ExcelUtils;
 import edu.cuit.client.api.ISemesterService;
 import edu.cuit.client.api.course.ICourseDetailService;
 import edu.cuit.client.api.course.IUserCourseService;
-import edu.cuit.client.api.user.IUserService;
+import edu.cuit.bc.iam.application.contract.api.user.IUserService;
 import edu.cuit.client.dto.clientobject.SemesterCO;
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.bc.evaluation.application.port.EvaRecordQueryPort;

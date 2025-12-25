@@ -2,11 +2,11 @@ package edu.cuit.app.service.impl.user;
 
 import com.alibaba.cola.exception.BizException;
 import edu.cuit.app.convertor.user.MenuBizConvertor;
-import edu.cuit.client.api.user.IMenuService;
+import edu.cuit.bc.iam.application.contract.api.user.IMenuService;
 import edu.cuit.client.dto.clientobject.user.GenericMenuSectionCO;
 import edu.cuit.client.dto.clientobject.user.MenuCO;
-import edu.cuit.client.dto.cmd.user.NewMenuCmd;
-import edu.cuit.client.dto.cmd.user.UpdateMenuCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.NewMenuCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.UpdateMenuCmd;
 import edu.cuit.client.dto.query.condition.MenuConditionalQuery;
 import edu.cuit.domain.gateway.user.MenuQueryGateway;
 import edu.cuit.domain.gateway.user.MenuUpdateGateway;

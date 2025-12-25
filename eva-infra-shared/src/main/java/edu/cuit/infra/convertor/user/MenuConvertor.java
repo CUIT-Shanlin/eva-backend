@@ -1,7 +1,7 @@
 package edu.cuit.infra.convertor.user;
 
-import edu.cuit.client.dto.cmd.user.NewMenuCmd;
-import edu.cuit.client.dto.cmd.user.UpdateMenuCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.NewMenuCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.UpdateMenuCmd;
 import edu.cuit.domain.entity.user.biz.MenuEntity;
 import edu.cuit.infra.convertor.EntityFactory;
 import edu.cuit.infra.dal.database.dataobject.user.SysMenuDO;

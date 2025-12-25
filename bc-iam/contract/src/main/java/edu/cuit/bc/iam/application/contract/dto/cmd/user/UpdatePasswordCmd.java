@@ -1,4 +1,4 @@
-package edu.cuit.client.dto.cmd.user;
+package edu.cuit.bc.iam.application.contract.dto.cmd.user;
 
 import com.alibaba.cola.dto.Command;
 import jakarta.validation.constraints.NotNull;

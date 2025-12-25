@@ -1,7 +1,7 @@
 package edu.cuit.adapter.controller.user.query;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
-import edu.cuit.client.api.user.IRoleService;
+import edu.cuit.bc.iam.application.contract.api.user.IRoleService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.user.RoleInfoCO;
 import edu.cuit.client.dto.clientobject.user.SimpleRoleInfoCO;

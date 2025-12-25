@@ -1,7 +1,7 @@
 package edu.cuit.bc.iam.application.usecase;
 
 import edu.cuit.bc.iam.application.port.RoleInfoUpdatePort;
-import edu.cuit.client.dto.cmd.user.UpdateRoleCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.UpdateRoleCmd;
 
 /**
  * 角色信息更新用例（写模型入口）。

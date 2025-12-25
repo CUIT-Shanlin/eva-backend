@@ -1,7 +1,7 @@
 package edu.cuit.bc.iam.application.usecase;
 
 import edu.cuit.bc.iam.application.port.RoleCreationPort;
-import edu.cuit.client.dto.cmd.user.NewRoleCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.NewRoleCmd;
 
 /**
  * 角色创建用例（写模型入口）。

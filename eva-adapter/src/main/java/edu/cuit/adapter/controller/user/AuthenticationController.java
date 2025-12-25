@@ -1,8 +1,8 @@
 package edu.cuit.adapter.controller.user;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
-import edu.cuit.client.api.user.IUserAuthService;
-import edu.cuit.client.dto.cmd.user.UserLoginCmd;
+import edu.cuit.bc.iam.application.contract.api.user.IUserAuthService;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.UserLoginCmd;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

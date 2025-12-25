@@ -1,11 +1,11 @@
-package edu.cuit.client.api.user;
+package edu.cuit.bc.iam.application.contract.api.user;
 
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.user.RoleInfoCO;
 import edu.cuit.client.dto.clientobject.user.SimpleRoleInfoCO;
-import edu.cuit.client.dto.cmd.user.AssignPermCmd;
-import edu.cuit.client.dto.cmd.user.NewRoleCmd;
-import edu.cuit.client.dto.cmd.user.UpdateRoleCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.AssignPermCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.NewRoleCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.UpdateRoleCmd;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 

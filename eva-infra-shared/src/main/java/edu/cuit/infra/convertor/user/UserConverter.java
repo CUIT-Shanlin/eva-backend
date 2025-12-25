@@ -2,8 +2,8 @@ package edu.cuit.infra.convertor.user;
 
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
-import edu.cuit.client.dto.cmd.user.NewUserCmd;
-import edu.cuit.client.dto.cmd.user.UpdateUserCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.NewUserCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.UpdateUserCmd;
 import edu.cuit.domain.entity.user.biz.MenuEntity;
 import edu.cuit.domain.entity.user.biz.RoleEntity;
 import edu.cuit.domain.entity.user.biz.UserEntity;

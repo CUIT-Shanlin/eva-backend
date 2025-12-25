@@ -11,7 +11,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>bc-iam</artifactId>
+    <artifactId>bc-iam-contract</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -20,23 +20,10 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>bc-iam-contract</artifactId>
-            <version>${revision}</version>
-        </dependency>
-
-        <!-- 渐进式重构阶段：复用旧系统 DTO，保证行为不变 -->
+        <!-- 过渡期：复用 eva-client 中的通用 DTO/校验器（逐步拆解后再收敛） -->
         <dependency>
             <groupId>edu.cuit</groupId>
             <artifactId>eva-client</artifactId>
-            <version>${revision}</version>
-        </dependency>
-
-        <!-- 渐进式重构阶段：复用旧系统领域模型，保证行为不变 -->
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>eva-domain</artifactId>
             <version>${revision}</version>
         </dependency>
 
@@ -45,6 +32,7 @@
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>

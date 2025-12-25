@@ -1,7 +1,7 @@
 package edu.cuit.bc.iam.application.usecase;
 
 import edu.cuit.bc.iam.application.port.MenuInfoUpdatePort;
-import edu.cuit.client.dto.cmd.user.UpdateMenuCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.UpdateMenuCmd;
 
 /**
  * 菜单信息更新用例（写模型入口）。

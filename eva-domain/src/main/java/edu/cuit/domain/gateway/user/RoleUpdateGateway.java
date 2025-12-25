@@ -1,7 +1,7 @@
 package edu.cuit.domain.gateway.user;
 
-import edu.cuit.client.dto.cmd.user.NewRoleCmd;
-import edu.cuit.client.dto.cmd.user.UpdateRoleCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.NewRoleCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.UpdateRoleCmd;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

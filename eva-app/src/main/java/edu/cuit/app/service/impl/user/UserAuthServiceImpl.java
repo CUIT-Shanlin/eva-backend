@@ -2,8 +2,8 @@ package edu.cuit.app.service.impl.user;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.alibaba.cola.exception.BizException;
-import edu.cuit.client.api.user.IUserAuthService;
-import edu.cuit.client.dto.cmd.user.UserLoginCmd;
+import edu.cuit.bc.iam.application.contract.api.user.IUserAuthService;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.UserLoginCmd;
 import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.domain.gateway.user.LdapPersonGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;

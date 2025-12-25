@@ -1,7 +1,7 @@
 package edu.cuit.bc.iam.application.usecase;
 
 import edu.cuit.bc.iam.application.port.MenuCreationPort;
-import edu.cuit.client.dto.cmd.user.NewMenuCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.NewMenuCmd;
 
 /**
  * 菜单创建用例（写模型入口）。

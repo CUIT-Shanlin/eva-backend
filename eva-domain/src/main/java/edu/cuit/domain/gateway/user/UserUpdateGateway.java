@@ -1,7 +1,7 @@
 package edu.cuit.domain.gateway.user;
 
-import edu.cuit.client.dto.cmd.user.NewUserCmd;
-import edu.cuit.client.dto.cmd.user.UpdateUserCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.NewUserCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.UpdateUserCmd;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

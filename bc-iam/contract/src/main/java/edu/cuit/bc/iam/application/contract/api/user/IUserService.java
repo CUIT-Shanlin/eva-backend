@@ -1,4 +1,4 @@
-package edu.cuit.client.api.user;
+package edu.cuit.bc.iam.application.contract.api.user;
 
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
@@ -6,10 +6,10 @@ import edu.cuit.client.dto.clientobject.eva.UserSingleCourseScoreCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
 import edu.cuit.client.dto.clientobject.user.UserInfoCO;
-import edu.cuit.client.dto.cmd.user.AssignRoleCmd;
-import edu.cuit.client.dto.cmd.user.NewUserCmd;
-import edu.cuit.client.dto.cmd.user.UpdatePasswordCmd;
-import edu.cuit.client.dto.cmd.user.UpdateUserCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.AssignRoleCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.NewUserCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.UpdatePasswordCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.UpdateUserCmd;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.client.dto.query.condition.UnqualifiedUserConditionalQuery;

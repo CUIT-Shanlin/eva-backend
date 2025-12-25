@@ -1,10 +1,10 @@
 package edu.cuit.adapter.controller.user.update;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
-import edu.cuit.client.api.user.IRoleService;
-import edu.cuit.client.dto.cmd.user.AssignPermCmd;
-import edu.cuit.client.dto.cmd.user.NewRoleCmd;
-import edu.cuit.client.dto.cmd.user.UpdateRoleCmd;
+import edu.cuit.bc.iam.application.contract.api.user.IRoleService;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.AssignPermCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.NewRoleCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.UpdateRoleCmd;
 import edu.cuit.client.validator.status.ValidStatus;
 import edu.cuit.common.enums.LogModule;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;

@@ -3,7 +3,7 @@ package edu.cuit.adapter.controller.user.query;
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import edu.cuit.client.api.eva.IEvaStatisticsService;
-import edu.cuit.client.api.user.IUserService;
+import edu.cuit.bc.iam.application.contract.api.user.IUserService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.eva.UserSingleCourseScoreCO;

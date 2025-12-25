@@ -1,7 +1,7 @@
 package edu.cuit.domain.gateway.user;
 
-import edu.cuit.client.dto.cmd.user.NewMenuCmd;
-import edu.cuit.client.dto.cmd.user.UpdateMenuCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.NewMenuCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.UpdateMenuCmd;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

@@ -4,7 +4,7 @@ import com.alibaba.cola.exception.BizException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import edu.cuit.bc.iam.application.port.UserCreationPort;
-import edu.cuit.client.dto.cmd.user.NewUserCmd;
+import edu.cuit.bc.iam.application.contract.dto.cmd.user.NewUserCmd;
 import edu.cuit.domain.entity.user.LdapPersonEntity;
 import edu.cuit.domain.gateway.user.LdapPersonGateway;
 import edu.cuit.domain.gateway.user.RoleQueryGateway;
