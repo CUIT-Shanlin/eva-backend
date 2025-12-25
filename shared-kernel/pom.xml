@@ -3,13 +3,14 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>edu.cuit</groupId>
         <artifactId>eva-backend</artifactId>
         <version>${revision}</version>
     </parent>
 
-    <artifactId>eva-client</artifactId>
+    <artifactId>shared-kernel</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -18,30 +19,27 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>shared-kernel</artifactId>
-            <version>${revision}</version>
-        </dependency>
+        <!-- 只放“稳定且无业务语义”的通用类型：分页/通用查询/极简返回体等（保持行为不变） -->
         <dependency>
             <groupId>com.alibaba.cola</groupId>
             <artifactId>cola-component-dto</artifactId>
         </dependency>
+
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.18.0</version>
-        </dependency>
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>eva-base-common</artifactId>
-            <version>${revision}</version>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
-
 </project>
