@@ -6,8 +6,9 @@
 
     <parent>
         <groupId>edu.cuit</groupId>
-        <artifactId>eva-backend</artifactId>
+        <artifactId>bc-iam-parent</artifactId>
         <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>bc-iam-infra</artifactId>

@@ -24,7 +24,6 @@
 	    <module>bc-course</module>
     <module>bc-messaging</module>
     <module>bc-iam</module>
-    <module>bc-iam-infra</module>
     <module>bc-ai-report</module>
     <module>bc-audit</module>
   </modules>
