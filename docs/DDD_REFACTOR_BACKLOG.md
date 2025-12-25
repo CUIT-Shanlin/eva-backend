@@ -113,7 +113,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - 结构性里程碑 S0.1（拆解 `eva-client`，`bc-iam` 先行）：将 IAM 协议对象（`api/user/*` + `dto/cmd/user/*`）从 `eva-client` 迁移到 `bc-iam/contract`（包名归位到 `edu.cuit.bc.iam.application.contract...`；全仓库引用更新；最小回归通过；落地提交：`dc3727fa`）。
 - 结构性里程碑 S0.1（拆解 `eva-client`，`bc-iam` 继续推进）：迁移 `dto/clientobject/user/*` 中与 IAM 直接相关的 8 个 CO（`UserInfoCO/UserDetailCO/RoleInfoCO/SimpleRoleInfoCO/MenuCO/GenericMenuSectionCO/RouterDetailCO/RouterMeta`）到 `bc-iam-contract`（包名归位到 `edu.cuit.bc.iam.application.contract.dto.clientobject.user`；全仓库引用更新；最小回归通过；落地提交：`c1a51199`）。
 - P1（评教统计协议归属，继续拆 `eva-client`）：新增 `bc-evaluation-contract` 子模块，并迁移评教统计接口 `IEvaStatisticsService` + 未达标用户协议对象 `UnqualifiedUserInfoCO/UnqualifiedUserResultCO` 到 `bc-evaluation/contract`（保持 `package` 不变；最小回归通过；落地提交：`978e3535`）。
-  - 下一步（滚动计划）：继续迁移评教域内仍留在 `eva-client` 的其它协议对象（优先 `edu.cuit.client.dto.clientobject.eva.*`、`UnqualifiedUserConditionalQuery`），逐步收敛到 `bc-evaluation/contract`（每步可回滚；保持行为不变）。
+- P1.1（评教域继续拆 `eva-client`，协议对象归属）：迁移 `edu.cuit.client.dto.clientobject.eva.*` + `UnqualifiedUserConditionalQuery` 到 `bc-evaluation/contract`（保持 `package` 不变）；并将评教 API 接口（`IEvaConfigService/IEvaRecordService/IEvaTaskService/IEvaTemplateService/IUserEvaService`）从 `eva-client` 迁移到 `bc-evaluation/contract`（保持 `package` 不变）；同时将课程域协议接口与 CO（`edu.cuit.client.api.course.*`、`CourseDetailCO/CourseModelCO/SingleCourseDetailCO`）从 `eva-client` 迁移到 `bc-course`，以避免 `eva-client` 反向依赖评教 CO（保持行为不变；最小回归通过；落地提交：`6eb0125d`）。
+  - 下一步（滚动计划）：用 Serena 先盘点 `PagingQuery/GenericConditionalQuery/SimpleResultCO/PaginationQueryResultCO` 的跨 BC 引用范围；跨 BC 则沉淀 shared-kernel，避免误迁到某个 BC contract（每步可回滚；保持行为不变）。
 
 **已完成（2025-12-24）**
 - 文档：需求变更（BC 模块组织方式）：BC 采用“单顶层聚合模块 + 内部 `domain/application/infrastructure` 子模块”组织方式，不再新增 `bc-*-infra` 平铺模块；历史平铺模块后续按里程碑折叠归位（仅文档口径调整；落地提交：`940b65ad`）。
