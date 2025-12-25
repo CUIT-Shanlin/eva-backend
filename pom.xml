@@ -19,7 +19,6 @@
 	    <module>eva-infra</module>
 	    <module>eva-base</module>
 	    <module>bc-evaluation</module>
-	    <module>bc-evaluation-infra</module>
 	    <module>bc-template</module>
 	    <module>bc-course</module>
     <module>bc-messaging</module>

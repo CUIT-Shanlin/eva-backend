@@ -8,9 +8,10 @@
         <groupId>edu.cuit</groupId>
         <artifactId>eva-backend</artifactId>
         <version>${revision}</version>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>bc-evaluation-infra</artifactId>
+    <artifactId>bc-evaluation</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -19,49 +20,26 @@
     </properties>
 
     <dependencies>
-        <!-- bc-evaluation：应用层端口/用例 -->
         <dependency>
             <groupId>edu.cuit</groupId>
-            <artifactId>bc-evaluation</artifactId>
+            <artifactId>eva-client</artifactId>
             <version>${revision}</version>
         </dependency>
-
-        <!-- DAL：从 eva-infra 渐进式抽离，供多模块复用（保持包名/namespace 不变） -->
         <dependency>
             <groupId>edu.cuit</groupId>
-            <artifactId>eva-infra-dal</artifactId>
+            <artifactId>eva-domain</artifactId>
             <version>${revision}</version>
         </dependency>
-
-        <!-- shared：从 eva-infra 渐进式抽离的可复用基础设施能力（Converter/缓存常量/工具等） -->
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>eva-infra-shared</artifactId>
-            <version>${revision}</version>
-        </dependency>
-
-        <!-- 评教读侧查询实现依赖 LocalCacheManager 等基础设施能力 -->
-        <dependency>
-            <groupId>edu.cuit.zhuyimeng</groupId>
-            <artifactId>zym-spring-boot-starter-cache</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>edu.cuit.zhuyimeng</groupId>
-            <artifactId>zym-spring-boot-starter-logging</artifactId>
-        </dependency>
-
+        <!-- 领域模型尽量保持纯净；如需 Lombok 简化代码，可用 dependencyManagement 的版本 -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 </project>
