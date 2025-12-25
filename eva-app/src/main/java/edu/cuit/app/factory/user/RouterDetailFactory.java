@@ -1,8 +1,8 @@
 package edu.cuit.app.factory.user;
 
 import cn.hutool.extra.spring.SpringUtil;
-import edu.cuit.client.dto.clientobject.user.RouterDetailCO;
-import edu.cuit.client.dto.clientobject.user.RouterMeta;
+import edu.cuit.bc.iam.application.contract.dto.clientobject.user.RouterDetailCO;
+import edu.cuit.bc.iam.application.contract.dto.clientobject.user.RouterMeta;
 import edu.cuit.domain.entity.user.biz.MenuEntity;
 import edu.cuit.domain.entity.user.biz.RoleEntity;
 import edu.cuit.domain.entity.user.biz.UserEntity;

@@ -1,4 +1,4 @@
-package edu.cuit.client.dto.clientobject.user;
+package edu.cuit.bc.iam.application.contract.dto.clientobject.user;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

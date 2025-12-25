@@ -22,7 +22,7 @@ import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
 import edu.cuit.client.dto.clientobject.eva.UserSingleCourseScoreCO;
-import edu.cuit.client.dto.clientobject.user.*;
+import edu.cuit.bc.iam.application.contract.dto.clientobject.user.*;
 import edu.cuit.bc.iam.application.contract.dto.cmd.user.AssignRoleCmd;
 import edu.cuit.bc.iam.application.contract.dto.cmd.user.NewUserCmd;
 import edu.cuit.bc.iam.application.contract.dto.cmd.user.UpdatePasswordCmd;

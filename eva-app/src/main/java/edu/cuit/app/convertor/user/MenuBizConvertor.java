@@ -1,6 +1,6 @@
 package edu.cuit.app.convertor.user;
 
-import edu.cuit.client.dto.clientobject.user.MenuCO;
+import edu.cuit.bc.iam.application.contract.dto.clientobject.user.MenuCO;
 import edu.cuit.domain.entity.user.biz.MenuEntity;
 import edu.cuit.infra.convertor.EntityFactory;
 import org.mapstruct.*;

@@ -1,6 +1,6 @@
 package edu.cuit.domain.gateway.user;
 
-import edu.cuit.client.dto.clientobject.user.MenuCO;
+import edu.cuit.bc.iam.application.contract.dto.clientobject.user.MenuCO;
 import edu.cuit.client.dto.query.condition.MenuConditionalQuery;
 import edu.cuit.domain.entity.user.biz.MenuEntity;
 import org.springframework.stereotype.Component;

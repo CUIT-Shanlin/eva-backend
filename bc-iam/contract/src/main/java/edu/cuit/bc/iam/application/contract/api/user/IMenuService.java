@@ -1,7 +1,7 @@
 package edu.cuit.bc.iam.application.contract.api.user;
 
-import edu.cuit.client.dto.clientobject.user.GenericMenuSectionCO;
-import edu.cuit.client.dto.clientobject.user.MenuCO;
+import edu.cuit.bc.iam.application.contract.dto.clientobject.user.GenericMenuSectionCO;
+import edu.cuit.bc.iam.application.contract.dto.clientobject.user.MenuCO;
 import edu.cuit.bc.iam.application.contract.dto.cmd.user.NewMenuCmd;
 import edu.cuit.bc.iam.application.contract.dto.cmd.user.UpdateMenuCmd;
 import edu.cuit.client.dto.query.condition.MenuConditionalQuery;

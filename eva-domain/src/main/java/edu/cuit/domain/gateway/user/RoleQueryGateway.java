@@ -1,7 +1,7 @@
 package edu.cuit.domain.gateway.user;
 
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
-import edu.cuit.client.dto.clientobject.user.SimpleRoleInfoCO;
+import edu.cuit.bc.iam.application.contract.dto.clientobject.user.SimpleRoleInfoCO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;

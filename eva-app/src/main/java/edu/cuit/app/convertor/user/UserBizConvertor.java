@@ -1,7 +1,7 @@
 package edu.cuit.app.convertor.user;
 
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
-import edu.cuit.client.dto.clientobject.user.UserDetailCO;
+import edu.cuit.bc.iam.application.contract.dto.clientobject.user.UserDetailCO;
 import edu.cuit.bc.iam.application.contract.dto.cmd.user.NewUserCmd;
 import edu.cuit.domain.entity.user.LdapPersonEntity;
 import edu.cuit.domain.entity.user.biz.UserEntity;

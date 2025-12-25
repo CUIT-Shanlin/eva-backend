@@ -1,6 +1,6 @@
 package edu.cuit.app.convertor.user;
 
-import edu.cuit.client.dto.clientobject.user.RoleInfoCO;
+import edu.cuit.bc.iam.application.contract.dto.clientobject.user.RoleInfoCO;
 import edu.cuit.domain.entity.user.biz.RoleEntity;
 import edu.cuit.infra.convertor.EntityFactory;
 import org.mapstruct.Mapper;

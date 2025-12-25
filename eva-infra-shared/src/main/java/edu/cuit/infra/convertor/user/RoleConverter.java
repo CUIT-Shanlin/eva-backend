@@ -1,6 +1,6 @@
 package edu.cuit.infra.convertor.user;
 
-import edu.cuit.client.dto.clientobject.user.SimpleRoleInfoCO;
+import edu.cuit.bc.iam.application.contract.dto.clientobject.user.SimpleRoleInfoCO;
 import edu.cuit.bc.iam.application.contract.dto.cmd.user.NewRoleCmd;
 import edu.cuit.bc.iam.application.contract.dto.cmd.user.UpdateRoleCmd;
 import edu.cuit.domain.entity.user.biz.MenuEntity;

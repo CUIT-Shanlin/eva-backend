@@ -2,8 +2,8 @@ package edu.cuit.adapter.controller.user.query;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import edu.cuit.bc.iam.application.contract.api.user.IMenuService;
-import edu.cuit.client.dto.clientobject.user.GenericMenuSectionCO;
-import edu.cuit.client.dto.clientobject.user.MenuCO;
+import edu.cuit.bc.iam.application.contract.dto.clientobject.user.GenericMenuSectionCO;
+import edu.cuit.bc.iam.application.contract.dto.clientobject.user.MenuCO;
 import edu.cuit.client.dto.query.condition.MenuConditionalQuery;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import jakarta.validation.Valid;
