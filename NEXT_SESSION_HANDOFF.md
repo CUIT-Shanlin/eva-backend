@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2025-12-26（本次会话）**
+- ✅ **S0.1（消息协议继续拆 `eva-client`，clientobject）**：将 `EvaMsgCO` 从 `eva-client` 迁移到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`2f257a86`）。
 - ✅ **S0.1（消息协议继续拆 `eva-client`，cmd）**：将 `SendWarningMsgCmd` 从 `eva-client` 迁移到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`e6aa5913`）。
 - ✅ **S0.1（消息协议继续拆 `eva-client`，cmd/interface/bo）**：将消息域 `IMsgService/SendMessageCmd/MessageBO` 从 `eva-client` 迁移到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`431a5a23`）。
 - ✅ **S0.1（消息协议继续拆 `eva-client`，response DTO）**：将消息 response DTO（`GenericResponseMsg/EvaResponseMsg`）从 `eva-client` 迁移到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`ecb8cee5`）。
@@ -290,7 +291,7 @@ export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$J
 下一步提交点（建议优先级）：
 1) **S0.1（下一步优先：收敛 `eva-domain` → `eva-client` 依赖）**：
    - ✅ 进展：已移除 `eva-domain` → `eva-client` Maven **直依赖**（`9ff21249`）。
-   - 下一步建议（保持行为不变；每步可回滚）：继续用 Serena 盘点 `eva-domain` 中 `import edu.cuit.client.*` 的类型清单，形成“仍由 `eva-client` 提供的类型集合”，按业务归属小簇迁移到对应 BC（例如 `bc-course`/`bc-messaging`/`bc-ai-report`）或 `shared-kernel`，并逐步削减对 `eva-client` 的**传递依赖路径**（每步=最小回归+提交+三文档同步）。
+   - 下一步建议（保持行为不变；每步可回滚）：继续用 Serena 盘点 `eva-domain` 中 `import edu.cuit.client.*` 的类型清单，并逐一核对“类型来源是否仍在 `eva-client`”。若仍存在则按业务归属小簇迁移到对应 BC（例如 `bc-course`/`bc-messaging`/`bc-ai-report`）或 `shared-kernel`；若已不存在，则转向下一批“仍留在 `eva-client` 的对象”（当前主要是 AI/教室相关）继续归位（每步=最小回归+提交+三文档同步）。
 2) **S0.1（IAM 继续推进）**：继续迁移 IAM 专属 query/condition/CO（保持行为不变；避免新代码回流 `eva-client`；必要时先用 Serena 盘点残留引用面再决定迁移/沉淀）。
    - ✅ 已完成：移除 `bc-iam/application` → `eva-client` 的直依赖（保持行为不变；`7371ab96`）。
    - ✅ 已完成：迁移 IAM 专属接口 `IDepartmentService` 从 `eva-client` 到 `bc-iam-contract`（包名归位到 `edu.cuit.bc.iam.application.contract.api.department`；保持行为不变；`656dc36e`）。
@@ -299,13 +300,9 @@ export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$J
 4) **条目 25（后续）**：AI 报告继续挑选剩余写链路（保存/落库/记录等）按同套路收敛（保持行为不变；参考 `docs/DDD_REFACTOR_BACKLOG.md` 第 6 节）。
 
 当前 `eva-client` 残留对象（用于下一会话快速定位；以 Git 为准）：
-- `edu.cuit.client.api`：`IClassroomService`、`IMsgService`、`ai/IAiCourseAnalysisService`
-- `edu.cuit.client.bo`：`EvaProp`、`MessageBO`、`ai/AiAnalysisBO`、`ai/AiCourseSuggestionBO`
-- `edu.cuit.client.dto`：
-  - `clientobject`：`SimpleCourseResultCO`、`SimpleSubjectResultCO`、`course/*`（自助改课/推荐课等 CO；`SingleCourseCO` 已迁移到 `shared-kernel`）、（`EvaMsgCO` 目前 Serena 未发现引用，需复核）
-  - `cmd`：`SendMessageCmd`、`SendWarningMsgCmd`
-  - `data`：`msg/{GenericResponseMsg,EvaResponseMsg}`
-  - `query`：（已迁移到 `bc-course`）
+- `edu.cuit.client.api`：`IClassroomService`、`ai/IAiCourseAnalysisService`
+- `edu.cuit.client.bo`：`EvaProp`、`ai/AiAnalysisBO`、`ai/AiCourseSuggestionBO`
+- `edu.cuit.client.dto`：仅剩 `package-info.java`（`cmd/query/data/clientobject` 的业务对象已按 S0.1 逐步迁移到对应 BC contract 或 `shared-kernel`）
 
 每步最小回归命令（每步结束都跑）：
 export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\"$JAVA_HOME/bin:$PATH\" \\
