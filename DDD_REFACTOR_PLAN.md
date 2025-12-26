@@ -562,7 +562,10 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 				         - 进展：已在“可证实不再需要”的前提下移除 `bc-evaluation-contract` → `eva-client` 直依赖（保持行为不变；最小回归通过；落地提交：`cf2001ef`）。
 				         - 进展：已在“可证实不再需要”的前提下移除 `bc-evaluation/application` → `eva-client` 直依赖（保持行为不变；最小回归通过；落地提交：`10e8eb0b`）。
 				         - 下一步（建议顺序，保持行为不变）：继续迁移评教域仍留在 `eva-client` 的协议对象（P1.2 继续推进；建议优先保持 `package` 不变以降风险）。若评教专属目录已迁空，则继续清理评教 BC 其它子模块（如 `bc-evaluation/domain` / `bc-evaluation/infrastructure`）对 `eva-client` 的直依赖：先用 Serena 盘点引用面，再逐步移除 Maven 依赖（每步最小回归+提交+三文档同步）。
-				      4) 对 `PagingQuery/GenericConditionalQuery/SimpleResultCO/PaginationQueryResultCO` 等通用对象先用 Serena 盘点引用范围：跨 BC 则沉淀 shared-kernel，避免误迁到某个 BC。
+				      4) 在 `bc-audit` 继续迁移审计日志协议对象（保持行为不变）：
+				         - 进展：已将审计日志协议对象 `ILogService/OperateLogCO/LogModuleCO` 从 `eva-client` 迁移到 `bc-audit`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`e1dbf2d4`）。
+				         - 下一步：用 Serena 盘点 `bc-audit` 仍依赖 `eva-client` 的类型清单（当前可见 `SysLogBO` 仍在 `eva-client`），按“小簇迁移”逐步归位并最终移除 `bc-audit` → `eva-client` 的直依赖（保持行为不变）。
+				      5) 对 `PagingQuery/GenericConditionalQuery/SimpleResultCO/PaginationQueryResultCO` 等通用对象先用 Serena 盘点引用范围：跨 BC 则沉淀 shared-kernel，避免误迁到某个 BC。
 				         - 进展：已新增 `shared-kernel` 子模块，并将 `PagingQuery/ConditionalQuery/GenericConditionalQuery/SimpleResultCO/PaginationQueryResultCO` 从 `eva-client` 迁移到 `shared-kernel`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`a25815b2`）。
 				         - 进展：`bc-iam-contract` / `bc-evaluation-contract` 已增加对 `shared-kernel` 的直依赖（暂保留 `eva-client` 以可回滚；最小回归通过；落地提交：`3a0ac086`）。
 				         - 进展：已将 `ValidStatus/ValidStatusValidator` 从 `eva-client` 迁移到 `shared-kernel`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`686de369`）。

@@ -134,7 +134,7 @@
 - **bc-iam（系统管理/IAM）**：已完成大量写侧/读侧收敛；历史上通过平铺过渡模块 `bc-iam-infra` 完成适配器归属与去 `eva-infra` 依赖闭环（见历史提交点）。**按 2025-12-24 需求变更**：已将该过渡模块折叠归位到 `bc-iam/infrastructure` 子模块（落地提交：`0b5c5383`），并新增 `bc-iam-contract` 子模块承接 IAM 协议对象迁移（落地提交：`dc3727fa`）。
 - **bc-evaluation（评教）**：写侧主链路（任务发布/删除/模板）已按“用例+端口+适配器+委托壳”收敛；历史上通过平铺过渡模块 `bc-evaluation-infra` 完成读侧迁移与写侧 Repo 迁移，并通过 `eva-infra-shared`/`eva-infra-dal` 解决跨 BC 共享（均保持包名/行为不变）。**按 2025-12-24 需求变更**：已将该过渡模块折叠归位到 `bc-evaluation/infrastructure` 子模块（落地提交：`4db04d1c`）。
 - **bc-evaluation（评教，contract）**：已新增 `bc-evaluation-contract` 并迁移评教统计接口 `IEvaStatisticsService` + 未达标用户协议对象 `UnqualifiedUserInfoCO/UnqualifiedUserResultCO`（保持 `package edu.cuit.client.*` 不变，仅物理归属与依赖收敛；保持行为不变；落地提交：`978e3535`）；并继续迁移评教统计/表单相关 CO（`DateEvaNumCO/TimeEvaNumCO/MoreDateEvaNumCO/SimpleEvaPercentCO/SimplePercentCO/FormPropCO`，保持 `package` 不变；保持行为不变；`c2d8a8b1`），以及课程时间模型 `CourseTime`（沉淀到 `shared-kernel`，保持 `package` 不变；保持行为不变；`5f21b5ce`）；并已在“可证实不再需要”的前提下移除 `bc-evaluation-contract` → `eva-client` 直依赖（`cf2001ef`）。
-- **bc-audit（审计日志）**：已完成 `LogGatewayImpl.insertLog` 写链路收敛（异步触发点保留在旧入口，落库与字段补齐在端口适配器）。
+- **bc-audit（审计日志）**：已完成 `LogGatewayImpl.insertLog` 写链路收敛（异步触发点保留在旧入口，落库与字段补齐在端口适配器）；并已将审计日志协议对象 `ILogService/OperateLogCO/LogModuleCO` 从 `eva-client` 迁移到 `bc-audit`（保持 `package` 不变；保持行为不变；`e1dbf2d4`）。
 - **bc-ai-report（AI 报告）**：已完成模块骨架接入组合根；导出写链路、analysis 与用户名解析已逐步收敛为“用例+端口+端口适配器+旧入口委托壳”（保持行为不变）。按 2025-12-24 需求变更：后续不再新增 `bc-ai-report-infra` 平铺模块，新增适配器归位到 `bc-ai-report/` 内部 `infrastructure` 子模块（或先落在 `eva-app`，再按里程碑折叠归位）。
 - **bc-course（课程）**：读侧已将 `CourseQueryGatewayImpl` 退化委托壳并抽出 QueryRepo/Repository（保持行为不变）。
 
@@ -178,13 +178,18 @@
 
 本会话目标（优先做这个）：
 - ✅ **S0.1（评教 contract 收敛依赖）**：已闭环：`bc-evaluation-contract` 已在“可证实不再需要”的前提下去除对 `eva-client` 的直依赖（保持行为不变；细节见 0.10）。
-- **P1.2（评教域继续拆 `eva-client`）**：继续迁移评教域仍留在 `eva-client` 的协议对象（不仅是 query/condition，也包括 cmd/data/clientobject 等）；若评教专属目录已迁空，则优先清理评教 BC 其它模块对 `eva-client` 的直依赖（例如 `bc-evaluation/application`），保持行为不变。
-- **S0.1（IAM 继续推进）**：在 `bc-iam-contract` 里继续迁移 IAM 专属的 Query/CO（保持行为不变；避免新代码回流 `eva-client`；注意 `bc-iam-contract` 已可不再直依赖 `eva-client`）。
+- ✅ **P1.2-1（评教 application 去 `eva-client` 直依赖）**：已闭环：`bc-evaluation/application` 已在“可证实不再需要”的前提下去除对 `eva-client` 的直依赖（保持行为不变；`10e8eb0b`）。
+- ✅ **S0.1-7（IAM application 去 `eva-client` 直依赖）**：已闭环：`bc-iam/application` 已在“可证实不再需要”的前提下去除对 `eva-client` 的直依赖（保持行为不变；`7371ab96`）。
+- ✅ **P1.2-2（审计日志协议继续拆 `eva-client`）**：已闭环：`ILogService/OperateLogCO/LogModuleCO` 已从 `eva-client` 迁移到 `bc-audit`（保持 `package` 不变；保持行为不变；`e1dbf2d4`）。
+- **P1.2-3（下一步优先：审计日志继续拆 `eva-client`）**：用 Serena 盘点 `bc-audit` 仍依赖 `eva-client` 的类型清单（当前可见 `SysLogBO` 仍在 `eva-client`）；若可证实不再需要，则按“小簇迁移”逐步归位并最终移除 `bc-audit` → `eva-client` 的直依赖（保持行为不变）。
+- **P1.2（评教域继续拆 `eva-client`，后续）**：用 Serena 盘点评教域是否仍有评教专属对象残留在 `eva-client`；若仅剩其它 BC 的对象，则仅保留“依赖面收敛”推进（保持行为不变）。
+- **S0.1（IAM 继续推进，后续）**：用 Serena 盘点 `eva-client` 残留对象在 IAM 的引用范围；若为 IAM 专属则迁移到 `bc-iam-contract`（或更合适的 BC）；新增对象避免回流 `eva-client`（保持行为不变）。
 
 当前状态（已闭环）：
 - 提交点 0：条目 25 定义/边界/验收口径已补齐（`1adc80bd`）
 - 提交点 A：`bc-ai-report` / `bc-audit` 最小骨架已接入组合根（`a30a1ff9`）
 - 提交点 B：审计日志写入 `LogGatewayImpl.insertLog` 已按“用例+端口+适配器+委托壳”收敛（`b0b72263`）
+- P1.2-2：审计日志协议对象 `ILogService/OperateLogCO/LogModuleCO` 已迁移到 `bc-audit`（保持 `package` 不变；保持行为不变；`e1dbf2d4`）
 - 提交点 C（统计主题）：已抽出 `EvaStatisticsQueryRepo` 并收敛端口依赖（`d5b07247`）
 - 提交点 C2（记录主题）：已抽出 `EvaRecordQueryRepo` 并收敛端口依赖（`cae1a15c`）
 - 提交点 C3（任务主题）：已抽出 `EvaTaskQueryRepo` 并收敛端口依赖（`82427967`）
@@ -210,6 +215,9 @@
 - P1.2：已迁移评教 `EvaTaskConditionalQuery/EvaLogConditionalQuery` 到 `bc-evaluation/contract`（保持 `package` 不变；`d02d5522`）
 - S0.1：已迁移 `ValidStatus/ValidStatusValidator` 到 `shared-kernel`（保持 `package` 不变；`686de369`）
 - S0.1：`bc-iam-contract` 已去除对 `eva-client` 的直依赖（`8d673c17`）
+- S0.1-7：`bc-iam/application` 已去除对 `eva-client` 的直依赖（保持行为不变；`7371ab96`）
+- P1.2-1：`bc-evaluation/application` 已去除对 `eva-client` 的直依赖（保持行为不变；`10e8eb0b`）
+- P1.2-2：审计日志协议对象已迁移到 `bc-audit`（保持 `package` 不变；保持行为不变；`e1dbf2d4`）
 - S0.1：已迁移评教 `dto/cmd/eva/*` 到 `bc-evaluation/contract`（保持 `package` 不变；`2273ad61`）
 - S0.1：已迁移 `EvaConfig` 到 `bc-evaluation/contract`（保持 `package` 不变；`438d38bf`）
 - S0.1：已迁移评教统计/表单相关 CO（`DateEvaNumCO/TimeEvaNumCO/MoreDateEvaNumCO/SimpleEvaPercentCO/SimplePercentCO/FormPropCO`）到 `bc-evaluation/contract`（保持 `package` 不变；`c2d8a8b1`）
@@ -1058,7 +1066,7 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
    - 系统管理写侧：菜单写侧主链路（`MenuUpdateGatewayImpl.updateMenuInfo/deleteMenu/deleteMultipleMenu/createMenu` 等）仍在旧 gateway（保持行为不变；可在后续会话按“入口用例化 → 端口搬运 → 委托壳”整体收敛到 `bc-iam`）。
    - 系统管理写侧：角色写侧其余入口（`RoleUpdateGatewayImpl.updateRoleInfo/updateRoleStatus/deleteRole/createRole` 等）仍在旧 gateway（保持行为不变；可按同套路继续收敛到 `bc-iam`）。
    - 评教读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分（保持统计口径不变）。
-   - AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`。
+   - AI 报告 / 审计日志：已启动 `bc-ai-report` / `bc-audit` 骨架并接入组合根；审计日志写链路已收敛，且审计日志协议对象已开始从 `eva-client` 迁移到 `bc-audit`（保持行为不变；详见 0.9/0.10）。
 
 17) ✅ **已完成：IAM 域 `UserUpdateGatewayImpl.deleteUser` 收敛到 `bc-iam`（保持行为不变）**
    - 落地提交链：`5f08151c/e23c810a/cccd75a3/2846c689`。
