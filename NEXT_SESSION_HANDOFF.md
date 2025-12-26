@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2025-12-26（本次会话）**
+- ✅ **P1.2（评教域继续拆 `eva-client`，盘点）**：Serena 盘点确认 `eva-client` 下评教专属目录（`api/eva`、`dto/cmd/eva`、`dto/clientobject/eva`）已迁空；评教 BC 内部引用的 `edu.cuit.client.*` 仅作为“协议包名”，其物理归属已在 `bc-evaluation-contract/shared-kernel`（保持行为不变）。
 - ✅ **P1.2-3（审计日志协议继续拆 `eva-client`）**：在 `SysLogBO` 迁移后，移除 `bc-audit` → `eva-client` 的 Maven **直依赖**（保持行为不变；最小回归通过）。
 - ✅ **P1.2-3（审计日志协议继续拆 `eva-client`）**：将 `SysLogBO` 从 `eva-client` 迁移到 `eva-domain`（保持 `package edu.cuit.client.bo` 不变；保持行为不变；最小回归通过）。
 - ✅ **P1.2-3（审计日志协议继续拆 `eva-client`）**：Serena 盘点 `bc-audit` 对 `eva-client` 的实际依赖面：仅 `SysLogBO` 来自 `eva-client`（其余 `PagingQuery/GenericConditionalQuery/PaginationQueryResultCO` 已在 `shared-kernel`，`ILogService/OperateLogCO/LogModuleCO` 已在 `bc-audit`；保持行为不变；最小回归通过）。

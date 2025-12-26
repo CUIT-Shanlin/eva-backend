@@ -108,6 +108,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（2025-12-26）**
+- P1.2（评教域继续拆 `eva-client`，盘点）：Serena 盘点确认 `eva-client` 下评教专属目录（`api/eva`、`dto/cmd/eva`、`dto/clientobject/eva`）已迁空；评教 BC 内部引用的 `edu.cuit.client.*` 仅作为“协议包名”，其物理归属已在 `bc-evaluation-contract/shared-kernel`（保持行为不变）。
 - P1.2-3（审计日志协议继续拆 `eva-client`，盘点）：Serena 盘点确认 `bc-audit` 对 `eva-client` 的实际依赖面仅剩 `SysLogBO`（`PagingQuery/GenericConditionalQuery/PaginationQueryResultCO` 已在 `shared-kernel`；`ILogService/OperateLogCO/LogModuleCO` 已在 `bc-audit`；保持行为不变）。
 - P1.2-3（审计日志协议继续拆 `eva-client`，小簇迁移）：迁移 `SysLogBO` 从 `eva-client` 到 `eva-domain`（保持 `package edu.cuit.client.bo` 不变；保持行为不变）。
 - P1.2-3（审计日志协议继续拆 `eva-client`，去直依赖）：移除 `bc-audit` → `eva-client` Maven 直依赖（保持行为不变；最小回归通过）。

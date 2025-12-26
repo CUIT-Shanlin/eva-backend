@@ -561,6 +561,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 				         - 进展：已将课程时间模型 `dto/data/course/CourseTime` 从 `eva-client` 迁移到 `shared-kernel`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`5f21b5ce`）。
 				         - 进展：已在“可证实不再需要”的前提下移除 `bc-evaluation-contract` → `eva-client` 直依赖（保持行为不变；最小回归通过；落地提交：`cf2001ef`）。
 				         - 进展：已在“可证实不再需要”的前提下移除 `bc-evaluation/application` → `eva-client` 直依赖（保持行为不变；最小回归通过；落地提交：`10e8eb0b`）。
+				         - 进展（2025-12-26）：Serena 盘点确认 `eva-client` 下评教专属目录（`api/eva`、`dto/cmd/eva`、`dto/clientobject/eva`）已迁空。
 				         - 下一步（建议顺序，保持行为不变）：继续迁移评教域仍留在 `eva-client` 的协议对象（P1.2 继续推进；建议优先保持 `package` 不变以降风险）。若评教专属目录已迁空，则继续清理评教 BC 其它子模块（如 `bc-evaluation/domain` / `bc-evaluation/infrastructure`）对 `eva-client` 的直依赖：先用 Serena 盘点引用面，再逐步移除 Maven 依赖（每步最小回归+提交+三文档同步）。
 				      4) 在 `bc-audit` 继续迁移审计日志协议对象（保持行为不变）：
 				         - 进展：已将审计日志协议对象 `ILogService/OperateLogCO/LogModuleCO` 从 `eva-client` 迁移到 `bc-audit`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`e1dbf2d4`）。
