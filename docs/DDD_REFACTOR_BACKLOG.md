@@ -109,6 +109,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 **已完成（2025-12-26）**
 - P1.2-3（审计日志协议继续拆 `eva-client`，盘点）：Serena 盘点确认 `bc-audit` 对 `eva-client` 的实际依赖面仅剩 `SysLogBO`（`PagingQuery/GenericConditionalQuery/PaginationQueryResultCO` 已在 `shared-kernel`；`ILogService/OperateLogCO/LogModuleCO` 已在 `bc-audit`）；下一步按“小簇迁移”迁出 `SysLogBO` 并移除 `bc-audit` → `eva-client` 直依赖（保持行为不变）。
+- P1.2-3（审计日志协议继续拆 `eva-client`，小簇迁移）：迁移 `SysLogBO` 从 `eva-client` 到 `eva-domain`（保持 `package edu.cuit.client.bo` 不变；保持行为不变），为下一步移除 `bc-audit` → `eva-client` 直依赖做准备。
 - P1.2-2（审计日志协议继续拆 `eva-client`）：迁移 `ILogService/OperateLogCO/LogModuleCO` 从 `eva-client` 到 `bc-audit`（保持 `package` 不变；保持行为不变），并为 `bc-audit` 增加 `shared-kernel` 显式依赖以闭合编译依赖（最小回归通过；落地提交：`e1dbf2d4`）。
 - S0.1-7（IAM application 去 `eva-client` 直依赖）：Serena 盘点 `bc-iam/application` 对 `edu.cuit.client.*` 的引用面后，移除 `bc-iam/application` → `eva-client` 的直依赖（保持行为不变；最小回归通过；落地提交：`7371ab96`）。
 - P1.2-1（评教 application 去 `eva-client` 直依赖）：Serena 盘点 `bc-evaluation/application` 对 `edu.cuit.client.*` 的引用面后，移除 `bc-evaluation/application` → `eva-client` 的直依赖（保持行为不变；最小回归通过；落地提交：`10e8eb0b`）。

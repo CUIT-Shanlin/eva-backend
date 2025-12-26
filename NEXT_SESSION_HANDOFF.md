@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2025-12-26（本次会话）**
+- ⏳ **P1.2-3（审计日志协议继续拆 `eva-client`）**：将 `SysLogBO` 从 `eva-client` 迁移到 `eva-domain`（保持 `package edu.cuit.client.bo` 不变；保持行为不变），为下一步移除 `bc-audit` → `eva-client` 直依赖做准备。
 - ⏳ **P1.2-3（审计日志协议继续拆 `eva-client`）**：Serena 盘点 `bc-audit` 对 `eva-client` 的实际依赖面：当前仅 `SysLogBO` 仍来自 `eva-client`（其余 `PagingQuery/GenericConditionalQuery/PaginationQueryResultCO` 已在 `shared-kernel`，`ILogService/OperateLogCO/LogModuleCO` 已在 `bc-audit`）；下一步按“小簇迁移”逐步归位并移除 `bc-audit` → `eva-client` 的直依赖（保持行为不变）。
 - ✅ **P1.2-2（审计日志协议继续拆 `eva-client`）**：用 Serena 盘点 `ILogService/OperateLogCO/LogModuleCO` 引用面后，将其从 `eva-client` 迁移到 `bc-audit`（保持 `package` 不变；保持行为不变）；并为 `bc-audit` 补齐 `shared-kernel` 显式依赖以保证编译行为不变（落地提交：`e1dbf2d4`）。
 - ✅ **S0.1-7（IAM application 去 `eva-client` 直依赖）**：Serena 盘点 `bc-iam/application` 对 `edu.cuit.client.*` 的引用面（仅通用类型，如 `PagingQuery/GenericConditionalQuery/SimpleResultCO`）；因此移除 `bc-iam/application` → `eva-client` 的直依赖（保持行为不变；落地提交：`7371ab96`）。
