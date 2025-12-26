@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2025-12-26（本次会话）**
+- ✅ **S0.1（消息协议继续拆 `eva-client`）**：将消息入参 DTO `GenericRequestMsg` 从 `eva-client` 迁移到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`8fc7db99`）。
 - ✅ **S0.1（课程协议继续拆 `eva-client`）**：将课程查询 Query 对象 `CourseQuery/CourseConditionalQuery/MobileCourseQuery` 从 `eva-client` 迁移到 `bc-course`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`84a6a536`）。
 - ✅ **S0.1（课程协议继续拆 `eva-client`）**：将通用学期入参 `Term` 从 `eva-client` 迁移到 `bc-course`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`f401dcb9`）。
 - ✅ **S0.1（课程协议继续拆 `eva-client`）**：将学期协议接口 `ISemesterService` 与学期 CO `SemesterCO` 从 `eva-client` 迁移到 `bc-course`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`7b5997c1`）。
@@ -291,7 +292,7 @@ export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$J
 - `edu.cuit.client.dto`：
   - `clientobject`：`SimpleCourseResultCO`、`SimpleSubjectResultCO`、`course/*`（自助改课/推荐课等 CO）、（`EvaMsgCO` 目前 Serena 未发现引用，需复核）
   - `cmd`：`SendMessageCmd`、`SendWarningMsgCmd`
-  - `data`：`course/{CoursePeriod,CourseType}`、`msg/{GenericRequestMsg,GenericResponseMsg,EvaResponseMsg}`
+  - `data`：`course/{CoursePeriod,CourseType}`、`msg/{GenericResponseMsg,EvaResponseMsg}`
   - `query`：（已迁移到 `bc-course`）
 
 每步最小回归命令（每步结束都跑）：
