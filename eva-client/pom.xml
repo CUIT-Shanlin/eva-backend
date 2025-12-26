@@ -24,11 +24,6 @@
             <version>${revision}</version>
         </dependency>
         <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>bc-messaging-contract</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
             <groupId>com.alibaba.cola</groupId>
             <artifactId>cola-component-dto</artifactId>
         </dependency>
