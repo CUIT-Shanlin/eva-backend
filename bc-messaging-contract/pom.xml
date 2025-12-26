@@ -20,6 +20,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>shared-kernel</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.alibaba.cola</groupId>
             <artifactId>cola-component-dto</artifactId>
         </dependency>
