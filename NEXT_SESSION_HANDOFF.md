@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2025-12-26（本次会话）**
+- ✅ **P1.2-1（评教 application 去 `eva-client` 直依赖）**：Serena 盘点评教 `bc-evaluation/application` 对 `edu.cuit.client.*` 的引用面（仅 Port 接口引用）；因此移除 `bc-evaluation/application` → `eva-client` 的直依赖（保持行为不变；落地提交：`10e8eb0b`）。
 - ✅ **S0.1-4（评教 contract 收敛依赖）**：迁移 `DateEvaNumCO/TimeEvaNumCO/MoreDateEvaNumCO/SimpleEvaPercentCO/SimplePercentCO/FormPropCO` 到 `bc-evaluation/contract`（保持 `package` 不变；保持行为不变；落地提交：`c2d8a8b1`）。
 - ✅ **S0.1-5（评教 contract 收敛依赖）**：迁移 `dto/data/course/CourseTime` 到 `shared-kernel`（保持 `package` 不变；保持行为不变；落地提交：`5f21b5ce`）。
 - ✅ **S0.1-6（评教 contract 去直依赖）**：移除 `bc-evaluation-contract` → `eva-client` 的直依赖；为保持编译行为不变，补齐 `bc-iam-contract` 的显式依赖（`eva-base-common`、`commons-lang3`，避免隐式经由其它模块传递；落地提交：`cf2001ef`）。
@@ -121,7 +122,7 @@
    - S0.1-5：迁移 `dto/data/course/CourseTime`（`5f21b5ce`）
    - S0.1-6：移除 `bc-evaluation-contract` → `eva-client` 直依赖，并补齐 `bc-iam-contract` 的显式依赖（`cf2001ef`）
 8) **P1.2（下一步，评教域继续拆 `eva-client`）**：继续迁移评教域仍留在 `eva-client` 的协议对象（不仅 query/condition，也包含 cmd/data/clientobject 等；保持行为不变）。
-   - 提示（以 Git 为准）：当前 `eva-client` 下 `api/eva`、`dto/clientobject/eva`、`dto/cmd/eva`、`dto/query/condition/*Eva*` 已迁空，下一步更可能是“清理评教 BC 的其它模块对 `eva-client` 的直依赖”（例如 `bc-evaluation/application/pom.xml` 仍显式依赖 `eva-client`），建议先用 Serena 盘点其实际引用面后再逐步移除（每步=最小回归+提交+三文档同步）。
+   - 提示（以 Git 为准）：当前 `eva-client` 下 `api/eva`、`dto/clientobject/eva`、`dto/cmd/eva`、`dto/query/condition/*Eva*` 已迁空；且已在“可证实不再需要”的前提下移除 `bc-evaluation/application` → `eva-client` 的直依赖（`10e8eb0b`）。下一步更可能是继续盘点评教 BC 其它子模块对 `eva-client` 的显式依赖（若存在且可证实不再需要，则逐步移除；每步=最小回归+提交+三文档同步）。
 9) **条目 25（后续）**：AI 报告继续挑选剩余写链路（保存/落库/记录等）按同套路收敛（保持行为不变）。
 
 ## 0.12 当前总体进度概览（2025-12-26，更新至 `HEAD`）
@@ -225,7 +226,8 @@
    - 迁移课程时间模型 `CourseTime`：`5f21b5ce`
    - 移除 `bc-evaluation-contract` → `eva-client` 直依赖：`cf2001ef`
 2) **P1.2（下一步，评教域继续拆 `eva-client`）**：
-   - Serena：盘点评教 BC（建议从 `bc-evaluation/application` 开始）对 `eva-client` 的实际引用面；若仅为已迁移的 `edu.cuit.client.*` 类型，则移除 `bc-evaluation`（application）对 `eva-client` 的直依赖（保持行为不变）。
+   - ✅ 已完成：Serena 盘点评教 `bc-evaluation/application` 对 `eva-client` 的实际引用面；并在“可证实不再需要”的前提下移除 `bc-evaluation/application` → `eva-client` 的直依赖（保持行为不变；`10e8eb0b`）。
+   - 下一步：Serena 继续盘点评教 BC 其它子模块（如 `bc-evaluation/domain` / `bc-evaluation/infrastructure`）对 `eva-client` 的实际引用面；若仅为已迁移的 `edu.cuit.client.*` 类型或已无引用，则逐步移除其 Maven 直依赖（保持行为不变）。
    - 若 Serena 发现评教专属对象仍残留在 `eva-client`（零散包/BO/DTO）：按“每步可回滚”的小簇迁移策略继续迁移（优先保持 `package` 不变）。
 3) **S0.1（IAM 继续推进）**：继续迁移 IAM 专属 query/condition/CO（保持行为不变；避免新代码回流 `eva-client`；必要时先用 Serena 盘点残留引用面再决定迁移/沉淀）。
 4) **条目 25（后续）**：AI 报告继续挑选剩余写链路（保存/落库/记录等）按同套路收敛（保持行为不变；参考 `docs/DDD_REFACTOR_BACKLOG.md` 第 6 节）。

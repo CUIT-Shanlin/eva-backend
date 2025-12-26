@@ -559,7 +559,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 				         - 进展：已将 `DateEvaNumCO/TimeEvaNumCO/MoreDateEvaNumCO/SimpleEvaPercentCO/SimplePercentCO/FormPropCO` 从 `eva-client` 迁移到 `bc-evaluation/contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`c2d8a8b1`）。
 				         - 进展：已将课程时间模型 `dto/data/course/CourseTime` 从 `eva-client` 迁移到 `shared-kernel`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`5f21b5ce`）。
 				         - 进展：已在“可证实不再需要”的前提下移除 `bc-evaluation-contract` → `eva-client` 直依赖（保持行为不变；最小回归通过；落地提交：`cf2001ef`）。
-				         - 下一步（建议顺序，保持行为不变）：继续迁移评教域仍留在 `eva-client` 的协议对象（P1.2 继续推进；建议优先保持 `package` 不变以降风险）。若评教专属目录已迁空，则优先清理评教 BC 其它模块（例如 `bc-evaluation/application`）对 `eva-client` 的直依赖：先用 Serena 盘点引用面，再逐步移除 Maven 依赖（每步最小回归+提交+三文档同步）。
+				         - 进展：已在“可证实不再需要”的前提下移除 `bc-evaluation/application` → `eva-client` 直依赖（保持行为不变；最小回归通过；落地提交：`10e8eb0b`）。
+				         - 下一步（建议顺序，保持行为不变）：继续迁移评教域仍留在 `eva-client` 的协议对象（P1.2 继续推进；建议优先保持 `package` 不变以降风险）。若评教专属目录已迁空，则继续清理评教 BC 其它子模块（如 `bc-evaluation/domain` / `bc-evaluation/infrastructure`）对 `eva-client` 的直依赖：先用 Serena 盘点引用面，再逐步移除 Maven 依赖（每步最小回归+提交+三文档同步）。
 				      4) 对 `PagingQuery/GenericConditionalQuery/SimpleResultCO/PaginationQueryResultCO` 等通用对象先用 Serena 盘点引用范围：跨 BC 则沉淀 shared-kernel，避免误迁到某个 BC。
 				         - 进展：已新增 `shared-kernel` 子模块，并将 `PagingQuery/ConditionalQuery/GenericConditionalQuery/SimpleResultCO/PaginationQueryResultCO` 从 `eva-client` 迁移到 `shared-kernel`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`a25815b2`）。
 				         - 进展：`bc-iam-contract` / `bc-evaluation-contract` 已增加对 `shared-kernel` 的直依赖（暂保留 `eva-client` 以可回滚；最小回归通过；落地提交：`3a0ac086`）。
