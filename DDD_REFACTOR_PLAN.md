@@ -555,6 +555,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 				         - 进展：已在“可证实不再需要”的前提下移除 `bc-iam/application` → `eva-client` 直依赖（保持行为不变；最小回归通过；落地提交：`7371ab96`）。
 				         - 下一步（建议优先，保持行为不变）：以“移除 `eva-domain` → `eva-client` 依赖”为收敛口，先用 Serena 盘点 `eva-domain` 中仍由 `eva-client` 提供的类型清单（已可见：课程/学期/消息相关类型），按归属小簇迁移到对应 BC（例如 `bc-course`/`bc-messaging`/`bc-ai-report`）或 `shared-kernel`，在“可证实不再需要”的前提下再移除 `eva-domain` 对 `eva-client` 的 Maven 依赖（每步=最小回归+提交+三文档同步）。
 				         - 进展（2025-12-26）：已将课程写侧命令 `edu.cuit.client.dto.cmd.course/*` 与导入课表 BO `CourseExcelBO` 从 `eva-client` 迁移到 `bc-course`（保持 `package` 不变），并为 `eva-infra-shared` 增加 `bc-course` 显式依赖以闭合编译依赖（保持行为不变；最小回归通过；落地提交：`8a591703`）。
+				         - 进展（2025-12-26）：已将学期协议接口 `ISemesterService` 与学期 CO `SemesterCO` 从 `eva-client` 迁移到 `bc-course`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`7b5997c1`）。
 				         - 进展（2025-12-26）：已移除 `eva-domain` → `eva-client` 的 Maven **直依赖**（保持行为不变；最小回归通过；落地提交：`9ff21249`）。
 			      3) 在 `bc-evaluation/contract` 继续迁移评教域协议对象：优先 `edu.cuit.client.dto.clientobject.eva.*` 与 `UnqualifiedUserConditionalQuery`（建议先保持 `package` 不变以降风险；保持行为不变）。
 			         - 进展：已将评教统计接口 `IEvaStatisticsService` + `UnqualifiedUserInfoCO/UnqualifiedUserResultCO` 从 `eva-client` 迁移到 `bc-evaluation/contract`（保持 `package` 不变；保持行为不变；落地提交：`978e3535`）。
