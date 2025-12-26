@@ -1,6 +1,6 @@
 package edu.cuit.adapter.controller;
 
-import edu.cuit.client.api.IDepartmentService;
+import edu.cuit.bc.iam.application.contract.api.department.IDepartmentService;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;

@@ -1,6 +1,6 @@
 package edu.cuit.app.service.impl;
 
-import edu.cuit.client.api.IDepartmentService;
+import edu.cuit.bc.iam.application.contract.api.department.IDepartmentService;
 import edu.cuit.domain.gateway.DepartmentGateway;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

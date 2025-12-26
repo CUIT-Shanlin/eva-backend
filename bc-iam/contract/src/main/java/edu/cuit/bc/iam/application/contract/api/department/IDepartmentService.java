@@ -1,4 +1,4 @@
-package edu.cuit.client.api;
+package edu.cuit.bc.iam.application.contract.api.department;
 
 import java.util.List;
 
@@ -12,3 +12,4 @@ public interface IDepartmentService {
      */
     List<String> all();
 }
+

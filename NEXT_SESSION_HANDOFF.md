@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2025-12-26（本次会话）**
+- ✅ **S0.1（IAM 继续推进，去 `eva-client` 残留）**：将 IAM 专属接口 `IDepartmentService` 从 `eva-client` 迁移到 `bc-iam-contract`（`edu.cuit.bc.iam.application.contract.api.department`），并更新 `DepartmentController/DepartmentServiceImpl` 引用（保持行为不变）。
 - ✅ **P1.2（评教域继续拆 `eva-client`，盘点）**：Serena 盘点确认 `eva-client` 下评教专属目录（`api/eva`、`dto/cmd/eva`、`dto/clientobject/eva`）已迁空；评教 BC 内部引用的 `edu.cuit.client.*` 仅作为“协议包名”，其物理归属已在 `bc-evaluation-contract/shared-kernel`（保持行为不变）。
 - ✅ **P1.2-3（审计日志协议继续拆 `eva-client`）**：在 `SysLogBO` 迁移后，移除 `bc-audit` → `eva-client` 的 Maven **直依赖**（保持行为不变；最小回归通过）。
 - ✅ **P1.2-3（审计日志协议继续拆 `eva-client`）**：将 `SysLogBO` 从 `eva-client` 迁移到 `eva-domain`（保持 `package edu.cuit.client.bo` 不变；保持行为不变；最小回归通过）。
