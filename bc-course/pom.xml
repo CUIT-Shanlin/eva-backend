@@ -26,10 +26,10 @@
             <version>${revision}</version>
         </dependency>
 
-        <!-- 渐进式重构阶段：课表导入用例沿用旧系统的 Excel/学期 DTO，以保证行为不变。 -->
+        <!-- 渐进式重构阶段：通用分页/查询/课程时间等跨 BC 复用协议对象沉淀在 shared-kernel（保持 package 不变）。 -->
         <dependency>
             <groupId>edu.cuit</groupId>
-            <artifactId>eva-client</artifactId>
+            <artifactId>shared-kernel</artifactId>
             <version>${revision}</version>
         </dependency>
 
