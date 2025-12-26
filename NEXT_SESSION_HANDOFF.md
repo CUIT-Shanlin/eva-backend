@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2025-12-26（本次会话）**
+- ✅ **S0.1（课程协议继续拆 `eva-client`）**：将课程写侧命令 `edu.cuit.client.dto.cmd.course/*` 与导入课表 BO `CourseExcelBO` 从 `eva-client` 迁移到 `bc-course`（保持 `package` 不变）；并为 `eva-infra-shared` 补齐 `bc-course` 显式依赖以闭合编译依赖（保持行为不变；最小回归通过；落地提交：`8a591703`）。
 - ✅ **S0.1（IAM 继续推进，去 `eva-client` 残留）**：将 IAM 专属接口 `IDepartmentService` 从 `eva-client` 迁移到 `bc-iam-contract`（`edu.cuit.bc.iam.application.contract.api.department`），并更新 `DepartmentController/DepartmentServiceImpl` 引用（保持行为不变；最小回归通过；落地提交：`656dc36e`）。
 - ✅ **P1.2（评教域继续拆 `eva-client`，盘点）**：Serena 盘点确认 `eva-client` 下评教专属目录（`api/eva`、`dto/cmd/eva`、`dto/clientobject/eva`）已迁空；评教 BC 内部引用的 `edu.cuit.client.*` 仅作为“协议包名”，其物理归属已在 `bc-evaluation-contract/shared-kernel`（保持行为不变；最小回归通过；落地提交：`e643bac9`）。
 - ✅ **P1.2-3（审计日志协议继续拆 `eva-client`）**：Serena 盘点 `bc-audit` 对 `eva-client` 的实际依赖面：仅 `SysLogBO` 来自 `eva-client`（其余 `PagingQuery/GenericConditionalQuery/PaginationQueryResultCO` 已在 `shared-kernel`，`ILogService/OperateLogCO/LogModuleCO` 已在 `bc-audit`；保持行为不变；最小回归通过；落地提交：`ba21bbea`）。
@@ -282,10 +283,10 @@ export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$J
 
 当前 `eva-client` 残留对象（用于下一会话快速定位；以 Git 为准）：
 - `edu.cuit.client.api`：`IClassroomService`、`IMsgService`、`ISemesterService`、`ai/IAiCourseAnalysisService`
-- `edu.cuit.client.bo`：`CourseExcelBO`、`EvaProp`、`MessageBO`、`ai/AiAnalysisBO`、`ai/AiCourseSuggestionBO`
+- `edu.cuit.client.bo`：`EvaProp`、`MessageBO`、`ai/AiAnalysisBO`、`ai/AiCourseSuggestionBO`
 - `edu.cuit.client.dto`：
   - `clientobject`：`SemesterCO`、`SimpleCourseResultCO`、`SimpleSubjectResultCO`、`course/*`（自助改课/推荐课等 CO）、（`EvaMsgCO` 目前 Serena 未发现引用，需复核）
-  - `cmd`：`SendMessageCmd`、`SendWarningMsgCmd`、`course/*`（改课/合并课次等命令）
+  - `cmd`：`SendMessageCmd`、`SendWarningMsgCmd`
   - `data`：`Term`、`course/{CoursePeriod,CourseType}`、`msg/{GenericRequestMsg,GenericResponseMsg,EvaResponseMsg}`
   - `query`：`CourseQuery`、`condition/{CourseConditionalQuery,MobileCourseQuery}`
 
@@ -296,8 +297,9 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
 -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository
 
 工具调用简报（用于继续 S0.1 的引用盘点）：
-- Serena `search_for_pattern`：用于快速盘点跨 BC/跨模块引用（例如 `import\\s+edu\\.cuit\\.client\\.`），以便形成“迁移清单”（日期=2025-12-25）。
+- Serena `search_for_pattern`：用于快速盘点跨 BC/跨模块引用（例如 `import\\s+edu\\.cuit\\.client\\.`），以便形成“迁移清单”（日期=2025-12-26）。
 - Serena `find_symbol`/`find_referencing_symbols`：用于对目标类型（Query/CO/Cmd/Data/Validator）做符号级定位与引用分析（确保“只重构不改行为”）。
+- Serena `find_referencing_symbols`：本次已用于盘点 `SemesterCO/UpdateCourseCmd/CourseExcelBO` 的跨模块引用面（日期=2025-12-26）。
 
 ## 0.7 本次会话增量总结（2025-12-21，更新至 `HEAD`）
 
