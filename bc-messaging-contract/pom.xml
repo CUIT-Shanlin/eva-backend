@@ -10,7 +10,7 @@
         <version>${revision}</version>
     </parent>
 
-    <artifactId>bc-messaging</artifactId>
+    <artifactId>bc-messaging-contract</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -20,20 +20,16 @@
 
     <dependencies>
         <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>eva-domain</artifactId>
-            <version>${revision}</version>
+            <groupId>com.alibaba.cola</groupId>
+            <artifactId>cola-component-dto</artifactId>
         </dependency>
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>bc-messaging-contract</artifactId>
-            <version>${revision}</version>
-        </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>

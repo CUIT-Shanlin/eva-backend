@@ -22,6 +22,7 @@
 	    <module>bc-evaluation</module>
 	    <module>bc-template</module>
 	    <module>bc-course</module>
+    <module>bc-messaging-contract</module>
     <module>bc-messaging</module>
     <module>bc-iam</module>
     <module>bc-ai-report</module>
