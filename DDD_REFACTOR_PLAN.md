@@ -562,6 +562,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 				         - 进展（2025-12-26）：已将消息入参 DTO `GenericRequestMsg` 从 `eva-client` 迁移到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`8fc7db99`）。
 				         - 进展（2025-12-26）：已将课程数据对象 `CoursePeriod/CourseType` 从 `eva-client` 迁移到 `shared-kernel`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`5629bd2a`）。
 				         - 进展（2025-12-26）：已将课程 CO `SingleCourseCO` 从 `eva-client` 迁移到 `shared-kernel`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`ccc82092`）。
+				         - 下一步（建议优先，保持行为不变）：继续削减 `eva-domain` 对 `eva-client` 的**传递依赖路径**：优先处理课程域 `clientobject/course` 残留 CO（如 `SelfTeachCourseCO/RecommendCourseCO/ModifySingleCourseDetailCO` 等）与消息域 response DTO（`GenericResponseMsg/EvaResponseMsg`），每次只迁移一个小簇并闭环最小回归 + 提交 + 三文档同步。
 			      3) 在 `bc-evaluation/contract` 继续迁移评教域协议对象：优先 `edu.cuit.client.dto.clientobject.eva.*` 与 `UnqualifiedUserConditionalQuery`（建议先保持 `package` 不变以降风险；保持行为不变）。
 			         - 进展：已将评教统计接口 `IEvaStatisticsService` + `UnqualifiedUserInfoCO/UnqualifiedUserResultCO` 从 `eva-client` 迁移到 `bc-evaluation/contract`（保持 `package` 不变；保持行为不变；落地提交：`978e3535`）。
 			         - 进展：已将 `edu.cuit.client.dto.clientobject.eva.*` + `UnqualifiedUserConditionalQuery` 从 `eva-client` 迁移到 `bc-evaluation/contract`（保持 `package` 不变）；并将评教 API 接口（`IEvaConfigService/IEvaRecordService/IEvaTaskService/IEvaTemplateService/IUserEvaService`）迁移到 `bc-evaluation/contract`（保持 `package` 不变）；同时将课程域协议接口与 CO（`edu.cuit.client.api.course.*`、`CourseDetailCO/CourseModelCO/SingleCourseDetailCO`）从 `eva-client` 迁移到 `bc-course`，避免 `eva-client` 反向依赖评教 CO（保持行为不变；最小回归通过；落地提交：`6eb0125d`）。
