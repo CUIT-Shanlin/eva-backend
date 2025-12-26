@@ -108,11 +108,11 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（2025-12-26）**
-- S0.1（IAM 继续推进，去 `eva-client` 残留）：迁移 `IDepartmentService` 从 `eva-client` 到 `bc-iam-contract`（`edu.cuit.bc.iam.application.contract.api.department`），并更新 `DepartmentController/DepartmentServiceImpl` 引用（保持行为不变）。
-- P1.2（评教域继续拆 `eva-client`，盘点）：Serena 盘点确认 `eva-client` 下评教专属目录（`api/eva`、`dto/cmd/eva`、`dto/clientobject/eva`）已迁空（盘点闭环）；评教 BC 内部引用的 `edu.cuit.client.*` 仅作为“协议包名”，其物理归属已在 `bc-evaluation-contract/shared-kernel`（保持行为不变）。
-- P1.2-3（审计日志协议继续拆 `eva-client`，盘点）：Serena 盘点确认 `bc-audit` 对 `eva-client` 的实际依赖面仅剩 `SysLogBO`（`PagingQuery/GenericConditionalQuery/PaginationQueryResultCO` 已在 `shared-kernel`；`ILogService/OperateLogCO/LogModuleCO` 已在 `bc-audit`；保持行为不变）。
-- P1.2-3（审计日志协议继续拆 `eva-client`，小簇迁移）：迁移 `SysLogBO` 从 `eva-client` 到 `eva-domain`（保持 `package edu.cuit.client.bo` 不变；保持行为不变）。
-- P1.2-3（审计日志协议继续拆 `eva-client`，去直依赖）：移除 `bc-audit` → `eva-client` Maven 直依赖（保持行为不变；最小回归通过）。
+- S0.1（IAM 继续推进，去 `eva-client` 残留）：迁移 `IDepartmentService` 从 `eva-client` 到 `bc-iam-contract`（`edu.cuit.bc.iam.application.contract.api.department`），并更新 `DepartmentController/DepartmentServiceImpl` 引用（保持行为不变；最小回归通过；落地提交：`656dc36e`）。
+- P1.2（评教域继续拆 `eva-client`，盘点）：Serena 盘点确认 `eva-client` 下评教专属目录（`api/eva`、`dto/cmd/eva`、`dto/clientobject/eva`）已迁空（盘点闭环）；评教 BC 内部引用的 `edu.cuit.client.*` 仅作为“协议包名”，其物理归属已在 `bc-evaluation-contract/shared-kernel`（保持行为不变；最小回归通过；落地提交：`e643bac9`）。
+- P1.2-3（审计日志协议继续拆 `eva-client`，盘点）：Serena 盘点确认 `bc-audit` 对 `eva-client` 的实际依赖面仅剩 `SysLogBO`（`PagingQuery/GenericConditionalQuery/PaginationQueryResultCO` 已在 `shared-kernel`；`ILogService/OperateLogCO/LogModuleCO` 已在 `bc-audit`；保持行为不变；最小回归通过；落地提交：`ba21bbea`）。
+- P1.2-3（审计日志协议继续拆 `eva-client`，小簇迁移）：迁移 `SysLogBO` 从 `eva-client` 到 `eva-domain`（保持 `package edu.cuit.client.bo` 不变；保持行为不变；最小回归通过；落地提交：`734a3741`）。
+- P1.2-3（审计日志协议继续拆 `eva-client`，去直依赖）：移除 `bc-audit` → `eva-client` Maven 直依赖（保持行为不变；最小回归通过；落地提交：`2fcb257c`）。
 - P1.2-2（审计日志协议继续拆 `eva-client`）：迁移 `ILogService/OperateLogCO/LogModuleCO` 从 `eva-client` 到 `bc-audit`（保持 `package` 不变；保持行为不变），并为 `bc-audit` 增加 `shared-kernel` 显式依赖以闭合编译依赖（最小回归通过；落地提交：`e1dbf2d4`）。
 - S0.1-7（IAM application 去 `eva-client` 直依赖）：Serena 盘点 `bc-iam/application` 对 `edu.cuit.client.*` 的引用面后，移除 `bc-iam/application` → `eva-client` 的直依赖（保持行为不变；最小回归通过；落地提交：`7371ab96`）。
 - P1.2-1（评教 application 去 `eva-client` 直依赖）：Serena 盘点 `bc-evaluation/application` 对 `edu.cuit.client.*` 的引用面后，移除 `bc-evaluation/application` → `eva-client` 的直依赖（保持行为不变；最小回归通过；落地提交：`10e8eb0b`）。
@@ -362,6 +362,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 0) 结构性里程碑（需求变更，2025-12-24）：将“BC=一个顶层聚合模块、内部 `domain/application/infrastructure` 为子模块”的结构落地到目录与 Maven 结构中，并把历史平铺过渡模块（`bc-iam-infra`、`bc-evaluation-infra` 等）折叠归位到对应 BC 内部子模块（每步可回滚；保持行为不变）。  
 0.1) 结构性里程碑（需求变更，2025-12-24）：逐步拆解 `eva-client`：按 BC 归属迁移 BO/CO/DTO；新增对象不再进入 `eva-client`；跨 BC 通用对象沉淀到 shared-kernel（每步可回滚；保持行为不变）。  
+0.2) S0.1（拆 `eva-client` 的下一刀，建议优先）：以“移除 `eva-domain` → `eva-client` 依赖”为收敛口，先用 Serena 盘点 `eva-domain` 中仍由 `eva-client` 提供的类型清单（课程/学期/消息等），按归属小簇迁移到对应 BC（`bc-course`/`bc-messaging`/`bc-ai-report`）或 `shared-kernel`，最终在“可证实不再需要”的前提下移除依赖（每步最小回归+提交+三文档同步；保持行为不变）。  
 1) AI 报告：继续将 `AiCourseAnalysisService` 等入口的写链路收敛到 `bc-ai-report`（当前已完成导出链路 B2：`c68b3174`；旧入口已进一步退化为纯委托壳 B3：`7f4b3358`；后续可继续收敛“保存/落库/记录”等链路），保持行为不变  
 2) 评教 BC 自包含三层结构：已完成阶段 1（读侧查询迁移：`be6dc05c`）与阶段 2（写侧 Repo 迁移：`24e7f6c9`），并已完成读侧门面加固 C-1（清理 `EvaQueryRepository` 为纯委托壳：`73fc6c14`）。C-2（读侧仓储瘦身）已完成盘点并关闭（落地：`5c1a03bc`）。  
 
