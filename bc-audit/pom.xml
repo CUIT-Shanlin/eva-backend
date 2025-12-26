@@ -18,13 +18,18 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <dependencies>
-        <!-- 渐进式重构阶段：复用旧系统 DTO/领域模型，保证行为不变 -->
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>eva-client</artifactId>
-            <version>${revision}</version>
-        </dependency>
+	    <dependencies>
+	        <!-- 渐进式重构阶段：复用旧系统 DTO/领域模型，保证行为不变 -->
+	        <dependency>
+	            <groupId>edu.cuit</groupId>
+	            <artifactId>shared-kernel</artifactId>
+	            <version>${revision}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>edu.cuit</groupId>
+	            <artifactId>eva-client</artifactId>
+	            <version>${revision}</version>
+	        </dependency>
         <dependency>
             <groupId>edu.cuit</groupId>
             <artifactId>eva-domain</artifactId>
