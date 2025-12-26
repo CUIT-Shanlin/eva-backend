@@ -23,8 +23,8 @@
 
 **2025-12-26（本次会话）**
 - ✅ **P1.2-3（审计日志协议继续拆 `eva-client`）**：在 `SysLogBO` 迁移后，移除 `bc-audit` → `eva-client` 的 Maven **直依赖**（保持行为不变；最小回归通过）。
-- ⏳ **P1.2-3（审计日志协议继续拆 `eva-client`）**：将 `SysLogBO` 从 `eva-client` 迁移到 `eva-domain`（保持 `package edu.cuit.client.bo` 不变；保持行为不变），为下一步移除 `bc-audit` → `eva-client` 直依赖做准备。
-- ⏳ **P1.2-3（审计日志协议继续拆 `eva-client`）**：Serena 盘点 `bc-audit` 对 `eva-client` 的实际依赖面：当前仅 `SysLogBO` 仍来自 `eva-client`（其余 `PagingQuery/GenericConditionalQuery/PaginationQueryResultCO` 已在 `shared-kernel`，`ILogService/OperateLogCO/LogModuleCO` 已在 `bc-audit`）；下一步按“小簇迁移”逐步归位并移除 `bc-audit` → `eva-client` 的直依赖（保持行为不变）。
+- ✅ **P1.2-3（审计日志协议继续拆 `eva-client`）**：将 `SysLogBO` 从 `eva-client` 迁移到 `eva-domain`（保持 `package edu.cuit.client.bo` 不变；保持行为不变；最小回归通过）。
+- ✅ **P1.2-3（审计日志协议继续拆 `eva-client`）**：Serena 盘点 `bc-audit` 对 `eva-client` 的实际依赖面：仅 `SysLogBO` 来自 `eva-client`（其余 `PagingQuery/GenericConditionalQuery/PaginationQueryResultCO` 已在 `shared-kernel`，`ILogService/OperateLogCO/LogModuleCO` 已在 `bc-audit`；保持行为不变；最小回归通过）。
 - ✅ **P1.2-2（审计日志协议继续拆 `eva-client`）**：用 Serena 盘点 `ILogService/OperateLogCO/LogModuleCO` 引用面后，将其从 `eva-client` 迁移到 `bc-audit`（保持 `package` 不变；保持行为不变）；并为 `bc-audit` 补齐 `shared-kernel` 显式依赖以保证编译行为不变（落地提交：`e1dbf2d4`）。
 - ✅ **S0.1-7（IAM application 去 `eva-client` 直依赖）**：Serena 盘点 `bc-iam/application` 对 `edu.cuit.client.*` 的引用面（仅通用类型，如 `PagingQuery/GenericConditionalQuery/SimpleResultCO`）；因此移除 `bc-iam/application` → `eva-client` 的直依赖（保持行为不变；落地提交：`7371ab96`）。
 - ✅ **P1.2-1（评教 application 去 `eva-client` 直依赖）**：Serena 盘点评教 `bc-evaluation/application` 对 `edu.cuit.client.*` 的引用面（仅 Port 接口引用）；因此移除 `bc-evaluation/application` → `eva-client` 的直依赖（保持行为不变；落地提交：`10e8eb0b`）。
@@ -184,7 +184,7 @@
 - ✅ **P1.2-1（评教 application 去 `eva-client` 直依赖）**：已闭环：`bc-evaluation/application` 已在“可证实不再需要”的前提下去除对 `eva-client` 的直依赖（保持行为不变；`10e8eb0b`）。
 - ✅ **S0.1-7（IAM application 去 `eva-client` 直依赖）**：已闭环：`bc-iam/application` 已在“可证实不再需要”的前提下去除对 `eva-client` 的直依赖（保持行为不变；`7371ab96`）。
 - ✅ **P1.2-2（审计日志协议继续拆 `eva-client`）**：已闭环：`ILogService/OperateLogCO/LogModuleCO` 已从 `eva-client` 迁移到 `bc-audit`（保持 `package` 不变；保持行为不变；`e1dbf2d4`）。
-- **P1.2-3（下一步优先：审计日志继续拆 `eva-client`）**：用 Serena 盘点 `bc-audit` 仍依赖 `eva-client` 的类型清单（当前可见 `SysLogBO` 仍在 `eva-client`）；若可证实不再需要，则按“小簇迁移”逐步归位并最终移除 `bc-audit` → `eva-client` 的直依赖（保持行为不变）。
+- ✅ **P1.2-3（审计日志继续拆 `eva-client`）**：已闭环：Serena 盘点确认 `bc-audit` 对 `eva-client` 的实际依赖面仅剩 `SysLogBO`；随后迁移 `SysLogBO` 到 `eva-domain`（保持 `package` 不变）并移除 `bc-audit` → `eva-client` Maven 直依赖（保持行为不变）。
 - **P1.2（评教域继续拆 `eva-client`，后续）**：用 Serena 盘点评教域是否仍有评教专属对象残留在 `eva-client`；若仅剩其它 BC 的对象，则仅保留“依赖面收敛”推进（保持行为不变）。
 - **S0.1（IAM 继续推进，后续）**：用 Serena 盘点 `eva-client` 残留对象在 IAM 的引用范围；若为 IAM 专属则迁移到 `bc-iam-contract`（或更合适的 BC）；新增对象避免回流 `eva-client`（保持行为不变）。
 
@@ -246,9 +246,12 @@
    - ✅ 已完成：移除 `bc-iam/application` → `eva-client` 的直依赖（保持行为不变；`7371ab96`）。
    - 下一步：Serena 盘点 `eva-client` 下残留对象（尤其 `dto/query/condition`、`dto/clientobject`、`dto/data`）在 IAM 模块的引用范围；若为 IAM 专属则迁移到 `bc-iam-contract`（或更合适的 BC），若为跨 BC 通用则继续沉淀到 `shared-kernel`（保持行为不变）。
 4) **条目 25（后续）**：AI 报告继续挑选剩余写链路（保存/落库/记录等）按同套路收敛（保持行为不变；参考 `docs/DDD_REFACTOR_BACKLOG.md` 第 6 节）。
-5) **P1.2（审计日志协议继续拆 `eva-client`，下一步）**：
-   - ✅ 已完成：迁移 `ILogService/OperateLogCO/LogModuleCO` 到 `bc-audit`（保持 `package` 不变；保持行为不变；`e1dbf2d4`）。
-   - 下一步：Serena 盘点 `bc-audit` 仍依赖 `eva-client` 的实际类型清单；若可证实不再需要，则逐步移除 `bc-audit` → `eva-client` 的直依赖（保持行为不变；每步=最小回归+提交+三文档同步）。
+5) ✅ **P1.2-3（审计日志协议继续拆 `eva-client`）**：
+   - ✅ 已完成：迁移 `ILogService/OperateLogCO/LogModuleCO` 到 `bc-audit`（保持 `package` 不变；保持行为不变）。
+   - ✅ 已完成：Serena 盘点确认 `bc-audit` 对 `eva-client` 的实际依赖面仅剩 `SysLogBO`（其余 `PagingQuery/GenericConditionalQuery/PaginationQueryResultCO` 已在 `shared-kernel`）。
+   - ✅ 已完成：迁移 `SysLogBO` 到 `eva-domain`（保持 `package edu.cuit.client.bo` 不变；保持行为不变）。
+   - ✅ 已完成：移除 `bc-audit` → `eva-client` Maven 直依赖（保持行为不变；每步均跑最小回归并同步三文档）。
+   - 下一步（后续可选）：若要进一步消除“经由 `eva-domain` 传递”的 `eva-client` 依赖路径，建议先用 Serena 盘点 `eva-domain` / `eva-infra` 对 `eva-client` 的残留类型清单，再按“小簇迁移”逐步削减依赖（保持行为不变）。
 
 每步最小回归命令（每步结束都跑）：
 export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\"$JAVA_HOME/bin:$PATH\" \\
