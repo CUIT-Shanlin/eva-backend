@@ -19,7 +19,16 @@
 - **最终形态（目标，2025-12-24 需求变更）**：每个 BC 在仓库中只占用 **一个顶层目录/聚合模块**（例如 `bc-iam/`、`bc-evaluation/`），其内部按职责拆为 `domain/application/infrastructure` **子模块**（或至少 package 结构完整）；`eva-*` 技术切片逐步退场或仅保留 shared-kernel/统一装配与极少量跨 BC 胶水。为保持可回滚，当前已存在的 `bc-*-infra` 作为过渡形态保留一段时间，后续按里程碑“折叠归位”到对应 BC 内部子模块。
 - **需求补充（2025-12-24）**：逐步拆解 `eva-client`：将 `edu.cuit.client.*` 下的 BO/CO/DTO 等“边界协议对象”按业务归属迁入对应 BC（优先放在 BC 的 `application` 子模块下的 `contract/dto` 包，避免领域层污染；**允许改包名**以完成归位）；确实跨 BC 复用的对象再沉淀到 shared-kernel，最终让 `eva-client` 退出主干依赖。
 
-## 0.9 本次会话增量总结（2025-12-25，更新至 `HEAD`）
+## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
+
+**2025-12-26（本次会话）**
+- ✅ **S0.1-4（评教 contract 收敛依赖）**：迁移 `DateEvaNumCO/TimeEvaNumCO/MoreDateEvaNumCO/SimpleEvaPercentCO/SimplePercentCO/FormPropCO` 到 `bc-evaluation/contract`（保持 `package` 不变；保持行为不变；落地提交：`c2d8a8b1`）。
+- ✅ **S0.1-5（评教 contract 收敛依赖）**：迁移 `dto/data/course/CourseTime` 到 `shared-kernel`（保持 `package` 不变；保持行为不变；落地提交：`5f21b5ce`）。
+- ✅ **S0.1-6（评教 contract 去直依赖）**：移除 `bc-evaluation-contract` → `eva-client` 的直依赖；为保持编译行为不变，补齐 `bc-iam-contract` 的显式依赖（`eva-base-common`、`commons-lang3`，避免隐式经由其它模块传递；落地提交：`cf2001ef`）。
+- ✅ 三文档同步（以 Git 为准，不在文内滚动固化 commitId）：使用 `git log -n 1 -- NEXT_SESSION_HANDOFF.md`、`git log -n 1 -- DDD_REFACTOR_PLAN.md`、`git log -n 1 -- docs/DDD_REFACTOR_BACKLOG.md` 获取最新同步提交。
+- ✅ 最小回归通过（Java17）：命令见 0.10。
+
+### 2025-12-25（上一会话摘要，保留）
 
 - ✅ 提交点 0（纯文档闭环）：补齐“条目 25”的定义/边界与验收口径（只改文档，不改代码；落地提交：`1adc80bd`）。
 - ✅ 提交点 A（结构落点，不迁业务）：启动 `bc-ai-report` / `bc-audit` 最小 Maven 子模块骨架并接入组合根（落地提交：`a30a1ff9`）。
@@ -107,21 +116,20 @@
    - 查询条件：`EvaTaskConditionalQuery/EvaLogConditionalQuery`（落地提交：`d02d5522`）
    - 命令对象：`edu.cuit.client.dto.cmd.eva.*`（落地提交：`2273ad61`）
    - 配置对象：`EvaConfig`（落地提交：`438d38bf`）
-7) **S0.1（下一步，评教 contract 收敛依赖）**：目标是在“可证实不再需要”的前提下，让 `bc-evaluation-contract` 去除对 `eva-client` 的直依赖（保持行为不变）。
-   - 建议拆分（每步=Serena 盘点→最小回归→commit→三文档同步）：
-     0) ✅ 已完成（S0.1-4）：迁移 `DateEvaNumCO/TimeEvaNumCO/MoreDateEvaNumCO/SimpleEvaPercentCO/SimplePercentCO/FormPropCO` 到 `bc-evaluation/contract`（保持 `package` 不变；保持行为不变；`c2d8a8b1`）。
-     0.5) ✅ 已完成（S0.1-5）：迁移 `dto/data/course/CourseTime` 到 `shared-kernel`（保持 `package` 不变；保持行为不变；`5f21b5ce`）。
-     1) ✅ 已完成（S0.1-6）：移除 `bc-evaluation-contract` → `eva-client` 直依赖（保持行为不变；`cf2001ef`）。
-     2) 下一步：继续迁移评教域仍留在 `eva-client` 的协议对象（P1.2 继续推进；保持行为不变，建议优先保持 `package` 不变以降风险）。
-8) **条目 25（后续）**：AI 报告继续挑选剩余写链路（保存/落库/记录等）按同套路收敛（保持行为不变）。
+7) ✅ **S0.1（已闭环：评教 contract 收敛依赖，去 `eva-client` 直依赖）**：已完成（保持行为不变）：
+   - S0.1-4：迁移 `DateEvaNumCO/TimeEvaNumCO/MoreDateEvaNumCO/SimpleEvaPercentCO/SimplePercentCO/FormPropCO`（`c2d8a8b1`）
+   - S0.1-5：迁移 `dto/data/course/CourseTime`（`5f21b5ce`）
+   - S0.1-6：移除 `bc-evaluation-contract` → `eva-client` 直依赖，并补齐 `bc-iam-contract` 的显式依赖（`cf2001ef`）
+8) **P1.2（下一步，评教域继续拆 `eva-client`）**：继续迁移评教域仍留在 `eva-client` 的协议对象（不仅 query/condition，也包含 cmd/data/clientobject 等；保持行为不变）。
+   - 提示（以 Git 为准）：当前 `eva-client` 下 `api/eva`、`dto/clientobject/eva`、`dto/cmd/eva`、`dto/query/condition/*Eva*` 已迁空，下一步更可能是“清理评教 BC 的其它模块对 `eva-client` 的直依赖”（例如 `bc-evaluation/application/pom.xml` 仍显式依赖 `eva-client`），建议先用 Serena 盘点其实际引用面后再逐步移除（每步=最小回归+提交+三文档同步）。
+9) **条目 25（后续）**：AI 报告继续挑选剩余写链路（保存/落库/记录等）按同套路收敛（保持行为不变）。
 
-## 0.12 当前总体进度概览（2025-12-25，更新至 `HEAD`）
+## 0.12 当前总体进度概览（2025-12-26，更新至 `HEAD`）
 
 > 用于回答“现在总进度到哪了”，避免每次会话重新盘点。
 
 - **bc-iam（系统管理/IAM）**：已完成大量写侧/读侧收敛；历史上通过平铺过渡模块 `bc-iam-infra` 完成适配器归属与去 `eva-infra` 依赖闭环（见历史提交点）。**按 2025-12-24 需求变更**：已将该过渡模块折叠归位到 `bc-iam/infrastructure` 子模块（落地提交：`0b5c5383`），并新增 `bc-iam-contract` 子模块承接 IAM 协议对象迁移（落地提交：`dc3727fa`）。
 - **bc-evaluation（评教）**：写侧主链路（任务发布/删除/模板）已按“用例+端口+适配器+委托壳”收敛；历史上通过平铺过渡模块 `bc-evaluation-infra` 完成读侧迁移与写侧 Repo 迁移，并通过 `eva-infra-shared`/`eva-infra-dal` 解决跨 BC 共享（均保持包名/行为不变）。**按 2025-12-24 需求变更**：已将该过渡模块折叠归位到 `bc-evaluation/infrastructure` 子模块（落地提交：`4db04d1c`）。
-- **bc-evaluation（评教，contract）**：已新增 `bc-evaluation-contract` 并迁移评教统计接口 `IEvaStatisticsService` + 未达标用户协议对象 `UnqualifiedUserInfoCO/UnqualifiedUserResultCO`（保持 `package edu.cuit.client.*` 不变，仅物理归属与依赖收敛；保持行为不变；落地提交：`978e3535`）；并继续迁移评教统计/表单相关 CO（`DateEvaNumCO/TimeEvaNumCO/MoreDateEvaNumCO/SimpleEvaPercentCO/SimplePercentCO/FormPropCO`，保持 `package` 不变；保持行为不变；`c2d8a8b1`），以及课程时间模型 `CourseTime`（沉淀到 `shared-kernel`，保持 `package` 不变；保持行为不变；`5f21b5ce`）。
 - **bc-evaluation（评教，contract）**：已新增 `bc-evaluation-contract` 并迁移评教统计接口 `IEvaStatisticsService` + 未达标用户协议对象 `UnqualifiedUserInfoCO/UnqualifiedUserResultCO`（保持 `package edu.cuit.client.*` 不变，仅物理归属与依赖收敛；保持行为不变；落地提交：`978e3535`）；并继续迁移评教统计/表单相关 CO（`DateEvaNumCO/TimeEvaNumCO/MoreDateEvaNumCO/SimpleEvaPercentCO/SimplePercentCO/FormPropCO`，保持 `package` 不变；保持行为不变；`c2d8a8b1`），以及课程时间模型 `CourseTime`（沉淀到 `shared-kernel`，保持 `package` 不变；保持行为不变；`5f21b5ce`）；并已在“可证实不再需要”的前提下移除 `bc-evaluation-contract` → `eva-client` 直依赖（`cf2001ef`）。
 - **bc-audit（审计日志）**：已完成 `LogGatewayImpl.insertLog` 写链路收敛（异步触发点保留在旧入口，落库与字段补齐在端口适配器）。
 - **bc-ai-report（AI 报告）**：已完成模块骨架接入组合根；导出写链路、analysis 与用户名解析已逐步收敛为“用例+端口+端口适配器+旧入口委托壳”（保持行为不变）。按 2025-12-24 需求变更：后续不再新增 `bc-ai-report-infra` 平铺模块，新增适配器归位到 `bc-ai-report/` 内部 `infrastructure` 子模块（或先落在 `eva-app`，再按里程碑折叠归位）。
@@ -166,9 +174,9 @@
 4) data/ 与 data/doc/（如需核对表/字段语义）
 
 本会话目标（优先做这个）：
-- **S0.1（优先：评教 contract 收敛依赖，避免“shared-kernel 有名无实”）**：以 `bc-evaluation-contract` 为目标，逐步迁移其仍依赖且仍物理位于 `eva-client` 的类型，最终在“可证实不再需要”的前提下移除 `bc-evaluation-contract` 对 `eva-client` 的直依赖（每步可回滚；保持行为不变）。
+- ✅ **S0.1（评教 contract 收敛依赖）**：已闭环：`bc-evaluation-contract` 已在“可证实不再需要”的前提下去除对 `eva-client` 的直依赖（保持行为不变；细节见 0.10）。
+- **P1.2（评教域继续拆 `eva-client`）**：继续迁移评教域仍留在 `eva-client` 的协议对象（不仅是 query/condition，也包括 cmd/data/clientobject 等）；若评教专属目录已迁空，则优先清理评教 BC 其它模块对 `eva-client` 的直依赖（例如 `bc-evaluation/application`），保持行为不变。
 - **S0.1（IAM 继续推进）**：在 `bc-iam-contract` 里继续迁移 IAM 专属的 Query/CO（保持行为不变；避免新代码回流 `eva-client`；注意 `bc-iam-contract` 已可不再直依赖 `eva-client`）。
-- **P1.2（评教域继续拆 `eva-client`）**：继续迁移评教域仍留在 `eva-client` 的协议对象（不仅是 query/condition，也包括 cmd/data/clientobject 等），优先保持 `package` 不变以降风险（保持行为不变）。
 
 当前状态（已闭环）：
 - 提交点 0：条目 25 定义/边界/验收口径已补齐（`1adc80bd`）
@@ -201,6 +209,9 @@
 - S0.1：`bc-iam-contract` 已去除对 `eva-client` 的直依赖（`8d673c17`）
 - S0.1：已迁移评教 `dto/cmd/eva/*` 到 `bc-evaluation/contract`（保持 `package` 不变；`2273ad61`）
 - S0.1：已迁移 `EvaConfig` 到 `bc-evaluation/contract`（保持 `package` 不变；`438d38bf`）
+- S0.1：已迁移评教统计/表单相关 CO（`DateEvaNumCO/TimeEvaNumCO/MoreDateEvaNumCO/SimpleEvaPercentCO/SimplePercentCO/FormPropCO`）到 `bc-evaluation/contract`（保持 `package` 不变；`c2d8a8b1`）
+- S0.1：已将课程时间模型 `dto/data/course/CourseTime` 迁移到 `shared-kernel`（保持 `package` 不变；`5f21b5ce`）
+- S0.1：已在“可证实不再需要”的前提下移除 `bc-evaluation-contract` → `eva-client` 直依赖，并补齐 `bc-iam-contract` 的显式依赖（保持行为不变；`cf2001ef`）
 - P1.1：已迁移 `edu.cuit.client.dto.clientobject.eva.*` + `UnqualifiedUserConditionalQuery` 到 `bc-evaluation/contract`（保持 `package` 不变）；并迁移评教 API 接口（`IEvaConfigService/IEvaRecordService/IEvaTaskService/IEvaTemplateService/IUserEvaService`）到 `bc-evaluation/contract`（保持 `package` 不变）；并将课程域协议接口与 CO（`edu.cuit.client.api.course.*`、`CourseDetailCO/CourseModelCO/SingleCourseDetailCO`）迁移到 `bc-course`（保持行为不变；`6eb0125d`）
 - 结构性里程碑 S0：`bc-iam` 已折叠为 `bc-iam-parent` + `domain/application/contract/infrastructure` 子模块，且 `bc-iam-infra` 已折叠归位到 `bc-iam/infrastructure`（`0b5c5383`）
 - 结构性里程碑 S0.1：`eva-client` 下 IAM 协议对象（`api/user/*` + `dto/cmd/user/*`）已迁移到 `bc-iam/contract`（`dc3727fa`）
@@ -209,15 +220,14 @@
 - P1：已新增 `bc-evaluation-contract` 并迁移 `IEvaStatisticsService` + `UnqualifiedUserInfoCO/UnqualifiedUserResultCO` 到 `bc-evaluation/contract`（保持 `package` 不变；`978e3535`）
 
 下一步提交点（建议优先级）：
-1) **S0.1（优先：评教 contract 收敛依赖，去 `eva-client` 直依赖）**：
-   - 已完成前置（均保持 `package` 不变，保持行为不变）：`shared-kernel` 直依赖（`3a0ac086`）、`EvaTaskConditionalQuery/EvaLogConditionalQuery`（`d02d5522`）、`dto/cmd/eva/*`（`2273ad61`）、`EvaConfig`（`438d38bf`）。
-   - 下一步（每步=Serena 盘点→最小回归→commit→三文档同步）：
-     0) ✅ 已完成：迁移 `DateEvaNumCO/TimeEvaNumCO/MoreDateEvaNumCO/SimpleEvaPercentCO/SimplePercentCO/FormPropCO` 到 `bc-evaluation/contract`（保持 `package` 不变；保持行为不变；`c2d8a8b1`）。
-     0.5) ✅ 已完成：迁移 `dto/data/course/CourseTime` 到 `shared-kernel`（保持 `package` 不变；保持行为不变；`5f21b5ce`）。
-     1) Serena：继续盘点 `bc-evaluation/contract` 中仍依赖且仍物理位于 `eva-client` 的类型清单（目标：让 `bc-evaluation-contract` 在“可证实不再需要”的前提下不再需要 `eva-client`）。
-     2) 在“可证实不再需要”的前提下：移除 `bc-evaluation-contract` 对 `eva-client` 的直依赖（保持行为不变）。
-2) **S0.1（IAM 继续推进）**：✅ 已迁移 `MenuConditionalQuery`（`1eda37c9`），且 ✅ `bc-iam-contract` 已去除对 `eva-client` 的直依赖（`8d673c17`）。下一步：继续迁移其它 IAM 专属 query/condition/CO（保持行为不变）。
-3) **S0.1（通用对象沉淀 shared-kernel，避免误迁）**：若评教去依赖被“跨 BC 通用类型”卡住，优先用 Serena 盘点引用范围；跨 BC 且无业务语义才沉淀 shared-kernel（保持行为不变）。
+1) ✅ **S0.1（已闭环：评教 contract 收敛依赖，去 `eva-client` 直依赖）**：
+   - 迁移评教统计/表单相关 CO：`c2d8a8b1`
+   - 迁移课程时间模型 `CourseTime`：`5f21b5ce`
+   - 移除 `bc-evaluation-contract` → `eva-client` 直依赖：`cf2001ef`
+2) **P1.2（下一步，评教域继续拆 `eva-client`）**：
+   - Serena：盘点评教 BC（建议从 `bc-evaluation/application` 开始）对 `eva-client` 的实际引用面；若仅为已迁移的 `edu.cuit.client.*` 类型，则移除 `bc-evaluation`（application）对 `eva-client` 的直依赖（保持行为不变）。
+   - 若 Serena 发现评教专属对象仍残留在 `eva-client`（零散包/BO/DTO）：按“每步可回滚”的小簇迁移策略继续迁移（优先保持 `package` 不变）。
+3) **S0.1（IAM 继续推进）**：继续迁移 IAM 专属 query/condition/CO（保持行为不变；避免新代码回流 `eva-client`；必要时先用 Serena 盘点残留引用面再决定迁移/沉淀）。
 4) **条目 25（后续）**：AI 报告继续挑选剩余写链路（保存/落库/记录等）按同套路收敛（保持行为不变；参考 `docs/DDD_REFACTOR_BACKLOG.md` 第 6 节）。
 
 每步最小回归命令（每步结束都跑）：
