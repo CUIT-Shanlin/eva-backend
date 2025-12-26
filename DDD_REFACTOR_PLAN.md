@@ -654,7 +654,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - 阶段 2.15（已完成）：迁移 `LdapUserConvertor` 到 `eva-infra-shared`（保持包名不变；保持行为不变；落地提交：`0dc0ddc8`）。
     - Java：`eva-infra-shared/src/main/java/edu/cuit/infra/convertor/user/LdapUserConvertor.java`
   - 阶段 2.16（已完成）：移除 `bc-iam-infra` 对 `eva-infra` 的 Maven 依赖（补齐 cache/logging 编译依赖；保持行为不变；落地提交：`2ad911ea`）。
-- AI 报告 / 审计日志：尚未模块化到 `bc-ai-report` / `bc-audit`。
+- AI 报告 / 审计日志：已启动 `bc-ai-report` / `bc-audit` 骨架并接入组合根；审计日志协议对象（`ILogService/OperateLogCO/LogModuleCO`）已从 `eva-client` 迁移到 `bc-audit`（保持行为不变；落地提交：`e1dbf2d4`）。
 - 读侧：`EvaQueryRepo` 仍为大聚合 QueryRepo，需继续拆分。
 
 ---

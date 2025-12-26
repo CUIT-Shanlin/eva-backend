@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2025-12-26（本次会话）**
+- ✅ **P1.2-2（审计日志协议继续拆 `eva-client`）**：用 Serena 盘点 `ILogService/OperateLogCO/LogModuleCO` 引用面后，将其从 `eva-client` 迁移到 `bc-audit`（保持 `package` 不变；保持行为不变）；并为 `bc-audit` 补齐 `shared-kernel` 显式依赖以保证编译行为不变（落地提交：`e1dbf2d4`）。
 - ✅ **S0.1-7（IAM application 去 `eva-client` 直依赖）**：Serena 盘点 `bc-iam/application` 对 `edu.cuit.client.*` 的引用面（仅通用类型，如 `PagingQuery/GenericConditionalQuery/SimpleResultCO`）；因此移除 `bc-iam/application` → `eva-client` 的直依赖（保持行为不变；落地提交：`7371ab96`）。
 - ✅ **P1.2-1（评教 application 去 `eva-client` 直依赖）**：Serena 盘点评教 `bc-evaluation/application` 对 `edu.cuit.client.*` 的引用面（仅 Port 接口引用）；因此移除 `bc-evaluation/application` → `eva-client` 的直依赖（保持行为不变；落地提交：`10e8eb0b`）。
 - ✅ **S0.1-4（评教 contract 收敛依赖）**：迁移 `DateEvaNumCO/TimeEvaNumCO/MoreDateEvaNumCO/SimpleEvaPercentCO/SimplePercentCO/FormPropCO` 到 `bc-evaluation/contract`（保持 `package` 不变；保持行为不变；落地提交：`c2d8a8b1`）。
@@ -234,6 +235,9 @@
    - ✅ 已完成：移除 `bc-iam/application` → `eva-client` 的直依赖（保持行为不变；`7371ab96`）。
    - 下一步：Serena 盘点 `eva-client` 下残留对象（尤其 `dto/query/condition`、`dto/clientobject`、`dto/data`）在 IAM 模块的引用范围；若为 IAM 专属则迁移到 `bc-iam-contract`（或更合适的 BC），若为跨 BC 通用则继续沉淀到 `shared-kernel`（保持行为不变）。
 4) **条目 25（后续）**：AI 报告继续挑选剩余写链路（保存/落库/记录等）按同套路收敛（保持行为不变；参考 `docs/DDD_REFACTOR_BACKLOG.md` 第 6 节）。
+5) **P1.2（审计日志协议继续拆 `eva-client`，下一步）**：
+   - ✅ 已完成：迁移 `ILogService/OperateLogCO/LogModuleCO` 到 `bc-audit`（保持 `package` 不变；保持行为不变；`e1dbf2d4`）。
+   - 下一步：Serena 盘点 `bc-audit` 仍依赖 `eva-client` 的实际类型清单；若可证实不再需要，则逐步移除 `bc-audit` → `eva-client` 的直依赖（保持行为不变；每步=最小回归+提交+三文档同步）。
 
 每步最小回归命令（每步结束都跑）：
 export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\"$JAVA_HOME/bin:$PATH\" \\
