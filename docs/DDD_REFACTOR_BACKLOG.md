@@ -375,7 +375,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
      - ✅ 进展（2025-12-26）：课程域 `clientobject/course` 残留 CO（`ModifySingleCourseDetailCO/RecommendCourseCO/SelfTeachCourseCO/SelfTeachCourseTimeCO/SelfTeachCourseTimeInfoCO/SubjectCO/TeacherInfoCO`）以及 `SimpleCourseResultCO/SimpleSubjectResultCO` 已从 `eva-client` 归位到 `bc-course`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`ce1a0a90`）。
      - ✅ 进展（2025-12-26）：消息域 response DTO：`GenericResponseMsg/EvaResponseMsg` 已迁移到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`ecb8cee5`；其对 `SingleCourseCO` 的依赖由 `shared-kernel` 提供，避免引入 `bc-course` 反向依赖）。
      - ✅ 进展（2025-12-26）：消息域残留对象 `IMsgService/SendMessageCmd/MessageBO` 已归位到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`431a5a23`）。
-     - 下一步：继续盘点消息域残留对象（例如 `SendWarningMsgCmd`）的引用分布，按“消息域 contract”归位到 `bc-messaging-contract`（每步=最小回归+提交+三文档同步；保持行为不变）。
+     - ✅ 进展（2025-12-26）：消息域残留对象 `SendWarningMsgCmd` 已归位到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`e6aa5913`）。
+     - 下一步：回到“依赖路径收敛主线”：继续用 Serena 盘点 `eva-domain` 的 `import edu.cuit.client.*` 引用清单，优先迁移“仍由 eva-client 提供”的类型（每次只迁一个小簇，保持行为不变）。
 1) AI 报告：继续将 `AiCourseAnalysisService` 等入口的写链路收敛到 `bc-ai-report`（当前已完成导出链路 B2：`c68b3174`；旧入口已进一步退化为纯委托壳 B3：`7f4b3358`；后续可继续收敛“保存/落库/记录”等链路），保持行为不变  
 2) 评教 BC 自包含三层结构：已完成阶段 1（读侧查询迁移：`be6dc05c`）与阶段 2（写侧 Repo 迁移：`24e7f6c9`），并已完成读侧门面加固 C-1（清理 `EvaQueryRepository` 为纯委托壳：`73fc6c14`）。C-2（读侧仓储瘦身）已完成盘点并关闭（落地：`5c1a03bc`）。  
 
