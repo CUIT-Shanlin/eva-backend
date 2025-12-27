@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>edu.cuit</groupId>
+        <artifactId>bc-audit-parent</artifactId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <!-- 应用层 module 的 artifactId 保持为 bc-audit，确保对外依赖坐标不变 -->
+    <artifactId>bc-audit</artifactId>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>bc-audit-domain</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <!-- 渐进式重构阶段：复用旧系统 DTO/领域模型，保证行为不变 -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>shared-kernel</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>eva-domain</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
