@@ -557,7 +557,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 				  - ✅ 进展（2025-12-27）：已以 `bc-ai-report` 为试点完成 S0 阶段 1：引入 `bc-ai-report-parent` + 内部 `domain/application/infrastructure` 子模块（应用层 artifactId 仍为 `bc-ai-report`；保持 `package` 不变；最小回归通过；落地提交：`e14f4f7a`）。
 				  - ✅ 进展（2025-12-27）：已完成 S0 阶段 2：将 AI 报告端口适配器/导出实现/AI 基础设施搬运到 `bc-ai-report/infrastructure` 子模块，并补齐 `eva-app` → `bc-ai-report-infra` 依赖以保证装配（保持行为不变；最小回归通过；落地提交：`444c7aca`）。
 				  - ✅ 进展（2025-12-27）：已以 `bc-audit` 为试点完成 S0 阶段 1：引入 `bc-audit-parent` + 内部 `domain/application/infrastructure` 子模块（应用层 artifactId 仍为 `bc-audit`；保持 `package` 不变；最小回归通过；落地提交：`81594308`）。
-				  - 下一步建议（仍保持行为不变）：继续推进 `bc-audit` 的 S0 阶段 2：将 `edu.cuit.infra.bcaudit.adapter.LogInsertionPortImpl` 从 `eva-infra` 搬运到 `bc-audit/infrastructure` 子模块，并补齐装配依赖（保持行为不变）。
+				  - ✅ 进展（2025-12-27）：已完成 `bc-audit` 的 S0 阶段 2：将 `edu.cuit.infra.bcaudit.adapter.LogInsertionPortImpl` 从 `eva-infra` 搬运到 `bc-audit/infrastructure` 子模块，并补齐 `eva-app` → `bc-audit-infra` 依赖以保证装配（保持行为不变；最小回归通过；落地提交：`d7858d7a`）。
+				  - 下一步建议（仍保持行为不变，可选）：逐步拆小/移除 `bc-audit-infra` → `eva-infra` 的过渡依赖（优先处理 `sys_log` 相关 DAL/Converter），按“先抽离到 `eva-infra-dal`/`eva-infra-shared` 或归位到 `bc-audit/infrastructure`”的小步策略推进。
 				  - 结构性里程碑 S0.1（需求变更，2025-12-24）：逐步拆解 `eva-client`：按 BC 归属迁移 BO/CO/DTO（允许改包名以归位到 BC 的 `application/contract/dto`）；新增对象不再进入 `eva-client`；跨 BC 通用对象沉淀到 shared-kernel（每步可回滚；保持行为不变）。
 				    - ✅ 进展（2025-12-25）：已在 `bc-iam` 下新增 `bc-iam-contract` 子模块，并将 IAM 协议对象（`api/user/*` + `dto/cmd/user/*`）从 `eva-client` 迁移到 `bc-iam/contract`（包名归位到 `edu.cuit.bc.iam.application.contract...`；全仓库引用已更新；最小回归通过；落地提交：`dc3727fa`）。
 		    - 下一步（建议顺序，仍按“每步=最小回归+提交+三文档同步”）：
