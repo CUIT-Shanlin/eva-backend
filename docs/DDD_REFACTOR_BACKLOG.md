@@ -108,8 +108,9 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2025-12-27）**
-- S0.1（状态复盘，保持行为不变）：全仓库 Maven 依赖面已不再引用 `eva-client`（除 `eva-client` 自身模块）；`eva-client` 当前仅保留 `package-info.java`（用于兼容包结构）；`eva-domain` 中仍存在 `import edu.cuit.client.*`，但对应类型均已由 `shared-kernel` / 各 BC contract / `eva-domain` 自身承载（包名保持不变）。
+- S0.1（状态复盘，保持行为不变）：全仓库 Maven 依赖面已不再引用 `eva-client`；root reactor 已移除 `eva-client` 模块；`eva-client` 目录当前仅保留 `package-info.java`（用于兼容包结构/便于回滚对照）；`eva-domain` 中仍存在 `import edu.cuit.client.*`，但对应类型均已由 `shared-kernel` / 各 BC contract / `eva-domain` 自身承载（包名保持不变）。
 - S0.1（收尾盘点，来源证伪；保持行为不变）：Serena 盘点 `eva-domain` 内所有 `import edu.cuit.client.*` 并逐项确认类型定义**不在** `eva-client`（其源码仅 `package-info.java`），而分别落在 `shared-kernel` / `bc-course` / `bc-evaluation/contract` / `bc-iam/contract` / `bc-messaging-contract` / `eva-domain`（包名保持不变）。
+- S0.1（`eva-client` 退出 root reactor；保持行为不变）：选择方案 B：从 root `pom.xml` 的 `<modules>` 移除 `eva-client`（最小回归通过；落地提交：`ce07d75f`）。
 - S0.1（通用对象沉淀 shared-kernel，单课次 CO）：将课程 CO `SingleCourseCO` 从 `eva-client` 迁移到 `shared-kernel`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`ccc82092`）。
 - S0.1（通用对象沉淀 shared-kernel，课程时间段/类型）：将课程数据对象 `CoursePeriod/CourseType` 从 `eva-client` 迁移到 `shared-kernel`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`5629bd2a`）。
 - S0.1（消息协议继续拆 `eva-client`）：将消息入参 DTO `GenericRequestMsg` 从 `eva-client` 迁移到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`8fc7db99`）。

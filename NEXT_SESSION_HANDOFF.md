@@ -34,7 +34,7 @@
 - ✅ **S0.1（通用对象沉淀 shared-kernel，单课次 CO）**：将课程 CO `SingleCourseCO` 从 `eva-client` 迁移到 `shared-kernel`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`ccc82092`）。
 - ✅ **S0.1（通用对象沉淀 shared-kernel，课程时间段/类型）**：将课程数据对象 `CoursePeriod/CourseType` 从 `eva-client` 迁移到 `shared-kernel`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`5629bd2a`）。
 - ✅ **S0.1（消息协议继续拆 `eva-client`）**：将消息入参 DTO `GenericRequestMsg` 从 `eva-client` 迁移到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`8fc7db99`）。
-- ✅ **S0.1（状态复盘，保持行为不变）**：全仓库 Maven 依赖面已不再引用 `eva-client`（除 `eva-client` 自身模块）；`eva-client` 当前仅保留 `package-info.java`（用于兼容包结构）；`eva-domain` 中仍存在 `import edu.cuit.client.*`，但对应类型均已由 `shared-kernel` / 各 BC contract / `eva-domain` 自身承载（包名保持不变）。
+- ✅ **S0.1（状态复盘，保持行为不变）**：全仓库 Maven 依赖面已不再引用 `eva-client`；root reactor 已移除 `eva-client` 模块；`eva-client` 目录当前仅保留 `package-info.java`（用于兼容包结构/便于回滚对照）；`eva-domain` 中仍存在 `import edu.cuit.client.*`，但对应类型均已由 `shared-kernel` / 各 BC contract / `eva-domain` 自身承载（包名保持不变）。
 - ✅ **S0.1（收尾盘点，来源证伪；包名保持不变）**：使用 Serena 盘点 `eva-domain` 内所有 `import edu.cuit.client.*`（共 10 处导入），逐项确认类型定义文件**不在** `eva-client`（其源码仅 `package-info.java`），而分别落在以下模块：
   - `eva-domain`：`SysLogBO`
   - `shared-kernel`：`PagingQuery`、`GenericConditionalQuery`、`SimpleResultCO`、`PaginationQueryResultCO`、`SingleCourseCO`、`CourseTime`、`CoursePeriod`、`CourseType`
@@ -42,6 +42,7 @@
   - `bc-evaluation/contract`：`CourseScoreCO`、`EvaTeacherInfoCO`、`EvaConfig`
   - `bc-iam/contract`：`MenuConditionalQuery`
   - `bc-messaging-contract`：`GenericRequestMsg`
+- ✅ **S0.1（`eva-client` 退出 root reactor；保持行为不变）**：选择方案 B：从 root `pom.xml` 的 `<modules>` 移除 `eva-client`（最小回归通过；落地提交：`ce07d75f`）。`eva-client/` 目录保留为空壳（源码仅 `package-info.java`）以便回滚/对照。
 - ✅ **S0.1（课程协议继续拆 `eva-client`）**：将课程查询 Query 对象 `CourseQuery/CourseConditionalQuery/MobileCourseQuery` 从 `eva-client` 迁移到 `bc-course`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`84a6a536`）。
 - ✅ **S0.1（课程协议继续拆 `eva-client`）**：将通用学期入参 `Term` 从 `eva-client` 迁移到 `bc-course`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`f401dcb9`）。
 - ✅ **S0.1（课程协议继续拆 `eva-client`）**：将学期协议接口 `ISemesterService` 与学期 CO `SemesterCO` 从 `eva-client` 迁移到 `bc-course`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`7b5997c1`）。
