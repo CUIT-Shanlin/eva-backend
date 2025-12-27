@@ -570,7 +570,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 				         - 进展（2025-12-26）：已将消息域 `IMsgService/SendMessageCmd/MessageBO` 从 `eva-client` 迁移到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`431a5a23`）。
 				         - 进展（2025-12-26）：已将 `SendWarningMsgCmd` 从 `eva-client` 迁移到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`e6aa5913`）。
 				         - 进展（2025-12-26）：已将消息域 clientobject `EvaMsgCO` 从 `eva-client` 迁移到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`2f257a86`）。
-						         - ✅ 进展（2025-12-27）：已在完成来源证伪的前提下选择方案 B，并从 root reactor 移除 `eva-client` 模块（保持行为不变；最小回归通过；落地提交：`ce07d75f`）；并进一步从仓库移除 `eva-client/` 目录（保持行为不变；落地提交以 Git 为准）。
+						         - ✅ 进展（2025-12-27）：已在完成来源证伪的前提下选择方案 B，并从 root reactor 移除 `eva-client` 模块（保持行为不变；最小回归通过；落地提交：`ce07d75f`）；并进一步从仓库移除 `eva-client/` 目录（保持行为不变；落地提交：`de25e9fb`）。
 			      3) 在 `bc-evaluation/contract` 继续迁移评教域协议对象：优先 `edu.cuit.client.dto.clientobject.eva.*` 与 `UnqualifiedUserConditionalQuery`（建议先保持 `package` 不变以降风险；保持行为不变）。
 			         - 进展：已将评教统计接口 `IEvaStatisticsService` + `UnqualifiedUserInfoCO/UnqualifiedUserResultCO` 从 `eva-client` 迁移到 `bc-evaluation/contract`（保持 `package` 不变；保持行为不变；落地提交：`978e3535`）。
 			         - 进展：已将 `edu.cuit.client.dto.clientobject.eva.*` + `UnqualifiedUserConditionalQuery` 从 `eva-client` 迁移到 `bc-evaluation/contract`（保持 `package` 不变）；并将评教 API 接口（`IEvaConfigService/IEvaRecordService/IEvaTaskService/IEvaTemplateService/IUserEvaService`）迁移到 `bc-evaluation/contract`（保持 `package` 不变）；同时将课程域协议接口与 CO（`edu.cuit.client.api.course.*`、`CourseDetailCO/CourseModelCO/SingleCourseDetailCO`）从 `eva-client` 迁移到 `bc-course`，避免 `eva-client` 反向依赖评教 CO（保持行为不变；最小回归通过；落地提交：`6eb0125d`）。

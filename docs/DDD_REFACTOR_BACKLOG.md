@@ -111,7 +111,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - S0.1（状态复盘，保持行为不变）：全仓库 Maven 依赖面已不再引用 `eva-client`；root reactor 已移除 `eva-client` 模块；仓库中已移除 `eva-client/` 目录（需要回滚通过 Git 提交点即可）；`eva-domain` 中仍存在 `import edu.cuit.client.*`，但对应类型均已由 `shared-kernel` / 各 BC contract / `eva-domain` 自身承载（包名保持不变）。
 - S0.1（收尾盘点，来源证伪；保持行为不变）：Serena 盘点 `eva-domain` 内所有 `import edu.cuit.client.*` 并逐项确认类型定义**不在** `eva-client`（其模块/目录已退出主干），而分别落在 `shared-kernel` / `bc-course` / `bc-evaluation/contract` / `bc-iam/contract` / `bc-messaging-contract` / `eva-domain`（包名保持不变）。
 - S0.1（`eva-client` 退出 root reactor；保持行为不变）：选择方案 B：从 root `pom.xml` 的 `<modules>` 移除 `eva-client`（最小回归通过；落地提交：`ce07d75f`）。
-- S0.1（更彻底清理；保持行为不变）：从仓库移除 `eva-client/` 目录（最小回归通过；落地提交以 Git 为准）。
+- S0.1（更彻底清理；保持行为不变）：从仓库移除 `eva-client/` 目录（最小回归通过；落地提交：`de25e9fb`）。
 - S0.1（通用对象沉淀 shared-kernel，单课次 CO）：将课程 CO `SingleCourseCO` 从 `eva-client` 迁移到 `shared-kernel`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`ccc82092`）。
 - S0.1（通用对象沉淀 shared-kernel，课程时间段/类型）：将课程数据对象 `CoursePeriod/CourseType` 从 `eva-client` 迁移到 `shared-kernel`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`5629bd2a`）。
 - S0.1（消息协议继续拆 `eva-client`）：将消息入参 DTO `GenericRequestMsg` 从 `eva-client` 迁移到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`8fc7db99`）。
@@ -374,7 +374,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 0) 结构性里程碑（需求变更，2025-12-24）：将“BC=一个顶层聚合模块、内部 `domain/application/infrastructure` 为子模块”的结构落地到目录与 Maven 结构中，并把历史平铺过渡模块（`bc-iam-infra`、`bc-evaluation-infra` 等）折叠归位到对应 BC 内部子模块（每步可回滚；保持行为不变）。  
 0.1) 结构性里程碑（需求变更，2025-12-24）：逐步拆解 `eva-client`：按 BC 归属迁移 BO/CO/DTO；新增对象不再进入 `eva-client`；跨 BC 通用对象沉淀到 shared-kernel（每步可回滚；保持行为不变）。  
-0.2) ✅ S0.1（拆 `eva-client` 的收尾，建议优先）：已闭环：对 `eva-domain` 仍存在的 `import edu.cuit.client.*` 做“来源证伪”（Serena 盘点清单 → 逐项确认类型文件实际归属模块；包名保持不变），并已从 root reactor 移除 `eva-client`，随后从仓库移除 `eva-client/` 目录（每步最小回归+提交+三文档同步；保持行为不变）。  
+0.2) ✅ S0.1（拆 `eva-client` 的收尾，建议优先）：已闭环：对 `eva-domain` 仍存在的 `import edu.cuit.client.*` 做“来源证伪”（Serena 盘点清单 → 逐项确认类型文件实际归属模块；包名保持不变），并已从 root reactor 移除 `eva-client`（`ce07d75f`），随后从仓库移除 `eva-client/` 目录（`de25e9fb`）（每步最小回归+提交+三文档同步；保持行为不变）。  
    - 下一步小簇建议（从低风险到高收益，仍保持行为不变）：
      - ✅ 进展（2025-12-26）：课程域 `clientobject/course` 残留 CO（`ModifySingleCourseDetailCO/RecommendCourseCO/SelfTeachCourseCO/SelfTeachCourseTimeCO/SelfTeachCourseTimeInfoCO/SubjectCO/TeacherInfoCO`）以及 `SimpleCourseResultCO/SimpleSubjectResultCO` 已从 `eva-client` 归位到 `bc-course`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`ce1a0a90`）。
      - ✅ 进展（2025-12-26）：消息域 response DTO：`GenericResponseMsg/EvaResponseMsg` 已迁移到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`ecb8cee5`；其对 `SingleCourseCO` 的依赖由 `shared-kernel` 提供，避免引入 `bc-course` 反向依赖）。

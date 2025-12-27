@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2025-12-27（本次会话）**
+- ✅ **docs（交接与计划同步）**：补齐“当前总体进度汇报”口径，并重排 0.10/0.11 的“下一会话按顺序执行”清单，确保下个新会话可直接按顺序推进且不丢信息（保持行为不变；最小回归通过；落地提交以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准）。
 - ✅ **S0.1（依赖路径继续收敛）**：移除 `eva-infra-shared` → `eva-client` Maven 直依赖（保持行为不变；最小回归通过；落地提交：`9437bb12`）。
 - ✅ **S0.1（通用/跨域对象继续沉淀）**：将 `EvaProp` 从 `eva-client` 迁移到 `shared-kernel`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`4feabdd0`）。
 - ✅ **S0.1（AI 报告协议继续拆 `eva-client`）**：将 AI 接口与 BO（`IAiCourseAnalysisService/AiAnalysisBO/AiCourseSuggestionBO`）从 `eva-client` 迁移到 `bc-ai-report`，并移除 `bc-ai-report` → `eva-client` 依赖，改为显式依赖 `commons-lang3`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`badb9db6`）。
@@ -43,7 +44,7 @@
   - `bc-iam/contract`：`MenuConditionalQuery`
   - `bc-messaging-contract`：`GenericRequestMsg`
 - ✅ **S0.1（`eva-client` 退出 root reactor；保持行为不变）**：选择方案 B：从 root `pom.xml` 的 `<modules>` 移除 `eva-client`（最小回归通过；落地提交：`ce07d75f`）。
-- ✅ **S0.1（更彻底清理；保持行为不变）**：从仓库移除 `eva-client/` 目录（最小回归通过；落地提交以 Git 为准）。
+- ✅ **S0.1（更彻底清理；保持行为不变）**：从仓库移除 `eva-client/` 目录（最小回归通过；落地提交：`de25e9fb`）。
 - ✅ **S0.1（课程协议继续拆 `eva-client`）**：将课程查询 Query 对象 `CourseQuery/CourseConditionalQuery/MobileCourseQuery` 从 `eva-client` 迁移到 `bc-course`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`84a6a536`）。
 - ✅ **S0.1（课程协议继续拆 `eva-client`）**：将通用学期入参 `Term` 从 `eva-client` 迁移到 `bc-course`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`f401dcb9`）。
 - ✅ **S0.1（课程协议继续拆 `eva-client`）**：将学期协议接口 `ISemesterService` 与学期 CO `SemesterCO` 从 `eva-client` 迁移到 `bc-course`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`7b5997c1`）。
@@ -139,28 +140,12 @@
 - ✅ 评教 BC 自包含三层结构试点（阶段 2：写侧 Repo 迁移）：已完成（迁移 `eva-infra/src/main/java/edu/cuit/infra/bcevaluation/repository/*` 到 `bc-evaluation-infra`；并迁移 `CalculateClassTime` 到 `eva-infra-shared`，保持 `bc-evaluation-infra` 不依赖 `eva-infra`；落地提交：`24e7f6c9`）。
 - ✅ 提交点 C-1（读侧门面加固，可选）：已完成（清理 `EvaQueryRepository` 为纯委托壳；落地提交：`73fc6c14`；三文档同步：`083b5807`）。
 
-下一会话建议（继续按“每步=回归+提交+三文档同步”）：
-1) ✅ **结构性里程碑 S0（`bc-evaluation` 试点）**：已完成：将 `bc-evaluation` 折叠为顶层聚合模块 `bc-evaluation-parent`，并在其内部落地 `domain/application/infrastructure` 子模块；同时将历史平铺模块 `bc-evaluation-infra` 折叠归位到 `bc-evaluation/infrastructure`（artifactId/包名/行为不变；落地提交：`4db04d1c`）。
-2) ✅ **P1（评教统计协议归属）**：已完成：新增 `bc-evaluation-contract`，并迁移 `IEvaStatisticsService` + `UnqualifiedUserInfoCO/UnqualifiedUserResultCO` 从 `eva-client` 到 `bc-evaluation/contract`（保持 `package` 不变；落地提交：`978e3535`）。
-3) ✅ **P1.1（优先，继续拆 `eva-client`，评教域）**：已完成：迁移 `edu.cuit.client.dto.clientobject.eva.*` + `UnqualifiedUserConditionalQuery` 到 `bc-evaluation/contract`（保持 `package` 不变）；并将评教 API 接口（`IEvaConfigService/IEvaRecordService/IEvaTaskService/IEvaTemplateService/IUserEvaService`）从 `eva-client` 迁移到 `bc-evaluation/contract`（保持 `package` 不变）；同时将课程域协议接口与 CO（`edu.cuit.client.api.course.*`、`CourseDetailCO/CourseModelCO/SingleCourseDetailCO`）从 `eva-client` 迁移到 `bc-course`，以避免 `eva-client` 反向依赖评教 CO（保持行为不变；落地提交：`6eb0125d`）。
-4) ✅ **S0.1（IAM 继续推进）**：已完成：迁移 IAM 查询条件 `MenuConditionalQuery` 到 `bc-iam-contract`（保持 `package` 不变；落地提交：`1eda37c9`）；并已完成：`bc-iam-contract` 去除对 `eva-client` 的直依赖（落地提交：`8d673c17`）；并已完成：`bc-iam/application` 去除对 `eva-client` 的直依赖（`7371ab96`）；并已完成：迁移 `IDepartmentService` 从 `eva-client` 到 `bc-iam-contract`（包名归位到 `edu.cuit.bc.iam.application.contract.api.department`；保持行为不变）。下一步：继续迁移其它 IAM 专属 query/condition/CO（保持行为不变；避免新代码再回流 `eva-client`）。
-5) ✅ **S0.1（通用对象沉淀 shared-kernel，避免误迁）**：已完成：
-   - 分页/通用查询/极简返回体：`PagingQuery/ConditionalQuery/GenericConditionalQuery/SimpleResultCO/PaginationQueryResultCO` 已沉淀到 `shared-kernel`（保持 `package` 不变；落地提交：`a25815b2`）。
-   - 校验器：`ValidStatus/ValidStatusValidator` 已沉淀到 `shared-kernel`（保持 `package` 不变；落地提交：`686de369`）。
-6) ✅ **S0.1-3（评教 contract 去依赖前置，继续拆 `eva-client`）**：已完成：
-   - 查询条件：`EvaTaskConditionalQuery/EvaLogConditionalQuery`（落地提交：`d02d5522`）
-   - 命令对象：`edu.cuit.client.dto.cmd.eva.*`（落地提交：`2273ad61`）
-   - 配置对象：`EvaConfig`（落地提交：`438d38bf`）
-7) ✅ **S0.1（已闭环：评教 contract 收敛依赖，去 `eva-client` 直依赖）**：已完成（保持行为不变）：
-   - S0.1-4：迁移 `DateEvaNumCO/TimeEvaNumCO/MoreDateEvaNumCO/SimpleEvaPercentCO/SimplePercentCO/FormPropCO`（`c2d8a8b1`）
-   - S0.1-5：迁移 `dto/data/course/CourseTime`（`5f21b5ce`）
-   - S0.1-6：移除 `bc-evaluation-contract` → `eva-client` 直依赖，并补齐 `bc-iam-contract` 的显式依赖（`cf2001ef`）
-8) ✅ **P1.2（评教域继续拆 `eva-client`，盘点）**：已完成：Serena 盘点确认评教专属目录已迁空；当前评教域后续更可能是“依赖面收敛”（例如继续盘点评教 BC 其它子模块对 `eva-client` 的显式依赖，若存在且可证实不再需要，则逐步移除；保持行为不变；每步=最小回归+提交+三文档同步）。
-9) ✅ **S0.1（已闭环：让 `eva-client` 退出主干；保持行为不变）**：
-   - 已完成：`eva-domain` 已移除对 `eva-client` 的 Maven **直依赖**；`eva-domain` 的 `edu.cuit.client.*` 引用类型已完成来源证伪（均不由 `eva-client` 提供）。
-   - 已完成：从 root reactor（root `pom.xml` 的 `<modules>`）移除 `eva-client` 模块（落地提交：`ce07d75f`）。
-   - 已完成：从仓库移除 `eva-client/` 目录（落地提交以 Git 为准）。
-10) **条目 25（后续）**：AI 报告继续挑选剩余写链路（保存/落库/记录等）按同套路收敛（保持行为不变）。
+下一会话建议（按顺序执行；历史已完成项见下方 0.12 “总体进度概览”）：
+1) **条目 25（优先，写侧）**：AI 报告继续挑选剩余写链路（保存/落库/记录等）按同套路收敛到 `bc-ai-report`（保持行为不变）。
+   - Serena 盘点候选入口：优先从旧入口/旧 gateway 中定位“仍承载副作用的写链路”，再落到 UseCase + Port + Port Adapter + 委托壳。
+   - 为选定方法记录行为快照：异常类型/异常文案、日志文案与顺序、缓存/副作用时机（事务提交后/同步）。
+2) **结构性里程碑 S0（次优先）**：选择一个 BC（建议 `bc-course` 或 `bc-template`），按已验证套路折叠为“单顶层聚合模块 + 内部 `domain/application/infrastructure` 子模块”（仅搬运/依赖收敛，不改业务语义；每步可回滚）。
+3) （可选/后置）**评教读侧进一步解耦**：在不改变统计口径/异常文案前提下，按用例维度继续细化 QueryService/QueryPort（保持行为不变）。
 
 ## 0.12 当前总体进度概览（2025-12-27，更新至 `HEAD`）
 
@@ -198,7 +183,7 @@
 你是资深全栈架构师/技术导师，只用中文回答。
 
 仓库：/home/lystran/programming/java/web/eva-backend  
-先确认：分支必须是 ddd；HEAD 必须 >= 2e4c4923（运行 `git rev-parse HEAD` 确认）。  
+先确认：分支必须是 ddd；HEAD 必须 >= 2e4c4923（运行 `git rev-parse HEAD`，并用 `git merge-base --is-ancestor 2e4c4923 HEAD` 校验退出码为 0）。  
 当前交接基线（用于对照）：以 `git rev-parse --short HEAD` 输出为准（本文档最后同步以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准，不在提示词里固化 commitId）。
 
 强约束（必须严格执行）：
@@ -213,9 +198,15 @@
 3) docs/DDD_REFACTOR_BACKLOG.md（重点看 4.2、4.3、6）
 4) data/ 与 data/doc/（如需核对表/字段语义）
 
-本会话目标（优先做这个）：
-- ✅ S0.1（已闭环）：`eva-client` 已从主干依赖链彻底退出（含：来源证伪 + 退出 reactor + 目录从仓库移除；保持行为不变）。
-- 下一步（建议优先，保持行为不变）：回到条目 25 的后续推进——AI 报告继续挑选剩余写链路（保存/落库/记录等）按同套路收敛；或推进结构性里程碑 S0（将其它 BC 按“单顶层聚合模块 + 内部三子模块”折叠归位）。
+本会话目标（按顺序执行；每步闭环=Serena→最小回归→提交→三文档同步；保持行为不变）：
+1) **条目 25（优先，写侧）**：AI 报告继续挑选 1 条“剩余写链路”（保存/落库/记录等）按同套路收敛到 `bc-ai-report`。
+   - 先用 Serena 盘点候选入口（优先旧入口/旧 gateway 中仍承载副作用的写链路），再决定“本次只收敛哪 1 条”。
+   - 为该链路记录行为快照（异常类型/异常文案、日志文案与顺序、缓存/副作用时机），作为“行为不变”对照。
+2) **结构性里程碑 S0（次优先）**：选择一个 BC（建议 `bc-course` 或 `bc-template`），折叠为“单顶层聚合模块 + 内部 `domain/application/infrastructure` 子模块”（仅搬运/依赖收敛，不改业务语义；每步可回滚）。
+3) （可选/后置）**评教读侧进一步解耦**：在不改变统计口径/异常文案前提下，按用例维度继续细化 QueryService/QueryPort。
+
+已闭环（用于避免重复劳动）：
+- ✅ S0.1：`eva-client` 已从主干依赖链彻底退出（含：来源证伪 + 退出 reactor + 目录从仓库移除；保持行为不变；落地提交以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准）。
 
 最小回归命令（每步结束必跑，Java17）：
 export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" \
