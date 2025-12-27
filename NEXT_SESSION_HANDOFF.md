@@ -145,6 +145,10 @@
 > 目标：确保“**能继续往前走**”且不丢失重构约束（只重构、不改语义；缓存/日志/异常文案/副作用顺序完全不变）。
 >
 > 规则提醒：每个小提交都必须做到：Serena 符号级定位/引用分析 → **最小回归** → `git commit` → 同步三份文档（本文件 + `DDD_REFACTOR_PLAN.md` + `docs/DDD_REFACTOR_BACKLOG.md`）。
+>
+> 新需求（流程约束，2025-12-27）：为降低本地未 push 的风险，**每完成一组阶段性提交**后执行一次 `git push origin ddd`。
+> - 推荐口径：一组阶段性提交通常 = 1 个“代码变更 commit” + 1 个“文档同步 commit”（或 2~4 个紧密相关 commit）。
+> - 原则：不影响“每步必跑最小回归 + 每步必提交 + 每步同步三文档”的强约束；只是额外增加“阶段性 push”。
 
 - ✅ 提交点 0（纯文档闭环）：已完成（落地提交：`1adc80bd`）。
 - ✅ 提交点 A（结构落点，不迁业务）：已完成（落地提交：`a30a1ff9`）。
@@ -170,7 +174,9 @@
    - Serena 盘点候选入口：优先从旧入口/旧 gateway 中定位“仍承载副作用的写链路”，再落到 UseCase + Port + Port Adapter + 委托壳。
    - 为选定方法记录行为快照：异常类型/异常文案、日志文案与顺序、缓存/副作用时机（事务提交后/同步）。
    - 补充进展（2025-12-27）：已将导出链路实现（`AiReportDocExportPortImpl` + `AiReportExporter`）、analysis 链路实现（`AiReportAnalysisPortImpl`）与 username→userId 端口适配器（`AiReportUserIdQueryPortImpl`）从 `eva-app` 归位到 `bc-ai-report`（保持 `package` 不变；保持行为不变；提交：`d1262c32`、`6f34e894`、`e2a608e2`），并进一步将 `edu.cuit.infra.ai.*` 从 `eva-infra` 归位到 `bc-ai-report`（保持 `package` 不变；保持行为不变；提交：`e2f2a7ff`）。
+   - 补充进展（2025-12-27）：已将 `BcAiReportConfiguration` 与旧入口 `AiCourseAnalysisService` 归位到 `bc-ai-report`，并将 `@CheckSemId` 注解下沉到 `shared-kernel`（均保持 `package`/切面触发点/异常与日志行为不变；提交：`58c2f055`、`ca321a20`、`1c595052`）。
 2) **结构性里程碑 S0（次优先）**：选择一个 BC（建议 `bc-course`；`bc-template` 已完成折叠归位：`65091516`），按已验证套路折叠为“单顶层聚合模块 + 内部 `domain/application/infrastructure` 子模块”（仅搬运/依赖收敛，不改业务语义；每步可回滚）。
+   - 更新（2025-12-27）：`bc-course` 已完成折叠归位（`bc-course-parent` + 内部子模块；提交：`e90ad03b`）。下一轮 S0 可优先选 `bc-ai-report`（体量小、近期改动集中）或 `bc-audit`。
 3) （可选/后置）**评教读侧进一步解耦**：在不改变统计口径/异常文案前提下，按用例维度继续细化 QueryService/QueryPort（保持行为不变）。
 
 ## 0.12 当前总体进度概览（2025-12-27，更新至 `HEAD`）
@@ -182,8 +188,9 @@
 - **bc-evaluation（评教，contract）**：已新增 `bc-evaluation-contract` 并迁移评教统计接口 `IEvaStatisticsService` + 未达标用户协议对象 `UnqualifiedUserInfoCO/UnqualifiedUserResultCO`（保持 `package edu.cuit.client.*` 不变，仅物理归属与依赖收敛；保持行为不变；落地提交：`978e3535`）；并继续迁移评教统计/表单相关 CO（`DateEvaNumCO/TimeEvaNumCO/MoreDateEvaNumCO/SimpleEvaPercentCO/SimplePercentCO/FormPropCO`，保持 `package` 不变；保持行为不变；`c2d8a8b1`），以及课程时间模型 `CourseTime`（沉淀到 `shared-kernel`，保持 `package` 不变；保持行为不变；`5f21b5ce`）；并已在“可证实不再需要”的前提下移除 `bc-evaluation-contract` → `eva-client` 直依赖（`cf2001ef`）。
 - **bc-audit（审计日志）**：已完成 `LogGatewayImpl.insertLog` 写链路收敛（异步触发点保留在旧入口，落库与字段补齐在端口适配器）；并已将审计日志协议对象 `ILogService/OperateLogCO/LogModuleCO` 从 `eva-client` 迁移到 `bc-audit`（保持 `package` 不变；保持行为不变；`e1dbf2d4`）。
 - **bc-ai-report（AI 报告）**：已完成模块骨架接入组合根；导出写链路、analysis 与用户名解析已逐步收敛为“用例+端口+端口适配器+旧入口委托壳”（保持行为不变）。补充进展：导出链路实现（`AiReportDocExportPortImpl` + `AiReportExporter`）与 analysis 端口适配器（`AiReportAnalysisPortImpl`）已从 `eva-app` 归位到 `bc-ai-report`（保持 `package` 不变；保持行为不变；提交：`d1262c32`、`6f34e894`）；username→userId 端口适配器（`AiReportUserIdQueryPortImpl`）亦已归位（提交：`e2a608e2`）；并进一步将 `edu.cuit.infra.ai.*` 从 `eva-infra` 归位到 `bc-ai-report` 且移除 `bc-ai-report` → `eva-infra` 编译期依赖（提交：`e2f2a7ff`）。按 2025-12-24 需求变更：后续不再新增 `bc-ai-report-infra` 平铺模块，新增适配器归位到 `bc-ai-report/` 内部 `infrastructure` 子模块（或先落在 `eva-app`，再按里程碑折叠归位）。
+- **bc-ai-report（AI 报告，补充）**：旧入口 `AiCourseAnalysisService` 与组合根 `BcAiReportConfiguration` 已归位到 `bc-ai-report`；为保持 `@CheckSemId` 切面语义不变，`edu.cuit.app.aop.CheckSemId` 已下沉到 `shared-kernel`（均保持包名/异常/日志/副作用顺序不变；提交：`58c2f055`、`ca321a20`、`1c595052`）。
 - **bc-template（模板）**：已完成 S0 结构折叠为 `bc-template-parent` + 内部 `domain/application/infrastructure` 子模块（应用层 artifactId 仍为 `bc-template`；包名不变；保持行为不变；落地提交：`65091516`）。
-- **bc-course（课程）**：读侧已将 `CourseQueryGatewayImpl` 退化委托壳并抽出 QueryRepo/Repository（保持行为不变）。
+- **bc-course（课程）**：已完成 S0 折叠为 `bc-course-parent` + 内部 `domain/application/infrastructure` 子模块（应用层 artifactId 仍为 `bc-course`；包名不变；保持行为不变；提交：`e90ad03b`）。读侧 `CourseQueryGatewayImpl` 已退化委托壳并抽出 QueryRepo/Repository（保持行为不变）。
 
 ### 条目 25（定义 / 边界 / 验收口径）
 
@@ -217,6 +224,7 @@
 - 只做重构，不改业务语义；缓存/日志/异常文案/副作用顺序完全不变
 - 必须使用 Serena 做符号级定位与引用分析
 - 每个小步骤结束：跑最小回归 → git commit → 更新 NEXT_SESSION_HANDOFF.md / DDD_REFACTOR_PLAN.md / docs/DDD_REFACTOR_BACKLOG.md
+- 每完成一组阶段性提交（通常=代码变更 commit + 文档同步 commit）：执行 `git push origin ddd`
 - 每次结束对话前：先写清“下一步拆分与里程碑/提交点”
 
 开始前按顺序阅读（重点章节同旧要求）：
@@ -229,7 +237,7 @@
 1) **条目 25（优先，写侧）**：AI 报告继续挑选 1 条“剩余写链路”（保存/落库/记录等）按同套路收敛到 `bc-ai-report`。
    - 先用 Serena 盘点候选入口（优先旧入口/旧 gateway 中仍承载副作用的写链路），再决定“本次只收敛哪 1 条”。
    - 为该链路记录行为快照（异常类型/异常文案、日志文案与顺序、缓存/副作用时机），作为“行为不变”对照。
-2) **结构性里程碑 S0（次优先）**：选择一个 BC（建议 `bc-course` 或 `bc-template`），折叠为“单顶层聚合模块 + 内部 `domain/application/infrastructure` 子模块”（仅搬运/依赖收敛，不改业务语义；每步可回滚）。
+2) **结构性里程碑 S0（次优先）**：选择一个 BC（建议 `bc-ai-report` 或 `bc-audit`；`bc-course`/`bc-template` 已完成折叠归位），折叠为“单顶层聚合模块 + 内部 `domain/application/infrastructure` 子模块”（仅搬运/依赖收敛，不改业务语义；每步可回滚）。
 3) （可选/后置）**评教读侧进一步解耦**：在不改变统计口径/异常文案前提下，按用例维度继续细化 QueryService/QueryPort。
 
 已闭环（用于避免重复劳动）：
