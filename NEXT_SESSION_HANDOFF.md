@@ -22,6 +22,8 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2025-12-27（本次会话）**
+- ✅ **S0（结构性里程碑：`bc-ai-report` 折叠归位，阶段 1）**：将 `bc-ai-report` 折叠为 `bc-ai-report-parent` + 内部 `domain/application/infrastructure` 子模块（应用层 artifactId 仍为 `bc-ai-report`；仅搬运/依赖收敛，不改业务语义；最小回归通过；落地提交：`e14f4f7a`）。
+  - 说明：本阶段先完成 Maven/目录结构折叠与源码物理搬运（保持 `package` 不变），当前仍将端口适配器与 AI 基础设施暂留在 `application` 子模块；下一步再分离到 `infrastructure` 子模块（保持行为不变）。
 - ✅ **条目 25（AI 报告写侧：组合根 wiring 归位）**：将 `BcAiReportConfiguration` 从 `eva-app` 迁移到 `bc-ai-report`（保持 `package edu.cuit.app.config` 不变；Bean 定义与 `@Lazy` 环断策略不变；保持行为不变；最小回归通过；落地提交：`58c2f055`）。
   - 行为快照（变更前后必须一致；用于下一步继续收敛“剩余写链路”时对照）：
     - 入口与链路顺序：`GET /evaluate/export/report`（`EvaStatisticsController.exportEvaReport`）→ `IAiCourseAnalysisService.exportDocData`（`AiCourseAnalysisService.exportDocData`）→ `ExportAiReportDocByUsernameUseCase.exportDocData`。
@@ -180,6 +182,7 @@
 1) **条目 25（优先，写侧）**：AI 报告“剩余落库/记录写链路”已完成盘点并证伪（见 0.9 的证据清单）。后续请将条目 25 的执行重点切换为：**S0 折叠 `bc-ai-report`**（仅搬运/依赖收敛，保持行为不变）。
    - 补充进展（2025-12-27）：已将导出链路实现（`AiReportDocExportPortImpl` + `AiReportExporter`）、analysis 链路实现（`AiReportAnalysisPortImpl`）与 username→userId 端口适配器（`AiReportUserIdQueryPortImpl`）从 `eva-app` 归位到 `bc-ai-report`（保持 `package` 不变；保持行为不变；提交：`d1262c32`、`6f34e894`、`e2a608e2`），并进一步将 `edu.cuit.infra.ai.*` 从 `eva-infra` 归位到 `bc-ai-report`（保持 `package` 不变；保持行为不变；提交：`e2f2a7ff`）。
    - 补充进展（2025-12-27）：已将 `BcAiReportConfiguration` 与旧入口 `AiCourseAnalysisService` 归位到 `bc-ai-report`，并将 `@CheckSemId` 注解下沉到 `shared-kernel`（均保持 `package`/切面触发点/异常与日志行为不变；提交：`58c2f055`、`ca321a20`、`1c595052`）。
+   - 补充进展（2025-12-27）：S0 已完成阶段 1：已将 `bc-ai-report` 折叠为 `bc-ai-report-parent` + 内部子模块（应用层 artifactId 仍为 `bc-ai-report`；保持 `package` 不变；提交：`e14f4f7a`）。下一步建议：将端口适配器（`edu.cuit.app.bcaireport.adapter.*`）、导出实现（`edu.cuit.app.poi.ai.*`）与 AI 基础设施（`edu.cuit.infra.ai.*`）搬运到 `bc-ai-report/infrastructure` 子模块，并在 `eva-app` 补齐对 `bc-ai-report-infra` 的依赖，确保 Bean 装配与行为不变。
    - 说明：由于本次盘点已证伪，本条目的“证据清单”已补齐；无需再“凭感觉继续拆”，直接推进 S0 更能带来结构性收益且可回滚。
 2) **结构性里程碑 S0（次优先）**：选择一个 BC（建议 `bc-course`；`bc-template` 已完成折叠归位：`65091516`），按已验证套路折叠为“单顶层聚合模块 + 内部 `domain/application/infrastructure` 子模块”（仅搬运/依赖收敛，不改业务语义；每步可回滚）。
    - 更新（2025-12-27）：`bc-course` 已完成折叠归位（`bc-course-parent` + 内部子模块；提交：`e90ad03b`）。下一轮 S0 可优先选 `bc-ai-report`（体量小、近期改动集中）或 `bc-audit`。
@@ -194,6 +197,7 @@
 - **bc-evaluation（评教，contract）**：已新增 `bc-evaluation-contract` 并迁移评教统计接口 `IEvaStatisticsService` + 未达标用户协议对象 `UnqualifiedUserInfoCO/UnqualifiedUserResultCO`（保持 `package edu.cuit.client.*` 不变，仅物理归属与依赖收敛；保持行为不变；落地提交：`978e3535`）；并继续迁移评教统计/表单相关 CO（`DateEvaNumCO/TimeEvaNumCO/MoreDateEvaNumCO/SimpleEvaPercentCO/SimplePercentCO/FormPropCO`，保持 `package` 不变；保持行为不变；`c2d8a8b1`），以及课程时间模型 `CourseTime`（沉淀到 `shared-kernel`，保持 `package` 不变；保持行为不变；`5f21b5ce`）；并已在“可证实不再需要”的前提下移除 `bc-evaluation-contract` → `eva-client` 直依赖（`cf2001ef`）。
 - **bc-audit（审计日志）**：已完成 `LogGatewayImpl.insertLog` 写链路收敛（异步触发点保留在旧入口，落库与字段补齐在端口适配器）；并已将审计日志协议对象 `ILogService/OperateLogCO/LogModuleCO` 从 `eva-client` 迁移到 `bc-audit`（保持 `package` 不变；保持行为不变；`e1dbf2d4`）。
 - **bc-ai-report（AI 报告）**：已完成模块骨架接入组合根；导出写链路、analysis 与用户名解析已逐步收敛为“用例+端口+端口适配器+旧入口委托壳”（保持行为不变）。补充进展：导出链路实现（`AiReportDocExportPortImpl` + `AiReportExporter`）与 analysis 端口适配器（`AiReportAnalysisPortImpl`）已从 `eva-app` 归位到 `bc-ai-report`（保持 `package` 不变；保持行为不变；提交：`d1262c32`、`6f34e894`）；username→userId 端口适配器（`AiReportUserIdQueryPortImpl`）亦已归位（提交：`e2a608e2`）；并进一步将 `edu.cuit.infra.ai.*` 从 `eva-infra` 归位到 `bc-ai-report` 且移除 `bc-ai-report` → `eva-infra` 编译期依赖（提交：`e2f2a7ff`）。按 2025-12-24 需求变更：后续不再新增 `bc-ai-report-infra` 平铺模块，新增适配器归位到 `bc-ai-report/` 内部 `infrastructure` 子模块（或先落在 `eva-app`，再按里程碑折叠归位）。
+- **bc-ai-report（AI 报告，S0 折叠归位）**：已完成阶段 1：引入 `bc-ai-report-parent` + 内部 `domain/application/infrastructure` 子模块；应用层 artifactId 仍为 `bc-ai-report`（保持行为不变；提交：`e14f4f7a`）。
 - **bc-ai-report（AI 报告，补充）**：旧入口 `AiCourseAnalysisService` 与组合根 `BcAiReportConfiguration` 已归位到 `bc-ai-report`；为保持 `@CheckSemId` 切面语义不变，`edu.cuit.app.aop.CheckSemId` 已下沉到 `shared-kernel`（均保持包名/异常/日志/副作用顺序不变；提交：`58c2f055`、`ca321a20`、`1c595052`）。
 - **bc-template（模板）**：已完成 S0 结构折叠为 `bc-template-parent` + 内部 `domain/application/infrastructure` 子模块（应用层 artifactId 仍为 `bc-template`；包名不变；保持行为不变；落地提交：`65091516`）。
 - **bc-course（课程）**：已完成 S0 折叠为 `bc-course-parent` + 内部 `domain/application/infrastructure` 子模块（应用层 artifactId 仍为 `bc-course`；包名不变；保持行为不变；提交：`e90ad03b`）。读侧 `CourseQueryGatewayImpl` 已退化委托壳并抽出 QueryRepo/Repository（保持行为不变）。
