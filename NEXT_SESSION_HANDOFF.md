@@ -50,7 +50,8 @@
     - `search_for_pattern(AiReport|AI报告|AiAnalysisBO|bcaireport|CourseAiServices)`：命中点均在 `bc-ai-report`（以及导出测试），未出现持久化/写入类。
     - `search_for_pattern(Ai\\w*(Gateway|Repository|Mapper|Dao|DO|Entity))`：无命中（未发现 AI 报告相关 DAL/Repository/Mapper）。
     - `search_for_pattern(.insert|.save\\()`（限制在 `bc-ai-report/src/main/java`）：无命中（未发现写入调用点）。
-- ⚠️ **阶段性推送说明（新需求执行受阻）**：当前环境对 GitHub 的 SSH 推送失败（`git push origin ddd` 报错：`Connection closed by 198.18.0.109 port 22`）。本会话按用户要求暂不推送；后续若要恢复“阶段性 push”规则，可考虑将 `origin` 切换为 HTTPS 或修复 SSH 访问后再执行。
+- ⚠️ **阶段性推送说明（新需求执行受阻）**：当前环境对 GitHub 的 SSH 推送失败（`git push origin ddd` 报错：`Connection closed by 198.18.0.109 port 22`）。本会话已按新需求在阶段性提交后尝试推送，但仍失败；不阻塞推进。
+  - 待推送提交点：`c445039d`（包含：`e14f4f7a`、`c445039d`）。
 - ✅ **S0（结构性里程碑：`bc-template` 折叠归位）**：将 `bc-template` 折叠为 `bc-template-parent` + 内部 `domain/application/infrastructure` 子模块（应用层 artifactId 仍为 `bc-template`；包名不变；保持行为不变；最小回归通过；落地提交：`65091516`）。
 - ✅ **S0（结构性里程碑：`bc-course` 折叠归位）**：将 `bc-course` 折叠为 `bc-course-parent` + 内部 `domain/application/infrastructure` 子模块（应用层 artifactId 仍为 `bc-course`；包名不变；保持行为不变；最小回归通过；落地提交：`e90ad03b`）。
 - ✅ **条目 25（AI 报告写侧：导出链路实现归位）**：将 AI 报告导出端口适配器 `AiReportDocExportPortImpl` 与 Word 生成器 `AiReportExporter` 从 `eva-app` 迁移到 `bc-ai-report`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`d1262c32`）。
