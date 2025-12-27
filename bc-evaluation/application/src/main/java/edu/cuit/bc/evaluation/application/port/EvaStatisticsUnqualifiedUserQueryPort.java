@@ -1,39 +1,19 @@
 package edu.cuit.bc.evaluation.application.port;
 
-import edu.cuit.client.dto.clientobject.eva.EvaScoreInfoCO;
-import edu.cuit.client.dto.clientobject.eva.EvaSituationCO;
-import edu.cuit.client.dto.clientobject.eva.EvaWeekAddCO;
-import edu.cuit.client.dto.clientobject.eva.PastTimeEvaDetailCO;
-import edu.cuit.client.dto.clientobject.eva.ScoreRangeCourseCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.UnqualifiedUserConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
- * 评教统计读侧查询端口。
+ * 评教统计“未达标用户”查询端口（读侧）。
  *
- * <p>面向统计与导出场景的查询能力，逐步替代聚合式网关依赖。</p>
+ * <p>仅用于接口细分与依赖收敛，不改任何业务语义。</p>
  */
-public interface EvaStatisticsQueryPort extends EvaStatisticsOverviewQueryPort,
-        EvaStatisticsTrendQueryPort,
-        EvaStatisticsUnqualifiedUserQueryPort {
-    Optional<EvaScoreInfoCO> evaScoreStatisticsInfo(Integer semId, Number score);
-
-    Optional<EvaSituationCO> evaTemplateSituation(Integer semId);
-
-    Optional<EvaWeekAddCO> evaWeekAdd(Integer week, Integer semId);
-
-    List<ScoreRangeCourseCO> scoreRangeCourseInfo(Integer num, Integer interval);
-
-    List<Integer> getMonthEvaNUmber(Integer semId);
-
-    Optional<PastTimeEvaDetailCO> getEvaData(Integer semId, Integer num, Integer target, Integer evaTarget);
-
+public interface EvaStatisticsUnqualifiedUserQueryPort {
     Optional<UnqualifiedUserResultCO> getEvaTargetAmountUnqualifiedUser(Integer semId, Integer num, Integer target);
 
     Optional<UnqualifiedUserResultCO> getBeEvaTargetAmountUnqualifiedUser(Integer semId, Integer num, Integer target);
@@ -45,6 +25,4 @@ public interface EvaStatisticsQueryPort extends EvaStatisticsOverviewQueryPort,
     PaginationResultEntity<UnqualifiedUserInfoCO> pageBeEvaUnqualifiedUserInfo(Integer semId,
                                                                                PagingQuery<UnqualifiedUserConditionalQuery> query,
                                                                                Integer target);
-
-    List<Integer> getCountAbEva(Integer semId, Integer userId);
 }
