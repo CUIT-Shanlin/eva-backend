@@ -38,6 +38,7 @@
     - 记录并发与组装逻辑不变：`records.parallelStream()` 保持；评分计算仍依赖 `evaRecordQueryPort.getScoreFromRecord(...).get()` 的既有语义。
     - 用户不存在：日志 `根据用户id获取用户失败` → 抛 `BizException("导出报告失败，请联系管理员")`（触发点：`AiReportAnalysisPortImpl.analysis` 末尾 `userQueryGateway.findById(...).orElseThrow(...)`）。
 - ✅ **S0（结构性里程碑：`bc-template` 折叠归位）**：将 `bc-template` 折叠为 `bc-template-parent` + 内部 `domain/application/infrastructure` 子模块（应用层 artifactId 仍为 `bc-template`；包名不变；保持行为不变；最小回归通过；落地提交：`65091516`）。
+- ✅ **S0（结构性里程碑：`bc-course` 折叠归位）**：将 `bc-course` 折叠为 `bc-course-parent` + 内部 `domain/application/infrastructure` 子模块（应用层 artifactId 仍为 `bc-course`；包名不变；保持行为不变；最小回归通过；落地提交：`e90ad03b`）。
 - ✅ **条目 25（AI 报告写侧：导出链路实现归位）**：将 AI 报告导出端口适配器 `AiReportDocExportPortImpl` 与 Word 生成器 `AiReportExporter` 从 `eva-app` 迁移到 `bc-ai-report`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`d1262c32`）。
   - 行为快照（变更前后必须一致）：
     - 导出失败（`IOException`）：日志 `AI报告导出失败` → 抛 `SysException("报告导出失败，请联系管理员")`（触发点：`ExportAiReportDocByUsernameUseCase.exportDocData`）。
