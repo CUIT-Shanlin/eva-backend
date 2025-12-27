@@ -553,7 +553,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 				         - 进展：已迁移 IAM 查询条件 `MenuConditionalQuery` 到 `bc-iam-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`1eda37c9`）。
 				         - 进展（2025-12-26）：已将 IAM 专属接口 `IDepartmentService` 从 `eva-client` 迁移到 `bc-iam-contract`（包名归位到 `edu.cuit.bc.iam.application.contract.api.department`；保持行为不变；最小回归通过；落地提交：`656dc36e`）。
 				         - 进展：已在“可证实不再需要”的前提下移除 `bc-iam/application` → `eva-client` 直依赖（保持行为不变；最小回归通过；落地提交：`7371ab96`）。
-						         - ✅ 进展（2025-12-27）：已对 `eva-domain` 仍存在的 `import edu.cuit.client.*` 做“来源证伪”（Serena 盘点清单 → 逐项确认类型定义文件实际归属模块；包名保持不变）。结论：`eva-client` 源码仅 `package-info.java`，不再提供业务类型；`eva-domain` 的 `edu.cuit.client.*` 引用类型分别由 `shared-kernel` / 各 BC contract / `bc-course` / `eva-domain` 自身承载（保持行为不变）。
+							         - ✅ 进展（2025-12-27）：已对 `eva-domain` 仍存在的 `import edu.cuit.client.*` 做“来源证伪”（Serena 盘点清单 → 逐项确认类型定义文件实际归属模块；包名保持不变）。结论：`eva-client` 不再提供业务类型；`eva-domain` 的 `edu.cuit.client.*` 引用类型分别由 `shared-kernel` / 各 BC contract / `bc-course` / `eva-domain` 自身承载（保持行为不变）。
 				         - 进展（2025-12-26）：已将课程写侧命令 `edu.cuit.client.dto.cmd.course/*` 与导入课表 BO `CourseExcelBO` 从 `eva-client` 迁移到 `bc-course`（保持 `package` 不变），并为 `eva-infra-shared` 增加 `bc-course` 显式依赖以闭合编译依赖（保持行为不变；最小回归通过；落地提交：`8a591703`）。
 				         - 进展（2025-12-26）：已将学期协议接口 `ISemesterService` 与学期 CO `SemesterCO` 从 `eva-client` 迁移到 `bc-course`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`7b5997c1`）。
 				         - 进展（2025-12-26）：已将通用学期入参 `Term` 从 `eva-client` 迁移到 `bc-course`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`f401dcb9`）。
@@ -570,7 +570,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 				         - 进展（2025-12-26）：已将消息域 `IMsgService/SendMessageCmd/MessageBO` 从 `eva-client` 迁移到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`431a5a23`）。
 				         - 进展（2025-12-26）：已将 `SendWarningMsgCmd` 从 `eva-client` 迁移到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`e6aa5913`）。
 				         - 进展（2025-12-26）：已将消息域 clientobject `EvaMsgCO` 从 `eva-client` 迁移到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`2f257a86`）。
-					         - ✅ 进展（2025-12-27）：已在完成来源证伪的前提下选择方案 B，并从 root reactor 移除 `eva-client` 模块（保持行为不变；最小回归通过；落地提交：`ce07d75f`）。
+						         - ✅ 进展（2025-12-27）：已在完成来源证伪的前提下选择方案 B，并从 root reactor 移除 `eva-client` 模块（保持行为不变；最小回归通过；落地提交：`ce07d75f`）；并进一步从仓库移除 `eva-client/` 目录（保持行为不变；落地提交以 Git 为准）。
 			      3) 在 `bc-evaluation/contract` 继续迁移评教域协议对象：优先 `edu.cuit.client.dto.clientobject.eva.*` 与 `UnqualifiedUserConditionalQuery`（建议先保持 `package` 不变以降风险；保持行为不变）。
 			         - 进展：已将评教统计接口 `IEvaStatisticsService` + `UnqualifiedUserInfoCO/UnqualifiedUserResultCO` 从 `eva-client` 迁移到 `bc-evaluation/contract`（保持 `package` 不变；保持行为不变；落地提交：`978e3535`）。
 			         - 进展：已将 `edu.cuit.client.dto.clientobject.eva.*` + `UnqualifiedUserConditionalQuery` 从 `eva-client` 迁移到 `bc-evaluation/contract`（保持 `package` 不变）；并将评教 API 接口（`IEvaConfigService/IEvaRecordService/IEvaTaskService/IEvaTemplateService/IUserEvaService`）迁移到 `bc-evaluation/contract`（保持 `package` 不变）；同时将课程域协议接口与 CO（`edu.cuit.client.api.course.*`、`CourseDetailCO/CourseModelCO/SingleCourseDetailCO`）从 `eva-client` 迁移到 `bc-course`，避免 `eva-client` 反向依赖评教 CO（保持行为不变；最小回归通过；落地提交：`6eb0125d`）。

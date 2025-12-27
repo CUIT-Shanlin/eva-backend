@@ -10,7 +10,7 @@ This repository is a **Java 17 + Spring Boot** backend built as a Maven multi-mo
 - `eva-app/`: application layer (use-cases / application services that orchestrate domain logic)
 - `eva-domain/`: domain layer (entities, domain services, repository interfaces)
 - `eva-infra/`: infrastructure (MyBatis-Plus persistence, external system integrations, repository implementations)
-- `eva-client/`: shared DTOs/clients for cross-service reuse (when applicable)
+- `shared-kernel/` + `bc-*/contract`: the replacement home for historical `edu.cuit.client.*` DTOs/BOs/COs (package kept stable); `eva-client` has been removed from the reactor and repository.
 - `eva-base/`: shared utilities and configuration modules (e.g. `eva-base-common/`, `eva-base-config/`)
 - `data/`: runtime-mounted data/config directory (used by container deployments)
 

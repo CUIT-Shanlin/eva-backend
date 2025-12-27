@@ -34,15 +34,16 @@
 - ✅ **S0.1（通用对象沉淀 shared-kernel，单课次 CO）**：将课程 CO `SingleCourseCO` 从 `eva-client` 迁移到 `shared-kernel`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`ccc82092`）。
 - ✅ **S0.1（通用对象沉淀 shared-kernel，课程时间段/类型）**：将课程数据对象 `CoursePeriod/CourseType` 从 `eva-client` 迁移到 `shared-kernel`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`5629bd2a`）。
 - ✅ **S0.1（消息协议继续拆 `eva-client`）**：将消息入参 DTO `GenericRequestMsg` 从 `eva-client` 迁移到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`8fc7db99`）。
-- ✅ **S0.1（状态复盘，保持行为不变）**：全仓库 Maven 依赖面已不再引用 `eva-client`；root reactor 已移除 `eva-client` 模块；`eva-client` 目录当前仅保留 `package-info.java`（用于兼容包结构/便于回滚对照）；`eva-domain` 中仍存在 `import edu.cuit.client.*`，但对应类型均已由 `shared-kernel` / 各 BC contract / `eva-domain` 自身承载（包名保持不变）。
-- ✅ **S0.1（收尾盘点，来源证伪；包名保持不变）**：使用 Serena 盘点 `eva-domain` 内所有 `import edu.cuit.client.*`（共 10 处导入），逐项确认类型定义文件**不在** `eva-client`（其源码仅 `package-info.java`），而分别落在以下模块：
+- ✅ **S0.1（状态复盘，保持行为不变）**：全仓库 Maven 依赖面已不再引用 `eva-client`；root reactor 已移除 `eva-client` 模块；仓库中已移除 `eva-client/` 目录（需要回滚通过 Git 提交点即可）；`eva-domain` 中仍存在 `import edu.cuit.client.*`，但对应类型均已由 `shared-kernel` / 各 BC contract / `eva-domain` 自身承载（包名保持不变）。
+- ✅ **S0.1（收尾盘点，来源证伪；包名保持不变）**：使用 Serena 盘点 `eva-domain` 内所有 `import edu.cuit.client.*`（共 10 处导入），逐项确认类型定义文件**不在** `eva-client`（其模块/目录已退出主干），而分别落在以下模块：
   - `eva-domain`：`SysLogBO`
   - `shared-kernel`：`PagingQuery`、`GenericConditionalQuery`、`SimpleResultCO`、`PaginationQueryResultCO`、`SingleCourseCO`、`CourseTime`、`CoursePeriod`、`CourseType`
   - `bc-course`：`SemesterCO`、`CourseDetailCO`、`RecommendCourseCO`、`SelfTeachCourseCO`、`SelfTeachCourseTimeCO`、`SelfTeachCourseTimeInfoCO`、`CourseExcelBO`、`Term`、`CourseQuery`、`CourseConditionalQuery`、`MobileCourseQuery`、课程写侧命令 `AlignTeacherCmd/UpdateCourseCmd/UpdateCoursesCmd/UpdateSingleCourseCmd/UpdateCourseTypeCmd/UpdateCoursesToTypeCmd`
   - `bc-evaluation/contract`：`CourseScoreCO`、`EvaTeacherInfoCO`、`EvaConfig`
   - `bc-iam/contract`：`MenuConditionalQuery`
   - `bc-messaging-contract`：`GenericRequestMsg`
-- ✅ **S0.1（`eva-client` 退出 root reactor；保持行为不变）**：选择方案 B：从 root `pom.xml` 的 `<modules>` 移除 `eva-client`（最小回归通过；落地提交：`ce07d75f`）。`eva-client/` 目录保留为空壳（源码仅 `package-info.java`）以便回滚/对照。
+- ✅ **S0.1（`eva-client` 退出 root reactor；保持行为不变）**：选择方案 B：从 root `pom.xml` 的 `<modules>` 移除 `eva-client`（最小回归通过；落地提交：`ce07d75f`）。
+- ✅ **S0.1（更彻底清理；保持行为不变）**：从仓库移除 `eva-client/` 目录（最小回归通过；落地提交以 Git 为准）。
 - ✅ **S0.1（课程协议继续拆 `eva-client`）**：将课程查询 Query 对象 `CourseQuery/CourseConditionalQuery/MobileCourseQuery` 从 `eva-client` 迁移到 `bc-course`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`84a6a536`）。
 - ✅ **S0.1（课程协议继续拆 `eva-client`）**：将通用学期入参 `Term` 从 `eva-client` 迁移到 `bc-course`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`f401dcb9`）。
 - ✅ **S0.1（课程协议继续拆 `eva-client`）**：将学期协议接口 `ISemesterService` 与学期 CO `SemesterCO` 从 `eva-client` 迁移到 `bc-course`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`7b5997c1`）。
@@ -155,12 +156,10 @@
    - S0.1-5：迁移 `dto/data/course/CourseTime`（`5f21b5ce`）
    - S0.1-6：移除 `bc-evaluation-contract` → `eva-client` 直依赖，并补齐 `bc-iam-contract` 的显式依赖（`cf2001ef`）
 8) ✅ **P1.2（评教域继续拆 `eva-client`，盘点）**：已完成：Serena 盘点确认评教专属目录已迁空；当前评教域后续更可能是“依赖面收敛”（例如继续盘点评教 BC 其它子模块对 `eva-client` 的显式依赖，若存在且可证实不再需要，则逐步移除；保持行为不变；每步=最小回归+提交+三文档同步）。
-9) **S0.1（下一步优先：收尾，让 `eva-client` 退出主干）**：
-   - 现状（保持行为不变）：`eva-domain` 已移除对 `eva-client` 的 Maven **直依赖**；课程/消息/AI/教室等协议对象已按归属迁出 `eva-client`（大多保持 `package` 不变以降风险）。目前 `eva-client` 仅剩 `package-info.java`，且全仓库 Maven 依赖面已不再引用 `eva-client`（除 `eva-client` 自身模块）。
-   - 下一步建议（保持行为不变；每步可回滚）：用 Serena 盘点 `eva-domain` 的 `import edu.cuit.client.*` 清单，并逐项确认其物理归属（`shared-kernel` / 各 BC contract / `eva-domain` 自身；包名保持不变）。确认无误后，评估并执行二选一：
-     1) **方案 A（保守）**：保留 `eva-client` 空壳模块（仅保留 `package-info.java`），用于兼容包结构与外部引用风险；
-     2) **方案 B（彻底）**：从 root reactor（root `pom.xml` 的 `<modules>`）移除 `eva-client` 模块，并处理可能的发布/IDE 引用影响（仍保持行为不变；需要更严格的回归闭环）。
-   - 目标：`eva-client` 不再参与主干编译依赖链；后续不新增对象回流 `eva-client`。
+9) ✅ **S0.1（已闭环：让 `eva-client` 退出主干；保持行为不变）**：
+   - 已完成：`eva-domain` 已移除对 `eva-client` 的 Maven **直依赖**；`eva-domain` 的 `edu.cuit.client.*` 引用类型已完成来源证伪（均不由 `eva-client` 提供）。
+   - 已完成：从 root reactor（root `pom.xml` 的 `<modules>`）移除 `eva-client` 模块（落地提交：`ce07d75f`）。
+   - 已完成：从仓库移除 `eva-client/` 目录（落地提交以 Git 为准）。
 10) **条目 25（后续）**：AI 报告继续挑选剩余写链路（保存/落库/记录等）按同套路收敛（保持行为不变）。
 
 ## 0.12 当前总体进度概览（2025-12-27，更新至 `HEAD`）
@@ -215,10 +214,8 @@
 4) data/ 与 data/doc/（如需核对表/字段语义）
 
 本会话目标（优先做这个）：
-- S0.1（下一步优先，收尾）：继续把 `eva-client` 从主干“彻底退场”。先用 Serena 复盘 `eva-domain` 的 `import edu.cuit.client.*` 引用清单，并逐项“证伪其来源”（确认不再由 `eva-client` 提供类型，而是由 `shared-kernel`/各 BC contract/`eva-domain` 自身承载；包名保持不变）。随后评估并决策：`eva-client` 作为空壳模块保留 vs 从 root reactor 移除（保持行为不变；每步=最小回归+提交+三文档同步）。
-- S0.1（补充，避免重复劳动）：已完成的典型迁移包括：课程域 `clientobject/course` 残留 CO、消息域 request/response DTO、AI 报告协议对象、教室接口等均已迁出 `eva-client`（大多保持 `package` 不变以降风险）。当前 `eva-client` 仅剩 `package-info.java`，不会再承载新对象。
-- P1.2（评教域）与 P1.2-3（审计日志域）本轮已完成“拆 `eva-client` 的盘点/闭环”，后续优先级低于 S0.1；需要继续推进时再按 Serena 盘点 → 小簇迁移/去依赖推进（保持行为不变）。
-- S0.1（IAM，后续）：继续用 Serena 盘点 `eva-client` 残留对象在 IAM 的引用范围；若为 IAM 专属则迁移到 `bc-iam-contract`（或更合适的 BC），并避免新增对象回流 `eva-client`（保持行为不变）。
+- ✅ S0.1（已闭环）：`eva-client` 已从主干依赖链彻底退出（含：来源证伪 + 退出 reactor + 目录从仓库移除；保持行为不变）。
+- 下一步（建议优先，保持行为不变）：回到条目 25 的后续推进——AI 报告继续挑选剩余写链路（保存/落库/记录等）按同套路收敛；或推进结构性里程碑 S0（将其它 BC 按“单顶层聚合模块 + 内部三子模块”折叠归位）。
 
 最小回归命令（每步结束必跑，Java17）：
 export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" \
@@ -304,16 +301,16 @@ export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$J
 下一步提交点（建议优先级）：
 1) **S0.1（下一步优先：收敛 `eva-domain` → `eva-client` 依赖）**：
    - ✅ 进展：已移除 `eva-domain` → `eva-client` Maven **直依赖**（`9ff21249`）。
-   - 下一步建议（保持行为不变；每步可回滚）：继续用 Serena 盘点 `eva-domain` 中 `import edu.cuit.client.*` 的类型清单，并逐一核对“类型来源是否仍在 `eva-client`”。若仍存在则按业务归属小簇迁移到对应 BC（例如 `bc-course`/`bc-messaging`/`bc-ai-report`）或 `shared-kernel`；若已不存在，则转向下一批“仍留在 `eva-client` 的对象”（当前主要是 AI/教室相关）继续归位（每步=最小回归+提交+三文档同步）。
+   - 下一步建议（保持行为不变；每步可回滚）：继续用 Serena 盘点 `eva-domain` 中 `import edu.cuit.client.*` 的类型清单，并逐一核对“类型来源是否已在 `shared-kernel` / 各 BC contract / `eva-domain`”。若发现仍有未归位的小簇类型，则按业务归属迁移到对应 BC（例如 `bc-course`/`bc-messaging`/`bc-ai-report`）或 `shared-kernel`（每步=最小回归+提交+三文档同步）。
 2) **S0.1（IAM 继续推进）**：继续迁移 IAM 专属 query/condition/CO（保持行为不变；避免新代码回流 `eva-client`；必要时先用 Serena 盘点残留引用面再决定迁移/沉淀）。
    - ✅ 已完成：移除 `bc-iam/application` → `eva-client` 的直依赖（保持行为不变；`7371ab96`）。
    - ✅ 已完成：迁移 IAM 专属接口 `IDepartmentService` 从 `eva-client` 到 `bc-iam-contract`（包名归位到 `edu.cuit.bc.iam.application.contract.api.department`；保持行为不变；`656dc36e`）。
-   - 下一步：Serena 继续盘点 `eva-client` 下残留对象（尤其 `dto/query/condition`、`dto/clientobject`、`dto/data`）在 IAM 模块的引用范围；若为 IAM 专属则迁移到 `bc-iam-contract`（或更合适的 BC），若为跨 BC 通用则继续沉淀到 `shared-kernel`（保持行为不变）。
+   - 下一步：Serena 继续盘点 IAM 模块引用的 `edu.cuit.client.*` 类型范围；若为 IAM 专属则迁移到 `bc-iam-contract`（或更合适的 BC），若为跨 BC 通用则继续沉淀到 `shared-kernel`（保持行为不变）。
 3) ✅ **P1.2（评教域继续拆 `eva-client`，盘点）**：已闭环：评教专属目录已迁空；后续更可能只剩“依赖面收敛”推进（保持行为不变；`e643bac9`）。
 4) **条目 25（后续）**：AI 报告继续挑选剩余写链路（保存/落库/记录等）按同套路收敛（保持行为不变；参考 `docs/DDD_REFACTOR_BACKLOG.md` 第 6 节）。
 
-当前 `eva-client` 残留对象（用于下一会话快速定位；以 Git 为准）：
-- `edu.cuit.client`：仅剩 `package-info.java`（业务对象已按 S0.1 逐步迁移到对应 BC contract 或 `shared-kernel`）
+当前 `eva-client` 状态（以 Git 为准）：
+- `eva-client/` 目录已从仓库移除（S0.1 已闭环；如需回滚通过 Git 提交点即可）。
 
 每步最小回归命令（每步结束都跑）：
 export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\"$JAVA_HOME/bin:$PATH\" \\
