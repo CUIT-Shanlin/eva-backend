@@ -29,6 +29,7 @@
   - 说明：本次尝试使用 Serena 做符号级定位/引用分析，但 MCP 工具调用持续超时；已退化为使用本地 `rg` 做定位与引用复核。变更仅涉及 Maven/目录结构与源码物理路径（`package` 不变），不影响业务语义。
 - ✅ **S0（结构性里程碑：`bc-audit` 折叠归位，阶段 2）**：将审计日志写链路的端口适配器 `edu.cuit.infra.bcaudit.adapter.LogInsertionPortImpl` 从 `eva-infra` 搬运到 `bc-audit/infrastructure` 子模块；并补齐 `eva-app` → `bc-audit-infra` 依赖以保证 Spring 装配（保持行为不变；最小回归通过；落地提交：`d7858d7a`）。
   - 说明：为保持行为不变，当前 `bc-audit-infra` 仍过渡性依赖 `eva-infra` 以复用既有 DAL/Converter/Gateway；后续若要进一步去依赖，应按“先抽离到 `eva-infra-dal`/`eva-infra-shared` 或归位到 `bc-audit/infrastructure`”的小步策略推进。
+  - 证据化引用面（可复现）：本阶段同样尝试用 Serena 做符号级引用分析，但 MCP 工具调用持续 `TimeoutError`；已退化为使用本地 `rg` 复核关键装配/引用点（不改变语义，仅用于“定位证据”）。建议复核关键词：`LogInsertionPortImpl/LogInsertionPort/InsertLogUseCase/BcAuditConfiguration/LogGatewayImpl`。
 - ✅ **条目 25（AI 报告写侧：组合根 wiring 归位）**：将 `BcAiReportConfiguration` 从 `eva-app` 迁移到 `bc-ai-report`（保持 `package edu.cuit.app.config` 不变；Bean 定义与 `@Lazy` 环断策略不变；保持行为不变；最小回归通过；落地提交：`58c2f055`）。
   - 行为快照（变更前后必须一致；用于下一步继续收敛“剩余写链路”时对照）：
     - 入口与链路顺序：`GET /evaluate/export/report`（`EvaStatisticsController.exportEvaReport`）→ `IAiCourseAnalysisService.exportDocData`（`AiCourseAnalysisService.exportDocData`）→ `ExportAiReportDocByUsernameUseCase.exportDocData`。
@@ -186,6 +187,11 @@
    - 补充进展（2025-12-27）：S0 已完成阶段 1/2：`bc-ai-report-parent` + 内部子模块已落地；端口适配器/导出实现/AI 基础设施已归位 `bc-ai-report/infrastructure`，并补齐 `eva-app` → `bc-ai-report-infra` 依赖（保持行为不变；提交：`e14f4f7a`、`444c7aca`）。
    - 说明：由于本次盘点已证伪，本条目的“证据清单”已补齐；无需再“凭感觉继续拆”，直接推进 S0 更能带来结构性收益且可回滚。
 2) **结构性里程碑 S0（次优先）**：`bc-audit` 已完成阶段 1/2（提交：`81594308`、`d7858d7a`）。下一步建议（可选，保持行为不变）：将 `bc-audit-infra` 对 `eva-infra` 的过渡依赖拆小/去依赖（优先处理 `sys_log` 相关 DAL/Converter），按“先抽离到 `eva-infra-dal`/`eva-infra-shared` 或归位到 `bc-audit/infrastructure`”的小步策略推进。
+   - 推荐拆分为 3~4 个最小提交（每步：符号级盘点 → 最小回归 → commit → 三文档同步）：
+     - 盘点 `bc-audit-infra` 仍从 `eva-infra` 引用的类型清单（聚焦 `edu.cuit.infra.dal.database.*`、`edu.cuit.infra.convertor.*`、`edu.cuit.infra.gateway.*`），形成“依赖闭包”证据。
+     - 若 `sys_log` 相关 DO/Mapper/XML 尚不在 `eva-infra-dal`，先按“保持包名/namespace/SQL 不变”的策略迁移到 `eva-infra-dal`。
+     - 将 `LogInsertionPortImpl` 仍依赖的转换/工具类按最小闭包迁移到 `eva-infra-shared`（或直接归位 `bc-audit/infrastructure`，二选一；保持行为不变）。
+     - 最后将 `bc-audit-infra` 的 Maven 依赖由 `eva-infra` 收敛为更小的 `eva-infra-dal` + `eva-infra-shared`（或完全不依赖 `eva-infra`），并确保 `eva-app` 装配不变。
    - 参考：`bc-template`/`bc-course`/`bc-ai-report` 已完成折叠归位（提交：`65091516`、`e90ad03b`、`e14f4f7a/444c7aca`）。
 3) （可选/后置）**评教读侧进一步解耦**：在不改变统计口径/异常文案前提下，按用例维度继续细化 QueryService/QueryPort（保持行为不变）。
 
@@ -235,7 +241,7 @@
 
 强约束（必须严格执行）：
 - 只做重构，不改业务语义；缓存/日志/异常文案/副作用顺序完全不变
-- 必须使用 Serena 做符号级定位与引用分析
+- 必须使用 Serena 做符号级定位与引用分析（若 MCP 工具出现 `TimeoutError` 等不可用情况：需在 0.9 记录“降级原因 + 可复现的 `rg` 证据”，并在下一会话优先排查恢复）
 - 每个小步骤结束：跑最小回归 → git commit → 更新 NEXT_SESSION_HANDOFF.md / DDD_REFACTOR_PLAN.md / docs/DDD_REFACTOR_BACKLOG.md
 - 每次结束对话前：先写清“下一步拆分与里程碑/提交点”
 
