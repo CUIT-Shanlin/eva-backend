@@ -25,6 +25,11 @@
         </dependency>
         <dependency>
             <groupId>edu.cuit</groupId>
+            <artifactId>shared-kernel</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>edu.cuit</groupId>
             <artifactId>bc-evaluation</artifactId>
             <version>${revision}</version>
         </dependency>
