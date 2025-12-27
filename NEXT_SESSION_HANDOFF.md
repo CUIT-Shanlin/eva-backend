@@ -195,6 +195,8 @@
      - 最后将 `bc-audit-infra` 的 Maven 依赖由 `eva-infra` 收敛为更小的 `eva-infra-dal` + `eva-infra-shared`（或完全不依赖 `eva-infra`），并确保 `eva-app` 装配不变。
    - 参考：`bc-template`/`bc-course`/`bc-ai-report` 已完成折叠归位（提交：`65091516`、`e90ad03b`、`e14f4f7a/444c7aca`）。
 3) （可选/后置）**评教读侧进一步解耦**：在不改变统计口径/异常文案前提下，按用例维度继续细化 QueryService/QueryPort（保持行为不变）。
+   - 最小切入点建议（仍保持行为不变，便于可回滚）：优先从 `bc-evaluation/application/port/EvaStatisticsQueryPort` 着手，先按“用例簇”拆出 2~3 个更细粒度的子 Port（**仅新增接口 + `extends`，不改实现/不改装配**），再按“每次只迁 1 个用例方法”的节奏逐步收窄上层依赖类型（避免一次性大改导致口径/异常漂移）。
+   - 风险提示：`eva-app` 中存在通过 `SpringUtil.getBean(...)` 获取 QueryPort 的静态初始化路径（例如导出相关类）；如需调整依赖类型或移动类归属，务必保持 Bean 初始化时机与副作用顺序不变。
 
 ## 0.12 当前总体进度概览（2025-12-27，更新至 `HEAD`）
 
