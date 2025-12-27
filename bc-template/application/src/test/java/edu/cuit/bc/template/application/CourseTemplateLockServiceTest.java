@@ -24,4 +24,3 @@ class CourseTemplateLockServiceTest {
         assertDoesNotThrow(() -> service.assertCanChangeTemplate(1, 1));
     }
 }
-

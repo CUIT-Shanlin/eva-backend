@@ -8,4 +8,3 @@ public class TemplateLockedException extends RuntimeException {
         super(message);
     }
 }
-

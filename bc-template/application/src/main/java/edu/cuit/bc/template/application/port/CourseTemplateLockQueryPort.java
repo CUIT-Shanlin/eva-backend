@@ -8,4 +8,3 @@ package edu.cuit.bc.template.application.port;
 public interface CourseTemplateLockQueryPort {
     boolean isLocked(Integer courseId, Integer semesterId);
 }
-
