@@ -26,6 +26,13 @@
             <version>${revision}</version>
         </dependency>
 
+        <!-- 渐进式重构阶段：复用旧基础设施能力（AI 模型/提示词工具等），保证行为不变 -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>eva-infra</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>

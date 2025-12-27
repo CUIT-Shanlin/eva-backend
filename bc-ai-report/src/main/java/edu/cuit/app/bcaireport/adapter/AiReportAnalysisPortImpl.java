@@ -4,7 +4,6 @@ import com.alibaba.cola.exception.BizException;
 import dev.langchain4j.community.model.dashscope.QwenChatModel;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.service.AiServices;
-import edu.cuit.app.service.impl.ai.AiCourseAnalysisService;
 import edu.cuit.bc.aireport.application.port.AiReportAnalysisPort;
 import edu.cuit.bc.evaluation.application.port.EvaRecordQueryPort;
 import edu.cuit.client.api.course.IUserCourseService;
@@ -29,12 +28,12 @@ import java.util.stream.Collectors;
 /**
  * AI 报告分析端口适配器（过渡期实现）。
  *
- * <p>保持行为不变：原样执行旧 {@link AiCourseAnalysisService#analysis(Integer, Integer)} 的分析流程，
+ * <p>保持行为不变：原样执行旧 {@link edu.cuit.app.service.impl.ai.AiCourseAnalysisService#analysis(Integer, Integer)} 的分析流程，
  * 不改变异常文案与日志顺序。</p>
  */
 @Component
 public class AiReportAnalysisPortImpl implements AiReportAnalysisPort {
-    private static final Logger log = LoggerFactory.getLogger(AiCourseAnalysisService.class);
+    private static final Logger log = LoggerFactory.getLogger("edu.cuit.app.service.impl.ai.AiCourseAnalysisService");
 
     private final IUserCourseService userCourseService;
     private final EvaRecordQueryPort evaRecordQueryPort;
