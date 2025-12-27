@@ -175,6 +175,7 @@
    - 为选定方法记录行为快照：异常类型/异常文案、日志文案与顺序、缓存/副作用时机（事务提交后/同步）。
    - 补充进展（2025-12-27）：已将导出链路实现（`AiReportDocExportPortImpl` + `AiReportExporter`）、analysis 链路实现（`AiReportAnalysisPortImpl`）与 username→userId 端口适配器（`AiReportUserIdQueryPortImpl`）从 `eva-app` 归位到 `bc-ai-report`（保持 `package` 不变；保持行为不变；提交：`d1262c32`、`6f34e894`、`e2a608e2`），并进一步将 `edu.cuit.infra.ai.*` 从 `eva-infra` 归位到 `bc-ai-report`（保持 `package` 不变；保持行为不变；提交：`e2f2a7ff`）。
    - 补充进展（2025-12-27）：已将 `BcAiReportConfiguration` 与旧入口 `AiCourseAnalysisService` 归位到 `bc-ai-report`，并将 `@CheckSemId` 注解下沉到 `shared-kernel`（均保持 `package`/切面触发点/异常与日志行为不变；提交：`58c2f055`、`ca321a20`、`1c595052`）。
+   - 下一步落地建议（避免“凭感觉继续拆”）：若 Serena 盘点后仍未找到可证实的“落库/记录”写链路，则以“证据清单”方式关闭该分支（记录检索关键词/命中点/结论），并将条目 25 的后续重点切换为 **S0 折叠 `bc-ai-report`**（让其符合“单顶层聚合模块 + 内部子模块”的目标结构，仍保持行为不变）。
 2) **结构性里程碑 S0（次优先）**：选择一个 BC（建议 `bc-course`；`bc-template` 已完成折叠归位：`65091516`），按已验证套路折叠为“单顶层聚合模块 + 内部 `domain/application/infrastructure` 子模块”（仅搬运/依赖收敛，不改业务语义；每步可回滚）。
    - 更新（2025-12-27）：`bc-course` 已完成折叠归位（`bc-course-parent` + 内部子模块；提交：`e90ad03b`）。下一轮 S0 可优先选 `bc-ai-report`（体量小、近期改动集中）或 `bc-audit`。
 3) （可选/后置）**评教读侧进一步解耦**：在不改变统计口径/异常文案前提下，按用例维度继续细化 QueryService/QueryPort（保持行为不变）。
