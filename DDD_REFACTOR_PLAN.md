@@ -665,7 +665,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
     - 依赖：`eva-infra-shared/pom.xml` 增加 `spring-context`（保留 `@Component`）；`eva-infra/pom.xml` 与 `bc-iam-infra/pom.xml` 增加对 `eva-infra-shared` 的依赖
   - 阶段 2.9（已完成）：迁移查询工具 `QueryUtils` 到 `eva-infra-shared`（保持包名不变；保持行为不变）。
     - Java：`eva-infra-shared/src/main/java/edu/cuit/infra/util/QueryUtils.java`
-    - 依赖：`eva-infra-shared/pom.xml` 增加对 `eva-client` 与 `zym-spring-boot-starter-jdbc` 的依赖
+    - 依赖：`eva-infra-shared/pom.xml` 增加对 `eva-client` 与 `zym-spring-boot-starter-jdbc` 的依赖（历史）；进展（2025-12-27）：已移除 `eva-infra-shared` → `eva-client` 直依赖（保持行为不变；最小回归通过；`9437bb12`）。
   - 阶段 2.10（已完成）：迁移 `EntityFactory` 到 `eva-infra-shared`（保持包名不变；保持行为不变）。
     - Java：`eva-infra-shared/src/main/java/edu/cuit/infra/convertor/EntityFactory.java`
     - 依赖：`eva-infra-shared/pom.xml` 增加 `mapstruct-plus-spring-boot-starter`；并增加对 `eva-domain` 的依赖以保留 `hutool SpringUtil` 与 `cola SysException` 的依赖来源
