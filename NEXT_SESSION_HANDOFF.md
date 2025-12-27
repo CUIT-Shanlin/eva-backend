@@ -31,6 +31,7 @@
   - 说明：阶段 2 为保持行为不变，`bc-audit-infra` 过渡性依赖 `eva-infra` 以复用既有 DAL/Converter/Gateway；本会话已推进阶段 3，将依赖收敛为 `eva-infra-dal` + `eva-infra-shared`（见下条，保持行为不变）。
   - 证据化引用面（可复现）：本阶段同样尝试用 Serena 做符号级引用分析，但 MCP 工具调用持续 `TimeoutError`；已退化为使用本地 `rg` 复核关键装配/引用点（不改变语义，仅用于“定位证据”）。建议复核关键词：`LogInsertionPortImpl/LogInsertionPort/InsertLogUseCase/BcAuditConfiguration/LogGatewayImpl`。
 - ✅ **S0（结构性里程碑：`bc-audit` 折叠归位，阶段 3，可选）**：将 `sys_log` 相关 DAL（`SysLog*DO/Mapper/XML`）迁移到 `eva-infra-dal`，将 `LogConverter` 迁移到 `eva-infra-shared`，并将 `bc-audit-infra` Maven 依赖由 `eva-infra` 收敛为 `eva-infra-dal` + `eva-infra-shared`（保持包名/namespace/SQL 不变；缓存/日志/异常文案/副作用顺序不变；最小回归通过；落地提交：`06ec6f3d`）。
+- ✅ **评教读侧进一步解耦（后置，接口细化起步）**：细分统计 QueryPort：新增 `EvaStatisticsOverviewQueryPort/EvaStatisticsTrendQueryPort/EvaStatisticsUnqualifiedUserQueryPort`，并让 `EvaStatisticsQueryPort` `extends` 以上子端口（仅接口拆分，不改实现/不改装配；行为不变；最小回归通过；落地提交：`a1d6ccab`）。
 - ✅ **条目 25（AI 报告写侧：组合根 wiring 归位）**：将 `BcAiReportConfiguration` 从 `eva-app` 迁移到 `bc-ai-report`（保持 `package edu.cuit.app.config` 不变；Bean 定义与 `@Lazy` 环断策略不变；保持行为不变；最小回归通过；落地提交：`58c2f055`）。
   - 行为快照（变更前后必须一致；用于下一步继续收敛“剩余写链路”时对照）：
     - 入口与链路顺序：`GET /evaluate/export/report`（`EvaStatisticsController.exportEvaReport`）→ `IAiCourseAnalysisService.exportDocData`（`AiCourseAnalysisService.exportDocData`）→ `ExportAiReportDocByUsernameUseCase.exportDocData`。

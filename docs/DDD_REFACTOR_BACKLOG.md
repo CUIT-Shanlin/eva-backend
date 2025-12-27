@@ -279,6 +279,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
    - 验收：缓存/日志/异常文案/副作用顺序完全不变 + 最小回归通过（以 `NEXT_SESSION_HANDOFF.md` 为准）。
 2) 读侧：`EvaQueryRepository` 的实现侧已按主题拆分并退化为委托壳，且读侧查询实现已迁移到 `bc-evaluation-infra`（保持口径/异常文案不变；接口拆分：`d5b07247/cae1a15c/82427967/889ec9b0`；实现拆分：`9e0a8d28/985f7802/d467c65e/a550675a`；迁移落地：`be6dc05c`），并已完成读侧门面加固（清理 `EvaQueryRepository` 为纯委托壳；落地：`73fc6c14`；三文档同步：`083b5807`）；C-2（读侧仓储瘦身）已完成盘点并关闭（未发现可证实无引用项；落地：`5c1a03bc`）。
    - 下一步建议（仍保持行为不变）：按用例维度继续细化 QueryService/QueryPort，优先从 `EvaStatisticsQueryPort` 这类“方法簇较大”的端口开始（先新增子 Port + `extends`，不改实现/不改装配；再逐步收窄上层依赖类型，避免一次性大改）。
+   - ✅ 进展（2025-12-27）：已将 `EvaStatisticsQueryPort` 细分为 `EvaStatisticsOverviewQueryPort/EvaStatisticsTrendQueryPort/EvaStatisticsUnqualifiedUserQueryPort`，并让 `EvaStatisticsQueryPort` `extends` 以上子端口（仅接口拆分，不改实现/不改装配；保持行为不变；最小回归通过；落地：`a1d6ccab`）。
 ---
 
 ## 5. 候选目标（按模块/文件归类）
