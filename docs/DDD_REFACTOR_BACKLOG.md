@@ -3,7 +3,7 @@ title: DDD 渐进式重构目标清单与行为框架
 repo: eva-backend
 branch: ddd
 generated_at: 2025-12-18
-updated_at: 2025-12-23
+updated_at: 2025-12-27
 scope: 全仓库（离线扫描 + 规则归纳）
 ---
 
@@ -79,6 +79,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
    - 每完成一组阶段性提交后执行一次：`git push origin ddd`；
    - 推荐口径：1 组=代码变更 commit + 文档同步 commit（或 2~4 个紧密相关 commit）；
    - 目的：降低本地未 push 的风险；不改变“每步必回归/必提交/必三文档同步”的强约束。
+   - 补充：若因环境限制导致 push 失败，不阻塞本次重构推进，但必须在 `NEXT_SESSION_HANDOFF.md` 记录失败原因与待推送提交点。
 
 ### 3.3 风险控制清单（动手前必须逐条核对）
 
@@ -402,7 +403,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
      - ✅ 进展（2025-12-27）：已将 `EvaProp` 从 `eva-client` 迁移到 `shared-kernel`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`4feabdd0`）。
      - ✅ 进展（2025-12-27）：已移除 `eva-infra-shared` → `eva-client` Maven 直依赖（保持行为不变；最小回归通过；落地提交：`9437bb12`）。
      - ✅ 已闭环：`eva-domain` 的 `import edu.cuit.client.*` 已完成来源证伪；`eva-client` 已退出 root reactor，且目录已从仓库移除（保持行为不变）。
-1) AI 报告：继续将 `AiCourseAnalysisService` 等入口的写链路收敛到 `bc-ai-report`（当前已完成导出链路 B2：`c68b3174`；旧入口已进一步退化为纯委托壳 B3：`7f4b3358`；后续可继续收敛“保存/落库/记录”等链路），保持行为不变  
+1) AI 报告：已完成“剩余保存/落库/记录写链路”证据化盘点并证伪（证据清单见 `NEXT_SESSION_HANDOFF.md` 0.9）。后续将该方向的重点切换为 **S0 折叠 `bc-ai-report`**（仅搬运/依赖收敛，保持行为不变）。  
 2) 评教 BC 自包含三层结构：已完成阶段 1（读侧查询迁移：`be6dc05c`）与阶段 2（写侧 Repo 迁移：`24e7f6c9`），并已完成读侧门面加固 C-1（清理 `EvaQueryRepository` 为纯委托壳：`73fc6c14`）。C-2（读侧仓储瘦身）已完成盘点并关闭（落地：`5c1a03bc`）。  
 
 补充说明（避免后续会话口径漂移）：

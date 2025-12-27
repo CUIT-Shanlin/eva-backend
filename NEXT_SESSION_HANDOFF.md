@@ -42,6 +42,13 @@
     - 使用的模型与调用顺序不变：按课程逐个构建 `CourseAiServices`（`qwenMaxChatModel`）生成优点/缺点/建议；最后再用 `deepseekChatModel` 汇总总体建议。
     - 记录并发与组装逻辑不变：`records.parallelStream()` 保持；评分计算仍依赖 `evaRecordQueryPort.getScoreFromRecord(...).get()` 的既有语义。
     - 用户不存在：日志 `根据用户id获取用户失败` → 抛 `BizException("导出报告失败，请联系管理员")`（触发点：`AiReportAnalysisPortImpl.analysis` 末尾 `userQueryGateway.findById(...).orElseThrow(...)`）。
+- ✅ **条目 25（AI 报告写侧：剩余“落库/记录”链路盘点结论 / 证伪）**：本次用 Serena 对全仓库做“符号级引用分析 + 关键词检索”，未发现与 AI 报告相关的“落库/记录/缓存写入”链路（当前仅存在：导出/analysis/username→userId 查询 + 调用大模型的外部副作用；且均已归位 `bc-ai-report`）。因此条目 25 的后续重点切换为：**S0 折叠 `bc-ai-report`**（仅搬运/依赖收敛，保持行为不变）。
+  - 证据清单（可复现的 Serena 查询，均在本仓库 `ddd` 分支执行）：
+    - `find_referencing_symbols(IAiCourseAnalysisService)`：引用点仅在 `EvaStatisticsController` 与 `bc-ai-report` 组合根/旧入口/用例（无 DB 写链路外溢）。
+    - `search_for_pattern(AiReport|AI报告|AiAnalysisBO|bcaireport|CourseAiServices)`：命中点均在 `bc-ai-report`（以及导出测试），未出现持久化/写入类。
+    - `search_for_pattern(Ai\\w*(Gateway|Repository|Mapper|Dao|DO|Entity))`：无命中（未发现 AI 报告相关 DAL/Repository/Mapper）。
+    - `search_for_pattern(.insert|.save\\()`（限制在 `bc-ai-report/src/main/java`）：无命中（未发现写入调用点）。
+- ⚠️ **阶段性推送说明（新需求执行受阻）**：当前环境对 GitHub 的 SSH 推送失败（`git push origin ddd` 报错：`Connection closed by 198.18.0.109 port 22`）。本会话按用户要求暂不推送；后续若要恢复“阶段性 push”规则，可考虑将 `origin` 切换为 HTTPS 或修复 SSH 访问后再执行。
 - ✅ **S0（结构性里程碑：`bc-template` 折叠归位）**：将 `bc-template` 折叠为 `bc-template-parent` + 内部 `domain/application/infrastructure` 子模块（应用层 artifactId 仍为 `bc-template`；包名不变；保持行为不变；最小回归通过；落地提交：`65091516`）。
 - ✅ **S0（结构性里程碑：`bc-course` 折叠归位）**：将 `bc-course` 折叠为 `bc-course-parent` + 内部 `domain/application/infrastructure` 子模块（应用层 artifactId 仍为 `bc-course`；包名不变；保持行为不变；最小回归通过；落地提交：`e90ad03b`）。
 - ✅ **条目 25（AI 报告写侧：导出链路实现归位）**：将 AI 报告导出端口适配器 `AiReportDocExportPortImpl` 与 Word 生成器 `AiReportExporter` 从 `eva-app` 迁移到 `bc-ai-report`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`d1262c32`）。
@@ -170,12 +177,10 @@
 - ✅ 提交点 C-1（读侧门面加固，可选）：已完成（清理 `EvaQueryRepository` 为纯委托壳；落地提交：`73fc6c14`；三文档同步：`083b5807`）。
 
 下一会话建议（按顺序执行；历史已完成项见下方 0.12 “总体进度概览”）：
-1) **条目 25（优先，写侧）**：AI 报告继续挑选剩余写链路（保存/落库/记录等）按同套路收敛到 `bc-ai-report`（保持行为不变）。
-   - Serena 盘点候选入口：优先从旧入口/旧 gateway 中定位“仍承载副作用的写链路”，再落到 UseCase + Port + Port Adapter + 委托壳。
-   - 为选定方法记录行为快照：异常类型/异常文案、日志文案与顺序、缓存/副作用时机（事务提交后/同步）。
+1) **条目 25（优先，写侧）**：AI 报告“剩余落库/记录写链路”已完成盘点并证伪（见 0.9 的证据清单）。后续请将条目 25 的执行重点切换为：**S0 折叠 `bc-ai-report`**（仅搬运/依赖收敛，保持行为不变）。
    - 补充进展（2025-12-27）：已将导出链路实现（`AiReportDocExportPortImpl` + `AiReportExporter`）、analysis 链路实现（`AiReportAnalysisPortImpl`）与 username→userId 端口适配器（`AiReportUserIdQueryPortImpl`）从 `eva-app` 归位到 `bc-ai-report`（保持 `package` 不变；保持行为不变；提交：`d1262c32`、`6f34e894`、`e2a608e2`），并进一步将 `edu.cuit.infra.ai.*` 从 `eva-infra` 归位到 `bc-ai-report`（保持 `package` 不变；保持行为不变；提交：`e2f2a7ff`）。
    - 补充进展（2025-12-27）：已将 `BcAiReportConfiguration` 与旧入口 `AiCourseAnalysisService` 归位到 `bc-ai-report`，并将 `@CheckSemId` 注解下沉到 `shared-kernel`（均保持 `package`/切面触发点/异常与日志行为不变；提交：`58c2f055`、`ca321a20`、`1c595052`）。
-   - 下一步落地建议（避免“凭感觉继续拆”）：若 Serena 盘点后仍未找到可证实的“落库/记录”写链路，则以“证据清单”方式关闭该分支（记录检索关键词/命中点/结论），并将条目 25 的后续重点切换为 **S0 折叠 `bc-ai-report`**（让其符合“单顶层聚合模块 + 内部子模块”的目标结构，仍保持行为不变）。
+   - 说明：由于本次盘点已证伪，本条目的“证据清单”已补齐；无需再“凭感觉继续拆”，直接推进 S0 更能带来结构性收益且可回滚。
 2) **结构性里程碑 S0（次优先）**：选择一个 BC（建议 `bc-course`；`bc-template` 已完成折叠归位：`65091516`），按已验证套路折叠为“单顶层聚合模块 + 内部 `domain/application/infrastructure` 子模块”（仅搬运/依赖收敛，不改业务语义；每步可回滚）。
    - 更新（2025-12-27）：`bc-course` 已完成折叠归位（`bc-course-parent` + 内部子模块；提交：`e90ad03b`）。下一轮 S0 可优先选 `bc-ai-report`（体量小、近期改动集中）或 `bc-audit`。
 3) （可选/后置）**评教读侧进一步解耦**：在不改变统计口径/异常文案前提下，按用例维度继续细化 QueryService/QueryPort（保持行为不变）。

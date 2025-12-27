@@ -502,6 +502,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 时间语义：`cour_inf.day` 中 `day=1` 表示 **周一**（周一是一周开始）。
 - 新对话启动方式：优先复制 `NEXT_SESSION_HANDOFF.md` 的 **0.11 推荐版**（不固化 commitId），并按其中顺序阅读与执行。
 - 新需求（流程约束，2025-12-27）：为降低本地未 push 的风险，**每完成一组阶段性提交**后执行一次 `git push origin ddd`（推荐口径：1 组=代码变更 commit + 文档同步 commit，或 2~4 个紧密相关 commit；保持行为不变）。
+  - 补充：若因环境限制导致 `git push` 失败，不阻塞本次重构推进，但必须在 `NEXT_SESSION_HANDOFF.md` 记录失败原因与待推送提交点，避免“已提交但未同步远端”造成丢失风险。
 
 ### 10.2 下一步优先顺序（保持“写侧优先 + 行为不变”）
 
@@ -527,6 +528,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
    - 补充进展（2025-12-27）：已将 `bc-ai-report` 组合根 `BcAiReportConfiguration` 从 `eva-app` 归位到 `bc-ai-report`（保持 `package` 不变；Bean 定义与 `@Lazy` 环断策略不变；保持行为不变；落地提交：`58c2f055`）。
    - 补充进展（2025-12-27）：已将 `@CheckSemId` 注解 `edu.cuit.app.aop.CheckSemId` 从 `eva-app` 下沉到 `shared-kernel`（保持 `package` 不变；切面匹配表达式不变；保持行为不变；落地提交：`1c595052`）。
    - 补充进展（2025-12-27）：已将 AI 报告旧入口 `AiCourseAnalysisService` 从 `eva-app` 归位到 `bc-ai-report`（保持 `package` 不变；保持 `@Service/@CheckSemId` 触发点不变；保持行为不变；落地提交：`ca321a20`）。
+   - 补充进展（2025-12-27）：已用 Serena 对全仓库“剩余落库/记录写链路”做证据化盘点并证伪（证据清单见 `NEXT_SESSION_HANDOFF.md` 的 0.9）；因此条目 25 的后续重点切换为 **S0 折叠 `bc-ai-report`**（仅搬运/依赖收敛，保持行为不变）。
 11) ✅ **BC 自包含三层结构试点（`bc-iam`，阶段 1：适配器归属）**：已引入平铺过渡模块 `bc-iam-infra` 并接入组合根，且已将 `bciam/adapter/*` 端口适配器从 `eva-infra` 迁移到 `bc-iam-infra`（保持行为不变；落地提交：`42a6f66f/070068ec/03ceb685/02b3e8aa/6b9d2ce7/5aecc747/1c3d4b8c`）。
    - 说明：阶段 2（IAM DAL 抽离 + shared 拆分 + 去依赖）已完成，`bc-iam-infra` 已不再依赖 `eva-infra`（落地提交：`2ad911ea`；保持行为不变）。
 
