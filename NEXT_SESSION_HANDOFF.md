@@ -22,6 +22,9 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2025-12-27（本次会话）**
+- ✅ **条目 25（AI 报告写侧：username→userId 链路实现归位）**：将用户名查询 userId 的端口适配器 `AiReportUserIdQueryPortImpl` 从 `eva-app` 迁移到 `bc-ai-report`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`e2a608e2`）。
+  - 行为快照（变更前后必须一致）：
+    - 原样委托 `UserQueryGateway.findIdByUsername(username)`，返回 `Optional<Integer>` 的空值语义保持不变（不新增日志/异常）。
 - ✅ **条目 25（AI 报告写侧：analysis 链路实现归位）**：将 AI 报告分析端口适配器 `AiReportAnalysisPortImpl` 从 `eva-app` 迁移到 `bc-ai-report`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`6f34e894`）。
   - 行为快照（变更前后必须一致）：
     - 使用的模型与调用顺序不变：按课程逐个构建 `CourseAiServices`（`qwenMaxChatModel`）生成优点/缺点/建议；最后再用 `deepseekChatModel` 汇总总体建议。
@@ -153,7 +156,7 @@
 1) **条目 25（优先，写侧）**：AI 报告继续挑选剩余写链路（保存/落库/记录等）按同套路收敛到 `bc-ai-report`（保持行为不变）。
    - Serena 盘点候选入口：优先从旧入口/旧 gateway 中定位“仍承载副作用的写链路”，再落到 UseCase + Port + Port Adapter + 委托壳。
    - 为选定方法记录行为快照：异常类型/异常文案、日志文案与顺序、缓存/副作用时机（事务提交后/同步）。
-   - 补充进展（2025-12-27）：已将导出链路实现（`AiReportDocExportPortImpl` + `AiReportExporter`）与 analysis 链路实现（`AiReportAnalysisPortImpl`）从 `eva-app` 归位到 `bc-ai-report`（保持 `package` 不变；保持行为不变；提交：`d1262c32`、`6f34e894`）。下一条可优先考虑继续归位 `AiReportUserIdQueryPortImpl`（username → userId 查询端口适配器）。
+   - 补充进展（2025-12-27）：已将导出链路实现（`AiReportDocExportPortImpl` + `AiReportExporter`）、analysis 链路实现（`AiReportAnalysisPortImpl`）与 username→userId 端口适配器（`AiReportUserIdQueryPortImpl`）从 `eva-app` 归位到 `bc-ai-report`（保持 `package` 不变；保持行为不变；提交：`d1262c32`、`6f34e894`、`e2a608e2`）。
 2) **结构性里程碑 S0（次优先）**：选择一个 BC（建议 `bc-course`；`bc-template` 已完成折叠归位：`65091516`），按已验证套路折叠为“单顶层聚合模块 + 内部 `domain/application/infrastructure` 子模块”（仅搬运/依赖收敛，不改业务语义；每步可回滚）。
 3) （可选/后置）**评教读侧进一步解耦**：在不改变统计口径/异常文案前提下，按用例维度继续细化 QueryService/QueryPort（保持行为不变）。
 
