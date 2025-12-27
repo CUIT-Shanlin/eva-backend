@@ -115,6 +115,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - S0（`bc-ai-report` 试点，结构折叠，阶段 2）：将端口适配器/导出实现/AI 基础设施归位 `bc-ai-report/infrastructure` 子模块，并补齐 `eva-app` → `bc-ai-report-infra` 依赖以保证装配（保持行为不变；最小回归通过；落地提交：`444c7aca`）。
 - S0（`bc-audit` 试点，结构折叠，阶段 1）：将 `bc-audit` 折叠为 `bc-audit-parent` + 内部 `domain/application/infrastructure` 子模块（应用层 artifactId 仍为 `bc-audit`；保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`81594308`）。
 - S0（`bc-audit` 试点，结构折叠，阶段 2）：将审计日志写链路的端口适配器 `edu.cuit.infra.bcaudit.adapter.LogInsertionPortImpl` 从 `eva-infra` 搬运到 `bc-audit/infrastructure` 子模块，并补齐 `eva-app` → `bc-audit-infra` 依赖以保证装配（保持行为不变；最小回归通过；落地提交：`d7858d7a`）。
+- S0（`bc-audit` 试点，结构折叠，阶段 3，可选）：将 `sys_log` 相关 DAL（`SysLog*DO/Mapper/XML`）迁移到 `eva-infra-dal`，将 `LogConverter` 迁移到 `eva-infra-shared`，并将 `bc-audit-infra` Maven 依赖由 `eva-infra` 收敛为 `eva-infra-dal` + `eva-infra-shared`（保持包名/namespace/SQL 不变；保持行为不变；最小回归通过；落地提交：`06ec6f3d`）。
 - S0（`bc-template` 试点，结构折叠）：将 `bc-template` 折叠为 `bc-template-parent` + 内部 `domain/application/infrastructure` 子模块（应用层 artifactId 仍为 `bc-template`；包名不变；保持行为不变；最小回归通过；落地提交：`65091516`）。
 - S0（`bc-course` 试点，结构折叠）：将 `bc-course` 折叠为 `bc-course-parent` + 内部 `domain/application/infrastructure` 子模块（应用层 artifactId 仍为 `bc-course`；包名不变；保持行为不变；最小回归通过；落地提交：`e90ad03b`）。
 - 条目 25（AI 报告写侧，导出链路实现归位）：将 `AiReportDocExportPortImpl` 与 `AiReportExporter` 从 `eva-app` 迁移到 `bc-ai-report`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`d1262c32`）。
@@ -273,7 +274,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
    - 补充进展（条目 25 之外）：已将 `edu.cuit.infra.ai.*` 从 `eva-infra` 归位到 `bc-ai-report`，并移除 `bc-ai-report` → `eva-infra` 编译期依赖（保持 `package` 不变；保持行为不变；落地提交：`e2f2a7ff`）。
    - 补充进展（S0，2025-12-27）：`bc-ai-report` 已完成结构折叠阶段 1/2：引入 `bc-ai-report-parent` + 内部子模块；端口适配器/导出实现/AI 基础设施已归位 `bc-ai-report/infrastructure`，并补齐 `eva-app` → `bc-ai-report-infra` 依赖（保持行为不变；落地提交：`e14f4f7a`、`444c7aca`）。
    - 补充进展（S0，2025-12-27）：`bc-audit` 已完成结构折叠阶段 1/2：引入 `bc-audit-parent` + 内部子模块；并将 `LogInsertionPortImpl` 归位 `bc-audit/infrastructure`，补齐 `eva-app` → `bc-audit-infra` 依赖（保持行为不变；落地提交：`81594308`、`d7858d7a`）。
-   - 下一步建议（可选，仍保持行为不变）：逐步拆小/移除 `bc-audit-infra` → `eva-infra` 的过渡依赖（优先处理 `sys_log` 相关 DAL/Converter），按“先抽离到 `eva-infra-dal`/`eva-infra-shared` 或归位到 `bc-audit/infrastructure`”的小步策略推进。
+   - ✅ 进展（2025-12-27）：已完成 `sys_log` 相关 DAL/Converter 抽离，并移除 `bc-audit-infra` → `eva-infra` 过渡依赖（保持行为不变；落地提交：`06ec6f3d`）。
    - 边界：条目 25 = 提交点 A + 提交点 B；不包含提交点 C（读侧 `EvaQueryRepo` 拆分）。
    - 验收：缓存/日志/异常文案/副作用顺序完全不变 + 最小回归通过（以 `NEXT_SESSION_HANDOFF.md` 为准）。
 2) 读侧：`EvaQueryRepository` 的实现侧已按主题拆分并退化为委托壳，且读侧查询实现已迁移到 `bc-evaluation-infra`（保持口径/异常文案不变；接口拆分：`d5b07247/cae1a15c/82427967/889ec9b0`；实现拆分：`9e0a8d28/985f7802/d467c65e/a550675a`；迁移落地：`be6dc05c`），并已完成读侧门面加固（清理 `EvaQueryRepository` 为纯委托壳；落地：`73fc6c14`；三文档同步：`083b5807`）；C-2（读侧仓储瘦身）已完成盘点并关闭（未发现可证实无引用项；落地：`5c1a03bc`）。
