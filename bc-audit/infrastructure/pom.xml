@@ -26,10 +26,15 @@
             <version>${revision}</version>
         </dependency>
 
-        <!-- 过渡期：复用 eva-infra 内的 DAL/Converter/Gateway 等实现，保持行为不变 -->
         <dependency>
             <groupId>edu.cuit</groupId>
-            <artifactId>eva-infra</artifactId>
+            <artifactId>eva-infra-dal</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>eva-infra-shared</artifactId>
             <version>${revision}</version>
         </dependency>
 
