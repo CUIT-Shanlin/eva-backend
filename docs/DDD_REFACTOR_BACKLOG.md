@@ -110,6 +110,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 **已完成（更新至 2025-12-27）**
 - S0（`bc-template` 试点，结构折叠）：将 `bc-template` 折叠为 `bc-template-parent` + 内部 `domain/application/infrastructure` 子模块（应用层 artifactId 仍为 `bc-template`；包名不变；保持行为不变；最小回归通过；落地提交：`65091516`）。
 - 条目 25（AI 报告写侧，导出链路实现归位）：将 `AiReportDocExportPortImpl` 与 `AiReportExporter` 从 `eva-app` 迁移到 `bc-ai-report`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`d1262c32`）。
+- 条目 25（AI 报告写侧，analysis 链路实现归位）：将 `AiReportAnalysisPortImpl` 从 `eva-app` 迁移到 `bc-ai-report`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`6f34e894`）。
 - S0.1（状态复盘，保持行为不变）：全仓库 Maven 依赖面已不再引用 `eva-client`；root reactor 已移除 `eva-client` 模块；仓库中已移除 `eva-client/` 目录（需要回滚通过 Git 提交点即可）；`eva-domain` 中仍存在 `import edu.cuit.client.*`，但对应类型均已由 `shared-kernel` / 各 BC contract / `eva-domain` 自身承载（包名保持不变）。
 - S0.1（收尾盘点，来源证伪；保持行为不变）：Serena 盘点 `eva-domain` 内所有 `import edu.cuit.client.*` 并逐项确认类型定义**不在** `eva-client`（其模块/目录已退出主干），而分别落在 `shared-kernel` / `bc-course` / `bc-evaluation/contract` / `bc-iam/contract` / `bc-messaging-contract` / `eva-domain`（包名保持不变）。
 - S0.1（`eva-client` 退出 root reactor；保持行为不变）：选择方案 B：从 root `pom.xml` 的 `<modules>` 移除 `eva-client`（最小回归通过；落地提交：`ce07d75f`）。
@@ -257,6 +258,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 1) AI 报告 / 审计日志（条目 25）：已完成提交点 A（模块骨架 + 组合根 wiring；落地提交：`a30a1ff9`），已完成提交点 B（审计日志写入 `LogGatewayImpl.insertLog`；落地提交：`b0b72263`）  
    - 补充进展（条目 25 之外）：已完成提交点 B2（AI 报告导出链路收敛；落地提交：`c68b3174`）；已完成提交点 B3（旧入口进一步退化为纯委托壳；落地提交：`7f4b3358`）。
    - 补充进展（条目 25 之外）：已将导出链路实现（`AiReportDocExportPortImpl` + `AiReportExporter`）从 `eva-app` 归位到 `bc-ai-report`（保持 `package` 不变；保持行为不变；落地提交：`d1262c32`）。
+   - 补充进展（条目 25 之外）：已将 analysis 端口适配器 `AiReportAnalysisPortImpl` 从 `eva-app` 归位到 `bc-ai-report`（保持 `package` 不变；保持行为不变；落地提交：`6f34e894`）。
    - 补充进展（条目 25 之外）：已将审计日志协议对象 `ILogService/OperateLogCO/LogModuleCO` 从 `eva-client` 迁移到 `bc-audit`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`e1dbf2d4`）。下一步：继续盘点并逐步移除 `bc-audit` → `eva-client` 直依赖（保持行为不变）。
    - 边界：条目 25 = 提交点 A + 提交点 B；不包含提交点 C（读侧 `EvaQueryRepo` 拆分）。
    - 验收：缓存/日志/异常文案/副作用顺序完全不变 + 最小回归通过（以 `NEXT_SESSION_HANDOFF.md` 为准）。
