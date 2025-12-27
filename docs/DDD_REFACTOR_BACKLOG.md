@@ -117,6 +117,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - 条目 25（AI 报告写侧，`@CheckSemId` 注解下沉）：将 `edu.cuit.app.aop.CheckSemId` 从 `eva-app` 迁移到 `shared-kernel`（保持 `package` 不变；切面匹配表达式不变；保持行为不变；最小回归通过；落地提交：`1c595052`）。
 - 条目 25（AI 报告写侧，旧入口归位）：将 `AiCourseAnalysisService` 从 `eva-app` 迁移到 `bc-ai-report`（保持 `package` 不变；保持 `@Service/@CheckSemId` 触发点不变；保持行为不变；最小回归通过；落地提交：`ca321a20`）。
 - S0（`bc-ai-report` 试点，结构折叠，阶段 1）：将 `bc-ai-report` 折叠为 `bc-ai-report-parent` + 内部 `domain/application/infrastructure` 子模块（应用层 artifactId 仍为 `bc-ai-report`；保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`e14f4f7a`）。
+- S0（`bc-ai-report` 试点，结构折叠，阶段 2）：将端口适配器/导出实现/AI 基础设施归位 `bc-ai-report/infrastructure` 子模块，并补齐 `eva-app` → `bc-ai-report-infra` 依赖以保证装配（保持行为不变；最小回归通过；落地提交：`444c7aca`）。
 - S0（`bc-template` 试点，结构折叠）：将 `bc-template` 折叠为 `bc-template-parent` + 内部 `domain/application/infrastructure` 子模块（应用层 artifactId 仍为 `bc-template`；包名不变；保持行为不变；最小回归通过；落地提交：`65091516`）。
 - S0（`bc-course` 试点，结构折叠）：将 `bc-course` 折叠为 `bc-course-parent` + 内部 `domain/application/infrastructure` 子模块（应用层 artifactId 仍为 `bc-course`；包名不变；保持行为不变；最小回归通过；落地提交：`e90ad03b`）。
 - 条目 25（AI 报告写侧，导出链路实现归位）：将 `AiReportDocExportPortImpl` 与 `AiReportExporter` 从 `eva-app` 迁移到 `bc-ai-report`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`d1262c32`）。
@@ -274,6 +275,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
    - 补充进展（条目 25 之外）：已将 username → userId 查询端口适配器 `AiReportUserIdQueryPortImpl` 从 `eva-app` 归位到 `bc-ai-report`（保持 `package` 不变；保持行为不变；落地提交：`e2a608e2`）。
    - 补充进展（条目 25 之外）：已将 `edu.cuit.infra.ai.*` 从 `eva-infra` 归位到 `bc-ai-report`，并移除 `bc-ai-report` → `eva-infra` 编译期依赖（保持 `package` 不变；保持行为不变；落地提交：`e2f2a7ff`）。
    - 补充进展（S0，2025-12-27）：已完成 `bc-ai-report` 的结构折叠阶段 1：引入 `bc-ai-report-parent` + 内部子模块（应用层 artifactId 仍为 `bc-ai-report`；保持行为不变；落地提交：`e14f4f7a`）。下一步：继续把端口适配器/导出实现/AI 基础设施搬运到 `bc-ai-report/infrastructure` 子模块并补齐装配依赖（保持行为不变）。
+   - 补充进展（S0，2025-12-27）：已完成结构折叠阶段 2：端口适配器/导出实现/AI 基础设施已归位 `bc-ai-report/infrastructure` 子模块，并补齐 `eva-app` → `bc-ai-report-infra` 依赖（保持行为不变；落地提交：`444c7aca`）。
    - 补充进展（条目 25 之外）：已将审计日志协议对象 `ILogService/OperateLogCO/LogModuleCO` 从 `eva-client` 迁移到 `bc-audit`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`e1dbf2d4`）。下一步：继续盘点并逐步移除 `bc-audit` → `eva-client` 直依赖（保持行为不变）。
    - 边界：条目 25 = 提交点 A + 提交点 B；不包含提交点 C（读侧 `EvaQueryRepo` 拆分）。
    - 验收：缓存/日志/异常文案/副作用顺序完全不变 + 最小回归通过（以 `NEXT_SESSION_HANDOFF.md` 为准）。
@@ -407,6 +409,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
      - ✅ 已闭环：`eva-domain` 的 `import edu.cuit.client.*` 已完成来源证伪；`eva-client` 已退出 root reactor，且目录已从仓库移除（保持行为不变）。
 1) AI 报告：已完成“剩余保存/落库/记录写链路”证据化盘点并证伪（证据清单见 `NEXT_SESSION_HANDOFF.md` 0.9）。后续将该方向的重点切换为 **S0 折叠 `bc-ai-report`**（仅搬运/依赖收敛，保持行为不变）。  
    - 进展（2025-12-27）：已完成 S0 阶段 1：引入 `bc-ai-report-parent` + 内部 `domain/application/infrastructure` 子模块（应用层 artifactId 仍为 `bc-ai-report`；保持行为不变；落地：`e14f4f7a`）。下一步：继续把端口适配器/导出实现/AI 基础设施搬运到 `bc-ai-report/infrastructure` 子模块，并补齐装配依赖（保持行为不变）。
+   - 进展（2025-12-27）：已完成 S0 阶段 2：端口适配器/导出实现/AI 基础设施已归位 `bc-ai-report/infrastructure` 子模块，并补齐 `eva-app` → `bc-ai-report-infra` 依赖（保持行为不变；落地：`444c7aca`）。
 2) 评教 BC 自包含三层结构：已完成阶段 1（读侧查询迁移：`be6dc05c`）与阶段 2（写侧 Repo 迁移：`24e7f6c9`），并已完成读侧门面加固 C-1（清理 `EvaQueryRepository` 为纯委托壳：`73fc6c14`）。C-2（读侧仓储瘦身）已完成盘点并关闭（落地：`5c1a03bc`）。  
 
 补充说明（避免后续会话口径漂移）：
