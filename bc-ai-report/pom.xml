@@ -19,6 +19,19 @@
     </properties>
 
     <dependencies>
+        <!-- 渐进式重构阶段：复用 shared-kernel（下沉的横切注解/通用对象等，保持 package 不变） -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>shared-kernel</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <!-- 旧入口（AiCourseAnalysisService）依赖 Sa-Token 登录态读取，保持行为不变 -->
+        <dependency>
+            <groupId>edu.cuit.zhuyimeng</groupId>
+            <artifactId>zym-spring-boot-starter-security</artifactId>
+        </dependency>
+
         <!-- 渐进式重构阶段：复用旧系统领域模型，保证行为不变 -->
         <dependency>
             <groupId>edu.cuit</groupId>
