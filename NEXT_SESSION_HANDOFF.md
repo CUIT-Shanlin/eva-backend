@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2025-12-26（本次会话）**
+- ✅ **S0.1（课程协议继续拆 `eva-client`，教室接口）**：将 `IClassroomService` 从 `eva-client` 迁移到 `bc-course`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`59471a96`）。
 - ✅ **S0.1（消息协议继续拆 `eva-client`，clientobject）**：将 `EvaMsgCO` 从 `eva-client` 迁移到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`2f257a86`）。
 - ✅ **S0.1（消息协议继续拆 `eva-client`，cmd）**：将 `SendWarningMsgCmd` 从 `eva-client` 迁移到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`e6aa5913`）。
 - ✅ **S0.1（消息协议继续拆 `eva-client`，cmd/interface/bo）**：将消息域 `IMsgService/SendMessageCmd/MessageBO` 从 `eva-client` 迁移到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`431a5a23`）。
@@ -300,7 +301,7 @@ export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$J
 4) **条目 25（后续）**：AI 报告继续挑选剩余写链路（保存/落库/记录等）按同套路收敛（保持行为不变；参考 `docs/DDD_REFACTOR_BACKLOG.md` 第 6 节）。
 
 当前 `eva-client` 残留对象（用于下一会话快速定位；以 Git 为准）：
-- `edu.cuit.client.api`：`IClassroomService`、`ai/IAiCourseAnalysisService`
+- `edu.cuit.client.api`：`ai/IAiCourseAnalysisService`
 - `edu.cuit.client.bo`：`EvaProp`、`ai/AiAnalysisBO`、`ai/AiCourseSuggestionBO`
 - `edu.cuit.client.dto`：仅剩 `package-info.java`（`cmd/query/data/clientobject` 的业务对象已按 S0.1 逐步迁移到对应 BC contract 或 `shared-kernel`）
 
