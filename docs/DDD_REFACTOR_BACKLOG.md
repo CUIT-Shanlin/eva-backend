@@ -378,7 +378,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
      - ✅ 进展（2025-12-26）：消息域残留对象 `SendWarningMsgCmd` 已归位到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`e6aa5913`）。
      - ✅ 进展（2025-12-26）：消息域 clientobject `EvaMsgCO` 已归位到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`2f257a86`）。
      - ✅ 进展（2025-12-27）：已将 AI 接口与 BO（`IAiCourseAnalysisService/AiAnalysisBO/AiCourseSuggestionBO`）从 `eva-client` 迁移到 `bc-ai-report`，并移除 `bc-ai-report` → `eva-client` 依赖（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`badb9db6`）。
-     - 下一步：继续盘点 `eva-client` 残留的 AI/课程共用对象（当前优先 `EvaProp`），按归属迁移到 `bc-course` 或 `shared-kernel`（每次只迁一个小簇，保持行为不变）。
+     - ✅ 进展（2025-12-27）：已将 `EvaProp` 从 `eva-client` 迁移到 `shared-kernel`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`4feabdd0`）。
+     - 下一步：继续用 Serena 复盘 `eva-domain` 的 `import edu.cuit.client.*` 引用清单，确认是否还有“仅由 eva-client 提供”的类型；若已不存在，可评估是否将 `eva-client` 作为空壳模块保留或后续按里程碑退出（保持行为不变）。
 1) AI 报告：继续将 `AiCourseAnalysisService` 等入口的写链路收敛到 `bc-ai-report`（当前已完成导出链路 B2：`c68b3174`；旧入口已进一步退化为纯委托壳 B3：`7f4b3358`；后续可继续收敛“保存/落库/记录”等链路），保持行为不变  
 2) 评教 BC 自包含三层结构：已完成阶段 1（读侧查询迁移：`be6dc05c`）与阶段 2（写侧 Repo 迁移：`24e7f6c9`），并已完成读侧门面加固 C-1（清理 `EvaQueryRepository` 为纯委托壳：`73fc6c14`）。C-2（读侧仓储瘦身）已完成盘点并关闭（落地：`5c1a03bc`）。  
 
