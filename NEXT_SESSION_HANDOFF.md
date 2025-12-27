@@ -51,8 +51,6 @@
     - `search_for_pattern(AiReport|AI报告|AiAnalysisBO|bcaireport|CourseAiServices)`：命中点均在 `bc-ai-report`（以及导出测试），未出现持久化/写入类。
     - `search_for_pattern(Ai\\w*(Gateway|Repository|Mapper|Dao|DO|Entity))`：无命中（未发现 AI 报告相关 DAL/Repository/Mapper）。
     - `search_for_pattern(.insert|.save\\()`（限制在 `bc-ai-report/src/main/java`）：无命中（未发现写入调用点）。
-- ⚠️ **阶段性推送说明（新需求执行受阻）**：当前环境对 GitHub 的 SSH 推送失败（`git push origin ddd` 报错：`Connection closed by 198.18.0.109 port 22`）。本会话已多次按新需求在阶段性提交后尝试推送，但仍失败；不阻塞推进。
-  - 待推送提交点：`f883701f`（包含：`e14f4f7a`、`c445039d`、`50379ef8`、`444c7aca`、`53ce85b9`、`501f5b2a`、`f883701f`）。
 - ✅ **S0（结构性里程碑：`bc-template` 折叠归位）**：将 `bc-template` 折叠为 `bc-template-parent` + 内部 `domain/application/infrastructure` 子模块（应用层 artifactId 仍为 `bc-template`；包名不变；保持行为不变；最小回归通过；落地提交：`65091516`）。
 - ✅ **S0（结构性里程碑：`bc-course` 折叠归位）**：将 `bc-course` 折叠为 `bc-course-parent` + 内部 `domain/application/infrastructure` 子模块（应用层 artifactId 仍为 `bc-course`；包名不变；保持行为不变；最小回归通过；落地提交：`e90ad03b`）。
 - ✅ **条目 25（AI 报告写侧：导出链路实现归位）**：将 AI 报告导出端口适配器 `AiReportDocExportPortImpl` 与 Word 生成器 `AiReportExporter` 从 `eva-app` 迁移到 `bc-ai-report`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`d1262c32`）。
@@ -157,9 +155,6 @@
 >
 > 规则提醒：每个小提交都必须做到：Serena 符号级定位/引用分析 → **最小回归** → `git commit` → 同步三份文档（本文件 + `DDD_REFACTOR_PLAN.md` + `docs/DDD_REFACTOR_BACKLOG.md`）。
 >
-> 新需求（流程约束，2025-12-27）：为降低本地未 push 的风险，**每完成一组阶段性提交**后执行一次 `git push origin ddd`。
-> - 推荐口径：一组阶段性提交通常 = 1 个“代码变更 commit” + 1 个“文档同步 commit”（或 2~4 个紧密相关 commit）。
-> - 原则：不影响“每步必跑最小回归 + 每步必提交 + 每步同步三文档”的强约束；只是额外增加“阶段性 push”。
 
 - ✅ 提交点 0（纯文档闭环）：已完成（落地提交：`1adc80bd`）。
 - ✅ 提交点 A（结构落点，不迁业务）：已完成（落地提交：`a30a1ff9`）。
@@ -237,7 +232,6 @@
 - 只做重构，不改业务语义；缓存/日志/异常文案/副作用顺序完全不变
 - 必须使用 Serena 做符号级定位与引用分析
 - 每个小步骤结束：跑最小回归 → git commit → 更新 NEXT_SESSION_HANDOFF.md / DDD_REFACTOR_PLAN.md / docs/DDD_REFACTOR_BACKLOG.md
-- 每完成一组阶段性提交（通常=代码变更 commit + 文档同步 commit）：执行 `git push origin ddd`
 - 每次结束对话前：先写清“下一步拆分与里程碑/提交点”
 
 开始前按顺序阅读（重点章节同旧要求）：
