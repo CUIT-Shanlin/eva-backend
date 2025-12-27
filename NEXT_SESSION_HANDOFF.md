@@ -186,8 +186,8 @@
    - 补充进展（2025-12-27）：已将 `BcAiReportConfiguration` 与旧入口 `AiCourseAnalysisService` 归位到 `bc-ai-report`，并将 `@CheckSemId` 注解下沉到 `shared-kernel`（均保持 `package`/切面触发点/异常与日志行为不变；提交：`58c2f055`、`ca321a20`、`1c595052`）。
    - 补充进展（2025-12-27）：S0 已完成阶段 1/2：`bc-ai-report-parent` + 内部子模块已落地；端口适配器/导出实现/AI 基础设施已归位 `bc-ai-report/infrastructure`，并补齐 `eva-app` → `bc-ai-report-infra` 依赖（保持行为不变；提交：`e14f4f7a`、`444c7aca`）。
    - 说明：由于本次盘点已证伪，本条目的“证据清单”已补齐；无需再“凭感觉继续拆”，直接推进 S0 更能带来结构性收益且可回滚。
-2) **结构性里程碑 S0（次优先）**：选择一个 BC（建议 `bc-course`；`bc-template` 已完成折叠归位：`65091516`），按已验证套路折叠为“单顶层聚合模块 + 内部 `domain/application/infrastructure` 子模块”（仅搬运/依赖收敛，不改业务语义；每步可回滚）。
-   - 更新（2025-12-27）：`bc-course` 已完成折叠归位（`bc-course-parent` + 内部子模块；提交：`e90ad03b`）。下一轮 S0 可优先选 `bc-ai-report`（体量小、近期改动集中）或 `bc-audit`。
+2) **结构性里程碑 S0（次优先）**：`bc-ai-report` 已完成折叠归位（阶段 1/2，见 0.9 与 0.12）。若仍有余力，建议按同套路折叠 `bc-audit` 为“单顶层聚合模块 + 内部 `domain/application/infrastructure` 子模块”（仅搬运/依赖收敛，不改业务语义；每步可回滚）。
+   - 参考：`bc-template`/`bc-course` 已完成折叠归位（提交：`65091516`、`e90ad03b`）。
 3) （可选/后置）**评教读侧进一步解耦**：在不改变统计口径/异常文案前提下，按用例维度继续细化 QueryService/QueryPort（保持行为不变）。
 
 ## 0.12 当前总体进度概览（2025-12-27，更新至 `HEAD`）
