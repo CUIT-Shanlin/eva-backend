@@ -107,7 +107,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
-**已完成（2025-12-26）**
+**已完成（更新至 2025-12-27）**
+- S0.1（状态复盘，保持行为不变）：全仓库 Maven 依赖面已不再引用 `eva-client`（除 `eva-client` 自身模块）；`eva-client` 当前仅保留 `package-info.java`（用于兼容包结构）；`eva-domain` 中仍存在 `import edu.cuit.client.*`，但对应类型均已由 `shared-kernel` / 各 BC contract / `eva-domain` 自身承载（包名保持不变）。
 - S0.1（通用对象沉淀 shared-kernel，单课次 CO）：将课程 CO `SingleCourseCO` 从 `eva-client` 迁移到 `shared-kernel`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`ccc82092`）。
 - S0.1（通用对象沉淀 shared-kernel，课程时间段/类型）：将课程数据对象 `CoursePeriod/CourseType` 从 `eva-client` 迁移到 `shared-kernel`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`5629bd2a`）。
 - S0.1（消息协议继续拆 `eva-client`）：将消息入参 DTO `GenericRequestMsg` 从 `eva-client` 迁移到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`8fc7db99`）。
@@ -370,7 +371,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 0) 结构性里程碑（需求变更，2025-12-24）：将“BC=一个顶层聚合模块、内部 `domain/application/infrastructure` 为子模块”的结构落地到目录与 Maven 结构中，并把历史平铺过渡模块（`bc-iam-infra`、`bc-evaluation-infra` 等）折叠归位到对应 BC 内部子模块（每步可回滚；保持行为不变）。  
 0.1) 结构性里程碑（需求变更，2025-12-24）：逐步拆解 `eva-client`：按 BC 归属迁移 BO/CO/DTO；新增对象不再进入 `eva-client`；跨 BC 通用对象沉淀到 shared-kernel（每步可回滚；保持行为不变）。  
-0.2) S0.1（拆 `eva-client` 的下一刀，建议优先）：以“移除 `eva-domain` → `eva-client` 依赖”为收敛口，先用 Serena 盘点 `eva-domain` 中仍由 `eva-client` 提供的类型清单（课程/学期/消息等），按归属小簇迁移到对应 BC（`bc-course`/`bc-messaging`/`bc-ai-report`）或 `shared-kernel`，最终在“可证实不再需要”的前提下移除依赖（每步最小回归+提交+三文档同步；保持行为不变）。  
+0.2) S0.1（拆 `eva-client` 的收尾，建议优先）：对 `eva-domain` 仍存在的 `import edu.cuit.client.*` 做“来源证伪”（Serena 盘点清单 → 逐项确认类型文件实际归属模块；包名保持不变），确认不再由 `eva-client` 提供类型后，评估并决策：`eva-client` 作为空壳模块保留 vs 从 root reactor 移除（每步最小回归+提交+三文档同步；保持行为不变）。  
    - 下一步小簇建议（从低风险到高收益，仍保持行为不变）：
      - ✅ 进展（2025-12-26）：课程域 `clientobject/course` 残留 CO（`ModifySingleCourseDetailCO/RecommendCourseCO/SelfTeachCourseCO/SelfTeachCourseTimeCO/SelfTeachCourseTimeInfoCO/SubjectCO/TeacherInfoCO`）以及 `SimpleCourseResultCO/SimpleSubjectResultCO` 已从 `eva-client` 归位到 `bc-course`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`ce1a0a90`）。
      - ✅ 进展（2025-12-26）：消息域 response DTO：`GenericResponseMsg/EvaResponseMsg` 已迁移到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`ecb8cee5`；其对 `SingleCourseCO` 的依赖由 `shared-kernel` 提供，避免引入 `bc-course` 反向依赖）。
@@ -380,7 +381,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
      - ✅ 进展（2025-12-27）：已将 AI 接口与 BO（`IAiCourseAnalysisService/AiAnalysisBO/AiCourseSuggestionBO`）从 `eva-client` 迁移到 `bc-ai-report`，并移除 `bc-ai-report` → `eva-client` 依赖（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`badb9db6`）。
      - ✅ 进展（2025-12-27）：已将 `EvaProp` 从 `eva-client` 迁移到 `shared-kernel`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`4feabdd0`）。
      - ✅ 进展（2025-12-27）：已移除 `eva-infra-shared` → `eva-client` Maven 直依赖（保持行为不变；最小回归通过；落地提交：`9437bb12`）。
-     - 下一步：继续用 Serena 复盘 `eva-domain` 的 `import edu.cuit.client.*` 引用清单，确认是否还有“仅由 eva-client 提供”的类型；若已不存在，可评估是否将 `eva-client` 作为空壳模块保留或后续按里程碑退出（保持行为不变）。
+     - 下一步：继续用 Serena 复盘 `eva-domain` 的 `import edu.cuit.client.*` 引用清单，并逐项确认其物理归属（包名保持不变）；在“可证实 `eva-client` 不再提供业务类型”的前提下，评估 `eva-client` 空壳保留 vs 退出 root reactor（保持行为不变）。
 1) AI 报告：继续将 `AiCourseAnalysisService` 等入口的写链路收敛到 `bc-ai-report`（当前已完成导出链路 B2：`c68b3174`；旧入口已进一步退化为纯委托壳 B3：`7f4b3358`；后续可继续收敛“保存/落库/记录”等链路），保持行为不变  
 2) 评教 BC 自包含三层结构：已完成阶段 1（读侧查询迁移：`be6dc05c`）与阶段 2（写侧 Repo 迁移：`24e7f6c9`），并已完成读侧门面加固 C-1（清理 `EvaQueryRepository` 为纯委托壳：`73fc6c14`）。C-2（读侧仓储瘦身）已完成盘点并关闭（落地：`5c1a03bc`）。  
 
