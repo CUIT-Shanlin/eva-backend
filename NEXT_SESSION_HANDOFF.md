@@ -28,6 +28,7 @@
     - username→userId：`userIdQueryPort.findIdByUsername(username)` 若为空：记录日志 `系统异常`（`log.error`，携带 `SysException("用户数据查找失败，请联系管理员")`）→ 抛该 `SysException`（异常类型/文案不变）。
     - analysis（保持 `@CheckSemId` 切面触发链路不变）：`ExportAiReportDocByUsernameUseCase` 仍通过 `@Lazy IAiCourseAnalysisService` 调用 `aiCourseAnalysisService.analysis(semId, userId)`，以确保 `@CheckSemId` 对 `semId` 的既有语义保持不变。
     - 导出失败：`exportAiReportDocUseCase.exportDocData(analysis)` 抛 `IOException` 时：日志 `AI报告导出失败` → 抛 `SysException("报告导出失败，请联系管理员")`（异常类型/文案与日志顺序不变；触发点不变）。
+- ✅ **条目 25（AI 报告写侧：`@CheckSemId` 注解下沉 shared-kernel）**：将 `edu.cuit.app.aop.CheckSemId` 从 `eva-app` 迁移到 `shared-kernel`（保持 `package` 不变；`AspectConfig` 的切面匹配表达式仍为 `@annotation(edu.cuit.app.aop.CheckSemId)`；保持行为不变；最小回归通过；落地提交：`1c595052`）。
 - ✅ **条目 25（AI 报告写侧：AI 基础设施归位 + 依赖收敛）**：将 `edu.cuit.infra.ai.*`（模型 Bean 配置、提示词常量、消息工具、AI 服务接口等）从 `eva-infra` 迁移到 `bc-ai-report`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`e2f2a7ff`），并移除 `bc-ai-report` → `eva-infra` 的编译期依赖，改为显式依赖 `langchain4j` + `langchain4j-community-dashscope-spring-boot-starter` + `bc-evaluation`（仅闭合编译依赖，不改变运行时行为）。
 - ✅ **条目 25（AI 报告写侧：username→userId 链路实现归位）**：将用户名查询 userId 的端口适配器 `AiReportUserIdQueryPortImpl` 从 `eva-app` 迁移到 `bc-ai-report`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`e2a608e2`）。
   - 行为快照（变更前后必须一致）：

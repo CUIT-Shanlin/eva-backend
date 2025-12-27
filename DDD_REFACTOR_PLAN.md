@@ -524,6 +524,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
    - 补充进展（2025-12-27）：已将 AI 报告 username → userId 查询端口适配器 `AiReportUserIdQueryPortImpl` 从 `eva-app` 归位到 `bc-ai-report`（保持 `package` 不变；保持行为不变；落地提交：`e2a608e2`）。
    - 补充进展（2025-12-27）：已将 AI 相关基础设施 `edu.cuit.infra.ai.*`（模型 Bean 配置、提示词常量、消息工具等）从 `eva-infra` 归位到 `bc-ai-report`，并移除 `bc-ai-report` → `eva-infra` 编译期依赖（保持 `package` 不变；保持行为不变；落地提交：`e2f2a7ff`）。
    - 补充进展（2025-12-27）：已将 `bc-ai-report` 组合根 `BcAiReportConfiguration` 从 `eva-app` 归位到 `bc-ai-report`（保持 `package` 不变；Bean 定义与 `@Lazy` 环断策略不变；保持行为不变；落地提交：`58c2f055`）。
+   - 补充进展（2025-12-27）：已将 `@CheckSemId` 注解 `edu.cuit.app.aop.CheckSemId` 从 `eva-app` 下沉到 `shared-kernel`（保持 `package` 不变；切面匹配表达式不变；保持行为不变；落地提交：`1c595052`）。
 11) ✅ **BC 自包含三层结构试点（`bc-iam`，阶段 1：适配器归属）**：已引入平铺过渡模块 `bc-iam-infra` 并接入组合根，且已将 `bciam/adapter/*` 端口适配器从 `eva-infra` 迁移到 `bc-iam-infra`（保持行为不变；落地提交：`42a6f66f/070068ec/03ceb685/02b3e8aa/6b9d2ce7/5aecc747/1c3d4b8c`）。
    - 说明：阶段 2（IAM DAL 抽离 + shared 拆分 + 去依赖）已完成，`bc-iam-infra` 已不再依赖 `eva-infra`（落地提交：`2ad911ea`；保持行为不变）。
 
