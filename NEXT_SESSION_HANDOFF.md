@@ -23,6 +23,7 @@
 
 **2025-12-28（本次会话）**
 - ✅ **评教读侧进一步解耦（统计：依赖类型收窄）**：将 `EvaStatisticsServiceImpl` 对统计端口的依赖从聚合接口 `EvaStatisticsQueryPort` 收窄为三个子端口 `EvaStatisticsOverviewQueryPort/EvaStatisticsTrendQueryPort/EvaStatisticsUnqualifiedUserQueryPort`（不改任何业务逻辑/异常文案；仅调整依赖类型；行为不变；最小回归通过；落地提交：`c19d8801`）。
+- ✅ **评教读侧进一步解耦（统计导出：依赖类型收窄）**：将导出侧静态初始化中获取的统计端口由 `EvaStatisticsQueryPort` 收窄为 `EvaStatisticsOverviewQueryPort`（保持 `SpringUtil.getBean(...)` 的调用次数与顺序不变；不改业务逻辑；行为不变；最小回归通过；落地提交：`9b3c4e6a`）。
 
 **2025-12-27（本次会话）**
 - ✅ **S0（结构性里程碑：`bc-ai-report` 折叠归位，阶段 1）**：将 `bc-ai-report` 折叠为 `bc-ai-report-parent` + 内部 `domain/application/infrastructure` 子模块（应用层 artifactId 仍为 `bc-ai-report`；仅搬运/依赖收敛，不改业务语义；最小回归通过；落地提交：`e14f4f7a`）。
