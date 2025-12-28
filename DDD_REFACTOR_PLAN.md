@@ -600,7 +600,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 						  - 下一步建议（仍保持行为不变，可选）：在确认装配稳定后，继续推进评教读侧解耦（方向 A → B）：
 							  - A（继续收窄依赖）：聚焦“导出/AI 报告链路”等仍依赖记录聚合端口的类，优先先补齐子端口组合（仅新增接口 + `extends`，不改实现/不改装配），再逐一收窄 `eva-app` 注入类型（每次只改 1 个类 + 1 个可运行单测）。
 								  - ✅ 进展（2025-12-28，统计读侧用例归位深化）：将 `EvaStatisticsServiceImpl.getTargetAmountUnqualifiedUser` 的 `type` 分支选择与阈值选择归位到 `EvaStatisticsQueryUseCase.getTargetAmountUnqualifiedUser`（保持 `@CheckSemId` 触发点仍在旧入口；异常文案与副作用顺序不变；保持行为不变；最小回归通过；落地提交：`5b20d44e`）。
-							  - 建议切分路径（仍保持行为不变，可回滚）：统计用例归位遵循“每次只迁 1 个方法簇”的节奏；`pageUnqualifiedUser`（已完成）→ `getTargetAmountUnqualifiedUser`（已完成）→ 下一步再考虑 `getEvaData` 的阈值计算/参数组装归位。
+							  - 建议切分路径（仍保持行为不变，可回滚）：统计用例归位遵循“每次只迁 1 个方法簇”的节奏；`pageUnqualifiedUser`（已完成）→ `getTargetAmountUnqualifiedUser`（已完成）→ ✅ `getEvaData` 的阈值计算/参数组装归位（已完成；落地：`8f4c07c5`）→ 下一步再回到方向 A 继续做“子 QueryPort + `extends` + 依赖类型收窄”（每次只改 1 个类 + 1 个可运行单测）。
 							  - ✅ 进展（2025-12-28，记录读侧依赖类型收窄—AI 报告分析）：将 AI 报告分析端口适配器 `AiReportAnalysisPortImpl` 对记录端口的依赖类型从聚合接口 `EvaRecordQueryPort` 收窄为子端口 `EvaRecordExportQueryPort`（保持行为不变；最小回归通过；落地提交：`4fe38934`）。
 						  - 工具提示：若 Serena MCP 工具调用持续 `TimeoutError`，需要在交接文档中记录降级原因，并用本地 `rg` 提供可复现的引用证据（仍不改变业务语义）；同时在下一会话优先排查恢复 Serena，以回到“符号级引用分析”流程。
 					  - 结构性里程碑 S0.1（需求变更，2025-12-24）：逐步拆解 `eva-client`：按 BC 归属迁移 BO/CO/DTO（允许改包名以归位到 BC 的 `application/contract/dto`）；新增对象不再进入 `eva-client`；跨 BC 通用对象沉淀到 shared-kernel（每步可回滚；保持行为不变）。
