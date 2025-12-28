@@ -11,8 +11,6 @@ import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.UnqualifiedUserConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
-import edu.cuit.domain.entity.eva.EvaConfigEntity;
-import edu.cuit.domain.gateway.eva.EvaConfigGateway;
 import edu.cuit.bc.evaluation.application.usecase.EvaStatisticsQueryUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,7 +22,6 @@ import java.util.List;
 public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
     private final EvaStatisticsQueryUseCase evaStatisticsQueryUseCase;
     private final PaginationBizConvertor paginationBizConvertor;
-    private final EvaConfigGateway evaConfigGateway;
     @Override
     @CheckSemId
     public EvaScoreInfoCO evaScoreStatisticsInfo(Integer semId, Number score) {
@@ -63,8 +60,7 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
     @Override
     @CheckSemId
     public PaginationQueryResultCO<UnqualifiedUserInfoCO> pageUnqualifiedUser(Integer semId,Integer type, PagingQuery<UnqualifiedUserConditionalQuery> query) {
-        EvaConfigEntity evaConfig = evaConfigGateway.getEvaConfig();
-        PaginationResultEntity<UnqualifiedUserInfoCO> page = evaStatisticsQueryUseCase.pageUnqualifiedUser(semId, type, query, evaConfig);
+        PaginationResultEntity<UnqualifiedUserInfoCO> page = evaStatisticsQueryUseCase.pageUnqualifiedUser(semId, type, query);
         return paginationBizConvertor.toPaginationEntity(page, page.getRecords());
     }
 
@@ -75,14 +71,7 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
         UnqualifiedUserResultCO unqualifiedUserResultCO=null;
         UnqualifiedUserResultCO error=new UnqualifiedUserResultCO();
         error.setTotal(0).setDataArr(List.of());
-        EvaConfigEntity evaConfig = evaConfigGateway.getEvaConfig();
-        unqualifiedUserResultCO = evaStatisticsQueryUseCase.getTargetAmountUnqualifiedUser(
-                semId,
-                type,
-                num,
-                evaConfig,
-                error
-        );
+        unqualifiedUserResultCO = evaStatisticsQueryUseCase.getTargetAmountUnqualifiedUser(semId, type, num, error);
         return unqualifiedUserResultCO;
     }
 

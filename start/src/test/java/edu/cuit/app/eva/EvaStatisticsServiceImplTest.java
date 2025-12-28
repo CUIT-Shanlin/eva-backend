@@ -11,8 +11,6 @@ import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.UnqualifiedUserConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
-import edu.cuit.domain.entity.eva.EvaConfigEntity;
-import edu.cuit.domain.gateway.eva.EvaConfigGateway;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,9 +34,6 @@ class EvaStatisticsServiceImplTest {
     @Mock
     private PaginationBizConvertor paginationBizConvertor;
 
-    @Mock
-    private EvaConfigGateway evaConfigGateway;
-
     @InjectMocks
     private EvaStatisticsServiceImpl service;
 
@@ -51,17 +46,10 @@ class EvaStatisticsServiceImplTest {
 
         assertSame(detail, result);
         verify(evaStatisticsQueryUseCase).getEvaData(1, 7);
-        verify(evaConfigGateway, never()).getMinEvaNum();
-        verify(evaConfigGateway, never()).getMinBeEvaNum();
     }
 
     @Test
     void pageUnqualifiedUser_type0_shouldUseMinEvaNum() {
-        EvaConfigEntity config = new EvaConfigEntity();
-        config.setMinEvaNum(4);
-        config.setMinBeEvaNum(6);
-        when(evaConfigGateway.getEvaConfig()).thenReturn(config);
-
         PagingQuery<UnqualifiedUserConditionalQuery> query = new PagingQuery<>();
         query.setPage(1);
         query.setSize(10);
@@ -70,22 +58,17 @@ class EvaStatisticsServiceImplTest {
         page.setRecords(List.of(new UnqualifiedUserInfoCO()));
 
         PaginationQueryResultCO<UnqualifiedUserInfoCO> expected = new PaginationQueryResultCO<>();
-        when(evaStatisticsQueryUseCase.pageUnqualifiedUser(1, 0, query, config)).thenReturn(page);
+        when(evaStatisticsQueryUseCase.pageUnqualifiedUser(1, 0, query)).thenReturn(page);
         when(paginationBizConvertor.toPaginationEntity(page, page.getRecords())).thenReturn(expected);
 
         PaginationQueryResultCO<UnqualifiedUserInfoCO> result = service.pageUnqualifiedUser(1, 0, query);
 
         assertSame(expected, result);
-        verify(evaStatisticsQueryUseCase).pageUnqualifiedUser(1, 0, query, config);
+        verify(evaStatisticsQueryUseCase).pageUnqualifiedUser(1, 0, query);
     }
 
     @Test
     void pageUnqualifiedUser_type1_shouldUseMinBeEvaNum() {
-        EvaConfigEntity config = new EvaConfigEntity();
-        config.setMinEvaNum(4);
-        config.setMinBeEvaNum(6);
-        when(evaConfigGateway.getEvaConfig()).thenReturn(config);
-
         PagingQuery<UnqualifiedUserConditionalQuery> query = new PagingQuery<>();
         query.setPage(1);
         query.setSize(10);
@@ -94,20 +77,18 @@ class EvaStatisticsServiceImplTest {
         page.setRecords(List.of(new UnqualifiedUserInfoCO()));
 
         PaginationQueryResultCO<UnqualifiedUserInfoCO> expected = new PaginationQueryResultCO<>();
-        when(evaStatisticsQueryUseCase.pageUnqualifiedUser(1, 1, query, config)).thenReturn(page);
+        when(evaStatisticsQueryUseCase.pageUnqualifiedUser(1, 1, query)).thenReturn(page);
         when(paginationBizConvertor.toPaginationEntity(page, page.getRecords())).thenReturn(expected);
 
         PaginationQueryResultCO<UnqualifiedUserInfoCO> result = service.pageUnqualifiedUser(1, 1, query);
 
         assertSame(expected, result);
-        verify(evaStatisticsQueryUseCase).pageUnqualifiedUser(1, 1, query, config);
+        verify(evaStatisticsQueryUseCase).pageUnqualifiedUser(1, 1, query);
     }
 
     @Test
     void pageUnqualifiedUser_invalidType_shouldThrow() {
-        EvaConfigEntity config = new EvaConfigEntity();
-        when(evaConfigGateway.getEvaConfig()).thenReturn(config);
-        when(evaStatisticsQueryUseCase.pageUnqualifiedUser(eq(1), eq(2), any(), eq(config)))
+        when(evaStatisticsQueryUseCase.pageUnqualifiedUser(eq(1), eq(2), any()))
                 .thenThrow(new SysException("type是10以外的值"));
 
         PagingQuery<UnqualifiedUserConditionalQuery> query = new PagingQuery<>();
@@ -120,12 +101,8 @@ class EvaStatisticsServiceImplTest {
 
     @Test
     void getTargetAmountUnqualifiedUser_type0_whenEmpty_shouldReturnZeroResult() {
-        EvaConfigEntity config = new EvaConfigEntity();
-        config.setMinEvaNum(3);
-        config.setMinBeEvaNum(5);
-        when(evaConfigGateway.getEvaConfig()).thenReturn(config);
-        when(evaStatisticsQueryUseCase.getTargetAmountUnqualifiedUser(eq(1), eq(0), eq(5), eq(config), any()))
-                .thenAnswer(invocation -> invocation.getArgument(4));
+        when(evaStatisticsQueryUseCase.getTargetAmountUnqualifiedUser(eq(1), eq(0), eq(5), any()))
+                .thenAnswer(invocation -> invocation.getArgument(3));
 
         UnqualifiedUserResultCO result = service.getTargetAmountUnqualifiedUser(1, 0, 5);
 
@@ -137,25 +114,19 @@ class EvaStatisticsServiceImplTest {
 
     @Test
     void getTargetAmountUnqualifiedUser_type1_shouldUseMinBeEvaNum() {
-        EvaConfigEntity config = new EvaConfigEntity();
-        config.setMinEvaNum(3);
-        config.setMinBeEvaNum(5);
-        when(evaConfigGateway.getEvaConfig()).thenReturn(config);
         UnqualifiedUserResultCO expected = new UnqualifiedUserResultCO();
-        when(evaStatisticsQueryUseCase.getTargetAmountUnqualifiedUser(eq(1), eq(1), eq(2), eq(config), any()))
+        when(evaStatisticsQueryUseCase.getTargetAmountUnqualifiedUser(eq(1), eq(1), eq(2), any()))
                 .thenReturn(expected);
 
         UnqualifiedUserResultCO result = service.getTargetAmountUnqualifiedUser(1, 1, 2);
 
         assertSame(expected, result);
-        verify(evaStatisticsQueryUseCase).getTargetAmountUnqualifiedUser(eq(1), eq(1), eq(2), eq(config), any());
+        verify(evaStatisticsQueryUseCase).getTargetAmountUnqualifiedUser(eq(1), eq(1), eq(2), any());
     }
 
     @Test
     void getTargetAmountUnqualifiedUser_invalidType_shouldThrow() {
-        EvaConfigEntity config = new EvaConfigEntity();
-        when(evaConfigGateway.getEvaConfig()).thenReturn(config);
-        when(evaStatisticsQueryUseCase.getTargetAmountUnqualifiedUser(eq(1), eq(3), eq(5), eq(config), any()))
+        when(evaStatisticsQueryUseCase.getTargetAmountUnqualifiedUser(eq(1), eq(3), eq(5), any()))
                 .thenThrow(new SysException("type是10以外的值"));
 
         SysException ex = assertThrows(SysException.class, () -> service.getTargetAmountUnqualifiedUser(1, 3, 5));
