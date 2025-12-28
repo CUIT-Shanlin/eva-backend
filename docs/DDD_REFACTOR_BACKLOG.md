@@ -284,6 +284,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 	   - ✅ 进展（2025-12-28）：已将统计导出侧 `EvaStatisticsExporter` 静态初始化中获取的统计端口由 `EvaStatisticsQueryPort` 收窄为 `EvaStatisticsOverviewQueryPort`（保持 `SpringUtil.getBean(...)` 次数与顺序不变；保持行为不变；最小回归通过；落地：`9b3c4e6a`）。
 	   - ✅ 进展（2025-12-28）：已在 `bc-evaluation` 应用层新增统计读侧用例 `EvaStatisticsQueryUseCase`（当前为委托壳），并在 `BcEvaluationConfiguration` 完成装配；`EvaStatisticsServiceImpl` 改为委托该用例（保持行为不变；最小回归通过；落地：`db09d87b`）。
 	   - ✅ 进展（2025-12-28）：记录读侧 QueryPort 细分起步：新增得分子端口 `EvaRecordScoreQueryPort`（仅新增接口，不改实现/不改装配；保持行为不变；最小回归通过；落地：`4e47ffe3`）。
+	   - ✅ 进展（2025-12-28）：记录读侧 QueryPort 细分：让聚合端口 `EvaRecordQueryPort` `extends EvaRecordScoreQueryPort`（仅接口继承，不改实现/不改装配；保持行为不变；最小回归通过；落地：`0c7e7d13`）。
 	   - 下一步建议（方向 A → B，保持行为不变）：将“统计”这套模式复制到记录/任务/模板（先细分子 QueryPort，再逐个收窄 `eva-app` 依赖类型）；并逐步把统计用例编排归位到 `EvaStatisticsQueryUseCase`（每次只迁 1 个方法簇）。
 ---
 

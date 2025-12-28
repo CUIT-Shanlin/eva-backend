@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2025-12-28（本次会话）**
+- ✅ **评教读侧进一步解耦（记录：聚合端口继承子端口）**：让 `EvaRecordQueryPort` `extends EvaRecordScoreQueryPort`（仅接口继承，不改实现/不改装配；不改任何业务语义；最小回归通过；落地提交：`0c7e7d13`）。
 - ✅ **评教读侧进一步解耦（记录：子端口接口细分起步）**：新增记录读侧得分子端口 `EvaRecordScoreQueryPort`（仅新增接口，不改实现/不改装配；不改任何业务语义；最小回归通过；落地提交：`4e47ffe3`）。
 - ✅ **评教读侧进一步解耦（统计：依赖类型收窄）**：将 `EvaStatisticsServiceImpl` 对统计端口的依赖从聚合接口 `EvaStatisticsQueryPort` 收窄为三个子端口 `EvaStatisticsOverviewQueryPort/EvaStatisticsTrendQueryPort/EvaStatisticsUnqualifiedUserQueryPort`（不改任何业务逻辑/异常文案；仅调整依赖类型；行为不变；最小回归通过；落地提交：`c19d8801`）。
 - ✅ **评教读侧进一步解耦（统计导出：依赖类型收窄）**：将导出侧静态初始化中获取的统计端口由 `EvaStatisticsQueryPort` 收窄为 `EvaStatisticsOverviewQueryPort`（保持 `SpringUtil.getBean(...)` 的调用次数与顺序不变；不改业务逻辑；行为不变；最小回归通过；落地提交：`9b3c4e6a`）。
