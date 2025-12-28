@@ -1,5 +1,6 @@
 package edu.cuit.bc.evaluation.application.usecase;
 
+import com.alibaba.cola.exception.SysException;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsOverviewQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsTrendQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsUnqualifiedUserQueryPort;
@@ -13,6 +14,7 @@ import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.UnqualifiedUserConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
+import edu.cuit.domain.entity.eva.EvaConfigEntity;
 
 import java.util.List;
 import java.util.Objects;
@@ -85,6 +87,21 @@ public class EvaStatisticsQueryUseCase {
             Integer target
     ) {
         return unqualifiedUserQueryPort.pageBeEvaUnqualifiedUserInfo(semId, query, target);
+    }
+
+    public PaginationResultEntity<UnqualifiedUserInfoCO> pageUnqualifiedUser(
+            Integer semId,
+            Integer type,
+            PagingQuery<UnqualifiedUserConditionalQuery> query,
+            EvaConfigEntity evaConfig
+    ) {
+        if (type == 0) {
+            return pageEvaUnqualifiedUserInfo(semId, query, evaConfig.getMinEvaNum());
+        } else if (type == 1) {
+            return pageBeEvaUnqualifiedUserInfo(semId, query, evaConfig.getMinBeEvaNum());
+        } else {
+            throw new SysException("type是10以外的值");
+        }
     }
 
     public List<Integer> getCountAbEva(Integer semId, Integer userId) {

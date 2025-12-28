@@ -66,16 +66,8 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
     @CheckSemId
     public PaginationQueryResultCO<UnqualifiedUserInfoCO> pageUnqualifiedUser(Integer semId,Integer type, PagingQuery<UnqualifiedUserConditionalQuery> query) {
         EvaConfigEntity evaConfig = evaConfigGateway.getEvaConfig();
-        if(type==0){
-            PaginationResultEntity<UnqualifiedUserInfoCO> page=evaStatisticsQueryUseCase.pageEvaUnqualifiedUserInfo(semId,query,evaConfig.getMinEvaNum());
-            return paginationBizConvertor.toPaginationEntity(page,page.getRecords());
-        } else if(type==1){
-            PaginationResultEntity<UnqualifiedUserInfoCO> page=evaStatisticsQueryUseCase.pageBeEvaUnqualifiedUserInfo(semId,query,evaConfig.getMinBeEvaNum());
-            return paginationBizConvertor.toPaginationEntity(page,page.getRecords());
-        }else {
-            throw new SysException("type是10以外的值");
-        }
-
+        PaginationResultEntity<UnqualifiedUserInfoCO> page = evaStatisticsQueryUseCase.pageUnqualifiedUser(semId, type, query, evaConfig);
+        return paginationBizConvertor.toPaginationEntity(page, page.getRecords());
     }
 
     @Override

@@ -70,13 +70,13 @@ class EvaStatisticsServiceImplTest {
         page.setRecords(List.of(new UnqualifiedUserInfoCO()));
 
         PaginationQueryResultCO<UnqualifiedUserInfoCO> expected = new PaginationQueryResultCO<>();
-        when(evaStatisticsQueryUseCase.pageEvaUnqualifiedUserInfo(1, query, 4)).thenReturn(page);
+        when(evaStatisticsQueryUseCase.pageUnqualifiedUser(1, 0, query, config)).thenReturn(page);
         when(paginationBizConvertor.toPaginationEntity(page, page.getRecords())).thenReturn(expected);
 
         PaginationQueryResultCO<UnqualifiedUserInfoCO> result = service.pageUnqualifiedUser(1, 0, query);
 
         assertSame(expected, result);
-        verify(evaStatisticsQueryUseCase).pageEvaUnqualifiedUserInfo(1, query, 4);
+        verify(evaStatisticsQueryUseCase).pageUnqualifiedUser(1, 0, query, config);
     }
 
     @Test
@@ -94,17 +94,22 @@ class EvaStatisticsServiceImplTest {
         page.setRecords(List.of(new UnqualifiedUserInfoCO()));
 
         PaginationQueryResultCO<UnqualifiedUserInfoCO> expected = new PaginationQueryResultCO<>();
-        when(evaStatisticsQueryUseCase.pageBeEvaUnqualifiedUserInfo(1, query, 6)).thenReturn(page);
+        when(evaStatisticsQueryUseCase.pageUnqualifiedUser(1, 1, query, config)).thenReturn(page);
         when(paginationBizConvertor.toPaginationEntity(page, page.getRecords())).thenReturn(expected);
 
         PaginationQueryResultCO<UnqualifiedUserInfoCO> result = service.pageUnqualifiedUser(1, 1, query);
 
         assertSame(expected, result);
-        verify(evaStatisticsQueryUseCase).pageBeEvaUnqualifiedUserInfo(1, query, 6);
+        verify(evaStatisticsQueryUseCase).pageUnqualifiedUser(1, 1, query, config);
     }
 
     @Test
     void pageUnqualifiedUser_invalidType_shouldThrow() {
+        EvaConfigEntity config = new EvaConfigEntity();
+        when(evaConfigGateway.getEvaConfig()).thenReturn(config);
+        when(evaStatisticsQueryUseCase.pageUnqualifiedUser(eq(1), eq(2), any(), eq(config)))
+                .thenThrow(new SysException("type是10以外的值"));
+
         PagingQuery<UnqualifiedUserConditionalQuery> query = new PagingQuery<>();
         query.setPage(1);
         query.setSize(10);
