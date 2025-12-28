@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2025-12-28（本次会话）**
+- ✅ **评教读侧用例归位深化（统计：未达标用户分页分支选择归位）**：将 `EvaStatisticsServiceImpl.pageUnqualifiedUser` 的 `type` 分支选择逻辑归位到 `EvaStatisticsQueryUseCase.pageUnqualifiedUser`（`@CheckSemId` 触发点仍保留在旧入口；异常文案 `type是10以外的值` 不变；保持行为不变；最小回归通过；落地提交：`22dccc70`）。
 - ✅ **评教读侧进一步解耦（记录：依赖类型收窄—导出基类）**：将导出基类 `EvaStatisticsExporter` 静态初始化中获取记录端口的依赖类型从聚合接口 `EvaRecordQueryPort` 收窄为子端口 `EvaRecordExportQueryPort`（保持 `SpringUtil.getBean(...)` 次数与顺序不变；不改任何业务语义；最小回归通过；落地提交：`682bf081`）。
 - ✅ **评教读侧进一步解耦（记录：导出链路子端口补齐—组合端口）**：新增记录导出链路子端口 `EvaRecordExportQueryPort`（组合 `EvaRecordCourseQueryPort/EvaRecordScoreQueryPort`），并让聚合端口 `EvaRecordQueryPort` `extends` 该子端口（仅新增接口+继承，不改实现/不改装配；不改任何业务语义；最小回归通过；落地提交：`5df35c36`）。
 - ✅ **评教读侧进一步解耦（模板：引用面盘点结论/证伪）**：使用 Serena 盘点 `EvaTemplateQueryPort` 在全仓库的引用面，除端口定义外仅剩 `EvaTemplateQueryPortImpl` 实现侧引用；应用层（`eva-app`）未发现其它对聚合端口的注入点/调用点，因此模板主题的“端口细分 + 依赖类型收窄（服务层）”阶段可视为已闭合（保持行为不变；证据：Serena `find_referencing_symbols/search_for_pattern` 结果；最小回归通过；落地提交：`<本条为文档提交点，见 git log -n 1 -- NEXT_SESSION_HANDOFF.md>`）。
