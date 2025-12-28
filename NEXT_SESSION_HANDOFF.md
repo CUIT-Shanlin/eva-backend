@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2025-12-28（本次会话）**
+- ✅ **评教读侧进一步解耦（记录：依赖类型收窄—导出基类）**：将导出基类 `EvaStatisticsExporter` 静态初始化中获取记录端口的依赖类型从聚合接口 `EvaRecordQueryPort` 收窄为子端口 `EvaRecordExportQueryPort`（保持 `SpringUtil.getBean(...)` 次数与顺序不变；不改任何业务语义；最小回归通过；落地提交：`682bf081`）。
 - ✅ **评教读侧进一步解耦（记录：导出链路子端口补齐—组合端口）**：新增记录导出链路子端口 `EvaRecordExportQueryPort`（组合 `EvaRecordCourseQueryPort/EvaRecordScoreQueryPort`），并让聚合端口 `EvaRecordQueryPort` `extends` 该子端口（仅新增接口+继承，不改实现/不改装配；不改任何业务语义；最小回归通过；落地提交：`5df35c36`）。
 - ✅ **评教读侧进一步解耦（模板：引用面盘点结论/证伪）**：使用 Serena 盘点 `EvaTemplateQueryPort` 在全仓库的引用面，除端口定义外仅剩 `EvaTemplateQueryPortImpl` 实现侧引用；应用层（`eva-app`）未发现其它对聚合端口的注入点/调用点，因此模板主题的“端口细分 + 依赖类型收窄（服务层）”阶段可视为已闭合（保持行为不变；证据：Serena `find_referencing_symbols/search_for_pattern` 结果；最小回归通过；落地提交：`<本条为文档提交点，见 git log -n 1 -- NEXT_SESSION_HANDOFF.md>`）。
 - ✅ **评教读侧进一步解耦（模板：依赖类型收窄—模板服务）**：将 `EvaTemplateServiceImpl` 对模板端口的依赖从聚合接口 `EvaTemplateQueryPort` 收窄为三个子端口 `EvaTemplatePagingQueryPort/EvaTemplateAllQueryPort/EvaTemplateTaskTemplateQueryPort`（不改业务逻辑/异常文案；仅调整依赖类型与调用点；保持行为不变；最小回归通过；落地提交：`b86db7e4`）。
@@ -39,8 +40,9 @@
   - 记录主题：完成记录读侧 QueryPort 细分为 5 个子端口（得分/分页/用户日志/按课程/数量统计），并让 `EvaRecordQueryPort` `extends` 这些子端口；同时完成依赖类型收窄：`EvaRecordServiceImpl` → `EvaRecordPagingQueryPort/EvaRecordScoreQueryPort`，`UserServiceImpl` → `EvaRecordCountQueryPort`，`MsgServiceImpl` → `EvaRecordCountQueryPort`，`UserEvaServiceImpl` → `EvaRecordUserLogQueryPort/EvaRecordScoreQueryPort`（保持行为不变）。
   - 任务主题：复制“统计套路”推进：新增子端口 `EvaTaskInfoQueryPort/EvaTaskPagingQueryPort/EvaTaskSelfQueryPort/EvaTaskCountQueryPort` 并让 `EvaTaskQueryPort` `extends` 这些子端口；同时完成依赖类型收窄：`MsgServiceImpl` → `EvaTaskInfoQueryPort`，`EvaTaskServiceImpl` → `EvaTaskPagingQueryPort/EvaTaskSelfQueryPort/EvaTaskInfoQueryPort`（保持行为不变）。
   - 模板主题：复制“统计套路”起步：新增子端口 `EvaTemplatePagingQueryPort/EvaTemplateAllQueryPort/EvaTemplateTaskTemplateQueryPort` 并让 `EvaTemplateQueryPort` `extends` 这些子端口；同时完成依赖类型收窄：`EvaTemplateServiceImpl` → `EvaTemplatePagingQueryPort/EvaTemplateAllQueryPort/EvaTemplateTaskTemplateQueryPort`（保持行为不变）。
+  - 导出链路（记录）：为保持导出类静态初始化的 `SpringUtil.getBean(...)` 次数/顺序不变，先补齐组合子端口 `EvaRecordExportQueryPort` 并让 `EvaRecordQueryPort` `extends`；再将导出基类 `EvaStatisticsExporter` 的记录端口依赖类型收窄为 `EvaRecordExportQueryPort`（保持行为不变）。
   - 关键落地提交（按主题归类）：
-    - 记录：`4e47ffe3/e4f0efe9/fcac9324/e9034541/db876379/39a4bafe/8b24d2f8/147d486b/80886841`
+    - 记录：`4e47ffe3/e4f0efe9/fcac9324/e9034541/db876379/39a4bafe/8b24d2f8/147d486b/80886841/5df35c36/682bf081`
     - 任务：`26b79c3a/56834293/f0a172d1/2fd9d24e/7aa49e7f/9d5064fc/4b22f059`
     - 模板：`a14d3c53/b86db7e4`
 - ✅ **评教读侧进一步解耦（记录：依赖类型收窄—用户得分）**：将 `UserServiceImpl` 对记录端口的依赖从聚合接口 `EvaRecordQueryPort` 收窄为 `EvaRecordCountQueryPort`（不改业务逻辑/异常文案；仅调整依赖类型；补充单测 `UserServiceImplTest`；最小回归与单测通过；落地提交：`8b24d2f8`）。
