@@ -17,6 +17,7 @@ import edu.cuit.bc.evaluation.application.usecase.UpdateEvaTemplateUseCase;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsOverviewQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsTrendQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsUnqualifiedUserQueryPort;
+import edu.cuit.domain.gateway.eva.EvaConfigGateway;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -67,8 +68,9 @@ public class BcEvaluationConfiguration {
     public EvaStatisticsQueryUseCase evaStatisticsQueryUseCase(
             EvaStatisticsOverviewQueryPort overviewQueryPort,
             EvaStatisticsTrendQueryPort trendQueryPort,
-            EvaStatisticsUnqualifiedUserQueryPort unqualifiedUserQueryPort
+            EvaStatisticsUnqualifiedUserQueryPort unqualifiedUserQueryPort,
+            EvaConfigGateway evaConfigGateway
     ) {
-        return new EvaStatisticsQueryUseCase(overviewQueryPort, trendQueryPort, unqualifiedUserQueryPort);
+        return new EvaStatisticsQueryUseCase(overviewQueryPort, trendQueryPort, unqualifiedUserQueryPort, evaConfigGateway);
     }
 }

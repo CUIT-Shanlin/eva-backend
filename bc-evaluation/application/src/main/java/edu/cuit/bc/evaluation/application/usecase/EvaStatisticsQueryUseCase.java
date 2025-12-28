@@ -15,6 +15,7 @@ import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.UnqualifiedUserConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.eva.EvaConfigEntity;
+import edu.cuit.domain.gateway.eva.EvaConfigGateway;
 
 import java.util.List;
 import java.util.Objects;
@@ -30,15 +31,18 @@ public class EvaStatisticsQueryUseCase {
     private final EvaStatisticsOverviewQueryPort overviewQueryPort;
     private final EvaStatisticsTrendQueryPort trendQueryPort;
     private final EvaStatisticsUnqualifiedUserQueryPort unqualifiedUserQueryPort;
+    private final EvaConfigGateway evaConfigGateway;
 
     public EvaStatisticsQueryUseCase(
             EvaStatisticsOverviewQueryPort overviewQueryPort,
             EvaStatisticsTrendQueryPort trendQueryPort,
-            EvaStatisticsUnqualifiedUserQueryPort unqualifiedUserQueryPort
+            EvaStatisticsUnqualifiedUserQueryPort unqualifiedUserQueryPort,
+            EvaConfigGateway evaConfigGateway
     ) {
         this.overviewQueryPort = Objects.requireNonNull(overviewQueryPort, "overviewQueryPort");
         this.trendQueryPort = Objects.requireNonNull(trendQueryPort, "trendQueryPort");
         this.unqualifiedUserQueryPort = Objects.requireNonNull(unqualifiedUserQueryPort, "unqualifiedUserQueryPort");
+        this.evaConfigGateway = Objects.requireNonNull(evaConfigGateway, "evaConfigGateway");
     }
 
     public Optional<EvaScoreInfoCO> evaScoreStatisticsInfo(Integer semId, Number score) {
@@ -59,6 +63,12 @@ public class EvaStatisticsQueryUseCase {
 
     public List<Integer> getMonthEvaNUmber(Integer semId) {
         return trendQueryPort.getMonthEvaNUmber(semId);
+    }
+
+    public Optional<PastTimeEvaDetailCO> getEvaData(Integer semId, Integer num) {
+        Integer target = evaConfigGateway.getMinEvaNum();
+        Integer evaTarget = evaConfigGateway.getMinBeEvaNum();
+        return getEvaData(semId, num, target, evaTarget);
     }
 
     public Optional<PastTimeEvaDetailCO> getEvaData(Integer semId, Integer num, Integer target, Integer evaTarget) {

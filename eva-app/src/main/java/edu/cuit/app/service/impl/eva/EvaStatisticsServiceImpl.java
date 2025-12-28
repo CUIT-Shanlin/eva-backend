@@ -57,9 +57,7 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
     @Override
     @CheckSemId
     public PastTimeEvaDetailCO getEvaData(Integer semId, Integer num) {
-        Integer target= evaConfigGateway.getMinEvaNum();
-        Integer evaTarget= evaConfigGateway.getMinBeEvaNum();
-        return evaStatisticsQueryUseCase.getEvaData(semId,num,target,evaTarget).orElseGet(()->new PastTimeEvaDetailCO());
+        return evaStatisticsQueryUseCase.getEvaData(semId, num).orElseGet(() -> new PastTimeEvaDetailCO());
     }
 
     @Override

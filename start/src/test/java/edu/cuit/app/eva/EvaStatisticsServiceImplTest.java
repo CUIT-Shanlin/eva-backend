@@ -44,15 +44,15 @@ class EvaStatisticsServiceImplTest {
 
     @Test
     void getEvaData_shouldUseConfiguredThresholds() {
-        when(evaConfigGateway.getMinEvaNum()).thenReturn(3);
-        when(evaConfigGateway.getMinBeEvaNum()).thenReturn(5);
         PastTimeEvaDetailCO detail = new PastTimeEvaDetailCO();
-        when(evaStatisticsQueryUseCase.getEvaData(1, 7, 3, 5)).thenReturn(Optional.of(detail));
+        when(evaStatisticsQueryUseCase.getEvaData(1, 7)).thenReturn(Optional.of(detail));
 
         PastTimeEvaDetailCO result = service.getEvaData(1, 7);
 
         assertSame(detail, result);
-        verify(evaStatisticsQueryUseCase).getEvaData(1, 7, 3, 5);
+        verify(evaStatisticsQueryUseCase).getEvaData(1, 7);
+        verify(evaConfigGateway, never()).getMinEvaNum();
+        verify(evaConfigGateway, never()).getMinBeEvaNum();
     }
 
     @Test

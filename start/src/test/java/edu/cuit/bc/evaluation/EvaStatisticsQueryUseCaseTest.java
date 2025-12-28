@@ -5,17 +5,20 @@ import edu.cuit.bc.evaluation.application.port.EvaStatisticsOverviewQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsTrendQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsUnqualifiedUserQueryPort;
 import edu.cuit.bc.evaluation.application.usecase.EvaStatisticsQueryUseCase;
+import edu.cuit.client.dto.clientobject.eva.PastTimeEvaDetailCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.UnqualifiedUserConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.eva.EvaConfigEntity;
+import edu.cuit.domain.gateway.eva.EvaConfigGateway;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -32,9 +35,17 @@ class EvaStatisticsQueryUseCaseTest {
     @Mock
     private EvaStatisticsUnqualifiedUserQueryPort unqualifiedUserQueryPort;
 
+    @Mock
+    private EvaConfigGateway evaConfigGateway;
+
     @Test
     void pageUnqualifiedUser_type0_shouldUseMinEvaNum() {
-        EvaStatisticsQueryUseCase useCase = new EvaStatisticsQueryUseCase(overviewQueryPort, trendQueryPort, unqualifiedUserQueryPort);
+        EvaStatisticsQueryUseCase useCase = new EvaStatisticsQueryUseCase(
+                overviewQueryPort,
+                trendQueryPort,
+                unqualifiedUserQueryPort,
+                evaConfigGateway
+        );
 
         EvaConfigEntity config = new EvaConfigEntity();
         config.setMinEvaNum(4);
@@ -58,7 +69,12 @@ class EvaStatisticsQueryUseCaseTest {
 
     @Test
     void pageUnqualifiedUser_type1_shouldUseMinBeEvaNum() {
-        EvaStatisticsQueryUseCase useCase = new EvaStatisticsQueryUseCase(overviewQueryPort, trendQueryPort, unqualifiedUserQueryPort);
+        EvaStatisticsQueryUseCase useCase = new EvaStatisticsQueryUseCase(
+                overviewQueryPort,
+                trendQueryPort,
+                unqualifiedUserQueryPort,
+                evaConfigGateway
+        );
 
         EvaConfigEntity config = new EvaConfigEntity();
         config.setMinEvaNum(4);
@@ -82,7 +98,12 @@ class EvaStatisticsQueryUseCaseTest {
 
     @Test
     void pageUnqualifiedUser_invalidType_shouldThrow() {
-        EvaStatisticsQueryUseCase useCase = new EvaStatisticsQueryUseCase(overviewQueryPort, trendQueryPort, unqualifiedUserQueryPort);
+        EvaStatisticsQueryUseCase useCase = new EvaStatisticsQueryUseCase(
+                overviewQueryPort,
+                trendQueryPort,
+                unqualifiedUserQueryPort,
+                evaConfigGateway
+        );
 
         EvaConfigEntity config = new EvaConfigEntity();
         config.setMinEvaNum(4);
@@ -95,5 +116,27 @@ class EvaStatisticsQueryUseCaseTest {
         SysException ex = assertThrows(SysException.class, () -> useCase.pageUnqualifiedUser(1, 2, query, config));
         assertEquals("type是10以外的值", ex.getMessage());
     }
-}
 
+    @Test
+    void getEvaData_shouldUseConfiguredThresholdsInOrder() {
+        EvaStatisticsQueryUseCase useCase = new EvaStatisticsQueryUseCase(
+                overviewQueryPort,
+                trendQueryPort,
+                unqualifiedUserQueryPort,
+                evaConfigGateway
+        );
+
+        when(evaConfigGateway.getMinEvaNum()).thenReturn(3);
+        when(evaConfigGateway.getMinBeEvaNum()).thenReturn(5);
+        PastTimeEvaDetailCO detail = new PastTimeEvaDetailCO();
+        when(overviewQueryPort.getEvaData(1, 7, 3, 5)).thenReturn(Optional.of(detail));
+
+        Optional<PastTimeEvaDetailCO> result = useCase.getEvaData(1, 7);
+
+        assertSame(detail, result.orElseThrow());
+        var inOrder = inOrder(evaConfigGateway, overviewQueryPort);
+        inOrder.verify(evaConfigGateway).getMinEvaNum();
+        inOrder.verify(evaConfigGateway).getMinBeEvaNum();
+        inOrder.verify(overviewQueryPort).getEvaData(1, 7, 3, 5);
+    }
+}
