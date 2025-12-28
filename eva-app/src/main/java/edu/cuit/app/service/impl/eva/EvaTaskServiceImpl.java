@@ -23,7 +23,9 @@ import edu.cuit.domain.entity.eva.EvaTaskEntity;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.domain.gateway.eva.EvaConfigGateway;
 import edu.cuit.domain.gateway.eva.EvaDeleteGateway;
-import edu.cuit.bc.evaluation.application.port.EvaTaskQueryPort;
+import edu.cuit.bc.evaluation.application.port.EvaTaskInfoQueryPort;
+import edu.cuit.bc.evaluation.application.port.EvaTaskPagingQueryPort;
+import edu.cuit.bc.evaluation.application.port.EvaTaskSelfQueryPort;
 import edu.cuit.domain.gateway.eva.EvaUpdateGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
@@ -41,7 +43,9 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class EvaTaskServiceImpl implements IEvaTaskService {
     private final EvaUpdateGateway evaUpdateGateway;
-    private final EvaTaskQueryPort evaTaskQueryPort;
+    private final EvaTaskPagingQueryPort evaTaskPagingQueryPort;
+    private final EvaTaskSelfQueryPort evaTaskSelfQueryPort;
+    private final EvaTaskInfoQueryPort evaTaskInfoQueryPort;
     private final EvaDeleteGateway evaDeleteGateway;
     private final UserQueryGateway userQueryGateway;
     private final CourseQueryGateway courseQueryGateway;
@@ -53,7 +57,7 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
     @Override
     @CheckSemId
     public PaginationQueryResultCO<EvaTaskBaseInfoCO> pageEvaUnfinishedTask(Integer semId, PagingQuery<EvaTaskConditionalQuery> query) {
-        PaginationResultEntity<EvaTaskEntity> page=evaTaskQueryPort.pageEvaUnfinishedTask(semId,query);
+        PaginationResultEntity<EvaTaskEntity> page=evaTaskPagingQueryPort.pageEvaUnfinishedTask(semId,query);
         List<EvaTaskBaseInfoCO> results =page.getRecords().stream()
                 .map(evaTaskBizConvertor::evaTaskEntityToEvaBaseCO)
                 .toList();
@@ -64,7 +68,7 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
     @CheckSemId
     public List<EvaTaskDetailInfoCO> evaSelfTaskInfo(Integer semId, String keyword) {
         Integer useId=userQueryGateway.findIdByUsername(String.valueOf(StpUtil.getLoginId())).orElseThrow(()->new SysException("并没有找到该用户id"));
-        List<EvaTaskEntity> evaTaskEntities=evaTaskQueryPort.evaSelfTaskInfo(useId,semId,keyword);
+        List<EvaTaskEntity> evaTaskEntities=evaTaskSelfQueryPort.evaSelfTaskInfo(useId,semId,keyword);
         List<EvaTaskDetailInfoCO> evaTaskDetailInfoCOS=new ArrayList<>();
         for (EvaTaskEntity evaTaskEntity : evaTaskEntities) {
             SingleCourseEntity singleCourseEntity = evaTaskEntity.getCourInf();
@@ -76,7 +80,7 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
 
     @Override
     public EvaTaskDetailInfoCO oneEvaTaskInfo(Integer id) {
-        EvaTaskEntity evaTaskEntity=evaTaskQueryPort.oneEvaTaskInfo(id).orElseThrow(()->new SysException("并没有找到相关任务信息"));
+        EvaTaskEntity evaTaskEntity=evaTaskInfoQueryPort.oneEvaTaskInfo(id).orElseThrow(()->new SysException("并没有找到相关任务信息"));
         SingleCourseEntity singleCourseEntity=evaTaskEntity.getCourInf();
         return evaTaskBizConvertor.evaTaskEntityToTaskDetailCO(evaTaskEntity,singleCourseEntity);
     }
@@ -97,7 +101,7 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
 
     @Override
     public Void cancelEvaTask(Integer id) {
-        LogUtils.logContent(evaTaskQueryPort.getNameByTaskId(id).orElseThrow(() -> new BizException("该任务id不存在")) + "任务ID为 "+id+" 的评教任务");
+        LogUtils.logContent(evaTaskInfoQueryPort.getNameByTaskId(id).orElseThrow(() -> new BizException("该任务id不存在")) + "任务ID为 "+id+" 的评教任务");
         evaUpdateGateway.cancelEvaTaskById(id);
         msgService.deleteEvaMsg(id,null);
         return null;
@@ -105,7 +109,7 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
     @Override
     public Void cancelMyEvaTask(Integer id) {
         Integer useId=userQueryGateway.findIdByUsername(String.valueOf(StpUtil.getLoginId())).orElseThrow(() -> new SysException("用户未找到"));
-        EvaTaskEntity evaTaskEntity=evaTaskQueryPort.oneEvaTaskInfo(id).orElseThrow(() -> new BizException("该任务不存在"));
+        EvaTaskEntity evaTaskEntity=evaTaskInfoQueryPort.oneEvaTaskInfo(id).orElseThrow(() -> new BizException("该任务不存在"));
         if(!Objects.equals(evaTaskEntity.getTeacher().getId(), useId)){
             throw new QueryException("不能删去不是自己评教的任务");
         }else{
