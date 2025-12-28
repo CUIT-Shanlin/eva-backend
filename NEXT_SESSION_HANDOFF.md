@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2025-12-28（本次会话）**
+- ✅ **本次会话总览（方向 A：记录读侧细分 + 依赖收窄）**：完成记录读侧 QueryPort 细分为 5 个子端口（得分/分页/用户日志/按课程/数量统计），并让 `EvaRecordQueryPort` `extends` 这些子端口；同时完成依赖类型收窄：`EvaRecordServiceImpl` → `EvaRecordPagingQueryPort/EvaRecordScoreQueryPort`，`UserServiceImpl` → `EvaRecordCountQueryPort`；补充单测 `UserServiceImplTest`。关键落地提交：`4e47ffe3/e4f0efe9/fcac9324/e9034541/db876379/39a4bafe/8b24d2f8`（其余 `extends` 与文档同步提交见下述条目）。
 - ✅ **评教读侧进一步解耦（记录：依赖类型收窄—用户得分）**：将 `UserServiceImpl` 对记录端口的依赖从聚合接口 `EvaRecordQueryPort` 收窄为 `EvaRecordCountQueryPort`（不改业务逻辑/异常文案；仅调整依赖类型；补充单测 `UserServiceImplTest`；最小回归与单测通过；落地提交：`8b24d2f8`）。
 - ✅ **评教读侧进一步解耦（记录：聚合端口继承子端口—数量统计）**：让 `EvaRecordQueryPort` `extends EvaRecordCountQueryPort`（仅接口继承，不改实现/不改装配；不改任何业务语义；最小回归通过；落地提交：`0d562206`）。
 - ✅ **评教读侧进一步解耦（记录：子端口接口细分—数量统计）**：新增记录读侧数量统计子端口 `EvaRecordCountQueryPort`（仅新增接口，不改实现/不改装配；不改任何业务语义；最小回归通过；落地提交：`db876379`）。
@@ -202,6 +203,8 @@
 下一会话建议（按顺序执行；历史已完成项见下方 0.12 “总体进度概览”）：
 0) **评教读侧进一步解耦（优先，方向 A → B，保持行为不变）**：当前已完成“统计 QueryPort 细分 + 依赖收窄 + UseCase 归位起步”（见 0.9：`a1d6ccab/c19d8801/9b3c4e6a/db09d87b`）。下一步建议拆分为更小的可回滚提交：
    - **A（继续收窄依赖）**：按同套路继续推进读侧其它主题（优先记录/任务/模板）：先做“子端口接口 + `extends`（不改实现/不改装配）”，再逐个把 `eva-app` 中的注入类型收窄为子端口（每次只改 1 个类 + 对应测试）。
+     - 进展（记录主题，2025-12-28）：已完成记录 QueryPort 细分（5 子端口）+ 聚合端口 `extends`，并已收窄 `EvaRecordServiceImpl` 与 `UserServiceImpl` 的依赖类型（见 0.9：`39a4bafe/8b24d2f8` 等，保持行为不变）。
+	     - 下一步建议（记录主题，保持行为不变）：优先收窄 `MsgServiceImpl`（可收窄为 `EvaRecordCountQueryPort`）与 `UserEvaServiceImpl`（需要 `EvaRecordUserLogQueryPort/EvaRecordScoreQueryPort`），每次只改 1 个类并补齐 1 个可运行单测；两者均涉及 `StpUtil` 静态登录态，单测需提前规划“可重复”的登录态注入策略，避免引入不稳定测试。
    - **B（用例归位深化）**：将 `EvaStatisticsQueryUseCase` 从“委托壳”逐步演进为“统计读侧用例编排落点”：建议每次只迁 1 个方法簇（例如先迁 `getEvaData` 的阈值计算与参数组装，再迁 `pageUnqualifiedUser/getTargetAmountUnqualifiedUser` 的 `type` 分支与阈值选择），并保持 `@CheckSemId` 触发点仍在旧入口（不改异常文案/副作用顺序）。
 1) **条目 25（优先，写侧）**：AI 报告“剩余落库/记录写链路”已完成盘点并证伪（见 0.9 的证据清单）。后续请将条目 25 的执行重点切换为：**S0 折叠 `bc-ai-report`**（仅搬运/依赖收敛，保持行为不变）。
    - 补充进展（2025-12-27）：已将导出链路实现（`AiReportDocExportPortImpl` + `AiReportExporter`）、analysis 链路实现（`AiReportAnalysisPortImpl`）与 username→userId 端口适配器（`AiReportUserIdQueryPortImpl`）从 `eva-app` 归位到 `bc-ai-report`（保持 `package` 不变；保持行为不变；提交：`d1262c32`、`6f34e894`、`e2a608e2`），并进一步将 `edu.cuit.infra.ai.*` 从 `eva-infra` 归位到 `bc-ai-report`（保持 `package` 不变；保持行为不变；提交：`e2f2a7ff`）。
@@ -219,12 +222,12 @@
    - 最小切入点建议（仍保持行为不变，便于可回滚）：优先从 `bc-evaluation/application/port/EvaStatisticsQueryPort` 着手，先按“用例簇”拆出 2~3 个更细粒度的子 Port（**仅新增接口 + `extends`，不改实现/不改装配**），再按“每次只迁 1 个用例方法”的节奏逐步收窄上层依赖类型（避免一次性大改导致口径/异常漂移）。
    - 风险提示：`eva-app` 中存在通过 `SpringUtil.getBean(...)` 获取 QueryPort 的静态初始化路径（例如导出相关类）；如需调整依赖类型或移动类归属，务必保持 Bean 初始化时机与副作用顺序不变。
 
-## 0.12 当前总体进度概览（2025-12-27，更新至 `HEAD`）
+## 0.12 当前总体进度概览（2025-12-28，更新至 `HEAD`）
 
 > 用于回答“现在总进度到哪了”，避免每次会话重新盘点。
 
 - **bc-iam（系统管理/IAM）**：已完成大量写侧/读侧收敛；历史上通过平铺过渡模块 `bc-iam-infra` 完成适配器归属与去 `eva-infra` 依赖闭环（见历史提交点）。**按 2025-12-24 需求变更**：已将该过渡模块折叠归位到 `bc-iam/infrastructure` 子模块（落地提交：`0b5c5383`），并新增 `bc-iam-contract` 子模块承接 IAM 协议对象迁移（落地提交：`dc3727fa`）。
-- **bc-evaluation（评教）**：写侧主链路（任务发布/删除/模板）已按“用例+端口+适配器+委托壳”收敛；历史上通过平铺过渡模块 `bc-evaluation-infra` 完成读侧迁移与写侧 Repo 迁移，并通过 `eva-infra-shared`/`eva-infra-dal` 解决跨 BC 共享（均保持包名/行为不变）。**按 2025-12-24 需求变更**：已将该过渡模块折叠归位到 `bc-evaluation/infrastructure` 子模块（落地提交：`4db04d1c`）。
+- **bc-evaluation（评教）**：写侧主链路（任务发布/删除/模板）已按“用例+端口+适配器+委托壳”收敛；历史上通过平铺过渡模块 `bc-evaluation-infra` 完成读侧迁移与写侧 Repo 迁移，并通过 `eva-infra-shared`/`eva-infra-dal` 解决跨 BC 共享（均保持包名/行为不变）。**按 2025-12-24 需求变更**：已将该过渡模块折叠归位到 `bc-evaluation/infrastructure` 子模块（落地提交：`4db04d1c`）。补充进展（2025-12-28）：记录读侧 QueryPort 已细分并开始收窄 `eva-app` 依赖类型（见 0.9，保持行为不变）。
 - **bc-evaluation（评教，contract）**：已新增 `bc-evaluation-contract` 并迁移评教统计接口 `IEvaStatisticsService` + 未达标用户协议对象 `UnqualifiedUserInfoCO/UnqualifiedUserResultCO`（保持 `package edu.cuit.client.*` 不变，仅物理归属与依赖收敛；保持行为不变；落地提交：`978e3535`）；并继续迁移评教统计/表单相关 CO（`DateEvaNumCO/TimeEvaNumCO/MoreDateEvaNumCO/SimpleEvaPercentCO/SimplePercentCO/FormPropCO`，保持 `package` 不变；保持行为不变；`c2d8a8b1`），以及课程时间模型 `CourseTime`（沉淀到 `shared-kernel`，保持 `package` 不变；保持行为不变；`5f21b5ce`）；并已在“可证实不再需要”的前提下移除 `bc-evaluation-contract` → `eva-client` 直依赖（`cf2001ef`）。
 - **bc-audit（审计日志）**：已完成 `LogGatewayImpl.insertLog` 写链路收敛（异步触发点保留在旧入口，落库与字段补齐在端口适配器）；并已将审计日志协议对象 `ILogService/OperateLogCO/LogModuleCO` 从 `eva-client` 迁移到 `bc-audit`（保持 `package` 不变；保持行为不变；`e1dbf2d4`）。
 - **bc-audit（审计日志，S0 折叠归位）**：已完成阶段 1/2/3：引入 `bc-audit-parent` + 内部子模块；将 `LogInsertionPortImpl` 归位 `bc-audit/infrastructure`；并已抽离 `sys_log` 相关 DAL/Converter 以移除 `bc-audit-infra` → `eva-infra` 过渡依赖（保持行为不变；提交：`81594308`、`d7858d7a`、`06ec6f3d`）。
@@ -266,7 +269,7 @@
 强约束（必须严格执行）：
 - 只做重构，不改业务语义；缓存/日志/异常文案/副作用顺序完全不变
 - 必须使用 Serena 做符号级定位与引用分析（若 MCP 工具出现 `TimeoutError` 等不可用情况：需在 0.9 记录“降级原因 + 可复现的 `rg` 证据”，并在下一会话优先排查恢复）
-- 每个小步骤结束：跑最小回归 → git commit → 更新 NEXT_SESSION_HANDOFF.md / DDD_REFACTOR_PLAN.md / docs/DDD_REFACTOR_BACKLOG.md
+- 每个小步骤闭环顺序：Serena（符号级定位/引用分析）→ 最小回归 → git commit → 同步 NEXT_SESSION_HANDOFF.md / DDD_REFACTOR_PLAN.md / docs/DDD_REFACTOR_BACKLOG.md（保持行为不变）
 - 每次结束对话前：先写清“下一步拆分与里程碑/提交点”
 
 开始前按顺序阅读（重点章节同旧要求）：
@@ -278,6 +281,8 @@
 本会话目标（按顺序执行；每步闭环=Serena→最小回归→提交→三文档同步；保持行为不变）：
 1) **评教读侧进一步解耦（优先，方向 A → B）**：在不改变统计口径/异常文案前提下，继续按用例维度细化 QueryService/QueryPort，并逐步让 `eva-app` 退化为委托壳。
    - **A（继续收窄依赖）**：复制“统计”的套路到记录/任务/模板：先新增子 QueryPort 接口 + `extends`（不改实现/不改装配），再逐个收窄 `eva-app` 中的注入类型（每次只改 1 个类 + 对应测试）。
+     - 进展（记录主题，已完成）：记录 QueryPort 已细分为 5 个子端口（得分/分页/用户日志/按课程/数量统计），并已开始收窄 `EvaRecordServiceImpl` 与 `UserServiceImpl` 的依赖类型（见 0.9，保持行为不变）。
+     - 下一步建议（记录主题）：优先收窄 `MsgServiceImpl`（目标依赖：`EvaRecordCountQueryPort`）与 `UserEvaServiceImpl`（目标依赖：`EvaRecordUserLogQueryPort/EvaRecordScoreQueryPort`）；两者均涉及 `StpUtil` 静态登录态，单测需提前规划“可重复”的登录态注入策略，避免引入不稳定测试。
    - **B（用例归位深化）**：已存在 `EvaStatisticsQueryUseCase`（当前为委托壳）。下一步建议每次只迁 1 个方法簇，把阈值计算/分支选择逐步归位到 UseCase；旧入口仍保留 `@CheckSemId` 注解触发点不变。
 2) （可选/后置）**条目 25 / S0（AI 报告）**：若评教读侧推进顺利，可回到 `bc-ai-report` 的 S0 继续做“仅搬运/依赖收敛”（保持行为不变）。
 
@@ -289,6 +294,9 @@ export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$J
 && mvn -pl start -am test \
 -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest \
 -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository
+
+（补充建议，非替代）：若本步改动涉及 `UserServiceImpl.getOneUserScore`，额外运行：  
+`export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.user.UserServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
 
 （需要定位最近会话做了什么：以 NEXT_SESSION_HANDOFF.md 的 0.9 增量总结为准；需要定位落地提交：用 `git log -n 1 -- <文档>` 或按日期范围查看 `git log --oneline`，不要把 commitId 写回提示词。）
 
@@ -305,7 +313,7 @@ export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$J
 强约束（必须严格执行）：
 - 只做重构，不改业务语义；缓存/日志/异常文案/副作用顺序完全不变
 - 必须使用 Serena 做符号级定位与引用分析
-- 每个小步骤结束：跑最小回归 → git commit → 更新 NEXT_SESSION_HANDOFF.md / DDD_REFACTOR_PLAN.md / docs/DDD_REFACTOR_BACKLOG.md
+- 每个小步骤闭环顺序：Serena（符号级定位/引用分析）→ 最小回归 → git commit → 同步 NEXT_SESSION_HANDOFF.md / DDD_REFACTOR_PLAN.md / docs/DDD_REFACTOR_BACKLOG.md（保持行为不变）
 - 每次结束对话前：先写清“下一步拆分与里程碑/提交点”
 
 开始前按顺序阅读（重点章节同旧要求）：
