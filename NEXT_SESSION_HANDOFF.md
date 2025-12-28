@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2025-12-28（本次会话）**
+- ✅ **评教读侧进一步解耦（任务：子端口接口细分起步—单任务信息）**：新增任务读侧“单任务信息/任务名称”子端口 `EvaTaskInfoQueryPort`（仅新增接口，不改实现/不改装配；不改任何业务语义；最小回归通过；落地提交：`26b79c3a`）。
 - ✅ **评教读侧进一步解耦（记录：依赖类型收窄—用户评教日志）**：将 `UserEvaServiceImpl` 对记录端口的依赖从聚合接口 `EvaRecordQueryPort` 收窄为两个子端口 `EvaRecordUserLogQueryPort/EvaRecordScoreQueryPort`（不改业务逻辑/异常文案；仅调整依赖类型；保持行为不变；最小回归通过；落地提交：`80886841`）。
 - ✅ **评教读侧进一步解耦（记录：依赖类型收窄—消息）**：将 `MsgServiceImpl` 对记录端口的依赖从聚合接口 `EvaRecordQueryPort` 收窄为子端口 `EvaRecordCountQueryPort`（不改业务逻辑/异常文案；仅调整依赖类型；保持行为不变；最小回归通过；落地提交：`147d486b`）。
 - ✅ **本次会话总览（方向 A：记录读侧细分 + 依赖收窄）**：完成记录读侧 QueryPort 细分为 5 个子端口（得分/分页/用户日志/按课程/数量统计），并让 `EvaRecordQueryPort` `extends` 这些子端口；同时完成依赖类型收窄：`EvaRecordServiceImpl` → `EvaRecordPagingQueryPort/EvaRecordScoreQueryPort`，`UserServiceImpl` → `EvaRecordCountQueryPort`；补充单测 `UserServiceImplTest`。关键落地提交：`4e47ffe3/e4f0efe9/fcac9324/e9034541/db876379/39a4bafe/8b24d2f8`（其余 `extends` 与文档同步提交见下述条目）。
