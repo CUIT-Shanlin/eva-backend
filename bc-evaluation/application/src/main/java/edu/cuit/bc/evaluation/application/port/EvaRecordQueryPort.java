@@ -12,7 +12,7 @@ import java.util.Optional;
 /**
  * 评教记录读侧查询端口。
  */
-public interface EvaRecordQueryPort extends EvaRecordScoreQueryPort, EvaRecordPagingQueryPort, EvaRecordUserLogQueryPort {
+public interface EvaRecordQueryPort extends EvaRecordScoreQueryPort, EvaRecordPagingQueryPort, EvaRecordUserLogQueryPort, EvaRecordCourseQueryPort {
     PaginationResultEntity<EvaRecordEntity> pageEvaRecord(Integer semId, PagingQuery<EvaLogConditionalQuery> evaLogQuery);
 
     List<EvaRecordEntity> getEvaLogInfo(Integer userId, Integer id, String keyword);
