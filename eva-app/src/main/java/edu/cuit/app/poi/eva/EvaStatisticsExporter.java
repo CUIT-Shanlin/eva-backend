@@ -9,7 +9,7 @@ import edu.cuit.bc.iam.application.contract.api.user.IUserService;
 import edu.cuit.client.dto.clientobject.SemesterCO;
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.bc.evaluation.application.port.EvaRecordExportQueryPort;
-import edu.cuit.bc.evaluation.application.port.EvaStatisticsOverviewQueryPort;
+import edu.cuit.bc.evaluation.application.port.EvaStatisticsCountAbEvaQueryPort;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
 import lombok.Getter;
 import org.apache.poi.ss.usermodel.Cell;
@@ -28,7 +28,7 @@ public class EvaStatisticsExporter {
     protected static final ICourseDetailService courseDetailService;
     protected static final IUserCourseService userCourseService;
     protected static final IUserService userService;
-    protected static final EvaStatisticsOverviewQueryPort evaStatisticsQueryPort;
+    protected static final EvaStatisticsCountAbEvaQueryPort evaStatisticsQueryPort;
     protected static final EvaRecordExportQueryPort evaRecordQueryPort;
 
     static {
@@ -37,7 +37,7 @@ public class EvaStatisticsExporter {
         courseDetailService = SpringUtil.getBean(ICourseDetailService.class);
         userCourseService = SpringUtil.getBean(IUserCourseService.class);
         userService = SpringUtil.getBean(IUserService.class);
-        evaStatisticsQueryPort = SpringUtil.getBean(EvaStatisticsOverviewQueryPort.class);
+        evaStatisticsQueryPort = SpringUtil.getBean(EvaStatisticsCountAbEvaQueryPort.class);
         evaRecordQueryPort = SpringUtil.getBean(EvaRecordExportQueryPort.class);
     }
 
