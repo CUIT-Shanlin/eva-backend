@@ -10,9 +10,13 @@ import edu.cuit.bc.evaluation.application.port.UpdateEvaTemplateRepository;
 import edu.cuit.bc.evaluation.application.usecase.AddEvaTemplateUseCase;
 import edu.cuit.bc.evaluation.application.usecase.DeleteEvaRecordUseCase;
 import edu.cuit.bc.evaluation.application.usecase.DeleteEvaTemplateUseCase;
+import edu.cuit.bc.evaluation.application.usecase.EvaStatisticsQueryUseCase;
 import edu.cuit.bc.evaluation.application.usecase.PostEvaTaskUseCase;
 import edu.cuit.bc.evaluation.application.usecase.SubmitEvaluationUseCase;
 import edu.cuit.bc.evaluation.application.usecase.UpdateEvaTemplateUseCase;
+import edu.cuit.bc.evaluation.application.port.EvaStatisticsOverviewQueryPort;
+import edu.cuit.bc.evaluation.application.port.EvaStatisticsTrendQueryPort;
+import edu.cuit.bc.evaluation.application.port.EvaStatisticsUnqualifiedUserQueryPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -57,5 +61,14 @@ public class BcEvaluationConfiguration {
     @Bean
     public UpdateEvaTemplateUseCase updateEvaTemplateUseCase(UpdateEvaTemplateRepository repository) {
         return new UpdateEvaTemplateUseCase(repository);
+    }
+
+    @Bean
+    public EvaStatisticsQueryUseCase evaStatisticsQueryUseCase(
+            EvaStatisticsOverviewQueryPort overviewQueryPort,
+            EvaStatisticsTrendQueryPort trendQueryPort,
+            EvaStatisticsUnqualifiedUserQueryPort unqualifiedUserQueryPort
+    ) {
+        return new EvaStatisticsQueryUseCase(overviewQueryPort, trendQueryPort, unqualifiedUserQueryPort);
     }
 }
