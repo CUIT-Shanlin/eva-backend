@@ -5,7 +5,7 @@ import dev.langchain4j.community.model.dashscope.QwenChatModel;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.service.AiServices;
 import edu.cuit.bc.aireport.application.port.AiReportAnalysisPort;
-import edu.cuit.bc.evaluation.application.port.EvaRecordQueryPort;
+import edu.cuit.bc.evaluation.application.port.EvaRecordExportQueryPort;
 import edu.cuit.client.api.course.IUserCourseService;
 import edu.cuit.client.bo.ai.AiAnalysisBO;
 import edu.cuit.client.bo.ai.AiCourseSuggestionBO;
@@ -36,7 +36,7 @@ public class AiReportAnalysisPortImpl implements AiReportAnalysisPort {
     private static final Logger log = LoggerFactory.getLogger("edu.cuit.app.service.impl.ai.AiCourseAnalysisService");
 
     private final IUserCourseService userCourseService;
-    private final EvaRecordQueryPort evaRecordQueryPort;
+    private final EvaRecordExportQueryPort evaRecordQueryPort;
     private final UserQueryGateway userQueryGateway;
     private final EvaConfigGateway evaConfigGateway;
     private final QwenChatModel qwenMaxChatModel;
@@ -45,7 +45,7 @@ public class AiReportAnalysisPortImpl implements AiReportAnalysisPort {
 
     public AiReportAnalysisPortImpl(
             IUserCourseService userCourseService,
-            EvaRecordQueryPort evaRecordQueryPort,
+            EvaRecordExportQueryPort evaRecordQueryPort,
             UserQueryGateway userQueryGateway,
             EvaConfigGateway evaConfigGateway,
             QwenChatModel qwenMaxChatModel,
