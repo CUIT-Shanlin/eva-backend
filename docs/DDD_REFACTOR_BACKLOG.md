@@ -304,6 +304,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 			   - ✅ 进展（2025-12-28）：任务读侧聚合端口继承子端口：让 `EvaTaskQueryPort` `extends EvaTaskPagingQueryPort`（仅接口继承，不改实现/不改装配；保持行为不变；最小回归通过；落地：`2fd9d24e`）。
 			   - 下一步建议（方向 A → B，保持行为不变）：将“统计”这套模式复制到记录/任务/模板（先细分子 QueryPort，再逐个收窄 `eva-app` 依赖类型）；并逐步把统计用例编排归位到 `EvaStatisticsQueryUseCase`（每次只迁 1 个方法簇）。
 			     - 下一步建议（记录主题，依赖收窄优先级）：✅ `MsgServiceImpl`（已收窄依赖：`EvaRecordCountQueryPort`）→ ✅ `UserEvaServiceImpl`（已收窄依赖：`EvaRecordUserLogQueryPort/EvaRecordScoreQueryPort`）→ 视测试可控性再考虑 `AiReportAnalysisPortImpl` / 导出链路相关类（相关类可能涉及 `StpUtil` 静态登录态，单测需提前规划“可重复”的登录态注入策略）。
+			     - 下一步建议（任务主题，依赖收窄优先级，保持行为不变）：先补齐缺口子端口（建议：`EvaTaskSelfQueryPort` 承接 `evaSelfTaskInfo` → `EvaTaskCountQueryPort` 承接 `getEvaNumber`，并逐一让 `EvaTaskQueryPort` `extends`）→ 再收窄 `EvaTaskServiceImpl` 对任务端口的注入类型（分拆为多个子端口注入，每次只改 1 个类 + 1 个可运行单测）。
 ---
 
 ## 5. 候选目标（按模块/文件归类）
