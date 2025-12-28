@@ -21,6 +21,9 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2025-12-28（本次会话）**
+- ✅ **评教读侧进一步解耦（统计：依赖类型收窄）**：将 `EvaStatisticsServiceImpl` 对统计端口的依赖从聚合接口 `EvaStatisticsQueryPort` 收窄为三个子端口 `EvaStatisticsOverviewQueryPort/EvaStatisticsTrendQueryPort/EvaStatisticsUnqualifiedUserQueryPort`（不改任何业务逻辑/异常文案；仅调整依赖类型；行为不变；最小回归通过；落地提交：`c19d8801`）。
+
 **2025-12-27（本次会话）**
 - ✅ **S0（结构性里程碑：`bc-ai-report` 折叠归位，阶段 1）**：将 `bc-ai-report` 折叠为 `bc-ai-report-parent` + 内部 `domain/application/infrastructure` 子模块（应用层 artifactId 仍为 `bc-ai-report`；仅搬运/依赖收敛，不改业务语义；最小回归通过；落地提交：`e14f4f7a`）。
   - 说明：本阶段先完成 Maven/目录结构折叠与源码物理搬运（保持 `package` 不变），当前仍将端口适配器与 AI 基础设施暂留在 `application` 子模块；下一步再分离到 `infrastructure` 子模块（保持行为不变）。
