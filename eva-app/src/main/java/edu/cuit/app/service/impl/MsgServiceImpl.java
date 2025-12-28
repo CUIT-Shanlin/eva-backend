@@ -17,7 +17,7 @@ import edu.cuit.client.dto.data.msg.GenericResponseMsg;
 import edu.cuit.domain.entity.MsgEntity;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.gateway.MsgGateway;
-import edu.cuit.bc.evaluation.application.port.EvaRecordQueryPort;
+import edu.cuit.bc.evaluation.application.port.EvaRecordCountQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaTaskQueryPort;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +40,7 @@ public class MsgServiceImpl implements IMsgService {
     private final MsgGateway msgGateway;
     private final UserQueryGateway userQueryGateway;
     private final EvaTaskQueryPort evaTaskQueryPort;
-    private final EvaRecordQueryPort evaRecordQueryPort;
+    private final EvaRecordCountQueryPort evaRecordQueryPort;
 
     private final WebsocketManager websocketManager;
 
