@@ -32,7 +32,7 @@ import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
-import edu.cuit.bc.evaluation.application.port.EvaRecordQueryPort;
+import edu.cuit.bc.evaluation.application.port.EvaRecordCountQueryPort;
 import edu.cuit.domain.gateway.user.LdapPersonGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.domain.gateway.user.UserUpdateGateway;
@@ -55,7 +55,7 @@ public class UserServiceImpl implements IUserService {
     private final UserUpdateGateway userUpdateGateway;
     private final LdapPersonGateway ldapPersonGateway;
     private final CourseQueryGateway courseQueryGateway;
-    private final EvaRecordQueryPort evaRecordQueryPort;
+    private final EvaRecordCountQueryPort evaRecordCountQueryPort;
 
     private final ISemesterService semesterService;
     private final ICourseDetailService courseDetailService;
@@ -116,7 +116,7 @@ public class UserServiceImpl implements IUserService {
                             .divide(new BigDecimal(evaScore.size()), 2, RoundingMode.HALF_UP)
                             .doubleValue())
                     .setCourseName(course.getName())
-                    .setEvaNum(evaRecordQueryPort.getEvaNumByCourse(course.getId())
+                    .setEvaNum(evaRecordCountQueryPort.getEvaNumByCourse(course.getId())
                             .orElse(0));
             resultList.add(courseScoreCO);
         }
