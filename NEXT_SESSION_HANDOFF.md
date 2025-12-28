@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2025-12-28（本次会话）**
+- ✅ **评教读侧进一步解耦（记录：依赖类型收窄—用户评教日志）**：将 `UserEvaServiceImpl` 对记录端口的依赖从聚合接口 `EvaRecordQueryPort` 收窄为两个子端口 `EvaRecordUserLogQueryPort/EvaRecordScoreQueryPort`（不改业务逻辑/异常文案；仅调整依赖类型；保持行为不变；最小回归通过；落地提交：`80886841`）。
 - ✅ **评教读侧进一步解耦（记录：依赖类型收窄—消息）**：将 `MsgServiceImpl` 对记录端口的依赖从聚合接口 `EvaRecordQueryPort` 收窄为子端口 `EvaRecordCountQueryPort`（不改业务逻辑/异常文案；仅调整依赖类型；保持行为不变；最小回归通过；落地提交：`147d486b`）。
 - ✅ **本次会话总览（方向 A：记录读侧细分 + 依赖收窄）**：完成记录读侧 QueryPort 细分为 5 个子端口（得分/分页/用户日志/按课程/数量统计），并让 `EvaRecordQueryPort` `extends` 这些子端口；同时完成依赖类型收窄：`EvaRecordServiceImpl` → `EvaRecordPagingQueryPort/EvaRecordScoreQueryPort`，`UserServiceImpl` → `EvaRecordCountQueryPort`；补充单测 `UserServiceImplTest`。关键落地提交：`4e47ffe3/e4f0efe9/fcac9324/e9034541/db876379/39a4bafe/8b24d2f8`（其余 `extends` 与文档同步提交见下述条目）。
 - ✅ **评教读侧进一步解耦（记录：依赖类型收窄—用户得分）**：将 `UserServiceImpl` 对记录端口的依赖从聚合接口 `EvaRecordQueryPort` 收窄为 `EvaRecordCountQueryPort`（不改业务逻辑/异常文案；仅调整依赖类型；补充单测 `UserServiceImplTest`；最小回归与单测通过；落地提交：`8b24d2f8`）。
@@ -205,7 +206,7 @@
 0) **评教读侧进一步解耦（优先，方向 A → B，保持行为不变）**：当前已完成“统计 QueryPort 细分 + 依赖收窄 + UseCase 归位起步”（见 0.9：`a1d6ccab/c19d8801/9b3c4e6a/db09d87b`）。下一步建议拆分为更小的可回滚提交：
    - **A（继续收窄依赖）**：按同套路继续推进读侧其它主题（优先记录/任务/模板）：先做“子端口接口 + `extends`（不改实现/不改装配）”，再逐个把 `eva-app` 中的注入类型收窄为子端口（每次只改 1 个类 + 对应测试）。
      - 进展（记录主题，2025-12-28）：已完成记录 QueryPort 细分（5 子端口）+ 聚合端口 `extends`，并已收窄 `EvaRecordServiceImpl` 与 `UserServiceImpl` 的依赖类型（见 0.9：`39a4bafe/8b24d2f8` 等，保持行为不变）。
-	     - 下一步建议（记录主题，保持行为不变）：`MsgServiceImpl` 已完成依赖收窄（可收窄为 `EvaRecordCountQueryPort`）；下一步优先收窄 `UserEvaServiceImpl`（需要 `EvaRecordUserLogQueryPort/EvaRecordScoreQueryPort`），每次只改 1 个类并补齐 1 个可运行单测；两者均涉及 `StpUtil` 静态登录态，单测需提前规划“可重复”的登录态注入策略，避免引入不稳定测试。
+	     - 下一步建议（记录主题，保持行为不变）：`MsgServiceImpl` 与 `UserEvaServiceImpl` 已完成依赖收窄（分别收窄为 `EvaRecordCountQueryPort` 与 `EvaRecordUserLogQueryPort/EvaRecordScoreQueryPort`）；下一步视测试可控性再处理导出/AI 报告链路对记录端口的依赖收窄（每次只改 1 个类并补齐 1 个可运行单测；相关类可能涉及 `StpUtil` 静态登录态，单测需提前规划“可重复”的登录态注入策略，避免引入不稳定测试）。
    - **B（用例归位深化）**：将 `EvaStatisticsQueryUseCase` 从“委托壳”逐步演进为“统计读侧用例编排落点”：建议每次只迁 1 个方法簇（例如先迁 `getEvaData` 的阈值计算与参数组装，再迁 `pageUnqualifiedUser/getTargetAmountUnqualifiedUser` 的 `type` 分支与阈值选择），并保持 `@CheckSemId` 触发点仍在旧入口（不改异常文案/副作用顺序）。
 1) **条目 25（优先，写侧）**：AI 报告“剩余落库/记录写链路”已完成盘点并证伪（见 0.9 的证据清单）。后续请将条目 25 的执行重点切换为：**S0 折叠 `bc-ai-report`**（仅搬运/依赖收敛，保持行为不变）。
    - 补充进展（2025-12-27）：已将导出链路实现（`AiReportDocExportPortImpl` + `AiReportExporter`）、analysis 链路实现（`AiReportAnalysisPortImpl`）与 username→userId 端口适配器（`AiReportUserIdQueryPortImpl`）从 `eva-app` 归位到 `bc-ai-report`（保持 `package` 不变；保持行为不变；提交：`d1262c32`、`6f34e894`、`e2a608e2`），并进一步将 `edu.cuit.infra.ai.*` 从 `eva-infra` 归位到 `bc-ai-report`（保持 `package` 不变；保持行为不变；提交：`e2f2a7ff`）。
@@ -286,7 +287,7 @@
 1) **评教读侧进一步解耦（优先，方向 A → B）**：在不改变统计口径/异常文案前提下，继续按用例维度细化 QueryService/QueryPort，并逐步让 `eva-app` 退化为委托壳。
    - **A（继续收窄依赖）**：复制“统计”的套路到记录/任务/模板：先新增子 QueryPort 接口 + `extends`（不改实现/不改装配），再逐个收窄 `eva-app` 中的注入类型（每次只改 1 个类 + 对应测试）。
      - 进展（记录主题，已完成）：记录 QueryPort 已细分为 5 个子端口（得分/分页/用户日志/按课程/数量统计），并已开始收窄 `EvaRecordServiceImpl` 与 `UserServiceImpl` 的依赖类型（见 0.9，保持行为不变）。
-	     - 下一步建议（记录主题）：`MsgServiceImpl` 已完成依赖收窄（目标依赖：`EvaRecordCountQueryPort`）；下一步优先收窄 `UserEvaServiceImpl`（目标依赖：`EvaRecordUserLogQueryPort/EvaRecordScoreQueryPort`）；两者均涉及 `StpUtil` 静态登录态，单测需提前规划“可重复”的登录态注入策略，避免引入不稳定测试。
+	     - 下一步建议（记录主题）：`MsgServiceImpl` 与 `UserEvaServiceImpl` 已完成依赖收窄（目标依赖分别为 `EvaRecordCountQueryPort` 与 `EvaRecordUserLogQueryPort/EvaRecordScoreQueryPort`）；下一步视测试可控性再处理导出/AI 报告链路对记录端口的依赖收窄（相关类可能涉及 `StpUtil` 静态登录态，单测需提前规划“可重复”的登录态注入策略，避免引入不稳定测试）。
    - **B（用例归位深化）**：已存在 `EvaStatisticsQueryUseCase`（当前为委托壳）。下一步建议每次只迁 1 个方法簇，把阈值计算/分支选择逐步归位到 UseCase；旧入口仍保留 `@CheckSemId` 注解触发点不变。
 2) （可选/后置）**条目 25 / S0（AI 报告）**：若评教读侧推进顺利，可回到 `bc-ai-report` 的 S0 继续做“仅搬运/依赖收敛”（保持行为不变）。
 
