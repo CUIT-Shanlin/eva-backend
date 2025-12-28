@@ -5,16 +5,12 @@ import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.eva.EvaTemplateEntity;
 
-import java.util.List;
-import java.util.Optional;
-
 /**
- * 评教模板读侧查询端口。
+ * 评教模板“分页查询”等聚合查询端口（读侧）。
+ *
+ * <p>仅用于接口细分与依赖收敛，不改任何业务语义。</p>
  */
-public interface EvaTemplateQueryPort extends EvaTemplatePagingQueryPort, EvaTemplateAllQueryPort, EvaTemplateTaskTemplateQueryPort {
+public interface EvaTemplatePagingQueryPort {
     PaginationResultEntity<EvaTemplateEntity> pageEvaTemplate(Integer semId, PagingQuery<GenericConditionalQuery> query);
-
-    List<EvaTemplateEntity> getAllTemplate();
-
-    Optional<String> getTaskTemplate(Integer taskId, Integer semId);
 }
+
