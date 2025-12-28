@@ -124,7 +124,8 @@ class EvaStatisticsServiceImplTest {
         config.setMinEvaNum(3);
         config.setMinBeEvaNum(5);
         when(evaConfigGateway.getEvaConfig()).thenReturn(config);
-        when(evaStatisticsQueryUseCase.getEvaTargetAmountUnqualifiedUser(1, 5, 3)).thenReturn(Optional.empty());
+        when(evaStatisticsQueryUseCase.getTargetAmountUnqualifiedUser(eq(1), eq(0), eq(5), eq(config), any()))
+                .thenAnswer(invocation -> invocation.getArgument(4));
 
         UnqualifiedUserResultCO result = service.getTargetAmountUnqualifiedUser(1, 0, 5);
 
@@ -141,16 +142,22 @@ class EvaStatisticsServiceImplTest {
         config.setMinBeEvaNum(5);
         when(evaConfigGateway.getEvaConfig()).thenReturn(config);
         UnqualifiedUserResultCO expected = new UnqualifiedUserResultCO();
-        when(evaStatisticsQueryUseCase.getBeEvaTargetAmountUnqualifiedUser(1, 2, 5)).thenReturn(Optional.of(expected));
+        when(evaStatisticsQueryUseCase.getTargetAmountUnqualifiedUser(eq(1), eq(1), eq(2), eq(config), any()))
+                .thenReturn(expected);
 
         UnqualifiedUserResultCO result = service.getTargetAmountUnqualifiedUser(1, 1, 2);
 
         assertSame(expected, result);
-        verify(evaStatisticsQueryUseCase).getBeEvaTargetAmountUnqualifiedUser(1, 2, 5);
+        verify(evaStatisticsQueryUseCase).getTargetAmountUnqualifiedUser(eq(1), eq(1), eq(2), eq(config), any());
     }
 
     @Test
     void getTargetAmountUnqualifiedUser_invalidType_shouldThrow() {
+        EvaConfigEntity config = new EvaConfigEntity();
+        when(evaConfigGateway.getEvaConfig()).thenReturn(config);
+        when(evaStatisticsQueryUseCase.getTargetAmountUnqualifiedUser(eq(1), eq(3), eq(5), eq(config), any()))
+                .thenThrow(new SysException("type是10以外的值"));
+
         SysException ex = assertThrows(SysException.class, () -> service.getTargetAmountUnqualifiedUser(1, 3, 5));
         assertEquals("type是10以外的值", ex.getMessage());
     }

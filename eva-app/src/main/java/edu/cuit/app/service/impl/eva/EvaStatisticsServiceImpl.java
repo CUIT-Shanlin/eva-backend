@@ -78,13 +78,13 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
         UnqualifiedUserResultCO error=new UnqualifiedUserResultCO();
         error.setTotal(0).setDataArr(List.of());
         EvaConfigEntity evaConfig = evaConfigGateway.getEvaConfig();
-        if(type==0){
-            unqualifiedUserResultCO=evaStatisticsQueryUseCase.getEvaTargetAmountUnqualifiedUser(semId,num,evaConfig.getMinEvaNum()).orElseGet(()->error);
-        } else if(type==1){
-            unqualifiedUserResultCO=evaStatisticsQueryUseCase.getBeEvaTargetAmountUnqualifiedUser(semId,num,evaConfig.getMinBeEvaNum()).orElseGet(()->error);
-        }else {
-            throw new SysException("type是10以外的值");
-        }
+        unqualifiedUserResultCO = evaStatisticsQueryUseCase.getTargetAmountUnqualifiedUser(
+                semId,
+                type,
+                num,
+                evaConfig,
+                error
+        );
         return unqualifiedUserResultCO;
     }
 

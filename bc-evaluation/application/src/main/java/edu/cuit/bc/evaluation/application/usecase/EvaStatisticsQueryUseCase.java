@@ -73,6 +73,24 @@ public class EvaStatisticsQueryUseCase {
         return unqualifiedUserQueryPort.getBeEvaTargetAmountUnqualifiedUser(semId, num, target);
     }
 
+    public UnqualifiedUserResultCO getTargetAmountUnqualifiedUser(
+            Integer semId,
+            Integer type,
+            Integer num,
+            EvaConfigEntity evaConfig,
+            UnqualifiedUserResultCO error
+    ) {
+        if (type == 0) {
+            return getEvaTargetAmountUnqualifiedUser(semId, num, evaConfig.getMinEvaNum())
+                    .orElseGet(() -> error);
+        } else if (type == 1) {
+            return getBeEvaTargetAmountUnqualifiedUser(semId, num, evaConfig.getMinBeEvaNum())
+                    .orElseGet(() -> error);
+        } else {
+            throw new SysException("type是10以外的值");
+        }
+    }
+
     public PaginationResultEntity<UnqualifiedUserInfoCO> pageEvaUnqualifiedUserInfo(
             Integer semId,
             PagingQuery<UnqualifiedUserConditionalQuery> query,
