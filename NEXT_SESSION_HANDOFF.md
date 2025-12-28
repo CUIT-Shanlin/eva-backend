@@ -201,7 +201,7 @@
 - ✅ 提交点 C-2-5（读侧仓储瘦身，可选）：使用 Serena 盘点评教读侧四主题仓储（`bc-evaluation/infrastructure/src/main/java/edu/cuit/infra/bcevaluation/query/*QueryRepository.java`）的私有字段/私有方法/内部类引用，未发现“仅定义未被调用”的可删项；因此将 C-2 视为“已无进一步可证实无引用项”并关闭（保持行为不变；落地提交：`5c1a03bc`）。
 - ✅ 文档同步（以 Git 为准，不在文内滚动固化 commitId）：使用 `git log -n 1 -- NEXT_SESSION_HANDOFF.md`、`git log -n 1 -- DDD_REFACTOR_PLAN.md`、`git log -n 1 -- docs/DDD_REFACTOR_BACKLOG.md` 获取各文档的最新同步提交。
 - ✅ 以上每步最小回归均已通过（Java17）：  
-  - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
+  - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repositorya`
 
 ## 0.10 下一步拆分与里程碑/提交点（下一会话开始前先读完本节）
 
@@ -232,6 +232,7 @@
 下一会话建议（按顺序执行；历史已完成项见下方 0.12 “总体进度概览”）：
 0) **评教读侧进一步解耦（优先，方向 A → B，保持行为不变）**：当前已完成“统计 QueryPort 细分 + 依赖收窄 + UseCase 归位起步 + 首个分支归位”（见 0.9：统计 `a1d6ccab/c19d8801/9b3c4e6a/db09d87b/22dccc70`；其余记录/任务/模板/导出链路进展见 0.9 的提交清单）。下一步建议拆分为更小的可回滚提交：
    - **A（继续收窄依赖）**：按同套路继续推进读侧其它主题（优先记录/任务/模板）：先做“子端口接口 + `extends`（不改实现/不改装配）”，再逐个把 `eva-app` 中的注入类型收窄为子端口（每次只改 1 个类 + 对应测试）。
+	     - 进展（统计导出链路，2025-12-28）：已补齐 `EvaStatisticsCountAbEvaQueryPort`，并将导出基类 `EvaStatisticsExporter` 静态初始化中获取统计端口的依赖类型收窄到该子端口（保持 `SpringUtil.getBean(...)` 次数与顺序不变；见 0.9：`24b13138/7337d378`，保持行为不变）。
 	     - 进展（记录主题，2025-12-28）：已完成记录 QueryPort 细分（5 子端口）+ 聚合端口 `extends`，并已收窄 `EvaRecordServiceImpl` 与 `UserServiceImpl` 的依赖类型（见 0.9：`39a4bafe/8b24d2f8` 等，保持行为不变）。
 		     - 下一步建议（记录主题，保持行为不变）：`MsgServiceImpl` 与 `UserEvaServiceImpl` 已完成依赖收窄（分别收窄为 `EvaRecordCountQueryPort` 与 `EvaRecordUserLogQueryPort/EvaRecordScoreQueryPort`）；下一步视测试可控性再处理导出/AI 报告链路对记录端口的依赖收窄（每次只改 1 个类并补齐 1 个可运行单测；相关类可能涉及 `StpUtil` 静态登录态，单测需提前规划“可重复”的登录态注入策略，避免引入不稳定测试）。
 	     - 进展（任务主题，2025-12-28）：已新增任务读侧子端口 `EvaTaskInfoQueryPort/EvaTaskPagingQueryPort/EvaTaskSelfQueryPort/EvaTaskCountQueryPort`，并让 `EvaTaskQueryPort` `extends` 这些子端口；已完成依赖类型收窄：`MsgServiceImpl` → `EvaTaskInfoQueryPort`、`EvaTaskServiceImpl` → `EvaTaskPagingQueryPort/EvaTaskSelfQueryPort/EvaTaskInfoQueryPort`（见 0.9，保持行为不变）。
@@ -286,7 +287,7 @@
   2) 组合根 wiring 完整（Spring Bean 可被扫描/装配，且不引入 Maven 循环依赖）；  
   3) 提交点 B 所选链路：旧 gateway 退化为委托壳后，**缓存注解/日志/异常文案/副作用顺序完全不变**（以变更前行为快照对照）。
 - 最小回归命令（每步结束必跑，Java17）：  
-  - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
+  - `export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repositorya`
 
 ## 0.11 新对话开启提示词（直接复制粘贴）
 
@@ -331,10 +332,10 @@
 export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" \
 && mvn -pl start -am test \
 -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest \
--Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository
+-Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repositorya
 
 （补充建议，非替代）：若本步改动涉及 `UserServiceImpl.getOneUserScore`，额外运行：  
-`export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.user.UserServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`
+`export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.user.UserServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repositorya`
 
 （需要定位最近会话做了什么：以 NEXT_SESSION_HANDOFF.md 的 0.9 增量总结为准；需要定位落地提交：用 `git log -n 1 -- <文档>` 或按日期范围查看 `git log --oneline`，不要把 commitId 写回提示词。）
 
