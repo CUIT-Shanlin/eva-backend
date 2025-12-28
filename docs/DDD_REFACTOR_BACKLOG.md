@@ -278,7 +278,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
    - 边界：条目 25 = 提交点 A + 提交点 B；不包含提交点 C（读侧 `EvaQueryRepo` 拆分）。
    - 验收：缓存/日志/异常文案/副作用顺序完全不变 + 最小回归通过（以 `NEXT_SESSION_HANDOFF.md` 为准）。
 2) 读侧：`EvaQueryRepository` 的实现侧已按主题拆分并退化为委托壳，且读侧查询实现已迁移到 `bc-evaluation-infra`（保持口径/异常文案不变；接口拆分：`d5b07247/cae1a15c/82427967/889ec9b0`；实现拆分：`9e0a8d28/985f7802/d467c65e/a550675a`；迁移落地：`be6dc05c`），并已完成读侧门面加固（清理 `EvaQueryRepository` 为纯委托壳；落地：`73fc6c14`；三文档同步：`083b5807`）；C-2（读侧仓储瘦身）已完成盘点并关闭（未发现可证实无引用项；落地：`5c1a03bc`）。
-   - 下一步建议（仍保持行为不变）：按用例维度继续细化 QueryService/QueryPort，优先从 `EvaStatisticsQueryPort` 这类“方法簇较大”的端口开始（先新增子 Port + `extends`，不改实现/不改装配；再逐步收窄上层依赖类型，避免一次性大改）；并继续推进统计读侧用例归位深化：优先将 `getTargetAmountUnqualifiedUser` 的 `type` 分支选择归位 `EvaStatisticsQueryUseCase`（每次只迁 1 个方法簇；保持 `@CheckSemId` 触发点与异常文案/副作用顺序不变）。
+	   - 下一步建议（仍保持行为不变）：按用例维度继续细化 QueryService/QueryPort，优先从 `EvaStatisticsQueryPort` 这类“方法簇较大”的端口开始（先新增子 Port + `extends`，不改实现/不改装配；再逐步收窄上层依赖类型，避免一次性大改）；并继续推进统计读侧用例归位深化：下一步优先将 `getEvaData` 的阈值计算/参数组装归位 `EvaStatisticsQueryUseCase`（每次只迁 1 个方法簇；保持 `@CheckSemId` 触发点与异常文案/副作用顺序不变；`getTargetAmountUnqualifiedUser` 的 `type` 分支与阈值选择已归位）。
    - ✅ 进展（2025-12-27）：已将 `EvaStatisticsQueryPort` 细分为 `EvaStatisticsOverviewQueryPort/EvaStatisticsTrendQueryPort/EvaStatisticsUnqualifiedUserQueryPort`，并让 `EvaStatisticsQueryPort` `extends` 以上子端口（仅接口拆分，不改实现/不改装配；保持行为不变；最小回归通过；落地：`a1d6ccab`）。
    - ✅ 进展（2025-12-28）：已将 `EvaStatisticsServiceImpl` 对统计端口的依赖类型收窄为三个子端口（不改业务逻辑/异常文案；保持行为不变；最小回归通过；落地：`c19d8801`）。
 	   - ✅ 进展（2025-12-28）：已将统计导出侧 `EvaStatisticsExporter` 静态初始化中获取的统计端口由 `EvaStatisticsQueryPort` 收窄为 `EvaStatisticsOverviewQueryPort`（保持 `SpringUtil.getBean(...)` 次数与顺序不变；保持行为不变；最小回归通过；落地：`9b3c4e6a`）。
@@ -307,7 +307,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
 			   - ✅ 进展（2025-12-28）：模板读侧 QueryPort 细分起步：新增分页/全量/按任务取模板子端口 `EvaTemplatePagingQueryPort/EvaTemplateAllQueryPort/EvaTemplateTaskTemplateQueryPort`，并让 `EvaTemplateQueryPort` `extends` 这些子端口（仅新增接口+继承，不改实现/不改装配；保持行为不变；最小回归通过；落地：`a14d3c53`）。
 			   - ✅ 进展（2025-12-28）：模板读侧依赖类型收窄：`EvaTemplateServiceImpl` 由注入 `EvaTemplateQueryPort` 收窄为 `EvaTemplatePagingQueryPort/EvaTemplateAllQueryPort/EvaTemplateTaskTemplateQueryPort`（不改业务逻辑/异常文案；保持行为不变；最小回归通过；落地：`b86db7e4`）。
 			   - ✅ 进展（2025-12-28）：模板读侧引用面盘点结论/证伪：使用 Serena 盘点 `EvaTemplateQueryPort` 在全仓库的引用面，除端口定义外仅剩实现侧 `EvaTemplateQueryPortImpl`；应用层未发现其它对聚合端口的注入点/调用点，因此模板主题的“端口细分 + 服务层依赖类型收窄”阶段可视为已闭合（保持行为不变；证据记录见 `NEXT_SESSION_HANDOFF.md` 0.9）。
-			   - ✅ 进展（2025-12-28）：统计读侧用例归位深化：将 `EvaStatisticsServiceImpl.pageUnqualifiedUser` 的 `type` 分支选择归位到 `EvaStatisticsQueryUseCase.pageUnqualifiedUser`（`@CheckSemId` 触发点仍保留在旧入口；异常文案不变；保持行为不变；最小回归通过；落地：`22dccc70`）。
+				   - ✅ 进展（2025-12-28）：统计读侧用例归位深化：将 `EvaStatisticsServiceImpl.pageUnqualifiedUser` 的 `type` 分支选择归位到 `EvaStatisticsQueryUseCase.pageUnqualifiedUser`（`@CheckSemId` 触发点仍保留在旧入口；异常文案不变；保持行为不变；最小回归通过；落地：`22dccc70`）。
+				   - ✅ 进展（2025-12-28）：统计读侧用例归位深化：将 `EvaStatisticsServiceImpl.getTargetAmountUnqualifiedUser` 的 `type` 分支选择与阈值选择归位到 `EvaStatisticsQueryUseCase.getTargetAmountUnqualifiedUser`（`@CheckSemId` 触发点仍保留在旧入口；异常文案不变；保持行为不变；最小回归通过；落地：`5b20d44e`）。
 			   - ✅ 进展（2025-12-28）：记录导出链路子端口补齐：新增 `EvaRecordExportQueryPort`（组合 `EvaRecordCourseQueryPort/EvaRecordScoreQueryPort`），并让聚合端口 `EvaRecordQueryPort` `extends` 该子端口（仅新增接口+继承，不改实现/不改装配；保持行为不变；最小回归通过；落地：`5df35c36`）。
 			   - ✅ 进展（2025-12-28）：记录导出链路依赖类型收窄：将导出基类 `EvaStatisticsExporter` 静态初始化中获取记录端口的依赖类型从 `EvaRecordQueryPort` 收窄为 `EvaRecordExportQueryPort`（保持 `SpringUtil.getBean(...)` 次数与顺序不变；保持行为不变；最小回归通过；落地：`682bf081`）。
 			   - 下一步建议（方向 A → B，保持行为不变）：将“统计”这套模式复制到记录/任务/模板（先细分子 QueryPort，再逐个收窄 `eva-app` 依赖类型）；并逐步把统计用例编排归位到 `EvaStatisticsQueryUseCase`（每次只迁 1 个方法簇）。

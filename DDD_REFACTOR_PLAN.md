@@ -595,8 +595,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 					  - ✅ 进展（2025-12-27）：已完成 `bc-audit` 的 S0 阶段 3（可选）：抽离 `sys_log` 相关 DAL（`SysLog*DO/Mapper/XML`）到 `eva-infra-dal`、抽离 `LogConverter` 到 `eva-infra-shared`，并移除 `bc-audit-infra` → `eva-infra` 的过渡依赖（保持行为不变；最小回归通过；落地提交：`06ec6f3d`）。
 						  - 下一步建议（仍保持行为不变，可选）：在确认装配稳定后，继续推进评教读侧解耦（方向 A → B）：
 							  - A（继续收窄依赖）：聚焦“导出/AI 报告链路”等仍依赖记录聚合端口的类，优先先补齐子端口组合（仅新增接口 + `extends`，不改实现/不改装配），再逐一收窄 `eva-app` 注入类型（每次只改 1 个类 + 1 个可运行单测）。
-							  - B（用例归位深化）：优先把 `EvaStatisticsServiceImpl.getTargetAmountUnqualifiedUser` 的 `type` 分支选择与阈值选择归位到 `EvaStatisticsQueryUseCase`（保持 `@CheckSemId` 触发点仍在旧入口；异常文案与副作用顺序不变）。
-						  - 建议切分路径（仍保持行为不变，可回滚）：统计用例归位遵循“每次只迁 1 个方法簇”的节奏；先迁 `pageUnqualifiedUser`（已完成），再迁 `getTargetAmountUnqualifiedUser`，最后再考虑 `getEvaData` 的阈值计算/参数组装归位。
+								  - ✅ 进展（2025-12-28，统计读侧用例归位深化）：将 `EvaStatisticsServiceImpl.getTargetAmountUnqualifiedUser` 的 `type` 分支选择与阈值选择归位到 `EvaStatisticsQueryUseCase.getTargetAmountUnqualifiedUser`（保持 `@CheckSemId` 触发点仍在旧入口；异常文案与副作用顺序不变；保持行为不变；最小回归通过；落地提交：`5b20d44e`）。
+							  - 建议切分路径（仍保持行为不变，可回滚）：统计用例归位遵循“每次只迁 1 个方法簇”的节奏；`pageUnqualifiedUser`（已完成）→ `getTargetAmountUnqualifiedUser`（已完成）→ 下一步再考虑 `getEvaData` 的阈值计算/参数组装归位。
 					  - 工具提示：若 Serena MCP 工具调用持续 `TimeoutError`，需要在交接文档中记录降级原因，并用本地 `rg` 提供可复现的引用证据（仍不改变业务语义）；同时在下一会话优先排查恢复 Serena，以回到“符号级引用分析”流程。
 					  - 结构性里程碑 S0.1（需求变更，2025-12-24）：逐步拆解 `eva-client`：按 BC 归属迁移 BO/CO/DTO（允许改包名以归位到 BC 的 `application/contract/dto`）；新增对象不再进入 `eva-client`；跨 BC 通用对象沉淀到 shared-kernel（每步可回滚；保持行为不变）。
 				    - ✅ 进展（2025-12-25）：已在 `bc-iam` 下新增 `bc-iam-contract` 子模块，并将 IAM 协议对象（`api/user/*` + `dto/cmd/user/*`）从 `eva-client` 迁移到 `bc-iam/contract`（包名归位到 `edu.cuit.bc.iam.application.contract...`；全仓库引用已更新；最小回归通过；落地提交：`dc3727fa`）。
