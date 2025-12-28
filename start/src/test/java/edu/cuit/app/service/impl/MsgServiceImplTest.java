@@ -4,7 +4,7 @@ import edu.cuit.app.convertor.MsgBizConvertor;
 import edu.cuit.app.convertor.course.CourseBizConvertor;
 import edu.cuit.app.websocket.WebsocketManager;
 import edu.cuit.bc.evaluation.application.port.EvaRecordCountQueryPort;
-import edu.cuit.bc.evaluation.application.port.EvaTaskQueryPort;
+import edu.cuit.bc.evaluation.application.port.EvaTaskInfoQueryPort;
 import edu.cuit.domain.gateway.MsgGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,7 @@ class MsgServiceImplTest {
         MsgServiceImpl service = new MsgServiceImpl(
                 mock(MsgGateway.class),
                 mock(UserQueryGateway.class),
-                mock(EvaTaskQueryPort.class),
+                mock(EvaTaskInfoQueryPort.class),
                 mock(EvaRecordCountQueryPort.class),
                 mock(WebsocketManager.class),
                 mock(MsgBizConvertor.class),
@@ -32,4 +32,3 @@ class MsgServiceImplTest {
         assertNotNull(service);
     }
 }
-
