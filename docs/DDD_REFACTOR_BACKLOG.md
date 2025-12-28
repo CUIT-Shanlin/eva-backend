@@ -303,9 +303,10 @@ scope: 全仓库（离线扫描 + 规则归纳）
 			   - ✅ 进展（2025-12-28）：任务读侧 QueryPort 细分起步：新增分页子端口 `EvaTaskPagingQueryPort`（仅新增接口，不改实现/不改装配；保持行为不变；最小回归通过；落地：`f0a172d1`）。
 			   - ✅ 进展（2025-12-28）：任务读侧聚合端口继承子端口：让 `EvaTaskQueryPort` `extends EvaTaskPagingQueryPort`（仅接口继承，不改实现/不改装配；保持行为不变；最小回归通过；落地：`2fd9d24e`）。
 			   - ✅ 进展（2025-12-28）：任务读侧 QueryPort 细分：新增本人任务/数量统计子端口 `EvaTaskSelfQueryPort/EvaTaskCountQueryPort`，并让 `EvaTaskQueryPort` `extends` 这些子端口（仅新增接口+继承，不改实现/不改装配；保持行为不变；最小回归通过；落地：`9d5064fc`）。
+			   - ✅ 进展（2025-12-28）：任务读侧依赖类型收窄：`EvaTaskServiceImpl` 由注入 `EvaTaskQueryPort` 收窄为 `EvaTaskPagingQueryPort/EvaTaskSelfQueryPort/EvaTaskInfoQueryPort`（不改业务逻辑/异常文案；保持行为不变；最小回归通过；落地：`4b22f059`）。
 			   - 下一步建议（方向 A → B，保持行为不变）：将“统计”这套模式复制到记录/任务/模板（先细分子 QueryPort，再逐个收窄 `eva-app` 依赖类型）；并逐步把统计用例编排归位到 `EvaStatisticsQueryUseCase`（每次只迁 1 个方法簇）。
 			     - 下一步建议（记录主题，依赖收窄优先级）：✅ `MsgServiceImpl`（已收窄依赖：`EvaRecordCountQueryPort`）→ ✅ `UserEvaServiceImpl`（已收窄依赖：`EvaRecordUserLogQueryPort/EvaRecordScoreQueryPort`）→ 视测试可控性再考虑 `AiReportAnalysisPortImpl` / 导出链路相关类（相关类可能涉及 `StpUtil` 静态登录态，单测需提前规划“可重复”的登录态注入策略）。
-			     - 下一步建议（任务主题，依赖收窄优先级，保持行为不变）：收窄 `EvaTaskServiceImpl` 对任务端口的注入类型（建议拆成多个子端口注入：`EvaTaskPagingQueryPort/EvaTaskSelfQueryPort/EvaTaskInfoQueryPort`；每次只改 1 个类 + 1 个可运行单测）。若新增单测涉及 `StpUtil` 静态登录态，请先规划“可重复”的登录态注入/隔离策略，避免引入不稳定测试。
+			     - 下一步建议（任务主题，依赖收窄优先级，保持行为不变）：✅ `MsgServiceImpl` 与 ✅ `EvaTaskServiceImpl` 的任务端口依赖类型已完成收窄；下一步可转向模板主题复制同套路（先子 QueryPort + `extends`，再逐个收窄 `eva-app` 注入类型）。若为任务主题补充单测涉及 `StpUtil` 静态登录态，请先规划“可重复”的登录态注入/隔离策略，避免引入不稳定测试。
 ---
 
 ## 5. 候选目标（按模块/文件归类）
