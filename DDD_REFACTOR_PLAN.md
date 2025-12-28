@@ -511,6 +511,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 5) **评教读侧进一步解耦**：按用例维度拆分 QueryService（任务/记录/统计/模板），将 query 端口逐步迁到 `bc-evaluation` 应用层，`eva-infra` 仅保留实现（行为不变）。  
    - 进展：已拆分统计/导出、任务、记录、模板查询端口（`EvaStatisticsQueryPort` / `EvaTaskQueryPort` / `EvaRecordQueryPort` / `EvaTemplateQueryPort`），应用层开始迁移，行为保持不变；旧 `EvaQueryGatewayImpl` 已移除；并已引入 `bc-evaluation-infra` 承接评教读侧查询实现（QueryPortImpl + QueryRepo/Repository，保持包名/行为不变；落地：`be6dc05c`）。
    - 补充进展（2025-12-27）：为后续“按用例进一步收窄依赖类型”做准备，已细分统计 QueryPort：新增 `EvaStatisticsOverviewQueryPort/EvaStatisticsTrendQueryPort/EvaStatisticsUnqualifiedUserQueryPort`，并让 `EvaStatisticsQueryPort` `extends` 以上子端口（仅接口拆分，不改实现/不改装配；保持行为不变；落地：`a1d6ccab`）。
+   - 补充进展（2025-12-28）：工程噪音收敛（dev 环境 MyBatis 日志）：将 `application-dev.yml` 中 MyBatis-Plus 的 `log-impl` 从 `StdOutImpl` 切换为 `Slf4jImpl`，避免 SQL 调试日志直出 stdout（仅 dev profile，生产不变；最小回归通过；落地：`cb3a4620`）。
    - 补充进展（2025-12-28）：已在 `EvaStatisticsServiceImpl` 落地“依赖类型收窄”：由聚合接口 `EvaStatisticsQueryPort` 改为按用例簇注入三个子端口（不改业务逻辑/异常文案；保持行为不变；最小回归通过；落地：`c19d8801`）。
 	   - 补充进展（2025-12-28）：已在统计导出侧（`EvaStatisticsExporter`）落地“依赖类型收窄”：静态初始化中将统计端口由 `EvaStatisticsQueryPort` 收窄为 `EvaStatisticsOverviewQueryPort`（保持 `SpringUtil.getBean(...)` 次数与顺序不变；保持行为不变；最小回归通过；落地：`9b3c4e6a`）。
 	   - 补充进展（2025-12-28）：已开始将统计读侧用例归位到 `bc-evaluation`：新增 `EvaStatisticsQueryUseCase`（当前为委托壳，不改变分支/异常文案/阈值计算），并在 `BcEvaluationConfiguration` 完成装配；`EvaStatisticsServiceImpl` 退化为委托该用例（保持行为不变；最小回归通过；落地：`db09d87b`）。
