@@ -13,7 +13,7 @@ import java.util.Optional;
  *
  * <p>仅用于接口细分与依赖收敛，不改任何业务语义。</p>
  */
-public interface EvaStatisticsOverviewQueryPort {
+public interface EvaStatisticsOverviewQueryPort extends EvaStatisticsCountAbEvaQueryPort {
     Optional<EvaScoreInfoCO> evaScoreStatisticsInfo(Integer semId, Number score);
 
     Optional<EvaSituationCO> evaTemplateSituation(Integer semId);
@@ -21,6 +21,4 @@ public interface EvaStatisticsOverviewQueryPort {
     List<ScoreRangeCourseCO> scoreRangeCourseInfo(Integer num, Integer interval);
 
     Optional<PastTimeEvaDetailCO> getEvaData(Integer semId, Integer num, Integer target, Integer evaTarget);
-
-    List<Integer> getCountAbEva(Integer semId, Integer userId);
 }
