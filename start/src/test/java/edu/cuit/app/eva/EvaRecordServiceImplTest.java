@@ -4,7 +4,8 @@ import com.alibaba.cola.exception.SysException;
 import edu.cuit.app.convertor.PaginationBizConvertor;
 import edu.cuit.app.convertor.eva.EvaRecordBizConvertor;
 import edu.cuit.app.service.impl.eva.EvaRecordServiceImpl;
-import edu.cuit.bc.evaluation.application.port.EvaRecordQueryPort;
+import edu.cuit.bc.evaluation.application.port.EvaRecordPagingQueryPort;
+import edu.cuit.bc.evaluation.application.port.EvaRecordScoreQueryPort;
 import edu.cuit.bc.evaluation.application.usecase.DeleteEvaRecordUseCase;
 import edu.cuit.bc.evaluation.application.usecase.SubmitEvaluationUseCase;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
@@ -30,7 +31,10 @@ import static org.mockito.Mockito.*;
 class EvaRecordServiceImplTest {
 
     @Mock
-    private EvaRecordQueryPort evaRecordQueryPort;
+    private EvaRecordPagingQueryPort evaRecordPagingQueryPort;
+
+    @Mock
+    private EvaRecordScoreQueryPort evaRecordScoreQueryPort;
 
     @Mock
     private EvaRecordBizConvertor evaRecordBizConvertor;
@@ -68,11 +72,11 @@ class EvaRecordServiceImplTest {
 
         EvaRecordCO co1 = new EvaRecordCO().setId(1);
         EvaRecordCO co2 = new EvaRecordCO().setId(2);
-        when(evaRecordQueryPort.pageEvaRecord(1, query)).thenReturn(page);
+        when(evaRecordPagingQueryPort.pageEvaRecord(1, query)).thenReturn(page);
         when(evaRecordBizConvertor.evaRecordEntityToCo(record1)).thenReturn(co1);
         when(evaRecordBizConvertor.evaRecordEntityToCo(record2)).thenReturn(co2);
-        when(evaRecordQueryPort.getScoreFromRecord("props-1")).thenReturn(Optional.of(80.0));
-        when(evaRecordQueryPort.getScoreFromRecord("props-2")).thenReturn(Optional.of(90.0));
+        when(evaRecordScoreQueryPort.getScoreFromRecord("props-1")).thenReturn(Optional.of(80.0));
+        when(evaRecordScoreQueryPort.getScoreFromRecord("props-2")).thenReturn(Optional.of(90.0));
 
         PaginationQueryResultCO<EvaRecordCO> result = service.pageEvaRecord(1, query);
 
@@ -80,8 +84,8 @@ class EvaRecordServiceImplTest {
         assertEquals(2, result.getRecords().size());
         assertEquals(80.0, result.getRecords().get(0).getAverScore());
         assertEquals(90.0, result.getRecords().get(1).getAverScore());
-        verify(evaRecordQueryPort).getScoreFromRecord("props-1");
-        verify(evaRecordQueryPort).getScoreFromRecord("props-2");
+        verify(evaRecordScoreQueryPort).getScoreFromRecord("props-1");
+        verify(evaRecordScoreQueryPort).getScoreFromRecord("props-2");
     }
 
     @Test
@@ -101,9 +105,9 @@ class EvaRecordServiceImplTest {
                 .setTotal(1);
 
         EvaRecordCO co = new EvaRecordCO().setId(1);
-        when(evaRecordQueryPort.pageEvaRecord(1, query)).thenReturn(page);
+        when(evaRecordPagingQueryPort.pageEvaRecord(1, query)).thenReturn(page);
         when(evaRecordBizConvertor.evaRecordEntityToCo(record)).thenReturn(co);
-        when(evaRecordQueryPort.getScoreFromRecord("props-1")).thenReturn(Optional.empty());
+        when(evaRecordScoreQueryPort.getScoreFromRecord("props-1")).thenReturn(Optional.empty());
 
         SysException ex = assertThrows(SysException.class, () -> service.pageEvaRecord(1, query));
         assertEquals("相关模板不存在", ex.getMessage());
