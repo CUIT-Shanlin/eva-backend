@@ -23,6 +23,7 @@
 
 **2025-12-28（本次会话）**
 - ✅ **工程噪音收敛（dev 环境 MyBatis 日志）**：将 `application-dev.yml` 中 MyBatis-Plus 的 `log-impl` 从 `org.apache.ibatis.logging.stdout.StdOutImpl` 切换为 `org.apache.ibatis.logging.slf4j.Slf4jImpl`，避免 SQL 调试日志直出 stdout（仅 dev profile，生产不变；最小回归通过；落地提交：`cb3a4620`）。
+- ✅ **工程噪音收敛（dev/test 非法入参打印）**：将 `application-dev.yml/application-test.yml` 中 `common.print-illegal-arguments` 从 `true` 调整为 `false`，减少控制台噪音（仅 dev/test profile；不改业务逻辑；最小回归通过；落地提交：`21ba35dd`）。
 - ✅ **评教读侧进一步解耦（记录：依赖类型收窄—AI 报告分析）**：将 AI 报告分析端口适配器 `AiReportAnalysisPortImpl` 对记录端口的依赖类型从聚合接口 `EvaRecordQueryPort` 收窄为子端口 `EvaRecordExportQueryPort`（仅收窄依赖类型，不改调用逻辑；保持行为不变；最小回归通过；落地提交：`4fe38934`）。
 - ✅ **评教读侧用例归位深化（统计：未达标用户目标数分支选择归位）**：将 `EvaStatisticsServiceImpl.getTargetAmountUnqualifiedUser` 的 `type` 分支选择与阈值选择归位到 `EvaStatisticsQueryUseCase.getTargetAmountUnqualifiedUser`（旧入口 `@CheckSemId` 触发点不变；异常文案 `type是10以外的值` 不变；保持行为不变；最小回归通过；落地提交：`5b20d44e`）。
 - ✅ **评教读侧用例归位深化（统计：未达标用户分页分支选择归位）**：将 `EvaStatisticsServiceImpl.pageUnqualifiedUser` 的 `type` 分支选择逻辑归位到 `EvaStatisticsQueryUseCase.pageUnqualifiedUser`（`@CheckSemId` 触发点仍保留在旧入口；异常文案 `type是10以外的值` 不变；保持行为不变；最小回归通过；落地提交：`22dccc70`）。
