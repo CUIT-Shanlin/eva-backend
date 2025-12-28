@@ -11,7 +11,7 @@ import java.util.Optional;
 /**
  * 评教任务读侧查询端口。
  */
-public interface EvaTaskQueryPort {
+public interface EvaTaskQueryPort extends EvaTaskInfoQueryPort {
     PaginationResultEntity<EvaTaskEntity> pageEvaUnfinishedTask(Integer semId, PagingQuery<EvaTaskConditionalQuery> taskQuery);
 
     List<EvaTaskEntity> evaSelfTaskInfo(Integer useId, Integer id, String keyword);
