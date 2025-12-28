@@ -101,6 +101,16 @@ public class EvaStatisticsQueryUseCase {
         }
     }
 
+    public UnqualifiedUserResultCO getTargetAmountUnqualifiedUser(
+            Integer semId,
+            Integer type,
+            Integer num,
+            UnqualifiedUserResultCO error
+    ) {
+        EvaConfigEntity evaConfig = evaConfigGateway.getEvaConfig();
+        return getTargetAmountUnqualifiedUser(semId, type, num, evaConfig, error);
+    }
+
     public PaginationResultEntity<UnqualifiedUserInfoCO> pageEvaUnqualifiedUserInfo(
             Integer semId,
             PagingQuery<UnqualifiedUserConditionalQuery> query,
@@ -130,6 +140,15 @@ public class EvaStatisticsQueryUseCase {
         } else {
             throw new SysException("type是10以外的值");
         }
+    }
+
+    public PaginationResultEntity<UnqualifiedUserInfoCO> pageUnqualifiedUser(
+            Integer semId,
+            Integer type,
+            PagingQuery<UnqualifiedUserConditionalQuery> query
+    ) {
+        EvaConfigEntity evaConfig = evaConfigGateway.getEvaConfig();
+        return pageUnqualifiedUser(semId, type, query, evaConfig);
     }
 
     public List<Integer> getCountAbEva(Integer semId, Integer userId) {

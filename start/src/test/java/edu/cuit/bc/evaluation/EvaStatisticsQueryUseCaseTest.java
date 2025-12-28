@@ -7,6 +7,7 @@ import edu.cuit.bc.evaluation.application.port.EvaStatisticsUnqualifiedUserQuery
 import edu.cuit.bc.evaluation.application.usecase.EvaStatisticsQueryUseCase;
 import edu.cuit.client.dto.clientobject.eva.PastTimeEvaDetailCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
+import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.UnqualifiedUserConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
@@ -138,5 +139,59 @@ class EvaStatisticsQueryUseCaseTest {
         inOrder.verify(evaConfigGateway).getMinEvaNum();
         inOrder.verify(evaConfigGateway).getMinBeEvaNum();
         inOrder.verify(overviewQueryPort).getEvaData(1, 7, 3, 5);
+    }
+
+    @Test
+    void pageUnqualifiedUser_overload_shouldLoadConfigAndDelegate() {
+        EvaStatisticsQueryUseCase useCase = new EvaStatisticsQueryUseCase(
+                overviewQueryPort,
+                trendQueryPort,
+                unqualifiedUserQueryPort,
+                evaConfigGateway
+        );
+
+        EvaConfigEntity config = new EvaConfigEntity();
+        config.setMinEvaNum(4);
+        config.setMinBeEvaNum(6);
+        when(evaConfigGateway.getEvaConfig()).thenReturn(config);
+
+        PagingQuery<UnqualifiedUserConditionalQuery> query = new PagingQuery<>();
+        query.setPage(1);
+        query.setSize(10);
+
+        PaginationResultEntity<UnqualifiedUserInfoCO> page = new PaginationResultEntity<>();
+        page.setRecords(List.of(new UnqualifiedUserInfoCO()));
+        when(unqualifiedUserQueryPort.pageEvaUnqualifiedUserInfo(1, query, 4)).thenReturn(page);
+
+        PaginationResultEntity<UnqualifiedUserInfoCO> result = useCase.pageUnqualifiedUser(1, 0, query);
+
+        assertSame(page, result);
+        var inOrder = inOrder(evaConfigGateway, unqualifiedUserQueryPort);
+        inOrder.verify(evaConfigGateway).getEvaConfig();
+        inOrder.verify(unqualifiedUserQueryPort).pageEvaUnqualifiedUserInfo(1, query, 4);
+    }
+
+    @Test
+    void getTargetAmountUnqualifiedUser_overload_type0_whenEmpty_shouldReturnError() {
+        EvaStatisticsQueryUseCase useCase = new EvaStatisticsQueryUseCase(
+                overviewQueryPort,
+                trendQueryPort,
+                unqualifiedUserQueryPort,
+                evaConfigGateway
+        );
+
+        EvaConfigEntity config = new EvaConfigEntity();
+        config.setMinEvaNum(3);
+        config.setMinBeEvaNum(5);
+        when(evaConfigGateway.getEvaConfig()).thenReturn(config);
+        when(unqualifiedUserQueryPort.getEvaTargetAmountUnqualifiedUser(1, 7, 3)).thenReturn(Optional.empty());
+
+        UnqualifiedUserResultCO error = new UnqualifiedUserResultCO();
+        UnqualifiedUserResultCO result = useCase.getTargetAmountUnqualifiedUser(1, 0, 7, error);
+
+        assertSame(error, result);
+        var inOrder = inOrder(evaConfigGateway, unqualifiedUserQueryPort);
+        inOrder.verify(evaConfigGateway).getEvaConfig();
+        inOrder.verify(unqualifiedUserQueryPort).getEvaTargetAmountUnqualifiedUser(1, 7, 3);
     }
 }
