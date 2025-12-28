@@ -535,6 +535,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 			   - 补充进展（2025-12-28）：任务读侧聚合端口继承子端口：让 `EvaTaskQueryPort` `extends EvaTaskPagingQueryPort`（仅接口继承，不改实现/不改装配；保持行为不变；最小回归通过；落地：`2fd9d24e`）。
 			   - 补充进展（2025-12-28）：任务读侧 QueryPort 细分：新增本人任务/数量统计子端口 `EvaTaskSelfQueryPort/EvaTaskCountQueryPort`，并让 `EvaTaskQueryPort` `extends` 这些子端口（仅新增接口+继承，不改实现/不改装配；保持行为不变；最小回归通过；落地：`9d5064fc`）。
 			   - 补充进展（2025-12-28）：任务读侧依赖类型收窄：`EvaTaskServiceImpl` 由注入 `EvaTaskQueryPort` 收窄为 `EvaTaskPagingQueryPort/EvaTaskSelfQueryPort/EvaTaskInfoQueryPort`（不改业务逻辑/异常文案；保持行为不变；最小回归通过；落地：`4b22f059`）。
+			   - 补充进展（2025-12-28）：模板读侧 QueryPort 细分起步：新增分页/全量/按任务取模板子端口 `EvaTemplatePagingQueryPort/EvaTemplateAllQueryPort/EvaTemplateTaskTemplateQueryPort`，并让 `EvaTemplateQueryPort` `extends` 这些子端口（仅新增接口+继承，不改实现/不改装配；保持行为不变；最小回归通过；落地：`a14d3c53`）。
 			   - 下一步建议（方向 A → B，保持行为不变）：先将记录/任务/模板按同套路做“子 QueryPort 接口 + `extends`”与 `eva-app` 注入类型收窄；并将 `EvaStatisticsQueryUseCase` 逐步从委托壳演进为“统计读侧用例编排落点”（每次只迁 1 个方法簇，且 `@CheckSemId` 触发点仍保留在旧入口）。
 			     - 记录主题建议顺序：✅ `MsgServiceImpl`（已收窄依赖：`EvaRecordCountQueryPort`）→ ✅ `UserEvaServiceImpl`（已收窄依赖：`EvaRecordUserLogQueryPort/EvaRecordScoreQueryPort`）→ 视测试可控性再处理导出/AI 报告链路对记录端口的依赖收窄（保持行为不变；相关类可能涉及 `StpUtil` 静态登录态，单测需提前规划“可重复”的登录态注入策略）。
 			     - 任务主题建议顺序（保持行为不变）：✅ `MsgServiceImpl` 与 ✅ `EvaTaskServiceImpl` 的任务端口依赖类型已完成收窄；下一步可转向模板主题复制同套路（先子 QueryPort + `extends`，再逐个收窄 `eva-app` 注入类型）。若为任务主题补充单测涉及 `StpUtil` 静态登录态，请先规划“可重复”的登录态注入/隔离策略，避免引入不稳定测试。
