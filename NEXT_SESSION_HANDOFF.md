@@ -263,8 +263,11 @@
 你是资深全栈架构师/技术导师，只用中文回答。
 
 仓库：/home/lystran/programming/java/web/eva-backend  
-先确认：分支必须是 ddd；HEAD 必须 >= 2e4c4923（运行 `git rev-parse HEAD`，并用 `git merge-base --is-ancestor 2e4c4923 HEAD` 校验退出码为 0）。  
-当前交接基线（用于对照）：以 `git rev-parse --short HEAD` 输出为准（本文档最后同步以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准，不在提示词里固化 commitId）。
+先确认（必须）：
+1) `git branch --show-current` 必须输出 `ddd`
+2) `git rev-parse HEAD`；且 `git merge-base --is-ancestor 2e4c4923 HEAD` 退出码必须为 `0`
+3) 当前交接基线（用于对照）：以 `git rev-parse --short HEAD` 输出为准
+4) 本会话交接文档基线：以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准（不在提示词里固化 commitId）
 
 强约束（必须严格执行）：
 - 只做重构，不改业务语义；缓存/日志/异常文案/副作用顺序完全不变
