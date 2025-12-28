@@ -3,7 +3,7 @@ title: DDD 渐进式重构目标清单与行为框架
 repo: eva-backend
 branch: ddd
 generated_at: 2025-12-18
-updated_at: 2025-12-27
+updated_at: 2025-12-28
 scope: 全仓库（离线扫描 + 规则归纳）
 ---
 
@@ -281,9 +281,10 @@ scope: 全仓库（离线扫描 + 规则归纳）
    - 下一步建议（仍保持行为不变）：按用例维度继续细化 QueryService/QueryPort，优先从 `EvaStatisticsQueryPort` 这类“方法簇较大”的端口开始（先新增子 Port + `extends`，不改实现/不改装配；再逐步收窄上层依赖类型，避免一次性大改）。
    - ✅ 进展（2025-12-27）：已将 `EvaStatisticsQueryPort` 细分为 `EvaStatisticsOverviewQueryPort/EvaStatisticsTrendQueryPort/EvaStatisticsUnqualifiedUserQueryPort`，并让 `EvaStatisticsQueryPort` `extends` 以上子端口（仅接口拆分，不改实现/不改装配；保持行为不变；最小回归通过；落地：`a1d6ccab`）。
    - ✅ 进展（2025-12-28）：已将 `EvaStatisticsServiceImpl` 对统计端口的依赖类型收窄为三个子端口（不改业务逻辑/异常文案；保持行为不变；最小回归通过；落地：`c19d8801`）。
-   - ✅ 进展（2025-12-28）：已将统计导出侧 `EvaStatisticsExporter` 静态初始化中获取的统计端口由 `EvaStatisticsQueryPort` 收窄为 `EvaStatisticsOverviewQueryPort`（保持 `SpringUtil.getBean(...)` 次数与顺序不变；保持行为不变；最小回归通过；落地：`9b3c4e6a`）。
-   - ✅ 进展（2025-12-28）：已在 `bc-evaluation` 应用层新增统计读侧用例 `EvaStatisticsQueryUseCase`（当前为委托壳），并在 `BcEvaluationConfiguration` 完成装配；`EvaStatisticsServiceImpl` 改为委托该用例（保持行为不变；最小回归通过；落地：`db09d87b`）。
-   - 下一步建议（方向 A → B，保持行为不变）：将“统计”这套模式复制到记录/任务/模板（先细分子 QueryPort，再逐个收窄 `eva-app` 依赖类型）；并逐步把统计用例编排归位到 `EvaStatisticsQueryUseCase`（每次只迁 1 个方法簇）。
+	   - ✅ 进展（2025-12-28）：已将统计导出侧 `EvaStatisticsExporter` 静态初始化中获取的统计端口由 `EvaStatisticsQueryPort` 收窄为 `EvaStatisticsOverviewQueryPort`（保持 `SpringUtil.getBean(...)` 次数与顺序不变；保持行为不变；最小回归通过；落地：`9b3c4e6a`）。
+	   - ✅ 进展（2025-12-28）：已在 `bc-evaluation` 应用层新增统计读侧用例 `EvaStatisticsQueryUseCase`（当前为委托壳），并在 `BcEvaluationConfiguration` 完成装配；`EvaStatisticsServiceImpl` 改为委托该用例（保持行为不变；最小回归通过；落地：`db09d87b`）。
+	   - ✅ 进展（2025-12-28）：记录读侧 QueryPort 细分起步：新增得分子端口 `EvaRecordScoreQueryPort`（仅新增接口，不改实现/不改装配；保持行为不变；最小回归通过；落地：`4e47ffe3`）。
+	   - 下一步建议（方向 A → B，保持行为不变）：将“统计”这套模式复制到记录/任务/模板（先细分子 QueryPort，再逐个收窄 `eva-app` 依赖类型）；并逐步把统计用例编排归位到 `EvaStatisticsQueryUseCase`（每次只迁 1 个方法簇）。
 ---
 
 ## 5. 候选目标（按模块/文件归类）
