@@ -516,6 +516,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
    - 补充进展（2025-12-28）：已在 `EvaStatisticsServiceImpl` 落地“依赖类型收窄”：由聚合接口 `EvaStatisticsQueryPort` 改为按用例簇注入三个子端口（不改业务逻辑/异常文案；保持行为不变；最小回归通过；落地：`c19d8801`）。
 	   - 补充进展（2025-12-28）：已在统计导出侧（`EvaStatisticsExporter`）落地“依赖类型收窄”：静态初始化中将统计端口由 `EvaStatisticsQueryPort` 收窄为 `EvaStatisticsOverviewQueryPort`（保持 `SpringUtil.getBean(...)` 次数与顺序不变；保持行为不变；最小回归通过；落地：`9b3c4e6a`）。
 	   - 补充进展（2025-12-28）：统计导出链路子端口补齐：新增 `EvaStatisticsCountAbEvaQueryPort`，并让 `EvaStatisticsOverviewQueryPort` `extends` 该子端口（仅接口细分，不改实现/不改装配；保持行为不变；最小回归通过；落地：`24b13138`）。
+	   - 补充进展（2025-12-28）：统计导出基类依赖类型收窄：将导出基类 `EvaStatisticsExporter` 静态初始化中获取统计端口的依赖类型从 `EvaStatisticsOverviewQueryPort` 收窄为 `EvaStatisticsCountAbEvaQueryPort`（保持 `SpringUtil.getBean(...)` 次数与顺序不变；保持行为不变；最小回归通过；落地：`7337d378`）。
 	   - 补充进展（2025-12-28）：已开始将统计读侧用例归位到 `bc-evaluation`：新增 `EvaStatisticsQueryUseCase`（当前为委托壳，不改变分支/异常文案/阈值计算），并在 `BcEvaluationConfiguration` 完成装配；`EvaStatisticsServiceImpl` 退化为委托该用例（保持行为不变；最小回归通过；落地：`db09d87b`）。
 	   - 补充进展（2025-12-28）：记录读侧 QueryPort 细分起步：新增得分子端口 `EvaRecordScoreQueryPort`（仅新增接口，不改实现/不改装配；保持行为不变；最小回归通过；落地：`4e47ffe3`）。
 	   - 补充进展（2025-12-28）：记录读侧 QueryPort 细分：让聚合端口 `EvaRecordQueryPort` `extends EvaRecordScoreQueryPort`（仅接口继承，不改实现/不改装配；保持行为不变；最小回归通过；落地：`0c7e7d13`）。
