@@ -33,4 +33,4 @@ eva:
     directory: "D:\\Programming\\Java\\Projects\\eva-backend\\data\\avatar"
 
 common:
-  print-illegal-arguments: true
+  print-illegal-arguments: false
