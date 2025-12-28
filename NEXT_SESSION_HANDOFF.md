@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2025-12-28（本次会话）**
+- ✅ **评教读侧进一步解耦（模板：依赖类型收窄—模板服务）**：将 `EvaTemplateServiceImpl` 对模板端口的依赖从聚合接口 `EvaTemplateQueryPort` 收窄为三个子端口 `EvaTemplatePagingQueryPort/EvaTemplateAllQueryPort/EvaTemplateTaskTemplateQueryPort`（不改业务逻辑/异常文案；仅调整依赖类型与调用点；保持行为不变；最小回归通过；落地提交：`b86db7e4`）。
 - ✅ **评教读侧进一步解耦（模板：子端口接口细分—分页/全量/按任务取模板）**：新增模板读侧子端口 `EvaTemplatePagingQueryPort/EvaTemplateAllQueryPort/EvaTemplateTaskTemplateQueryPort`，并让 `EvaTemplateQueryPort` `extends` 这些子端口（仅新增接口+继承，不改实现/不改装配；不改任何业务语义；最小回归通过；落地提交：`a14d3c53`）。
 - ✅ **评教读侧进一步解耦（任务：依赖类型收窄—任务服务）**：将 `EvaTaskServiceImpl` 对任务端口的依赖从聚合接口 `EvaTaskQueryPort` 收窄为三个子端口 `EvaTaskPagingQueryPort/EvaTaskSelfQueryPort/EvaTaskInfoQueryPort`（不改业务逻辑/异常文案；仅调整依赖类型与调用点；保持行为不变；最小回归通过；落地提交：`4b22f059`）。
 - ✅ **评教读侧进一步解耦（任务：子端口接口细分—本人任务/数量统计）**：新增任务读侧子端口 `EvaTaskSelfQueryPort/EvaTaskCountQueryPort`，并让 `EvaTaskQueryPort` `extends` 这些子端口（仅新增接口+继承，不改实现/不改装配；不改任何业务语义；最小回归通过；落地提交：`9d5064fc`）。
@@ -35,11 +36,11 @@
 - ✅ **本次会话总览（方向 A：记录/任务读侧细分 + 依赖收窄）**：
   - 记录主题：完成记录读侧 QueryPort 细分为 5 个子端口（得分/分页/用户日志/按课程/数量统计），并让 `EvaRecordQueryPort` `extends` 这些子端口；同时完成依赖类型收窄：`EvaRecordServiceImpl` → `EvaRecordPagingQueryPort/EvaRecordScoreQueryPort`，`UserServiceImpl` → `EvaRecordCountQueryPort`，`MsgServiceImpl` → `EvaRecordCountQueryPort`，`UserEvaServiceImpl` → `EvaRecordUserLogQueryPort/EvaRecordScoreQueryPort`（保持行为不变）。
   - 任务主题：复制“统计套路”推进：新增子端口 `EvaTaskInfoQueryPort/EvaTaskPagingQueryPort/EvaTaskSelfQueryPort/EvaTaskCountQueryPort` 并让 `EvaTaskQueryPort` `extends` 这些子端口；同时完成依赖类型收窄：`MsgServiceImpl` → `EvaTaskInfoQueryPort`，`EvaTaskServiceImpl` → `EvaTaskPagingQueryPort/EvaTaskSelfQueryPort/EvaTaskInfoQueryPort`（保持行为不变）。
-  - 模板主题：复制“统计套路”起步：新增子端口 `EvaTemplatePagingQueryPort/EvaTemplateAllQueryPort/EvaTemplateTaskTemplateQueryPort` 并让 `EvaTemplateQueryPort` `extends` 这些子端口（保持行为不变）。
+  - 模板主题：复制“统计套路”起步：新增子端口 `EvaTemplatePagingQueryPort/EvaTemplateAllQueryPort/EvaTemplateTaskTemplateQueryPort` 并让 `EvaTemplateQueryPort` `extends` 这些子端口；同时完成依赖类型收窄：`EvaTemplateServiceImpl` → `EvaTemplatePagingQueryPort/EvaTemplateAllQueryPort/EvaTemplateTaskTemplateQueryPort`（保持行为不变）。
   - 关键落地提交（按主题归类）：
     - 记录：`4e47ffe3/e4f0efe9/fcac9324/e9034541/db876379/39a4bafe/8b24d2f8/147d486b/80886841`
     - 任务：`26b79c3a/56834293/f0a172d1/2fd9d24e/7aa49e7f/9d5064fc/4b22f059`
-    - 模板：`a14d3c53`
+    - 模板：`a14d3c53/b86db7e4`
 - ✅ **评教读侧进一步解耦（记录：依赖类型收窄—用户得分）**：将 `UserServiceImpl` 对记录端口的依赖从聚合接口 `EvaRecordQueryPort` 收窄为 `EvaRecordCountQueryPort`（不改业务逻辑/异常文案；仅调整依赖类型；补充单测 `UserServiceImplTest`；最小回归与单测通过；落地提交：`8b24d2f8`）。
 - ✅ **评教读侧进一步解耦（记录：聚合端口继承子端口—数量统计）**：让 `EvaRecordQueryPort` `extends EvaRecordCountQueryPort`（仅接口继承，不改实现/不改装配；不改任何业务语义；最小回归通过；落地提交：`0d562206`）。
 - ✅ **评教读侧进一步解耦（记录：子端口接口细分—数量统计）**：新增记录读侧数量统计子端口 `EvaRecordCountQueryPort`（仅新增接口，不改实现/不改装配；不改任何业务语义；最小回归通过；落地提交：`db876379`）。
