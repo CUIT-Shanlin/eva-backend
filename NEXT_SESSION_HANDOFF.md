@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2025-12-28（本次会话）**
+- ✅ **评教读侧进一步解耦（记录：子端口接口细分—按课程）**：新增记录读侧按课程查询子端口 `EvaRecordCourseQueryPort`（仅新增接口，不改实现/不改装配；不改任何业务语义；最小回归通过；落地提交：`e9034541`）。
 - ✅ **评教读侧进一步解耦（记录：聚合端口继承子端口—用户日志）**：让 `EvaRecordQueryPort` `extends EvaRecordUserLogQueryPort`（仅接口继承，不改实现/不改装配；不改任何业务语义；最小回归通过；落地提交：`1e025e48`）。
 - ✅ **评教读侧进一步解耦（记录：子端口接口细分—用户日志）**：新增记录读侧用户日志子端口 `EvaRecordUserLogQueryPort`（仅新增接口，不改实现/不改装配；不改任何业务语义；最小回归通过；落地提交：`fcac9324`）。
 - ✅ **评教读侧进一步解耦（记录：依赖类型收窄）**：将 `EvaRecordServiceImpl` 对记录端口的依赖从聚合接口 `EvaRecordQueryPort` 收窄为两个子端口 `EvaRecordPagingQueryPort/EvaRecordScoreQueryPort`（不改业务逻辑/异常文案；仅调整依赖类型；最小回归通过；落地提交：`39a4bafe`）。
