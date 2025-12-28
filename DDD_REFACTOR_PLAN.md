@@ -514,6 +514,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
    - 补充进展（2025-12-28）：已在 `EvaStatisticsServiceImpl` 落地“依赖类型收窄”：由聚合接口 `EvaStatisticsQueryPort` 改为按用例簇注入三个子端口（不改业务逻辑/异常文案；保持行为不变；最小回归通过；落地：`c19d8801`）。
    - 补充进展（2025-12-28）：已在统计导出侧（`EvaStatisticsExporter`）落地“依赖类型收窄”：静态初始化中将统计端口由 `EvaStatisticsQueryPort` 收窄为 `EvaStatisticsOverviewQueryPort`（保持 `SpringUtil.getBean(...)` 次数与顺序不变；保持行为不变；最小回归通过；落地：`9b3c4e6a`）。
    - 补充进展（2025-12-28）：已开始将统计读侧用例归位到 `bc-evaluation`：新增 `EvaStatisticsQueryUseCase`（当前为委托壳，不改变分支/异常文案/阈值计算），并在 `BcEvaluationConfiguration` 完成装配；`EvaStatisticsServiceImpl` 退化为委托该用例（保持行为不变；最小回归通过；落地：`db09d87b`）。
+   - 下一步建议（方向 A → B，保持行为不变）：先将记录/任务/模板按同套路做“子 QueryPort 接口 + `extends`”与 `eva-app` 注入类型收窄；并将 `EvaStatisticsQueryUseCase` 逐步从委托壳演进为“统计读侧用例编排落点”（每次只迁 1 个方法簇，且 `@CheckSemId` 触发点仍保留在旧入口）。
 6) ✅ **IAM 写侧继续收敛**：`UserUpdateGatewayImpl.deleteUser` 已收敛到 `bc-iam`（含 LDAP 删除、角色解绑、缓存失效/日志等副作用，保持行为不变；落地提交：`5f08151c/e23c810a/cccd75a3/2846c689`）。
 7) ✅ **系统管理读侧渐进收敛**：`UserQueryGatewayImpl` 的用户查询能力已收敛到 `bc-iam`（保持行为不变；落地提交：`3e6f2cb2/8c245098/92a9beb3`、`9f664229/38384628/de662d1c/8a74faf5`、`56bbafcf/7e5f0a74/bc5fb3c6/6a1332b0`）。
 8) ✅ **系统管理写侧继续收敛**：`RoleUpdateGatewayImpl.assignPerms/deleteMultipleRole` 与菜单变更触发的缓存失效（`MenuUpdateGatewayImpl.handleUserMenuCache`）已收敛到 `bc-iam`（用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；保持行为不变）。
