@@ -7,6 +7,7 @@ import edu.cuit.bc.evaluation.application.port.EvaStatisticsUnqualifiedUserQuery
 import edu.cuit.bc.evaluation.application.usecase.EvaStatisticsQueryUseCase;
 import edu.cuit.client.dto.clientobject.eva.EvaScoreInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaSituationCO;
+import edu.cuit.client.dto.clientobject.eva.EvaWeekAddCO;
 import edu.cuit.client.dto.clientobject.eva.PastTimeEvaDetailCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
@@ -73,6 +74,23 @@ class EvaStatisticsQueryUseCaseTest {
 
         assertNotNull(result);
         verify(overviewQueryPort).evaTemplateSituation(1);
+    }
+
+    @Test
+    void evaWeekAddOrEmpty_whenEmpty_shouldReturnEmptyObject() {
+        EvaStatisticsQueryUseCase useCase = new EvaStatisticsQueryUseCase(
+                overviewQueryPort,
+                trendQueryPort,
+                unqualifiedUserQueryPort,
+                evaConfigGateway
+        );
+
+        when(trendQueryPort.evaWeekAdd(7, 1)).thenReturn(Optional.empty());
+
+        EvaWeekAddCO result = useCase.evaWeekAddOrEmpty(7, 1);
+
+        assertNotNull(result);
+        verify(trendQueryPort).evaWeekAdd(7, 1);
     }
 
     @Test

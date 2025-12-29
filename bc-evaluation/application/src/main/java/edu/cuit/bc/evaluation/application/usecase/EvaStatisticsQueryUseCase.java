@@ -65,6 +65,10 @@ public class EvaStatisticsQueryUseCase {
         return trendQueryPort.evaWeekAdd(week, semId);
     }
 
+    public EvaWeekAddCO evaWeekAddOrEmpty(Integer week, Integer semId) {
+        return evaWeekAdd(week, semId).orElseGet(() -> new EvaWeekAddCO());
+    }
+
     public List<ScoreRangeCourseCO> scoreRangeCourseInfo(Integer num, Integer interval) {
         return overviewQueryPort.scoreRangeCourseInfo(num, interval);
     }
