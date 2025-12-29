@@ -268,7 +268,7 @@
      - ✅ 已完成：迁 `FillUserStatisticsExporterDecorator` → `bc-evaluation-infra`（`e83600f6`）；
      - ✅ 已完成：迁 `EvaStatisticsExcelFactory` → `bc-evaluation-infra`（异常文案/日志输出完全一致；`5b2c2223`）；
      - ✅ 已完成：`BcEvaluationConfiguration.evaStatisticsExportPort()` 已切换为委托 `bc-evaluation-infra` 的 `EvaStatisticsExportPortImpl`（内部仍调用 `EvaStatisticsExcelFactory.createExcelData`；保持行为不变；`565552fa`）；
-     - 最后（可选，单独提交）：在确认 `eva-app` 不再直接使用 POI 后，从 `eva-app/pom.xml` 移除 `poi/poi-ooxml` 依赖（保持行为不变）。
+     - 最后（可选，单独提交）：在确认 `eva-app` 不再直接使用 POI 后，从 `eva-app/pom.xml` 移除 `poi/poi-ooxml` 依赖（保持行为不变）。当前尚不满足：`eva-app/src/main/java/edu/cuit/app/poi/course/*` 仍直接引用 POI（如 `CourseExcelResolver/TheoryCourseExcelResolver/ExperimentalCourseResolver`）。
      - 注意：若 Serena 出现 `TimeoutError`，按 0.9 记录“降级原因 + 可复现 rg 证据”，并在下一会话优先排查恢复。
   2) **bc-messaging（后置）**：按 10.3 的路线推进（优先组合根归位，再监听器/应用侧适配器，最后基础设施端口适配器与依赖收敛），每次只迁 1 个类并复用/补齐可运行回归。
 

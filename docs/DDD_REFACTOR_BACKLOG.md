@@ -460,7 +460,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 阶段性策略微调（2025-12-29）：
 - ✅ 允许“微调”：仅限结构性重构（收窄依赖/拆接口/移动默认值兜底），**不改业务语义**；缓存/日志/异常文案/副作用顺序完全不变。
 - ✅ 本轮与下一轮优先推进“评教读侧进一步解耦（A → B）”主线；S0/S0.1 仅做文档维护与“已在进行中的收尾”，暂不新增新的折叠试点提交（避免分散注意力）。
-- ✅ 下一步小簇建议（评教统计导出基础设施归位，保持行为不变）：延续 2025-12-29 的迁移，按“每次只迁 1 个类 + 最小回归”顺序推进：✅ 已完成 `FillUserStatisticsExporterDecorator` 迁移（`e83600f6`）；✅ 已完成 `EvaStatisticsExcelFactory` 迁移（`5b2c2223`）；✅ 已完成 `BcEvaluationConfiguration.evaStatisticsExportPort()` 委托切换（`565552fa`）；下一步（可选）在确认 `eva-app` 不再直接使用 POI 后移除 `eva-app` 对 `poi/poi-ooxml` 的依赖。
+- ✅ 下一步小簇建议（评教统计导出基础设施归位，保持行为不变）：延续 2025-12-29 的迁移，按“每次只迁 1 个类 + 最小回归”顺序推进：✅ 已完成 `FillUserStatisticsExporterDecorator` 迁移（`e83600f6`）；✅ 已完成 `EvaStatisticsExcelFactory` 迁移（`5b2c2223`）；✅ 已完成 `BcEvaluationConfiguration.evaStatisticsExportPort()` 委托切换（`565552fa`）；下一步（可选）在确认 `eva-app` 不再直接使用 POI 后移除 `eva-app` 对 `poi/poi-ooxml` 的依赖（当前尚不满足：`eva-app/src/main/java/edu/cuit/app/poi/course/*` 仍直接引用 POI）。
 
 如果继续按“写侧优先”的策略推进，下一批候选（高 → 低）建议是：
 
