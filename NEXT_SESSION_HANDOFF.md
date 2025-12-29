@@ -22,12 +22,13 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2025-12-29（本次会话）**
+- ✅ **评教读侧进一步解耦（导出基础设施归位：迁移 FillUserStatisticsExporterDecorator）**：将导出装饰器 `FillUserStatisticsExporterDecorator` 从 `eva-app` 迁移到 `bc-evaluation-infra`（保持 `package edu.cuit.app.poi.eva` 不变；仅类归位，不改任何业务语义；最小回归通过；落地提交：`e83600f6`）。
 - ✅ **评教读侧进一步解耦（导出基础设施归位：迁移 FillEvaRecordExporterDecorator）**：将导出装饰器 `FillEvaRecordExporterDecorator` 从 `eva-app` 迁移到 `bc-evaluation-infra`（保持 `package edu.cuit.app.poi.eva` 不变；仅类归位，不改任何业务语义；最小回归通过；落地提交：`b3afcb11`）。
 - ✅ **评教读侧进一步解耦（导出基础设施归位：迁移 FillAverageScoreExporterDecorator）**：将导出装饰器 `FillAverageScoreExporterDecorator` 从 `eva-app` 迁移到 `bc-evaluation-infra`（保持 `package edu.cuit.app.poi.eva` 不变；仅类归位，不改任何业务语义；最小回归通过；落地提交：`4e150984`）。
 - ✅ **评教读侧进一步解耦（导出基础设施归位：迁移 EvaStatisticsExporter）**：将导出基类 `EvaStatisticsExporter` 从 `eva-app` 迁移到 `bc-evaluation-infra`（保持 `package edu.cuit.app.poi.eva` 不变），并在 `bc-evaluation-infra` 补齐对 `bc-course/bc-iam-contract` 的编译依赖以闭合类型引用（仅类归位+依赖闭包，不改任何业务语义；静态初始化 `SpringUtil.getBean(...)` 次数/顺序不变；最小回归通过；落地提交：`e8ca391c`）。
-- ⚠️ **MCP Serena 降级记录（TimeoutError）**：本次会话多次尝试使用 Serena（项目激活/符号级引用分析）均发生 `TimeoutError`（已尝试缩小 `relative_path` 仍超时），因此本会话“引用面盘点”临时降级为本地 `rg` 证据（下一会话优先排查 Serena 恢复）。可复现证据（均在本仓库 `ddd` 分支执行）：
+- ✅ **MCP Serena 状态（符号级定位/引用分析）**：本会话使用 Serena 成功完成符号级定位与引用分析（未再复现 `TimeoutError`）。如后续出现 `TimeoutError`，允许临时降级为本地 `rg` 证据，但必须在本节记录“降级原因 + 可复现 rg 证据”，并在下一会话优先排查恢复。当前可复现证据（均在本仓库 `ddd` 分支执行）：
   - `rg -n --column "class\\s+EvaStatisticsExporter\\b" .` → `bc-evaluation/infrastructure/src/main/java/edu/cuit/app/poi/eva/EvaStatisticsExporter.java:24`
-  - `rg -n --column "class\\s+FillUserStatisticsExporterDecorator\\b" .` → `eva-app/src/main/java/edu/cuit/app/poi/eva/FillUserStatisticsExporterDecorator.java:19`
+  - `rg -n --column "class\\s+FillUserStatisticsExporterDecorator\\b" .` → `bc-evaluation/infrastructure/src/main/java/edu/cuit/app/poi/eva/FillUserStatisticsExporterDecorator.java:19`
   - `rg -n --column "class\\s+EvaStatisticsExcelFactory\\b" .` → `eva-app/src/main/java/edu/cuit/app/poi/eva/EvaStatisticsExcelFactory.java:13`
   - `rg -n --column "\\bExcelUtils\\b" .`：显示导出链路与课表解析均依赖 `ExcelUtils`（已归位到 `eva-infra-shared`，包名保持不变）。
 - ✅ **评教读侧进一步解耦（导出基础设施归位准备：ExcelUtils 迁移）**：将 POI 工具类 `ExcelUtils` 从 `eva-app` 迁移到 `eva-infra-shared`（保持 `package edu.cuit.app.poi.util` 不变），并在 `eva-infra-shared` 补齐 `poi/poi-ooxml` 依赖，为后续把 `EvaStatisticsExporter` 等导出实现从 `eva-app` 归位到更合理落点扫清“循环依赖”风险（保持行为不变；最小回归通过；落地提交：`04009c85`）。
@@ -259,11 +260,11 @@
 
 - 下一步建议（仍保持行为不变；每次只改 1 个类 + 1 个可运行回归）：  
   1) **评教统计导出基础设施归位（优先，延续本会话）**：继续把统计导出链路从 `eva-app` 逐步归位到 `bc-evaluation-infra`（保持包名不变、行为不变；每次只迁 1 个类 + 最小回归）。建议顺序：
-     - 先迁 `FillUserStatisticsExporterDecorator` → `bc-evaluation-infra`；
+     - ✅ 已完成：迁 `FillUserStatisticsExporterDecorator` → `bc-evaluation-infra`（`e83600f6`）；
      - 再迁 `EvaStatisticsExcelFactory` → `bc-evaluation-infra`（该类包含导出异常文案与日志输出，迁移时必须保持完全一致）；
      - 然后单独做一个提交：将 `BcEvaluationConfiguration.evaStatisticsExportPort()` 的委托目标从 `eva-app` 的 `EvaStatisticsExcelFactory::createExcelData` 切换为 `bc-evaluation-infra` 的同名工厂方法（保持行为不变）；
      - 最后（可选，单独提交）：在确认 `eva-app` 不再直接使用 POI 后，从 `eva-app/pom.xml` 移除 `poi/poi-ooxml` 依赖（保持行为不变）。
-     - 注意：Serena 当前出现 `TimeoutError` 时，按 0.9 记录“降级原因 + 可复现 rg 证据”，并在下一会话优先排查恢复。
+     - 注意：若 Serena 出现 `TimeoutError`，按 0.9 记录“降级原因 + 可复现 rg 证据”，并在下一会话优先排查恢复。
   2) **bc-messaging（后置）**：按 10.3 的路线推进（优先组合根归位，再监听器/应用侧适配器，最后基础设施端口适配器与依赖收敛），每次只迁 1 个类并复用/补齐可运行回归。
 
 - ✅ 提交点 0（纯文档闭环）：已完成（落地提交：`1adc80bd`）。
@@ -385,7 +386,7 @@
 	     - 进展（任务主题，已完成）：已新增任务读侧子端口 `EvaTaskInfoQueryPort/EvaTaskPagingQueryPort/EvaTaskSelfQueryPort/EvaTaskCountQueryPort`，并让 `EvaTaskQueryPort` `extends` 这些子端口；同时完成依赖类型收窄：`MsgServiceImpl` → `EvaTaskInfoQueryPort`、`EvaTaskServiceImpl` → `EvaTaskPagingQueryPort/EvaTaskSelfQueryPort/EvaTaskInfoQueryPort`（见 0.9，保持行为不变）。
 	     - 进展（模板主题，已完成）：已新增模板读侧子端口 `EvaTemplatePagingQueryPort/EvaTemplateAllQueryPort/EvaTemplateTaskTemplateQueryPort` 并让 `EvaTemplateQueryPort` `extends`；已完成依赖类型收窄：`EvaTemplateServiceImpl` → `EvaTemplatePagingQueryPort/EvaTemplateAllQueryPort/EvaTemplateTaskTemplateQueryPort`；并已用 Serena 证伪 `eva-app` 仍存在其它对 `EvaTemplateQueryPort` 的注入点/调用点（见 0.9，保持行为不变）。
 		     - 下一步建议（任务/模板主题）：（可选）为 `EvaTaskServiceImpl` 补齐可重复的用例级回归（涉及 `StpUtil` 静态登录态时，先固化登录态注入/隔离策略）；模板主题在“端口细分 + 服务层依赖类型收窄 + 引用面证伪”阶段已闭合，后续若出现新的应用层引用点再按同套路逐一收窄即可（保持行为不变）。
-		   - **B（用例归位深化）**：已存在 `EvaStatisticsQueryUseCase`（已归位 `pageUnqualifiedUser/getTargetAmountUnqualifiedUser` 的 `type` 分支与阈值选择，并已归位 `getEvaData` 与 unqualifiedUser 的参数组装；旧入口 `EvaStatisticsServiceImpl` 已去除对 `EvaConfigGateway` 的直接依赖）。补充进展（2025-12-29）：✅ 已完成 `evaScoreStatisticsInfo` 的空对象兜底归位到 UseCase（补齐 `evaScoreStatisticsInfoOrEmpty`：`bce01df2`；旧入口委托该重载：`1bf3a4fe`）；✅ 已完成 `evaTemplateSituation` 的空对象兜底归位到 UseCase（补齐 `evaTemplateSituationOrEmpty`：`89b6b1ee`；旧入口委托该重载：`78abf1a1`）；✅ 已完成 `evaWeekAdd` 的空对象兜底归位到 UseCase（补齐 `evaWeekAddOrEmpty`：`5a8ac076`；旧入口委托该重载：`2a92ca0b`）；✅ 已完成 `getEvaData` 的空对象兜底归位到 UseCase（补齐 `getEvaDataOrEmpty`：`1180a0f7`；旧入口委托该重载：`b59db93d`）；✅ 已完成 `getTargetAmountUnqualifiedUser` 的空对象兜底归位到 UseCase（补齐 `getTargetAmountUnqualifiedUserOrEmpty`：`0ac65fb4`；旧入口委托该重载：`b931b247`）；✅ 已完成 `pageUnqualifiedUser` 的分页结果组装归位到 UseCase（补齐 `pageUnqualifiedUserAsPaginationQueryResult`：`e97615e1`；旧入口委托并移除 `PaginationBizConvertor`：`f4f3fcde`）。下一步建议（仍保持行为不变）：继续挑选统计读侧下一簇“默认值兜底/空对象组装”进行归位（按“每次只迁 1 个方法簇”）。补充下一步（统计导出基础设施归位，保持行为不变；每步只迁 1 个类 + 最小回归；细节见 0.10）：先迁 `FillUserStatisticsExporterDecorator`，再迁 `EvaStatisticsExcelFactory`，然后单独提交切换 `BcEvaluationConfiguration.evaStatisticsExportPort()` 的委托目标，最后（可选）在确认 `eva-app` 不再直接使用 POI 后移除 `eva-app` 对 `poi/poi-ooxml` 的依赖。
+		   - **B（用例归位深化）**：已存在 `EvaStatisticsQueryUseCase`（已归位 `pageUnqualifiedUser/getTargetAmountUnqualifiedUser` 的 `type` 分支与阈值选择，并已归位 `getEvaData` 与 unqualifiedUser 的参数组装；旧入口 `EvaStatisticsServiceImpl` 已去除对 `EvaConfigGateway` 的直接依赖）。补充进展（2025-12-29）：✅ 已完成 `evaScoreStatisticsInfo` 的空对象兜底归位到 UseCase（补齐 `evaScoreStatisticsInfoOrEmpty`：`bce01df2`；旧入口委托该重载：`1bf3a4fe`）；✅ 已完成 `evaTemplateSituation` 的空对象兜底归位到 UseCase（补齐 `evaTemplateSituationOrEmpty`：`89b6b1ee`；旧入口委托该重载：`78abf1a1`）；✅ 已完成 `evaWeekAdd` 的空对象兜底归位到 UseCase（补齐 `evaWeekAddOrEmpty`：`5a8ac076`；旧入口委托该重载：`2a92ca0b`）；✅ 已完成 `getEvaData` 的空对象兜底归位到 UseCase（补齐 `getEvaDataOrEmpty`：`1180a0f7`；旧入口委托该重载：`b59db93d`）；✅ 已完成 `getTargetAmountUnqualifiedUser` 的空对象兜底归位到 UseCase（补齐 `getTargetAmountUnqualifiedUserOrEmpty`：`0ac65fb4`；旧入口委托该重载：`b931b247`）；✅ 已完成 `pageUnqualifiedUser` 的分页结果组装归位到 UseCase（补齐 `pageUnqualifiedUserAsPaginationQueryResult`：`e97615e1`；旧入口委托并移除 `PaginationBizConvertor`：`f4f3fcde`）。下一步建议（仍保持行为不变）：继续挑选统计读侧下一簇“默认值兜底/空对象组装”进行归位（按“每次只迁 1 个方法簇”）。补充下一步（统计导出基础设施归位，保持行为不变；每步只迁 1 个类 + 最小回归；细节见 0.10）：✅ 已完成 `FillUserStatisticsExporterDecorator` 迁移（`e83600f6`）；下一步迁 `EvaStatisticsExcelFactory`，然后单独提交切换 `BcEvaluationConfiguration.evaStatisticsExportPort()` 的委托目标，最后（可选）在确认 `eva-app` 不再直接使用 POI 后移除 `eva-app` 对 `poi/poi-ooxml` 的依赖。
 2) （后置）**bc-messaging（消息域）**：仅按 `DDD_REFACTOR_PLAN.md` 第 10.3 节的路线小步推进（优先组合根归位，其次监听器/应用侧适配器，最后基础设施端口适配器与依赖收敛；每步保持行为不变）。
 3) （可选/后置）**条目 25 / S0（AI 报告）**：若评教读侧推进顺利，可回到 `bc-ai-report` 的 S0 继续做“仅搬运/依赖收敛”（保持行为不变）。
 
