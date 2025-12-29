@@ -196,6 +196,28 @@ class EvaStatisticsQueryUseCaseTest {
     }
 
     @Test
+    void getEvaDataOrEmpty_whenEmpty_shouldReturnEmptyObject() {
+        EvaStatisticsQueryUseCase useCase = new EvaStatisticsQueryUseCase(
+                overviewQueryPort,
+                trendQueryPort,
+                unqualifiedUserQueryPort,
+                evaConfigGateway
+        );
+
+        when(evaConfigGateway.getMinEvaNum()).thenReturn(3);
+        when(evaConfigGateway.getMinBeEvaNum()).thenReturn(5);
+        when(overviewQueryPort.getEvaData(1, 7, 3, 5)).thenReturn(Optional.empty());
+
+        PastTimeEvaDetailCO result = useCase.getEvaDataOrEmpty(1, 7);
+
+        assertNotNull(result);
+        var inOrder = inOrder(evaConfigGateway, overviewQueryPort);
+        inOrder.verify(evaConfigGateway).getMinEvaNum();
+        inOrder.verify(evaConfigGateway).getMinBeEvaNum();
+        inOrder.verify(overviewQueryPort).getEvaData(1, 7, 3, 5);
+    }
+
+    @Test
     void pageUnqualifiedUser_overload_shouldLoadConfigAndDelegate() {
         EvaStatisticsQueryUseCase useCase = new EvaStatisticsQueryUseCase(
                 overviewQueryPort,
