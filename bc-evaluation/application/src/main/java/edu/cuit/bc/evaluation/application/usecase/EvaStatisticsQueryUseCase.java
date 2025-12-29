@@ -83,6 +83,10 @@ public class EvaStatisticsQueryUseCase {
         return getEvaData(semId, num, target, evaTarget);
     }
 
+    public PastTimeEvaDetailCO getEvaDataOrEmpty(Integer semId, Integer num) {
+        return getEvaData(semId, num).orElseGet(PastTimeEvaDetailCO::new);
+    }
+
     public Optional<PastTimeEvaDetailCO> getEvaData(Integer semId, Integer num, Integer target, Integer evaTarget) {
         return overviewQueryPort.getEvaData(semId, num, target, evaTarget);
     }
