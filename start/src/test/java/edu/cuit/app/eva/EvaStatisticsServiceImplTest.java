@@ -137,8 +137,9 @@ class EvaStatisticsServiceImplTest {
 
     @Test
     void getTargetAmountUnqualifiedUser_type0_whenEmpty_shouldReturnZeroResult() {
-        when(evaStatisticsQueryUseCase.getTargetAmountUnqualifiedUser(eq(1), eq(0), eq(5), any()))
-                .thenAnswer(invocation -> invocation.getArgument(3));
+        UnqualifiedUserResultCO error = new UnqualifiedUserResultCO();
+        error.setTotal(0).setDataArr(List.of());
+        when(evaStatisticsQueryUseCase.getTargetAmountUnqualifiedUserOrEmpty(1, 0, 5)).thenReturn(error);
 
         UnqualifiedUserResultCO result = service.getTargetAmountUnqualifiedUser(1, 0, 5);
 
@@ -146,23 +147,23 @@ class EvaStatisticsServiceImplTest {
         assertEquals(0, result.getTotal());
         assertNotNull(result.getDataArr());
         assertTrue(result.getDataArr().isEmpty());
+        verify(evaStatisticsQueryUseCase).getTargetAmountUnqualifiedUserOrEmpty(1, 0, 5);
     }
 
     @Test
     void getTargetAmountUnqualifiedUser_type1_shouldUseMinBeEvaNum() {
         UnqualifiedUserResultCO expected = new UnqualifiedUserResultCO();
-        when(evaStatisticsQueryUseCase.getTargetAmountUnqualifiedUser(eq(1), eq(1), eq(2), any()))
-                .thenReturn(expected);
+        when(evaStatisticsQueryUseCase.getTargetAmountUnqualifiedUserOrEmpty(1, 1, 2)).thenReturn(expected);
 
         UnqualifiedUserResultCO result = service.getTargetAmountUnqualifiedUser(1, 1, 2);
 
         assertSame(expected, result);
-        verify(evaStatisticsQueryUseCase).getTargetAmountUnqualifiedUser(eq(1), eq(1), eq(2), any());
+        verify(evaStatisticsQueryUseCase).getTargetAmountUnqualifiedUserOrEmpty(1, 1, 2);
     }
 
     @Test
     void getTargetAmountUnqualifiedUser_invalidType_shouldThrow() {
-        when(evaStatisticsQueryUseCase.getTargetAmountUnqualifiedUser(eq(1), eq(3), eq(5), any()))
+        when(evaStatisticsQueryUseCase.getTargetAmountUnqualifiedUserOrEmpty(1, 3, 5))
                 .thenThrow(new SysException("type是10以外的值"));
 
         SysException ex = assertThrows(SysException.class, () -> service.getTargetAmountUnqualifiedUser(1, 3, 5));

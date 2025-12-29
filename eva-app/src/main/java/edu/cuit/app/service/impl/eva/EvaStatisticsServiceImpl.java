@@ -68,11 +68,7 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
     @CheckSemId
     public UnqualifiedUserResultCO getTargetAmountUnqualifiedUser(Integer semId,Integer type, Integer num) {
 
-        UnqualifiedUserResultCO unqualifiedUserResultCO=null;
-        UnqualifiedUserResultCO error=new UnqualifiedUserResultCO();
-        error.setTotal(0).setDataArr(List.of());
-        unqualifiedUserResultCO = evaStatisticsQueryUseCase.getTargetAmountUnqualifiedUser(semId, type, num, error);
-        return unqualifiedUserResultCO;
+        return evaStatisticsQueryUseCase.getTargetAmountUnqualifiedUserOrEmpty(semId, type, num);
     }
 
     @Override
