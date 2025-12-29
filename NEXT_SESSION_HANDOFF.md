@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2025-12-29（本次会话）**
+- ✅ **评教读侧进一步解耦（导出基础设施归位：迁移 FillEvaRecordExporterDecorator）**：将导出装饰器 `FillEvaRecordExporterDecorator` 从 `eva-app` 迁移到 `bc-evaluation-infra`（保持 `package edu.cuit.app.poi.eva` 不变；仅类归位，不改任何业务语义；最小回归通过；落地提交：`b3afcb11`）。
 - ✅ **评教读侧进一步解耦（导出基础设施归位：迁移 FillAverageScoreExporterDecorator）**：将导出装饰器 `FillAverageScoreExporterDecorator` 从 `eva-app` 迁移到 `bc-evaluation-infra`（保持 `package edu.cuit.app.poi.eva` 不变；仅类归位，不改任何业务语义；最小回归通过；落地提交：`4e150984`）。
 - ✅ **评教读侧进一步解耦（导出基础设施归位：迁移 EvaStatisticsExporter）**：将导出基类 `EvaStatisticsExporter` 从 `eva-app` 迁移到 `bc-evaluation-infra`（保持 `package edu.cuit.app.poi.eva` 不变），并在 `bc-evaluation-infra` 补齐对 `bc-course/bc-iam-contract` 的编译依赖以闭合类型引用（仅类归位+依赖闭包，不改任何业务语义；静态初始化 `SpringUtil.getBean(...)` 次数/顺序不变；最小回归通过；落地提交：`e8ca391c`）。
 - ⚠️ **MCP Serena 降级记录（TimeoutError）**：本次尝试用 Serena 对 `EvaStatisticsExporter` 做符号级定位/引用分析时发生 `TimeoutError`（已尝试缩小 `relative_path` 仍超时），因此本步引用面盘点临时降级为 `rg` 证据（下一会话优先排查 Serena 恢复）。可复现证据：`rg -n --column "class\\s+EvaStatisticsExporter\\b" .` 仅命中 `eva-app/src/main/java/edu/cuit/app/poi/eva/EvaStatisticsExporter.java:24`；`rg -n --column "\\bExcelUtils\\b" .` 显示导出链路与课表解析均依赖 `ExcelUtils`。
