@@ -108,6 +108,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2025-12-29）**
+- 评教读侧进一步解耦（统计导出端口装配委托切换）：将 `BcEvaluationConfiguration.evaStatisticsExportPort()` 从直接委托 `EvaStatisticsExcelFactory::createExcelData` 切换为委托 `bc-evaluation-infra` 的 `EvaStatisticsExportPortImpl`（内部仍调用 `EvaStatisticsExcelFactory.createExcelData`；保持行为不变；最小回归通过；落地提交：`565552fa`）。
 - 评教读侧进一步解耦（导出基础设施归位：迁移 EvaStatisticsExcelFactory）：将统计导出工厂 `EvaStatisticsExcelFactory` 从 `eva-app` 迁移到 `bc-evaluation-infra`（保持行为不变；导出异常文案/日志输出完全一致；最小回归通过；落地提交：`5b2c2223`）。
 - 评教读侧进一步解耦（导出基础设施归位：迁移 FillUserStatisticsExporterDecorator）：将导出装饰器 `FillUserStatisticsExporterDecorator` 从 `eva-app` 迁移到 `bc-evaluation-infra`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`e83600f6`）。
 - 评教读侧进一步解耦（导出基础设施归位：迁移 FillEvaRecordExporterDecorator）：将导出装饰器 `FillEvaRecordExporterDecorator` 从 `eva-app` 迁移到 `bc-evaluation-infra`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`b3afcb11`）。
@@ -459,7 +460,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 阶段性策略微调（2025-12-29）：
 - ✅ 允许“微调”：仅限结构性重构（收窄依赖/拆接口/移动默认值兜底），**不改业务语义**；缓存/日志/异常文案/副作用顺序完全不变。
 - ✅ 本轮与下一轮优先推进“评教读侧进一步解耦（A → B）”主线；S0/S0.1 仅做文档维护与“已在进行中的收尾”，暂不新增新的折叠试点提交（避免分散注意力）。
-- ✅ 下一步小簇建议（评教统计导出基础设施归位，保持行为不变）：延续 2025-12-29 的迁移，按“每次只迁 1 个类 + 最小回归”顺序推进：✅ 已完成 `FillUserStatisticsExporterDecorator` 迁移（`e83600f6`）；✅ 已完成 `EvaStatisticsExcelFactory` 迁移（`5b2c2223`）；下一步单独提交切换 `BcEvaluationConfiguration.evaStatisticsExportPort()` 的委托目标，最后（可选）在确认 `eva-app` 不再直接使用 POI 后移除 `eva-app` 对 `poi/poi-ooxml` 的依赖。
+- ✅ 下一步小簇建议（评教统计导出基础设施归位，保持行为不变）：延续 2025-12-29 的迁移，按“每次只迁 1 个类 + 最小回归”顺序推进：✅ 已完成 `FillUserStatisticsExporterDecorator` 迁移（`e83600f6`）；✅ 已完成 `EvaStatisticsExcelFactory` 迁移（`5b2c2223`）；✅ 已完成 `BcEvaluationConfiguration.evaStatisticsExportPort()` 委托切换（`565552fa`）；下一步（可选）在确认 `eva-app` 不再直接使用 POI 后移除 `eva-app` 对 `poi/poi-ooxml` 的依赖。
 
 如果继续按“写侧优先”的策略推进，下一批候选（高 → 低）建议是：
 

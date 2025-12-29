@@ -515,10 +515,11 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
    - 补充进展（2025-12-29）：导出装饰器 `FillEvaRecordExporterDecorator` 已从 `eva-app` 迁移到 `bc-evaluation-infra`（保持包名不变；保持行为不变；最小回归通过；落地：`b3afcb11`）。
    - 补充进展（2025-12-29）：导出装饰器 `FillUserStatisticsExporterDecorator` 已从 `eva-app` 迁移到 `bc-evaluation-infra`（保持包名不变；保持行为不变；最小回归通过；落地：`e83600f6`）。
    - 补充进展（2025-12-29）：统计导出工厂 `EvaStatisticsExcelFactory` 已从 `eva-app` 迁移到 `bc-evaluation-infra`（导出异常文案/日志输出完全一致；保持行为不变；最小回归通过；落地：`5b2c2223`）。
+   - 补充进展（2025-12-29）：统计导出端口装配已切换：`BcEvaluationConfiguration.evaStatisticsExportPort()` 已改为委托 `bc-evaluation-infra` 的 `EvaStatisticsExportPortImpl`（内部仍调用 `EvaStatisticsExcelFactory.createExcelData`；保持行为不变；最小回归通过；落地：`565552fa`）。
    - 补充进展（2025-12-29）：将 POI 工具类 `ExcelUtils` 从 `eva-app` 迁移到 `eva-infra-shared`（保持包名不变）并补齐 `poi/poi-ooxml` 依赖，为后续导出实现从 `eva-app` 归位到基础设施模块扫清“循环依赖”风险（保持行为不变；最小回归通过；落地：`04009c85`）。
    - 补充进展（2025-12-29）：在 `EvaStatisticsQueryUseCase` 内部收敛 `type` 分支分发为 `dispatchByType(...)`，减少重复分支判断，避免后续继续归位方法簇时出现分支口径漂移（保持行为不变；最小回归通过；落地：`38ce9ece`）。
    - 补充进展（2025-12-29）：统计导出 `exportEvaStatistics` 调用归位到 `EvaStatisticsQueryUseCase`：引入导出端口 `EvaStatisticsExportPort`（Bean 仍委托既有 `EvaStatisticsExcelFactory.createExcelData`），旧入口 `EvaStatisticsServiceImpl.exportEvaStatistics` 退化为纯委托壳（保持 `@CheckSemId` 触发点与异常文案/日志顺序不变；最小回归通过；落地：`0d15de60`）。
-   - 下一步建议（统计导出基础设施归位，保持行为不变；每次只迁 1 个类 + 最小回归）：下一步单独提交切换 `BcEvaluationConfiguration.evaStatisticsExportPort()` 的委托目标，最后（可选）在确认 `eva-app` 不再直接使用 POI 后移除 `eva-app/pom.xml` 对 `poi/poi-ooxml` 的依赖。
+   - 下一步建议（统计导出基础设施归位，保持行为不变；每次只迁 1 个类 + 最小回归）：✅ 已完成 `BcEvaluationConfiguration.evaStatisticsExportPort()` 委托切换（`565552fa`）；下一步（可选）在确认 `eva-app` 不再直接使用 POI 后移除 `eva-app/pom.xml` 对 `poi/poi-ooxml` 的依赖。
    - 进展：已拆分统计/导出、任务、记录、模板查询端口（`EvaStatisticsQueryPort` / `EvaTaskQueryPort` / `EvaRecordQueryPort` / `EvaTemplateQueryPort`），应用层开始迁移，行为保持不变；旧 `EvaQueryGatewayImpl` 已移除；并已引入 `bc-evaluation-infra` 承接评教读侧查询实现（QueryPortImpl + QueryRepo/Repository，保持包名/行为不变；落地：`be6dc05c`）。
    - 补充进展（2025-12-27）：为后续“按用例进一步收窄依赖类型”做准备，已细分统计 QueryPort：新增 `EvaStatisticsOverviewQueryPort/EvaStatisticsTrendQueryPort/EvaStatisticsUnqualifiedUserQueryPort`，并让 `EvaStatisticsQueryPort` `extends` 以上子端口（仅接口拆分，不改实现/不改装配；保持行为不变；落地：`a1d6ccab`）。
    - 补充进展（2025-12-28）：工程噪音收敛（dev 环境 MyBatis 日志）：将 `application-dev.yml` 中 MyBatis-Plus 的 `log-impl` 从 `StdOutImpl` 切换为 `Slf4jImpl`，避免 SQL 调试日志直出 stdout（仅 dev profile，生产不变；最小回归通过；落地：`cb3a4620`）。
