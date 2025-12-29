@@ -35,6 +35,7 @@
 - ✅ **评教读侧用例归位深化（统计：旧入口委托 UseCase—getTargetAmountUnqualifiedUser）**：将 `EvaStatisticsServiceImpl.getTargetAmountUnqualifiedUser` 退化为纯委托壳，改为调用 `EvaStatisticsQueryUseCase.getTargetAmountUnqualifiedUserOrEmpty`，从而把空对象兜底彻底归位到 UseCase（保持 `@CheckSemId` 触发点不变；保持行为不变；最小回归通过；落地提交：`b931b247`）。
 - ✅ **评教读侧用例归位深化（统计：读测补齐—getTargetAmountUnqualifiedUserOrEmpty type=1）**：为 `EvaStatisticsQueryUseCase.getTargetAmountUnqualifiedUserOrEmpty(type=1)` 补齐空结果兜底的读侧用例级测试（保持行为不变；最小回归通过；落地提交：`8f3e7afe`）。
 - ✅ **评教读侧用例归位深化（统计：读测补齐—getEvaDataOrEmpty 空结果兜底）**：为 `EvaStatisticsQueryUseCase.getEvaDataOrEmpty` 补齐 `Optional.empty` 时返回空对象的读侧用例级测试，并保留阈值读取顺序与委托顺序验证（保持行为不变；最小回归通过；落地提交：`a44a9bba`）。
+- ✅ **评教读侧用例归位深化（统计：读测补齐—getTargetAmountUnqualifiedUserOrEmpty 非法 type）**：为 `EvaStatisticsQueryUseCase.getTargetAmountUnqualifiedUserOrEmpty(invalidType)` 补齐异常文案不变的读侧用例级测试，并确保不触发查询端口调用（保持行为不变；最小回归通过；落地提交：`0cb2caec`）。
 - ✅ **docs（交接与计划同步）**：本次会话已按“每步闭环”将关键变更与下一步计划同步到三文档；如需定位最新同步提交，使用 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` / `git log -n 1 -- DDD_REFACTOR_PLAN.md` / `git log -n 1 -- docs/DDD_REFACTOR_BACKLOG.md`。
 
 **2025-12-28（本次会话）**
