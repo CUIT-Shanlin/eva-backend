@@ -24,7 +24,7 @@
 **2025-12-29（本次会话）**
 - ✅ **评教读侧用例归位深化（统计：旧入口委托 UseCase—pageUnqualifiedUser 分页结果组装）**：将旧入口 `EvaStatisticsServiceImpl.pageUnqualifiedUser` 退化为纯委托壳，改为调用 `EvaStatisticsQueryUseCase.pageUnqualifiedUserAsPaginationQueryResult`，并移除对 `PaginationBizConvertor` 的依赖（保持 `@CheckSemId` 触发点不变；保持行为不变；最小回归通过；落地提交：`f4f3fcde`）。
 - ✅ **评教读侧用例归位深化（统计：pageUnqualifiedUser 分页结果组装归位起步）**：在 `EvaStatisticsQueryUseCase` 新增 `pageUnqualifiedUserAsPaginationQueryResult`，把“`PaginationResultEntity` → `PaginationQueryResultCO`”的分页结果组装逻辑先归位到用例层，为下一步旧入口 `EvaStatisticsServiceImpl.pageUnqualifiedUser` 退化为纯委托壳做准备（保持行为不变；最小回归通过；落地提交：`e97615e1`）。
-- ✅ **bc-messaging 后置规划证据化（仅文档）**：补齐消息域“组合根/监听器/端口适配器散落点”的可回滚迁移路线与证据化路径清单（仅文档，不改代码；保持行为不变）。
+- ✅ **bc-messaging 后置规划证据化（仅文档）**：补齐消息域“组合根/监听器/端口适配器散落点”的可回滚迁移路线与证据化路径清单（仅文档，不改代码；保持行为不变；落地提交：`4b05f515`；详见 `DDD_REFACTOR_PLAN.md` 第 10.3 节）。
 - ✅ **文档同步与路线微调固化**：补齐“结构 DDD vs 语义 DDD”“何时可收敛 eva-*”的阶段性判断，并记录“允许微调 + 主线优先、暂不新增 S0 折叠试点提交”的策略说明，确保下会话续接不丢失（仅文档口径，不改业务语义）。
 - ✅ **评教读侧用例归位深化（统计：evaScoreStatisticsInfo 空对象兜底重载归位起步）**：在 `EvaStatisticsQueryUseCase` 新增 `evaScoreStatisticsInfoOrEmpty`，先把 `Optional.empty` → `new EvaScoreInfoCO()` 的兜底逻辑归位到用例层（保持行为不变；为下一步让旧入口 `EvaStatisticsServiceImpl` 退化为纯委托壳做准备；最小回归通过；落地提交：`bce01df2`）。
 - ✅ **评教读侧用例归位深化（统计：旧入口委托 UseCase—evaScoreStatisticsInfo）**：将 `EvaStatisticsServiceImpl.evaScoreStatisticsInfo` 退化为纯委托壳，改为调用 `EvaStatisticsQueryUseCase.evaScoreStatisticsInfoOrEmpty`，从而把空对象兜底彻底归位到 UseCase（保持 `@CheckSemId` 触发点不变；保持行为不变；最小回归通过；落地提交：`1bf3a4fe`）。
@@ -236,6 +236,14 @@
 > 阶段性策略微调（2025-12-29）：允许“微调”（仅结构性重构；不改业务语义；缓存/日志/异常文案/副作用顺序完全不变）；短期优先推进“评教读侧进一步解耦（方向 A → B）”主线，S0/S0.1 暂不新增新的折叠试点提交（仅滚动维护与收尾）。
 >
 
+- 本次会话最新闭环（2025-12-29，便于续接）：  
+  1) ✅ 统计读侧 `pageUnqualifiedUser`：分页结果组装已归位到 `EvaStatisticsQueryUseCase`，旧入口 `EvaStatisticsServiceImpl` 已退化为纯委托壳并移除对 `PaginationBizConvertor` 的依赖（`e97615e1` / `f4f3fcde`）。  
+  2) ✅ bc-messaging：已完成“后置规划证据化”（仅文档，不落地代码），散落点与路线见 `DDD_REFACTOR_PLAN.md` 第 10.3 节（`4b05f515`）。
+
+- 下一步建议（仍保持行为不变；每次只改 1 个类 + 1 个可运行回归）：  
+  1) **评教统计读侧（优先）**：继续在 `EvaStatisticsQueryUseCase` 归位下一簇“默认值兜底/空对象组装/结果组装”（可选低风险：将 `exportEvaStatistics` 的调用也归位到 UseCase，让旧入口进一步退化为纯委托壳，`@CheckSemId` 触发点仍保留在旧入口）。  
+  2) **bc-messaging（后置）**：按 10.3 的路线推进（优先组合根归位，再监听器/应用侧适配器，最后基础设施端口适配器与依赖收敛），每次只迁 1 个类并复用/补齐可运行回归。
+
 - ✅ 提交点 0（纯文档闭环）：已完成（落地提交：`1adc80bd`）。
 - ✅ 提交点 A（结构落点，不迁业务）：已完成（落地提交：`a30a1ff9`）。
 - ✅ 提交点 B（写侧收敛，挑 1 条链路）：已完成（审计日志写入 `LogGatewayImpl.insertLog`；落地提交：`b0b72263`）。
@@ -355,8 +363,9 @@
 	     - 进展（任务主题，已完成）：已新增任务读侧子端口 `EvaTaskInfoQueryPort/EvaTaskPagingQueryPort/EvaTaskSelfQueryPort/EvaTaskCountQueryPort`，并让 `EvaTaskQueryPort` `extends` 这些子端口；同时完成依赖类型收窄：`MsgServiceImpl` → `EvaTaskInfoQueryPort`、`EvaTaskServiceImpl` → `EvaTaskPagingQueryPort/EvaTaskSelfQueryPort/EvaTaskInfoQueryPort`（见 0.9，保持行为不变）。
 	     - 进展（模板主题，已完成）：已新增模板读侧子端口 `EvaTemplatePagingQueryPort/EvaTemplateAllQueryPort/EvaTemplateTaskTemplateQueryPort` 并让 `EvaTemplateQueryPort` `extends`；已完成依赖类型收窄：`EvaTemplateServiceImpl` → `EvaTemplatePagingQueryPort/EvaTemplateAllQueryPort/EvaTemplateTaskTemplateQueryPort`；并已用 Serena 证伪 `eva-app` 仍存在其它对 `EvaTemplateQueryPort` 的注入点/调用点（见 0.9，保持行为不变）。
 		     - 下一步建议（任务/模板主题）：（可选）为 `EvaTaskServiceImpl` 补齐可重复的用例级回归（涉及 `StpUtil` 静态登录态时，先固化登录态注入/隔离策略）；模板主题在“端口细分 + 服务层依赖类型收窄 + 引用面证伪”阶段已闭合，后续若出现新的应用层引用点再按同套路逐一收窄即可（保持行为不变）。
-		   - **B（用例归位深化）**：已存在 `EvaStatisticsQueryUseCase`（已归位 `pageUnqualifiedUser/getTargetAmountUnqualifiedUser` 的 `type` 分支与阈值选择，并已归位 `getEvaData` 与 unqualifiedUser 的参数组装；旧入口 `EvaStatisticsServiceImpl` 已去除对 `EvaConfigGateway` 的直接依赖）。补充进展（2025-12-29）：✅ 已完成 `evaScoreStatisticsInfo` 的空对象兜底归位到 UseCase（补齐 `evaScoreStatisticsInfoOrEmpty`：`bce01df2`；旧入口委托该重载：`1bf3a4fe`）；✅ 已完成 `evaTemplateSituation` 的空对象兜底归位到 UseCase（补齐 `evaTemplateSituationOrEmpty`：`89b6b1ee`；旧入口委托该重载：`78abf1a1`）；✅ 已完成 `evaWeekAdd` 的空对象兜底归位到 UseCase（补齐 `evaWeekAddOrEmpty`：`5a8ac076`；旧入口委托该重载：`2a92ca0b`）；✅ 已完成 `getEvaData` 的空对象兜底归位到 UseCase（补齐 `getEvaDataOrEmpty`：`1180a0f7`；旧入口委托该重载：`b59db93d`）；✅ 已完成 `getTargetAmountUnqualifiedUser` 的空对象兜底归位到 UseCase（补齐 `getTargetAmountUnqualifiedUserOrEmpty`：`0ac65fb4`；旧入口委托该重载：`b931b247`）。下一步建议（仍保持行为不变）：继续挑选统计读侧下一簇“默认值兜底/空对象组装”进行归位（按“每次只迁 1 个方法簇”）。
-2) （可选/后置）**条目 25 / S0（AI 报告）**：若评教读侧推进顺利，可回到 `bc-ai-report` 的 S0 继续做“仅搬运/依赖收敛”（保持行为不变）。
+		   - **B（用例归位深化）**：已存在 `EvaStatisticsQueryUseCase`（已归位 `pageUnqualifiedUser/getTargetAmountUnqualifiedUser` 的 `type` 分支与阈值选择，并已归位 `getEvaData` 与 unqualifiedUser 的参数组装；旧入口 `EvaStatisticsServiceImpl` 已去除对 `EvaConfigGateway` 的直接依赖）。补充进展（2025-12-29）：✅ 已完成 `evaScoreStatisticsInfo` 的空对象兜底归位到 UseCase（补齐 `evaScoreStatisticsInfoOrEmpty`：`bce01df2`；旧入口委托该重载：`1bf3a4fe`）；✅ 已完成 `evaTemplateSituation` 的空对象兜底归位到 UseCase（补齐 `evaTemplateSituationOrEmpty`：`89b6b1ee`；旧入口委托该重载：`78abf1a1`）；✅ 已完成 `evaWeekAdd` 的空对象兜底归位到 UseCase（补齐 `evaWeekAddOrEmpty`：`5a8ac076`；旧入口委托该重载：`2a92ca0b`）；✅ 已完成 `getEvaData` 的空对象兜底归位到 UseCase（补齐 `getEvaDataOrEmpty`：`1180a0f7`；旧入口委托该重载：`b59db93d`）；✅ 已完成 `getTargetAmountUnqualifiedUser` 的空对象兜底归位到 UseCase（补齐 `getTargetAmountUnqualifiedUserOrEmpty`：`0ac65fb4`；旧入口委托该重载：`b931b247`）；✅ 已完成 `pageUnqualifiedUser` 的分页结果组装归位到 UseCase（补齐 `pageUnqualifiedUserAsPaginationQueryResult`：`e97615e1`；旧入口委托并移除 `PaginationBizConvertor`：`f4f3fcde`）。下一步建议（仍保持行为不变）：继续挑选统计读侧下一簇“默认值兜底/空对象组装”进行归位（按“每次只迁 1 个方法簇”）。
+2) （后置）**bc-messaging（消息域）**：仅按 `DDD_REFACTOR_PLAN.md` 第 10.3 节的路线小步推进（优先组合根归位，其次监听器/应用侧适配器，最后基础设施端口适配器与依赖收敛；每步保持行为不变）。
+3) （可选/后置）**条目 25 / S0（AI 报告）**：若评教读侧推进顺利，可回到 `bc-ai-report` 的 S0 继续做“仅搬运/依赖收敛”（保持行为不变）。
 
 已闭环（用于避免重复劳动）：
 - ✅ S0.1：`eva-client` 已从主干依赖链彻底退出（含：来源证伪 + 退出 reactor + 目录从仓库移除；保持行为不变；落地提交以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准）。
