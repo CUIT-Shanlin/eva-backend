@@ -22,7 +22,8 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2025-12-29（本次会话）**
-- ✅ **bc-course（课程）：课表 Excel/POI 解析归位**：将 `eva-app` 内的课表解析实现（`edu.cuit.app.poi.course.*`）整体迁移到 `bc-course-infra`（保持 `package` 不变；异常文案/日志输出/副作用顺序完全不变），并补齐 `bc-course-infra` 对 `eva-infra-shared` 的依赖以复用 `ExcelUtils`（保持行为不变；最小回归通过；落地提交：`383dbf33`）。
+- ✅ **bc-course（课程）：课表 Excel/POI 解析归位**：将 `eva-app` 内的课表解析实现（`edu.cuit.app.poi.course.*`）整体迁移到 `bc-course-infra`（保持 `package` 不变；异常文案/日志输出/副作用顺序完全不变），并补齐 `bc-course-infra` 对 `eva-infra-shared` 的依赖以复用 `ExcelUtils`（保持行为不变；最小回归通过；落地提交：`383dbf33`；删除旧文件并收尾：`5a7cd0a0`）。
+- ✅ **bc-course（课程）：端口化与依赖收敛**：新增课表解析端口 `CourseExcelResolvePort`（`bc-course/application`），由 `bc-course-infra` 提供适配器 `CourseExcelResolvePortImpl`（内部仍复用 `CourseExcelResolver`，确保异常文案与日志不变）；`IUserCourseServiceImpl.importCourse` 改为依赖端口，移除对 `CourseExcelResolver` 的直接依赖；同时将 `eva-app` 对 `bc-course-infra` 的依赖收敛为 `runtime`，并在 `start` 测试侧补齐 `bc-course-infra` 测试依赖以保证 `CourseResolverTest` 编译（保持行为不变；最小回归通过；落地提交：`5a7cd0a0`）。
 - ✅ **评教读侧进一步解耦（统计导出端口装配委托切换）**：将 `BcEvaluationConfiguration.evaStatisticsExportPort()` 从直接委托 `EvaStatisticsExcelFactory::createExcelData` 切换为委托 `bc-evaluation-infra` 的端口适配器 `EvaStatisticsExportPortImpl`（其内部仍调用 `EvaStatisticsExcelFactory.createExcelData`；保持行为不变；最小回归通过；落地提交：`565552fa`）。
 - ✅ **评教读侧进一步解耦（导出基础设施归位：迁移 EvaStatisticsExcelFactory）**：将统计导出工厂 `EvaStatisticsExcelFactory` 从 `eva-app` 迁移到 `bc-evaluation-infra`（保持行为不变；导出异常文案/日志输出完全一致；最小回归通过；落地提交：`5b2c2223`）。
 - ✅ **评教读侧进一步解耦（导出基础设施归位：迁移 FillUserStatisticsExporterDecorator）**：将导出装饰器 `FillUserStatisticsExporterDecorator` 从 `eva-app` 迁移到 `bc-evaluation-infra`（保持 `package edu.cuit.app.poi.eva` 不变；仅类归位，不改任何业务语义；最小回归通过；落地提交：`e83600f6`）。
