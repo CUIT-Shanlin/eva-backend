@@ -37,7 +37,7 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
     @Override
     @CheckSemId
     public EvaWeekAddCO evaWeekAdd(Integer week, Integer semId) {
-        return evaStatisticsQueryUseCase.evaWeekAdd(week,semId).orElseGet(()->new EvaWeekAddCO());
+        return evaStatisticsQueryUseCase.evaWeekAddOrEmpty(week, semId);
     }
 
     @Override
