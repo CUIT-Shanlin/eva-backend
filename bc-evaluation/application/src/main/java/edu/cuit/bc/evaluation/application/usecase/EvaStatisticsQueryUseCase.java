@@ -4,6 +4,7 @@ import com.alibaba.cola.exception.SysException;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsOverviewQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsTrendQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsUnqualifiedUserQueryPort;
+import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.eva.EvaScoreInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaSituationCO;
 import edu.cuit.client.dto.clientobject.eva.EvaWeekAddCO;
@@ -171,6 +172,20 @@ public class EvaStatisticsQueryUseCase {
     ) {
         EvaConfigEntity evaConfig = evaConfigGateway.getEvaConfig();
         return pageUnqualifiedUser(semId, type, query, evaConfig);
+    }
+
+    public PaginationQueryResultCO<UnqualifiedUserInfoCO> pageUnqualifiedUserAsPaginationQueryResult(
+            Integer semId,
+            Integer type,
+            PagingQuery<UnqualifiedUserConditionalQuery> query
+    ) {
+        PaginationResultEntity<UnqualifiedUserInfoCO> page = pageUnqualifiedUser(semId, type, query);
+        PaginationQueryResultCO<UnqualifiedUserInfoCO> result = new PaginationQueryResultCO<>();
+        result.setCurrent(page.getCurrent())
+                .setSize(page.getSize())
+                .setTotal(page.getTotal())
+                .setRecords(page.getRecords());
+        return result;
     }
 
     public List<Integer> getCountAbEva(Integer semId, Integer userId) {

@@ -5,6 +5,7 @@ import edu.cuit.bc.evaluation.application.port.EvaStatisticsOverviewQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsTrendQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsUnqualifiedUserQueryPort;
 import edu.cuit.bc.evaluation.application.usecase.EvaStatisticsQueryUseCase;
+import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.eva.EvaScoreInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaSituationCO;
 import edu.cuit.client.dto.clientobject.eva.EvaWeekAddCO;
@@ -170,6 +171,45 @@ class EvaStatisticsQueryUseCaseTest {
 
         SysException ex = assertThrows(SysException.class, () -> useCase.pageUnqualifiedUser(1, 2, query, config));
         assertEquals("type是10以外的值", ex.getMessage());
+    }
+
+    @Test
+    void pageUnqualifiedUserAsPaginationQueryResult_shouldAssembleFieldsAndDelegate() {
+        EvaStatisticsQueryUseCase useCase = new EvaStatisticsQueryUseCase(
+                overviewQueryPort,
+                trendQueryPort,
+                unqualifiedUserQueryPort,
+                evaConfigGateway
+        );
+
+        EvaConfigEntity config = new EvaConfigEntity();
+        config.setMinEvaNum(4);
+        config.setMinBeEvaNum(6);
+        when(evaConfigGateway.getEvaConfig()).thenReturn(config);
+
+        PagingQuery<UnqualifiedUserConditionalQuery> query = new PagingQuery<>();
+        query.setPage(1);
+        query.setSize(10);
+
+        List<UnqualifiedUserInfoCO> records = List.of(new UnqualifiedUserInfoCO());
+        PaginationResultEntity<UnqualifiedUserInfoCO> page = new PaginationResultEntity<>();
+        page.setCurrent(1);
+        page.setSize(10);
+        page.setTotal(42);
+        page.setRecords(records);
+        when(unqualifiedUserQueryPort.pageEvaUnqualifiedUserInfo(1, query, 4)).thenReturn(page);
+
+        PaginationQueryResultCO<UnqualifiedUserInfoCO> result = useCase.pageUnqualifiedUserAsPaginationQueryResult(1, 0, query);
+
+        assertEquals(1, result.getCurrent());
+        assertEquals(10, result.getSize());
+        assertEquals(42, result.getTotal());
+        assertSame(records, result.getRecords());
+
+        var inOrder = inOrder(evaConfigGateway, unqualifiedUserQueryPort);
+        inOrder.verify(evaConfigGateway).getEvaConfig();
+        inOrder.verify(unqualifiedUserQueryPort).pageEvaUnqualifiedUserInfo(1, query, 4);
+        verify(unqualifiedUserQueryPort, never()).pageBeEvaUnqualifiedUserInfo(any(), any(), any());
     }
 
     @Test
