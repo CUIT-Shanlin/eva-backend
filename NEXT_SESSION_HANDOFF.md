@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2025-12-29（本次会话）**
+- ✅ **bc-messaging 后置规划证据化（仅文档）**：补齐消息域“组合根/监听器/端口适配器散落点”的可回滚迁移路线与证据化路径清单（仅文档，不改代码；保持行为不变）。
 - ✅ **文档同步与路线微调固化**：补齐“结构 DDD vs 语义 DDD”“何时可收敛 eva-*”的阶段性判断，并记录“允许微调 + 主线优先、暂不新增 S0 折叠试点提交”的策略说明，确保下会话续接不丢失（仅文档口径，不改业务语义）。
 - ✅ **评教读侧用例归位深化（统计：evaScoreStatisticsInfo 空对象兜底重载归位起步）**：在 `EvaStatisticsQueryUseCase` 新增 `evaScoreStatisticsInfoOrEmpty`，先把 `Optional.empty` → `new EvaScoreInfoCO()` 的兜底逻辑归位到用例层（保持行为不变；为下一步让旧入口 `EvaStatisticsServiceImpl` 退化为纯委托壳做准备；最小回归通过；落地提交：`bce01df2`）。
 - ✅ **评教读侧用例归位深化（统计：旧入口委托 UseCase—evaScoreStatisticsInfo）**：将 `EvaStatisticsServiceImpl.evaScoreStatisticsInfo` 退化为纯委托壳，改为调用 `EvaStatisticsQueryUseCase.evaScoreStatisticsInfoOrEmpty`，从而把空对象兜底彻底归位到 UseCase（保持 `@CheckSemId` 触发点不变；保持行为不变；最小回归通过；落地提交：`1bf3a4fe`）。
