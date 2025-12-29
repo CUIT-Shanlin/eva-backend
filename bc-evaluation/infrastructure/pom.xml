@@ -27,6 +27,20 @@
             <version>${revision}</version>
         </dependency>
 
+        <!-- 评教导出链路依赖课程/学期等应用层 API（保持包名不变） -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>bc-course</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <!-- 导出链路依赖用户 API（保持包名不变） -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>bc-iam-contract</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
         <!-- DAL：从 eva-infra 渐进式抽离，供多模块复用（保持包名/namespace 不变） -->
         <dependency>
             <groupId>edu.cuit</groupId>
