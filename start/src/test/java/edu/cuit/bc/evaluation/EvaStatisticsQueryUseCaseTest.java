@@ -6,6 +6,7 @@ import edu.cuit.bc.evaluation.application.port.EvaStatisticsTrendQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsUnqualifiedUserQueryPort;
 import edu.cuit.bc.evaluation.application.usecase.EvaStatisticsQueryUseCase;
 import edu.cuit.client.dto.clientobject.eva.EvaScoreInfoCO;
+import edu.cuit.client.dto.clientobject.eva.EvaSituationCO;
 import edu.cuit.client.dto.clientobject.eva.PastTimeEvaDetailCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
@@ -55,6 +56,23 @@ class EvaStatisticsQueryUseCaseTest {
 
         assertNotNull(result);
         verify(overviewQueryPort).evaScoreStatisticsInfo(1, 60);
+    }
+
+    @Test
+    void evaTemplateSituationOrEmpty_whenEmpty_shouldReturnEmptyObject() {
+        EvaStatisticsQueryUseCase useCase = new EvaStatisticsQueryUseCase(
+                overviewQueryPort,
+                trendQueryPort,
+                unqualifiedUserQueryPort,
+                evaConfigGateway
+        );
+
+        when(overviewQueryPort.evaTemplateSituation(1)).thenReturn(Optional.empty());
+
+        EvaSituationCO result = useCase.evaTemplateSituationOrEmpty(1);
+
+        assertNotNull(result);
+        verify(overviewQueryPort).evaTemplateSituation(1);
     }
 
     @Test

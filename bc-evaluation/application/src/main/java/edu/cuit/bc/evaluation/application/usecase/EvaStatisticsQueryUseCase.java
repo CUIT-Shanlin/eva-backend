@@ -57,6 +57,10 @@ public class EvaStatisticsQueryUseCase {
         return overviewQueryPort.evaTemplateSituation(semId);
     }
 
+    public EvaSituationCO evaTemplateSituationOrEmpty(Integer semId) {
+        return evaTemplateSituation(semId).orElseGet(() -> new EvaSituationCO());
+    }
+
     public Optional<EvaWeekAddCO> evaWeekAdd(Integer week, Integer semId) {
         return trendQueryPort.evaWeekAdd(week, semId);
     }
