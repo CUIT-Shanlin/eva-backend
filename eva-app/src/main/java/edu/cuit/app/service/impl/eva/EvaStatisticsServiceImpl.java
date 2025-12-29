@@ -1,7 +1,6 @@
 package edu.cuit.app.service.impl.eva;
-import com.alibaba.cola.exception.SysException;
+
 import edu.cuit.app.aop.CheckSemId;
-import edu.cuit.app.convertor.PaginationBizConvertor;
 import edu.cuit.app.poi.eva.EvaStatisticsExcelFactory;
 import edu.cuit.client.api.eva.IEvaStatisticsService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
@@ -10,7 +9,6 @@ import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.UnqualifiedUserConditionalQuery;
-import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.bc.evaluation.application.usecase.EvaStatisticsQueryUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +19,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
     private final EvaStatisticsQueryUseCase evaStatisticsQueryUseCase;
-    private final PaginationBizConvertor paginationBizConvertor;
     @Override
     @CheckSemId
     public EvaScoreInfoCO evaScoreStatisticsInfo(Integer semId, Number score) {
@@ -60,8 +57,7 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
     @Override
     @CheckSemId
     public PaginationQueryResultCO<UnqualifiedUserInfoCO> pageUnqualifiedUser(Integer semId,Integer type, PagingQuery<UnqualifiedUserConditionalQuery> query) {
-        PaginationResultEntity<UnqualifiedUserInfoCO> page = evaStatisticsQueryUseCase.pageUnqualifiedUser(semId, type, query);
-        return paginationBizConvertor.toPaginationEntity(page, page.getRecords());
+        return evaStatisticsQueryUseCase.pageUnqualifiedUserAsPaginationQueryResult(semId, type, query);
     }
 
     @Override

@@ -1,7 +1,6 @@
 package edu.cuit.app.eva;
 
 import com.alibaba.cola.exception.SysException;
-import edu.cuit.app.convertor.PaginationBizConvertor;
 import edu.cuit.app.service.impl.eva.EvaStatisticsServiceImpl;
 import edu.cuit.bc.evaluation.application.usecase.EvaStatisticsQueryUseCase;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
@@ -13,7 +12,6 @@ import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.UnqualifiedUserConditionalQuery;
-import edu.cuit.domain.entity.PaginationResultEntity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,7 +19,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -33,9 +30,6 @@ class EvaStatisticsServiceImplTest {
 
     @Mock
     private EvaStatisticsQueryUseCase evaStatisticsQueryUseCase;
-
-    @Mock
-    private PaginationBizConvertor paginationBizConvertor;
 
     @InjectMocks
     private EvaStatisticsServiceImpl service;
@@ -90,17 +84,13 @@ class EvaStatisticsServiceImplTest {
         query.setPage(1);
         query.setSize(10);
 
-        PaginationResultEntity<UnqualifiedUserInfoCO> page = new PaginationResultEntity<>();
-        page.setRecords(List.of(new UnqualifiedUserInfoCO()));
-
         PaginationQueryResultCO<UnqualifiedUserInfoCO> expected = new PaginationQueryResultCO<>();
-        when(evaStatisticsQueryUseCase.pageUnqualifiedUser(1, 0, query)).thenReturn(page);
-        when(paginationBizConvertor.toPaginationEntity(page, page.getRecords())).thenReturn(expected);
+        when(evaStatisticsQueryUseCase.pageUnqualifiedUserAsPaginationQueryResult(1, 0, query)).thenReturn(expected);
 
         PaginationQueryResultCO<UnqualifiedUserInfoCO> result = service.pageUnqualifiedUser(1, 0, query);
 
         assertSame(expected, result);
-        verify(evaStatisticsQueryUseCase).pageUnqualifiedUser(1, 0, query);
+        verify(evaStatisticsQueryUseCase).pageUnqualifiedUserAsPaginationQueryResult(1, 0, query);
     }
 
     @Test
@@ -109,22 +99,18 @@ class EvaStatisticsServiceImplTest {
         query.setPage(1);
         query.setSize(10);
 
-        PaginationResultEntity<UnqualifiedUserInfoCO> page = new PaginationResultEntity<>();
-        page.setRecords(List.of(new UnqualifiedUserInfoCO()));
-
         PaginationQueryResultCO<UnqualifiedUserInfoCO> expected = new PaginationQueryResultCO<>();
-        when(evaStatisticsQueryUseCase.pageUnqualifiedUser(1, 1, query)).thenReturn(page);
-        when(paginationBizConvertor.toPaginationEntity(page, page.getRecords())).thenReturn(expected);
+        when(evaStatisticsQueryUseCase.pageUnqualifiedUserAsPaginationQueryResult(1, 1, query)).thenReturn(expected);
 
         PaginationQueryResultCO<UnqualifiedUserInfoCO> result = service.pageUnqualifiedUser(1, 1, query);
 
         assertSame(expected, result);
-        verify(evaStatisticsQueryUseCase).pageUnqualifiedUser(1, 1, query);
+        verify(evaStatisticsQueryUseCase).pageUnqualifiedUserAsPaginationQueryResult(1, 1, query);
     }
 
     @Test
     void pageUnqualifiedUser_invalidType_shouldThrow() {
-        when(evaStatisticsQueryUseCase.pageUnqualifiedUser(eq(1), eq(2), any()))
+        when(evaStatisticsQueryUseCase.pageUnqualifiedUserAsPaginationQueryResult(eq(1), eq(2), any()))
                 .thenThrow(new SysException("type是10以外的值"));
 
         PagingQuery<UnqualifiedUserConditionalQuery> query = new PagingQuery<>();
