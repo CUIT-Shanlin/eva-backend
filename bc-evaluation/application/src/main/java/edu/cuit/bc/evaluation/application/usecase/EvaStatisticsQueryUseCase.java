@@ -127,6 +127,12 @@ public class EvaStatisticsQueryUseCase {
         return getTargetAmountUnqualifiedUser(semId, type, num, evaConfig, error);
     }
 
+    public UnqualifiedUserResultCO getTargetAmountUnqualifiedUserOrEmpty(Integer semId, Integer type, Integer num) {
+        UnqualifiedUserResultCO error = new UnqualifiedUserResultCO();
+        error.setTotal(0).setDataArr(List.of());
+        return getTargetAmountUnqualifiedUser(semId, type, num, error);
+    }
+
     public PaginationResultEntity<UnqualifiedUserInfoCO> pageEvaUnqualifiedUserInfo(
             Integer semId,
             PagingQuery<UnqualifiedUserConditionalQuery> query,
