@@ -114,6 +114,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - 评教读侧进一步解耦（统计：导出基类依赖类型收窄—CountAbEva）：将导出基类 `EvaStatisticsExporter` 静态初始化中获取统计端口的依赖类型从 `EvaStatisticsOverviewQueryPort` 收窄为 `EvaStatisticsCountAbEvaQueryPort`（保持 `SpringUtil.getBean(...)` 次数与顺序不变；保持行为不变；最小回归通过；落地提交：`7337d378`）。
 - 评教读侧用例归位深化（统计：evaScoreStatisticsInfo 空对象兜底重载归位起步）：在 `EvaStatisticsQueryUseCase` 新增 `evaScoreStatisticsInfoOrEmpty`，将 “`Optional.empty` → `new EvaScoreInfoCO()`” 的空对象兜底先归位到用例层（保持行为不变；最小回归通过；落地提交：`bce01df2`）。
 - 评教读侧用例归位深化（统计：evaScoreStatisticsInfo 旧入口退化为委托壳）：将旧入口 `EvaStatisticsServiceImpl.evaScoreStatisticsInfo` 退化为纯委托壳，改为调用 `EvaStatisticsQueryUseCase.evaScoreStatisticsInfoOrEmpty`，从而把空对象兜底彻底归位到 UseCase（保持 `@CheckSemId` 触发点不变；保持行为不变；最小回归通过；落地提交：`1bf3a4fe`）。
+- 评教读侧用例归位深化（统计：evaTemplateSituation 空对象兜底重载归位起步）：在 `EvaStatisticsQueryUseCase` 新增 `evaTemplateSituationOrEmpty`，将 “`Optional.empty` → `new EvaSituationCO()`” 的空对象兜底先归位到用例层（保持行为不变；最小回归通过；落地提交：`89b6b1ee`）。
 - 条目 25（AI 报告写侧，组合根 wiring 归位）：将 `BcAiReportConfiguration` 从 `eva-app` 迁移到 `bc-ai-report`（保持 `package` 不变；Bean 定义与 `@Lazy` 环断策略不变；保持行为不变；最小回归通过；落地提交：`58c2f055`）。
 - 条目 25（AI 报告写侧，`@CheckSemId` 注解下沉）：将 `edu.cuit.app.aop.CheckSemId` 从 `eva-app` 迁移到 `shared-kernel`（保持 `package` 不变；切面匹配表达式不变；保持行为不变；最小回归通过；落地提交：`1c595052`）。
 - 条目 25（AI 报告写侧，旧入口归位）：将 `AiCourseAnalysisService` 从 `eva-app` 迁移到 `bc-ai-report`（保持 `package` 不变；保持 `@Service/@CheckSemId` 触发点不变；保持行为不变；最小回归通过；落地提交：`ca321a20`）。
