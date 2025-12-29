@@ -54,7 +54,7 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
     @Override
     @CheckSemId
     public PastTimeEvaDetailCO getEvaData(Integer semId, Integer num) {
-        return evaStatisticsQueryUseCase.getEvaData(semId, num).orElseGet(() -> new PastTimeEvaDetailCO());
+        return evaStatisticsQueryUseCase.getEvaDataOrEmpty(semId, num);
     }
 
     @Override
