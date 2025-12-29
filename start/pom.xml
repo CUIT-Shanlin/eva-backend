@@ -24,6 +24,13 @@
             <artifactId>eva-adapter</artifactId>
             <version>${revision}</version>
         </dependency>
+        <!-- 测试侧需要复用课表 POI 解析实现（已归位到 bc-course-infra，保持行为不变） -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>bc-course-infra</artifactId>
+            <version>${revision}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
