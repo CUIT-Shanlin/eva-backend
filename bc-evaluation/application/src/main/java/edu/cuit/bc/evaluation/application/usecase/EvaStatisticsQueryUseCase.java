@@ -21,6 +21,7 @@ import edu.cuit.domain.gateway.eva.EvaConfigGateway;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * 评教统计读侧查询用例（QueryUseCase）。
@@ -100,6 +101,16 @@ public class EvaStatisticsQueryUseCase {
         return unqualifiedUserQueryPort.getBeEvaTargetAmountUnqualifiedUser(semId, num, target);
     }
 
+    private static <T> T dispatchByType(Integer type, Supplier<T> evaSupplier, Supplier<T> beEvaSupplier) {
+        if (type == 0) {
+            return evaSupplier.get();
+        } else if (type == 1) {
+            return beEvaSupplier.get();
+        } else {
+            throw new SysException("type是10以外的值");
+        }
+    }
+
     public UnqualifiedUserResultCO getTargetAmountUnqualifiedUser(
             Integer semId,
             Integer type,
@@ -107,15 +118,13 @@ public class EvaStatisticsQueryUseCase {
             EvaConfigEntity evaConfig,
             UnqualifiedUserResultCO error
     ) {
-        if (type == 0) {
-            return getEvaTargetAmountUnqualifiedUser(semId, num, evaConfig.getMinEvaNum())
-                    .orElseGet(() -> error);
-        } else if (type == 1) {
-            return getBeEvaTargetAmountUnqualifiedUser(semId, num, evaConfig.getMinBeEvaNum())
-                    .orElseGet(() -> error);
-        } else {
-            throw new SysException("type是10以外的值");
-        }
+        return dispatchByType(
+                type,
+                () -> getEvaTargetAmountUnqualifiedUser(semId, num, evaConfig.getMinEvaNum())
+                        .orElseGet(() -> error),
+                () -> getBeEvaTargetAmountUnqualifiedUser(semId, num, evaConfig.getMinBeEvaNum())
+                        .orElseGet(() -> error)
+        );
     }
 
     public UnqualifiedUserResultCO getTargetAmountUnqualifiedUser(
@@ -156,13 +165,11 @@ public class EvaStatisticsQueryUseCase {
             PagingQuery<UnqualifiedUserConditionalQuery> query,
             EvaConfigEntity evaConfig
     ) {
-        if (type == 0) {
-            return pageEvaUnqualifiedUserInfo(semId, query, evaConfig.getMinEvaNum());
-        } else if (type == 1) {
-            return pageBeEvaUnqualifiedUserInfo(semId, query, evaConfig.getMinBeEvaNum());
-        } else {
-            throw new SysException("type是10以外的值");
-        }
+        return dispatchByType(
+                type,
+                () -> pageEvaUnqualifiedUserInfo(semId, query, evaConfig.getMinEvaNum()),
+                () -> pageBeEvaUnqualifiedUserInfo(semId, query, evaConfig.getMinBeEvaNum())
+        );
     }
 
     public PaginationResultEntity<UnqualifiedUserInfoCO> pageUnqualifiedUser(
