@@ -155,4 +155,15 @@ class EvaStatisticsServiceImplTest {
         SysException ex = assertThrows(SysException.class, () -> service.getTargetAmountUnqualifiedUser(1, 3, 5));
         assertEquals("type是10以外的值", ex.getMessage());
     }
+
+    @Test
+    void exportEvaStatistics_shouldDelegateToUseCase() {
+        byte[] expected = new byte[]{1, 2, 3};
+        when(evaStatisticsQueryUseCase.exportEvaStatistics(1)).thenReturn(expected);
+
+        byte[] result = service.exportEvaStatistics(1);
+
+        assertSame(expected, result);
+        verify(evaStatisticsQueryUseCase).exportEvaStatistics(1);
+    }
 }

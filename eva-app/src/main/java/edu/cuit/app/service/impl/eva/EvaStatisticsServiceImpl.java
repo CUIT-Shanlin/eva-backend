@@ -1,7 +1,6 @@
 package edu.cuit.app.service.impl.eva;
 
 import edu.cuit.app.aop.CheckSemId;
-import edu.cuit.app.poi.eva.EvaStatisticsExcelFactory;
 import edu.cuit.client.api.eva.IEvaStatisticsService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.eva.*;
@@ -70,6 +69,6 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
     @Override
     @CheckSemId
     public byte[] exportEvaStatistics(Integer semId) {
-        return EvaStatisticsExcelFactory.createExcelData(semId);
+        return evaStatisticsQueryUseCase.exportEvaStatistics(semId);
     }
 }

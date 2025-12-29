@@ -1,6 +1,7 @@
 package edu.cuit.bc.evaluation.application.usecase;
 
 import com.alibaba.cola.exception.SysException;
+import edu.cuit.bc.evaluation.application.port.EvaStatisticsExportPort;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsOverviewQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsTrendQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsUnqualifiedUserQueryPort;
@@ -34,17 +35,20 @@ public class EvaStatisticsQueryUseCase {
     private final EvaStatisticsTrendQueryPort trendQueryPort;
     private final EvaStatisticsUnqualifiedUserQueryPort unqualifiedUserQueryPort;
     private final EvaConfigGateway evaConfigGateway;
+    private final EvaStatisticsExportPort exportPort;
 
     public EvaStatisticsQueryUseCase(
             EvaStatisticsOverviewQueryPort overviewQueryPort,
             EvaStatisticsTrendQueryPort trendQueryPort,
             EvaStatisticsUnqualifiedUserQueryPort unqualifiedUserQueryPort,
-            EvaConfigGateway evaConfigGateway
+            EvaConfigGateway evaConfigGateway,
+            EvaStatisticsExportPort exportPort
     ) {
         this.overviewQueryPort = Objects.requireNonNull(overviewQueryPort, "overviewQueryPort");
         this.trendQueryPort = Objects.requireNonNull(trendQueryPort, "trendQueryPort");
         this.unqualifiedUserQueryPort = Objects.requireNonNull(unqualifiedUserQueryPort, "unqualifiedUserQueryPort");
         this.evaConfigGateway = Objects.requireNonNull(evaConfigGateway, "evaConfigGateway");
+        this.exportPort = Objects.requireNonNull(exportPort, "exportPort");
     }
 
     public Optional<EvaScoreInfoCO> evaScoreStatisticsInfo(Integer semId, Number score) {
@@ -197,5 +201,9 @@ public class EvaStatisticsQueryUseCase {
 
     public List<Integer> getCountAbEva(Integer semId, Integer userId) {
         return overviewQueryPort.getCountAbEva(semId, userId);
+    }
+
+    public byte[] exportEvaStatistics(Integer semId) {
+        return exportPort.exportEvaStatistics(semId);
     }
 }

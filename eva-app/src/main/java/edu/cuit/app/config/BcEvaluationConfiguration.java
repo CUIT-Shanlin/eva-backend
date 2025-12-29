@@ -1,9 +1,11 @@
 package edu.cuit.app.config;
 
+import edu.cuit.app.poi.eva.EvaStatisticsExcelFactory;
 import edu.cuit.bc.evaluation.application.port.AddEvaTemplateRepository;
 import edu.cuit.bc.evaluation.application.port.DeleteEvaRecordRepository;
 import edu.cuit.bc.evaluation.application.port.DeleteEvaTemplateRepository;
 import edu.cuit.bc.evaluation.application.port.DomainEventPublisher;
+import edu.cuit.bc.evaluation.application.port.EvaStatisticsExportPort;
 import edu.cuit.bc.evaluation.application.port.PostEvaTaskRepository;
 import edu.cuit.bc.evaluation.application.port.SubmitEvaluationRepository;
 import edu.cuit.bc.evaluation.application.port.UpdateEvaTemplateRepository;
@@ -28,6 +30,11 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class BcEvaluationConfiguration {
+    @Bean
+    public EvaStatisticsExportPort evaStatisticsExportPort() {
+        return EvaStatisticsExcelFactory::createExcelData;
+    }
+
     @Bean
     public SubmitEvaluationUseCase submitEvaluationUseCase(
             SubmitEvaluationRepository repository,
@@ -69,8 +76,15 @@ public class BcEvaluationConfiguration {
             EvaStatisticsOverviewQueryPort overviewQueryPort,
             EvaStatisticsTrendQueryPort trendQueryPort,
             EvaStatisticsUnqualifiedUserQueryPort unqualifiedUserQueryPort,
-            EvaConfigGateway evaConfigGateway
+            EvaConfigGateway evaConfigGateway,
+            EvaStatisticsExportPort exportPort
     ) {
-        return new EvaStatisticsQueryUseCase(overviewQueryPort, trendQueryPort, unqualifiedUserQueryPort, evaConfigGateway);
+        return new EvaStatisticsQueryUseCase(
+                overviewQueryPort,
+                trendQueryPort,
+                unqualifiedUserQueryPort,
+                evaConfigGateway,
+                exportPort
+        );
     }
 }

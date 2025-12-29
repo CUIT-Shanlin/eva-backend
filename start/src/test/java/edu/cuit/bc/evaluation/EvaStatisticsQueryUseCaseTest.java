@@ -1,6 +1,7 @@
 package edu.cuit.bc.evaluation;
 
 import com.alibaba.cola.exception.SysException;
+import edu.cuit.bc.evaluation.application.port.EvaStatisticsExportPort;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsOverviewQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsTrendQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsUnqualifiedUserQueryPort;
@@ -43,13 +44,17 @@ class EvaStatisticsQueryUseCaseTest {
     @Mock
     private EvaConfigGateway evaConfigGateway;
 
+    @Mock
+    private EvaStatisticsExportPort exportPort;
+
     @Test
     void evaScoreStatisticsInfoOrEmpty_whenEmpty_shouldReturnEmptyObject() {
         EvaStatisticsQueryUseCase useCase = new EvaStatisticsQueryUseCase(
                 overviewQueryPort,
                 trendQueryPort,
                 unqualifiedUserQueryPort,
-                evaConfigGateway
+                evaConfigGateway,
+                exportPort
         );
 
         when(overviewQueryPort.evaScoreStatisticsInfo(1, 60)).thenReturn(Optional.empty());
@@ -66,7 +71,8 @@ class EvaStatisticsQueryUseCaseTest {
                 overviewQueryPort,
                 trendQueryPort,
                 unqualifiedUserQueryPort,
-                evaConfigGateway
+                evaConfigGateway,
+                exportPort
         );
 
         when(overviewQueryPort.evaTemplateSituation(1)).thenReturn(Optional.empty());
@@ -83,7 +89,8 @@ class EvaStatisticsQueryUseCaseTest {
                 overviewQueryPort,
                 trendQueryPort,
                 unqualifiedUserQueryPort,
-                evaConfigGateway
+                evaConfigGateway,
+                exportPort
         );
 
         when(trendQueryPort.evaWeekAdd(7, 1)).thenReturn(Optional.empty());
@@ -100,7 +107,8 @@ class EvaStatisticsQueryUseCaseTest {
                 overviewQueryPort,
                 trendQueryPort,
                 unqualifiedUserQueryPort,
-                evaConfigGateway
+                evaConfigGateway,
+                exportPort
         );
 
         EvaConfigEntity config = new EvaConfigEntity();
@@ -129,7 +137,8 @@ class EvaStatisticsQueryUseCaseTest {
                 overviewQueryPort,
                 trendQueryPort,
                 unqualifiedUserQueryPort,
-                evaConfigGateway
+                evaConfigGateway,
+                exportPort
         );
 
         EvaConfigEntity config = new EvaConfigEntity();
@@ -158,7 +167,8 @@ class EvaStatisticsQueryUseCaseTest {
                 overviewQueryPort,
                 trendQueryPort,
                 unqualifiedUserQueryPort,
-                evaConfigGateway
+                evaConfigGateway,
+                exportPort
         );
 
         EvaConfigEntity config = new EvaConfigEntity();
@@ -179,7 +189,8 @@ class EvaStatisticsQueryUseCaseTest {
                 overviewQueryPort,
                 trendQueryPort,
                 unqualifiedUserQueryPort,
-                evaConfigGateway
+                evaConfigGateway,
+                exportPort
         );
 
         EvaConfigEntity config = new EvaConfigEntity();
@@ -218,7 +229,8 @@ class EvaStatisticsQueryUseCaseTest {
                 overviewQueryPort,
                 trendQueryPort,
                 unqualifiedUserQueryPort,
-                evaConfigGateway
+                evaConfigGateway,
+                exportPort
         );
 
         when(evaConfigGateway.getMinEvaNum()).thenReturn(3);
@@ -241,7 +253,8 @@ class EvaStatisticsQueryUseCaseTest {
                 overviewQueryPort,
                 trendQueryPort,
                 unqualifiedUserQueryPort,
-                evaConfigGateway
+                evaConfigGateway,
+                exportPort
         );
 
         when(evaConfigGateway.getMinEvaNum()).thenReturn(3);
@@ -263,7 +276,8 @@ class EvaStatisticsQueryUseCaseTest {
                 overviewQueryPort,
                 trendQueryPort,
                 unqualifiedUserQueryPort,
-                evaConfigGateway
+                evaConfigGateway,
+                exportPort
         );
 
         EvaConfigEntity config = new EvaConfigEntity();
@@ -293,7 +307,8 @@ class EvaStatisticsQueryUseCaseTest {
                 overviewQueryPort,
                 trendQueryPort,
                 unqualifiedUserQueryPort,
-                evaConfigGateway
+                evaConfigGateway,
+                exportPort
         );
 
         EvaConfigEntity config = new EvaConfigEntity();
@@ -317,7 +332,8 @@ class EvaStatisticsQueryUseCaseTest {
                 overviewQueryPort,
                 trendQueryPort,
                 unqualifiedUserQueryPort,
-                evaConfigGateway
+                evaConfigGateway,
+                exportPort
         );
 
         EvaConfigEntity config = new EvaConfigEntity();
@@ -342,7 +358,8 @@ class EvaStatisticsQueryUseCaseTest {
                 overviewQueryPort,
                 trendQueryPort,
                 unqualifiedUserQueryPort,
-                evaConfigGateway
+                evaConfigGateway,
+                exportPort
         );
 
         EvaConfigEntity config = new EvaConfigEntity();
@@ -367,7 +384,8 @@ class EvaStatisticsQueryUseCaseTest {
                 overviewQueryPort,
                 trendQueryPort,
                 unqualifiedUserQueryPort,
-                evaConfigGateway
+                evaConfigGateway,
+                exportPort
         );
 
         EvaConfigEntity config = new EvaConfigEntity();
