@@ -50,6 +50,11 @@
         </dependency>
         <dependency>
             <groupId>edu.cuit</groupId>
+            <artifactId>bc-course-infra</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>edu.cuit</groupId>
             <artifactId>bc-messaging</artifactId>
             <version>${revision}</version>
         </dependency>
@@ -90,14 +95,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml</artifactId>
         </dependency>
 
     </dependencies>

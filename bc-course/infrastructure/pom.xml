@@ -26,6 +26,13 @@
             <version>${revision}</version>
         </dependency>
 
+        <!-- 复用已从 eva-infra 抽离的 Excel/POI 工具能力（保持包名不变，避免影响现有行为） -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>eva-infra-shared</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
