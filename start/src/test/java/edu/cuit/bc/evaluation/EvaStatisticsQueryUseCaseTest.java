@@ -273,4 +273,29 @@ class EvaStatisticsQueryUseCaseTest {
         inOrder.verify(evaConfigGateway).getEvaConfig();
         inOrder.verify(unqualifiedUserQueryPort).getEvaTargetAmountUnqualifiedUser(1, 7, 3);
     }
+
+    @Test
+    void getTargetAmountUnqualifiedUserOrEmpty_type1_whenEmpty_shouldReturnZeroResult() {
+        EvaStatisticsQueryUseCase useCase = new EvaStatisticsQueryUseCase(
+                overviewQueryPort,
+                trendQueryPort,
+                unqualifiedUserQueryPort,
+                evaConfigGateway
+        );
+
+        EvaConfigEntity config = new EvaConfigEntity();
+        config.setMinEvaNum(3);
+        config.setMinBeEvaNum(5);
+        when(evaConfigGateway.getEvaConfig()).thenReturn(config);
+        when(unqualifiedUserQueryPort.getBeEvaTargetAmountUnqualifiedUser(1, 7, 5)).thenReturn(Optional.empty());
+
+        UnqualifiedUserResultCO result = useCase.getTargetAmountUnqualifiedUserOrEmpty(1, 1, 7);
+
+        assertNotNull(result);
+        assertEquals(0, result.getTotal());
+        assertEquals(List.of(), result.getDataArr());
+        var inOrder = inOrder(evaConfigGateway, unqualifiedUserQueryPort);
+        inOrder.verify(evaConfigGateway).getEvaConfig();
+        inOrder.verify(unqualifiedUserQueryPort).getBeEvaTargetAmountUnqualifiedUser(1, 7, 5);
+    }
 }
