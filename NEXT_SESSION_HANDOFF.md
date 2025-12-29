@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2025-12-29（本次会话）**
+- ✅ **bc-course（课程）：课表 Excel/POI 解析归位**：将 `eva-app` 内的课表解析实现（`edu.cuit.app.poi.course.*`）整体迁移到 `bc-course-infra`（保持 `package` 不变；异常文案/日志输出/副作用顺序完全不变），并补齐 `bc-course-infra` 对 `eva-infra-shared` 的依赖以复用 `ExcelUtils`（保持行为不变；最小回归通过；落地提交：`383dbf33`）。
 - ✅ **评教读侧进一步解耦（统计导出端口装配委托切换）**：将 `BcEvaluationConfiguration.evaStatisticsExportPort()` 从直接委托 `EvaStatisticsExcelFactory::createExcelData` 切换为委托 `bc-evaluation-infra` 的端口适配器 `EvaStatisticsExportPortImpl`（其内部仍调用 `EvaStatisticsExcelFactory.createExcelData`；保持行为不变；最小回归通过；落地提交：`565552fa`）。
 - ✅ **评教读侧进一步解耦（导出基础设施归位：迁移 EvaStatisticsExcelFactory）**：将统计导出工厂 `EvaStatisticsExcelFactory` 从 `eva-app` 迁移到 `bc-evaluation-infra`（保持行为不变；导出异常文案/日志输出完全一致；最小回归通过；落地提交：`5b2c2223`）。
 - ✅ **评教读侧进一步解耦（导出基础设施归位：迁移 FillUserStatisticsExporterDecorator）**：将导出装饰器 `FillUserStatisticsExporterDecorator` 从 `eva-app` 迁移到 `bc-evaluation-infra`（保持 `package edu.cuit.app.poi.eva` 不变；仅类归位，不改任何业务语义；最小回归通过；落地提交：`e83600f6`）。
@@ -268,7 +269,7 @@
      - ✅ 已完成：迁 `FillUserStatisticsExporterDecorator` → `bc-evaluation-infra`（`e83600f6`）；
      - ✅ 已完成：迁 `EvaStatisticsExcelFactory` → `bc-evaluation-infra`（异常文案/日志输出完全一致；`5b2c2223`）；
      - ✅ 已完成：`BcEvaluationConfiguration.evaStatisticsExportPort()` 已切换为委托 `bc-evaluation-infra` 的 `EvaStatisticsExportPortImpl`（内部仍调用 `EvaStatisticsExcelFactory.createExcelData`；保持行为不变；`565552fa`）；
-     - 最后（可选，单独提交）：在确认 `eva-app` 不再直接使用 POI 后，从 `eva-app/pom.xml` 移除 `poi/poi-ooxml` 依赖（保持行为不变）。当前尚不满足：`eva-app/src/main/java/edu/cuit/app/poi/course/*` 仍直接引用 POI（如 `CourseExcelResolver/TheoryCourseExcelResolver/ExperimentalCourseResolver`）。
+     - 最后（可选，单独提交）：在确认 `eva-app` 不再直接使用 POI 后，从 `eva-app/pom.xml` 移除 `poi/poi-ooxml` 依赖（保持行为不变）。✅ 已完成：课表解析已迁移到 `bc-course-infra`，`eva-app` 已移除对 `poi/poi-ooxml` 的 Maven **直依赖**（`383dbf33`）。
      - 注意：若 Serena 出现 `TimeoutError`，按 0.9 记录“降级原因 + 可复现 rg 证据”，并在下一会话优先排查恢复。
   2) **bc-messaging（后置）**：按 10.3 的路线推进（优先组合根归位，再监听器/应用侧适配器，最后基础设施端口适配器与依赖收敛），每次只迁 1 个类并复用/补齐可运行回归。
 
