@@ -6,6 +6,7 @@ import edu.cuit.app.service.impl.eva.EvaStatisticsServiceImpl;
 import edu.cuit.bc.evaluation.application.usecase.EvaStatisticsQueryUseCase;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.eva.EvaScoreInfoCO;
+import edu.cuit.client.dto.clientobject.eva.EvaSituationCO;
 import edu.cuit.client.dto.clientobject.eva.PastTimeEvaDetailCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
@@ -58,6 +59,17 @@ class EvaStatisticsServiceImplTest {
 
         assertSame(expected, result);
         verify(evaStatisticsQueryUseCase).evaScoreStatisticsInfoOrEmpty(1, 60);
+    }
+
+    @Test
+    void evaTemplateSituation_shouldDelegateToUseCaseOrEmpty() {
+        EvaSituationCO expected = new EvaSituationCO();
+        when(evaStatisticsQueryUseCase.evaTemplateSituationOrEmpty(1)).thenReturn(expected);
+
+        EvaSituationCO result = service.evaTemplateSituation(1);
+
+        assertSame(expected, result);
+        verify(evaStatisticsQueryUseCase).evaTemplateSituationOrEmpty(1);
     }
 
     @Test

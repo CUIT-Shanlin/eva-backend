@@ -31,7 +31,7 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
     @Override
     @CheckSemId
     public EvaSituationCO evaTemplateSituation(Integer semId) {
-        return evaStatisticsQueryUseCase.evaTemplateSituation(semId).orElseGet(()->new EvaSituationCO());
+        return evaStatisticsQueryUseCase.evaTemplateSituationOrEmpty(semId);
     }
 
     @Override
