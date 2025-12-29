@@ -49,6 +49,10 @@ public class EvaStatisticsQueryUseCase {
         return overviewQueryPort.evaScoreStatisticsInfo(semId, score);
     }
 
+    public EvaScoreInfoCO evaScoreStatisticsInfoOrEmpty(Integer semId, Number score) {
+        return evaScoreStatisticsInfo(semId, score).orElseGet(() -> new EvaScoreInfoCO());
+    }
+
     public Optional<EvaSituationCO> evaTemplateSituation(Integer semId) {
         return overviewQueryPort.evaTemplateSituation(semId);
     }

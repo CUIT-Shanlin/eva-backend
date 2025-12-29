@@ -5,6 +5,7 @@ import edu.cuit.bc.evaluation.application.port.EvaStatisticsOverviewQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsTrendQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsUnqualifiedUserQueryPort;
 import edu.cuit.bc.evaluation.application.usecase.EvaStatisticsQueryUseCase;
+import edu.cuit.client.dto.clientobject.eva.EvaScoreInfoCO;
 import edu.cuit.client.dto.clientobject.eva.PastTimeEvaDetailCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserResultCO;
@@ -38,6 +39,23 @@ class EvaStatisticsQueryUseCaseTest {
 
     @Mock
     private EvaConfigGateway evaConfigGateway;
+
+    @Test
+    void evaScoreStatisticsInfoOrEmpty_whenEmpty_shouldReturnEmptyObject() {
+        EvaStatisticsQueryUseCase useCase = new EvaStatisticsQueryUseCase(
+                overviewQueryPort,
+                trendQueryPort,
+                unqualifiedUserQueryPort,
+                evaConfigGateway
+        );
+
+        when(overviewQueryPort.evaScoreStatisticsInfo(1, 60)).thenReturn(Optional.empty());
+
+        EvaScoreInfoCO result = useCase.evaScoreStatisticsInfoOrEmpty(1, 60);
+
+        assertNotNull(result);
+        verify(overviewQueryPort).evaScoreStatisticsInfo(1, 60);
+    }
 
     @Test
     void pageUnqualifiedUser_type0_shouldUseMinEvaNum() {
