@@ -1,6 +1,5 @@
 package edu.cuit.app.config;
 
-import edu.cuit.app.poi.eva.EvaStatisticsExcelFactory;
 import edu.cuit.bc.evaluation.application.port.AddEvaTemplateRepository;
 import edu.cuit.bc.evaluation.application.port.DeleteEvaRecordRepository;
 import edu.cuit.bc.evaluation.application.port.DeleteEvaTemplateRepository;
@@ -20,6 +19,7 @@ import edu.cuit.bc.evaluation.application.port.EvaStatisticsOverviewQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsTrendQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsUnqualifiedUserQueryPort;
 import edu.cuit.domain.gateway.eva.EvaConfigGateway;
+import edu.cuit.infra.bcevaluation.query.EvaStatisticsExportPortImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -32,7 +32,7 @@ import org.springframework.context.annotation.Configuration;
 public class BcEvaluationConfiguration {
     @Bean
     public EvaStatisticsExportPort evaStatisticsExportPort() {
-        return EvaStatisticsExcelFactory::createExcelData;
+        return new EvaStatisticsExportPortImpl();
     }
 
     @Bean
