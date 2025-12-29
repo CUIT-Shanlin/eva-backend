@@ -320,4 +320,23 @@ class EvaStatisticsQueryUseCaseTest {
         inOrder.verify(evaConfigGateway).getEvaConfig();
         inOrder.verify(unqualifiedUserQueryPort).getBeEvaTargetAmountUnqualifiedUser(1, 7, 5);
     }
+
+    @Test
+    void getTargetAmountUnqualifiedUserOrEmpty_invalidType_shouldThrow() {
+        EvaStatisticsQueryUseCase useCase = new EvaStatisticsQueryUseCase(
+                overviewQueryPort,
+                trendQueryPort,
+                unqualifiedUserQueryPort,
+                evaConfigGateway
+        );
+
+        EvaConfigEntity config = new EvaConfigEntity();
+        when(evaConfigGateway.getEvaConfig()).thenReturn(config);
+
+        SysException ex = assertThrows(SysException.class, () -> useCase.getTargetAmountUnqualifiedUserOrEmpty(1, 3, 7));
+        assertEquals("type是10以外的值", ex.getMessage());
+
+        verify(evaConfigGateway).getEvaConfig();
+        verifyNoInteractions(unqualifiedUserQueryPort);
+    }
 }
