@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2025-12-29（本次会话）**
+- ✅ **文档同步与路线微调固化**：补齐“结构 DDD vs 语义 DDD”“何时可收敛 eva-*”的阶段性判断，并记录“允许微调 + 主线优先、暂不新增 S0 折叠试点提交”的策略说明，确保下会话续接不丢失（仅文档口径，不改业务语义）。
 - ✅ **评教读侧用例归位深化（统计：evaScoreStatisticsInfo 空对象兜底重载归位起步）**：在 `EvaStatisticsQueryUseCase` 新增 `evaScoreStatisticsInfoOrEmpty`，先把 `Optional.empty` → `new EvaScoreInfoCO()` 的兜底逻辑归位到用例层（保持行为不变；为下一步让旧入口 `EvaStatisticsServiceImpl` 退化为纯委托壳做准备；最小回归通过；落地提交：`bce01df2`）。
 - ✅ **评教读侧用例归位深化（统计：旧入口委托 UseCase—evaScoreStatisticsInfo）**：将 `EvaStatisticsServiceImpl.evaScoreStatisticsInfo` 退化为纯委托壳，改为调用 `EvaStatisticsQueryUseCase.evaScoreStatisticsInfoOrEmpty`，从而把空对象兜底彻底归位到 UseCase（保持 `@CheckSemId` 触发点不变；保持行为不变；最小回归通过；落地提交：`1bf3a4fe`）。
 - ✅ **评教读侧用例归位深化（统计：evaTemplateSituation 空对象兜底重载归位起步）**：在 `EvaStatisticsQueryUseCase` 新增 `evaTemplateSituationOrEmpty`，先把 `Optional.empty` → `new EvaSituationCO()` 的兜底逻辑归位到用例层（保持行为不变；为下一步让旧入口 `EvaStatisticsServiceImpl` 退化为纯委托壳做准备；最小回归通过；落地提交：`89b6b1ee`）。
@@ -222,6 +223,8 @@
 >
 > 规则提醒：每个小提交都必须做到：Serena 符号级定位/引用分析 → **最小回归** → `git commit` → 同步三份文档（本文件 + `DDD_REFACTOR_PLAN.md` + `docs/DDD_REFACTOR_BACKLOG.md`）。
 >
+> 阶段性策略微调（2025-12-29）：允许“微调”（仅结构性重构；不改业务语义；缓存/日志/异常文案/副作用顺序完全不变）；短期优先推进“评教读侧进一步解耦（方向 A → B）”主线，S0/S0.1 暂不新增新的折叠试点提交（仅滚动维护与收尾）。
+>
 
 - ✅ 提交点 0（纯文档闭环）：已完成（落地提交：`1adc80bd`）。
 - ✅ 提交点 A（结构落点，不迁业务）：已完成（落地提交：`a30a1ff9`）。
@@ -268,12 +271,12 @@
    - 最小切入点建议（仍保持行为不变，便于可回滚）：优先从 `bc-evaluation/application/port/EvaStatisticsQueryPort` 着手，先按“用例簇”拆出 2~3 个更细粒度的子 Port（**仅新增接口 + `extends`，不改实现/不改装配**），再按“每次只迁 1 个用例方法”的节奏逐步收窄上层依赖类型（避免一次性大改导致口径/异常漂移）。
    - 风险提示：`eva-app` 中存在通过 `SpringUtil.getBean(...)` 获取 QueryPort 的静态初始化路径（例如导出相关类）；如需调整依赖类型或移动类归属，务必保持 Bean 初始化时机与副作用顺序不变。
 
-## 0.12 当前总体进度概览（2025-12-28，更新至 `HEAD`）
+## 0.12 当前总体进度概览（2025-12-29，更新至 `HEAD`）
 
 > 用于回答“现在总进度到哪了”，避免每次会话重新盘点。
 
 - **bc-iam（系统管理/IAM）**：已完成大量写侧/读侧收敛；历史上通过平铺过渡模块 `bc-iam-infra` 完成适配器归属与去 `eva-infra` 依赖闭环（见历史提交点）。**按 2025-12-24 需求变更**：已将该过渡模块折叠归位到 `bc-iam/infrastructure` 子模块（落地提交：`0b5c5383`），并新增 `bc-iam-contract` 子模块承接 IAM 协议对象迁移（落地提交：`dc3727fa`）。
-- **bc-evaluation（评教）**：写侧主链路（任务发布/删除/模板）已按“用例+端口+适配器+委托壳”收敛；历史上通过平铺过渡模块 `bc-evaluation-infra` 完成读侧迁移与写侧 Repo 迁移，并通过 `eva-infra-shared`/`eva-infra-dal` 解决跨 BC 共享（均保持包名/行为不变）。**按 2025-12-24 需求变更**：已将该过渡模块折叠归位到 `bc-evaluation/infrastructure` 子模块（落地提交：`4db04d1c`）。补充进展（2025-12-28）：记录读侧 QueryPort 已细分并开始收窄 `eva-app` 依赖类型（见 0.9，保持行为不变）。
+- **bc-evaluation（评教）**：写侧主链路（任务发布/删除/模板）已按“用例+端口+适配器+委托壳”收敛；历史上通过平铺过渡模块 `bc-evaluation-infra` 完成读侧迁移与写侧 Repo 迁移，并通过 `eva-infra-shared`/`eva-infra-dal` 解决跨 BC 共享（均保持包名/行为不变）。**按 2025-12-24 需求变更**：已将该过渡模块折叠归位到 `bc-evaluation/infrastructure` 子模块（落地提交：`4db04d1c`）。补充进展（2025-12-29）：统计读侧用例归位深化已完成 `evaScoreStatisticsInfo/evaTemplateSituation/evaWeekAdd` 三簇空对象兜底归位到 `EvaStatisticsQueryUseCase`，并让旧入口 `EvaStatisticsServiceImpl` 退化为委托壳（见 0.9，保持行为不变）。
 - **bc-evaluation（评教，contract）**：已新增 `bc-evaluation-contract` 并迁移评教统计接口 `IEvaStatisticsService` + 未达标用户协议对象 `UnqualifiedUserInfoCO/UnqualifiedUserResultCO`（保持 `package edu.cuit.client.*` 不变，仅物理归属与依赖收敛；保持行为不变；落地提交：`978e3535`）；并继续迁移评教统计/表单相关 CO（`DateEvaNumCO/TimeEvaNumCO/MoreDateEvaNumCO/SimpleEvaPercentCO/SimplePercentCO/FormPropCO`，保持 `package` 不变；保持行为不变；`c2d8a8b1`），以及课程时间模型 `CourseTime`（沉淀到 `shared-kernel`，保持 `package` 不变；保持行为不变；`5f21b5ce`）；并已在“可证实不再需要”的前提下移除 `bc-evaluation-contract` → `eva-client` 直依赖（`cf2001ef`）。
 - **bc-audit（审计日志）**：已完成 `LogGatewayImpl.insertLog` 写链路收敛（异步触发点保留在旧入口，落库与字段补齐在端口适配器）；并已将审计日志协议对象 `ILogService/OperateLogCO/LogModuleCO` 从 `eva-client` 迁移到 `bc-audit`（保持 `package` 不变；保持行为不变；`e1dbf2d4`）。
 - **bc-audit（审计日志，S0 折叠归位）**：已完成阶段 1/2/3：引入 `bc-audit-parent` + 内部子模块；将 `LogInsertionPortImpl` 归位 `bc-audit/infrastructure`；并已抽离 `sys_log` 相关 DAL/Converter 以移除 `bc-audit-infra` → `eva-infra` 过渡依赖（保持行为不变；提交：`81594308`、`d7858d7a`、`06ec6f3d`）。
@@ -283,6 +286,12 @@
 - **bc-ai-report（AI 报告，补充）**：旧入口 `AiCourseAnalysisService` 与组合根 `BcAiReportConfiguration` 已归位到 `bc-ai-report`；为保持 `@CheckSemId` 切面语义不变，`edu.cuit.app.aop.CheckSemId` 已下沉到 `shared-kernel`（均保持包名/异常/日志/副作用顺序不变；提交：`58c2f055`、`ca321a20`、`1c595052`）。
 - **bc-template（模板）**：已完成 S0 结构折叠为 `bc-template-parent` + 内部 `domain/application/infrastructure` 子模块（应用层 artifactId 仍为 `bc-template`；包名不变；保持行为不变；落地提交：`65091516`）。
 - **bc-course（课程）**：已完成 S0 折叠为 `bc-course-parent` + 内部 `domain/application/infrastructure` 子模块（应用层 artifactId 仍为 `bc-course`；包名不变；保持行为不变；提交：`e90ad03b`）。读侧 `CourseQueryGatewayImpl` 已退化委托壳并抽出 QueryRepo/Repository（保持行为不变）。
+- **bc-messaging（消息）**：当前仍以平铺模块为主（`bc-messaging/src`），尚未完成“一个 BC 一个聚合模块 + 内部三层子模块”的结构折叠；但协议对象迁移已存在 `bc-messaging-contract`，后续建议优先把 `bc-messaging` 也按 S0 结构折叠（仅搬运/依赖收敛，保持行为不变）。
+
+**阶段性判断（用于回答“什么时候能收敛 eva-* / 什么时候算 DDD”）**
+- **结构上的 DDD（可验收）**：所有 `bc-*` 都具备稳定的 `domain/application/infrastructure` 结构落点（模块或至少 package 自包含），旧入口逐步退化为委托壳，出站依赖全部通过 Port 统一表达；此时可认为“结构 DDD”基本成型。
+- **eva-* 技术切片可显著退场的门槛**：当 Controller/Service/UseCase 入口基本都落在各 BC（或仅保留极薄的兼容入口），且 `eva-app/eva-infra` 不再承载业务编排，仅保留 `shared-kernel` + 必要的 `eva-infra-dal/eva-infra-shared`（或等价的 BC 内 infrastructure）时，才适合开始“批量下线/合并 eva-* 模块”。
+- **语义上的 DDD（长期）**：聚合边界、领域事件、一致性规则、读写分离（投影/查询模型）等逐步落地，才能称为“语义 DDD 完整”；建议在结构边界稳定后再推进（风险更低、回滚更容易）。
 
 ### 条目 25（定义 / 边界 / 验收口径）
 
@@ -317,6 +326,7 @@
 
 强约束（必须严格执行）：
 - 只做重构，不改业务语义；缓存/日志/异常文案/副作用顺序完全不变
+- 允许微调：仅限结构性重构（收窄依赖/拆接口/搬运默认值兜底/类归位），仍以“行为不变”为最高约束
 - 必须使用 Serena 做符号级定位与引用分析（若 MCP 工具出现 `TimeoutError` 等不可用情况：需在 0.9 记录“降级原因 + 可复现的 `rg` 证据”，并在下一会话优先排查恢复）
 - 每个小步骤闭环顺序：Serena（符号级定位/引用分析）→ 最小回归 → git commit → 同步 NEXT_SESSION_HANDOFF.md / DDD_REFACTOR_PLAN.md / docs/DDD_REFACTOR_BACKLOG.md（保持行为不变）
 - 每次结束对话前：先写清“下一步拆分与里程碑/提交点”

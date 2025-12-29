@@ -509,6 +509,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 3) ✅ **课程读侧渐进收敛**：为 `CourseQueryGatewayImpl` 引入 `QueryPort/QueryRepo`（先结构化，再考虑 CQRS 投影表；落地提交：`ba8f2003`）。
 4) ✅ **评教读侧渐进收敛**：为 `EvaQueryGatewayImpl` 抽取 `EvaQueryRepo`，gateway 退化为委托壳（保持统计口径与异常文案不变；落地提交：`02f4167d`）。
 5) **评教读侧进一步解耦**：按用例维度拆分 QueryService（任务/记录/统计/模板），将 query 端口逐步迁到 `bc-evaluation` 应用层，`eva-infra` 仅保留实现（行为不变）。  
+   - 阶段性策略微调（2025-12-29）：允许“微调”（仅结构性重构；不改业务语义；缓存/日志/异常文案/副作用顺序完全不变）；短期优先把“评教读侧解耦（A → B）”主线推进到可验收里程碑，S0 折叠不再作为近期新增试点目标（避免分散注意力），仅做已在进行中的收尾与文档维护。
    - 进展：已拆分统计/导出、任务、记录、模板查询端口（`EvaStatisticsQueryPort` / `EvaTaskQueryPort` / `EvaRecordQueryPort` / `EvaTemplateQueryPort`），应用层开始迁移，行为保持不变；旧 `EvaQueryGatewayImpl` 已移除；并已引入 `bc-evaluation-infra` 承接评教读侧查询实现（QueryPortImpl + QueryRepo/Repository，保持包名/行为不变；落地：`be6dc05c`）。
    - 补充进展（2025-12-27）：为后续“按用例进一步收窄依赖类型”做准备，已细分统计 QueryPort：新增 `EvaStatisticsOverviewQueryPort/EvaStatisticsTrendQueryPort/EvaStatisticsUnqualifiedUserQueryPort`，并让 `EvaStatisticsQueryPort` `extends` 以上子端口（仅接口拆分，不改实现/不改装配；保持行为不变；落地：`a1d6ccab`）。
    - 补充进展（2025-12-28）：工程噪音收敛（dev 环境 MyBatis 日志）：将 `application-dev.yml` 中 MyBatis-Plus 的 `log-impl` 从 `StdOutImpl` 切换为 `Slf4jImpl`，避免 SQL 调试日志直出 stdout（仅 dev profile，生产不变；最小回归通过；落地：`cb3a4620`）。
