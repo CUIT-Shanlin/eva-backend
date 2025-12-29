@@ -2,14 +2,13 @@ package edu.cuit.app.poi.util;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.cola.exception.BizException;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.RegionUtil;
-import org.apache.poi.xssf.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.awt.Color;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +46,7 @@ public class ExcelUtils {
      * @param cra 合并单元格
      * @return 单元格
      */
-    public static Cell getMergedCellRegionFistCell(Sheet sheet,CellRangeAddress cra) {
+    public static Cell getMergedCellRegionFistCell(Sheet sheet, CellRangeAddress cra) {
         return sheet.getRow(cra.getFirstRow()).getCell(cra.getFirstColumn());
     }
 
@@ -70,13 +69,13 @@ public class ExcelUtils {
                 String endStr = value[1];
                 int length = endStr.length();
                 if (endStr.charAt(length - 1) == '单') {
-                    end = Integer.parseInt(endStr.substring(0,length - 1));
+                    end = Integer.parseInt(endStr.substring(0, length - 1));
                     for (int i = start; i <= end; i++) {
                         if (i % 2 == 0) continue;
                         result.add(i);
                     }
                 } else if (endStr.charAt(length - 1) == '双') {
-                    end = Integer.parseInt(endStr.substring(0,length - 1));
+                    end = Integer.parseInt(endStr.substring(0, length - 1));
                     for (int i = start; i <= end; i++) {
                         if (i % 2 != 0) continue;
                         result.add(i);
@@ -165,14 +164,14 @@ public class ExcelUtils {
      * @param lastCol 结束列
      * @param sheet sheet
      */
-    public static void createRegion(int startRow,int lastRow,int startCol,int lastCol,Sheet sheet) {
+    public static void createRegion(int startRow, int lastRow, int startCol, int lastCol, Sheet sheet) {
         if ((lastRow - startRow) + (lastCol - startCol) == 0) return;
         CellRangeAddress cellAddresses = new CellRangeAddress(startRow, lastRow, startCol, lastCol);
         sheet.addMergedRegion(cellAddresses);
-        RegionUtil.setBorderTop(BorderStyle.THIN,cellAddresses,sheet);
-        RegionUtil.setBorderBottom(BorderStyle.THIN,cellAddresses,sheet);
-        RegionUtil.setBorderLeft(BorderStyle.THIN,cellAddresses,sheet);
-        RegionUtil.setBorderRight(BorderStyle.THIN,cellAddresses,sheet);
+        RegionUtil.setBorderTop(BorderStyle.THIN, cellAddresses, sheet);
+        RegionUtil.setBorderBottom(BorderStyle.THIN, cellAddresses, sheet);
+        RegionUtil.setBorderLeft(BorderStyle.THIN, cellAddresses, sheet);
+        RegionUtil.setBorderRight(BorderStyle.THIN, cellAddresses, sheet);
 
     }
 
