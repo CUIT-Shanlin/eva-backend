@@ -510,6 +510,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 4) ✅ **评教读侧渐进收敛**：为 `EvaQueryGatewayImpl` 抽取 `EvaQueryRepo`，gateway 退化为委托壳（保持统计口径与异常文案不变；落地提交：`02f4167d`）。
 5) **评教读侧进一步解耦**：按用例维度拆分 QueryService（任务/记录/统计/模板），将 query 端口逐步迁到 `bc-evaluation` 应用层，`eva-infra` 仅保留实现（行为不变）。  
    - 阶段性策略微调（2025-12-29）：允许“微调”（仅结构性重构；不改业务语义；缓存/日志/异常文案/副作用顺序完全不变）；短期优先把“评教读侧解耦（A → B）”主线推进到可验收里程碑，S0 折叠不再作为近期新增试点目标（避免分散注意力），仅做已在进行中的收尾与文档维护。
+   - 补充进展（2025-12-29）：将 POI 工具类 `ExcelUtils` 从 `eva-app` 迁移到 `eva-infra-shared`（保持包名不变）并补齐 `poi/poi-ooxml` 依赖，为后续导出实现从 `eva-app` 归位到基础设施模块扫清“循环依赖”风险（保持行为不变；最小回归通过；落地：`04009c85`）。
    - 补充进展（2025-12-29）：在 `EvaStatisticsQueryUseCase` 内部收敛 `type` 分支分发为 `dispatchByType(...)`，减少重复分支判断，避免后续继续归位方法簇时出现分支口径漂移（保持行为不变；最小回归通过；落地：`38ce9ece`）。
    - 补充进展（2025-12-29）：统计导出 `exportEvaStatistics` 调用归位到 `EvaStatisticsQueryUseCase`：引入导出端口 `EvaStatisticsExportPort`（Bean 仍委托既有 `EvaStatisticsExcelFactory.createExcelData`），旧入口 `EvaStatisticsServiceImpl.exportEvaStatistics` 退化为纯委托壳（保持 `@CheckSemId` 触发点与异常文案/日志顺序不变；最小回归通过；落地：`0d15de60`）。
    - 进展：已拆分统计/导出、任务、记录、模板查询端口（`EvaStatisticsQueryPort` / `EvaTaskQueryPort` / `EvaRecordQueryPort` / `EvaTemplateQueryPort`），应用层开始迁移，行为保持不变；旧 `EvaQueryGatewayImpl` 已移除；并已引入 `bc-evaluation-infra` 承接评教读侧查询实现（QueryPortImpl + QueryRepo/Repository，保持包名/行为不变；落地：`be6dc05c`）。

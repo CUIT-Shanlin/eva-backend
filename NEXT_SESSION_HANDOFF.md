@@ -22,6 +22,8 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2025-12-29（本次会话）**
+- ⚠️ **MCP Serena 降级记录（TimeoutError）**：本次尝试用 Serena 对 `EvaStatisticsExporter` 做符号级定位/引用分析时发生 `TimeoutError`（已尝试缩小 `relative_path` 仍超时），因此本步引用面盘点临时降级为 `rg` 证据（下一会话优先排查 Serena 恢复）。可复现证据：`rg -n --column "class\\s+EvaStatisticsExporter\\b" .` 仅命中 `eva-app/src/main/java/edu/cuit/app/poi/eva/EvaStatisticsExporter.java:24`；`rg -n --column "\\bExcelUtils\\b" .` 显示导出链路与课表解析均依赖 `ExcelUtils`。
+- ✅ **评教读侧进一步解耦（导出基础设施归位准备：ExcelUtils 迁移）**：将 POI 工具类 `ExcelUtils` 从 `eva-app` 迁移到 `eva-infra-shared`（保持 `package edu.cuit.app.poi.util` 不变），并在 `eva-infra-shared` 补齐 `poi/poi-ooxml` 依赖，为后续把 `EvaStatisticsExporter` 等导出实现从 `eva-app` 归位到更合理落点扫清“循环依赖”风险（保持行为不变；最小回归通过；落地提交：`04009c85`）。
 - ✅ **评教读侧用例归位深化（统计：旧入口委托 UseCase—exportEvaStatistics 导出链路）**：引入统计导出端口 `EvaStatisticsExportPort`（由 `BcEvaluationConfiguration` 提供 Bean：委托既有 `EvaStatisticsExcelFactory.createExcelData`），并将旧入口 `EvaStatisticsServiceImpl.exportEvaStatistics` 退化为纯委托壳，改为调用 `EvaStatisticsQueryUseCase.exportEvaStatistics`（保持 `@CheckSemId` 触发点不变；导出异常文案/日志与副作用顺序完全不变；最小回归通过；落地提交：`0d15de60`）。
 - ✅ **评教读侧用例归位深化（统计：UseCase 内部 type 分支分发逻辑收敛）**：在 `EvaStatisticsQueryUseCase` 抽出 `dispatchByType(...)`，统一复用 `type==0/type==1/否则抛 SysException("type是10以外的值")` 的分发逻辑，减少重复分支判断，避免后续继续归位方法簇时出现分支口径漂移（只重构不改业务语义/异常文案；最小回归通过；落地提交：`38ce9ece`）。
 - ✅ **评教读侧用例归位深化（统计：旧入口委托 UseCase—pageUnqualifiedUser 分页结果组装）**：将旧入口 `EvaStatisticsServiceImpl.pageUnqualifiedUser` 退化为纯委托壳，改为调用 `EvaStatisticsQueryUseCase.pageUnqualifiedUserAsPaginationQueryResult`，并移除对 `PaginationBizConvertor` 的依赖（保持 `@CheckSemId` 触发点不变；保持行为不变；最小回归通过；落地提交：`f4f3fcde`）。
