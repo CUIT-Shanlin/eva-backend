@@ -25,7 +25,7 @@ public class EvaStatisticsServiceImpl implements IEvaStatisticsService {
     @Override
     @CheckSemId
     public EvaScoreInfoCO evaScoreStatisticsInfo(Integer semId, Number score) {
-        return evaStatisticsQueryUseCase.evaScoreStatisticsInfo(semId,score).orElseGet(()->new EvaScoreInfoCO());
+        return evaStatisticsQueryUseCase.evaScoreStatisticsInfoOrEmpty(semId, score);
     }
 
     @Override
