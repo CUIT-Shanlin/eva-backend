@@ -108,6 +108,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2025-12-29）**
+- 评教读侧用例归位深化（统计：exportEvaStatistics 导出链路委托 UseCase）：引入统计导出端口 `EvaStatisticsExportPort`（Bean 委托既有 `EvaStatisticsExcelFactory.createExcelData`），并将旧入口 `EvaStatisticsServiceImpl.exportEvaStatistics` 退化为纯委托壳，改为调用 `EvaStatisticsQueryUseCase.exportEvaStatistics`（保持 `@CheckSemId` 触发点与异常文案/日志顺序不变；最小回归通过；落地提交：`0d15de60`）。
 - 评教读侧用例归位深化（统计：UseCase 内部 type 分支分发逻辑收敛）：在 `EvaStatisticsQueryUseCase` 抽出 `dispatchByType(...)`，统一复用 `type==0/type==1/否则抛 SysException("type是10以外的值")` 的分发逻辑，减少重复分支判断（只重构不改业务语义/异常文案；最小回归通过；落地提交：`38ce9ece`）。
 - 工程噪音收敛（dev 环境 MyBatis 日志）：将 `application-dev.yml` 中 MyBatis-Plus 的 `log-impl` 从 `org.apache.ibatis.logging.stdout.StdOutImpl` 切换为 `org.apache.ibatis.logging.slf4j.Slf4jImpl`，避免 SQL 调试日志直出 stdout（仅 dev profile，生产不变；最小回归通过；落地提交：`cb3a4620`）。
 - 工程噪音收敛（dev/test 非法入参打印）：将 `application-dev.yml/application-test.yml` 中 `common.print-illegal-arguments` 从 `true` 调整为 `false`，减少控制台噪音（仅 dev/test profile；不改业务逻辑；最小回归通过；落地提交：`21ba35dd`）。

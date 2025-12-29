@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2025-12-29（本次会话）**
+- ✅ **评教读侧用例归位深化（统计：旧入口委托 UseCase—exportEvaStatistics 导出链路）**：引入统计导出端口 `EvaStatisticsExportPort`（由 `BcEvaluationConfiguration` 提供 Bean：委托既有 `EvaStatisticsExcelFactory.createExcelData`），并将旧入口 `EvaStatisticsServiceImpl.exportEvaStatistics` 退化为纯委托壳，改为调用 `EvaStatisticsQueryUseCase.exportEvaStatistics`（保持 `@CheckSemId` 触发点不变；导出异常文案/日志与副作用顺序完全不变；最小回归通过；落地提交：`0d15de60`）。
 - ✅ **评教读侧用例归位深化（统计：UseCase 内部 type 分支分发逻辑收敛）**：在 `EvaStatisticsQueryUseCase` 抽出 `dispatchByType(...)`，统一复用 `type==0/type==1/否则抛 SysException("type是10以外的值")` 的分发逻辑，减少重复分支判断，避免后续继续归位方法簇时出现分支口径漂移（只重构不改业务语义/异常文案；最小回归通过；落地提交：`38ce9ece`）。
 - ✅ **评教读侧用例归位深化（统计：旧入口委托 UseCase—pageUnqualifiedUser 分页结果组装）**：将旧入口 `EvaStatisticsServiceImpl.pageUnqualifiedUser` 退化为纯委托壳，改为调用 `EvaStatisticsQueryUseCase.pageUnqualifiedUserAsPaginationQueryResult`，并移除对 `PaginationBizConvertor` 的依赖（保持 `@CheckSemId` 触发点不变；保持行为不变；最小回归通过；落地提交：`f4f3fcde`）。
 - ✅ **评教读侧用例归位深化（统计：pageUnqualifiedUser 分页结果组装归位起步）**：在 `EvaStatisticsQueryUseCase` 新增 `pageUnqualifiedUserAsPaginationQueryResult`，把“`PaginationResultEntity` → `PaginationQueryResultCO`”的分页结果组装逻辑先归位到用例层，为下一步旧入口 `EvaStatisticsServiceImpl.pageUnqualifiedUser` 退化为纯委托壳做准备（保持行为不变；最小回归通过；落地提交：`e97615e1`）。
@@ -241,6 +242,7 @@
   1) ✅ 统计读侧 `pageUnqualifiedUser`：分页结果组装已归位到 `EvaStatisticsQueryUseCase`，旧入口 `EvaStatisticsServiceImpl` 已退化为纯委托壳并移除对 `PaginationBizConvertor` 的依赖（`e97615e1` / `f4f3fcde`）。  
   2) ✅ bc-messaging：已完成“后置规划证据化”（仅文档，不落地代码），散落点与路线见 `DDD_REFACTOR_PLAN.md` 第 10.3 节（`4b05f515`）。
   3) ✅ 统计读侧 `type` 分支判断去重复：在 `EvaStatisticsQueryUseCase` 内部收敛 `type` 分发为 `dispatchByType(...)`，避免后续继续归位时出现分支口径漂移（保持行为不变；`38ce9ece`）。
+  4) ✅ 统计读侧导出 `exportEvaStatistics`：引入导出端口 `EvaStatisticsExportPort` 并让旧入口委托 `EvaStatisticsQueryUseCase.exportEvaStatistics`（保持 `@CheckSemId` 触发点不变；行为不变；`0d15de60`）。
 
 - 下一步建议（仍保持行为不变；每次只改 1 个类 + 1 个可运行回归）：  
   1) **评教统计读侧（优先）**：继续在 `EvaStatisticsQueryUseCase` 归位下一簇“默认值兜底/空对象组装/结果组装”（可选低风险：将 `exportEvaStatistics` 的调用也归位到 UseCase，让旧入口进一步退化为纯委托壳，`@CheckSemId` 触发点仍保留在旧入口）。  
