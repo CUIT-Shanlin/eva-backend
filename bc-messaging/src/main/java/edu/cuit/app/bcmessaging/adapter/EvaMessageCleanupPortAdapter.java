@@ -1,6 +1,6 @@
 package edu.cuit.app.bcmessaging.adapter;
 
-import edu.cuit.app.service.impl.MsgServiceImpl;
+import edu.cuit.client.api.IMsgService;
 import edu.cuit.bc.messaging.application.port.EvaMessageCleanupPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -11,11 +11,10 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class EvaMessageCleanupPortAdapter implements EvaMessageCleanupPort {
-    private final MsgServiceImpl msgService;
+    private final IMsgService msgService;
 
     @Override
     public void deleteEvaMsg(Integer taskId) {
         msgService.deleteEvaMsg(taskId, null);
     }
 }
-
