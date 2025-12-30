@@ -16,3 +16,4 @@ public record CourseOperationSideEffectsEvent(
         this(operatorUserId, messageMap, CourseOperationMessageMode.NORMAL);
     }
 }
+
