@@ -28,6 +28,7 @@
 - ✅ **bc-messaging（消息域）：基础设施端口适配器归位（消息已读）**：将 `MessageReadPortImpl` 从 `eva-infra` 归位到 `bc-messaging`（保持 `package edu.cuit.infra.bcmessaging.adapter` 不变；校验逻辑/异常文案/更新条件与调用顺序完全不变；最小回归通过；落地提交以 `git log -n 1 -- bc-messaging/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageReadPortImpl.java` 为准）。
 - ✅ **bc-messaging（消息域）：基础设施端口适配器归位（消息显示状态）**：将 `MessageDisplayPortImpl` 从 `eva-infra` 归位到 `bc-messaging`（保持 `package edu.cuit.infra.bcmessaging.adapter` 不变；校验逻辑/异常文案/更新条件与调用顺序完全不变；最小回归通过；落地提交以 `git log -n 1 -- bc-messaging/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageDisplayPortImpl.java` 为准）。
 - ✅ **bc-messaging（消息域）：基础设施端口适配器归位前置（Convertor 归位）**：将 MapStruct 转换器 `MsgConvertor` 从 `eva-infra` 归位到 `eva-infra-shared`，并在 `eva-infra-shared` 补齐对 `bc-messaging-contract` 的依赖以闭合 `GenericRequestMsg` 类型引用（保持 `package edu.cuit.infra.convertor` 不变；保持行为不变；最小回归通过；落地提交以 `git log -n 1 -- eva-infra-shared/src/main/java/edu/cuit/infra/convertor/MsgConvertor.java` 为准）。
+- ✅ **bc-messaging（消息域）：基础设施端口适配器归位（消息新增）**：将 `MessageInsertionPortImpl` 从 `eva-infra` 归位到 `bc-messaging`（保持 `package edu.cuit.infra.bcmessaging.adapter` 不变；插入后回填 `id` 与 `createTime` 的顺序不变；并在 `bc-messaging` 补齐对 `eva-infra-shared` 的依赖以闭合 `MsgConvertor` 类型引用；最小回归通过；落地提交以 `git log -n 1 -- bc-messaging/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageInsertionPortImpl.java` 为准）。
 
 **2025-12-29（本次会话）**
 - ✅ **bc-course（课程）：课表 Excel/POI 解析归位**：将 `eva-app` 内的课表解析实现（`edu.cuit.app.poi.course.*`）整体迁移到 `bc-course-infra`（保持 `package` 不变；异常文案/日志输出/副作用顺序完全不变），并补齐 `bc-course-infra` 对 `eva-infra-shared` 的依赖以复用 `ExcelUtils`（保持行为不变；最小回归通过；落地提交：`383dbf33`；删除旧文件并收尾：`5a7cd0a0`）。
@@ -432,7 +433,8 @@
         - ✅ 1.7.2（基础设施端口适配器归位）：`MessageDeletionPortImpl` 已归位到 `bc-messaging`，并在 `bc-messaging` 补齐对 `eva-infra-dal` 的依赖以闭合编译与装配（保持行为不变；见 0.9）。
         - ✅ 1.7.3（基础设施端口适配器归位）：`MessageReadPortImpl` 已归位到 `bc-messaging`（保持行为不变；见 0.9）。
         - ✅ 1.7.4（基础设施端口适配器归位）：`MessageDisplayPortImpl` 已归位到 `bc-messaging`（保持行为不变；见 0.9）。
-        - 下一步建议（保持行为不变，每步只迁 1 个类）：继续迁 `MessageInsertionPortImpl` → `bc-messaging`（其余顺序建议：`MessageQueryPortImpl`；该类依赖 `MsgConvertor/UserQueryGateway`，风险更高，后置）。
+        - ✅ 1.7.5（基础设施端口适配器归位）：`MessageInsertionPortImpl` 已归位到 `bc-messaging`（保持行为不变；见 0.9）。
+        - 下一步建议（保持行为不变，每步只迁 1 个类）：继续迁 `MessageQueryPortImpl` → `bc-messaging`（依赖 `UserQueryGateway`，风险更高，后置）。
 
 2) （可选/后置）**评教读侧用例归位深化（统计）**：继续按“每次只迁 1 个方法簇”的节奏归位默认值兜底/空对象组装（保持行为不变）。
 
