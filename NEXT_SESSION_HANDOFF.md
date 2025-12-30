@@ -21,6 +21,9 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2025-12-30（本次会话）**
+- ✅ **bc-messaging（消息域）：基础设施端口适配器归位前置（DAL 归位）**：将消息表数据对象 `MsgTipDO` 从 `eva-infra` 归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.dal.database.dataobject` 不变；仅类归位，不改任何业务语义；为后续把 `eva-infra/.../bcmessaging/adapter/*PortImpl` 逐个归位到 `bc-messaging` 并把依赖收敛到 `eva-infra-dal` 预置；最小回归通过；落地提交以 `git log -n 1 -- eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/dataobject/MsgTipDO.java` 为准）。
+
 **2025-12-29（本次会话）**
 - ✅ **bc-course（课程）：课表 Excel/POI 解析归位**：将 `eva-app` 内的课表解析实现（`edu.cuit.app.poi.course.*`）整体迁移到 `bc-course-infra`（保持 `package` 不变；异常文案/日志输出/副作用顺序完全不变），并补齐 `bc-course-infra` 对 `eva-infra-shared` 的依赖以复用 `ExcelUtils`（保持行为不变；最小回归通过；落地提交：`383dbf33`；删除旧文件并收尾：`5a7cd0a0`）。
 - ✅ **bc-course（课程）：端口化与依赖收敛**：新增课表解析端口 `CourseExcelResolvePort`（`bc-course/application`），由 `bc-course-infra` 提供适配器 `CourseExcelResolvePortImpl`（内部仍复用 `CourseExcelResolver`，确保异常文案与日志不变）；`IUserCourseServiceImpl.importCourse` 改为依赖端口，移除对 `CourseExcelResolver` 的直接依赖；同时将 `eva-app` 对 `bc-course-infra` 的依赖收敛为 `runtime`，并在 `start` 测试侧补齐 `bc-course-infra` 测试依赖以保证 `CourseResolverTest` 编译（保持行为不变；最小回归通过；落地提交：`5a7cd0a0`）。
@@ -418,7 +421,9 @@
    1.4) ✅ 已完成：迁应用侧端口适配器 `CourseBroadcastPortAdapter` → `bc-messaging`（保持 `package` 不变；依赖 `MsgResult`，因此先归位了 `MsgResult` 以避免 Maven 循环依赖）。
    1.5) ✅ 已完成：迁应用侧端口适配器 `TeacherTaskMessagePortAdapter` → `bc-messaging`（保持 `package` 不变；依赖 `MsgResult`）。
    1.6) ✅ 已完成：迁应用侧端口适配器 `EvaMessageCleanupPortAdapter` → `bc-messaging`（保持 `package` 不变；将依赖类型收窄为 `IMsgService` 以避免 Maven 循环依赖；保持行为不变）。
-   1.7) （后置）再推进 `eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/*PortImpl.java` 的归位与依赖收敛（保持行为不变；细节见 `DDD_REFACTOR_PLAN.md` 10.3）。
+   1.7) （后置）再推进 `eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/*PortImpl.java` 的归位与依赖收敛（保持行为不变；细节见 `DDD_REFACTOR_PLAN.md` 10.3）：
+        - ✅ 1.7.0（前置，DAL 归位）：`MsgTipDO` 已归位到 `eva-infra-dal`（保持 `package` 不变；见 0.9）。
+        - 下一步建议（保持行为不变，每步只迁 1 个类）：继续将 `MsgTipMapper`（以及必要时 `MsgTipMapper.xml`）归位到 `eva-infra-dal`，再逐个搬运 `Message*PortImpl` 到 `bc-messaging` 并把依赖收敛到 `eva-infra-dal`（避免 bc-messaging 反向依赖 `eva-infra` 造成 Maven 循环依赖）。
 
 2) （可选/后置）**评教读侧用例归位深化（统计）**：继续按“每次只迁 1 个方法簇”的节奏归位默认值兜底/空对象组装（保持行为不变）。
 
