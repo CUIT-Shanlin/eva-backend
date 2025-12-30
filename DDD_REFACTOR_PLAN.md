@@ -612,7 +612,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - 基础设施端口适配器：`eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageDeletionPortImpl.java`、`eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageReadPortImpl.java`、`eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageQueryPortImpl.java`、`eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageInsertionPortImpl.java`、`eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageDisplayPortImpl.java`
   - 对应应用层端口（用于建立“端口→适配器”映射）：`bc-messaging/src/main/java/edu/cuit/bc/messaging/application/port/*Port.java`
   - 迁移前置：为避免应用侧端口适配器对 `eva-app` 的编译期耦合导致 Maven 循环依赖，已先将消息发送组装类 `MsgResult` 从 `eva-app` 归位到 `bc-messaging`（保持包名不变；落地：`31878b61`）。
-  - 迁移前置（DAL 归位，保持行为不变）：消息表数据对象 `MsgTipDO` 已从 `eva-infra` 归位到 `eva-infra-dal`（保持 `package` 不变）。后续建议继续将 `MsgTipMapper`（以及必要时 `MsgTipMapper.xml`）归位到 `eva-infra-dal`，再逐个搬运 `Message*PortImpl` 到 `bc-messaging` 并把依赖收敛到 `eva-infra-dal`（避免 bc-messaging 反向依赖 `eva-infra` 造成 Maven 循环依赖）。
+  - 迁移前置（DAL 归位，保持行为不变）：消息表数据对象 `MsgTipDO` 与 Mapper `MsgTipMapper`（含 `MsgTipMapper.xml`）已从 `eva-infra` 归位到 `eva-infra-dal`（保持 `package/namespace` 不变）。后续建议从依赖最少的 `MessageDeletionPortImpl` 开始，逐个搬运 `Message*PortImpl` 到 `bc-messaging`，并把 DB 依赖收敛到 `eva-infra-dal`（避免 bc-messaging 反向依赖 `eva-infra` 造成 Maven 循环依赖）。
 
 - 建议拆分提交（每步：Serena 符号级引用分析 → 最小回归 → commit → 三文档同步）：
   1) **盘点与证据化（只改文档）**：用 Serena 列出 `eva-app/eva-infra` 中与消息域相关的散落点与引用面（优先：`BcMessagingConfiguration`、`CourseOperationSideEffectsListener`、`CourseTeacherTaskMessagesListener`、`eva-app/.../bcmessaging/adapter/*`、`eva-infra/.../bcmessaging/adapter/*`），形成“迁移清单 + 风险点”。
