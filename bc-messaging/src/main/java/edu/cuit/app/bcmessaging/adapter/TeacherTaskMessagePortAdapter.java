@@ -20,4 +20,3 @@ public class TeacherTaskMessagePortAdapter implements TeacherTaskMessagePort {
         msgResult.sendMsgtoTeacher(messageMap, operatorUserId);
     }
 }
-
