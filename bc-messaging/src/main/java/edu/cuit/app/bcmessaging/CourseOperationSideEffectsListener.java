@@ -19,4 +19,3 @@ public class CourseOperationSideEffectsListener {
         useCase.handle(event);
     }
 }
-
