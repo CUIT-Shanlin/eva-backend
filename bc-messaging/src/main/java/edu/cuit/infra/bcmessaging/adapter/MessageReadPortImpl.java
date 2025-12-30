@@ -45,4 +45,3 @@ public class MessageReadPortImpl implements MessageReadPort {
         }
     }
 }
-
