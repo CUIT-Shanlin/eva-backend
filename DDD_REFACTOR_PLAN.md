@@ -607,7 +607,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 - 现状散落点（Serena 证据化盘点，2025-12-29）：
   - 组合根：✅ 已归位到 `bc-messaging/src/main/java/edu/cuit/app/config/BcMessagingConfiguration.java`（保持 `package` 不变；落地：`4e3e2cf2`）。
-  - 应用侧监听器：✅ `bc-messaging/src/main/java/edu/cuit/app/bcmessaging/CourseOperationSideEffectsListener.java`（落地：`22ee30e7`）；未归位：`eva-app/src/main/java/edu/cuit/app/bcmessaging/CourseTeacherTaskMessagesListener.java`
+  - 应用侧监听器：✅ `bc-messaging/src/main/java/edu/cuit/app/bcmessaging/CourseOperationSideEffectsListener.java`（落地：`22ee30e7`）；✅ `bc-messaging/src/main/java/edu/cuit/app/bcmessaging/CourseTeacherTaskMessagesListener.java`（落地：`0987f96f`）
   - 应用侧端口适配器：`eva-app/src/main/java/edu/cuit/app/bcmessaging/adapter/CourseBroadcastPortAdapter.java`、`eva-app/src/main/java/edu/cuit/app/bcmessaging/adapter/EvaMessageCleanupPortAdapter.java`、`eva-app/src/main/java/edu/cuit/app/bcmessaging/adapter/TeacherTaskMessagePortAdapter.java`
   - 基础设施端口适配器：`eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageDeletionPortImpl.java`、`eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageReadPortImpl.java`、`eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageQueryPortImpl.java`、`eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageInsertionPortImpl.java`、`eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageDisplayPortImpl.java`
   - 对应应用层端口（用于建立“端口→适配器”映射）：`bc-messaging/src/main/java/edu/cuit/bc/messaging/application/port/*Port.java`
@@ -615,7 +615,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 建议拆分提交（每步：Serena 符号级引用分析 → 最小回归 → commit → 三文档同步）：
   1) **盘点与证据化（只改文档）**：用 Serena 列出 `eva-app/eva-infra` 中与消息域相关的散落点与引用面（优先：`BcMessagingConfiguration`、`CourseOperationSideEffectsListener`、`CourseTeacherTaskMessagesListener`、`eva-app/.../bcmessaging/adapter/*`、`eva-infra/.../bcmessaging/adapter/*`），形成“迁移清单 + 风险点”。
   2) ✅ **组合根归位**：已将 `eva-app/src/main/java/edu/cuit/app/config/BcMessagingConfiguration.java` 迁移到 `bc-messaging`（保持 `package edu.cuit.app.config` 不变；Bean 定义/装配顺序不变；最小回归通过；落地：`4e3e2cf2`）。
-  3) **应用侧适配器/监听器归位**：将 `eva-app/src/main/java/edu/cuit/app/bcmessaging/*` 与 `eva-app/src/main/java/edu/cuit/app/bcmessaging/adapter/*` 逐个迁移到 `bc-messaging`（建议保持 `package` 不变；每次只迁 1 个类并补齐/复用可运行回归）。补充进展：已完成监听器 `CourseOperationSideEffectsListener` 迁移（`22ee30e7`）。
+  3) **应用侧适配器/监听器归位**：将 `eva-app/src/main/java/edu/cuit/app/bcmessaging/*` 与 `eva-app/src/main/java/edu/cuit/app/bcmessaging/adapter/*` 逐个迁移到 `bc-messaging`（建议保持 `package` 不变；每次只迁 1 个类并补齐/复用可运行回归）。补充进展：已完成监听器 `CourseOperationSideEffectsListener`（`22ee30e7`）与 `CourseTeacherTaskMessagesListener`（`0987f96f`）迁移。
   4) **基础设施端口适配器归位（后置）**：将 `eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/*PortImpl.java` 逐步迁移到 `bc-messaging` 的基础设施落点（理想形态为 `bc-messaging/infrastructure` 子模块；在当前“主线优先、不新增试点”策略下，先仅规划与盘点依赖闭包，待评教读侧阶段性收敛后再落地）。
   5) **依赖收敛（后置）**：在迁移端口适配器后，逐步让 `bc-messaging` 的编译期依赖从 `eva-infra` 收敛为更小的 `eva-infra-dal` + `eva-infra-shared`（或完全无 `eva-infra` 依赖），并保持 `start` 装配不变。
 

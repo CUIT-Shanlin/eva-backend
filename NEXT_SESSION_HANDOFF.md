@@ -268,13 +268,15 @@
   13) ✅ bc-course（课程）：课表解析端口化与依赖收敛：`eva-app` 调用侧改为依赖 `CourseExcelResolvePort`（由 `bc-course-infra` 适配器实现）；`eva-app` 不再编译期依赖 `bc-course-infra`（改为 runtime）；`start` 测试侧补齐 `bc-course-infra` test 依赖（保持行为不变；`5a7cd0a0`）。
   14) ✅ bc-messaging（消息域）：组合根归位：`BcMessagingConfiguration` 已从 `eva-app` 迁移到 `bc-messaging`（保持 `package edu.cuit.app.config` 不变；仅补齐 `bc-messaging` 对 `spring-context` 的依赖；保持行为不变；`4e3e2cf2`）。
   15) ✅ bc-messaging（消息域）：监听器归位（课程副作用）：`CourseOperationSideEffectsListener` 已从 `eva-app` 迁移到 `bc-messaging`（保持 `package edu.cuit.app.bcmessaging` 不变；保持行为不变；`22ee30e7`）。
+  16) ✅ bc-messaging（消息域）：监听器归位（课程教师任务消息）：`CourseTeacherTaskMessagesListener` 已从 `eva-app` 迁移到 `bc-messaging`（保持 `package edu.cuit.app.bcmessaging` 不变；保持行为不变；`0987f96f`）。
 
 - 下一步建议（仍保持行为不变；每次只改 1 个类 + 1 个可运行回归）：  
   1) ✅ **评教统计导出基础设施归位**：本阶段已闭环（装饰器/工厂归位 + 导出端口装配切换均完成；且 `eva-app` 已移除 `poi/poi-ooxml` Maven 直依赖）。后续若要继续推进评教读侧解耦，请回到“统计用例归位（空对象兜底/默认值组装）每次迁 1 个方法簇”的节奏（仍保持行为不变）。
   2) **bc-messaging（下一会话主线，按 10.3 路线）**：从“组合根归位”开始，逐步把消息域装配/监听器/应用侧适配器从 `eva-app` 归位到 `bc-messaging`（建议保持 `package` 不变以降风险；每次只迁 1 个类；保持行为不变）。建议顺序（每步闭环=Serena→最小回归→commit→三文档同步）：
      - ✅ 已完成：组合根 `BcMessagingConfiguration` 归位（`4e3e2cf2`）
      - ✅ 已完成：监听器 `CourseOperationSideEffectsListener` 归位（`22ee30e7`）
-     - 下一步：迁监听器 `CourseTeacherTaskMessagesListener`（或直接迁 1 个应用侧端口适配器，二选一）
+     - ✅ 已完成：监听器 `CourseTeacherTaskMessagesListener` 归位（`0987f96f`）
+     - 下一步：迁 1 个应用侧端口适配器（建议从 `CourseBroadcastPortAdapter` 开始）
      - 再迁应用侧端口适配器：从 `CourseBroadcastPortAdapter/EvaMessageCleanupPortAdapter/TeacherTaskMessagePortAdapter` 中选 1 个
      - （后置）再处理 `eva-infra` 的基础设施端口适配器迁移与依赖收敛（保持行为不变；细节见 `DDD_REFACTOR_PLAN.md` 10.3）
 
@@ -396,11 +398,12 @@
    - bc-course 课表解析：POI 解析归位到 `bc-course-infra` + `CourseExcelResolvePort` 端口化 + 调用侧依赖收敛（见 0.9）。
    - bc-messaging（消息域）：组合根 `BcMessagingConfiguration` 已归位到 `bc-messaging`（保持 `package` 不变；见 0.9）。
    - bc-messaging（消息域）：监听器 `CourseOperationSideEffectsListener` 已归位到 `bc-messaging`（保持 `package` 不变；见 0.9）。
+   - bc-messaging（消息域）：监听器 `CourseTeacherTaskMessagesListener` 已归位到 `bc-messaging`（保持 `package` 不变；见 0.9）。
 
 1) **bc-messaging（下一会话主线，按 10.3 路线）**：先组合根 → 再监听器/应用侧适配器 → 最后基础设施端口适配器与依赖收敛（每步只迁 1 个类；保持行为不变）。建议顺序：
    1.1) ✅ 已完成：迁 `eva-app/src/main/java/edu/cuit/app/config/BcMessagingConfiguration.java` → `bc-messaging`（保持 `package edu.cuit.app.config` 不变；Bean 定义与装配顺序不变）。
    1.2) ✅ 已完成：迁监听器 `CourseOperationSideEffectsListener` → `bc-messaging`（保持 `package` 不变）。
-   1.3) 迁监听器（每次 1 个）：`CourseTeacherTaskMessagesListener`。
+   1.3) ✅ 已完成：迁监听器 `CourseTeacherTaskMessagesListener` → `bc-messaging`（保持 `package` 不变）。
    1.4) 迁应用侧端口适配器（每次 1 个）：从 `CourseBroadcastPortAdapter/EvaMessageCleanupPortAdapter/TeacherTaskMessagePortAdapter` 中选 1 个。
    1.5) （后置）再推进 `eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/*PortImpl.java` 的归位与依赖收敛（保持行为不变；细节见 `DDD_REFACTOR_PLAN.md` 10.3）。
 
