@@ -284,7 +284,7 @@
   14) ✅ bc-messaging（消息域）：组合根归位：`BcMessagingConfiguration` 已从 `eva-app` 迁移到 `bc-messaging`（保持 `package edu.cuit.app.config` 不变；仅补齐 `bc-messaging` 对 `spring-context` 的依赖；保持行为不变；`4e3e2cf2`）。
   15) ✅ bc-messaging（消息域）：监听器归位（课程副作用）：`CourseOperationSideEffectsListener` 已从 `eva-app` 迁移到 `bc-messaging`（保持 `package edu.cuit.app.bcmessaging` 不变；保持行为不变；`22ee30e7`）。
   16) ✅ bc-messaging（消息域）：监听器归位（课程教师任务消息）：`CourseTeacherTaskMessagesListener` 已从 `eva-app` 迁移到 `bc-messaging`（保持 `package edu.cuit.app.bcmessaging` 不变；保持行为不变；`0987f96f`）。
-  17) ✅ bc-messaging（消息域）：支撑类归位（消息发送组装）：`MsgResult` 已从 `eva-app` 迁移到 `bc-messaging`（保持 `package edu.cuit.app.service.operate.course` 不变；保持行为不变；用于打破后续端口适配器迁移的 Maven 循环依赖；`31878b61`）。
+  17) ✅ bc-messaging（消息域）：支撑类归位（消息发送组装）：`MsgResult` 已从 `eva-app` 迁移到 `bc-messaging-contract`（保持 `package edu.cuit.app.service.operate.course` 不变；保持行为不变；用于打破后续端口适配器迁移的 Maven 循环依赖；`31878b61`）。
   18) ✅ bc-messaging（消息域）：应用侧端口适配器归位（课程广播）：`CourseBroadcastPortAdapter` 已从 `eva-app` 迁移到 `bc-messaging`（保持 `package edu.cuit.app.bcmessaging.adapter` 不变；保持行为不变；`84ee070a`）。
   19) ✅ bc-messaging（消息域）：应用侧端口适配器归位（教师任务消息）：`TeacherTaskMessagePortAdapter` 已从 `eva-app` 迁移到 `bc-messaging`（保持 `package edu.cuit.app.bcmessaging.adapter` 不变；保持行为不变；`9ea14cff`）。
   20) ✅ bc-messaging（消息域）：应用侧端口适配器归位（评教消息清理）：`EvaMessageCleanupPortAdapter` 已从 `eva-app` 迁移到 `bc-messaging`，并将依赖类型从 `MsgServiceImpl` 收窄为 `IMsgService`（保持 `deleteEvaMsg(taskId, null)` 调用不变；事务语义由原 `MsgServiceImpl` 承接；保持行为不变；`73ab3f3c`）。
@@ -295,7 +295,7 @@
      - ✅ 已完成：组合根 `BcMessagingConfiguration` 归位（`4e3e2cf2`）
      - ✅ 已完成：监听器 `CourseOperationSideEffectsListener` 归位（`22ee30e7`）
      - ✅ 已完成：监听器 `CourseTeacherTaskMessagesListener` 归位（`0987f96f`）
-     - ✅ 已完成：支撑类 `MsgResult` 归位（`31878b61`）
+     - ✅ 已完成：支撑类 `MsgResult` 归位（`31878b61`，当前位于 `bc-messaging-contract`）
      - ✅ 已完成：应用侧端口适配器 `CourseBroadcastPortAdapter` 归位（`84ee070a`）
      - ✅ 已完成：应用侧端口适配器 `EvaMessageCleanupPortAdapter` 归位（`73ab3f3c`）
      - ✅ 已完成：应用侧端口适配器 `TeacherTaskMessagePortAdapter` 归位（`9ea14cff`）
@@ -324,7 +324,14 @@
 - ✅ 提交点 C-1（读侧门面加固，可选）：已完成（清理 `EvaQueryRepository` 为纯委托壳；落地提交：`73fc6c14`；三文档同步：`083b5807`）。
 
 下一会话建议（按顺序执行；历史已完成项见下方 0.12 “总体进度概览”）：
-0) **评教读侧进一步解耦（优先，方向 A → B，保持行为不变）**：当前已完成“统计 QueryPort 细分 + 依赖收窄 + UseCase 归位起步 + 首个分支归位”（见 0.9：统计 `a1d6ccab/c19d8801/9b3c4e6a/db09d87b/22dccc70`；其余记录/任务/模板/导出链路进展见 0.9 的提交清单）。下一步建议拆分为更小的可回滚提交：
+0) **bc-messaging（依赖收敛后半段，优先，保持行为不变）**：当前已完成“事件枚举/载荷下沉到 `bc-messaging-contract` + `eva-app` 依赖面收敛为 `bc-messaging-contract`”（见 0.9）。下一步建议以“组合根兜底运行时依赖”为目标继续收敛依赖边界（每步闭环）：
+   - 目标：让消息域的运行时装配由组合根承接（建议 `start`），并尽量减少 `eva-app/eva-infra` 对 `bc-messaging` 的编译期耦合（仍保持行为不变）。
+   - 建议拆分为 3 个可回滚提交（每步：Serena → 最小回归 → commit → 三文档同步）：
+     1) 组合根补齐运行时依赖：在 `start/pom.xml` 增加对 `bc-messaging` 的 `runtime` 依赖，确保 Spring 装配不变（以组合根承接为优先）。
+     2) 依赖上推：若第 1 步后仍能通过最小回归，则移除 `eva-infra/pom.xml` 对 `bc-messaging` 的 `runtime` 依赖，把“运行时装配责任”从 `eva-infra` 上推到组合根（保持行为不变）。
+     3) 注意：`bc-messaging-contract` 当前包含 `MsgResult`（`@Component`，保持行为不变），因此其对 `spring-context` 的依赖暂不建议移除；若后续要移除，必须先将 `MsgResult` 的装配责任迁回 `bc-messaging` 或其它合适模块并闭环验证。
+
+1) **评教读侧进一步解耦（优先，方向 A → B，保持行为不变）**：当前已完成“统计 QueryPort 细分 + 依赖收窄 + UseCase 归位起步 + 首个分支归位”（见 0.9：统计 `a1d6ccab/c19d8801/9b3c4e6a/db09d87b/22dccc70`；其余记录/任务/模板/导出链路进展见 0.9 的提交清单）。下一步建议拆分为更小的可回滚提交：
    - **A（继续收窄依赖）**：按同套路继续推进读侧其它主题（优先记录/任务/模板）：先做“子端口接口 + `extends`（不改实现/不改装配）”，再逐个把 `eva-app` 中的注入类型收窄为子端口（每次只改 1 个类 + 对应测试）。
 	     - 进展（统计导出链路，2025-12-28）：已补齐 `EvaStatisticsCountAbEvaQueryPort`，并将导出基类 `EvaStatisticsExporter` 静态初始化中获取统计端口的依赖类型收窄到该子端口（保持 `SpringUtil.getBean(...)` 次数与顺序不变；见 0.9：`24b13138/7337d378`，保持行为不变）。
 	     - 进展（记录主题，2025-12-28）：已完成记录 QueryPort 细分（5 子端口）+ 聚合端口 `extends`，并已收窄 `EvaRecordServiceImpl` 与 `UserServiceImpl` 的依赖类型（见 0.9：`39a4bafe/8b24d2f8` 等，保持行为不变）。
@@ -423,17 +430,19 @@
    - bc-messaging（消息域）：组合根 `BcMessagingConfiguration` 已归位到 `bc-messaging`（保持 `package` 不变；见 0.9）。
    - bc-messaging（消息域）：监听器 `CourseOperationSideEffectsListener` 已归位到 `bc-messaging`（保持 `package` 不变；见 0.9）。
    - bc-messaging（消息域）：监听器 `CourseTeacherTaskMessagesListener` 已归位到 `bc-messaging`（保持 `package` 不变；见 0.9）。
-   - bc-messaging（消息域）：支撑类 `MsgResult` 已归位到 `bc-messaging`（保持 `package` 不变；见 0.9）。
+   - bc-messaging（消息域）：支撑类 `MsgResult` 已归位到 `bc-messaging-contract`（保持 `package` 不变；见 0.9）。
    - bc-messaging（消息域）：应用侧端口适配器 `CourseBroadcastPortAdapter` 已归位到 `bc-messaging`（保持 `package` 不变；见 0.9）。
    - bc-messaging（消息域）：应用侧端口适配器 `TeacherTaskMessagePortAdapter` 已归位到 `bc-messaging`（保持 `package` 不变；见 0.9）。
    - bc-messaging（消息域）：应用侧端口适配器 `EvaMessageCleanupPortAdapter` 已归位到 `bc-messaging`（保持 `package` 不变；见 0.9）。
+   - bc-messaging（消息域）：应用侧事件载荷已下沉到 `bc-messaging-contract`：`CourseOperationMessageMode/CourseOperationSideEffectsEvent/CourseTeacherTaskMessagesEvent`（均保持 `package edu.cuit.bc.messaging.application.event` 不变；见 0.9）。
+   - bc-messaging（消息域）：依赖收敛阶段性闭环：`eva-app` 已将对 `bc-messaging` 的编译期依赖收敛为仅依赖 `bc-messaging-contract`（仅用于事件载荷类型；见 0.9）。
 
 1) **bc-messaging（下一会话主线，按 10.3 路线）**：先组合根 → 再监听器/应用侧适配器 → 最后基础设施端口适配器与依赖收敛（每步只迁 1 个类；保持行为不变）。建议顺序：
    1.1) ✅ 已完成：迁 `eva-app/src/main/java/edu/cuit/app/config/BcMessagingConfiguration.java` → `bc-messaging`（保持 `package edu.cuit.app.config` 不变；Bean 定义与装配顺序不变）。
    1.2) ✅ 已完成：迁监听器 `CourseOperationSideEffectsListener` → `bc-messaging`（保持 `package` 不变）。
    1.3) ✅ 已完成：迁监听器 `CourseTeacherTaskMessagesListener` → `bc-messaging`（保持 `package` 不变）。
-   1.4) ✅ 已完成：迁应用侧端口适配器 `CourseBroadcastPortAdapter` → `bc-messaging`（保持 `package` 不变；依赖 `MsgResult`，因此先归位了 `MsgResult` 以避免 Maven 循环依赖）。
-   1.5) ✅ 已完成：迁应用侧端口适配器 `TeacherTaskMessagePortAdapter` → `bc-messaging`（保持 `package` 不变；依赖 `MsgResult`）。
+   1.4) ✅ 已完成：迁应用侧端口适配器 `CourseBroadcastPortAdapter` → `bc-messaging`（保持 `package` 不变；依赖 `MsgResult`（位于 `bc-messaging-contract`），因此先归位了 `MsgResult` 以避免 Maven 循环依赖）。
+   1.5) ✅ 已完成：迁应用侧端口适配器 `TeacherTaskMessagePortAdapter` → `bc-messaging`（保持 `package` 不变；依赖 `MsgResult`（位于 `bc-messaging-contract`））。
    1.6) ✅ 已完成：迁应用侧端口适配器 `EvaMessageCleanupPortAdapter` → `bc-messaging`（保持 `package` 不变；将依赖类型收窄为 `IMsgService` 以避免 Maven 循环依赖；保持行为不变）。
    1.7) （后置）再推进 `eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/*PortImpl.java` 的归位与依赖收敛（保持行为不变；细节见 `DDD_REFACTOR_PLAN.md` 10.3）：
         - ✅ 1.7.0（前置，DAL 归位）：`MsgTipDO` 已归位到 `eva-infra-dal`（保持 `package` 不变；见 0.9）。
@@ -443,7 +452,12 @@
         - ✅ 1.7.4（基础设施端口适配器归位）：`MessageDisplayPortImpl` 已归位到 `bc-messaging`（保持行为不变；见 0.9）。
         - ✅ 1.7.5（基础设施端口适配器归位）：`MessageInsertionPortImpl` 已归位到 `bc-messaging`（保持行为不变；见 0.9）。
         - ✅ 1.7.6（基础设施端口适配器归位）：`MessageQueryPortImpl` 已归位到 `bc-messaging`（保持行为不变；见 0.9）。
-        - 下一步建议：消息域基础设施端口适配器（`Message*PortImpl`）已全部归位完成，下一会话可按需要继续推进更高收益的“依赖收敛/结构折叠”里程碑（仍保持行为不变）。
+        - ✅ 1.7.7（依赖收敛准备）：事件枚举/载荷已下沉到 `bc-messaging-contract`（保持 `package` 不变；见 0.9）。
+        - ✅ 1.7.8（依赖收敛）：`eva-app` 的 Maven 依赖已从 `bc-messaging` 收敛为 `bc-messaging-contract`（保持行为不变；见 0.9）。
+        - 下一步建议（依赖收敛后半段，仍保持行为不变；每步只做 1 个小改动并闭环）：
+          1) Serena 证伪：`eva-infra` 对 `bc-messaging` 不再存在编译期引用（当前 `eva-infra/pom.xml` 对 `bc-messaging` 为 `runtime`，主要用于提供 `MessageUseCaseFacadeImpl` Bean 的运行时装配）。
+          2) 组合根承接运行时装配：在 `start/pom.xml` 增加对 `bc-messaging` 的 `runtime` 依赖（保持行为不变；以组合根为主）。
+          3) 若第 2 步后仍能通过最小回归：移除 `eva-infra/pom.xml` 对 `bc-messaging` 的 `runtime` 依赖，把“运行时装配责任”上推到组合根。
 
 2) （可选/后置）**评教读侧用例归位深化（统计）**：继续按“每次只迁 1 个方法簇”的节奏归位默认值兜底/空对象组装（保持行为不变）。
 

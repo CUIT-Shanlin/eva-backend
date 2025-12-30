@@ -611,12 +611,13 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - 应用侧端口适配器：✅ `bc-messaging/src/main/java/edu/cuit/app/bcmessaging/adapter/CourseBroadcastPortAdapter.java`（落地：`84ee070a`）；✅ `bc-messaging/src/main/java/edu/cuit/app/bcmessaging/adapter/TeacherTaskMessagePortAdapter.java`（落地：`9ea14cff`）；✅ `bc-messaging/src/main/java/edu/cuit/app/bcmessaging/adapter/EvaMessageCleanupPortAdapter.java`（落地：`73ab3f3c`；依赖类型收窄为 `IMsgService` 以避免 Maven 循环依赖，行为不变）
   - 基础设施端口适配器：✅ `bc-messaging/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageDeletionPortImpl.java`、✅ `bc-messaging/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageReadPortImpl.java`、✅ `bc-messaging/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageDisplayPortImpl.java`、✅ `bc-messaging/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageInsertionPortImpl.java`、✅ `bc-messaging/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageQueryPortImpl.java`（均已归位）。
   - 对应应用层端口（用于建立“端口→适配器”映射）：`bc-messaging/src/main/java/edu/cuit/bc/messaging/application/port/*Port.java`
-  - 迁移前置：为避免应用侧端口适配器对 `eva-app` 的编译期耦合导致 Maven 循环依赖，已先将消息发送组装类 `MsgResult` 从 `eva-app` 归位到 `bc-messaging`（保持包名不变；落地：`31878b61`）。
+  - 迁移前置：为避免应用侧端口适配器对 `eva-app` 的编译期耦合导致 Maven 循环依赖，已先将消息发送组装类 `MsgResult` 从 `eva-app` 归位到 `bc-messaging-contract`（保持包名不变；落地：`31878b61`）。
   - 迁移前置（DAL/Convertor 归位，保持行为不变）：消息表数据对象 `MsgTipDO` 与 Mapper `MsgTipMapper`（含 `MsgTipMapper.xml`）已从 `eva-infra` 归位到 `eva-infra-dal`（保持 `package/namespace` 不变）；消息转换器 `MsgConvertor` 已从 `eva-infra` 归位到 `eva-infra-shared`（保持 `package` 不变）。本阶段基础设施端口适配器已全部归位完成，后续可转入“依赖收敛/结构折叠”等更高收益里程碑（仍保持行为不变）。
   - 依赖收敛准备（事件枚举下沉到 contract，保持行为不变）：将 `CourseOperationMessageMode` 从 `bc-messaging` 迁移到 `bc-messaging-contract`（保持 `package edu.cuit.bc.messaging.application.event` 不变；落地：`b2247e7f`）。
   - 依赖收敛准备（事件载荷下沉到 contract，保持行为不变）：将 `CourseOperationSideEffectsEvent` 从 `bc-messaging` 迁移到 `bc-messaging-contract`（保持 `package edu.cuit.bc.messaging.application.event` 不变；落地：`ea2c0d9b`）。
   - 依赖收敛准备（事件载荷下沉到 contract，保持行为不变）：将 `CourseTeacherTaskMessagesEvent` 从 `bc-messaging` 迁移到 `bc-messaging-contract`（保持 `package edu.cuit.bc.messaging.application.event` 不变；落地：`12f43323`）。
   - 依赖收敛（应用侧编译期依赖面收窄，保持行为不变）：`eva-app` 对消息域的 Maven 依赖从 `bc-messaging` 收敛为仅依赖 `bc-messaging-contract`（仅用于事件载荷类型；落地：`d3aeb3ab`）。
+  - 下一步建议（依赖收敛后半段，保持行为不变）：当前 `eva-infra/pom.xml` 对 `bc-messaging` 为 `runtime`（用于提供 `MessageUseCaseFacadeImpl` 的运行时装配）。下一步建议将该运行时依赖责任上推到组合根（建议 `start`）：先在 `start/pom.xml` 补齐 `bc-messaging` 的 `runtime` 依赖，回归通过后再移除 `eva-infra/pom.xml` 中的 `bc-messaging` 依赖（每步 1 commit + 最小回归 + 三文档同步）。
 
 - 建议拆分提交（每步：Serena 符号级引用分析 → 最小回归 → commit → 三文档同步）：
   1) **盘点与证据化（只改文档）**：用 Serena 列出 `eva-app/eva-infra` 中与消息域相关的散落点与引用面（优先：`BcMessagingConfiguration`、`CourseOperationSideEffectsListener`、`CourseTeacherTaskMessagesListener`、`eva-app/.../bcmessaging/adapter/*`、`eva-infra/.../bcmessaging/adapter/*`），形成“迁移清单 + 风险点”。
