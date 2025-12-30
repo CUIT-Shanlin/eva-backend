@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2025-12-30（本次会话）**
+- ✅ **bc-messaging（消息域）：依赖收敛准备（事件枚举下沉到 contract）**：将 `CourseOperationMessageMode` 从 `bc-messaging` 迁移到 `bc-messaging-contract`（保持 `package edu.cuit.bc.messaging.application.event` 不变；仅类归位，不改任何业务语义；最小回归通过；落地提交：`b2247e7f`）。
 - ✅ **bc-messaging（消息域）：基础设施端口适配器归位前置（DAL 归位）**：将消息表数据对象 `MsgTipDO` 从 `eva-infra` 归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.dal.database.dataobject` 不变；仅类归位，不改任何业务语义；为后续把 `eva-infra/.../bcmessaging/adapter/*PortImpl` 逐个归位到 `bc-messaging` 并把依赖收敛到 `eva-infra-dal` 预置；最小回归通过；落地提交以 `git log -n 1 -- eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/dataobject/MsgTipDO.java` 为准）。
 - ✅ **bc-messaging（消息域）：基础设施端口适配器归位前置（DAL 归位）**：将消息表 Mapper `MsgTipMapper`（以及对应 `MsgTipMapper.xml`）从 `eva-infra` 归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.dal.database.mapper` 不变；XML namespace/SQL 文案/字段映射不变；仅类与资源归位，不改任何业务语义；为后续逐个搬运 `Message*PortImpl` 并把依赖收敛到 `eva-infra-dal` 预置；最小回归通过；落地提交以 `git log -n 1 -- eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/mapper/MsgTipMapper.java` 为准）。
 - ✅ **bc-messaging（消息域）：基础设施端口适配器归位（消息删除）**：将 `MessageDeletionPortImpl` 从 `eva-infra` 归位到 `bc-messaging`（保持 `package edu.cuit.infra.bcmessaging.adapter` 不变；删除条件与调用顺序完全不变；并在 `bc-messaging` 补齐对 `eva-infra-dal` 的依赖以闭合 `MsgTipDO/MsgTipMapper` 与 MyBatis-Plus API；最小回归通过；落地提交以 `git log -n 1 -- bc-messaging/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageDeletionPortImpl.java` 为准）。
@@ -294,9 +295,11 @@
      - ✅ 已完成：支撑类 `MsgResult` 归位（`31878b61`）
      - ✅ 已完成：应用侧端口适配器 `CourseBroadcastPortAdapter` 归位（`84ee070a`）
      - ✅ 已完成：应用侧端口适配器 `EvaMessageCleanupPortAdapter` 归位（`73ab3f3c`）
-     - 下一步：处理基础设施端口适配器（位于 `eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/*PortImpl.java`）的归位与依赖收敛（见 `DDD_REFACTOR_PLAN.md` 10.3）
-     - 再迁应用侧端口适配器：从 `CourseBroadcastPortAdapter/EvaMessageCleanupPortAdapter/TeacherTaskMessagePortAdapter` 中选 1 个
-     - （后置）再处理 `eva-infra` 的基础设施端口适配器迁移与依赖收敛（保持行为不变；细节见 `DDD_REFACTOR_PLAN.md` 10.3）
+     - ✅ 已完成：应用侧端口适配器 `TeacherTaskMessagePortAdapter` 归位（`9ea14cff`）
+     - ✅ 已完成（前置，DAL/Convertor 归位）：`MsgTipDO/MsgTipMapper(+xml)` → `eva-infra-dal`；`MsgConvertor` → `eva-infra-shared`（保持 `package/namespace` 不变；保持行为不变）。
+     - ✅ 已完成（基础设施端口适配器归位）：`MessageDeletionPortImpl/MessageReadPortImpl/MessageDisplayPortImpl/MessageInsertionPortImpl/MessageQueryPortImpl` → `bc-messaging`（保持 `package` 不变；保持行为不变）。
+     - ✅ 依赖收敛准备：将事件枚举 `CourseOperationMessageMode` 下沉到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；`b2247e7f`）。
+     - 下一步：继续把事件载荷逐个下沉到 `bc-messaging-contract`（先 `CourseOperationSideEffectsEvent`，再 `CourseTeacherTaskMessagesEvent`；每步只迁 1 个类；最小回归 + commit + 三文档同步；保持行为不变）。
 
 - ✅ 提交点 0（纯文档闭环）：已完成（落地提交：`1adc80bd`）。
 - ✅ 提交点 A（结构落点，不迁业务）：已完成（落地提交：`a30a1ff9`）。
@@ -854,7 +857,7 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
           - `TASK_LINKED`：历史上对应 `MsgResult.toSendMsg`（taskId = map key）。
         - usecase `HandleCourseOperationSideEffectsUseCase` 根据 `messageMode` 路由到 `CourseBroadcastPort.sendNormal/sendTaskLinked`，并保持“撤回评教消息”逻辑不变。
         - 关键文件：
-          - `bc-messaging/src/main/java/edu/cuit/bc/messaging/application/event/CourseOperationMessageMode.java`
+          - `bc-messaging-contract/src/main/java/edu/cuit/bc/messaging/application/event/CourseOperationMessageMode.java`
           - `bc-messaging/src/main/java/edu/cuit/bc/messaging/application/event/CourseOperationSideEffectsEvent.java`
           - `bc-messaging/src/main/java/edu/cuit/bc/messaging/application/usecase/HandleCourseOperationSideEffectsUseCase.java`
           - `eva-app/src/main/java/edu/cuit/app/bcmessaging/adapter/CourseBroadcastPortAdapter.java`
