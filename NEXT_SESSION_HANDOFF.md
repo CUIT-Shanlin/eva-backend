@@ -270,6 +270,7 @@
   15) ✅ bc-messaging（消息域）：监听器归位（课程副作用）：`CourseOperationSideEffectsListener` 已从 `eva-app` 迁移到 `bc-messaging`（保持 `package edu.cuit.app.bcmessaging` 不变；保持行为不变；`22ee30e7`）。
   16) ✅ bc-messaging（消息域）：监听器归位（课程教师任务消息）：`CourseTeacherTaskMessagesListener` 已从 `eva-app` 迁移到 `bc-messaging`（保持 `package edu.cuit.app.bcmessaging` 不变；保持行为不变；`0987f96f`）。
   17) ✅ bc-messaging（消息域）：支撑类归位（消息发送组装）：`MsgResult` 已从 `eva-app` 迁移到 `bc-messaging`（保持 `package edu.cuit.app.service.operate.course` 不变；保持行为不变；用于打破后续端口适配器迁移的 Maven 循环依赖；`31878b61`）。
+  18) ✅ bc-messaging（消息域）：应用侧端口适配器归位（课程广播）：`CourseBroadcastPortAdapter` 已从 `eva-app` 迁移到 `bc-messaging`（保持 `package edu.cuit.app.bcmessaging.adapter` 不变；保持行为不变；`84ee070a`）。
 
 - 下一步建议（仍保持行为不变；每次只改 1 个类 + 1 个可运行回归）：  
   1) ✅ **评教统计导出基础设施归位**：本阶段已闭环（装饰器/工厂归位 + 导出端口装配切换均完成；且 `eva-app` 已移除 `poi/poi-ooxml` Maven 直依赖）。后续若要继续推进评教读侧解耦，请回到“统计用例归位（空对象兜底/默认值组装）每次迁 1 个方法簇”的节奏（仍保持行为不变）。
@@ -278,7 +279,8 @@
      - ✅ 已完成：监听器 `CourseOperationSideEffectsListener` 归位（`22ee30e7`）
      - ✅ 已完成：监听器 `CourseTeacherTaskMessagesListener` 归位（`0987f96f`）
      - ✅ 已完成：支撑类 `MsgResult` 归位（`31878b61`）
-     - 下一步：迁 1 个应用侧端口适配器（建议从 `CourseBroadcastPortAdapter` 开始）
+     - ✅ 已完成：应用侧端口适配器 `CourseBroadcastPortAdapter` 归位（`84ee070a`）
+     - 下一步：处理剩余 2 个应用侧端口适配器（需先评估对 `eva-app` 的依赖闭包以避免 Maven 循环依赖）：`TeacherTaskMessagePortAdapter`、`EvaMessageCleanupPortAdapter`
      - 再迁应用侧端口适配器：从 `CourseBroadcastPortAdapter/EvaMessageCleanupPortAdapter/TeacherTaskMessagePortAdapter` 中选 1 个
      - （后置）再处理 `eva-infra` 的基础设施端口适配器迁移与依赖收敛（保持行为不变；细节见 `DDD_REFACTOR_PLAN.md` 10.3）
 

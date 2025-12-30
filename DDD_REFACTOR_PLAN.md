@@ -608,7 +608,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 现状散落点（Serena 证据化盘点，2025-12-29）：
   - 组合根：✅ 已归位到 `bc-messaging/src/main/java/edu/cuit/app/config/BcMessagingConfiguration.java`（保持 `package` 不变；落地：`4e3e2cf2`）。
   - 应用侧监听器：✅ `bc-messaging/src/main/java/edu/cuit/app/bcmessaging/CourseOperationSideEffectsListener.java`（落地：`22ee30e7`）；✅ `bc-messaging/src/main/java/edu/cuit/app/bcmessaging/CourseTeacherTaskMessagesListener.java`（落地：`0987f96f`）
-  - 应用侧端口适配器：`eva-app/src/main/java/edu/cuit/app/bcmessaging/adapter/CourseBroadcastPortAdapter.java`、`eva-app/src/main/java/edu/cuit/app/bcmessaging/adapter/EvaMessageCleanupPortAdapter.java`、`eva-app/src/main/java/edu/cuit/app/bcmessaging/adapter/TeacherTaskMessagePortAdapter.java`
+  - 应用侧端口适配器：✅ `bc-messaging/src/main/java/edu/cuit/app/bcmessaging/adapter/CourseBroadcastPortAdapter.java`（落地：`84ee070a`）；未归位：`eva-app/src/main/java/edu/cuit/app/bcmessaging/adapter/EvaMessageCleanupPortAdapter.java`、`eva-app/src/main/java/edu/cuit/app/bcmessaging/adapter/TeacherTaskMessagePortAdapter.java`
   - 基础设施端口适配器：`eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageDeletionPortImpl.java`、`eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageReadPortImpl.java`、`eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageQueryPortImpl.java`、`eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageInsertionPortImpl.java`、`eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageDisplayPortImpl.java`
   - 对应应用层端口（用于建立“端口→适配器”映射）：`bc-messaging/src/main/java/edu/cuit/bc/messaging/application/port/*Port.java`
   - 迁移前置：为避免应用侧端口适配器对 `eva-app` 的编译期耦合导致 Maven 循环依赖，已先将消息发送组装类 `MsgResult` 从 `eva-app` 归位到 `bc-messaging`（保持包名不变；落地：`31878b61`）。
