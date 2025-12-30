@@ -403,13 +403,18 @@
    - bc-messaging（消息域）：组合根 `BcMessagingConfiguration` 已归位到 `bc-messaging`（保持 `package` 不变；见 0.9）。
    - bc-messaging（消息域）：监听器 `CourseOperationSideEffectsListener` 已归位到 `bc-messaging`（保持 `package` 不变；见 0.9）。
    - bc-messaging（消息域）：监听器 `CourseTeacherTaskMessagesListener` 已归位到 `bc-messaging`（保持 `package` 不变；见 0.9）。
+   - bc-messaging（消息域）：支撑类 `MsgResult` 已归位到 `bc-messaging`（保持 `package` 不变；见 0.9）。
+   - bc-messaging（消息域）：应用侧端口适配器 `CourseBroadcastPortAdapter` 已归位到 `bc-messaging`（保持 `package` 不变；见 0.9）。
 
 1) **bc-messaging（下一会话主线，按 10.3 路线）**：先组合根 → 再监听器/应用侧适配器 → 最后基础设施端口适配器与依赖收敛（每步只迁 1 个类；保持行为不变）。建议顺序：
    1.1) ✅ 已完成：迁 `eva-app/src/main/java/edu/cuit/app/config/BcMessagingConfiguration.java` → `bc-messaging`（保持 `package edu.cuit.app.config` 不变；Bean 定义与装配顺序不变）。
    1.2) ✅ 已完成：迁监听器 `CourseOperationSideEffectsListener` → `bc-messaging`（保持 `package` 不变）。
    1.3) ✅ 已完成：迁监听器 `CourseTeacherTaskMessagesListener` → `bc-messaging`（保持 `package` 不变）。
-   1.4) 迁应用侧端口适配器（每次 1 个）：从 `CourseBroadcastPortAdapter/EvaMessageCleanupPortAdapter/TeacherTaskMessagePortAdapter` 中选 1 个。
-   1.5) （后置）再推进 `eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/*PortImpl.java` 的归位与依赖收敛（保持行为不变；细节见 `DDD_REFACTOR_PLAN.md` 10.3）。
+   1.4) ✅ 已完成：迁应用侧端口适配器 `CourseBroadcastPortAdapter` → `bc-messaging`（保持 `package` 不变；依赖 `MsgResult`，因此先归位了 `MsgResult` 以避免 Maven 循环依赖）。
+   1.5) 下一步：处理剩余 2 个应用侧端口适配器（每次 1 个；保持行为不变；注意避免 Maven 循环依赖）：
+       - `TeacherTaskMessagePortAdapter`（依赖 `MsgResult`，已满足迁移前置）
+       - `EvaMessageCleanupPortAdapter`（依赖 `MsgServiceImpl`，建议先拆出更稳定的出站端口或先归位其依赖闭包）
+   1.6) （后置）再推进 `eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/*PortImpl.java` 的归位与依赖收敛（保持行为不变；细节见 `DDD_REFACTOR_PLAN.md` 10.3）。
 
 2) （可选/后置）**评教读侧用例归位深化（统计）**：继续按“每次只迁 1 个方法簇”的节奏归位默认值兜底/空对象组装（保持行为不变）。
 
