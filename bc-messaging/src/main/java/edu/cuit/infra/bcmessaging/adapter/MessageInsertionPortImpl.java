@@ -27,4 +27,3 @@ public class MessageInsertionPortImpl implements MessageInsertionPort {
         msg.setCreateTime(LocalDateTime.now());
     }
 }
-
