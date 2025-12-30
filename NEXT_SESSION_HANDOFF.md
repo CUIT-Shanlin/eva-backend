@@ -23,6 +23,7 @@
 
 **2025-12-30（本次会话）**
 - ✅ **bc-messaging（消息域）：依赖收敛准备（事件枚举下沉到 contract）**：将 `CourseOperationMessageMode` 从 `bc-messaging` 迁移到 `bc-messaging-contract`（保持 `package edu.cuit.bc.messaging.application.event` 不变；仅类归位，不改任何业务语义；最小回归通过；落地提交：`b2247e7f`）。
+- ✅ **bc-messaging（消息域）：依赖收敛准备（事件载荷下沉到 contract）**：将 `CourseOperationSideEffectsEvent` 从 `bc-messaging` 迁移到 `bc-messaging-contract`（保持 `package edu.cuit.bc.messaging.application.event` 不变；仅类归位，不改任何业务语义；最小回归通过；落地提交：`ea2c0d9b`）。
 - ✅ **bc-messaging（消息域）：基础设施端口适配器归位前置（DAL 归位）**：将消息表数据对象 `MsgTipDO` 从 `eva-infra` 归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.dal.database.dataobject` 不变；仅类归位，不改任何业务语义；为后续把 `eva-infra/.../bcmessaging/adapter/*PortImpl` 逐个归位到 `bc-messaging` 并把依赖收敛到 `eva-infra-dal` 预置；最小回归通过；落地提交以 `git log -n 1 -- eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/dataobject/MsgTipDO.java` 为准）。
 - ✅ **bc-messaging（消息域）：基础设施端口适配器归位前置（DAL 归位）**：将消息表 Mapper `MsgTipMapper`（以及对应 `MsgTipMapper.xml`）从 `eva-infra` 归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.dal.database.mapper` 不变；XML namespace/SQL 文案/字段映射不变；仅类与资源归位，不改任何业务语义；为后续逐个搬运 `Message*PortImpl` 并把依赖收敛到 `eva-infra-dal` 预置；最小回归通过；落地提交以 `git log -n 1 -- eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/mapper/MsgTipMapper.java` 为准）。
 - ✅ **bc-messaging（消息域）：基础设施端口适配器归位（消息删除）**：将 `MessageDeletionPortImpl` 从 `eva-infra` 归位到 `bc-messaging`（保持 `package edu.cuit.infra.bcmessaging.adapter` 不变；删除条件与调用顺序完全不变；并在 `bc-messaging` 补齐对 `eva-infra-dal` 的依赖以闭合 `MsgTipDO/MsgTipMapper` 与 MyBatis-Plus API；最小回归通过；落地提交以 `git log -n 1 -- bc-messaging/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageDeletionPortImpl.java` 为准）。
@@ -858,7 +859,7 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
         - usecase `HandleCourseOperationSideEffectsUseCase` 根据 `messageMode` 路由到 `CourseBroadcastPort.sendNormal/sendTaskLinked`，并保持“撤回评教消息”逻辑不变。
         - 关键文件：
           - `bc-messaging-contract/src/main/java/edu/cuit/bc/messaging/application/event/CourseOperationMessageMode.java`
-          - `bc-messaging/src/main/java/edu/cuit/bc/messaging/application/event/CourseOperationSideEffectsEvent.java`
+          - `bc-messaging-contract/src/main/java/edu/cuit/bc/messaging/application/event/CourseOperationSideEffectsEvent.java`
           - `bc-messaging/src/main/java/edu/cuit/bc/messaging/application/usecase/HandleCourseOperationSideEffectsUseCase.java`
           - `eva-app/src/main/java/edu/cuit/app/bcmessaging/adapter/CourseBroadcastPortAdapter.java`
           - `eva-app/src/main/java/edu/cuit/app/service/impl/course/IUserCourseServiceImpl.java`（删课=默认 NORMAL；改课=TASK_LINKED）

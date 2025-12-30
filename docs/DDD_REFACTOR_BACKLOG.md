@@ -116,6 +116,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - bc-messaging（消息域）：应用侧端口适配器归位（教师任务消息）：将 `TeacherTaskMessagePortAdapter` 从 `eva-app` 迁移到 `bc-messaging`（保持 `package` 不变；最小回归通过；落地提交：`9ea14cff`）。
 - bc-messaging（消息域）：应用侧端口适配器归位（评教消息清理）：将 `EvaMessageCleanupPortAdapter` 从 `eva-app` 迁移到 `bc-messaging`（保持 `package` 不变；依赖类型从 `MsgServiceImpl` 收窄为 `IMsgService` 以避免 Maven 循环依赖；最小回归通过；落地提交：`73ab3f3c`）。
 - bc-messaging（消息域）：依赖收敛准备（事件枚举下沉到 contract）：将 `CourseOperationMessageMode` 从 `bc-messaging` 迁移到 `bc-messaging-contract`（保持 `package edu.cuit.bc.messaging.application.event` 不变；仅类归位不改语义；最小回归通过；落地提交：`b2247e7f`）。
+- bc-messaging（消息域）：依赖收敛准备（事件载荷下沉到 contract）：将 `CourseOperationSideEffectsEvent` 从 `bc-messaging` 迁移到 `bc-messaging-contract`（保持 `package edu.cuit.bc.messaging.application.event` 不变；仅类归位不改语义；最小回归通过；落地提交：`ea2c0d9b`）。
 - bc-messaging（消息域）：基础设施端口适配器归位前置（DAL 归位）：将消息表数据对象 `MsgTipDO` 从 `eva-infra` 归位到 `eva-infra-dal`（保持 `package` 不变；仅类归位不改语义；最小回归通过；落地提交：`47ea52da`）。
 - bc-messaging（消息域）：基础设施端口适配器归位前置（DAL 归位）：将消息表 Mapper `MsgTipMapper`（含 `MsgTipMapper.xml`）从 `eva-infra` 归位到 `eva-infra-dal`（保持 `package/namespace` 不变；仅类与资源归位不改语义；最小回归通过；落地提交：`5225ed43`）。
 - bc-messaging（消息域）：基础设施端口适配器归位（消息删除）：将 `MessageDeletionPortImpl` 从 `eva-infra` 迁移到 `bc-messaging`（保持 `package` 不变；并在 `bc-messaging` 补齐对 `eva-infra-dal` 的依赖以闭合编译；最小回归通过；落地提交：`631779b9`）。
@@ -483,6 +484,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成（前置，DAL/Convertor 归位）：`MsgTipDO/MsgTipMapper(+xml)` → `eva-infra-dal`；`MsgConvertor` → `eva-infra-shared`（保持 `package/namespace` 不变）。
   - ✅ 已完成（基础设施端口适配器归位）：`MessageDeletionPortImpl/MessageReadPortImpl/MessageDisplayPortImpl/MessageInsertionPortImpl/MessageQueryPortImpl` → `bc-messaging`（保持 `package` 不变；保持行为不变）。
   - ✅ 依赖收敛准备（事件枚举下沉到 contract）：`CourseOperationMessageMode` → `bc-messaging-contract`（保持 `package` 不变；保持行为不变；`b2247e7f`）。
+  - ✅ 依赖收敛准备（事件载荷下沉到 contract）：`CourseOperationSideEffectsEvent` → `bc-messaging-contract`（保持 `package` 不变；保持行为不变；`ea2c0d9b`）。
   - 下一步建议：转入“依赖收敛/结构折叠”里程碑（保持行为不变），优先做依赖面收敛（见下方第 3 点）。
 
 如果继续按“写侧优先”的策略推进，下一批候选（高 → 低）建议是：
