@@ -111,6 +111,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - bc-messaging（消息域）：组合根归位：将 `BcMessagingConfiguration` 从 `eva-app` 迁移到 `bc-messaging`（保持 `package` 不变；最小回归通过；落地提交：`4e3e2cf2`）。
 - bc-messaging（消息域）：监听器归位（课程副作用）：将 `CourseOperationSideEffectsListener` 从 `eva-app` 迁移到 `bc-messaging`（保持 `package` 不变；最小回归通过；落地提交：`22ee30e7`）。
 - bc-messaging（消息域）：监听器归位（课程教师任务消息）：将 `CourseTeacherTaskMessagesListener` 从 `eva-app` 迁移到 `bc-messaging`（保持 `package` 不变；最小回归通过；落地提交：`0987f96f`）。
+- bc-messaging（消息域）：支撑类归位（消息发送组装）：将 `MsgResult` 从 `eva-app` 迁移到 `bc-messaging`（保持 `package` 不变；最小回归通过；落地提交：`31878b61`）。
 - bc-course（课程）：课表 Excel/POI 解析端口化：新增 `CourseExcelResolvePort`（`bc-course/application`），由 `bc-course-infra` 提供适配器 `CourseExcelResolvePortImpl`（内部仍复用 `CourseExcelResolver`，确保异常文案与日志行为不变）；`eva-app` 调用侧改为依赖端口，移除对解析实现的直接依赖（保持行为不变；最小回归通过；落地提交：`5a7cd0a0`）。
 - 评教读侧进一步解耦（统计导出端口装配委托切换）：将 `BcEvaluationConfiguration.evaStatisticsExportPort()` 从直接委托 `EvaStatisticsExcelFactory::createExcelData` 切换为委托 `bc-evaluation-infra` 的 `EvaStatisticsExportPortImpl`（内部仍调用 `EvaStatisticsExcelFactory.createExcelData`；保持行为不变；最小回归通过；落地提交：`565552fa`）。
 - 评教读侧进一步解耦（导出基础设施归位：迁移 EvaStatisticsExcelFactory）：将统计导出工厂 `EvaStatisticsExcelFactory` 从 `eva-app` 迁移到 `bc-evaluation-infra`（保持行为不变；导出异常文案/日志输出完全一致；最小回归通过；落地提交：`5b2c2223`）。
@@ -464,7 +465,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 阶段性策略微调（2025-12-29）：
 - ✅ 允许“微调”：仅限结构性重构（收窄依赖/拆接口/移动默认值兜底），**不改业务语义**；缓存/日志/异常文案/副作用顺序完全不变。
 - ✅ 本轮完成“评教统计导出基础设施归位收尾”与“bc-course 课表解析归位/端口化”，下一轮主线切换为 **bc-messaging（组合根/监听器/应用侧适配器归位）**（每次只迁 1 个类；保持行为不变）。
-- ✅ 下一步小簇建议（bc-messaging，保持行为不变）：按 `DDD_REFACTOR_PLAN.md` 10.3 路线推进（先组合根 → 再监听器/应用侧适配器 → 最后基础设施端口适配器与依赖收敛）。✅ 已完成：组合根 `BcMessagingConfiguration`（`4e3e2cf2`）；✅ 已完成：监听器 `CourseOperationSideEffectsListener`（`22ee30e7`）；✅ 已完成：监听器 `CourseTeacherTaskMessagesListener`（`0987f96f`）；下一步迁 1 个应用侧端口适配器继续推进。
+- ✅ 下一步小簇建议（bc-messaging，保持行为不变）：按 `DDD_REFACTOR_PLAN.md` 10.3 路线推进（先组合根 → 再监听器/应用侧适配器 → 最后基础设施端口适配器与依赖收敛）。✅ 已完成：组合根 `BcMessagingConfiguration`（`4e3e2cf2`）；✅ 已完成：监听器 `CourseOperationSideEffectsListener`（`22ee30e7`）；✅ 已完成：监听器 `CourseTeacherTaskMessagesListener`（`0987f96f`）；✅ 已完成：支撑类 `MsgResult`（`31878b61`）；下一步迁 1 个应用侧端口适配器继续推进（建议从 `CourseBroadcastPortAdapter` 开始）。
 
 如果继续按“写侧优先”的策略推进，下一批候选（高 → 低）建议是：
 
