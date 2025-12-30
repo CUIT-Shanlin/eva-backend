@@ -118,6 +118,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - bc-messaging（消息域）：依赖收敛准备（事件枚举下沉到 contract）：将 `CourseOperationMessageMode` 从 `bc-messaging` 迁移到 `bc-messaging-contract`（保持 `package edu.cuit.bc.messaging.application.event` 不变；仅类归位不改语义；最小回归通过；落地提交：`b2247e7f`）。
 - bc-messaging（消息域）：依赖收敛准备（事件载荷下沉到 contract）：将 `CourseOperationSideEffectsEvent` 从 `bc-messaging` 迁移到 `bc-messaging-contract`（保持 `package edu.cuit.bc.messaging.application.event` 不变；仅类归位不改语义；最小回归通过；落地提交：`ea2c0d9b`）。
 - bc-messaging（消息域）：依赖收敛准备（事件载荷下沉到 contract）：将 `CourseTeacherTaskMessagesEvent` 从 `bc-messaging` 迁移到 `bc-messaging-contract`（保持 `package edu.cuit.bc.messaging.application.event` 不变；仅类归位不改语义；最小回归通过；落地提交：`12f43323`）。
+- bc-messaging（消息域）：依赖收敛（应用侧编译期依赖面收窄）：`eva-app` 已将对 `bc-messaging` 的编译期依赖收敛为仅依赖 `bc-messaging-contract`（仅用于事件载荷类型；保持行为不变；最小回归通过；落地提交：`d3aeb3ab`）。
 - bc-messaging（消息域）：基础设施端口适配器归位前置（DAL 归位）：将消息表数据对象 `MsgTipDO` 从 `eva-infra` 归位到 `eva-infra-dal`（保持 `package` 不变；仅类归位不改语义；最小回归通过；落地提交：`47ea52da`）。
 - bc-messaging（消息域）：基础设施端口适配器归位前置（DAL 归位）：将消息表 Mapper `MsgTipMapper`（含 `MsgTipMapper.xml`）从 `eva-infra` 归位到 `eva-infra-dal`（保持 `package/namespace` 不变；仅类与资源归位不改语义；最小回归通过；落地提交：`5225ed43`）。
 - bc-messaging（消息域）：基础设施端口适配器归位（消息删除）：将 `MessageDeletionPortImpl` 从 `eva-infra` 迁移到 `bc-messaging`（保持 `package` 不变；并在 `bc-messaging` 补齐对 `eva-infra-dal` 的依赖以闭合编译；最小回归通过；落地提交：`631779b9`）。
@@ -487,6 +488,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 依赖收敛准备（事件枚举下沉到 contract）：`CourseOperationMessageMode` → `bc-messaging-contract`（保持 `package` 不变；保持行为不变；`b2247e7f`）。
   - ✅ 依赖收敛准备（事件载荷下沉到 contract）：`CourseOperationSideEffectsEvent` → `bc-messaging-contract`（保持 `package` 不变；保持行为不变；`ea2c0d9b`）。
   - ✅ 依赖收敛准备（事件载荷下沉到 contract）：`CourseTeacherTaskMessagesEvent` → `bc-messaging-contract`（保持 `package` 不变；保持行为不变；`12f43323`）。
+  - ✅ 依赖收敛（应用侧编译期依赖面收窄）：`eva-app` → `bc-messaging-contract`（替换 `eva-app` 对 `bc-messaging` 的编译期依赖；保持行为不变；`d3aeb3ab`）。
   - 下一步建议：转入“依赖收敛/结构折叠”里程碑（保持行为不变），优先做依赖面收敛（见下方第 3 点）。
 
 如果继续按“写侧优先”的策略推进，下一批候选（高 → 低）建议是：
