@@ -61,4 +61,3 @@ public class MessageQueryPortImpl implements MessageQueryPort {
                         .orElseThrow(() -> new BizException("接受者id不存在")));
     }
 }
-
