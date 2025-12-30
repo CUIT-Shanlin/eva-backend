@@ -476,7 +476,12 @@ scope: 全仓库（离线扫描 + 规则归纳）
 阶段性策略微调（2025-12-29）：
 - ✅ 允许“微调”：仅限结构性重构（收窄依赖/拆接口/移动默认值兜底），**不改业务语义**；缓存/日志/异常文案/副作用顺序完全不变。
 - ✅ 本轮完成“评教统计导出基础设施归位收尾”与“bc-course 课表解析归位/端口化”，下一轮主线切换为 **bc-messaging（组合根/监听器/应用侧适配器归位）**（每次只迁 1 个类；保持行为不变）。
-- ✅ 下一步小簇建议（bc-messaging，保持行为不变）：按 `DDD_REFACTOR_PLAN.md` 10.3 路线推进（先组合根 → 再监听器/应用侧适配器 → 最后基础设施端口适配器与依赖收敛）。✅ 已完成：组合根 `BcMessagingConfiguration`（`4e3e2cf2`）；✅ 已完成：监听器 `CourseOperationSideEffectsListener`（`22ee30e7`）；✅ 已完成：监听器 `CourseTeacherTaskMessagesListener`（`0987f96f`）；✅ 已完成：支撑类 `MsgResult`（`31878b61`）；✅ 已完成：应用侧端口适配器 `CourseBroadcastPortAdapter`（`84ee070a`）；✅ 已完成：应用侧端口适配器 `TeacherTaskMessagePortAdapter`（`9ea14cff`）；✅ 已完成：应用侧端口适配器 `EvaMessageCleanupPortAdapter`（`73ab3f3c`）。下一步进入基础设施端口适配器归位与依赖收敛（`eva-infra/.../bcmessaging/adapter/*PortImpl`）。
+- ✅ 下一步小簇建议（bc-messaging，保持行为不变）：按 `DDD_REFACTOR_PLAN.md` 10.3 路线推进（先组合根 → 再监听器/应用侧适配器 → 最后基础设施端口适配器与依赖收敛）。
+  - ✅ 已完成：组合根 `BcMessagingConfiguration`（`4e3e2cf2`）；✅ 已完成：监听器 `CourseOperationSideEffectsListener`（`22ee30e7`）；✅ 已完成：监听器 `CourseTeacherTaskMessagesListener`（`0987f96f`）
+  - ✅ 已完成：支撑类 `MsgResult`（`31878b61`）；✅ 已完成：应用侧端口适配器 `CourseBroadcastPortAdapter`（`84ee070a`）；✅ 已完成：应用侧端口适配器 `TeacherTaskMessagePortAdapter`（`9ea14cff`）；✅ 已完成：应用侧端口适配器 `EvaMessageCleanupPortAdapter`（`73ab3f3c`）。
+  - ✅ 已完成（前置，DAL/Convertor 归位）：`MsgTipDO/MsgTipMapper(+xml)` → `eva-infra-dal`；`MsgConvertor` → `eva-infra-shared`（保持 `package/namespace` 不变）。
+  - ✅ 已完成（基础设施端口适配器归位）：`MessageDeletionPortImpl/MessageReadPortImpl/MessageDisplayPortImpl/MessageInsertionPortImpl/MessageQueryPortImpl` → `bc-messaging`（保持 `package` 不变；保持行为不变）。
+  - 下一步建议：转入“依赖收敛/结构折叠”里程碑（保持行为不变），优先做依赖面收敛（见下方第 3 点）。
 
 如果继续按“写侧优先”的策略推进，下一批候选（高 → 低）建议是：
 
@@ -497,7 +502,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 	   - 进展（2025-12-27）：已完成 S0 阶段 1：引入 `bc-ai-report-parent` + 内部 `domain/application/infrastructure` 子模块（应用层 artifactId 仍为 `bc-ai-report`；保持行为不变；落地：`e14f4f7a`）。下一步：继续把端口适配器/导出实现/AI 基础设施搬运到 `bc-ai-report/infrastructure` 子模块，并补齐装配依赖（保持行为不变）。
 	   - 进展（2025-12-27）：已完成 S0 阶段 2：端口适配器/导出实现/AI 基础设施已归位 `bc-ai-report/infrastructure` 子模块，并补齐 `eva-app` → `bc-ai-report-infra` 依赖（保持行为不变；落地：`444c7aca`）。
 2) 评教 BC 自包含三层结构：已完成阶段 1（读侧查询迁移：`be6dc05c`）与阶段 2（写侧 Repo 迁移：`24e7f6c9`），并已完成读侧门面加固 C-1（清理 `EvaQueryRepository` 为纯委托壳：`73fc6c14`）。C-2（读侧仓储瘦身）已完成盘点并关闭（落地：`5c1a03bc`）。  
-3) bc-messaging（消息域）组合根/适配器归位（主线）：已完成“散落点证据化盘点 + 可回滚路线”文档化（见 `DDD_REFACTOR_PLAN.md` 第 10.3 节），并已完成组合根 `BcMessagingConfiguration`（`4e3e2cf2`）、监听器 `CourseOperationSideEffectsListener`（`22ee30e7`）、`CourseTeacherTaskMessagesListener`（`0987f96f`）、支撑类 `MsgResult`（`31878b61`）与应用侧端口适配器 `CourseBroadcastPortAdapter`（`84ee070a`）、`TeacherTaskMessagePortAdapter`（`9ea14cff`）、`EvaMessageCleanupPortAdapter`（`73ab3f3c`）归位到 `bc-messaging`。下一步进入基础设施端口适配器归位与依赖收敛（保持行为不变；每步最小回归+提交+三文档同步）。
+3) bc-messaging（消息域）组合根/适配器归位（主线）：已完成“散落点证据化盘点 + 可回滚路线”文档化（见 `DDD_REFACTOR_PLAN.md` 第 10.3 节），并已完成组合根/监听器/应用侧端口适配器与基础设施端口适配器（含前置 DAL/Convertor 归位）归位到 `bc-messaging`（保持行为不变；每步最小回归+提交+三文档同步）。下一步建议：优先做 **依赖收敛**（尽量减少 `bc-messaging` 的编译期依赖面，只保留闭合编译/装配所必需的依赖），再评估是否需要推进 **结构折叠（S0）**（仅搬运/依赖收敛，保持行为不变）。
 
 补充说明（避免后续会话口径漂移）：
 
