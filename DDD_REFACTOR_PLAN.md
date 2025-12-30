@@ -615,6 +615,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - 迁移前置（DAL/Convertor 归位，保持行为不变）：消息表数据对象 `MsgTipDO` 与 Mapper `MsgTipMapper`（含 `MsgTipMapper.xml`）已从 `eva-infra` 归位到 `eva-infra-dal`（保持 `package/namespace` 不变）；消息转换器 `MsgConvertor` 已从 `eva-infra` 归位到 `eva-infra-shared`（保持 `package` 不变）。本阶段基础设施端口适配器已全部归位完成，后续可转入“依赖收敛/结构折叠”等更高收益里程碑（仍保持行为不变）。
   - 依赖收敛准备（事件枚举下沉到 contract，保持行为不变）：将 `CourseOperationMessageMode` 从 `bc-messaging` 迁移到 `bc-messaging-contract`（保持 `package edu.cuit.bc.messaging.application.event` 不变；落地：`b2247e7f`）。
   - 依赖收敛准备（事件载荷下沉到 contract，保持行为不变）：将 `CourseOperationSideEffectsEvent` 从 `bc-messaging` 迁移到 `bc-messaging-contract`（保持 `package edu.cuit.bc.messaging.application.event` 不变；落地：`ea2c0d9b`）。
+  - 依赖收敛准备（事件载荷下沉到 contract，保持行为不变）：将 `CourseTeacherTaskMessagesEvent` 从 `bc-messaging` 迁移到 `bc-messaging-contract`（保持 `package edu.cuit.bc.messaging.application.event` 不变；落地：`12f43323`）。
 
 - 建议拆分提交（每步：Serena 符号级引用分析 → 最小回归 → commit → 三文档同步）：
   1) **盘点与证据化（只改文档）**：用 Serena 列出 `eva-app/eva-infra` 中与消息域相关的散落点与引用面（优先：`BcMessagingConfiguration`、`CourseOperationSideEffectsListener`、`CourseTeacherTaskMessagesListener`、`eva-app/.../bcmessaging/adapter/*`、`eva-infra/.../bcmessaging/adapter/*`），形成“迁移清单 + 风险点”。

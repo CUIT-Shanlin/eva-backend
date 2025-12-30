@@ -24,6 +24,7 @@
 **2025-12-30（本次会话）**
 - ✅ **bc-messaging（消息域）：依赖收敛准备（事件枚举下沉到 contract）**：将 `CourseOperationMessageMode` 从 `bc-messaging` 迁移到 `bc-messaging-contract`（保持 `package edu.cuit.bc.messaging.application.event` 不变；仅类归位，不改任何业务语义；最小回归通过；落地提交：`b2247e7f`）。
 - ✅ **bc-messaging（消息域）：依赖收敛准备（事件载荷下沉到 contract）**：将 `CourseOperationSideEffectsEvent` 从 `bc-messaging` 迁移到 `bc-messaging-contract`（保持 `package edu.cuit.bc.messaging.application.event` 不变；仅类归位，不改任何业务语义；最小回归通过；落地提交：`ea2c0d9b`）。
+- ✅ **bc-messaging（消息域）：依赖收敛准备（事件载荷下沉到 contract）**：将 `CourseTeacherTaskMessagesEvent` 从 `bc-messaging` 迁移到 `bc-messaging-contract`（保持 `package edu.cuit.bc.messaging.application.event` 不变；仅类归位，不改任何业务语义；最小回归通过；落地提交：`12f43323`）。
 - ✅ **bc-messaging（消息域）：基础设施端口适配器归位前置（DAL 归位）**：将消息表数据对象 `MsgTipDO` 从 `eva-infra` 归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.dal.database.dataobject` 不变；仅类归位，不改任何业务语义；为后续把 `eva-infra/.../bcmessaging/adapter/*PortImpl` 逐个归位到 `bc-messaging` 并把依赖收敛到 `eva-infra-dal` 预置；最小回归通过；落地提交以 `git log -n 1 -- eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/dataobject/MsgTipDO.java` 为准）。
 - ✅ **bc-messaging（消息域）：基础设施端口适配器归位前置（DAL 归位）**：将消息表 Mapper `MsgTipMapper`（以及对应 `MsgTipMapper.xml`）从 `eva-infra` 归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.dal.database.mapper` 不变；XML namespace/SQL 文案/字段映射不变；仅类与资源归位，不改任何业务语义；为后续逐个搬运 `Message*PortImpl` 并把依赖收敛到 `eva-infra-dal` 预置；最小回归通过；落地提交以 `git log -n 1 -- eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/mapper/MsgTipMapper.java` 为准）。
 - ✅ **bc-messaging（消息域）：基础设施端口适配器归位（消息删除）**：将 `MessageDeletionPortImpl` 从 `eva-infra` 归位到 `bc-messaging`（保持 `package edu.cuit.infra.bcmessaging.adapter` 不变；删除条件与调用顺序完全不变；并在 `bc-messaging` 补齐对 `eva-infra-dal` 的依赖以闭合 `MsgTipDO/MsgTipMapper` 与 MyBatis-Plus API；最小回归通过；落地提交以 `git log -n 1 -- bc-messaging/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageDeletionPortImpl.java` 为准）。
@@ -300,7 +301,7 @@
      - ✅ 已完成（前置，DAL/Convertor 归位）：`MsgTipDO/MsgTipMapper(+xml)` → `eva-infra-dal`；`MsgConvertor` → `eva-infra-shared`（保持 `package/namespace` 不变；保持行为不变）。
      - ✅ 已完成（基础设施端口适配器归位）：`MessageDeletionPortImpl/MessageReadPortImpl/MessageDisplayPortImpl/MessageInsertionPortImpl/MessageQueryPortImpl` → `bc-messaging`（保持 `package` 不变；保持行为不变）。
      - ✅ 依赖收敛准备：将事件枚举 `CourseOperationMessageMode` 下沉到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；`b2247e7f`）。
-     - 下一步：继续把事件载荷逐个下沉到 `bc-messaging-contract`（先 `CourseOperationSideEffectsEvent`，再 `CourseTeacherTaskMessagesEvent`；每步只迁 1 个类；最小回归 + commit + 三文档同步；保持行为不变）。
+     - 下一步：继续把事件载荷逐个下沉到 `bc-messaging-contract`（本阶段已完成 `CourseOperationSideEffectsEvent` 与 `CourseTeacherTaskMessagesEvent`；下一步可评估将事件载荷完全下沉后，是否能把 `eva-app` 对 `bc-messaging` 的依赖收敛为仅依赖 `bc-messaging-contract`；每步只改 1 个点；保持行为不变）。
 
 - ✅ 提交点 0（纯文档闭环）：已完成（落地提交：`1adc80bd`）。
 - ✅ 提交点 A（结构落点，不迁业务）：已完成（落地提交：`a30a1ff9`）。
