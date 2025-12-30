@@ -55,6 +55,12 @@
 
         <dependency>
             <groupId>edu.cuit</groupId>
+            <artifactId>bc-messaging-contract</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>edu.cuit</groupId>
             <artifactId>eva-infra-dal</artifactId>
             <version>${revision}</version>
         </dependency>

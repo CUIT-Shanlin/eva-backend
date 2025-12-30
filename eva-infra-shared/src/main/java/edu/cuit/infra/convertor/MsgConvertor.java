@@ -26,3 +26,4 @@ public interface MsgConvertor {
     MsgTipDO toMsgDO(GenericRequestMsg msg);
 
 }
+
