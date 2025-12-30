@@ -20,6 +20,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
             <groupId>edu.cuit</groupId>
             <artifactId>shared-kernel</artifactId>
             <version>${revision}</version>
