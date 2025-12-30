@@ -521,6 +521,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
    - 补充进展（2025-12-29）：统计导出 `exportEvaStatistics` 调用归位到 `EvaStatisticsQueryUseCase`：引入导出端口 `EvaStatisticsExportPort`（Bean 仍委托既有 `EvaStatisticsExcelFactory.createExcelData`），旧入口 `EvaStatisticsServiceImpl.exportEvaStatistics` 退化为纯委托壳（保持 `@CheckSemId` 触发点与异常文案/日志顺序不变；最小回归通过；落地：`0d15de60`）。
    - 下一步建议（统计导出基础设施归位，保持行为不变；每次只迁 1 个类 + 最小回归）：✅ 已完成 `BcEvaluationConfiguration.evaStatisticsExportPort()` 委托切换（`565552fa`）；✅ 已完成 `eva-app/pom.xml` 移除 `poi/poi-ooxml` Maven 直依赖（课表解析已迁移到 `bc-course-infra`，保持行为不变；落地：`383dbf33`）。
    - 补充进展（2025-12-29）：课表 Excel/POI 解析已进一步“端口化”：新增 `CourseExcelResolvePort`（`bc-course/application`）并由 `bc-course-infra` 提供适配器实现，`eva-app` 调用侧改为依赖端口，移除对解析实现的直耦合（保持行为不变；落地：`5a7cd0a0`）。
+   - 下一步建议（主线切换，保持行为不变）：评教统计导出基础设施归位已阶段性闭环后，下一会话优先按 10.3 路线推进 `bc-messaging`（组合根 → 监听器/应用侧适配器 → 基础设施端口适配器 → 依赖收敛）。
    - 进展：已拆分统计/导出、任务、记录、模板查询端口（`EvaStatisticsQueryPort` / `EvaTaskQueryPort` / `EvaRecordQueryPort` / `EvaTemplateQueryPort`），应用层开始迁移，行为保持不变；旧 `EvaQueryGatewayImpl` 已移除；并已引入 `bc-evaluation-infra` 承接评教读侧查询实现（QueryPortImpl + QueryRepo/Repository，保持包名/行为不变；落地：`be6dc05c`）。
    - 补充进展（2025-12-27）：为后续“按用例进一步收窄依赖类型”做准备，已细分统计 QueryPort：新增 `EvaStatisticsOverviewQueryPort/EvaStatisticsTrendQueryPort/EvaStatisticsUnqualifiedUserQueryPort`，并让 `EvaStatisticsQueryPort` `extends` 以上子端口（仅接口拆分，不改实现/不改装配；保持行为不变；落地：`a1d6ccab`）。
    - 补充进展（2025-12-28）：工程噪音收敛（dev 环境 MyBatis 日志）：将 `application-dev.yml` 中 MyBatis-Plus 的 `log-impl` 从 `StdOutImpl` 切换为 `Slf4jImpl`，避免 SQL 调试日志直出 stdout（仅 dev profile，生产不变；最小回归通过；落地：`cb3a4620`）。
@@ -605,7 +606,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 > 目标：在不新增新折叠试点提交的前提下，先形成可回滚的小步路线：逐步把“装配/适配器/基础设施实现”归位到 `bc-messaging`，并收敛 `eva-app/eva-infra` 对消息域的直接承担（保持行为不变）。
 
 - 现状散落点（Serena 证据化盘点，2025-12-29）：
-  - 组合根：`eva-app/src/main/java/edu/cuit/app/config/BcMessagingConfiguration.java`
+  - 组合根：✅ 已归位到 `bc-messaging/src/main/java/edu/cuit/app/config/BcMessagingConfiguration.java`（保持 `package` 不变；落地：`4e3e2cf2`）。
   - 应用侧监听器：`eva-app/src/main/java/edu/cuit/app/bcmessaging/CourseOperationSideEffectsListener.java`、`eva-app/src/main/java/edu/cuit/app/bcmessaging/CourseTeacherTaskMessagesListener.java`
   - 应用侧端口适配器：`eva-app/src/main/java/edu/cuit/app/bcmessaging/adapter/CourseBroadcastPortAdapter.java`、`eva-app/src/main/java/edu/cuit/app/bcmessaging/adapter/EvaMessageCleanupPortAdapter.java`、`eva-app/src/main/java/edu/cuit/app/bcmessaging/adapter/TeacherTaskMessagePortAdapter.java`
   - 基础设施端口适配器：`eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageDeletionPortImpl.java`、`eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageReadPortImpl.java`、`eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageQueryPortImpl.java`、`eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageInsertionPortImpl.java`、`eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageDisplayPortImpl.java`
@@ -613,7 +614,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 - 建议拆分提交（每步：Serena 符号级引用分析 → 最小回归 → commit → 三文档同步）：
   1) **盘点与证据化（只改文档）**：用 Serena 列出 `eva-app/eva-infra` 中与消息域相关的散落点与引用面（优先：`BcMessagingConfiguration`、`CourseOperationSideEffectsListener`、`CourseTeacherTaskMessagesListener`、`eva-app/.../bcmessaging/adapter/*`、`eva-infra/.../bcmessaging/adapter/*`），形成“迁移清单 + 风险点”。
-  2) **组合根归位**：将 `eva-app/src/main/java/edu/cuit/app/config/BcMessagingConfiguration.java` 迁移到 `bc-messaging`（建议保持 `package edu.cuit.app.config` 不变以降风险），确保 Bean 定义、装配与副作用顺序不变。
+  2) ✅ **组合根归位**：已将 `eva-app/src/main/java/edu/cuit/app/config/BcMessagingConfiguration.java` 迁移到 `bc-messaging`（保持 `package edu.cuit.app.config` 不变；Bean 定义/装配顺序不变；最小回归通过；落地：`4e3e2cf2`）。
   3) **应用侧适配器/监听器归位**：将 `eva-app/src/main/java/edu/cuit/app/bcmessaging/*` 与 `eva-app/src/main/java/edu/cuit/app/bcmessaging/adapter/*` 逐个迁移到 `bc-messaging`（建议保持 `package` 不变；每次只迁 1 个类并补齐/复用可运行回归）。
   4) **基础设施端口适配器归位（后置）**：将 `eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/*PortImpl.java` 逐步迁移到 `bc-messaging` 的基础设施落点（理想形态为 `bc-messaging/infrastructure` 子模块；在当前“主线优先、不新增试点”策略下，先仅规划与盘点依赖闭包，待评教读侧阶段性收敛后再落地）。
   5) **依赖收敛（后置）**：在迁移端口适配器后，逐步让 `bc-messaging` 的编译期依赖从 `eva-infra` 收敛为更小的 `eva-infra-dal` + `eva-infra-shared`（或完全无 `eva-infra` 依赖），并保持 `start` 装配不变。
