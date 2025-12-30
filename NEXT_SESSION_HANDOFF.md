@@ -200,6 +200,7 @@
 - ✅ **S0.1-5（评教 contract 收敛依赖）**：迁移 `dto/data/course/CourseTime` 到 `shared-kernel`（保持 `package` 不变；保持行为不变；落地提交：`5f21b5ce`）。
 - ✅ **S0.1-6（评教 contract 去直依赖）**：移除 `bc-evaluation-contract` → `eva-client` 的直依赖；为保持编译行为不变，补齐 `bc-iam-contract` 的显式依赖（`eva-base-common`、`commons-lang3`，避免隐式经由其它模块传递；落地提交：`cf2001ef`）。
 - ✅ 三文档同步（以 Git 为准，不在文内滚动固化 commitId）：使用 `git log -n 1 -- NEXT_SESSION_HANDOFF.md`、`git log -n 1 -- DDD_REFACTOR_PLAN.md`、`git log -n 1 -- docs/DDD_REFACTOR_BACKLOG.md` 获取最新同步提交。
+- ✅ **docs（Backlog 路线口径对齐）**：修正 `docs/DDD_REFACTOR_BACKLOG.md` 第 6 节 bc-messaging 的“下一步”口径：基础设施端口适配器（`Message*PortImpl`）已归位完成，下一步转入“依赖收敛/结构折叠”（保持行为不变）。
 - ✅ 最小回归通过（Java17）：命令见 0.10。
 
 ### 2025-12-25（上一会话摘要，保留）
