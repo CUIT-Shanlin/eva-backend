@@ -19,4 +19,3 @@ public class CourseTeacherTaskMessagesListener {
         useCase.handle(event);
     }
 }
-
