@@ -637,9 +637,10 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 					  - ✅ 进展（2025-12-27）：已完成 `bc-audit` 的 S0 阶段 2：将 `edu.cuit.infra.bcaudit.adapter.LogInsertionPortImpl` 从 `eva-infra` 搬运到 `bc-audit/infrastructure` 子模块，并补齐 `eva-app` → `bc-audit-infra` 依赖以保证装配（保持行为不变；最小回归通过；落地提交：`d7858d7a`）。
 					  - ✅ 进展（2025-12-27）：已完成 `bc-audit` 的 S0 阶段 3（可选）：抽离 `sys_log` 相关 DAL（`SysLog*DO/Mapper/XML`）到 `eva-infra-dal`、抽离 `LogConverter` 到 `eva-infra-shared`，并移除 `bc-audit-infra` → `eva-infra` 的过渡依赖（保持行为不变；最小回归通过；落地提交：`06ec6f3d`）。
 						  - 下一步建议（仍保持行为不变，可选）：在确认装配稳定后，继续推进评教读侧解耦（方向 A → B）：
-								  - A（继续收窄依赖）：✅ 已证伪“`eva-app` 仍注入记录聚合端口 `EvaRecordQueryPort`”（除端口定义与实现外无引用）。后续若出现新的应用层引用点（尤其是导出装饰器/扩展点），再按“先补齐子端口组合（仅新增接口 + `extends`）→ 再收窄注入类型”的同套路处理（每次只改 1 个类 + 1 个可运行单测）。
-									  - ✅ 进展（2025-12-28，统计读侧用例归位深化）：将 `EvaStatisticsServiceImpl.getTargetAmountUnqualifiedUser` 的 `type` 分支选择与阈值选择归位到 `EvaStatisticsQueryUseCase.getTargetAmountUnqualifiedUser`（保持 `@CheckSemId` 触发点仍在旧入口；异常文案与副作用顺序不变；保持行为不变；最小回归通过；落地提交：`5b20d44e`）。
-									  - ✅ 进展（2025-12-29，统计读侧用例归位深化）：在 `EvaStatisticsQueryUseCase` 新增 `evaScoreStatisticsInfoOrEmpty`，将 “`Optional.empty` → `new EvaScoreInfoCO()`” 的空对象兜底先归位到用例层（保持行为不变；为下一步旧入口退化为纯委托壳做准备；最小回归通过；落地提交：`bce01df2`）。
+									  - A（继续收窄依赖）：✅ 已证伪“`eva-app` 仍注入记录聚合端口 `EvaRecordQueryPort`”（除端口定义与实现外无引用）。后续若出现新的应用层引用点（尤其是导出装饰器/扩展点），再按“先补齐子端口组合（仅新增接口 + `extends`）→ 再收窄注入类型”的同套路处理（每次只改 1 个类 + 1 个可运行单测）。
+										  - ✅ 进展（2026-01-01，记录读侧依赖收窄）：`EvaRecordServiceImpl.pageEvaRecord` 内联分页结果组装，移除对 `PaginationBizConvertor` 的注入依赖（分页字段赋值顺序/异常文案/循环副作用顺序不变；保持行为不变；最小回归通过；落地提交：`55103de1`）。
+										  - ✅ 进展（2025-12-28，统计读侧用例归位深化）：将 `EvaStatisticsServiceImpl.getTargetAmountUnqualifiedUser` 的 `type` 分支选择与阈值选择归位到 `EvaStatisticsQueryUseCase.getTargetAmountUnqualifiedUser`（保持 `@CheckSemId` 触发点仍在旧入口；异常文案与副作用顺序不变；保持行为不变；最小回归通过；落地提交：`5b20d44e`）。
+										  - ✅ 进展（2025-12-29，统计读侧用例归位深化）：在 `EvaStatisticsQueryUseCase` 新增 `evaScoreStatisticsInfoOrEmpty`，将 “`Optional.empty` → `new EvaScoreInfoCO()`” 的空对象兜底先归位到用例层（保持行为不变；为下一步旧入口退化为纯委托壳做准备；最小回归通过；落地提交：`bce01df2`）。
 									  - ✅ 进展（2025-12-29，统计读侧用例归位深化）：将旧入口 `EvaStatisticsServiceImpl.evaScoreStatisticsInfo` 退化为纯委托壳，改为调用 `EvaStatisticsQueryUseCase.evaScoreStatisticsInfoOrEmpty`，从而把空对象兜底彻底归位到 UseCase（保持 `@CheckSemId` 触发点不变；保持行为不变；最小回归通过；落地提交：`1bf3a4fe`）。
 									  - ✅ 进展（2025-12-29，统计读侧用例归位深化）：在 `EvaStatisticsQueryUseCase` 新增 `evaTemplateSituationOrEmpty`，将 “`Optional.empty` → `new EvaSituationCO()`” 的空对象兜底先归位到用例层（保持行为不变；为下一步旧入口退化为纯委托壳做准备；最小回归通过；落地提交：`89b6b1ee`）。
 									  - ✅ 进展（2025-12-29，统计读侧用例归位深化）：将旧入口 `EvaStatisticsServiceImpl.evaTemplateSituation` 退化为纯委托壳，改为调用 `EvaStatisticsQueryUseCase.evaTemplateSituationOrEmpty`，从而把空对象兜底彻底归位到 UseCase（保持 `@CheckSemId` 触发点不变；保持行为不变；最小回归通过；落地提交：`78abf1a1`）。
