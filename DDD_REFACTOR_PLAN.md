@@ -640,6 +640,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 									  - A（继续收窄依赖）：✅ 已证伪“`eva-app` 仍注入记录聚合端口 `EvaRecordQueryPort`”（除端口定义与实现外无引用）。后续若出现新的应用层引用点（尤其是导出装饰器/扩展点），再按“先补齐子端口组合（仅新增接口 + `extends`）→ 再收窄注入类型”的同套路处理（每次只改 1 个类 + 1 个可运行单测）。
 										  - ✅ 进展（2026-01-01，记录读侧依赖收窄）：`EvaRecordServiceImpl.pageEvaRecord` 内联分页结果组装，移除对 `PaginationBizConvertor` 的注入依赖（分页字段赋值顺序/异常文案/循环副作用顺序不变；保持行为不变；最小回归通过；落地提交：`55103de1`）。
 										  - ✅ 进展（2026-01-01，记录读侧用例归位深化/D1）：新增 `EvaRecordQueryUseCase`，并将 `EvaRecordServiceImpl.pageEvaRecord` 退化为纯委托壳，把“实体→CO 组装 + 平均分填充 + 分页组装”的编排逻辑归位到 UseCase（保持 `@CheckSemId` 触发点不变；异常文案/副作用顺序不变；保持行为不变；最小回归通过；落地提交：`86772f59`）。
+										  - ✅ 进展（2026-01-01，记录读侧用例归位深化/D1）：对齐 `EvaRecordQueryUseCase` 内部“实体→CO 组装”的求值顺序，避免提前触发 `Supplier` 缓存加载导致副作用顺序漂移（保持行为不变；最小回归通过；落地提交：`10991314`）。
 										  - ✅ 进展（2025-12-28，统计读侧用例归位深化）：将 `EvaStatisticsServiceImpl.getTargetAmountUnqualifiedUser` 的 `type` 分支选择与阈值选择归位到 `EvaStatisticsQueryUseCase.getTargetAmountUnqualifiedUser`（保持 `@CheckSemId` 触发点仍在旧入口；异常文案与副作用顺序不变；保持行为不变；最小回归通过；落地提交：`5b20d44e`）。
 										  - ✅ 进展（2025-12-29，统计读侧用例归位深化）：在 `EvaStatisticsQueryUseCase` 新增 `evaScoreStatisticsInfoOrEmpty`，将 “`Optional.empty` → `new EvaScoreInfoCO()`” 的空对象兜底先归位到用例层（保持行为不变；为下一步旧入口退化为纯委托壳做准备；最小回归通过；落地提交：`bce01df2`）。
 									  - ✅ 进展（2025-12-29，统计读侧用例归位深化）：将旧入口 `EvaStatisticsServiceImpl.evaScoreStatisticsInfo` 退化为纯委托壳，改为调用 `EvaStatisticsQueryUseCase.evaScoreStatisticsInfoOrEmpty`，从而把空对象兜底彻底归位到 UseCase（保持 `@CheckSemId` 触发点不变；保持行为不变；最小回归通过；落地提交：`1bf3a4fe`）。
