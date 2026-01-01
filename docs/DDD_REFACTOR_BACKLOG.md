@@ -109,6 +109,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 **已完成（更新至 2026-01-01）**
 - bc-messaging（消息域）：依赖收敛后半段（运行时装配上推准备）：在 `start/pom.xml` 增加对 `bc-messaging` 的 `runtime` 依赖（保持行为不变；最小回归通过；落地提交：`f23254ec`）。
+- bc-messaging（消息域）：依赖收敛后半段（运行时装配责任上推）：移除 `eva-infra/pom.xml` 对 `bc-messaging` 的 `runtime` 依赖（保持行为不变；最小回归通过；落地提交：`507f95b2`）。
 - bc-messaging（消息域）：组合根归位：将 `BcMessagingConfiguration` 从 `eva-app` 迁移到 `bc-messaging`（保持 `package` 不变；最小回归通过；落地提交：`4e3e2cf2`）。
 - bc-messaging（消息域）：监听器归位（课程副作用）：将 `CourseOperationSideEffectsListener` 从 `eva-app` 迁移到 `bc-messaging`（保持 `package` 不变；最小回归通过；落地提交：`22ee30e7`）。
 - bc-messaging（消息域）：监听器归位（课程教师任务消息）：将 `CourseTeacherTaskMessagesListener` 从 `eva-app` 迁移到 `bc-messaging`（保持 `package` 不变；最小回归通过；落地提交：`0987f96f`）。
@@ -490,7 +491,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 依赖收敛准备（事件载荷下沉到 contract）：`CourseOperationSideEffectsEvent` → `bc-messaging-contract`（保持 `package` 不变；保持行为不变；`ea2c0d9b`）。
   - ✅ 依赖收敛准备（事件载荷下沉到 contract）：`CourseTeacherTaskMessagesEvent` → `bc-messaging-contract`（保持 `package` 不变；保持行为不变；`12f43323`）。
   - ✅ 依赖收敛（应用侧编译期依赖面收窄）：`eva-app` → `bc-messaging-contract`（替换 `eva-app` 对 `bc-messaging` 的编译期依赖；保持行为不变；`d3aeb3ab`）。
-  - 下一步建议（依赖收敛后半段，保持行为不变）：当前 `eva-infra/pom.xml` 对 `bc-messaging` 为 `runtime`（用于提供 `MessageUseCaseFacadeImpl` 的运行时装配）。✅ 已完成：在 `start/pom.xml` 补齐 `bc-messaging` 的 `runtime` 依赖（保持行为不变；落地：`f23254ec`）。下一步：若仍能通过最小回归，则移除 `eva-infra/pom.xml` 中 `bc-messaging` 的 `runtime` 依赖，把“运行时装配责任”上推到组合根（每步 1 commit + 最小回归）。
+  - 下一步建议（依赖收敛后半段，保持行为不变）：✅ 已完成：在 `start/pom.xml` 补齐 `bc-messaging` 的 `runtime` 依赖（保持行为不变；落地：`f23254ec`）；✅ 已完成：移除 `eva-infra/pom.xml` 中 `bc-messaging` 的 `runtime` 依赖，把“运行时装配责任”上推到组合根 `start`（保持行为不变；落地：`507f95b2`）。后置建议：用 Serena 再次证伪 `eva-infra` 不再需要 `bc-messaging` 作为运行时兜底依赖。
 
 如果继续按“写侧优先”的策略推进，下一批候选（高 → 低）建议是：
 

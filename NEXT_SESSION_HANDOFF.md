@@ -23,6 +23,7 @@
 
 **2026-01-01（本次会话）**
 - ✅ **bc-messaging（消息域）：依赖收敛后半段（运行时装配上推准备）**：在 `start/pom.xml` 增加对 `bc-messaging` 的 `runtime` 依赖（保持行为不变；最小回归通过；落地提交：`f23254ec`）。
+- ✅ **bc-messaging（消息域）：依赖收敛后半段（运行时装配责任上推）**：移除 `eva-infra/pom.xml` 对 `bc-messaging` 的 `runtime` 依赖，把“运行时装配责任”从 `eva-infra` 上推到组合根 `start`（保持行为不变；最小回归通过；落地提交：`507f95b2`）。
 
 **2025-12-30（本次会话）**
 - ✅ **bc-messaging（消息域）：依赖收敛准备（事件枚举下沉到 contract）**：将 `CourseOperationMessageMode` 从 `bc-messaging` 迁移到 `bc-messaging-contract`（保持 `package edu.cuit.bc.messaging.application.event` 不变；仅类归位，不改任何业务语义；最小回归通过；落地提交：`b2247e7f`）。
@@ -331,7 +332,7 @@
    - 目标：让消息域的运行时装配由组合根承接（建议 `start`），并尽量减少 `eva-app/eva-infra` 对 `bc-messaging` 的编译期耦合（仍保持行为不变）。
    - 建议拆分为 3 个可回滚提交（每步：Serena → 最小回归 → commit → 三文档同步）：
      1) ✅ 已完成：组合根补齐运行时依赖：在 `start/pom.xml` 增加对 `bc-messaging` 的 `runtime` 依赖，确保 Spring 装配不变（保持行为不变；落地提交：`f23254ec`）。
-     2) 依赖上推：若第 1 步后仍能通过最小回归，则移除 `eva-infra/pom.xml` 对 `bc-messaging` 的 `runtime` 依赖，把“运行时装配责任”从 `eva-infra` 上推到组合根（保持行为不变）。
+     2) ✅ 已完成：依赖上推：移除 `eva-infra/pom.xml` 对 `bc-messaging` 的 `runtime` 依赖，把“运行时装配责任”从 `eva-infra` 上推到组合根（保持行为不变；落地提交：`507f95b2`）。
      3) 注意：`bc-messaging-contract` 当前包含 `MsgResult`（`@Component`，保持行为不变），因此其对 `spring-context` 的依赖暂不建议移除；若后续要移除，必须先将 `MsgResult` 的装配责任迁回 `bc-messaging` 或其它合适模块并闭环验证。
 
 1) **评教读侧进一步解耦（优先，方向 A → B，保持行为不变）**：当前已完成“统计 QueryPort 细分 + 依赖收窄 + UseCase 归位起步 + 首个分支归位”（见 0.9：统计 `a1d6ccab/c19d8801/9b3c4e6a/db09d87b/22dccc70`；其余记录/任务/模板/导出链路进展见 0.9 的提交清单）。下一步建议拆分为更小的可回滚提交：
@@ -458,9 +459,9 @@
         - ✅ 1.7.7（依赖收敛准备）：事件枚举/载荷已下沉到 `bc-messaging-contract`（保持 `package` 不变；见 0.9）。
         - ✅ 1.7.8（依赖收敛）：`eva-app` 的 Maven 依赖已从 `bc-messaging` 收敛为 `bc-messaging-contract`（保持行为不变；见 0.9）。
         - 下一步建议（依赖收敛后半段，仍保持行为不变；每步只做 1 个小改动并闭环）：
-          1) Serena 证伪：`eva-infra` 对 `bc-messaging` 不再存在编译期引用（当前 `eva-infra/pom.xml` 对 `bc-messaging` 为 `runtime`，主要用于提供 `MessageUseCaseFacadeImpl` Bean 的运行时装配）。
+          1) Serena 证伪：`eva-infra` 对 `bc-messaging` 不再存在编译期引用；且“运行时装配责任”已由组合根 `start` 承接（见 0.9/0.10）。
           2) ✅ 已完成：组合根承接运行时装配：在 `start/pom.xml` 增加对 `bc-messaging` 的 `runtime` 依赖（保持行为不变；落地提交：`f23254ec`）。
-          3) 若第 2 步后仍能通过最小回归：移除 `eva-infra/pom.xml` 对 `bc-messaging` 的 `runtime` 依赖，把“运行时装配责任”上推到组合根（保持行为不变）。
+          3) ✅ 已完成：移除 `eva-infra/pom.xml` 对 `bc-messaging` 的 `runtime` 依赖，把“运行时装配责任”上推到组合根（保持行为不变；落地提交：`507f95b2`）。
 
 2) （可选/后置）**评教读侧用例归位深化（统计）**：继续按“每次只迁 1 个方法簇”的节奏归位默认值兜底/空对象组装（保持行为不变）。
 
