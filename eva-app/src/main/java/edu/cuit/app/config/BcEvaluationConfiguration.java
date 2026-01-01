@@ -5,6 +5,7 @@ import edu.cuit.bc.evaluation.application.port.DeleteEvaRecordRepository;
 import edu.cuit.bc.evaluation.application.port.DeleteEvaTemplateRepository;
 import edu.cuit.bc.evaluation.application.port.DomainEventPublisher;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsExportPort;
+import edu.cuit.bc.evaluation.application.port.EvaTaskPagingQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaTemplatePagingQueryPort;
 import edu.cuit.bc.evaluation.application.port.PostEvaTaskRepository;
 import edu.cuit.bc.evaluation.application.port.SubmitEvaluationRepository;
@@ -14,6 +15,7 @@ import edu.cuit.bc.evaluation.application.usecase.DeleteEvaRecordUseCase;
 import edu.cuit.bc.evaluation.application.usecase.DeleteEvaTemplateUseCase;
 import edu.cuit.bc.evaluation.application.usecase.EvaRecordQueryUseCase;
 import edu.cuit.bc.evaluation.application.usecase.EvaStatisticsQueryUseCase;
+import edu.cuit.bc.evaluation.application.usecase.EvaTaskQueryUseCase;
 import edu.cuit.bc.evaluation.application.usecase.EvaTemplateQueryUseCase;
 import edu.cuit.bc.evaluation.application.usecase.PostEvaTaskUseCase;
 import edu.cuit.bc.evaluation.application.usecase.SubmitEvaluationUseCase;
@@ -104,5 +106,10 @@ public class BcEvaluationConfiguration {
     @Bean
     public EvaTemplateQueryUseCase evaTemplateQueryUseCase(EvaTemplatePagingQueryPort evaTemplatePagingQueryPort) {
         return new EvaTemplateQueryUseCase(evaTemplatePagingQueryPort);
+    }
+
+    @Bean
+    public EvaTaskQueryUseCase evaTaskQueryUseCase(EvaTaskPagingQueryPort evaTaskPagingQueryPort) {
+        return new EvaTaskQueryUseCase(evaTaskPagingQueryPort);
     }
 }

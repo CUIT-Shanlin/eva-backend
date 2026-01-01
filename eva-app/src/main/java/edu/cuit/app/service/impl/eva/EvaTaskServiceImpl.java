@@ -3,11 +3,11 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.alibaba.cola.exception.BizException;
 import com.alibaba.cola.exception.SysException;
 import edu.cuit.bc.evaluation.application.model.PostEvaTaskCommand;
+import edu.cuit.bc.evaluation.application.usecase.EvaTaskQueryUseCase;
 import edu.cuit.bc.evaluation.application.usecase.PostEvaTaskUseCase;
 import edu.cuit.bc.evaluation.domain.PostEvaTaskQueryException;
 import edu.cuit.bc.evaluation.domain.PostEvaTaskUpdateException;
 import edu.cuit.app.aop.CheckSemId;
-import edu.cuit.app.convertor.PaginationBizConvertor;
 import edu.cuit.app.convertor.eva.EvaTaskBizConvertor;
 import edu.cuit.app.service.impl.MsgServiceImpl;
 import edu.cuit.client.api.eva.IEvaTaskService;
@@ -17,14 +17,12 @@ import edu.cuit.client.dto.clientobject.eva.EvaTaskDetailInfoCO;
 import edu.cuit.client.dto.cmd.eva.NewEvaTaskCmd;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.EvaTaskConditionalQuery;
-import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.entity.eva.EvaTaskEntity;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.domain.gateway.eva.EvaConfigGateway;
 import edu.cuit.domain.gateway.eva.EvaDeleteGateway;
 import edu.cuit.bc.evaluation.application.port.EvaTaskInfoQueryPort;
-import edu.cuit.bc.evaluation.application.port.EvaTaskPagingQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaTaskSelfQueryPort;
 import edu.cuit.domain.gateway.eva.EvaUpdateGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
@@ -42,8 +40,8 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 public class EvaTaskServiceImpl implements IEvaTaskService {
+    private final EvaTaskQueryUseCase evaTaskQueryUseCase;
     private final EvaUpdateGateway evaUpdateGateway;
-    private final EvaTaskPagingQueryPort evaTaskPagingQueryPort;
     private final EvaTaskSelfQueryPort evaTaskSelfQueryPort;
     private final EvaTaskInfoQueryPort evaTaskInfoQueryPort;
     private final EvaDeleteGateway evaDeleteGateway;
@@ -51,17 +49,12 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
     private final CourseQueryGateway courseQueryGateway;
     private final EvaConfigGateway evaConfigGateway;
     private final EvaTaskBizConvertor evaTaskBizConvertor;
-    private final PaginationBizConvertor paginationBizConvertor;
     private final MsgServiceImpl msgService;
     private final PostEvaTaskUseCase postEvaTaskUseCase;
     @Override
     @CheckSemId
     public PaginationQueryResultCO<EvaTaskBaseInfoCO> pageEvaUnfinishedTask(Integer semId, PagingQuery<EvaTaskConditionalQuery> query) {
-        PaginationResultEntity<EvaTaskEntity> page=evaTaskPagingQueryPort.pageEvaUnfinishedTask(semId,query);
-        List<EvaTaskBaseInfoCO> results =page.getRecords().stream()
-                .map(evaTaskBizConvertor::evaTaskEntityToEvaBaseCO)
-                .toList();
-        return paginationBizConvertor.toPaginationEntity(page,results);
+        return evaTaskQueryUseCase.pageEvaUnfinishedTaskAsPaginationQueryResult(semId, query);
     }
 
     @Override
