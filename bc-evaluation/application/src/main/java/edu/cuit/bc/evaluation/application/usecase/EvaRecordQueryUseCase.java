@@ -59,23 +59,23 @@ public class EvaRecordQueryUseCase {
     }
 
     private EvaRecordCO toEvaRecordCO(EvaRecordEntity evaRecordEntity) {
-        SingleCourseEntity courseInfo = evaRecordEntity.getTask().getCourInf();
+        EvaRecordCO co = new EvaRecordCO();
+        co.setId(evaRecordEntity.getId());
+        co.setTeacherName(evaRecordEntity.getTask().getCourInf().getCourseEntity().getTeacher().getName());
+        co.setEvaTeacherName(evaRecordEntity.getTask().getTeacher().getName());
+        co.setCourseName(evaRecordEntity.getTask().getCourInf().getCourseEntity().getSubjectEntity().getName());
+        co.setTextValue(evaRecordEntity.getTextValue());
+        co.setFormPropsValues(evaRecordEntity.getFormPropsValues());
+        co.setCreateTime(evaRecordEntity.getCreateTime());
 
+        SingleCourseEntity courseInfo = evaRecordEntity.getTask().getCourInf();
         CourseTime courseTime = new CourseTime()
                 .setWeek(courseInfo.getWeek())
                 .setDay(courseInfo.getDay())
                 .setStartTime(courseInfo.getStartTime())
                 .setEndTime(courseInfo.getEndTime());
-
-        return new EvaRecordCO()
-                .setId(evaRecordEntity.getId())
-                .setTeacherName(courseInfo.getCourseEntity().getTeacher().getName())
-                .setEvaTeacherName(evaRecordEntity.getTask().getTeacher().getName())
-                .setCourseName(courseInfo.getCourseEntity().getSubjectEntity().getName())
-                .setTextValue(evaRecordEntity.getTextValue())
-                .setFormPropsValues(evaRecordEntity.getFormPropsValues())
-                .setCreateTime(evaRecordEntity.getCreateTime())
-                .setCourseTime(courseTime)
-                .setAverScore(null);
+        co.setCourseTime(courseTime);
+        co.setAverScore(null);
+        return co;
     }
 }
