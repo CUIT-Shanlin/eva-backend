@@ -1,6 +1,5 @@
 package edu.cuit.app.service.impl.eva;
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.json.JSONUtil;
 import edu.cuit.bc.evaluation.application.model.AddEvaTemplateCommand;
 import edu.cuit.bc.evaluation.application.model.UpdateEvaTemplateCommand;
 import edu.cuit.bc.evaluation.application.usecase.AddEvaTemplateUseCase;
@@ -22,7 +21,6 @@ import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.domain.entity.eva.EvaTemplateEntity;
 import edu.cuit.bc.evaluation.application.port.EvaTemplateAllQueryPort;
-import edu.cuit.bc.evaluation.application.port.EvaTemplateTaskTemplateQueryPort;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +35,6 @@ import java.util.List;
 public class EvaTemplateServiceImpl implements IEvaTemplateService {
     private final EvaTemplateQueryUseCase evaTemplateQueryUseCase;
     private final EvaTemplateAllQueryPort evaTemplateAllQueryPort;
-    private final EvaTemplateTaskTemplateQueryPort evaTemplateTaskTemplateQueryPort;
     private final DeleteEvaTemplateUseCase deleteEvaTemplateUseCase;
     private final AddEvaTemplateUseCase addEvaTemplateUseCase;
     private final UpdateEvaTemplateUseCase updateEvaTemplateUseCase;
@@ -67,7 +64,7 @@ public class EvaTemplateServiceImpl implements IEvaTemplateService {
     @Override
     @CheckSemId
     public String evaTemplateByTaskId(Integer taskId, Integer semId) {
-        return evaTemplateTaskTemplateQueryPort.getTaskTemplate(taskId,semId).orElseGet(() -> JSONUtil.toJsonStr(List.of()));
+        return evaTemplateQueryUseCase.evaTemplateByTaskId(taskId, semId);
     }
 
     @Override

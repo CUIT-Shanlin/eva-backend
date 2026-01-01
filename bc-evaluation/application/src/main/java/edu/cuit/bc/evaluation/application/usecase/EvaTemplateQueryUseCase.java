@@ -1,6 +1,7 @@
 package edu.cuit.bc.evaluation.application.usecase;
 
 import edu.cuit.bc.evaluation.application.port.EvaTemplatePagingQueryPort;
+import edu.cuit.bc.evaluation.application.port.EvaTemplateTaskTemplateQueryPort;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
 import edu.cuit.client.dto.query.PagingQuery;
@@ -21,9 +22,14 @@ import java.util.Objects;
  */
 public class EvaTemplateQueryUseCase {
     private final EvaTemplatePagingQueryPort evaTemplatePagingQueryPort;
+    private final EvaTemplateTaskTemplateQueryPort evaTemplateTaskTemplateQueryPort;
 
-    public EvaTemplateQueryUseCase(EvaTemplatePagingQueryPort evaTemplatePagingQueryPort) {
+    public EvaTemplateQueryUseCase(
+            EvaTemplatePagingQueryPort evaTemplatePagingQueryPort,
+            EvaTemplateTaskTemplateQueryPort evaTemplateTaskTemplateQueryPort
+    ) {
         this.evaTemplatePagingQueryPort = Objects.requireNonNull(evaTemplatePagingQueryPort, "evaTemplatePagingQueryPort");
+        this.evaTemplateTaskTemplateQueryPort = Objects.requireNonNull(evaTemplateTaskTemplateQueryPort, "evaTemplateTaskTemplateQueryPort");
     }
 
     public PaginationQueryResultCO<EvaTemplateCO> pageEvaTemplateAsPaginationQueryResult(
@@ -52,5 +58,10 @@ public class EvaTemplateQueryUseCase {
                 .setTotal(page.getTotal())
                 .setRecords(results);
         return pageCO;
+    }
+
+    public String evaTemplateByTaskId(Integer taskId, Integer semId) {
+        return evaTemplateTaskTemplateQueryPort.getTaskTemplate(taskId, semId)
+                .orElseGet(() -> "[]");
     }
 }
