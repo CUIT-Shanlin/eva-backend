@@ -24,6 +24,13 @@
             <artifactId>eva-adapter</artifactId>
             <version>${revision}</version>
         </dependency>
+        <!-- 组合根承接消息域运行时装配责任（保持行为不变，仅上推依赖边界） -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>bc-messaging</artifactId>
+            <version>${revision}</version>
+            <scope>runtime</scope>
+        </dependency>
         <!-- 测试侧需要复用课表 POI 解析实现（已归位到 bc-course-infra，保持行为不变） -->
         <dependency>
             <groupId>edu.cuit</groupId>
