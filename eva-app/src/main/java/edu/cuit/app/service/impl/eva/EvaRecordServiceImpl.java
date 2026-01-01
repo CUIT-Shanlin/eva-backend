@@ -36,7 +36,6 @@ public class EvaRecordServiceImpl implements IEvaRecordService {
     private final EvaRecordPagingQueryPort evaRecordPagingQueryPort;
     private final EvaRecordScoreQueryPort evaRecordScoreQueryPort;
     private final EvaRecordBizConvertor evaRecordBizConvertor;
-    private final PaginationBizConvertor paginationBizConvertor;
     private final SubmitEvaluationUseCase submitEvaluationUseCase;
     private final DeleteEvaRecordUseCase deleteEvaRecordUseCase;
     @Override
@@ -49,7 +48,12 @@ public class EvaRecordServiceImpl implements IEvaRecordService {
         for(int i=0;i<results.size();i++){
             results.get(i).setAverScore(evaRecordScoreQueryPort.getScoreFromRecord(page.getRecords().get(i).getFormPropsValues()).orElseThrow(()->new SysException("相关模板不存在")));
         }
-        return paginationBizConvertor.toPaginationEntity(page,results);
+        PaginationQueryResultCO<EvaRecordCO> pageCO = new PaginationQueryResultCO<>();
+        pageCO.setCurrent(page.getCurrent())
+                .setSize(page.getSize())
+                .setTotal(page.getTotal())
+                .setRecords(results);
+        return pageCO;
     }
 
     @Override
