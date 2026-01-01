@@ -617,7 +617,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - 依赖收敛准备（事件载荷下沉到 contract，保持行为不变）：将 `CourseOperationSideEffectsEvent` 从 `bc-messaging` 迁移到 `bc-messaging-contract`（保持 `package edu.cuit.bc.messaging.application.event` 不变；落地：`ea2c0d9b`）。
   - 依赖收敛准备（事件载荷下沉到 contract，保持行为不变）：将 `CourseTeacherTaskMessagesEvent` 从 `bc-messaging` 迁移到 `bc-messaging-contract`（保持 `package edu.cuit.bc.messaging.application.event` 不变；落地：`12f43323`）。
   - 依赖收敛（应用侧编译期依赖面收窄，保持行为不变）：`eva-app` 对消息域的 Maven 依赖从 `bc-messaging` 收敛为仅依赖 `bc-messaging-contract`（仅用于事件载荷类型；落地：`d3aeb3ab`）。
-  - 下一步建议（依赖收敛后半段，保持行为不变）：当前 `eva-infra/pom.xml` 对 `bc-messaging` 为 `runtime`（用于提供 `MessageUseCaseFacadeImpl` 的运行时装配）。下一步建议将该运行时依赖责任上推到组合根（建议 `start`）：先在 `start/pom.xml` 补齐 `bc-messaging` 的 `runtime` 依赖，回归通过后再移除 `eva-infra/pom.xml` 中的 `bc-messaging` 依赖（每步 1 commit + 最小回归 + 三文档同步）。
+- 下一步建议（依赖收敛后半段，保持行为不变）：当前 `eva-infra/pom.xml` 对 `bc-messaging` 为 `runtime`（用于提供 `MessageUseCaseFacadeImpl` 的运行时装配）。✅ 已完成：在 `start/pom.xml` 补齐 `bc-messaging` 的 `runtime` 依赖（保持行为不变；落地：`f23254ec`）。下一步：若仍能通过最小回归，则移除 `eva-infra/pom.xml` 中 `bc-messaging` 的 `runtime` 依赖，把“运行时装配责任”上推到组合根（每步 1 commit + 最小回归 + 三文档同步）。
 
 - 建议拆分提交（每步：Serena 符号级引用分析 → 最小回归 → commit → 三文档同步）：
   1) **盘点与证据化（只改文档）**：用 Serena 列出 `eva-app/eva-infra` 中与消息域相关的散落点与引用面（优先：`BcMessagingConfiguration`、`CourseOperationSideEffectsListener`、`CourseTeacherTaskMessagesListener`、`eva-app/.../bcmessaging/adapter/*`、`eva-infra/.../bcmessaging/adapter/*`），形成“迁移清单 + 风险点”。
