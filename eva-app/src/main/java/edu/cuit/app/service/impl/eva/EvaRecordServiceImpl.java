@@ -1,26 +1,20 @@
 package edu.cuit.app.service.impl.eva;
 
-import com.alibaba.cola.exception.SysException;
 import edu.cuit.bc.evaluation.application.model.FormPropValue;
 import edu.cuit.bc.evaluation.application.model.SubmitEvaluationCommand;
 import edu.cuit.bc.evaluation.application.usecase.DeleteEvaRecordUseCase;
+import edu.cuit.bc.evaluation.application.usecase.EvaRecordQueryUseCase;
 import edu.cuit.bc.evaluation.application.usecase.SubmitEvaluationUseCase;
 import edu.cuit.bc.evaluation.domain.DeleteEvaRecordQueryException;
 import edu.cuit.bc.evaluation.domain.DeleteEvaRecordUpdateException;
 import edu.cuit.bc.evaluation.domain.SubmitEvaluationException;
 import edu.cuit.app.aop.CheckSemId;
-import edu.cuit.app.convertor.PaginationBizConvertor;
-import edu.cuit.app.convertor.eva.EvaRecordBizConvertor;
 import edu.cuit.client.api.eva.IEvaRecordService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.eva.EvaRecordCO;
 import edu.cuit.client.dto.cmd.eva.NewEvaLogCmd;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.EvaLogConditionalQuery;
-import edu.cuit.domain.entity.PaginationResultEntity;
-import edu.cuit.domain.entity.eva.EvaRecordEntity;
-import edu.cuit.bc.evaluation.application.port.EvaRecordPagingQueryPort;
-import edu.cuit.bc.evaluation.application.port.EvaRecordScoreQueryPort;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
@@ -33,27 +27,13 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class EvaRecordServiceImpl implements IEvaRecordService {
-    private final EvaRecordPagingQueryPort evaRecordPagingQueryPort;
-    private final EvaRecordScoreQueryPort evaRecordScoreQueryPort;
-    private final EvaRecordBizConvertor evaRecordBizConvertor;
+    private final EvaRecordQueryUseCase evaRecordQueryUseCase;
     private final SubmitEvaluationUseCase submitEvaluationUseCase;
     private final DeleteEvaRecordUseCase deleteEvaRecordUseCase;
     @Override
     @CheckSemId
     public PaginationQueryResultCO<EvaRecordCO> pageEvaRecord(Integer semId, PagingQuery<EvaLogConditionalQuery> query) {
-        PaginationResultEntity<EvaRecordEntity> page=evaRecordPagingQueryPort.pageEvaRecord(semId,query);
-        List<EvaRecordCO> results = page.getRecords().stream()
-                .map(evaRecordBizConvertor::evaRecordEntityToCo)
-                .toList();
-        for(int i=0;i<results.size();i++){
-            results.get(i).setAverScore(evaRecordScoreQueryPort.getScoreFromRecord(page.getRecords().get(i).getFormPropsValues()).orElseThrow(()->new SysException("相关模板不存在")));
-        }
-        PaginationQueryResultCO<EvaRecordCO> pageCO = new PaginationQueryResultCO<>();
-        pageCO.setCurrent(page.getCurrent())
-                .setSize(page.getSize())
-                .setTotal(page.getTotal())
-                .setRecords(results);
-        return pageCO;
+        return evaRecordQueryUseCase.pageEvaRecordAsPaginationQueryResult(semId, query);
     }
 
     @Override
