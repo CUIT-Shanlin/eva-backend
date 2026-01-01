@@ -50,12 +50,6 @@
             <artifactId>bc-course</artifactId>
             <version>${revision}</version>
         </dependency>
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>bc-messaging</artifactId>
-            <version>${revision}</version>
-            <scope>runtime</scope>
-        </dependency>
 	        <dependency>
 	            <groupId>edu.cuit</groupId>
 	            <artifactId>bc-iam</artifactId>
