@@ -108,7 +108,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-01-02）**
-- ✅ 规划与证据化（保持行为不变）：用 Serena 盘点 bc-course 写侧 `@CheckSemId` 入口清单与 `eva-infra` 旧 `*GatewayImpl` 候选清单，并落盘到本文件 `4.3`，作为后续 S1/S2 退场/排期依据（不改业务语义；最小回归通过；落地提交以 `git log -n 1 -- docs/DDD_REFACTOR_BACKLOG.md` 为准）。
+- ✅ 规划与证据化（保持行为不变）：用 Serena 盘点 bc-course 写侧 `@CheckSemId` 入口清单与 `eva-infra` 旧 `*GatewayImpl` 候选清单，并落盘到本文件 `4.3`，作为后续 S1/S2 退场/排期依据；同时修正文档中 `bc-messaging` 的主线口径为“后置仅做结构折叠/依赖证伪”（不改业务语义；最小回归通过；落地提交以 `git log -n 1 -- docs/DDD_REFACTOR_BACKLOG.md` 为准）。
 - 评教用户读侧（D1：用例归位深化—去评教/被评教记录）：新增 `UserEvaQueryUseCase` 并将旧入口 `UserEvaServiceImpl.getEvaLogInfo/getEvaLoggingInfo` 退化为纯委托壳（旧入口仍保留 `@CheckSemId` 与当前用户解析：`StpUtil` + `userQueryGateway`；异常文案/副作用顺序不变；保持行为不变；最小回归通过；落地提交：`96e65019`）。
 - 评教任务读侧用例归位深化（本人任务列表）：将旧入口 `EvaTaskServiceImpl.evaSelfTaskInfo` 的“任务列表查询 + 懒加载顺序对齐的实体→CO 组装”归位到 `EvaTaskQueryUseCase`；旧入口仍保留 `@CheckSemId` 与当前用户解析（`StpUtil` + `userQueryGateway`）并委托 UseCase（异常文案/副作用顺序不变；保持行为不变；最小回归通过；落地提交：`1ac196c6`）。
 - 评教任务读侧用例归位深化（单任务详情）：将旧入口 `EvaTaskServiceImpl.oneEvaTaskInfo` 退化为纯委托壳，并把 “单任务查询 + 懒加载顺序对齐的实体→CO 组装” 归位到 `EvaTaskQueryUseCase`（异常文案不变；保持行为不变；最小回归通过；落地提交：`94736365`）。

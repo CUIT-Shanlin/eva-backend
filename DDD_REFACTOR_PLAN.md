@@ -521,7 +521,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
    - 补充进展（2025-12-29）：统计导出 `exportEvaStatistics` 调用归位到 `EvaStatisticsQueryUseCase`：引入导出端口 `EvaStatisticsExportPort`（Bean 仍委托既有 `EvaStatisticsExcelFactory.createExcelData`），旧入口 `EvaStatisticsServiceImpl.exportEvaStatistics` 退化为纯委托壳（保持 `@CheckSemId` 触发点与异常文案/日志顺序不变；最小回归通过；落地：`0d15de60`）。
    - 下一步建议（统计导出基础设施归位，保持行为不变；每次只迁 1 个类 + 最小回归）：✅ 已完成 `BcEvaluationConfiguration.evaStatisticsExportPort()` 委托切换（`565552fa`）；✅ 已完成 `eva-app/pom.xml` 移除 `poi/poi-ooxml` Maven 直依赖（课表解析已迁移到 `bc-course-infra`，保持行为不变；落地：`383dbf33`）。
    - 补充进展（2025-12-29）：课表 Excel/POI 解析已进一步“端口化”：新增 `CourseExcelResolvePort`（`bc-course/application`）并由 `bc-course-infra` 提供适配器实现，`eva-app` 调用侧改为依赖端口，移除对解析实现的直耦合（保持行为不变；落地：`5a7cd0a0`）。
-   - 下一步建议（主线切换，保持行为不变）：评教统计导出基础设施归位已阶段性闭环后，下一会话优先按 10.3 路线推进 `bc-messaging`（组合根 → 监听器/应用侧适配器 → 基础设施端口适配器 → 依赖收敛）。
+   - 下一步建议（主线切换，保持行为不变）：`bc-messaging` 已阶段性闭环（依赖收敛后半段证伪 + 运行时装配由 `start` 承接），本主线不继续；如需推进仅做 S0 结构折叠/依赖证伪（见 `NEXT_SESSION_HANDOFF.md` 0.9，保持行为不变）。
    - 进展：已拆分统计/导出、任务、记录、模板查询端口（`EvaStatisticsQueryPort` / `EvaTaskQueryPort` / `EvaRecordQueryPort` / `EvaTemplateQueryPort`），应用层开始迁移，行为保持不变；旧 `EvaQueryGatewayImpl` 已移除；并已引入 `bc-evaluation-infra` 承接评教读侧查询实现（QueryPortImpl + QueryRepo/Repository，保持包名/行为不变；落地：`be6dc05c`）。
    - 补充进展（2025-12-27）：为后续“按用例进一步收窄依赖类型”做准备，已细分统计 QueryPort：新增 `EvaStatisticsOverviewQueryPort/EvaStatisticsTrendQueryPort/EvaStatisticsUnqualifiedUserQueryPort`，并让 `EvaStatisticsQueryPort` `extends` 以上子端口（仅接口拆分，不改实现/不改装配；保持行为不变；落地：`a1d6ccab`）。
    - 补充进展（2025-12-28）：工程噪音收敛（dev 环境 MyBatis 日志）：将 `application-dev.yml` 中 MyBatis-Plus 的 `log-impl` 从 `StdOutImpl` 切换为 `Slf4jImpl`，避免 SQL 调试日志直出 stdout（仅 dev profile，生产不变；最小回归通过；落地：`cb3a4620`）。
@@ -634,8 +634,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 #### bc-messaging（消息域）后置规划（仅规划，不落地；保持行为不变）
 
-> 背景：`bc-messaging` 已承接消息域用例/端口/事件（`edu.cuit.bc.messaging.*`），但组合根/监听器/端口适配器仍散落在 `eva-app`/`eva-infra`（见 `BcMessagingConfiguration`、`edu.cuit.app.bcmessaging.*`、`edu.cuit.infra.bcmessaging.adapter.*`）。
-> 目标：在不新增新折叠试点提交的前提下，先形成可回滚的小步路线：逐步把“装配/适配器/基础设施实现”归位到 `bc-messaging`，并收敛 `eva-app/eva-infra` 对消息域的直接承担（保持行为不变）。
+> 背景：截至 2026-01-02，`bc-messaging` 已完成组合根/监听器/端口适配器归位与依赖收敛关键环节（见 `NEXT_SESSION_HANDOFF.md` 0.9），本段保留为“后置结构折叠/依赖证伪”清单（保持行为不变）。
+> 目标：若后续需要继续推进，优先做 S0 结构折叠与依赖面证伪；当前会话不落地“新增折叠试点”类提交，避免分散主线（保持行为不变）。
 
 - 现状散落点（Serena 证据化盘点，2025-12-29）：
   - 组合根：✅ 已归位到 `bc-messaging/src/main/java/edu/cuit/app/config/BcMessagingConfiguration.java`（保持 `package` 不变；落地：`4e3e2cf2`）。

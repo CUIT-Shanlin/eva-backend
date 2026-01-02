@@ -34,6 +34,7 @@
 - ✅ **bc-course（课程）写侧入口用例归位起步（方向 A → B）：批量删课**：新增 `DeleteCoursesEntryUseCase` + `DeleteCoursesPort`，并将旧入口 `ICourseServiceImpl.deleteCourses` 保留 `@CheckSemId`、`StpUtil.getLoginId()` 与 AfterCommit 发布事件的顺序不变（先删除/落库→再解析 operatorUserId→再 publishAfterCommit）；端口适配器委托既有 `CourseDeleteGateway.deleteCourses(...)`（其内部仍委托 `bc-course DeleteCoursesUseCase`，保持行为不变）；最小回归通过；落地提交：`d53b287a`。
 - ✅ **bc-course（课程）写侧入口用例归位继续（方向 A → B）：单节课修改**：新增 `UpdateSingleCourseEntryUseCase` + `UpdateSingleCoursePort`，并将旧入口 `ICourseServiceImpl.updateSingleCourse` 保留 `@CheckSemId` 且退化为委托壳；`eva-infra` 新增端口适配器并委托既有 `courseUpdateGateway.updateSingleCourse(userName, semId, cmd)`；严格保持 `StpUtil.getLoginId()` 调用次数与顺序不变（用户名解析 → 用例/网关调用 → 再次 `StpUtil.getLoginId()` 查询 operatorUserId → AfterCommit 发布）；异常文案/副作用顺序完全不变；最小回归通过；文档闭环提交以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准。
 - ✅ **规划与证据化（不改业务语义）**：补齐 `DDD_REFACTOR_PLAN.md` 的 `10.5`（`eva-*` 技术切片退场/整合到 BC 的前置条件与 DoD），并用 Serena 盘点 `eva-app` 中仍存在的 bc-course 写侧 `@CheckSemId` 入口与 `eva-infra` 旧 `*GatewayImpl` 候选清单，已落盘到 `docs/DDD_REFACTOR_BACKLOG.md` 的 `4.3`（用于后续 S1/S2 排期与退场证伪；保持行为不变）。
+- ✅ **文档口径修正（不改业务语义）**：将 `DDD_REFACTOR_PLAN.md` 中“`bc-messaging` 作为近期主线”的旧建议修正为“已阶段性闭环、后置仅做结构折叠/依赖证伪”，避免下一会话误切主线（保持行为不变）。
 
 **2026-01-01（本次会话）**
 - ✅ **评教模板读侧（D1：用例归位深化—按任务取模板）**：将 `EvaTemplateServiceImpl.evaTemplateByTaskId` 退化为纯委托壳，并把 “按任务取模板 + 空结果兜底 JSON” 归位到 `EvaTemplateQueryUseCase`（保持 `@CheckSemId` 触发点不变；保持行为不变；最小回归通过；落地提交：`f98a9eed`）。
