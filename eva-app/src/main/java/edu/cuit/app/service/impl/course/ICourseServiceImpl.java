@@ -3,6 +3,7 @@ package edu.cuit.app.service.impl.course;
 import cn.dev33.satoken.stp.StpUtil;
 import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.event.AfterCommitEventPublisher;
+import edu.cuit.bc.course.application.usecase.AddExistCoursesDetailsEntryUseCase;
 import edu.cuit.bc.course.application.usecase.AddNotExistCoursesDetailsEntryUseCase;
 import edu.cuit.bc.course.application.usecase.CourseDetailQueryUseCase;
 import edu.cuit.bc.course.application.usecase.CourseQueryUseCase;
@@ -42,6 +43,7 @@ public class ICourseServiceImpl implements ICourseService {
     private final AllocateTeacherUseCase allocateTeacherUseCase;
     private final DeleteCoursesEntryUseCase deleteCoursesEntryUseCase;
     private final UpdateSingleCourseEntryUseCase updateSingleCourseEntryUseCase;
+    private final AddExistCoursesDetailsEntryUseCase addExistCoursesDetailsEntryUseCase;
     private final AddNotExistCoursesDetailsEntryUseCase addNotExistCoursesDetailsEntryUseCase;
     private final UserQueryGateway userQueryGateway;
     private final AfterCommitEventPublisher afterCommitEventPublisher;
@@ -111,7 +113,7 @@ public class ICourseServiceImpl implements ICourseService {
 
     @Override
     public void addExistCoursesDetails(Integer courseId, SelfTeachCourseTimeCO timeCO) {
-            courseUpdateGateway.addExistCoursesDetails(courseId,timeCO);
+        addExistCoursesDetailsEntryUseCase.addExistCoursesDetails(courseId, timeCO);
     }
 
     @CheckSemId
