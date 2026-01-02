@@ -73,9 +73,7 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
 
     @Override
     public EvaTaskDetailInfoCO oneEvaTaskInfo(Integer id) {
-        EvaTaskEntity evaTaskEntity=evaTaskInfoQueryPort.oneEvaTaskInfo(id).orElseThrow(()->new SysException("并没有找到相关任务信息"));
-        SingleCourseEntity singleCourseEntity=evaTaskEntity.getCourInf();
-        return evaTaskBizConvertor.evaTaskEntityToTaskDetailCO(evaTaskEntity,singleCourseEntity);
+        return evaTaskQueryUseCase.oneEvaTaskInfo(id);
     }
     //发起任务之后，要同时发送该任务的评教待办消息
     @Override

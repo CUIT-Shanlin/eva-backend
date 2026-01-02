@@ -6,6 +6,7 @@ import edu.cuit.bc.evaluation.application.port.DeleteEvaTemplateRepository;
 import edu.cuit.bc.evaluation.application.port.DomainEventPublisher;
 import edu.cuit.bc.evaluation.application.port.EvaTemplateAllQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsExportPort;
+import edu.cuit.bc.evaluation.application.port.EvaTaskInfoQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaTaskPagingQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaTemplatePagingQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaTemplateTaskTemplateQueryPort;
@@ -115,7 +116,10 @@ public class BcEvaluationConfiguration {
     }
 
     @Bean
-    public EvaTaskQueryUseCase evaTaskQueryUseCase(EvaTaskPagingQueryPort evaTaskPagingQueryPort) {
-        return new EvaTaskQueryUseCase(evaTaskPagingQueryPort);
+    public EvaTaskQueryUseCase evaTaskQueryUseCase(
+            EvaTaskPagingQueryPort evaTaskPagingQueryPort,
+            EvaTaskInfoQueryPort evaTaskInfoQueryPort
+    ) {
+        return new EvaTaskQueryUseCase(evaTaskPagingQueryPort, evaTaskInfoQueryPort);
     }
 }
