@@ -555,6 +555,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 				   - 补充进展（2025-12-28）：任务读侧 QueryPort 细分：新增本人任务/数量统计子端口 `EvaTaskSelfQueryPort/EvaTaskCountQueryPort`，并让 `EvaTaskQueryPort` `extends` 这些子端口（仅新增接口+继承，不改实现/不改装配；保持行为不变；最小回归通过；落地：`9d5064fc`）。
 				   - 补充进展（2025-12-28）：任务读侧依赖类型收窄：`EvaTaskServiceImpl` 由注入 `EvaTaskQueryPort` 收窄为 `EvaTaskPagingQueryPort/EvaTaskSelfQueryPort/EvaTaskInfoQueryPort`（不改业务逻辑/异常文案；保持行为不变；最小回归通过；落地：`4b22f059`）。
 				   - 补充进展（2026-01-01）：任务读侧用例归位深化（分页）：新增 `EvaTaskQueryUseCase` 并将旧入口 `EvaTaskServiceImpl.pageEvaUnfinishedTask` 退化为纯委托壳，把“分页查询 + 实体→CO 组装 + 分页结果组装”归位到 UseCase（`@CheckSemId` 触发点仍保留在旧入口；保持行为不变；最小回归通过；落地：`d67f0ace`）。
+				   - 补充进展（2026-01-02）：任务读侧用例归位深化（单任务详情）：将旧入口 `EvaTaskServiceImpl.oneEvaTaskInfo` 退化为纯委托壳，并把 “单任务查询 + 懒加载顺序对齐的实体→CO 组装” 归位到 `EvaTaskQueryUseCase`（异常文案不变；保持行为不变；最小回归通过；落地：`94736365`）。
 					   - 补充进展（2025-12-28）：模板读侧 QueryPort 细分起步：新增分页/全量/按任务取模板子端口 `EvaTemplatePagingQueryPort/EvaTemplateAllQueryPort/EvaTemplateTaskTemplateQueryPort`，并让 `EvaTemplateQueryPort` `extends` 这些子端口（仅新增接口+继承，不改实现/不改装配；保持行为不变；最小回归通过；落地：`a14d3c53`）。
 					   - 补充进展（2025-12-28）：模板读侧依赖类型收窄：`EvaTemplateServiceImpl` 由注入 `EvaTemplateQueryPort` 收窄为 `EvaTemplatePagingQueryPort/EvaTemplateAllQueryPort/EvaTemplateTaskTemplateQueryPort`（不改业务逻辑/异常文案；保持行为不变；最小回归通过；落地：`b86db7e4`）。
 					   - 补充进展（2026-01-01）：模板读侧用例归位深化（分页）：新增 `EvaTemplateQueryUseCase` 并将旧入口 `EvaTemplateServiceImpl.pageEvaTemplate` 退化为纯委托壳，把“实体→CO 组装 + 分页结果组装”归位到 UseCase（`@CheckSemId` 触发点仍保留在旧入口；时间格式/分页字段赋值顺序不变；保持行为不变；最小回归通过；落地：`afcb4ff7`）。

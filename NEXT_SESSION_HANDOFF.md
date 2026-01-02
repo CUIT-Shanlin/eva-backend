@@ -21,8 +21,11 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
-**2026-01-01（本次会话）**
+**2026-01-02（本次会话）**
+- ✅ **评教任务读侧（D1：用例归位深化—单任务详情）**：将 `EvaTaskServiceImpl.oneEvaTaskInfo` 退化为纯委托壳，并把 “单任务查询 + 懒加载顺序对齐的实体→CO 组装” 归位到 `EvaTaskQueryUseCase`（异常文案不变；保持行为不变；最小回归通过；落地提交：`94736365`）。
 - ✅ **评教模板读侧（D1：用例归位深化—全量模板列表）**：将 `EvaTemplateServiceImpl.evaAllTemplate` 退化为纯委托壳，并把 “全量模板查询 + 结果组装” 归位到 `EvaTemplateQueryUseCase`（保持行为不变；最小回归通过；落地提交：`cd8e6ecb`）。
+
+**2026-01-01（本次会话）**
 - ✅ **评教模板读侧（D1：用例归位深化—按任务取模板）**：将 `EvaTemplateServiceImpl.evaTemplateByTaskId` 退化为纯委托壳，并把 “按任务取模板 + 空结果兜底 JSON” 归位到 `EvaTemplateQueryUseCase`（保持 `@CheckSemId` 触发点不变；保持行为不变；最小回归通过；落地提交：`f98a9eed`）。
 - ✅ **评教任务读侧（D1：用例归位深化—分页）**：新增 `EvaTaskQueryUseCase` 并将 `EvaTaskServiceImpl.pageEvaUnfinishedTask` 退化为纯委托壳，把“分页查询 + 实体→CO 组装 + 分页结果组装”归位到 UseCase（保持 `@CheckSemId` 触发点不变；保持行为不变；最小回归通过；落地提交：`d67f0ace`）。
 - ✅ **评教模板读侧（D1：用例归位深化—分页）**：新增 `EvaTemplateQueryUseCase` 并将 `EvaTemplateServiceImpl.pageEvaTemplate` 退化为纯委托壳（保持 `@CheckSemId` 触发点不变；时间格式/分页字段赋值顺序不变；保持行为不变；最小回归通过；落地提交：`afcb4ff7`）。
