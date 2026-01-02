@@ -32,6 +32,7 @@
 - ✅ **bc-course（课程）读侧入口用例归位起步（方向 A → B）：指定时间段课程**：新增 `TimeCourseQueryUseCase` + `TimeCourseQueryPort`，并将旧入口 `ICourseServiceImpl.getTimeCourse` 保留 `@CheckSemId` 与 `StpUtil.getLoginId()` 解析（保持调用次数与顺序不变）且退化为委托壳；用例层仅接收 `userName` 并委托既有 `CourseQueryGateway.getPeriodCourse(...)`（保持行为不变）；最小回归通过；落地提交：`4454ecae`。
 - ✅ **bc-course（课程）写侧入口用例归位起步（方向 A → B）：分配评教老师**：新增 `AllocateTeacherUseCase` + `AllocateTeacherPort`，并将旧入口 `ICourseServiceImpl.allocateTeacher` 保留 `@CheckSemId`、`StpUtil.getLoginId()` 与 AfterCommit 发布事件的顺序不变（先分配/落库→再解析 operatorUserId→再 publishAfterCommit）；端口适配器委托既有 `CourseUpdateGateway.assignTeacher(...)`（保持异常文案/副作用顺序不变）；最小回归通过；落地提交：`6e20721b`。
 - ✅ **bc-course（课程）写侧入口用例归位起步（方向 A → B）：批量删课**：新增 `DeleteCoursesEntryUseCase` + `DeleteCoursesPort`，并将旧入口 `ICourseServiceImpl.deleteCourses` 保留 `@CheckSemId`、`StpUtil.getLoginId()` 与 AfterCommit 发布事件的顺序不变（先删除/落库→再解析 operatorUserId→再 publishAfterCommit）；端口适配器委托既有 `CourseDeleteGateway.deleteCourses(...)`（其内部仍委托 `bc-course DeleteCoursesUseCase`，保持行为不变）；最小回归通过；落地提交：`d53b287a`。
+- ✅ **bc-course（课程）写侧入口用例归位继续（方向 A → B）：单节课修改**：新增 `UpdateSingleCourseEntryUseCase` + `UpdateSingleCoursePort`，并将旧入口 `ICourseServiceImpl.updateSingleCourse` 保留 `@CheckSemId` 且退化为委托壳；`eva-infra` 新增端口适配器并委托既有 `courseUpdateGateway.updateSingleCourse(userName, semId, cmd)`；严格保持 `StpUtil.getLoginId()` 调用次数与顺序不变（用户名解析 → 用例/网关调用 → 再次 `StpUtil.getLoginId()` 查询 operatorUserId → AfterCommit 发布）；异常文案/副作用顺序完全不变；最小回归通过；文档闭环提交以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准。
 
 **2026-01-01（本次会话）**
 - ✅ **评教模板读侧（D1：用例归位深化—按任务取模板）**：将 `EvaTemplateServiceImpl.evaTemplateByTaskId` 退化为纯委托壳，并把 “按任务取模板 + 空结果兜底 JSON” 归位到 `EvaTemplateQueryUseCase`（保持 `@CheckSemId` 触发点不变；保持行为不变；最小回归通过；落地提交：`f98a9eed`）。
@@ -330,7 +331,7 @@
      - ✅ 依赖收敛准备：将事件枚举 `CourseOperationMessageMode` 下沉到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；`b2247e7f`）。
 	     - ✅ 依赖收敛后半段：已完成 `eva-infra` 对 `bc-messaging` 编译期引用证伪，且运行时装配由组合根 `start` 承接（见 0.9）。
 
-  3) **bc-course（课程）写侧入口用例归位继续（方向 A → B）**：读侧已覆盖 `courseNum/courseTimeDetail/getDate/getCourseDetail/getTimeCourse`，写侧已起步覆盖 `allocateTeacher/deleteCourses`（见 0.9）。下一步优先做 `ICourseServiceImpl.updateSingleCourse`：新增 `UpdateSingleCourseEntryUseCase` + `UpdateSingleCoursePort`（`bc-course/application`），`eva-infra` 端口适配器委托既有 `courseUpdateGateway.updateSingleCourse(userName, semId, cmd)`；旧入口保留 `@CheckSemId` 与两次 `StpUtil.getLoginId()` 调用位置/顺序，AfterCommit 发布事件顺序完全不变（保持行为不变；每次只迁 1 个入口方法簇）。
+  3) ✅ **bc-course（课程）写侧入口用例归位继续（方向 A → B）**：已完成 `ICourseServiceImpl.updateSingleCourse` 入口用例归位（新增 `UpdateSingleCourseEntryUseCase` + `UpdateSingleCoursePort`；`eva-infra` 端口适配器委托既有 `courseUpdateGateway.updateSingleCourse(userName, semId, cmd)`；旧入口保留 `@CheckSemId` 与两次 `StpUtil.getLoginId()` 调用位置/顺序，AfterCommit 发布事件顺序完全不变；保持行为不变；最小回归通过；见 0.9）。下一步建议：继续写侧入口归位，优先 `ICourseServiceImpl.addNotExistCoursesDetails`（保持行为不变；每次只迁 1 个入口方法簇）。
 
 - ✅ 提交点 0（纯文档闭环）：已完成（落地提交：`1adc80bd`）。
 - ✅ 提交点 A（结构落点，不迁业务）：已完成（落地提交：`a30a1ff9`）。
@@ -465,7 +466,7 @@
    - bc-messaging（消息域）：应用侧事件载荷已下沉到 `bc-messaging-contract`：`CourseOperationMessageMode/CourseOperationSideEffectsEvent/CourseTeacherTaskMessagesEvent`（均保持 `package edu.cuit.bc.messaging.application.event` 不变；见 0.9）。
    - bc-messaging（消息域）：依赖收敛阶段性闭环：`eva-app` 已将对 `bc-messaging` 的编译期依赖收敛为仅依赖 `bc-messaging-contract`（仅用于事件载荷类型；见 0.9）。
 
-1) **bc-course（课程）写侧入口用例归位继续（方向 A → B）**：从 `ICourseServiceImpl.updateSingleCourse` 开始（保持 `@CheckSemId` 触发点不变；保持 `StpUtil.getLoginId()` 调用次数与顺序不变；保持 AfterCommit 发布顺序不变；异常文案/副作用顺序完全不变）。建议步骤：Serena 定位入口与 Controller 调用点 → 新增 `UpdateSingleCourseEntryUseCase` + `UpdateSingleCoursePort`（`bc-course/application`）→ `eva-infra` 提供端口适配器并委托既有 `courseUpdateGateway.updateSingleCourse(userName, semId, cmd)` → 旧入口退化为委托壳但仍保留两次 `StpUtil.getLoginId()` 的位置与顺序 → 最小回归 → commit → 三文档同步。
+1) ✅ **bc-course（课程）写侧入口用例归位继续（方向 A → B）**：`ICourseServiceImpl.updateSingleCourse` 已闭环（见 0.9）。下一步优先做 `ICourseServiceImpl.addNotExistCoursesDetails`（保持 `@CheckSemId` 触发点不变；异常文案/副作用顺序完全不变）。建议步骤：Serena 定位入口与 Controller 调用点 → 用例/端口归位（优先复用既有 `AddNotExistCoursesDetailsUseCase`，或按“用例 + 端口 + 端口适配器 + 委托壳”补齐缺口）→ 最小回归 → commit → 三文档同步。
 
 2) **bc-messaging（依赖收敛）**：✅ 已闭环（见 0.9）。本会话不继续；后置如需再推进，优先做结构折叠（S0，仅搬运/依赖收敛，保持行为不变）。
 

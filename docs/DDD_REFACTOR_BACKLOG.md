@@ -123,6 +123,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - bc-course（课程）：读侧入口用例归位起步（方向 A → B）：指定时间段课程：新增 `TimeCourseQueryUseCase` + `TimeCourseQueryPort`，并将旧入口 `ICourseServiceImpl.getTimeCourse` 退化为委托壳（保留 `StpUtil.getLoginId()` 解析与 `@CheckSemId` 触发点不变；保持行为不变；最小回归通过；落地提交：`4454ecae`）。
 - bc-course（课程）：写侧入口用例归位起步（方向 A → B）：分配评教老师：新增 `AllocateTeacherUseCase` + `AllocateTeacherPort`，并将旧入口 `ICourseServiceImpl.allocateTeacher` 退化为委托壳（保持 `@CheckSemId` 与 AfterCommit 发布顺序不变；保持行为不变；最小回归通过；落地提交：`6e20721b`）。
 - bc-course（课程）：写侧入口用例归位起步（方向 A → B）：批量删课：新增 `DeleteCoursesEntryUseCase` + `DeleteCoursesPort`，并将旧入口 `ICourseServiceImpl.deleteCourses` 退化为委托壳（保持 `@CheckSemId` 与 AfterCommit 发布顺序不变；保持行为不变；最小回归通过；落地提交：`d53b287a`）。
+- bc-course（课程）：写侧入口用例归位继续（方向 A → B）：单节课修改：新增 `UpdateSingleCourseEntryUseCase` + `UpdateSingleCoursePort`，并将旧入口 `ICourseServiceImpl.updateSingleCourse` 退化为委托壳（保持 `@CheckSemId`、两次 `StpUtil.getLoginId()` 调用位置/顺序与 AfterCommit 发布顺序完全不变；保持行为不变；最小回归通过；落地提交以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准）。
 - 评教记录读侧（依赖收窄，小步）：`EvaRecordServiceImpl.pageEvaRecord` 内联分页结果组装，移除对 `PaginationBizConvertor` 的注入依赖（分页字段赋值顺序/异常文案/循环副作用顺序不变；保持行为不变；最小回归通过；落地提交：`55103de1`）。
 - 评教记录读侧（D1：用例归位深化）：新增 `EvaRecordQueryUseCase` 并将 `EvaRecordServiceImpl.pageEvaRecord` 退化为纯委托壳，把“实体→CO 组装 + 平均分填充 + 分页组装”编排逻辑归位到 UseCase（保持 `@CheckSemId` 触发点不变；异常文案/副作用顺序不变；保持行为不变；最小回归通过；落地提交：`86772f59`）。
 - 评教记录读侧（D1：顺序对齐加固）：对齐 `EvaRecordQueryUseCase` 内部“实体→CO 组装”的求值顺序，避免提前触发 `Supplier` 缓存加载导致副作用顺序漂移（保持行为不变；最小回归通过；落地提交：`10991314`）。
@@ -508,7 +509,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 依赖收敛准备（事件载荷下沉到 contract）：`CourseTeacherTaskMessagesEvent` → `bc-messaging-contract`（保持 `package` 不变；保持行为不变；`12f43323`）。
   - ✅ 依赖收敛（应用侧编译期依赖面收窄）：`eva-app` → `bc-messaging-contract`（替换 `eva-app` 对 `bc-messaging` 的编译期依赖；保持行为不变；`d3aeb3ab`）。
   - 下一步建议（依赖收敛后半段，保持行为不变）：✅ 已完成：在 `start/pom.xml` 补齐 `bc-messaging` 的 `runtime` 依赖（保持行为不变；落地：`f23254ec`）；✅ 已完成：移除 `eva-infra/pom.xml` 中 `bc-messaging` 的 `runtime` 依赖，把“运行时装配责任”上推到组合根 `start`（保持行为不变；落地：`507f95b2`）。后置建议：用 Serena 再次证伪 `eva-infra` 不再需要 `bc-messaging` 作为运行时兜底依赖。
-- 下一步小簇建议（bc-course 写侧，方向 A → B，保持行为不变）：读侧已覆盖 `courseNum/courseTimeDetail/getDate/getCourseDetail/getTimeCourse`，写侧已起步覆盖 `allocateTeacher/deleteCourses`（见 4.2）。下一步优先做 `ICourseServiceImpl.updateSingleCourse`：新增 `UpdateSingleCourseEntryUseCase` + `UpdateSingleCoursePort`（`bc-course/application`），`eva-infra` 端口适配器委托既有 `courseUpdateGateway.updateSingleCourse(...)`；旧入口保留 `@CheckSemId` 与两次 `StpUtil.getLoginId()` 调用位置/顺序，AfterCommit 发布事件顺序完全不变。
+- 下一步小簇建议（bc-course 写侧，方向 A → B，保持行为不变）：读侧已覆盖 `courseNum/courseTimeDetail/getDate/getCourseDetail/getTimeCourse`，写侧已覆盖 `allocateTeacher/deleteCourses/updateSingleCourse`（见 4.2）。下一步建议：继续写侧入口归位，优先 `ICourseServiceImpl.addNotExistCoursesDetails`（保持行为不变；每次只迁 1 个入口方法簇）。
 
 如果继续按“写侧优先”的策略推进，下一批候选（高 → 低）建议是：
 

@@ -20,6 +20,7 @@ import edu.cuit.bc.course.application.port.UpdateCoursesTypeRepository;
 import edu.cuit.bc.course.application.port.DeleteCourseRepository;
 import edu.cuit.bc.course.application.port.DeleteCoursesRepository;
 import edu.cuit.bc.course.application.port.DeleteCourseTypeRepository;
+import edu.cuit.bc.course.application.port.UpdateSingleCoursePort;
 import edu.cuit.bc.course.application.usecase.AddCourseTypeUseCase;
 import edu.cuit.bc.course.application.usecase.AddExistCoursesDetailsUseCase;
 import edu.cuit.bc.course.application.usecase.AddNotExistCoursesDetailsUseCase;
@@ -43,6 +44,7 @@ import edu.cuit.bc.course.application.usecase.UpdateCourseTypeUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateCoursesTypeUseCase;
 import edu.cuit.bc.course.application.port.UpdateSelfCourseRepository;
 import edu.cuit.bc.course.application.usecase.UpdateSelfCourseUseCase;
+import edu.cuit.bc.course.application.usecase.UpdateSingleCourseEntryUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateSingleCourseUseCase;
 import edu.cuit.bc.template.application.CourseTemplateLockService;
 import org.springframework.context.annotation.Bean;
@@ -98,6 +100,11 @@ public class BcCourseConfiguration {
     @Bean
     public DeleteCoursesEntryUseCase deleteCoursesEntryUseCase(DeleteCoursesPort port) {
         return new DeleteCoursesEntryUseCase(port);
+    }
+
+    @Bean
+    public UpdateSingleCourseEntryUseCase updateSingleCourseEntryUseCase(UpdateSingleCoursePort port) {
+        return new UpdateSingleCourseEntryUseCase(port);
     }
 
     @Bean
