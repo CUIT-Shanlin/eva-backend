@@ -5,11 +5,11 @@ import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.PaginationBizConvertor;
 import edu.cuit.app.convertor.course.CourseBizConvertor;
 import edu.cuit.app.event.AfterCommitEventPublisher;
-import edu.cuit.bc.course.application.model.ChangeCourseTemplateCommand;
 import edu.cuit.bc.course.application.model.ChangeSingleCourseTemplateCommand;
 import edu.cuit.bc.course.application.usecase.ChangeCourseTemplateUseCase;
 import edu.cuit.bc.course.application.usecase.ChangeSingleCourseTemplateUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateCourseEntryUseCase;
+import edu.cuit.bc.course.application.usecase.UpdateCoursesEntryUseCase;
 import edu.cuit.bc.course.domain.ChangeCourseTemplateException;
 import edu.cuit.bc.course.domain.CourseNotFoundException;
 import edu.cuit.bc.messaging.application.event.CourseOperationSideEffectsEvent;
@@ -54,10 +54,10 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     private final CourseBizConvertor courseBizConvertor;
     private final PaginationBizConvertor pagenConvertor;
    private final CourseFormat courseFormat;
-    private final ChangeCourseTemplateUseCase changeCourseTemplateUseCase;
     private final ChangeSingleCourseTemplateUseCase changeSingleCourseTemplateUseCase;
     private final AfterCommitEventPublisher afterCommitEventPublisher;
     private final UpdateCourseEntryUseCase updateCourseEntryUseCase;
+    private final UpdateCoursesEntryUseCase updateCoursesEntryUseCase;
     @CheckSemId
     @Override
     public PaginationQueryResultCO<CourseModelCO> pageCoursesInfo(Integer semId, PagingQuery<CourseConditionalQuery> courseQuery) {
@@ -133,11 +133,7 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     @Transactional
     public void updateCourses(Integer semId, UpdateCoursesCmd updateCoursesCmd) {
         try {
-            changeCourseTemplateUseCase.execute(new ChangeCourseTemplateCommand(
-                    semId,
-                    updateCoursesCmd.getTemplateId(),
-                    updateCoursesCmd.getCourseIdList()
-            ));
+            updateCoursesEntryUseCase.updateCourses(semId, updateCoursesCmd);
         } catch (ChangeCourseTemplateException e) {
             throw new UpdateException(e.getMessage());
         }
