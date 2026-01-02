@@ -291,8 +291,10 @@
 >
 
 - 本次会话最新闭环（2026-01-02，便于续接）：  
-  1) ✅ 评教用户读侧（D1：用例归位深化—去评教/被评教记录）：新增 `UserEvaQueryUseCase` 并将旧入口 `UserEvaServiceImpl.getEvaLogInfo/getEvaLoggingInfo` 退化为纯委托壳（旧入口仍保留 `@CheckSemId` 与当前用户解析：`StpUtil` + `userQueryGateway`；异常文案/副作用顺序不变；保持行为不变；最小回归通过；落地提交：`96e65019`）。
-  2) ✅ 文档同步：以上闭环已同步到三文档（以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准，不在提示词里固化 commitId）。
+  1) ✅ bc-course（课程）写侧入口用例归位继续（方向 A → B）：已完成 `ICourseServiceImpl.updateSingleCourse`（新增 `UpdateSingleCourseEntryUseCase` + `UpdateSingleCoursePort`；`eva-infra` 端口适配器委托既有 `courseUpdateGateway.updateSingleCourse(userName, semId, cmd)`；旧入口保留 `@CheckSemId` 与两次 `StpUtil.getLoginId()` 调用位置/顺序，AfterCommit 发布事件顺序完全不变；异常文案/副作用顺序完全不变；最小回归通过；落地提交以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准）。
+  2) ✅ 评教用户读侧（D1：用例归位深化—去评教/被评教记录）：新增 `UserEvaQueryUseCase` 并将旧入口 `UserEvaServiceImpl.getEvaLogInfo/getEvaLoggingInfo` 退化为纯委托壳（旧入口仍保留 `@CheckSemId` 与当前用户解析：`StpUtil` + `userQueryGateway`；异常文案/副作用顺序不变；保持行为不变；最小回归通过；落地提交：`96e65019`）。
+  3) ✅ 文档同步：以上闭环已同步到三文档（以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准，不在提示词里固化 commitId）。
+  4) 下一步（保持行为不变；每次只迁 1 个入口方法簇）：优先 `ICourseServiceImpl.addNotExistCoursesDetails`；中长期 `eva-*` 技术切片退场/整合路线见 `DDD_REFACTOR_PLAN.md` 10.5（按前置条件推进，避免一次性大迁移）。
 
 - 历史闭环（2025-12-30，便于续接；更早细节仍保留如下）：  
   1) ✅ 统计读侧 `pageUnqualifiedUser`：分页结果组装已归位到 `EvaStatisticsQueryUseCase`，旧入口 `EvaStatisticsServiceImpl` 已退化为纯委托壳并移除对 `PaginationBizConvertor` 的依赖（`e97615e1` / `f4f3fcde`）。  
