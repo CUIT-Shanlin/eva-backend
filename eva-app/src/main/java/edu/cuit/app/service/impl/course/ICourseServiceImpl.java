@@ -6,6 +6,7 @@ import edu.cuit.app.event.AfterCommitEventPublisher;
 import edu.cuit.bc.course.application.usecase.CourseDetailQueryUseCase;
 import edu.cuit.bc.course.application.usecase.CourseQueryUseCase;
 import edu.cuit.bc.course.application.usecase.TimeCourseQueryUseCase;
+import edu.cuit.bc.course.application.usecase.AllocateTeacherUseCase;
 import edu.cuit.bc.messaging.application.event.CourseOperationSideEffectsEvent;
 import edu.cuit.bc.messaging.application.event.CourseTeacherTaskMessagesEvent;
 import edu.cuit.client.api.course.ICourseService;
@@ -37,6 +38,7 @@ public class ICourseServiceImpl implements ICourseService {
     private final CourseQueryUseCase courseQueryUseCase;
     private final CourseDetailQueryUseCase courseDetailQueryUseCase;
     private final TimeCourseQueryUseCase timeCourseQueryUseCase;
+    private final AllocateTeacherUseCase allocateTeacherUseCase;
     private final UserQueryGateway userQueryGateway;
     private final AfterCommitEventPublisher afterCommitEventPublisher;
     @CheckSemId
@@ -87,7 +89,7 @@ public class ICourseServiceImpl implements ICourseService {
     @CheckSemId
     @Override
     public void allocateTeacher(Integer semId, AlignTeacherCmd alignTeacherCmd) {
-        Map<String, Map<Integer,Integer>> map = courseUpdateGateway.assignTeacher(semId, alignTeacherCmd);
+        Map<String, Map<Integer,Integer>> map = allocateTeacherUseCase.allocateTeacher(semId, alignTeacherCmd);
         Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
         Integer operatorUserId = userId.orElseThrow(() -> new QueryException("请先登录"));
         afterCommitEventPublisher.publishAfterCommit(new CourseTeacherTaskMessagesEvent(operatorUserId, map));
