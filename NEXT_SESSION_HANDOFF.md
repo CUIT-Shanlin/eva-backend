@@ -33,6 +33,7 @@
 - ✅ **bc-course（课程）写侧入口用例归位起步（方向 A → B）：分配评教老师**：新增 `AllocateTeacherUseCase` + `AllocateTeacherPort`，并将旧入口 `ICourseServiceImpl.allocateTeacher` 保留 `@CheckSemId`、`StpUtil.getLoginId()` 与 AfterCommit 发布事件的顺序不变（先分配/落库→再解析 operatorUserId→再 publishAfterCommit）；端口适配器委托既有 `CourseUpdateGateway.assignTeacher(...)`（保持异常文案/副作用顺序不变）；最小回归通过；落地提交：`6e20721b`。
 - ✅ **bc-course（课程）写侧入口用例归位起步（方向 A → B）：批量删课**：新增 `DeleteCoursesEntryUseCase` + `DeleteCoursesPort`，并将旧入口 `ICourseServiceImpl.deleteCourses` 保留 `@CheckSemId`、`StpUtil.getLoginId()` 与 AfterCommit 发布事件的顺序不变（先删除/落库→再解析 operatorUserId→再 publishAfterCommit）；端口适配器委托既有 `CourseDeleteGateway.deleteCourses(...)`（其内部仍委托 `bc-course DeleteCoursesUseCase`，保持行为不变）；最小回归通过；落地提交：`d53b287a`。
 - ✅ **bc-course（课程）写侧入口用例归位继续（方向 A → B）：单节课修改**：新增 `UpdateSingleCourseEntryUseCase` + `UpdateSingleCoursePort`，并将旧入口 `ICourseServiceImpl.updateSingleCourse` 保留 `@CheckSemId` 且退化为委托壳；`eva-infra` 新增端口适配器并委托既有 `courseUpdateGateway.updateSingleCourse(userName, semId, cmd)`；严格保持 `StpUtil.getLoginId()` 调用次数与顺序不变（用户名解析 → 用例/网关调用 → 再次 `StpUtil.getLoginId()` 查询 operatorUserId → AfterCommit 发布）；异常文案/副作用顺序完全不变；最小回归通过；文档闭环提交以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准。
+- ✅ **规划与证据化（不改业务语义）**：补齐 `DDD_REFACTOR_PLAN.md` 的 `10.5`（`eva-*` 技术切片退场/整合到 BC 的前置条件与 DoD），并用 Serena 盘点 `eva-app` 中仍存在的 bc-course 写侧 `@CheckSemId` 入口与 `eva-infra` 旧 `*GatewayImpl` 候选清单，已落盘到 `docs/DDD_REFACTOR_BACKLOG.md` 的 `4.3`（用于后续 S1/S2 排期与退场证伪；保持行为不变）。
 
 **2026-01-01（本次会话）**
 - ✅ **评教模板读侧（D1：用例归位深化—按任务取模板）**：将 `EvaTemplateServiceImpl.evaTemplateByTaskId` 退化为纯委托壳，并把 “按任务取模板 + 空结果兜底 JSON” 归位到 `EvaTemplateQueryUseCase`（保持 `@CheckSemId` 触发点不变；保持行为不变；最小回归通过；落地提交：`f98a9eed`）。
@@ -291,11 +292,10 @@
 >
 
 - 本次会话最新闭环（2026-01-02，便于续接）：  
-  1) ✅ bc-course（课程）写侧入口用例归位继续（方向 A → B）：已完成 `ICourseServiceImpl.updateSingleCourse`（新增 `UpdateSingleCourseEntryUseCase` + `UpdateSingleCoursePort`；`eva-infra` 端口适配器委托既有 `courseUpdateGateway.updateSingleCourse(userName, semId, cmd)`；旧入口保留 `@CheckSemId` 与两次 `StpUtil.getLoginId()` 调用位置/顺序，AfterCommit 发布事件顺序完全不变；异常文案/副作用顺序完全不变；最小回归通过；落地提交以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准）。
-  2) ✅ 评教用户读侧（D1：用例归位深化—去评教/被评教记录）：新增 `UserEvaQueryUseCase` 并将旧入口 `UserEvaServiceImpl.getEvaLogInfo/getEvaLoggingInfo` 退化为纯委托壳（旧入口仍保留 `@CheckSemId` 与当前用户解析：`StpUtil` + `userQueryGateway`；异常文案/副作用顺序不变；保持行为不变；最小回归通过；落地提交：`96e65019`）。
+  1) ✅ bc-course（课程）写侧入口用例归位继续（方向 A → B）：已完成 `ICourseServiceImpl.updateSingleCourse`（保持 `@CheckSemId` 与 `StpUtil.getLoginId()` 调用次数/顺序不变，AfterCommit 发布顺序不变；最小回归通过；落地提交以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准）。
+  2) ✅ 规划与证据化（不改业务语义）：补齐 `DDD_REFACTOR_PLAN.md` 10.5（`eva-*` 退场/整合前置条件与 DoD），并用 Serena 盘点 bc-course 写侧 `@CheckSemId` 入口清单与 `eva-infra` 旧 `*GatewayImpl` 候选清单，已落盘到 `docs/DDD_REFACTOR_BACKLOG.md` 4.3。
   3) ✅ 文档同步：以上闭环已同步到三文档（以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准，不在提示词里固化 commitId）。
-  4) 下一步（保持行为不变；每次只迁 1 个入口方法簇）：优先 `ICourseServiceImpl.addNotExistCoursesDetails`；中长期 `eva-*` 技术切片退场/整合路线见 `DDD_REFACTOR_PLAN.md` 10.5（按前置条件推进，避免一次性大迁移）。
-  5) ✅ 盘点补充（保持行为不变）：已用 Serena 盘点 `eva-app` 中仍存在的 bc-course 写侧 `@CheckSemId` 入口与 `eva-infra` 旧 `*GatewayImpl` 退场候选清单，已落盘到 `docs/DDD_REFACTOR_BACKLOG.md` 4.3（用于后续 S1/S2 退场规划与排期）。
+  4) 下一步（保持行为不变；每次只迁 1 个入口方法簇）：优先 `ICourseServiceImpl.addNotExistCoursesDetails`；其后按清单逐簇推进（见 `docs/DDD_REFACTOR_BACKLOG.md` 4.3 的写侧入口清单）。
 
 - 历史闭环（2025-12-30，便于续接；更早细节仍保留如下）：  
   1) ✅ 统计读侧 `pageUnqualifiedUser`：分页结果组装已归位到 `EvaStatisticsQueryUseCase`，旧入口 `EvaStatisticsServiceImpl` 已退化为纯委托壳并移除对 `PaginationBizConvertor` 的依赖（`e97615e1` / `f4f3fcde`）。  
@@ -334,7 +334,7 @@
      - ✅ 依赖收敛准备：将事件枚举 `CourseOperationMessageMode` 下沉到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；`b2247e7f`）。
 	     - ✅ 依赖收敛后半段：已完成 `eva-infra` 对 `bc-messaging` 编译期引用证伪，且运行时装配由组合根 `start` 承接（见 0.9）。
 
-  3) ✅ **bc-course（课程）写侧入口用例归位继续（方向 A → B）**：已完成 `ICourseServiceImpl.updateSingleCourse` 入口用例归位（新增 `UpdateSingleCourseEntryUseCase` + `UpdateSingleCoursePort`；`eva-infra` 端口适配器委托既有 `courseUpdateGateway.updateSingleCourse(userName, semId, cmd)`；旧入口保留 `@CheckSemId` 与两次 `StpUtil.getLoginId()` 调用位置/顺序，AfterCommit 发布事件顺序完全不变；保持行为不变；最小回归通过；见 0.9）。下一步建议：继续写侧入口归位，优先 `ICourseServiceImpl.addNotExistCoursesDetails`（保持行为不变；每次只迁 1 个入口方法簇）。
+  3) ✅ **bc-course（课程）写侧入口用例归位继续（方向 A → B）**：已完成 `ICourseServiceImpl.updateSingleCourse` 入口用例归位（见 0.9）。下一步建议：继续写侧入口归位，优先 `ICourseServiceImpl.addNotExistCoursesDetails`（保持行为不变；每次只迁 1 个入口方法簇；写侧入口清单见 `docs/DDD_REFACTOR_BACKLOG.md` 4.3）。
 
 - ✅ 提交点 0（纯文档闭环）：已完成（落地提交：`1adc80bd`）。
 - ✅ 提交点 A（结构落点，不迁业务）：已完成（落地提交：`a30a1ff9`）。
@@ -453,6 +453,7 @@
 2) DDD_REFACTOR_PLAN.md（重点看 10.2/10.3/10.4）
 3) docs/DDD_REFACTOR_BACKLOG.md（重点看 4.2、4.3、6）
 4) data/ 与 data/doc/（如需核对表/字段语义）
+5) （新增重点）`DDD_REFACTOR_PLAN.md` 的 10.5 与 `docs/DDD_REFACTOR_BACKLOG.md` 的 4.3（`eva-*` 退场路线 + 写侧入口/旧网关清单）。
 
 本会话目标（按顺序执行；每步闭环=Serena→最小回归→提交→三文档同步；保持行为不变）：
 
