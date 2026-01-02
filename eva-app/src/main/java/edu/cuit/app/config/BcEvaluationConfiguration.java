@@ -24,8 +24,10 @@ import edu.cuit.bc.evaluation.application.usecase.EvaTemplateQueryUseCase;
 import edu.cuit.bc.evaluation.application.usecase.PostEvaTaskUseCase;
 import edu.cuit.bc.evaluation.application.usecase.SubmitEvaluationUseCase;
 import edu.cuit.bc.evaluation.application.usecase.UpdateEvaTemplateUseCase;
+import edu.cuit.bc.evaluation.application.usecase.UserEvaQueryUseCase;
 import edu.cuit.bc.evaluation.application.port.EvaRecordPagingQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaRecordScoreQueryPort;
+import edu.cuit.bc.evaluation.application.port.EvaRecordUserLogQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsOverviewQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsTrendQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsUnqualifiedUserQueryPort;
@@ -105,6 +107,14 @@ public class BcEvaluationConfiguration {
             EvaRecordScoreQueryPort evaRecordScoreQueryPort
     ) {
         return new EvaRecordQueryUseCase(evaRecordPagingQueryPort, evaRecordScoreQueryPort);
+    }
+
+    @Bean
+    public UserEvaQueryUseCase userEvaQueryUseCase(
+            EvaRecordUserLogQueryPort evaRecordUserLogQueryPort,
+            EvaRecordScoreQueryPort evaRecordScoreQueryPort
+    ) {
+        return new UserEvaQueryUseCase(evaRecordUserLogQueryPort, evaRecordScoreQueryPort);
     }
 
     @Bean

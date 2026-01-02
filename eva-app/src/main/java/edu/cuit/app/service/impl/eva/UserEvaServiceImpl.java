@@ -2,14 +2,11 @@ package edu.cuit.app.service.impl.eva;
 import cn.dev33.satoken.stp.StpUtil;
 import com.alibaba.cola.exception.SysException;
 import edu.cuit.app.aop.CheckSemId;
-import edu.cuit.app.convertor.eva.EvaRecordBizConvertor;
+import edu.cuit.bc.evaluation.application.usecase.UserEvaQueryUseCase;
 import edu.cuit.client.api.eva.IUserEvaService;
 import edu.cuit.client.dto.clientobject.eva.EvaRecordCO;
-import edu.cuit.domain.entity.eva.EvaRecordEntity;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.domain.gateway.eva.EvaDeleteGateway;
-import edu.cuit.bc.evaluation.application.port.EvaRecordScoreQueryPort;
-import edu.cuit.bc.evaluation.application.port.EvaRecordUserLogQueryPort;
 import edu.cuit.domain.gateway.eva.EvaUpdateGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
@@ -22,9 +19,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class UserEvaServiceImpl implements IUserEvaService {
-    private final EvaRecordUserLogQueryPort evaRecordUserLogQueryPort;
-    private final EvaRecordScoreQueryPort evaRecordScoreQueryPort;
-    private final EvaRecordBizConvertor evaRecordBizConvertor;
+    private final UserEvaQueryUseCase userEvaQueryUseCase;
     private final UserQueryGateway userQueryGateway;
 
     //去评教
@@ -32,21 +27,10 @@ public class UserEvaServiceImpl implements IUserEvaService {
     @CheckSemId
     public List<EvaRecordCO> getEvaLogInfo(Integer semId, String keyword) {
         Integer userId=userQueryGateway.findIdByUsername(String.valueOf(StpUtil.getLoginId())).orElseThrow(() -> new SysException("该用户名不存在"));
-        List<EvaRecordCO> evaRecordCOS=new ArrayList<>();
         if(userId==null){
             throw new SysException("还没有登录，怎么查到这里的");
         }
-        List<EvaRecordEntity> evaRecordEntities=evaRecordUserLogQueryPort.getEvaLogInfo(userId,semId,keyword);
-        if(evaRecordEntities.isEmpty()){
-            List list=new ArrayList();
-            return list;
-        }
-        for (EvaRecordEntity evaRecordEntity : evaRecordEntities) {
-            EvaRecordCO evaRecordCO = evaRecordBizConvertor.evaRecordEntityToCo(evaRecordEntity);
-            evaRecordCO.setAverScore(evaRecordScoreQueryPort.getScoreFromRecord(evaRecordEntity.getFormPropsValues()).orElse(0.0));
-            evaRecordCOS.add(evaRecordCO);
-        }
-        return evaRecordCOS;
+        return userEvaQueryUseCase.getEvaLogInfo(userId, semId, keyword);
     }
     //被评教
     @Override
@@ -56,18 +40,6 @@ public class UserEvaServiceImpl implements IUserEvaService {
         if(userId==null){
             throw new SysException("还没有登录，怎么查到这里的");
         }
-        List<EvaRecordEntity> evaRecordEntities=evaRecordUserLogQueryPort.getEvaEdLogInfo(userId,semId,courseId);
-        List<EvaRecordCO> evaRecordCOS=new ArrayList<>();
-        if(evaRecordEntities.isEmpty()){
-            List list=new ArrayList();
-            return list;
-        }
-        for (EvaRecordEntity evaRecordEntity : evaRecordEntities) {
-            EvaRecordCO evaRecordCO = evaRecordBizConvertor.evaRecordEntityToCo(evaRecordEntity);
-
-            evaRecordCO.setAverScore(evaRecordScoreQueryPort.getScoreFromRecord(evaRecordEntity.getFormPropsValues()).orElse(0.0));
-            evaRecordCOS.add(evaRecordCO);
-        }
-        return evaRecordCOS;
+        return userEvaQueryUseCase.getEvaLoggingInfo(userId, courseId, semId);
     }
 }
