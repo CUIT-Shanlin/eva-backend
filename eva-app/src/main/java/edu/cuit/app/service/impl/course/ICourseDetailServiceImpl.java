@@ -9,6 +9,7 @@ import edu.cuit.bc.course.application.model.ChangeCourseTemplateCommand;
 import edu.cuit.bc.course.application.model.ChangeSingleCourseTemplateCommand;
 import edu.cuit.bc.course.application.usecase.ChangeCourseTemplateUseCase;
 import edu.cuit.bc.course.application.usecase.ChangeSingleCourseTemplateUseCase;
+import edu.cuit.bc.course.application.usecase.UpdateCourseEntryUseCase;
 import edu.cuit.bc.course.domain.ChangeCourseTemplateException;
 import edu.cuit.bc.course.domain.CourseNotFoundException;
 import edu.cuit.bc.messaging.application.event.CourseOperationSideEffectsEvent;
@@ -56,6 +57,7 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     private final ChangeCourseTemplateUseCase changeCourseTemplateUseCase;
     private final ChangeSingleCourseTemplateUseCase changeSingleCourseTemplateUseCase;
     private final AfterCommitEventPublisher afterCommitEventPublisher;
+    private final UpdateCourseEntryUseCase updateCourseEntryUseCase;
     @CheckSemId
     @Override
     public PaginationQueryResultCO<CourseModelCO> pageCoursesInfo(Integer semId, PagingQuery<CourseConditionalQuery> courseQuery) {
@@ -120,7 +122,7 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
             throw new UpdateException(e.getMessage());
         }
 
-        Map<String, Map<Integer,Integer>> map = courseUpdateGateway.updateCourse(semId, updateCourseCmd);
+        Map<String, Map<Integer,Integer>> map = updateCourseEntryUseCase.updateCourse(semId, updateCourseCmd);
         Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
         Integer operatorUserId = userId.orElseThrow(() -> new QueryException("请先登录"));
         afterCommitEventPublisher.publishAfterCommit(new CourseOperationSideEffectsEvent(operatorUserId, map));
