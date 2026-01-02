@@ -295,6 +295,7 @@
   2) ✅ 评教用户读侧（D1：用例归位深化—去评教/被评教记录）：新增 `UserEvaQueryUseCase` 并将旧入口 `UserEvaServiceImpl.getEvaLogInfo/getEvaLoggingInfo` 退化为纯委托壳（旧入口仍保留 `@CheckSemId` 与当前用户解析：`StpUtil` + `userQueryGateway`；异常文案/副作用顺序不变；保持行为不变；最小回归通过；落地提交：`96e65019`）。
   3) ✅ 文档同步：以上闭环已同步到三文档（以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准，不在提示词里固化 commitId）。
   4) 下一步（保持行为不变；每次只迁 1 个入口方法簇）：优先 `ICourseServiceImpl.addNotExistCoursesDetails`；中长期 `eva-*` 技术切片退场/整合路线见 `DDD_REFACTOR_PLAN.md` 10.5（按前置条件推进，避免一次性大迁移）。
+  5) ✅ 盘点补充（保持行为不变）：已用 Serena 盘点 `eva-app` 中仍存在的 bc-course 写侧 `@CheckSemId` 入口与 `eva-infra` 旧 `*GatewayImpl` 退场候选清单，已落盘到 `docs/DDD_REFACTOR_BACKLOG.md` 4.3（用于后续 S1/S2 退场规划与排期）。
 
 - 历史闭环（2025-12-30，便于续接；更早细节仍保留如下）：  
   1) ✅ 统计读侧 `pageUnqualifiedUser`：分页结果组装已归位到 `EvaStatisticsQueryUseCase`，旧入口 `EvaStatisticsServiceImpl` 已退化为纯委托壳并移除对 `PaginationBizConvertor` 的依赖（`e97615e1` / `f4f3fcde`）。  
