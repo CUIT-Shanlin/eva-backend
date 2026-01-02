@@ -559,6 +559,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 					   - 补充进展（2025-12-28）：模板读侧依赖类型收窄：`EvaTemplateServiceImpl` 由注入 `EvaTemplateQueryPort` 收窄为 `EvaTemplatePagingQueryPort/EvaTemplateAllQueryPort/EvaTemplateTaskTemplateQueryPort`（不改业务逻辑/异常文案；保持行为不变；最小回归通过；落地：`b86db7e4`）。
 					   - 补充进展（2026-01-01）：模板读侧用例归位深化（分页）：新增 `EvaTemplateQueryUseCase` 并将旧入口 `EvaTemplateServiceImpl.pageEvaTemplate` 退化为纯委托壳，把“实体→CO 组装 + 分页结果组装”归位到 UseCase（`@CheckSemId` 触发点仍保留在旧入口；时间格式/分页字段赋值顺序不变；保持行为不变；最小回归通过；落地：`afcb4ff7`）。
 					   - 补充进展（2026-01-01）：模板读侧用例归位深化（按任务取模板）：将旧入口 `EvaTemplateServiceImpl.evaTemplateByTaskId` 退化为纯委托壳，并把 “按任务取模板 + 空结果兜底 JSON” 归位到 `EvaTemplateQueryUseCase`（`@CheckSemId` 触发点仍保留在旧入口；保持行为不变；最小回归通过；落地：`f98a9eed`）。
+					   - 补充进展（2026-01-02）：模板读侧用例归位深化（全量模板列表）：将旧入口 `EvaTemplateServiceImpl.evaAllTemplate` 退化为纯委托壳，并把 “全量模板查询 + 结果组装” 归位到 `EvaTemplateQueryUseCase`（保持行为不变；最小回归通过；落地：`cd8e6ecb`）。
 				   - 补充进展（2025-12-28）：模板读侧引用面盘点结论/证伪：使用 Serena 盘点 `EvaTemplateQueryPort` 在全仓库的引用面，除端口定义外仅剩实现侧 `EvaTemplateQueryPortImpl`；应用层未发现其它对聚合端口的注入点/调用点，因此模板主题的“端口细分 + 服务层依赖类型收窄”阶段可视为已闭合（保持行为不变；以 `NEXT_SESSION_HANDOFF.md` 的 0.9 证据记录为准）。
 				   - 补充进展（2025-12-28）：统计读侧用例归位深化：将 `EvaStatisticsServiceImpl.pageUnqualifiedUser` 的 `type` 分支选择归位到 `EvaStatisticsQueryUseCase.pageUnqualifiedUser`（`@CheckSemId` 触发点仍保留在旧入口；异常文案不变；保持行为不变；最小回归通过；落地：`22dccc70`）。
 			   - 下一步建议（方向 A → B，保持行为不变）：先将记录/任务/模板按同套路做“子 QueryPort 接口 + `extends`”与 `eva-app` 注入类型收窄；并将 `EvaStatisticsQueryUseCase` 逐步从委托壳演进为“统计读侧用例编排落点”（每次只迁 1 个方法簇，且 `@CheckSemId` 触发点仍保留在旧入口）。
