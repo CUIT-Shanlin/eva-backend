@@ -30,6 +30,7 @@
 - ✅ **bc-course（课程）读侧入口用例归位起步（方向 A → B）**：新增 `CourseQueryUseCase` + `CourseScheduleQueryPort`，并将旧入口 `ICourseServiceImpl.courseNum/courseTimeDetail/getDate` 保留 `@CheckSemId` 且退化为纯委托壳（逻辑仍委托既有 `CourseQueryGateway`，保持行为不变）；同时对齐 `ICourseService.courseNum` 参数顺序为 `(week, semId)` 以与控制器调用一致（避免“两个 Integer 入参”导致口径漂移；保持行为不变）；最小回归通过；落地提交：`4b06187f`。
 - ✅ **bc-course（课程）读侧入口用例归位起步（方向 A → B）：单节课详情**：新增 `CourseDetailQueryUseCase` + `CourseDetailQueryPort`，并将旧入口 `ICourseServiceImpl.getCourseDetail` 保留 `@CheckSemId` 且退化为纯委托壳；内部仍按“先查 evaUsers（空则 new ArrayList）→ 再查详情 → convertor 组装 → 空则抛 QueryException(\"这节课不存在\")”的既有顺序执行（保持异常文案与行为不变）；最小回归通过；落地提交：`d045c79e`。
 - ✅ **bc-course（课程）读侧入口用例归位起步（方向 A → B）：指定时间段课程**：新增 `TimeCourseQueryUseCase` + `TimeCourseQueryPort`，并将旧入口 `ICourseServiceImpl.getTimeCourse` 保留 `@CheckSemId` 与 `StpUtil.getLoginId()` 解析（保持调用次数与顺序不变）且退化为委托壳；用例层仅接收 `userName` 并委托既有 `CourseQueryGateway.getPeriodCourse(...)`（保持行为不变）；最小回归通过；落地提交：`4454ecae`。
+- ✅ **bc-course（课程）写侧入口用例归位起步（方向 A → B）：分配评教老师**：新增 `AllocateTeacherUseCase` + `AllocateTeacherPort`，并将旧入口 `ICourseServiceImpl.allocateTeacher` 保留 `@CheckSemId`、`StpUtil.getLoginId()` 与 AfterCommit 发布事件的顺序不变（先分配/落库→再解析 operatorUserId→再 publishAfterCommit）；端口适配器委托既有 `CourseUpdateGateway.assignTeacher(...)`（保持异常文案/副作用顺序不变）；最小回归通过；落地提交：`6e20721b`。
 
 **2026-01-01（本次会话）**
 - ✅ **评教模板读侧（D1：用例归位深化—按任务取模板）**：将 `EvaTemplateServiceImpl.evaTemplateByTaskId` 退化为纯委托壳，并把 “按任务取模板 + 空结果兜底 JSON” 归位到 `EvaTemplateQueryUseCase`（保持 `@CheckSemId` 触发点不变；保持行为不变；最小回归通过；落地提交：`f98a9eed`）。
