@@ -1,5 +1,4 @@
 package edu.cuit.app.service.impl.eva;
-import cn.hutool.core.collection.CollectionUtil;
 import edu.cuit.bc.evaluation.application.model.AddEvaTemplateCommand;
 import edu.cuit.bc.evaluation.application.model.UpdateEvaTemplateCommand;
 import edu.cuit.bc.evaluation.application.usecase.AddEvaTemplateUseCase;
@@ -19,8 +18,6 @@ import edu.cuit.client.dto.cmd.eva.EvaTemplateCmd;
 import edu.cuit.client.dto.cmd.eva.NewEvaTemplateCmd;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
-import edu.cuit.domain.entity.eva.EvaTemplateEntity;
-import edu.cuit.bc.evaluation.application.port.EvaTemplateAllQueryPort;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +31,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EvaTemplateServiceImpl implements IEvaTemplateService {
     private final EvaTemplateQueryUseCase evaTemplateQueryUseCase;
-    private final EvaTemplateAllQueryPort evaTemplateAllQueryPort;
     private final DeleteEvaTemplateUseCase deleteEvaTemplateUseCase;
     private final AddEvaTemplateUseCase addEvaTemplateUseCase;
     private final UpdateEvaTemplateUseCase updateEvaTemplateUseCase;
@@ -46,19 +42,7 @@ public class EvaTemplateServiceImpl implements IEvaTemplateService {
 
     @Override
     public List<SimpleResultCO> evaAllTemplate() {
-        List<EvaTemplateEntity> evaTemplateEntities=evaTemplateAllQueryPort.getAllTemplate();
-        if(CollectionUtil.isEmpty(evaTemplateEntities)){
-            List list=new ArrayList();
-            return list;
-        }
-        List<SimpleResultCO> simpleResultCOS=new ArrayList<>();
-        for(int i=0;i<evaTemplateEntities.size();i++){
-            SimpleResultCO simpleResultCO=new SimpleResultCO();
-            simpleResultCO.setId(evaTemplateEntities.get(i).getId());
-            simpleResultCO.setName(evaTemplateEntities.get(i).getName());
-            simpleResultCOS.add(i,simpleResultCO);
-        }
-        return simpleResultCOS;
+        return evaTemplateQueryUseCase.evaAllTemplate();
     }
 
     @Override

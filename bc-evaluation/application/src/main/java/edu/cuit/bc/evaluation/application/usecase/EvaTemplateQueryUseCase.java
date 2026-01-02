@@ -1,8 +1,10 @@
 package edu.cuit.bc.evaluation.application.usecase;
 
 import edu.cuit.bc.evaluation.application.port.EvaTemplatePagingQueryPort;
+import edu.cuit.bc.evaluation.application.port.EvaTemplateAllQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaTemplateTaskTemplateQueryPort;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
+import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
@@ -22,13 +24,16 @@ import java.util.Objects;
  */
 public class EvaTemplateQueryUseCase {
     private final EvaTemplatePagingQueryPort evaTemplatePagingQueryPort;
+    private final EvaTemplateAllQueryPort evaTemplateAllQueryPort;
     private final EvaTemplateTaskTemplateQueryPort evaTemplateTaskTemplateQueryPort;
 
     public EvaTemplateQueryUseCase(
             EvaTemplatePagingQueryPort evaTemplatePagingQueryPort,
+            EvaTemplateAllQueryPort evaTemplateAllQueryPort,
             EvaTemplateTaskTemplateQueryPort evaTemplateTaskTemplateQueryPort
     ) {
         this.evaTemplatePagingQueryPort = Objects.requireNonNull(evaTemplatePagingQueryPort, "evaTemplatePagingQueryPort");
+        this.evaTemplateAllQueryPort = Objects.requireNonNull(evaTemplateAllQueryPort, "evaTemplateAllQueryPort");
         this.evaTemplateTaskTemplateQueryPort = Objects.requireNonNull(evaTemplateTaskTemplateQueryPort, "evaTemplateTaskTemplateQueryPort");
     }
 
@@ -63,5 +68,21 @@ public class EvaTemplateQueryUseCase {
     public String evaTemplateByTaskId(Integer taskId, Integer semId) {
         return evaTemplateTaskTemplateQueryPort.getTaskTemplate(taskId, semId)
                 .orElseGet(() -> "[]");
+    }
+
+    public List<SimpleResultCO> evaAllTemplate() {
+        List<EvaTemplateEntity> evaTemplateEntities = evaTemplateAllQueryPort.getAllTemplate();
+        if (evaTemplateEntities == null || evaTemplateEntities.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<SimpleResultCO> simpleResultCOS = new ArrayList<>();
+        for (int i = 0; i < evaTemplateEntities.size(); i++) {
+            SimpleResultCO simpleResultCO = new SimpleResultCO();
+            simpleResultCO.setId(evaTemplateEntities.get(i).getId());
+            simpleResultCO.setName(evaTemplateEntities.get(i).getName());
+            simpleResultCOS.add(i, simpleResultCO);
+        }
+        return simpleResultCOS;
     }
 }
