@@ -283,7 +283,11 @@
 > 阶段性策略微调（2025-12-29）：允许“微调”（仅结构性重构；不改业务语义；缓存/日志/异常文案/副作用顺序完全不变）；在“评教统计导出基础设施归位”与“课程课表解析归位/端口化”闭环后，下一会话主线切换为 **bc-messaging（组合根/监听器/应用侧适配器归位）**，仍按“小步可回滚 + 每步闭环”推进。
 >
 
-- 本次会话最新闭环（2025-12-30，便于续接）：  
+- 本次会话最新闭环（2026-01-02，便于续接）：  
+  1) ✅ 评教用户读侧（D1：用例归位深化—去评教/被评教记录）：新增 `UserEvaQueryUseCase` 并将旧入口 `UserEvaServiceImpl.getEvaLogInfo/getEvaLoggingInfo` 退化为纯委托壳（旧入口仍保留 `@CheckSemId` 与当前用户解析：`StpUtil` + `userQueryGateway`；异常文案/副作用顺序不变；保持行为不变；最小回归通过；落地提交：`96e65019`）。
+  2) ✅ 文档同步：以上闭环已同步到三文档（以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准，不在提示词里固化 commitId）。
+
+- 历史闭环（2025-12-30，便于续接；更早细节仍保留如下）：  
   1) ✅ 统计读侧 `pageUnqualifiedUser`：分页结果组装已归位到 `EvaStatisticsQueryUseCase`，旧入口 `EvaStatisticsServiceImpl` 已退化为纯委托壳并移除对 `PaginationBizConvertor` 的依赖（`e97615e1` / `f4f3fcde`）。  
   2) ✅ 统计读侧 `type` 分支判断去重复：在 `EvaStatisticsQueryUseCase` 内部收敛 `type` 分发为 `dispatchByType(...)`，避免后续继续归位时出现分支口径漂移（保持行为不变；`38ce9ece`）。
   3) ✅ 统计读侧导出 `exportEvaStatistics`：引入导出端口 `EvaStatisticsExportPort` 并让旧入口委托 `EvaStatisticsQueryUseCase.exportEvaStatistics`（保持 `@CheckSemId` 触发点不变；行为不变；`0d15de60`）。
@@ -472,12 +476,14 @@
         - ✅ 1.7.8（依赖收敛）：`eva-app` 的 Maven 依赖已从 `bc-messaging` 收敛为 `bc-messaging-contract`（保持行为不变；见 0.9）。
         - 下一步建议（依赖收敛后半段，仍保持行为不变；每步只做 1 个小改动并闭环）：
           1) Serena 证伪：`eva-infra` 对 `bc-messaging` 不再存在编译期引用；且“运行时装配责任”已由组合根 `start` 承接（见 0.9/0.10）。
-          2) ✅ 已完成：组合根承接运行时装配：在 `start/pom.xml` 增加对 `bc-messaging` 的 `runtime` 依赖（保持行为不变；落地提交：`f23254ec`）。
-          3) ✅ 已完成：移除 `eva-infra/pom.xml` 对 `bc-messaging` 的 `runtime` 依赖，把“运行时装配责任”上推到组合根（保持行为不变；落地提交：`507f95b2`）。
+          2) ✅ 已完成：组合根承接运行时装配：在 `start/pom.xml` 增加对 `bc-messaging` 的 `runtime` 依赖（保持行为不变；落地提交以 `git log -n 1 -- start/pom.xml` 为准）。
+          3) ✅ 已完成：移除 `eva-infra/pom.xml` 对 `bc-messaging` 的 `runtime` 依赖，把“运行时装配责任”上推到组合根（保持行为不变；落地提交以 `git log -n 1 -- eva-infra/pom.xml` 为准）。
 
-2) （可选/后置）**评教读侧用例归位深化（统计）**：继续按“每次只迁 1 个方法簇”的节奏归位默认值兜底/空对象组装（保持行为不变）。
+2) **评教读侧用例归位深化（D1，方向 A → B）**：✅ 已完成统计/记录/任务/模板/用户评教记录 5 个入口的用例归位深化（见 0.9）。下一步建议：将同套路复制到 `bc-course` 的读侧入口（见 3）。
 
-3) （可选/后置）**条目 25 / S0（AI 报告）**：消息域推进顺利后，再回到 `bc-ai-report` 的 S0 做“仅搬运/依赖收敛”（保持行为不变）。
+3) **bc-course（课程）读侧入口用例归位起步（方向 A → B）**：用 Serena 先选 `ICourseServiceImpl` 中 1 个“纯查询”方法簇（建议从 `courseNum/courseTimeDetail/getDate` 开始），新增对应 `*QueryUseCase`（`bc-course/application/usecase`），旧入口保留 `@CheckSemId`（以及涉及登录态的 `StpUtil` 解析）并退化为委托壳（保持行为不变；每次只迁 1 个方法簇）。
+
+4) （可选/后置）**条目 25 / S0（AI 报告）**：消息域推进顺利后，再回到 `bc-ai-report` 的 S0 做“仅搬运/依赖收敛”（保持行为不变）。
 
 已闭环（用于避免重复劳动）：
 - ✅ S0.1：`eva-client` 已从主干依赖链彻底退出（含：来源证伪 + 退出 reactor + 目录从仓库移除；保持行为不变；落地提交以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准）。
