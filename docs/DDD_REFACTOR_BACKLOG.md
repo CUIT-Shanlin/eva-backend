@@ -130,6 +130,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - bc-course（课程）：写侧入口用例归位继续（方向 A → B）：教师自助删课：新增 `DeleteSelfCourseEntryUseCase` + `DeleteSelfCoursePort`，并将旧入口 `IUserCourseServiceImpl.deleteSelfCourse` 退化为委托壳（保持两次 `StpUtil.getLoginId()` 调用位置/顺序与 AfterCommit 发布顺序完全不变；保持行为不变；最小回归通过；落地提交：`76845038`）。
 - bc-course（课程）：写侧入口用例归位继续（方向 A → B）：教师自助改课：新增 `UpdateSelfCourseEntryUseCase` + `UpdateSelfCoursePort`，并将旧入口 `IUserCourseServiceImpl.updateSelfCourse` 退化为委托壳（保持两次 `StpUtil.getLoginId()` 调用位置/顺序与 AfterCommit 发布顺序完全不变，且 `CourseOperationMessageMode.TASK_LINKED` 参数不变；保持行为不变；最小回归通过；落地提交：`2d1327d3`）。
 - bc-course（课程）：写侧入口用例归位继续（方向 A → B）：导入课表：新增 `ImportCourseFileEntryUseCase` + `ImportCourseFilePort` 并将 `IUserCourseServiceImpl.importCourse` 内的 `importCourseFile(...)` 调用点端口化（保留解析/`type` 分支/异常文案/异常类型与 AfterCommit 发布顺序不变；保持行为不变；最小回归通过；落地提交：`054b511d`）。
+- bc-course（课程）：写侧入口用例归位继续（方向 A → B）：修改课程信息：新增 `UpdateCourseEntryUseCase` + `UpdateCoursePort` 并将 `ICourseDetailServiceImpl.updateCourse` 内的 `updateCourse(...)` 调用点端口化（保持 `@CheckSemId`、异常转换与 AfterCommit 发布顺序不变；保持行为不变；最小回归通过；落地提交：`bcf17d7f`）。
 - 评教记录读侧（依赖收窄，小步）：`EvaRecordServiceImpl.pageEvaRecord` 内联分页结果组装，移除对 `PaginationBizConvertor` 的注入依赖（分页字段赋值顺序/异常文案/循环副作用顺序不变；保持行为不变；最小回归通过；落地提交：`55103de1`）。
 - 评教记录读侧（D1：用例归位深化）：新增 `EvaRecordQueryUseCase` 并将 `EvaRecordServiceImpl.pageEvaRecord` 退化为纯委托壳，把“实体→CO 组装 + 平均分填充 + 分页组装”编排逻辑归位到 UseCase（保持 `@CheckSemId` 触发点不变；异常文案/副作用顺序不变；保持行为不变；最小回归通过；落地提交：`86772f59`）。
 - 评教记录读侧（D1：顺序对齐加固）：对齐 `EvaRecordQueryUseCase` 内部“实体→CO 组装”的求值顺序，避免提前触发 `Supplier` 缓存加载导致副作用顺序漂移（保持行为不变；最小回归通过；落地提交：`10991314`）。
@@ -395,8 +396,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
    - 入口清单（Serena 盘点，2026-01-02）：
      - `edu.cuit.app.service.impl.course.ICourseServiceImpl`：写侧已闭环 `updateSingleCourse/allocateTeacher/deleteCourses/addNotExistCoursesDetails/addExistCoursesDetails`。
      - `edu.cuit.app.service.impl.course.IUserCourseServiceImpl`：写侧已闭环（`deleteSelfCourse/updateSelfCourse` 已入口用例归位；`importCourse` 已完成 `importCourseFile(...)` 调用点端口化）。
-     - `edu.cuit.app.service.impl.course.ICourseDetailServiceImpl`：包含 `updateCourse/updateCourses/addCourse/delete` 等写侧入口（待逐簇归位；注意保持 AfterCommit/消息副作用顺序不变）。
-   - 下一步建议（保持行为不变；每次只迁 1 个入口方法簇）：优先 `ICourseDetailServiceImpl.updateCourse`。
+     - `edu.cuit.app.service.impl.course.ICourseDetailServiceImpl`：包含 `updateCourses/addCourse/delete` 等写侧入口（`updateCourse` 已完成调用点端口化）；待逐簇归位；注意保持 AfterCommit/消息副作用顺序不变。
+   - 下一步建议（保持行为不变；每次只迁 1 个入口方法簇）：优先 `ICourseDetailServiceImpl.updateCourses`。
 
 4) 基础设施（S1 退场候选，保持行为不变）：`eva-infra` 仍存在多处旧 `*GatewayImpl`（需逐个用 Serena 证伪其剩余方法是否仅为委托壳；以及评估“归属到哪个 BC / shared-kernel / 继续保留在共享技术模块”）。
    - 候选清单（Serena 盘点，2026-01-02）：`ClassroomGatewayImpl/DepartmentGatewayImpl/LdapPersonGatewayImpl/LogGatewayImpl/SemesterGatewayImpl/MsgGatewayImpl/CourseDeleteGatewayImpl/CourseQueryGatewayImpl/CourseUpdateGatewayImpl/EvaConfigGatewayImpl/EvaDeleteGatewayImpl/EvaUpdateGatewayImpl/MenuQueryGatewayImpl/RoleQueryGatewayImpl/UserQueryGatewayImpl/UserUpdateGatewayImpl/RoleUpdateGatewayImpl/MenuUpdateGatewayImpl`。
@@ -526,7 +527,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 依赖收敛准备（事件载荷下沉到 contract）：`CourseTeacherTaskMessagesEvent` → `bc-messaging-contract`（保持 `package` 不变；保持行为不变；`12f43323`）。
   - ✅ 依赖收敛（应用侧编译期依赖面收窄）：`eva-app` → `bc-messaging-contract`（替换 `eva-app` 对 `bc-messaging` 的编译期依赖；保持行为不变；`d3aeb3ab`）。
   - 下一步建议（依赖收敛后半段，保持行为不变）：✅ 已完成：在 `start/pom.xml` 补齐 `bc-messaging` 的 `runtime` 依赖（保持行为不变；落地：`f23254ec`）；✅ 已完成：移除 `eva-infra/pom.xml` 中 `bc-messaging` 的 `runtime` 依赖，把“运行时装配责任”上推到组合根 `start`（保持行为不变；落地：`507f95b2`）。后置建议：用 Serena 再次证伪 `eva-infra` 不再需要 `bc-messaging` 作为运行时兜底依赖。
-- 下一步小簇建议（bc-course 写侧，方向 A → B，保持行为不变）：读侧已覆盖 `courseNum/courseTimeDetail/getDate/getCourseDetail/getTimeCourse`，写侧已覆盖 `allocateTeacher/deleteCourses/updateSingleCourse/addNotExistCoursesDetails/addExistCoursesDetails/deleteSelfCourse/updateSelfCourse/importCourse`（见 4.2）。下一步建议：继续写侧入口归位，优先 `ICourseDetailServiceImpl.updateCourse`（保持行为不变；每次只迁 1 个入口方法簇）。
+- 下一步小簇建议（bc-course 写侧，方向 A → B，保持行为不变）：读侧已覆盖 `courseNum/courseTimeDetail/getDate/getCourseDetail/getTimeCourse`，写侧已覆盖 `allocateTeacher/deleteCourses/updateSingleCourse/addNotExistCoursesDetails/addExistCoursesDetails/deleteSelfCourse/updateSelfCourse/importCourse/updateCourse`（见 4.2）。下一步建议：继续写侧入口归位，优先 `ICourseDetailServiceImpl.updateCourses`（保持行为不变；每次只迁 1 个入口方法簇）。
 - 中长期建议（S1，保持行为不变）：**`eva-*` 技术切片退场/整合到各 BC**。统一口径与前置条件见 `DDD_REFACTOR_PLAN.md` 10.5。建议节奏：先把入口方法簇按 BC 迁完并让旧入口/旧 gateway 退化为委托壳（A→B），再做装配与 Maven/目录结构层面的“模块移除/折叠”类改动，避免一次性大迁移导致回滚困难与副作用顺序漂移。
 
 如果继续按“写侧优先”的策略推进，下一批候选（高 → 低）建议是：
