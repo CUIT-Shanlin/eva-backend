@@ -120,6 +120,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - bc-messaging（消息域）：依赖收敛后半段（兜底依赖证伪）：使用 Serena 证伪 `eva-infra` 无 `bcmessaging` / `edu.cuit.bc.messaging` / `bc-messaging` 的编译期引用，且运行时装配由 `start` 承接（证据见 `NEXT_SESSION_HANDOFF.md` 0.9；保持行为不变；最小回归通过）。
 - bc-course（课程）：读侧入口用例归位起步（方向 A → B）：新增 `CourseQueryUseCase` + `CourseScheduleQueryPort`，并将旧入口 `ICourseServiceImpl.courseNum/courseTimeDetail/getDate` 退化为委托壳（保持 `@CheckSemId` 触发点不变；保持行为不变；最小回归通过；落地提交：`4b06187f`）。
 - bc-course（课程）：读侧入口用例归位起步（方向 A → B）：单节课详情：新增 `CourseDetailQueryUseCase` + `CourseDetailQueryPort`，并将旧入口 `ICourseServiceImpl.getCourseDetail` 退化为委托壳（异常文案保持不变；最小回归通过；落地提交：`d045c79e`）。
+- bc-course（课程）：读侧入口用例归位起步（方向 A → B）：指定时间段课程：新增 `TimeCourseQueryUseCase` + `TimeCourseQueryPort`，并将旧入口 `ICourseServiceImpl.getTimeCourse` 退化为委托壳（保留 `StpUtil.getLoginId()` 解析与 `@CheckSemId` 触发点不变；保持行为不变；最小回归通过；落地提交：`4454ecae`）。
 - 评教记录读侧（依赖收窄，小步）：`EvaRecordServiceImpl.pageEvaRecord` 内联分页结果组装，移除对 `PaginationBizConvertor` 的注入依赖（分页字段赋值顺序/异常文案/循环副作用顺序不变；保持行为不变；最小回归通过；落地提交：`55103de1`）。
 - 评教记录读侧（D1：用例归位深化）：新增 `EvaRecordQueryUseCase` 并将 `EvaRecordServiceImpl.pageEvaRecord` 退化为纯委托壳，把“实体→CO 组装 + 平均分填充 + 分页组装”编排逻辑归位到 UseCase（保持 `@CheckSemId` 触发点不变；异常文案/副作用顺序不变；保持行为不变；最小回归通过；落地提交：`86772f59`）。
 - 评教记录读侧（D1：顺序对齐加固）：对齐 `EvaRecordQueryUseCase` 内部“实体→CO 组装”的求值顺序，避免提前触发 `Supplier` 缓存加载导致副作用顺序漂移（保持行为不变；最小回归通过；落地提交：`10991314`）。
