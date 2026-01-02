@@ -3,6 +3,7 @@ package edu.cuit.bc.evaluation.application.usecase;
 import com.alibaba.cola.exception.SysException;
 import edu.cuit.bc.evaluation.application.port.EvaTaskInfoQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaTaskPagingQueryPort;
+import edu.cuit.bc.evaluation.application.port.EvaTaskSelfQueryPort;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskBaseInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskDetailInfoCO;
@@ -13,6 +14,7 @@ import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.entity.eva.EvaTaskEntity;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,13 +27,16 @@ import java.util.Objects;
 public class EvaTaskQueryUseCase {
     private final EvaTaskPagingQueryPort evaTaskPagingQueryPort;
     private final EvaTaskInfoQueryPort evaTaskInfoQueryPort;
+    private final EvaTaskSelfQueryPort evaTaskSelfQueryPort;
 
     public EvaTaskQueryUseCase(
             EvaTaskPagingQueryPort evaTaskPagingQueryPort,
-            EvaTaskInfoQueryPort evaTaskInfoQueryPort
+            EvaTaskInfoQueryPort evaTaskInfoQueryPort,
+            EvaTaskSelfQueryPort evaTaskSelfQueryPort
     ) {
         this.evaTaskPagingQueryPort = Objects.requireNonNull(evaTaskPagingQueryPort, "evaTaskPagingQueryPort");
         this.evaTaskInfoQueryPort = Objects.requireNonNull(evaTaskInfoQueryPort, "evaTaskInfoQueryPort");
+        this.evaTaskSelfQueryPort = Objects.requireNonNull(evaTaskSelfQueryPort, "evaTaskSelfQueryPort");
     }
 
     public PaginationQueryResultCO<EvaTaskBaseInfoCO> pageEvaUnfinishedTaskAsPaginationQueryResult(
@@ -58,6 +63,17 @@ public class EvaTaskQueryUseCase {
         // 重要：保持与旧实现一致的懒加载触发顺序（先 courInf，再 teacher）
         SingleCourseEntity singleCourseEntity = evaTaskEntity.getCourInf();
         return evaTaskEntityToTaskDetailCO(evaTaskEntity, singleCourseEntity);
+    }
+
+    public List<EvaTaskDetailInfoCO> evaSelfTaskInfo(Integer userId, Integer semId, String keyword) {
+        List<EvaTaskEntity> evaTaskEntities = evaTaskSelfQueryPort.evaSelfTaskInfo(userId, semId, keyword);
+        List<EvaTaskDetailInfoCO> evaTaskDetailInfoCOS = new ArrayList<>();
+        for (EvaTaskEntity evaTaskEntity : evaTaskEntities) {
+            SingleCourseEntity singleCourseEntity = evaTaskEntity.getCourInf();
+            EvaTaskDetailInfoCO evaTaskDetailInfoCO = evaTaskEntityToTaskDetailCO(evaTaskEntity, singleCourseEntity);
+            evaTaskDetailInfoCOS.add(evaTaskDetailInfoCO);
+        }
+        return evaTaskDetailInfoCOS;
     }
 
     private static EvaTaskBaseInfoCO evaTaskEntityToEvaBaseCO(EvaTaskEntity evaTaskEntity) {

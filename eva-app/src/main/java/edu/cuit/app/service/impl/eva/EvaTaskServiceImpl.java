@@ -8,7 +8,6 @@ import edu.cuit.bc.evaluation.application.usecase.PostEvaTaskUseCase;
 import edu.cuit.bc.evaluation.domain.PostEvaTaskQueryException;
 import edu.cuit.bc.evaluation.domain.PostEvaTaskUpdateException;
 import edu.cuit.app.aop.CheckSemId;
-import edu.cuit.app.convertor.eva.EvaTaskBizConvertor;
 import edu.cuit.app.service.impl.MsgServiceImpl;
 import edu.cuit.client.api.eva.IEvaTaskService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
@@ -17,13 +16,11 @@ import edu.cuit.client.dto.clientobject.eva.EvaTaskDetailInfoCO;
 import edu.cuit.client.dto.cmd.eva.NewEvaTaskCmd;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.EvaTaskConditionalQuery;
-import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.entity.eva.EvaTaskEntity;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.domain.gateway.eva.EvaConfigGateway;
 import edu.cuit.domain.gateway.eva.EvaDeleteGateway;
 import edu.cuit.bc.evaluation.application.port.EvaTaskInfoQueryPort;
-import edu.cuit.bc.evaluation.application.port.EvaTaskSelfQueryPort;
 import edu.cuit.domain.gateway.eva.EvaUpdateGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
@@ -33,7 +30,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -42,13 +38,11 @@ import java.util.Objects;
 public class EvaTaskServiceImpl implements IEvaTaskService {
     private final EvaTaskQueryUseCase evaTaskQueryUseCase;
     private final EvaUpdateGateway evaUpdateGateway;
-    private final EvaTaskSelfQueryPort evaTaskSelfQueryPort;
     private final EvaTaskInfoQueryPort evaTaskInfoQueryPort;
     private final EvaDeleteGateway evaDeleteGateway;
     private final UserQueryGateway userQueryGateway;
     private final CourseQueryGateway courseQueryGateway;
     private final EvaConfigGateway evaConfigGateway;
-    private final EvaTaskBizConvertor evaTaskBizConvertor;
     private final MsgServiceImpl msgService;
     private final PostEvaTaskUseCase postEvaTaskUseCase;
     @Override
@@ -61,14 +55,7 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
     @CheckSemId
     public List<EvaTaskDetailInfoCO> evaSelfTaskInfo(Integer semId, String keyword) {
         Integer useId=userQueryGateway.findIdByUsername(String.valueOf(StpUtil.getLoginId())).orElseThrow(()->new SysException("并没有找到该用户id"));
-        List<EvaTaskEntity> evaTaskEntities=evaTaskSelfQueryPort.evaSelfTaskInfo(useId,semId,keyword);
-        List<EvaTaskDetailInfoCO> evaTaskDetailInfoCOS=new ArrayList<>();
-        for (EvaTaskEntity evaTaskEntity : evaTaskEntities) {
-            SingleCourseEntity singleCourseEntity = evaTaskEntity.getCourInf();
-            EvaTaskDetailInfoCO evaTaskDetailInfoCO = evaTaskBizConvertor.evaTaskEntityToTaskDetailCO(evaTaskEntity, singleCourseEntity);
-            evaTaskDetailInfoCOS.add(evaTaskDetailInfoCO);
-        }
-        return evaTaskDetailInfoCOS;
+        return evaTaskQueryUseCase.evaSelfTaskInfo(useId, semId, keyword);
     }
 
     @Override
