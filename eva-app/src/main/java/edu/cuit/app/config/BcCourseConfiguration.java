@@ -8,6 +8,7 @@ import edu.cuit.bc.course.application.port.AssignEvaTeachersRepository;
 import edu.cuit.bc.course.application.port.CourseImportedQueryPort;
 import edu.cuit.bc.course.application.port.CourseScheduleQueryPort;
 import edu.cuit.bc.course.application.port.CourseTemplateIdQueryPort;
+import edu.cuit.bc.course.application.port.CourseDetailQueryPort;
 import edu.cuit.bc.course.application.port.DeleteSelfCourseRepository;
 import edu.cuit.bc.course.application.port.ImportCourseFileRepository;
 import edu.cuit.bc.course.application.port.UpdateCourseInfoRepository;
@@ -28,6 +29,7 @@ import edu.cuit.bc.course.application.usecase.DeleteCourseUseCase;
 import edu.cuit.bc.course.application.usecase.DeleteCoursesUseCase;
 import edu.cuit.bc.course.application.usecase.DeleteCourseTypeUseCase;
 import edu.cuit.bc.course.application.usecase.CourseQueryUseCase;
+import edu.cuit.bc.course.application.usecase.CourseDetailQueryUseCase;
 import edu.cuit.bc.course.application.usecase.ImportCourseFileUseCase;
 import edu.cuit.bc.course.application.usecase.IsCourseImportedUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateCourseInfoUseCase;
@@ -70,6 +72,11 @@ public class BcCourseConfiguration {
     @Bean
     public CourseQueryUseCase courseQueryUseCase(CourseScheduleQueryPort queryPort) {
         return new CourseQueryUseCase(queryPort);
+    }
+
+    @Bean
+    public CourseDetailQueryUseCase courseDetailQueryUseCase(CourseDetailQueryPort queryPort) {
+        return new CourseDetailQueryUseCase(queryPort);
     }
 
     @Bean

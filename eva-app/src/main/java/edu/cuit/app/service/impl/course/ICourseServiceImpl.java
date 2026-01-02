@@ -2,8 +2,8 @@ package edu.cuit.app.service.impl.course;
 
 import cn.dev33.satoken.stp.StpUtil;
 import edu.cuit.app.aop.CheckSemId;
-import edu.cuit.app.convertor.course.CourseBizConvertor;
 import edu.cuit.app.event.AfterCommitEventPublisher;
+import edu.cuit.bc.course.application.usecase.CourseDetailQueryUseCase;
 import edu.cuit.bc.course.application.usecase.CourseQueryUseCase;
 import edu.cuit.bc.messaging.application.event.CourseOperationSideEffectsEvent;
 import edu.cuit.bc.messaging.application.event.CourseTeacherTaskMessagesEvent;
@@ -17,7 +17,6 @@ import edu.cuit.client.dto.cmd.course.UpdateSingleCourseCmd;
 import edu.cuit.client.dto.data.course.CoursePeriod;
 import edu.cuit.client.dto.query.CourseQuery;
 import edu.cuit.client.dto.query.condition.MobileCourseQuery;
-import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.gateway.course.CourseDeleteGateway;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.domain.gateway.course.CourseUpdateGateway;
@@ -34,8 +33,8 @@ public class ICourseServiceImpl implements ICourseService {
     private final CourseQueryGateway courseQueryGateway;
     private final CourseUpdateGateway courseUpdateGateway;
     private final CourseDeleteGateway courseDeleteGateway;
-    private final CourseBizConvertor courseConvertor;
     private final CourseQueryUseCase courseQueryUseCase;
+    private final CourseDetailQueryUseCase courseDetailQueryUseCase;
     private final UserQueryGateway userQueryGateway;
     private final AfterCommitEventPublisher afterCommitEventPublisher;
     @CheckSemId
@@ -55,14 +54,8 @@ public class ICourseServiceImpl implements ICourseService {
     @CheckSemId
     @Override
     public SingleCourseDetailCO getCourseDetail(Integer semId, Integer id) {
-        List<EvaTeacherInfoCO> evaUsers = courseQueryGateway.getEvaUsers(id);
-        if(evaUsers==null){
-            evaUsers=new ArrayList<>();
-        }
-        List<EvaTeacherInfoCO> finalEvaUsers = evaUsers;
-        return courseQueryGateway.getSingleCourseDetail(id, semId)
-                .map(courseEntity -> courseConvertor.toSingleCourseDetailCO(courseEntity, finalEvaUsers))
-                .orElseThrow(()->new QueryException("这节课不存在"));
+        return courseDetailQueryUseCase.getCourseDetail(semId, id)
+                .orElseThrow(() -> new QueryException("这节课不存在"));
     }
 
     @CheckSemId
