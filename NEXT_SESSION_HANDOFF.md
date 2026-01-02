@@ -317,7 +317,7 @@
 
 - 下一步建议（仍保持行为不变；每次只改 1 个类 + 1 个可运行回归）：  
   1) ✅ **评教统计导出基础设施归位**：本阶段已闭环（装饰器/工厂归位 + 导出端口装配切换均完成；且 `eva-app` 已移除 `poi/poi-ooxml` Maven 直依赖）。后续若要继续推进评教读侧解耦，请回到“统计用例归位（空对象兜底/默认值组装）每次迁 1 个方法簇”的节奏（仍保持行为不变）。
-  2) **bc-messaging（下一会话主线，按 10.3 路线）**：从“组合根归位”开始，逐步把消息域装配/监听器/应用侧适配器从 `eva-app` 归位到 `bc-messaging`（建议保持 `package` 不变以降风险；每次只迁 1 个类；保持行为不变）。建议顺序（每步闭环=Serena→最小回归→commit→三文档同步）：
+  2) ✅ **bc-messaging（按 10.3 路线）**：该路线已闭环至“依赖收敛后半段证伪 + 运行时装配上推”（见 0.9）。后置如需继续，优先做结构折叠（S0，仅搬运/依赖收敛）或进一步收敛依赖面（每次只改 1 点；保持行为不变）。建议顺序（每步闭环=Serena→最小回归→commit→三文档同步）：
      - ✅ 已完成：组合根 `BcMessagingConfiguration` 归位（`4e3e2cf2`）
      - ✅ 已完成：监听器 `CourseOperationSideEffectsListener` 归位（`22ee30e7`）
      - ✅ 已完成：监听器 `CourseTeacherTaskMessagesListener` 归位（`0987f96f`）
@@ -328,7 +328,9 @@
      - ✅ 已完成（前置，DAL/Convertor 归位）：`MsgTipDO/MsgTipMapper(+xml)` → `eva-infra-dal`；`MsgConvertor` → `eva-infra-shared`（保持 `package/namespace` 不变；保持行为不变）。
      - ✅ 已完成（基础设施端口适配器归位）：`MessageDeletionPortImpl/MessageReadPortImpl/MessageDisplayPortImpl/MessageInsertionPortImpl/MessageQueryPortImpl` → `bc-messaging`（保持 `package` 不变；保持行为不变）。
      - ✅ 依赖收敛准备：将事件枚举 `CourseOperationMessageMode` 下沉到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；`b2247e7f`）。
-     - 下一步：继续把事件载荷逐个下沉到 `bc-messaging-contract`（本阶段已完成 `CourseOperationSideEffectsEvent` 与 `CourseTeacherTaskMessagesEvent`；下一步可评估将事件载荷完全下沉后，是否能把 `eva-app` 对 `bc-messaging` 的依赖收敛为仅依赖 `bc-messaging-contract`；每步只改 1 个点；保持行为不变）。
+	     - ✅ 依赖收敛后半段：已完成 `eva-infra` 对 `bc-messaging` 编译期引用证伪，且运行时装配由组合根 `start` 承接（见 0.9）。
+
+  3) **bc-course（课程）写侧入口用例归位继续（方向 A → B）**：读侧已覆盖 `courseNum/courseTimeDetail/getDate/getCourseDetail/getTimeCourse`，写侧已起步覆盖 `allocateTeacher/deleteCourses`（见 0.9）。下一步优先做 `ICourseServiceImpl.updateSingleCourse`：新增 `UpdateSingleCourseEntryUseCase` + `UpdateSingleCoursePort`（`bc-course/application`），`eva-infra` 端口适配器委托既有 `courseUpdateGateway.updateSingleCourse(userName, semId, cmd)`；旧入口保留 `@CheckSemId` 与两次 `StpUtil.getLoginId()` 调用位置/顺序，AfterCommit 发布事件顺序完全不变（保持行为不变；每次只迁 1 个入口方法簇）。
 
 - ✅ 提交点 0（纯文档闭环）：已完成（落地提交：`1adc80bd`）。
 - ✅ 提交点 A（结构落点，不迁业务）：已完成（落地提交：`a30a1ff9`）。
@@ -463,31 +465,11 @@
    - bc-messaging（消息域）：应用侧事件载荷已下沉到 `bc-messaging-contract`：`CourseOperationMessageMode/CourseOperationSideEffectsEvent/CourseTeacherTaskMessagesEvent`（均保持 `package edu.cuit.bc.messaging.application.event` 不变；见 0.9）。
    - bc-messaging（消息域）：依赖收敛阶段性闭环：`eva-app` 已将对 `bc-messaging` 的编译期依赖收敛为仅依赖 `bc-messaging-contract`（仅用于事件载荷类型；见 0.9）。
 
-1) **bc-messaging（下一会话主线，按 10.3 路线）**：先组合根 → 再监听器/应用侧适配器 → 最后基础设施端口适配器与依赖收敛（每步只迁 1 个类；保持行为不变）。建议顺序：
-   1.1) ✅ 已完成：迁 `eva-app/src/main/java/edu/cuit/app/config/BcMessagingConfiguration.java` → `bc-messaging`（保持 `package edu.cuit.app.config` 不变；Bean 定义与装配顺序不变）。
-   1.2) ✅ 已完成：迁监听器 `CourseOperationSideEffectsListener` → `bc-messaging`（保持 `package` 不变）。
-   1.3) ✅ 已完成：迁监听器 `CourseTeacherTaskMessagesListener` → `bc-messaging`（保持 `package` 不变）。
-   1.4) ✅ 已完成：迁应用侧端口适配器 `CourseBroadcastPortAdapter` → `bc-messaging`（保持 `package` 不变；依赖 `MsgResult`（位于 `bc-messaging-contract`），因此先归位了 `MsgResult` 以避免 Maven 循环依赖）。
-   1.5) ✅ 已完成：迁应用侧端口适配器 `TeacherTaskMessagePortAdapter` → `bc-messaging`（保持 `package` 不变；依赖 `MsgResult`（位于 `bc-messaging-contract`））。
-   1.6) ✅ 已完成：迁应用侧端口适配器 `EvaMessageCleanupPortAdapter` → `bc-messaging`（保持 `package` 不变；将依赖类型收窄为 `IMsgService` 以避免 Maven 循环依赖；保持行为不变）。
-   1.7) （后置）再推进 `eva-infra/src/main/java/edu/cuit/infra/bcmessaging/adapter/*PortImpl.java` 的归位与依赖收敛（保持行为不变；细节见 `DDD_REFACTOR_PLAN.md` 10.3）：
-        - ✅ 1.7.0（前置，DAL 归位）：`MsgTipDO` 已归位到 `eva-infra-dal`（保持 `package` 不变；见 0.9）。
-        - ✅ 1.7.1（前置，DAL 归位）：`MsgTipMapper`（含 `MsgTipMapper.xml`）已归位到 `eva-infra-dal`（保持 `package/namespace` 不变；见 0.9）。
-        - ✅ 1.7.2（基础设施端口适配器归位）：`MessageDeletionPortImpl` 已归位到 `bc-messaging`，并在 `bc-messaging` 补齐对 `eva-infra-dal` 的依赖以闭合编译与装配（保持行为不变；见 0.9）。
-        - ✅ 1.7.3（基础设施端口适配器归位）：`MessageReadPortImpl` 已归位到 `bc-messaging`（保持行为不变；见 0.9）。
-        - ✅ 1.7.4（基础设施端口适配器归位）：`MessageDisplayPortImpl` 已归位到 `bc-messaging`（保持行为不变；见 0.9）。
-        - ✅ 1.7.5（基础设施端口适配器归位）：`MessageInsertionPortImpl` 已归位到 `bc-messaging`（保持行为不变；见 0.9）。
-        - ✅ 1.7.6（基础设施端口适配器归位）：`MessageQueryPortImpl` 已归位到 `bc-messaging`（保持行为不变；见 0.9）。
-        - ✅ 1.7.7（依赖收敛准备）：事件枚举/载荷已下沉到 `bc-messaging-contract`（保持 `package` 不变；见 0.9）。
-        - ✅ 1.7.8（依赖收敛）：`eva-app` 的 Maven 依赖已从 `bc-messaging` 收敛为 `bc-messaging-contract`（保持行为不变；见 0.9）。
-        - 下一步建议（依赖收敛后半段，仍保持行为不变；每步只做 1 个小改动并闭环）：
-          1) Serena 证伪：`eva-infra` 对 `bc-messaging` 不再存在编译期引用；且“运行时装配责任”已由组合根 `start` 承接（见 0.9/0.10）。
-          2) ✅ 已完成：组合根承接运行时装配：在 `start/pom.xml` 增加对 `bc-messaging` 的 `runtime` 依赖（保持行为不变；落地提交以 `git log -n 1 -- start/pom.xml` 为准）。
-          3) ✅ 已完成：移除 `eva-infra/pom.xml` 对 `bc-messaging` 的 `runtime` 依赖，把“运行时装配责任”上推到组合根（保持行为不变；落地提交以 `git log -n 1 -- eva-infra/pom.xml` 为准）。
+1) **bc-course（课程）写侧入口用例归位继续（方向 A → B）**：从 `ICourseServiceImpl.updateSingleCourse` 开始（保持 `@CheckSemId` 触发点不变；保持 `StpUtil.getLoginId()` 调用次数与顺序不变；保持 AfterCommit 发布顺序不变；异常文案/副作用顺序完全不变）。建议步骤：Serena 定位入口与 Controller 调用点 → 新增 `UpdateSingleCourseEntryUseCase` + `UpdateSingleCoursePort`（`bc-course/application`）→ `eva-infra` 提供端口适配器并委托既有 `courseUpdateGateway.updateSingleCourse(userName, semId, cmd)` → 旧入口退化为委托壳但仍保留两次 `StpUtil.getLoginId()` 的位置与顺序 → 最小回归 → commit → 三文档同步。
 
-2) **评教读侧用例归位深化（D1，方向 A → B）**：✅ 已完成统计/记录/任务/模板/用户评教记录 5 个入口的用例归位深化（见 0.9）。下一步建议：将同套路复制到 `bc-course` 的读侧入口（见 3）。
+2) **bc-messaging（依赖收敛）**：✅ 已闭环（见 0.9）。本会话不继续；后置如需再推进，优先做结构折叠（S0，仅搬运/依赖收敛，保持行为不变）。
 
-3) **bc-course（课程）读侧入口用例归位起步（方向 A → B）**：用 Serena 先选 `ICourseServiceImpl` 中 1 个“纯查询”方法簇（建议从 `courseNum/courseTimeDetail/getDate` 开始），新增对应 `*QueryUseCase`（`bc-course/application/usecase`），旧入口保留 `@CheckSemId`（以及涉及登录态的 `StpUtil` 解析）并退化为委托壳（保持行为不变；每次只迁 1 个方法簇）。
+3) （可选）**评教读侧（D1，方向 A → B）**：目前已覆盖统计/记录/任务/模板/用户评教记录 5 个入口（见 0.9）。若要继续推进读侧归位，挑选其它仍在 `eva-app` 的 `@CheckSemId` 读侧入口方法簇复制同套路（每次只迁 1 个方法簇；保持行为不变）。
 
 4) （可选/后置）**条目 25 / S0（AI 报告）**：消息域推进顺利后，再回到 `bc-ai-report` 的 S0 做“仅搬运/依赖收敛”（保持行为不变）。
 

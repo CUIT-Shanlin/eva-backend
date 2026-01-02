@@ -508,7 +508,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 依赖收敛准备（事件载荷下沉到 contract）：`CourseTeacherTaskMessagesEvent` → `bc-messaging-contract`（保持 `package` 不变；保持行为不变；`12f43323`）。
   - ✅ 依赖收敛（应用侧编译期依赖面收窄）：`eva-app` → `bc-messaging-contract`（替换 `eva-app` 对 `bc-messaging` 的编译期依赖；保持行为不变；`d3aeb3ab`）。
   - 下一步建议（依赖收敛后半段，保持行为不变）：✅ 已完成：在 `start/pom.xml` 补齐 `bc-messaging` 的 `runtime` 依赖（保持行为不变；落地：`f23254ec`）；✅ 已完成：移除 `eva-infra/pom.xml` 中 `bc-messaging` 的 `runtime` 依赖，把“运行时装配责任”上推到组合根 `start`（保持行为不变；落地：`507f95b2`）。后置建议：用 Serena 再次证伪 `eva-infra` 不再需要 `bc-messaging` 作为运行时兜底依赖。
-- 下一步小簇建议（bc-course 读侧，方向 A → B，保持行为不变）：按“评教读侧”的同套路推进 `ICourseServiceImpl` 的读侧入口用例归位（建议先做 `courseNum/courseTimeDetail/getDate` 这类纯委托方法簇，再处理含组装/异常的 `getCourseDetail`）；旧入口保留 `@CheckSemId`（以及涉及登录态的 `StpUtil` 解析）并退化为委托壳，每步只迁 1 个方法簇。
+- 下一步小簇建议（bc-course 写侧，方向 A → B，保持行为不变）：读侧已覆盖 `courseNum/courseTimeDetail/getDate/getCourseDetail/getTimeCourse`，写侧已起步覆盖 `allocateTeacher/deleteCourses`（见 4.2）。下一步优先做 `ICourseServiceImpl.updateSingleCourse`：新增 `UpdateSingleCourseEntryUseCase` + `UpdateSingleCoursePort`（`bc-course/application`），`eva-infra` 端口适配器委托既有 `courseUpdateGateway.updateSingleCourse(...)`；旧入口保留 `@CheckSemId` 与两次 `StpUtil.getLoginId()` 调用位置/顺序，AfterCommit 发布事件顺序完全不变。
 
 如果继续按“写侧优先”的策略推进，下一批候选（高 → 低）建议是：
 
