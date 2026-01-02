@@ -5,6 +5,7 @@ import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.event.AfterCommitEventPublisher;
 import edu.cuit.bc.course.application.usecase.CourseDetailQueryUseCase;
 import edu.cuit.bc.course.application.usecase.CourseQueryUseCase;
+import edu.cuit.bc.course.application.usecase.TimeCourseQueryUseCase;
 import edu.cuit.bc.messaging.application.event.CourseOperationSideEffectsEvent;
 import edu.cuit.bc.messaging.application.event.CourseTeacherTaskMessagesEvent;
 import edu.cuit.client.api.course.ICourseService;
@@ -35,6 +36,7 @@ public class ICourseServiceImpl implements ICourseService {
     private final CourseDeleteGateway courseDeleteGateway;
     private final CourseQueryUseCase courseQueryUseCase;
     private final CourseDetailQueryUseCase courseDetailQueryUseCase;
+    private final TimeCourseQueryUseCase timeCourseQueryUseCase;
     private final UserQueryGateway userQueryGateway;
     private final AfterCommitEventPublisher afterCommitEventPublisher;
     @CheckSemId
@@ -69,7 +71,7 @@ public class ICourseServiceImpl implements ICourseService {
     @Override
     public List<RecommendCourseCO> getTimeCourse(Integer semId, MobileCourseQuery courseQuery) {
         String userName =String.valueOf(StpUtil.getLoginId());
-        return courseQueryGateway.getPeriodCourse(semId, courseQuery,userName);
+        return timeCourseQueryUseCase.getTimeCourse(semId, courseQuery, userName);
     }
 
     @CheckSemId
