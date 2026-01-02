@@ -2,6 +2,7 @@ package edu.cuit.app.config;
 
 import edu.cuit.bc.course.application.port.AddCourseTypeRepository;
 import edu.cuit.bc.course.application.port.AddExistCoursesDetailsRepository;
+import edu.cuit.bc.course.application.port.AddNotExistCoursesDetailsPort;
 import edu.cuit.bc.course.application.port.AddNotExistCoursesDetailsRepository;
 import edu.cuit.bc.course.application.port.ChangeCourseTemplateRepository;
 import edu.cuit.bc.course.application.port.AssignEvaTeachersRepository;
@@ -23,6 +24,7 @@ import edu.cuit.bc.course.application.port.DeleteCourseTypeRepository;
 import edu.cuit.bc.course.application.port.UpdateSingleCoursePort;
 import edu.cuit.bc.course.application.usecase.AddCourseTypeUseCase;
 import edu.cuit.bc.course.application.usecase.AddExistCoursesDetailsUseCase;
+import edu.cuit.bc.course.application.usecase.AddNotExistCoursesDetailsEntryUseCase;
 import edu.cuit.bc.course.application.usecase.AddNotExistCoursesDetailsUseCase;
 import edu.cuit.bc.course.application.usecase.AssignEvaTeachersUseCase;
 import edu.cuit.bc.course.application.usecase.ChangeCourseTemplateUseCase;
@@ -105,6 +107,11 @@ public class BcCourseConfiguration {
     @Bean
     public UpdateSingleCourseEntryUseCase updateSingleCourseEntryUseCase(UpdateSingleCoursePort port) {
         return new UpdateSingleCourseEntryUseCase(port);
+    }
+
+    @Bean
+    public AddNotExistCoursesDetailsEntryUseCase addNotExistCoursesDetailsEntryUseCase(AddNotExistCoursesDetailsPort port) {
+        return new AddNotExistCoursesDetailsEntryUseCase(port);
     }
 
     @Bean
