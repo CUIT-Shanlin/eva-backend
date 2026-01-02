@@ -26,6 +26,7 @@
 - ✅ **评教任务读侧（D1：用例归位深化—本人任务列表）**：将 `EvaTaskServiceImpl.evaSelfTaskInfo` 的“任务列表查询 + 懒加载顺序对齐的实体→CO 组装”归位到 `EvaTaskQueryUseCase`；旧入口仍保留 `@CheckSemId` 与当前用户解析（`StpUtil` + `userQueryGateway`）并委托 UseCase（异常文案/副作用顺序不变；保持行为不变；最小回归通过；落地提交：`1ac196c6`）。
 - ✅ **评教任务读侧（D1：用例归位深化—单任务详情）**：将 `EvaTaskServiceImpl.oneEvaTaskInfo` 退化为纯委托壳，并把 “单任务查询 + 懒加载顺序对齐的实体→CO 组装” 归位到 `EvaTaskQueryUseCase`（异常文案不变；保持行为不变；最小回归通过；落地提交：`94736365`）。
 - ✅ **评教模板读侧（D1：用例归位深化—全量模板列表）**：将 `EvaTemplateServiceImpl.evaAllTemplate` 退化为纯委托壳，并把 “全量模板查询 + 结果组装” 归位到 `EvaTemplateQueryUseCase`（保持行为不变；最小回归通过；落地提交：`cd8e6ecb`）。
+- ✅ **bc-messaging（消息域）：依赖收敛后半段（兜底依赖证伪）**：使用 Serena 证伪 `eva-infra` 中不存在 `bcmessaging` / `edu.cuit.bc.messaging` / `bc-messaging` 的编译期引用；并确认运行时装配由 `start` 承接（`start/pom.xml` 含 `bc-messaging` 的 `runtime` 依赖，且 `@SpringBootApplication` 默认扫描覆盖 `edu.cuit.app.config.BcMessagingConfiguration`；保持行为不变）；最小回归通过；文档闭环提交以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准。
 
 **2026-01-01（本次会话）**
 - ✅ **评教模板读侧（D1：用例归位深化—按任务取模板）**：将 `EvaTemplateServiceImpl.evaTemplateByTaskId` 退化为纯委托壳，并把 “按任务取模板 + 空结果兜底 JSON” 归位到 `EvaTemplateQueryUseCase`（保持 `@CheckSemId` 触发点不变；保持行为不变；最小回归通过；落地提交：`f98a9eed`）。
