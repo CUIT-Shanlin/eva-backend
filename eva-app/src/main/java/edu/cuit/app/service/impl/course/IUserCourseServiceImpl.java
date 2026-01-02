@@ -15,6 +15,7 @@ import edu.cuit.app.service.operate.course.query.UserCourseDetailQueryExec;
 import edu.cuit.app.service.operate.course.update.FileImportExec;
 import edu.cuit.bc.course.application.port.CourseExcelResolvePort;
 import edu.cuit.bc.course.application.usecase.DeleteSelfCourseEntryUseCase;
+import edu.cuit.bc.course.application.usecase.ImportCourseFileEntryUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateSelfCourseEntryUseCase;
 import edu.cuit.bc.messaging.application.event.CourseOperationMessageMode;
 import edu.cuit.bc.messaging.application.event.CourseOperationSideEffectsEvent;
@@ -55,6 +56,7 @@ public class IUserCourseServiceImpl implements IUserCourseService {
     private final CourseExcelResolvePort courseExcelResolvePort;
     private final DeleteSelfCourseEntryUseCase deleteSelfCourseEntryUseCase;
     private final UpdateSelfCourseEntryUseCase updateSelfCourseEntryUseCase;
+    private final ImportCourseFileEntryUseCase importCourseFileEntryUseCase;
 
 
     @CheckSemId
@@ -98,7 +100,7 @@ public class IUserCourseServiceImpl implements IUserCourseService {
         }else{
             throw new BizException("课表类型转换错误");
         }
-        Map<String, Map<Integer,Integer>> map = courseUpdateGateway.importCourseFile(courseExce, semesterCO, type);
+        Map<String, Map<Integer,Integer>> map = importCourseFileEntryUseCase.importCourseFile(courseExce, semesterCO, type);
         Integer operatorUserId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId())
                 .orElseThrow(() -> new QueryException("请先登录"));
 
