@@ -11,6 +11,7 @@ import edu.cuit.bc.course.application.port.CourseImportedQueryPort;
 import edu.cuit.bc.course.application.port.CourseScheduleQueryPort;
 import edu.cuit.bc.course.application.port.CourseTemplateIdQueryPort;
 import edu.cuit.bc.course.application.port.CourseDetailQueryPort;
+import edu.cuit.bc.course.application.port.DeleteSelfCoursePort;
 import edu.cuit.bc.course.application.port.TimeCourseQueryPort;
 import edu.cuit.bc.course.application.port.AllocateTeacherPort;
 import edu.cuit.bc.course.application.port.DeleteCoursesPort;
@@ -50,6 +51,7 @@ import edu.cuit.bc.course.application.port.UpdateSelfCourseRepository;
 import edu.cuit.bc.course.application.usecase.UpdateSelfCourseUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateSingleCourseEntryUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateSingleCourseUseCase;
+import edu.cuit.bc.course.application.usecase.DeleteSelfCourseEntryUseCase;
 import edu.cuit.bc.template.application.CourseTemplateLockService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -119,6 +121,11 @@ public class BcCourseConfiguration {
     @Bean
     public AddExistCoursesDetailsEntryUseCase addExistCoursesDetailsEntryUseCase(AddExistCoursesDetailsPort port) {
         return new AddExistCoursesDetailsEntryUseCase(port);
+    }
+
+    @Bean
+    public DeleteSelfCourseEntryUseCase deleteSelfCourseEntryUseCase(DeleteSelfCoursePort port) {
+        return new DeleteSelfCourseEntryUseCase(port);
     }
 
     @Bean
