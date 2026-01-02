@@ -20,11 +20,11 @@ import java.util.List;
 public interface ICourseService {
     /**
      * 获取周课表的课程数量
-     *  @param semId 学期id
      *  @param week 哪一周?
+     *  @param semId 学期id
      *
      * */
-    List<List<Integer>> courseNum(Integer semId, Integer week);
+    List<List<Integer>> courseNum(Integer week, Integer semId);
 
     /**
      * 获取一个课程时间段的课程信息

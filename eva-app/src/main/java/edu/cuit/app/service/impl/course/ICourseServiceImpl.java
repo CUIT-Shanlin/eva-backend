@@ -4,6 +4,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.course.CourseBizConvertor;
 import edu.cuit.app.event.AfterCommitEventPublisher;
+import edu.cuit.bc.course.application.usecase.CourseQueryUseCase;
 import edu.cuit.bc.messaging.application.event.CourseOperationSideEffectsEvent;
 import edu.cuit.bc.messaging.application.event.CourseTeacherTaskMessagesEvent;
 import edu.cuit.client.api.course.ICourseService;
@@ -34,19 +35,20 @@ public class ICourseServiceImpl implements ICourseService {
     private final CourseUpdateGateway courseUpdateGateway;
     private final CourseDeleteGateway courseDeleteGateway;
     private final CourseBizConvertor courseConvertor;
+    private final CourseQueryUseCase courseQueryUseCase;
     private final UserQueryGateway userQueryGateway;
     private final AfterCommitEventPublisher afterCommitEventPublisher;
     @CheckSemId
     @Override
     public List<List<Integer>> courseNum(Integer week, Integer semId) {
-       return courseQueryGateway.getWeekCourses(semId,week);
+       return courseQueryUseCase.courseNum(week, semId);
 
     }
 
     @CheckSemId
     @Override
     public List<SingleCourseCO> courseTimeDetail(Integer semId, CourseQuery courseQuery) {
-        return courseQueryGateway.getPeriodInfo(semId,courseQuery);
+        return courseQueryUseCase.courseTimeDetail(semId, courseQuery);
 
     }
 
@@ -66,7 +68,7 @@ public class ICourseServiceImpl implements ICourseService {
     @CheckSemId
     @Override
     public String getDate(Integer semId, Integer week, Integer day) {
-       return courseQueryGateway.getDate(semId,week,day);
+       return courseQueryUseCase.getDate(semId, week, day);
 
     }
 
