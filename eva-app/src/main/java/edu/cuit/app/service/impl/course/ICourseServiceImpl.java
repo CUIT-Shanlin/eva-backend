@@ -7,6 +7,7 @@ import edu.cuit.bc.course.application.usecase.CourseDetailQueryUseCase;
 import edu.cuit.bc.course.application.usecase.CourseQueryUseCase;
 import edu.cuit.bc.course.application.usecase.TimeCourseQueryUseCase;
 import edu.cuit.bc.course.application.usecase.AllocateTeacherUseCase;
+import edu.cuit.bc.course.application.usecase.DeleteCoursesEntryUseCase;
 import edu.cuit.bc.messaging.application.event.CourseOperationSideEffectsEvent;
 import edu.cuit.bc.messaging.application.event.CourseTeacherTaskMessagesEvent;
 import edu.cuit.client.api.course.ICourseService;
@@ -19,7 +20,6 @@ import edu.cuit.client.dto.cmd.course.UpdateSingleCourseCmd;
 import edu.cuit.client.dto.data.course.CoursePeriod;
 import edu.cuit.client.dto.query.CourseQuery;
 import edu.cuit.client.dto.query.condition.MobileCourseQuery;
-import edu.cuit.domain.gateway.course.CourseDeleteGateway;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.domain.gateway.course.CourseUpdateGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
@@ -34,11 +34,11 @@ import java.util.*;
 public class ICourseServiceImpl implements ICourseService {
     private final CourseQueryGateway courseQueryGateway;
     private final CourseUpdateGateway courseUpdateGateway;
-    private final CourseDeleteGateway courseDeleteGateway;
     private final CourseQueryUseCase courseQueryUseCase;
     private final CourseDetailQueryUseCase courseDetailQueryUseCase;
     private final TimeCourseQueryUseCase timeCourseQueryUseCase;
     private final AllocateTeacherUseCase allocateTeacherUseCase;
+    private final DeleteCoursesEntryUseCase deleteCoursesEntryUseCase;
     private final UserQueryGateway userQueryGateway;
     private final AfterCommitEventPublisher afterCommitEventPublisher;
     @CheckSemId
@@ -98,7 +98,7 @@ public class ICourseServiceImpl implements ICourseService {
     @CheckSemId
     @Override
     public void deleteCourses(Integer semId, Integer id, CoursePeriod coursePeriod) {
-        Map<String, Map<Integer,Integer>> map = courseDeleteGateway.deleteCourses(semId, id, coursePeriod);
+        Map<String, Map<Integer,Integer>> map = deleteCoursesEntryUseCase.deleteCourses(semId, id, coursePeriod);
         Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
         Integer operatorUserId = userId.orElseThrow(() -> new QueryException("请先登录"));
         afterCommitEventPublisher.publishAfterCommit(new CourseOperationSideEffectsEvent(operatorUserId, map));
