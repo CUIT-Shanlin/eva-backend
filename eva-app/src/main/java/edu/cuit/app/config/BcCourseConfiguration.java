@@ -52,6 +52,8 @@ import edu.cuit.bc.course.application.usecase.UpdateSelfCourseUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateSingleCourseEntryUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateSingleCourseUseCase;
 import edu.cuit.bc.course.application.usecase.DeleteSelfCourseEntryUseCase;
+import edu.cuit.bc.course.application.port.UpdateSelfCoursePort;
+import edu.cuit.bc.course.application.usecase.UpdateSelfCourseEntryUseCase;
 import edu.cuit.bc.template.application.CourseTemplateLockService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -126,6 +128,11 @@ public class BcCourseConfiguration {
     @Bean
     public DeleteSelfCourseEntryUseCase deleteSelfCourseEntryUseCase(DeleteSelfCoursePort port) {
         return new DeleteSelfCourseEntryUseCase(port);
+    }
+
+    @Bean
+    public UpdateSelfCourseEntryUseCase updateSelfCourseEntryUseCase(UpdateSelfCoursePort port) {
+        return new UpdateSelfCourseEntryUseCase(port);
     }
 
     @Bean

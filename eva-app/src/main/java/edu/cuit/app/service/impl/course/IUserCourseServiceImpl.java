@@ -15,6 +15,7 @@ import edu.cuit.app.service.operate.course.query.UserCourseDetailQueryExec;
 import edu.cuit.app.service.operate.course.update.FileImportExec;
 import edu.cuit.bc.course.application.port.CourseExcelResolvePort;
 import edu.cuit.bc.course.application.usecase.DeleteSelfCourseEntryUseCase;
+import edu.cuit.bc.course.application.usecase.UpdateSelfCourseEntryUseCase;
 import edu.cuit.bc.messaging.application.event.CourseOperationMessageMode;
 import edu.cuit.bc.messaging.application.event.CourseOperationSideEffectsEvent;
 import edu.cuit.client.api.course.IUserCourseService;
@@ -53,6 +54,7 @@ public class IUserCourseServiceImpl implements IUserCourseService {
     private final ObjectMapper objectMapper;
     private final CourseExcelResolvePort courseExcelResolvePort;
     private final DeleteSelfCourseEntryUseCase deleteSelfCourseEntryUseCase;
+    private final UpdateSelfCourseEntryUseCase updateSelfCourseEntryUseCase;
 
 
     @CheckSemId
@@ -150,11 +152,8 @@ public class IUserCourseServiceImpl implements IUserCourseService {
 
     @Override
     public Void updateSelfCourse(SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeInfoCO> timeList) {
-        Map<String, Map<Integer, Integer>> mapMsg = courseUpdateGateway.updateSelfCourse(
-                String.valueOf(StpUtil.getLoginId()),
-                selfTeachCourseCO,
-                timeList
-        );
+        String userName = String.valueOf(StpUtil.getLoginId());
+        Map<String, Map<Integer, Integer>> mapMsg = updateSelfCourseEntryUseCase.updateSelfCourse(userName, selfTeachCourseCO, timeList);
         Integer operatorUserId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId())
                 .orElseThrow(() -> new QueryException("请先登录"));
 
