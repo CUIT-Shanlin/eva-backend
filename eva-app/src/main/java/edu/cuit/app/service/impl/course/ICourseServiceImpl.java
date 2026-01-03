@@ -23,8 +23,6 @@ import edu.cuit.client.dto.cmd.course.UpdateSingleCourseCmd;
 import edu.cuit.client.dto.data.course.CoursePeriod;
 import edu.cuit.client.dto.query.CourseQuery;
 import edu.cuit.client.dto.query.condition.MobileCourseQuery;
-import edu.cuit.domain.gateway.course.CourseQueryGateway;
-import edu.cuit.domain.gateway.course.CourseUpdateGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
@@ -35,8 +33,6 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class ICourseServiceImpl implements ICourseService {
-    private final CourseQueryGateway courseQueryGateway;
-    private final CourseUpdateGateway courseUpdateGateway;
     private final CourseQueryUseCase courseQueryUseCase;
     private final CourseDetailQueryUseCase courseDetailQueryUseCase;
     private final TimeCourseQueryUseCase timeCourseQueryUseCase;
