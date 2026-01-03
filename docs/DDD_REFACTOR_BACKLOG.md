@@ -107,7 +107,10 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
-**已完成（更新至 2026-01-02）**
+**已完成（更新至 2026-01-03）**
+- ✅ bc-course（课程，写侧入口归位继续，方向 A → B）：已完成 `ICourseDetailServiceImpl.updateCourses/delete/addCourse` 的入口用例归位/调用点端口化（保持 `@CheckSemId`/事务边界/异常文案/副作用顺序完全不变；落地：`849ed92e/e38463c2/5c989ace`；细节以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
+- ✅ bc-course（课程，S0 收尾：依赖收窄）：已清理旧入口 `ICourseServiceImpl` / `IUserCourseServiceImpl` 中可证实“仅声明无调用点”的残留注入依赖，并将 `IUserCourseServiceImpl.isImported` 的依赖从 `CourseUpdateGateway` 收敛为直接依赖 `IsCourseImportedUseCase`（保持行为不变；落地：`9577cd85/402affc2/25aad45a`）。
+- ✅ bc-course（课程，S0：旧 gateway 压扁为委托壳）：已完成 `CourseUpdateGatewayImpl.updateCourseType/addCourseType` 压扁样例（旧 gateway 仅保留事务边界与委托调用；保持行为不变；落地：`785974a6/34e9a0a8`）。
 - ✅ 规划与证据化（保持行为不变）：用 Serena 盘点 bc-course 写侧 `@CheckSemId` 入口清单与 `eva-infra` 旧 `*GatewayImpl` 候选清单，并落盘到本文件 `4.3`，作为后续 S1/S2 退场/排期依据；同时修正文档中 `bc-messaging` 的主线口径为“后置仅做结构折叠/依赖证伪”（不改业务语义；最小回归通过；落地提交以 `git log -n 1 -- docs/DDD_REFACTOR_BACKLOG.md` 为准）。
 - 评教用户读侧（D1：用例归位深化—去评教/被评教记录）：新增 `UserEvaQueryUseCase` 并将旧入口 `UserEvaServiceImpl.getEvaLogInfo/getEvaLoggingInfo` 退化为纯委托壳（旧入口仍保留 `@CheckSemId` 与当前用户解析：`StpUtil` + `userQueryGateway`；异常文案/副作用顺序不变；保持行为不变；最小回归通过；落地提交：`96e65019`）。
 - 评教任务读侧用例归位深化（本人任务列表）：将旧入口 `EvaTaskServiceImpl.evaSelfTaskInfo` 的“任务列表查询 + 懒加载顺序对齐的实体→CO 组装”归位到 `EvaTaskQueryUseCase`；旧入口仍保留 `@CheckSemId` 与当前用户解析（`StpUtil` + `userQueryGateway`）并委托 UseCase（异常文案/副作用顺序不变；保持行为不变；最小回归通过；落地提交：`1ac196c6`）。
@@ -516,7 +519,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 阶段性策略微调（2025-12-29）：
 - ✅ 允许“微调”：仅限结构性重构（收窄依赖/拆接口/移动默认值兜底），**不改业务语义**；缓存/日志/异常文案/副作用顺序完全不变。
-- ✅ 本轮完成“评教统计导出基础设施归位收尾”与“bc-course 课表解析归位/端口化”，下一轮主线切换为 **bc-messaging（组合根/监听器/应用侧适配器归位）**（每次只迁 1 个类；保持行为不变）。
+- ✅ 主线口径更新（滚动）：`bc-messaging` 的“归位 + 依赖收敛”已阶段性闭环；`bc-course` 写侧入口用例归位已推进到 S0（依赖收窄 + 旧 gateway 压扁样例）（见 4.2/4.3 与 `NEXT_SESSION_HANDOFF.md` 0.9）。当前下一批主线：**bc-course 的 S0（旧 gateway 压扁为委托壳）**，每次只压扁 1 个方法（保持行为不变）。
 - ✅ 下一步小簇建议（bc-messaging，保持行为不变）：按 `DDD_REFACTOR_PLAN.md` 10.3 路线推进（先组合根 → 再监听器/应用侧适配器 → 最后基础设施端口适配器与依赖收敛）。
   - ✅ 已完成：组合根 `BcMessagingConfiguration`（`4e3e2cf2`）；✅ 已完成：监听器 `CourseOperationSideEffectsListener`（`22ee30e7`）；✅ 已完成：监听器 `CourseTeacherTaskMessagesListener`（`0987f96f`）
   - ✅ 已完成：支撑类 `MsgResult`（`31878b61`，当前位于 `bc-messaging-contract`）；✅ 已完成：应用侧端口适配器 `CourseBroadcastPortAdapter`（`84ee070a`）；✅ 已完成：应用侧端口适配器 `TeacherTaskMessagePortAdapter`（`9ea14cff`）；✅ 已完成：应用侧端口适配器 `EvaMessageCleanupPortAdapter`（`73ab3f3c`）。
@@ -527,7 +530,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 依赖收敛准备（事件载荷下沉到 contract）：`CourseTeacherTaskMessagesEvent` → `bc-messaging-contract`（保持 `package` 不变；保持行为不变；`12f43323`）。
   - ✅ 依赖收敛（应用侧编译期依赖面收窄）：`eva-app` → `bc-messaging-contract`（替换 `eva-app` 对 `bc-messaging` 的编译期依赖；保持行为不变；`d3aeb3ab`）。
   - 下一步建议（依赖收敛后半段，保持行为不变）：✅ 已完成：在 `start/pom.xml` 补齐 `bc-messaging` 的 `runtime` 依赖（保持行为不变；落地：`f23254ec`）；✅ 已完成：移除 `eva-infra/pom.xml` 中 `bc-messaging` 的 `runtime` 依赖，把“运行时装配责任”上推到组合根 `start`（保持行为不变；落地：`507f95b2`）。后置建议：用 Serena 再次证伪 `eva-infra` 不再需要 `bc-messaging` 作为运行时兜底依赖。
-- 下一步小簇建议（bc-course 写侧，方向 A → B，保持行为不变）：读侧已覆盖 `courseNum/courseTimeDetail/getDate/getCourseDetail/getTimeCourse`，写侧已覆盖 `allocateTeacher/deleteCourses/updateSingleCourse/addNotExistCoursesDetails/addExistCoursesDetails/deleteSelfCourse/updateSelfCourse/importCourse/updateCourse/updateCourses/delete/addCourse`（见 4.2）。下一步建议：进入 S0 收尾，优先清理旧入口残留的未使用注入依赖（保持行为不变；每次只改 1 个类）。
+- 下一步小簇建议（bc-course，S0：旧 gateway 压扁为委托壳，保持行为不变）：读侧已覆盖 `courseNum/courseTimeDetail/getDate/getCourseDetail/getTimeCourse`，写侧已覆盖 `allocateTeacher/deleteCourses/updateSingleCourse/addNotExistCoursesDetails/addExistCoursesDetails/deleteSelfCourse/updateSelfCourse/importCourse/updateCourse/updateCourses/delete/addCourse`（见 4.2）。S0 收尾（依赖收窄）已完成，且已完成样例压扁 `CourseUpdateGatewayImpl.updateCourseType/addCourseType`；下一步优先压扁 `CourseUpdateGatewayImpl.updateCoursesType`（Serena：唯一调用点为 `ICourseTypeServiceImpl.updateCoursesType`；每次只改 1 个方法）。
 - 中长期建议（S1，保持行为不变）：**`eva-*` 技术切片退场/整合到各 BC**。统一口径与前置条件见 `DDD_REFACTOR_PLAN.md` 10.5。建议节奏：先把入口方法簇按 BC 迁完并让旧入口/旧 gateway 退化为委托壳（A→B），再做装配与 Maven/目录结构层面的“模块移除/折叠”类改动，避免一次性大迁移导致回滚困难与副作用顺序漂移。
 
 如果继续按“写侧优先”的策略推进，下一批候选（高 → 低）建议是：
