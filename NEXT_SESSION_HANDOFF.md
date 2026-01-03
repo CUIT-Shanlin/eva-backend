@@ -43,6 +43,7 @@
 - ✅ **bc-course（课程）写侧入口用例归位继续（方向 A → B）：删除课程**：新增 `DeleteCourseEntryUseCase` + `DeleteCoursePort` 并将旧入口 `ICourseDetailServiceImpl.delete` 保留 `@CheckSemId` 且退化为委托壳；严格保持 `deleteCourse(...) → userId 查询 → publishAfterCommit(...)` 的既有顺序不变，且异常文案/异常类型不变（仍为 `QueryException("请先登录")`）；保持行为不变；最小回归通过；落地提交：`e38463c2`。
 - ✅ **bc-course（课程）写侧入口用例归位继续（方向 A → B）：新增课程**：新增 `AddCourseEntryUseCase` + `AddCoursePort` 并将旧入口 `ICourseDetailServiceImpl.addCourse` 保留 `@CheckSemId` 且退化为委托壳；保持 `courseUpdateGateway.addCourse(semId)` 的既有调用链与副作用顺序不变；保持行为不变；最小回归通过；落地提交：`5c989ace`。
 - ✅ **bc-course（课程，S0 收尾：依赖收窄）**：清理旧入口 `ICourseServiceImpl` 中残留的未使用注入依赖（`CourseQueryGateway/CourseUpdateGateway` 仅声明无调用点），以降低装配耦合风险（保持行为不变；最小回归通过；落地提交：`9577cd85`）。
+- ✅ **bc-course（课程，S0 收尾：依赖收窄）**：清理旧入口 `IUserCourseServiceImpl` 中残留的未使用注入依赖（`CourseDeleteGateway/MsgServiceImpl/MsgResult` 仅声明无调用点），以降低装配耦合风险（保持行为不变；最小回归通过；落地提交：`402affc2`）。
 - ✅ **规划与证据化（不改业务语义）**：补齐 `DDD_REFACTOR_PLAN.md` 的 `10.5`（`eva-*` 技术切片退场/整合到 BC 的前置条件与 DoD），并用 Serena 盘点 `eva-app` 中仍存在的 bc-course 写侧 `@CheckSemId` 入口与 `eva-infra` 旧 `*GatewayImpl` 候选清单，已落盘到 `docs/DDD_REFACTOR_BACKLOG.md` 的 `4.3`（用于后续 S1/S2 排期与退场证伪；保持行为不变）。
 - ✅ **文档口径修正（不改业务语义）**：将 `DDD_REFACTOR_PLAN.md` 中“`bc-messaging` 作为近期主线”的旧建议修正为“已阶段性闭环、后置仅做结构折叠/依赖证伪”，避免下一会话误切主线（保持行为不变）。
 
@@ -306,7 +307,7 @@
   1) ✅ bc-course（课程）写侧入口用例归位继续（方向 A → B）：已完成 `ICourseServiceImpl.updateSingleCourse/addNotExistCoursesDetails/addExistCoursesDetails`（保持 `@CheckSemId` 触发点、异常文案与副作用顺序不变；最小回归通过；落地提交以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准）。
   2) ✅ 规划与证据化（不改业务语义）：补齐 `DDD_REFACTOR_PLAN.md` 10.5（`eva-*` 退场/整合前置条件与 DoD），并用 Serena 盘点 bc-course 写侧 `@CheckSemId` 入口清单与 `eva-infra` 旧 `*GatewayImpl` 候选清单，已落盘到 `docs/DDD_REFACTOR_BACKLOG.md` 4.3。
   3) ✅ 文档同步：以上闭环已同步到三文档（以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准，不在提示词里固化 commitId）。
-  4) 下一步（保持行为不变；每次只改 1 个类/小点）：继续清理旧入口残留的未使用注入依赖，优先 `IUserCourseServiceImpl`（初步观察可能存在：`CourseDeleteGateway/MsgServiceImpl/MsgResult` 等“仅声明无调用点”的依赖；请先用 Serena 证伪引用面再移除）；其后再评估是否开始“旧 gateway 压扁为委托壳”的 S0（每次只压 1 个方法）。
+  4) 下一步（保持行为不变；每次只改 1 个方法）：开始“旧 gateway 压扁为委托壳”的 S0，优先 `CourseUpdateGatewayImpl.addCourse`（无返回值，链路较短；便于先打通“压扁旧 gateway”的节奏与回滚路径）。
 
 - 历史闭环（2025-12-30，便于续接；更早细节仍保留如下）：  
   1) ✅ 统计读侧 `pageUnqualifiedUser`：分页结果组装已归位到 `EvaStatisticsQueryUseCase`，旧入口 `EvaStatisticsServiceImpl` 已退化为纯委托壳并移除对 `PaginationBizConvertor` 的依赖（`e97615e1` / `f4f3fcde`）。  
