@@ -397,7 +397,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
      - `edu.cuit.app.service.impl.course.ICourseServiceImpl`：写侧已闭环 `updateSingleCourse/allocateTeacher/deleteCourses/addNotExistCoursesDetails/addExistCoursesDetails`。
      - `edu.cuit.app.service.impl.course.IUserCourseServiceImpl`：写侧已闭环（`deleteSelfCourse/updateSelfCourse` 已入口用例归位；`importCourse` 已完成 `importCourseFile(...)` 调用点端口化）。
      - `edu.cuit.app.service.impl.course.ICourseDetailServiceImpl`：写侧入口 `updateCourse/updateCourses/delete/addCourse` 已完成调用点端口化/入口用例归位；该类的写侧簇可视为阶段性闭环（保持行为不变）。
-   - 下一步建议（保持行为不变；每次只改 1 个方法）：开始“旧 gateway 压扁为委托壳”的 S0——但请注意：`CourseUpdateGatewayImpl.addCourse` 目前是 TODO 空实现（返回 null），不适合作为样例。建议改为优先压扁 `CourseUpdateGatewayImpl.updateCourseType` 或其它仍存在“基础设施承载业务流程”的写侧方法（需先用 Serena 盘点/证伪其是否已委托 UseCase）。
+   - 下一步建议（保持行为不变；每次只改 1 个方法）：继续“旧 gateway 压扁为委托壳”的 S0，优先 `CourseUpdateGatewayImpl.addCourseType`（链路短、已有用例 `AddCourseTypeUseCase`；目标：旧 gateway 仅保留事务边界与委托调用）。
 
 4) 基础设施（S1 退场候选，保持行为不变）：`eva-infra` 仍存在多处旧 `*GatewayImpl`（需逐个用 Serena 证伪其剩余方法是否仅为委托壳；以及评估“归属到哪个 BC / shared-kernel / 继续保留在共享技术模块”）。
    - 候选清单（Serena 盘点，2026-01-02）：`ClassroomGatewayImpl/DepartmentGatewayImpl/LdapPersonGatewayImpl/LogGatewayImpl/SemesterGatewayImpl/MsgGatewayImpl/CourseDeleteGatewayImpl/CourseQueryGatewayImpl/CourseUpdateGatewayImpl/EvaConfigGatewayImpl/EvaDeleteGatewayImpl/EvaUpdateGatewayImpl/MenuQueryGatewayImpl/RoleQueryGatewayImpl/UserQueryGatewayImpl/UserUpdateGatewayImpl/RoleUpdateGatewayImpl/MenuUpdateGatewayImpl`。
