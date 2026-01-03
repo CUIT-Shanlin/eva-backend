@@ -396,8 +396,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
    - 入口清单（Serena 盘点，2026-01-02）：
      - `edu.cuit.app.service.impl.course.ICourseServiceImpl`：写侧已闭环 `updateSingleCourse/allocateTeacher/deleteCourses/addNotExistCoursesDetails/addExistCoursesDetails`。
      - `edu.cuit.app.service.impl.course.IUserCourseServiceImpl`：写侧已闭环（`deleteSelfCourse/updateSelfCourse` 已入口用例归位；`importCourse` 已完成 `importCourseFile(...)` 调用点端口化）。
-     - `edu.cuit.app.service.impl.course.ICourseDetailServiceImpl`：包含 `addCourse` 等写侧入口（`updateCourse/updateCourses/delete` 已完成调用点端口化/入口用例归位）；待逐簇归位；注意保持 AfterCommit/消息副作用顺序不变。
-   - 下一步建议（保持行为不变；每次只迁 1 个入口方法簇）：优先 `ICourseDetailServiceImpl.addCourse`。
+     - `edu.cuit.app.service.impl.course.ICourseDetailServiceImpl`：写侧入口 `updateCourse/updateCourses/delete/addCourse` 已完成调用点端口化/入口用例归位；该类的写侧簇可视为阶段性闭环（保持行为不变）。
+   - 下一步建议（保持行为不变；每次只改 1 个类/小点）：优先清理旧入口残留的未使用注入依赖（例如 `ICourseServiceImpl` 注入的 `CourseQueryGateway/CourseUpdateGateway`）。
 
 4) 基础设施（S1 退场候选，保持行为不变）：`eva-infra` 仍存在多处旧 `*GatewayImpl`（需逐个用 Serena 证伪其剩余方法是否仅为委托壳；以及评估“归属到哪个 BC / shared-kernel / 继续保留在共享技术模块”）。
    - 候选清单（Serena 盘点，2026-01-02）：`ClassroomGatewayImpl/DepartmentGatewayImpl/LdapPersonGatewayImpl/LogGatewayImpl/SemesterGatewayImpl/MsgGatewayImpl/CourseDeleteGatewayImpl/CourseQueryGatewayImpl/CourseUpdateGatewayImpl/EvaConfigGatewayImpl/EvaDeleteGatewayImpl/EvaUpdateGatewayImpl/MenuQueryGatewayImpl/RoleQueryGatewayImpl/UserQueryGatewayImpl/UserUpdateGatewayImpl/RoleUpdateGatewayImpl/MenuUpdateGatewayImpl`。
@@ -527,7 +527,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 依赖收敛准备（事件载荷下沉到 contract）：`CourseTeacherTaskMessagesEvent` → `bc-messaging-contract`（保持 `package` 不变；保持行为不变；`12f43323`）。
   - ✅ 依赖收敛（应用侧编译期依赖面收窄）：`eva-app` → `bc-messaging-contract`（替换 `eva-app` 对 `bc-messaging` 的编译期依赖；保持行为不变；`d3aeb3ab`）。
   - 下一步建议（依赖收敛后半段，保持行为不变）：✅ 已完成：在 `start/pom.xml` 补齐 `bc-messaging` 的 `runtime` 依赖（保持行为不变；落地：`f23254ec`）；✅ 已完成：移除 `eva-infra/pom.xml` 中 `bc-messaging` 的 `runtime` 依赖，把“运行时装配责任”上推到组合根 `start`（保持行为不变；落地：`507f95b2`）。后置建议：用 Serena 再次证伪 `eva-infra` 不再需要 `bc-messaging` 作为运行时兜底依赖。
-- 下一步小簇建议（bc-course 写侧，方向 A → B，保持行为不变）：读侧已覆盖 `courseNum/courseTimeDetail/getDate/getCourseDetail/getTimeCourse`，写侧已覆盖 `allocateTeacher/deleteCourses/updateSingleCourse/addNotExistCoursesDetails/addExistCoursesDetails/deleteSelfCourse/updateSelfCourse/importCourse/updateCourse/updateCourses/delete`（见 4.2）。下一步建议：继续写侧入口归位，优先 `ICourseDetailServiceImpl.addCourse`（保持行为不变；每次只迁 1 个入口方法簇）。
+- 下一步小簇建议（bc-course 写侧，方向 A → B，保持行为不变）：读侧已覆盖 `courseNum/courseTimeDetail/getDate/getCourseDetail/getTimeCourse`，写侧已覆盖 `allocateTeacher/deleteCourses/updateSingleCourse/addNotExistCoursesDetails/addExistCoursesDetails/deleteSelfCourse/updateSelfCourse/importCourse/updateCourse/updateCourses/delete/addCourse`（见 4.2）。下一步建议：进入 S0 收尾，优先清理旧入口残留的未使用注入依赖（保持行为不变；每次只改 1 个类）。
 - 中长期建议（S1，保持行为不变）：**`eva-*` 技术切片退场/整合到各 BC**。统一口径与前置条件见 `DDD_REFACTOR_PLAN.md` 10.5。建议节奏：先把入口方法簇按 BC 迁完并让旧入口/旧 gateway 退化为委托壳（A→B），再做装配与 Maven/目录结构层面的“模块移除/折叠”类改动，避免一次性大迁移导致回滚困难与副作用顺序漂移。
 
 如果继续按“写侧优先”的策略推进，下一批候选（高 → 低）建议是：
