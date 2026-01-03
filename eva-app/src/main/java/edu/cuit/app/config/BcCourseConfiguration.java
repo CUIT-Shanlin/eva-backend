@@ -11,6 +11,7 @@ import edu.cuit.bc.course.application.port.CourseImportedQueryPort;
 import edu.cuit.bc.course.application.port.CourseScheduleQueryPort;
 import edu.cuit.bc.course.application.port.CourseTemplateIdQueryPort;
 import edu.cuit.bc.course.application.port.CourseDetailQueryPort;
+import edu.cuit.bc.course.application.port.DeleteCoursePort;
 import edu.cuit.bc.course.application.port.DeleteSelfCoursePort;
 import edu.cuit.bc.course.application.port.TimeCourseQueryPort;
 import edu.cuit.bc.course.application.port.AllocateTeacherPort;
@@ -54,6 +55,7 @@ import edu.cuit.bc.course.application.usecase.UpdateSelfCourseUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateSingleCourseEntryUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateSingleCourseUseCase;
 import edu.cuit.bc.course.application.usecase.DeleteSelfCourseEntryUseCase;
+import edu.cuit.bc.course.application.usecase.DeleteCourseEntryUseCase;
 import edu.cuit.bc.course.application.port.UpdateSelfCoursePort;
 import edu.cuit.bc.course.application.usecase.ImportCourseFileEntryUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateCourseEntryUseCase;
@@ -153,6 +155,11 @@ public class BcCourseConfiguration {
     @Bean
     public UpdateCoursesEntryUseCase updateCoursesEntryUseCase(ChangeCourseTemplateUseCase changeCourseTemplateUseCase) {
         return new UpdateCoursesEntryUseCase(changeCourseTemplateUseCase);
+    }
+
+    @Bean
+    public DeleteCourseEntryUseCase deleteCourseEntryUseCase(DeleteCoursePort port) {
+        return new DeleteCourseEntryUseCase(port);
     }
 
     @Bean

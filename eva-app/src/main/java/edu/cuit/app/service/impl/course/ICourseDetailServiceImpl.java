@@ -8,6 +8,7 @@ import edu.cuit.app.event.AfterCommitEventPublisher;
 import edu.cuit.bc.course.application.model.ChangeSingleCourseTemplateCommand;
 import edu.cuit.bc.course.application.usecase.ChangeCourseTemplateUseCase;
 import edu.cuit.bc.course.application.usecase.ChangeSingleCourseTemplateUseCase;
+import edu.cuit.bc.course.application.usecase.DeleteCourseEntryUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateCourseEntryUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateCoursesEntryUseCase;
 import edu.cuit.bc.course.domain.ChangeCourseTemplateException;
@@ -31,7 +32,6 @@ import edu.cuit.client.dto.query.condition.CourseConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.course.CourseEntity;
 import edu.cuit.domain.entity.course.SubjectEntity;
-import edu.cuit.domain.gateway.course.CourseDeleteGateway;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.domain.gateway.course.CourseUpdateGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
@@ -49,7 +49,6 @@ import java.util.*;
 public class ICourseDetailServiceImpl implements ICourseDetailService {
     private final CourseQueryGateway courseQueryGateway;
     private final CourseUpdateGateway courseUpdateGateway;
-    private final CourseDeleteGateway courseDeleteGateway;
     private final UserQueryGateway userQueryGateway;
     private final CourseBizConvertor courseBizConvertor;
     private final PaginationBizConvertor pagenConvertor;
@@ -58,6 +57,7 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     private final AfterCommitEventPublisher afterCommitEventPublisher;
     private final UpdateCourseEntryUseCase updateCourseEntryUseCase;
     private final UpdateCoursesEntryUseCase updateCoursesEntryUseCase;
+    private final DeleteCourseEntryUseCase deleteCourseEntryUseCase;
     @CheckSemId
     @Override
     public PaginationQueryResultCO<CourseModelCO> pageCoursesInfo(Integer semId, PagingQuery<CourseConditionalQuery> courseQuery) {
@@ -148,7 +148,7 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     @CheckSemId
     @Override
     public void delete(Integer semId, Integer id) {
-        Map<String, Map<Integer,Integer>> map = courseDeleteGateway.deleteCourse(semId, id);
+        Map<String, Map<Integer,Integer>> map = deleteCourseEntryUseCase.deleteCourse(semId, id);
         Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
         Integer operatorUserId = userId.orElseThrow(() -> new QueryException("请先登录"));
         afterCommitEventPublisher.publishAfterCommit(new CourseOperationSideEffectsEvent(operatorUserId, map));
