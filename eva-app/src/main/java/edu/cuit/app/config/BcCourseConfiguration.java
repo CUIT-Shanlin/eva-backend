@@ -1,6 +1,7 @@
 package edu.cuit.app.config;
 
 import edu.cuit.bc.course.application.port.AddCourseTypeRepository;
+import edu.cuit.bc.course.application.port.AddCoursePort;
 import edu.cuit.bc.course.application.port.AddExistCoursesDetailsRepository;
 import edu.cuit.bc.course.application.port.AddExistCoursesDetailsPort;
 import edu.cuit.bc.course.application.port.AddNotExistCoursesDetailsPort;
@@ -28,6 +29,7 @@ import edu.cuit.bc.course.application.port.DeleteCoursesRepository;
 import edu.cuit.bc.course.application.port.DeleteCourseTypeRepository;
 import edu.cuit.bc.course.application.port.UpdateSingleCoursePort;
 import edu.cuit.bc.course.application.usecase.AddCourseTypeUseCase;
+import edu.cuit.bc.course.application.usecase.AddCourseEntryUseCase;
 import edu.cuit.bc.course.application.usecase.AddExistCoursesDetailsEntryUseCase;
 import edu.cuit.bc.course.application.usecase.AddExistCoursesDetailsUseCase;
 import edu.cuit.bc.course.application.usecase.AddNotExistCoursesDetailsEntryUseCase;
@@ -160,6 +162,11 @@ public class BcCourseConfiguration {
     @Bean
     public DeleteCourseEntryUseCase deleteCourseEntryUseCase(DeleteCoursePort port) {
         return new DeleteCourseEntryUseCase(port);
+    }
+
+    @Bean
+    public AddCourseEntryUseCase addCourseEntryUseCase(AddCoursePort port) {
+        return new AddCourseEntryUseCase(port);
     }
 
     @Bean
