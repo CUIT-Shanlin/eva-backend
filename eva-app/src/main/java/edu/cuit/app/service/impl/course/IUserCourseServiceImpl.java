@@ -14,6 +14,7 @@ import edu.cuit.app.service.operate.course.update.FileImportExec;
 import edu.cuit.bc.course.application.port.CourseExcelResolvePort;
 import edu.cuit.bc.course.application.usecase.DeleteSelfCourseEntryUseCase;
 import edu.cuit.bc.course.application.usecase.ImportCourseFileEntryUseCase;
+import edu.cuit.bc.course.application.usecase.IsCourseImportedUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateSelfCourseEntryUseCase;
 import edu.cuit.bc.messaging.application.event.CourseOperationMessageMode;
 import edu.cuit.bc.messaging.application.event.CourseOperationSideEffectsEvent;
@@ -25,7 +26,6 @@ import edu.cuit.client.dto.clientobject.course.*;
 import edu.cuit.client.dto.data.Term;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
-import edu.cuit.domain.gateway.course.CourseUpdateGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
@@ -40,7 +40,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class IUserCourseServiceImpl implements IUserCourseService {
     private final CourseQueryGateway courseQueryGateway;
-    private final CourseUpdateGateway courseUpdateGateway;
     private final CourseBizConvertor courseConvertor;
     private final UserCourseDetailQueryExec userCourseDetailQueryExec;
     private final UserQueryGateway userQueryGateway;
@@ -51,6 +50,7 @@ public class IUserCourseServiceImpl implements IUserCourseService {
     private final DeleteSelfCourseEntryUseCase deleteSelfCourseEntryUseCase;
     private final UpdateSelfCourseEntryUseCase updateSelfCourseEntryUseCase;
     private final ImportCourseFileEntryUseCase importCourseFileEntryUseCase;
+    private final IsCourseImportedUseCase isCourseImportedUseCase;
 
 
     @CheckSemId
@@ -162,8 +162,7 @@ public class IUserCourseServiceImpl implements IUserCourseService {
 
     @Override
     public Boolean isImported(Integer type, Term term) {
-
-        return courseUpdateGateway.isImported(type, term);
+        return isCourseImportedUseCase.execute(type, term);
     }
 
     @Override
