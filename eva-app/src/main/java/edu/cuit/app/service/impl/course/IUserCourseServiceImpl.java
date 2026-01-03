@@ -9,8 +9,6 @@ import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.course.CourseBizConvertor;
 import edu.cuit.app.event.AfterCommitEventPublisher;
 
-import edu.cuit.app.service.impl.MsgServiceImpl;
-import edu.cuit.app.service.operate.course.MsgResult;
 import edu.cuit.app.service.operate.course.query.UserCourseDetailQueryExec;
 import edu.cuit.app.service.operate.course.update.FileImportExec;
 import edu.cuit.bc.course.application.port.CourseExcelResolvePort;
@@ -26,7 +24,6 @@ import edu.cuit.client.dto.clientobject.SimpleSubjectResultCO;
 import edu.cuit.client.dto.clientobject.course.*;
 import edu.cuit.client.dto.data.Term;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
-import edu.cuit.domain.gateway.course.CourseDeleteGateway;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.domain.gateway.course.CourseUpdateGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
@@ -44,12 +41,9 @@ import java.util.stream.Collectors;
 public class IUserCourseServiceImpl implements IUserCourseService {
     private final CourseQueryGateway courseQueryGateway;
     private final CourseUpdateGateway courseUpdateGateway;
-    private final CourseDeleteGateway courseDeleteGateway;
     private final CourseBizConvertor courseConvertor;
     private final UserCourseDetailQueryExec userCourseDetailQueryExec;
-    private final MsgServiceImpl msgService;
     private final UserQueryGateway userQueryGateway;
-    private final MsgResult msgResult;
     private final AfterCommitEventPublisher afterCommitEventPublisher;
 
     private final ObjectMapper objectMapper;
