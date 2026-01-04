@@ -314,6 +314,22 @@
 > 阶段性策略微调（2025-12-29，持续有效）：允许“微调”（仅结构性重构；不改业务语义；缓存/日志/异常文案/副作用顺序完全不变）。在“评教统计导出基础设施归位”与“课程课表解析归位/端口化”闭环后，`bc-messaging` 的“归位 + 依赖收敛”已阶段性闭环（见 0.9）；当前主线切换为 **bc-course 写侧入口归位继续（方向 A → B） + S0（旧 gateway 压扁为委托壳）**，仍按“小步可回滚 + 每步闭环”推进。
 >
 
+- 当前重构进度汇报（截至当前 `HEAD`，用于“还没完成什么/下一步怎么排”）：
+  - ✅ **bc-course 写侧（方向 A → B）**：入口用例归位已覆盖主干簇（见 0.9）；当前聚焦 **S0（旧 gateway 压扁为委托壳）**，已压扁 `CourseUpdateGatewayImpl.assignTeacher/updateCourseType/addCourseType/updateCoursesType`，以及 `CourseDeleteGatewayImpl.deleteCourseType/deleteCourse/deleteCourses/deleteSelfCourse`（见 0.9）。
+  - ✅ **bc-evaluation 写侧**：发布评教任务、删除评教记录/模板等主链路已收敛；统计导出基础设施已阶段性归位（见 0.9/10.2）。
+  - ✅ **bc-messaging**：组合根/监听器/端口适配器归位与“依赖收敛关键环节”已阶段性闭环（见 0.9/10.3）；后置仅做结构折叠与依赖证伪（保持行为不变）。
+  - ✅ **`eva-client` 退场**：已从 reactor 移除并从仓库删除；跨 BC 通用对象已开始沉淀 `shared-kernel`（见 10.5）。
+  - ⏳ **仍未完成（核心阻塞项）**：
+    1) `eva-infra` 仍残留大量旧 `*GatewayImpl` 未退化为委托壳/未归位到对应 BC（详见 `docs/DDD_REFACTOR_BACKLOG.md` 4.3）。
+    2) `eva-app` 仍存在大量业务入口实现（`*ServiceImpl`），尚未全部退化为“仅 `@CheckSemId` / 登录态解析 / 委托 UseCase”的壳。
+    3) `eva-adapter` 的 Controller 仍需逐步收敛为“纯 HTTP 协议适配”（避免直接依赖基础设施实现细节）。
+
+- Q：什么时候可以把 `eva-*` 技术切片“全部整合进各业务 bc-* 模块”？
+  - A：不要用固定日期衡量，按 **可验证的 DoD**（见 `DDD_REFACTOR_PLAN.md` 10.5）：
+    1) **可以开始整合（进入 S1）**：入口方法簇按 BC 迁移已持续推进且可证据化回滚；核心 BC 的 S0 结构折叠已完成或接近完成；组合根装配责任清晰（避免同一提交“迁入口 + 迁装配”）。
+    2) **可以移除 `eva-app/eva-adapter`**：`eva-app` 不再包含任何业务入口实现（只剩委托壳/装配胶水），`eva-adapter` 的 Controller 只做协议适配与参数校验且不直耦 `eva-infra` 实现。
+    3) **可以移除 `eva-infra`（或大幅缩减）**：旧 `*GatewayImpl` 已全部退化为委托壳或迁入各 BC 的 `infrastructure`（或过渡落点）；跨 BC 共享的 `eva-infra-dal/eva-infra-shared` 可保留为共享技术模块（不建议硬塞进单一 BC）。
+
 - 本次会话最新闭环（更新至当前 `HEAD`，便于续接）：  
   1) ✅ bc-course（课程）写侧入口用例归位继续（方向 A → B）：`ICourseDetailServiceImpl.updateCourses/delete/addCourse` 已完成入口用例归位/调用点端口化（保持 `@CheckSemId`/事务边界/异常文案/副作用顺序完全不变；细节见 0.9）。
   2) ✅ bc-course（课程，S0 收尾：依赖收窄）：已清理旧入口 `ICourseServiceImpl` / `IUserCourseServiceImpl` 中可证实“仅声明无调用点”的残留注入依赖，并将 `isImported` 的依赖从 `CourseUpdateGateway` 收敛为直接依赖 `IsCourseImportedUseCase`（保持行为不变；细节见 0.9）。
