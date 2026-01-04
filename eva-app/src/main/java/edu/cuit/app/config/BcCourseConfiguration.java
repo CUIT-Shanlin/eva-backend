@@ -44,6 +44,7 @@ import edu.cuit.bc.course.application.usecase.DeleteCoursesUseCase;
 import edu.cuit.bc.course.application.usecase.DeleteCourseTypeUseCase;
 import edu.cuit.bc.course.application.usecase.DeleteCourseTypeEntryUseCase;
 import edu.cuit.bc.course.application.usecase.DeleteCourseGatewayEntryUseCase;
+import edu.cuit.bc.course.application.usecase.DeleteCoursesGatewayEntryUseCase;
 import edu.cuit.bc.course.application.usecase.CourseQueryUseCase;
 import edu.cuit.bc.course.application.usecase.CourseDetailQueryUseCase;
 import edu.cuit.bc.course.application.usecase.TimeCourseQueryUseCase;
@@ -242,6 +243,11 @@ public class BcCourseConfiguration {
     @Bean
     public DeleteCoursesUseCase deleteCoursesUseCase(DeleteCoursesRepository repository) {
         return new DeleteCoursesUseCase(repository);
+    }
+
+    @Bean
+    public DeleteCoursesGatewayEntryUseCase deleteCoursesGatewayEntryUseCase(DeleteCoursesUseCase useCase) {
+        return new DeleteCoursesGatewayEntryUseCase(useCase);
     }
 
     @Bean
