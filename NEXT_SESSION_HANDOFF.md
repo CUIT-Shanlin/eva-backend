@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-01-04（本次会话）**
+- ✅ **bc-course（课程，S0：旧 gateway 压扁为委托壳）**：压扁 `CourseUpdateGatewayImpl.updateCourse`：新增 `UpdateCourseGatewayEntryUseCase`，旧 gateway 不再构造 Command，仅保留事务边界 + 异常转换 + 委托调用（Serena：调用点为 `UpdateCoursePortImpl.updateCourse`；异常文案/副作用顺序完全不变；最小回归通过；落地提交：`c31df92c`）。
 - ✅ **bc-course（课程，S0：旧 gateway 压扁为委托壳）**：进一步压扁 `CourseDeleteGatewayImpl.deleteSelfCourse`：新增 `DeleteSelfCourseGatewayEntryUseCase` 并让旧 gateway 仅保留事务边界与委托调用（不在基础设施层构造命令/编排流程；保持行为不变；最小回归通过；落地提交：`c0268b14`）。
 - ✅ **bc-course（课程，S0：旧 gateway 压扁为委托壳）**：进一步压扁 `CourseDeleteGatewayImpl.deleteCourses`：新增 `DeleteCoursesGatewayEntryUseCase` 并让旧 gateway 仅保留事务边界与委托调用（不在基础设施层构造命令/编排流程；保持行为不变；最小回归通过；落地提交：`6428e685`）。
 - ✅ **bc-course（课程，S0：旧 gateway 压扁为委托壳）**：进一步压扁 `CourseDeleteGatewayImpl.deleteCourse`：新增 `DeleteCourseGatewayEntryUseCase` 并让旧 gateway 仅保留事务边界与委托调用（不在基础设施层构造命令/编排流程；保持行为不变；最小回归通过；落地提交：`dfd977fe`）。
@@ -341,7 +342,7 @@
   7) ✅ bc-course（课程，S0：旧 gateway 压扁为委托壳）：已进一步压扁 `CourseDeleteGatewayImpl.deleteCourses`（Serena：调用点为 `DeleteCoursesPortImpl.deleteCourses`；旧 gateway 仅保留事务边界与委托调用；保持行为不变；细节见 0.9）。
   8) ✅ bc-course（课程，S0：旧 gateway 压扁为委托壳）：已进一步压扁 `CourseDeleteGatewayImpl.deleteSelfCourse`（Serena：调用点为 `DeleteSelfCoursePortImpl.deleteSelfCourse`；旧 gateway 仅保留事务边界与委托调用；保持行为不变；细节见 0.9）。
   9) ✅ bc-course（课程，S0：旧 gateway 压扁为委托壳）：已压扁 `CourseUpdateGatewayImpl.assignTeacher`（Serena：调用点为 `AllocateTeacherPortImpl.allocateTeacher`；旧 gateway 不再构造命令；保持事务边界/异常文案/副作用顺序完全不变；细节见 0.9）。
-  10) 下一步（保持行为不变；每次只改 1 个方法）：继续压扁 `CourseUpdateGatewayImpl.updateCourse`（Serena：调用点为 `UpdateCoursePortImpl.updateCourse`；目标：旧 gateway 不再构造命令，逐步退化为委托壳；保持行为不变）。
+  10) 下一步（保持行为不变；每次只改 1 个方法）：继续压扁 `CourseUpdateGatewayImpl.updateSingleCourse`（Serena：调用点为 `UpdateSingleCoursePortImpl.updateSingleCourse`；目标：旧 gateway 不再构造 Command，逐步退化为委托壳；保持行为不变）。
   11) 避坑（保持行为不变）：不要选 `CourseUpdateGatewayImpl.addCourse` 作为“压扁样例”（当前为 TODO 空实现 `return null`，不适合作为行为对照链路）。
 
 - 历史闭环（2025-12-30，便于续接；更早细节仍保留如下）：  
@@ -504,7 +505,7 @@
 
 本会话目标（按顺序执行；每步闭环=Serena→最小回归→提交→三文档同步；保持行为不变）：
 
-1) 🎯 当前主线（bc-course，S0：旧 gateway 压扁为委托壳，保持行为不变）：继续压扁 `CourseUpdateGatewayImpl.updateCourse`（Serena：调用点为 `UpdateCoursePortImpl.updateCourse`；目标：旧 gateway 不再构造命令；事务边界/异常文案/副作用顺序完全不变；每次只改 1 个方法）。
+1) 🎯 当前主线（bc-course，S0：旧 gateway 压扁为委托壳，保持行为不变）：继续压扁 `CourseUpdateGatewayImpl.updateSingleCourse`（Serena：调用点为 `UpdateSingleCoursePortImpl.updateSingleCourse`；目标：旧 gateway 不再构造 Command；事务边界/异常文案/副作用顺序完全不变；每次只改 1 个方法）。
 
 0) ✅ 已闭环（避免重复劳动）：
    - 评教统计导出基础设施归位：装饰器/工厂归位 + `EvaStatisticsExportPort` 装配切换 + `eva-app` 移除 POI Maven 直依赖（见 0.9）。
@@ -519,7 +520,7 @@
    - bc-messaging（消息域）：应用侧事件载荷已下沉到 `bc-messaging-contract`：`CourseOperationMessageMode/CourseOperationSideEffectsEvent/CourseTeacherTaskMessagesEvent`（均保持 `package edu.cuit.bc.messaging.application.event` 不变；见 0.9）。
    - bc-messaging（消息域）：依赖收敛阶段性闭环：`eva-app` 已将对 `bc-messaging` 的编译期依赖收敛为仅依赖 `bc-messaging-contract`（仅用于事件载荷类型；见 0.9）。
 
-1) ✅ **bc-course（课程）写侧入口用例归位继续（方向 A → B）**：`ICourseServiceImpl.updateSingleCourse/addNotExistCoursesDetails/addExistCoursesDetails` 与 `IUserCourseServiceImpl.deleteSelfCourse/updateSelfCourse/importCourse` 已闭环，且 `ICourseDetailServiceImpl.updateCourse/updateCourses/delete/addCourse` 已完成入口用例归位/调用点端口化（见 0.9）。当前主线：**S0（旧 gateway 压扁为委托壳）**，已完成压扁 `CourseUpdateGatewayImpl.updateCourseType/addCourseType/updateCoursesType`，并已进一步压扁 `CourseDeleteGatewayImpl.deleteCourseType/deleteCourse/deleteCourses/deleteSelfCourse`；且已压扁 `CourseUpdateGatewayImpl.assignTeacher`（见 0.9）。下一步建议：如需继续推进 bc-course 的 S0（旧 gateway 压扁为委托壳），建议继续压扁 `CourseUpdateGatewayImpl.updateCourse`（Serena：调用点为 `UpdateCoursePortImpl.updateCourse`；保持事务边界/异常文案/副作用顺序完全不变；每次只改 1 个方法）。避坑：不要选 `CourseUpdateGatewayImpl.addCourse`（TODO 空实现）作为“压扁样例”。
+1) ✅ **bc-course（课程）写侧入口用例归位继续（方向 A → B）**：`ICourseServiceImpl.updateSingleCourse/addNotExistCoursesDetails/addExistCoursesDetails` 与 `IUserCourseServiceImpl.deleteSelfCourse/updateSelfCourse/importCourse` 已闭环，且 `ICourseDetailServiceImpl.updateCourse/updateCourses/delete/addCourse` 已完成入口用例归位/调用点端口化（见 0.9）。当前主线：**S0（旧 gateway 压扁为委托壳）**，已完成压扁 `CourseUpdateGatewayImpl.updateCourseType/addCourseType/updateCoursesType`，并已进一步压扁 `CourseDeleteGatewayImpl.deleteCourseType/deleteCourse/deleteCourses/deleteSelfCourse`；且已压扁 `CourseUpdateGatewayImpl.assignTeacher`（见 0.9），并已压扁 `CourseUpdateGatewayImpl.updateCourse`（落地：`c31df92c`）。下一步建议：如需继续推进 bc-course 的 S0（旧 gateway 压扁为委托壳），建议继续压扁 `CourseUpdateGatewayImpl.updateSingleCourse`（Serena：调用点为 `UpdateSingleCoursePortImpl.updateSingleCourse`；保持事务边界/异常文案/副作用顺序完全不变；每次只改 1 个方法）。避坑：不要选 `CourseUpdateGatewayImpl.addCourse`（TODO 空实现）作为“压扁样例”。
 
 2) **bc-messaging（依赖收敛）**：✅ 已闭环（见 0.9）。本会话不继续；后置如需再推进，优先做结构折叠（S0，仅搬运/依赖收敛，保持行为不变）。
 
@@ -1382,7 +1383,7 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
    - 已完成事件化副作用 + 主写逻辑收敛到 `bc-course`（保持行为不变）。
 
 2) ✅ **已完成：压扁旧 `CourseUpdateGatewayImpl.updateCourse()`**
-   - 已新增 `UpdateCourseInfoUseCase` + infra 端口实现，旧 gateway 退化委托壳（保持行为不变）。
+   - 已新增 `UpdateCourseGatewayEntryUseCase`，旧 gateway 不再构造 Command，仅保留事务边界 + 异常转换 + 委托调用（保持行为不变；落地：`c31df92c`）。
 
 3) ✅ **已完成：课程类型修改链路收敛**
    - `updateCourseType/updateCoursesType` 已收敛到 `bc-course`。
