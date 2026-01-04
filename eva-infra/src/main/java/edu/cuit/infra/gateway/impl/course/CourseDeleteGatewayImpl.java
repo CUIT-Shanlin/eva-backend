@@ -1,12 +1,9 @@
 package edu.cuit.infra.gateway.impl.course;
 
-import edu.cuit.bc.course.application.model.DeleteCourseCommand;
-import edu.cuit.bc.course.application.model.DeleteCoursesCommand;
-import edu.cuit.bc.course.application.model.DeleteSelfCourseCommand;
 import edu.cuit.bc.course.application.usecase.DeleteCourseGatewayEntryUseCase;
 import edu.cuit.bc.course.application.usecase.DeleteCoursesGatewayEntryUseCase;
 import edu.cuit.bc.course.application.usecase.DeleteCourseTypeEntryUseCase;
-import edu.cuit.bc.course.application.usecase.DeleteSelfCourseUseCase;
+import edu.cuit.bc.course.application.usecase.DeleteSelfCourseGatewayEntryUseCase;
 import edu.cuit.client.dto.data.course.CoursePeriod;
 import edu.cuit.domain.gateway.course.CourseDeleteGateway;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +16,7 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
-    private final DeleteSelfCourseUseCase deleteSelfCourseUseCase;
+    private final DeleteSelfCourseGatewayEntryUseCase deleteSelfCourseGatewayEntryUseCase;
     private final DeleteCoursesGatewayEntryUseCase deleteCoursesGatewayEntryUseCase;
     private final DeleteCourseGatewayEntryUseCase deleteCourseGatewayEntryUseCase;
     private final DeleteCourseTypeEntryUseCase deleteCourseTypeEntryUseCase;
@@ -71,7 +68,7 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
     @Transactional
     public Map<String, Map<Integer, Integer>> deleteSelfCourse(String userName, Integer courseId) {
         // 历史路径：收敛到 bc-course 用例，基础设施层避免继续堆“自助删课”业务流程（行为不变）
-        return deleteSelfCourseUseCase.execute(new DeleteSelfCourseCommand(userName, courseId));
+        return deleteSelfCourseGatewayEntryUseCase.deleteSelfCourse(userName, courseId);
     }
 
 }
