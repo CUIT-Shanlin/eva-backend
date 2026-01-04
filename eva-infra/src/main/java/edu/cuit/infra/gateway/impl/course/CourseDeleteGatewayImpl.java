@@ -1,10 +1,9 @@
 package edu.cuit.infra.gateway.impl.course;
 
 import edu.cuit.bc.course.application.model.DeleteCourseCommand;
-import edu.cuit.bc.course.application.model.DeleteCourseTypeCommand;
 import edu.cuit.bc.course.application.model.DeleteCoursesCommand;
 import edu.cuit.bc.course.application.model.DeleteSelfCourseCommand;
-import edu.cuit.bc.course.application.usecase.DeleteCourseTypeUseCase;
+import edu.cuit.bc.course.application.usecase.DeleteCourseTypeEntryUseCase;
 import edu.cuit.bc.course.application.usecase.DeleteCourseUseCase;
 import edu.cuit.bc.course.application.usecase.DeleteCoursesUseCase;
 import edu.cuit.bc.course.application.usecase.DeleteSelfCourseUseCase;
@@ -23,7 +22,7 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
     private final DeleteSelfCourseUseCase deleteSelfCourseUseCase;
     private final DeleteCoursesUseCase deleteCoursesUseCase;
     private final DeleteCourseUseCase deleteCourseUseCase;
-    private final DeleteCourseTypeUseCase deleteCourseTypeUseCase;
+    private final DeleteCourseTypeEntryUseCase deleteCourseTypeEntryUseCase;
 
 
     /**
@@ -64,7 +63,7 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
     @Transactional
     public Void deleteCourseType(List<Integer> ids) {
         // 历史路径：收敛到 bc-course 用例，基础设施层避免继续堆“删课程类型”业务流程（行为不变）
-        deleteCourseTypeUseCase.execute(new DeleteCourseTypeCommand(ids));
+        deleteCourseTypeEntryUseCase.deleteCourseType(ids);
         return null;
     }
 
