@@ -12,8 +12,7 @@ import edu.cuit.domain.gateway.course.CourseUpdateGateway;
 import edu.cuit.bc.course.application.model.ChangeCourseTemplateCommand;
 import edu.cuit.bc.course.application.usecase.ChangeCourseTemplateUseCase;
 import edu.cuit.bc.course.domain.ChangeCourseTemplateException;
-import edu.cuit.bc.course.application.model.AssignEvaTeachersCommand;
-import edu.cuit.bc.course.application.usecase.AssignEvaTeachersUseCase;
+import edu.cuit.bc.course.application.usecase.AssignTeacherGatewayEntryUseCase;
 import edu.cuit.bc.course.domain.AssignEvaTeachersException;
 import edu.cuit.bc.course.application.model.ImportCourseFileCommand;
 import edu.cuit.bc.course.application.usecase.ImportCourseFileUseCase;
@@ -46,7 +45,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     private final ChangeCourseTemplateUseCase changeCourseTemplateUseCase;
-    private final AssignEvaTeachersUseCase assignEvaTeachersUseCase;
+    private final AssignTeacherGatewayEntryUseCase assignTeacherGatewayEntryUseCase;
     private final UpdateSingleCourseUseCase updateSingleCourseUseCase;
     private final ImportCourseFileUseCase importCourseFileUseCase;
     private final UpdateCourseInfoUseCase updateCourseInfoUseCase;
@@ -146,11 +145,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     public Map<String,Map<Integer,Integer>> assignTeacher(Integer semId, AlignTeacherCmd alignTeacherCmd) {
         // 历史路径：收敛到 bc-course 用例，避免基础设施层继续堆业务规则
         try {
-            return assignEvaTeachersUseCase.execute(new AssignEvaTeachersCommand(
-                    semId,
-                    alignTeacherCmd.getId(),
-                    alignTeacherCmd.getEvaTeacherIdList()
-            ));
+            return assignTeacherGatewayEntryUseCase.assignTeacher(semId, alignTeacherCmd);
         } catch (AssignEvaTeachersException e) {
             throw new UpdateException(e.getMessage());
         }
