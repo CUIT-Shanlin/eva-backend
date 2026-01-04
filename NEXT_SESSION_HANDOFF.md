@@ -28,6 +28,7 @@
 - ✅ **bc-course（课程，S0：旧 gateway 压扁为委托壳）**：进一步压扁 `CourseDeleteGatewayImpl.deleteCourseType`：新增 `DeleteCourseTypeEntryUseCase` 并让旧 gateway 仅保留事务边界与委托调用（不在基础设施层构造命令/编排流程；保持行为不变；最小回归通过；落地提交：`cf747b9c`）。
 - ✅ **bc-course（课程，S0：旧 gateway 压扁为委托壳）**：压扁 `CourseUpdateGatewayImpl.updateCoursesType`：新增 `UpdateCoursesTypeEntryUseCase` 并让旧 gateway 仅保留事务边界与委托调用（不在基础设施层构造命令/编排流程；保持行为不变；最小回归通过；落地提交：`709dc5b6`）。
 - ✅ **bc-course（课程，S0：旧 gateway 压扁为委托壳）**：压扁 `CourseUpdateGatewayImpl.assignTeacher`：新增 `AssignTeacherGatewayEntryUseCase`，并让旧 gateway 不再构造命令（旧 gateway 仍保留事务边界与异常转换；异常文案/副作用顺序完全不变；最小回归通过；落地提交：`0b85c612`）。
+- ✅ **docs（交接与计划完善，保持行为不变）**：补齐“当前重构进度汇报 / 未完成清单 / `eva-*` 退场 DoD / 下一步主线口径（bc-course S0）”，并更新 0.11 新会话提示词以便下个会话直接续接（最小回归通过；落地提交以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准）。
 
 **2026-01-02（本次会话）**
 - ✅ **评教用户读侧（D1：用例归位深化—去评教/被评教记录）**：新增 `UserEvaQueryUseCase` 并将旧入口 `UserEvaServiceImpl.getEvaLogInfo/getEvaLoggingInfo` 退化为纯委托壳（旧入口仍保留 `@CheckSemId` 与当前用户解析：`StpUtil` + `userQueryGateway`；异常文案/副作用顺序不变；保持行为不变；最小回归通过；落地提交：`96e65019`）。
@@ -502,6 +503,8 @@
 5) （新增重点）`DDD_REFACTOR_PLAN.md` 的 10.5 与 `docs/DDD_REFACTOR_BACKLOG.md` 的 4.3（`eva-*` 退场路线 + 写侧入口/旧网关清单）。
 
 本会话目标（按顺序执行；每步闭环=Serena→最小回归→提交→三文档同步；保持行为不变）：
+
+1) 🎯 当前主线（bc-course，S0：旧 gateway 压扁为委托壳，保持行为不变）：继续压扁 `CourseUpdateGatewayImpl.updateCourse`（Serena：调用点为 `UpdateCoursePortImpl.updateCourse`；目标：旧 gateway 不再构造命令；事务边界/异常文案/副作用顺序完全不变；每次只改 1 个方法）。
 
 0) ✅ 已闭环（避免重复劳动）：
    - 评教统计导出基础设施归位：装饰器/工厂归位 + `EvaStatisticsExportPort` 装配切换 + `eva-app` 移除 POI Maven 直依赖（见 0.9）。
