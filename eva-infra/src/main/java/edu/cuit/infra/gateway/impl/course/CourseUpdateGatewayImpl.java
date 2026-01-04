@@ -22,9 +22,8 @@ import edu.cuit.bc.course.application.usecase.IsCourseImportedUseCase;
 import edu.cuit.bc.course.application.model.UpdateCourseInfoCommand;
 import edu.cuit.bc.course.application.usecase.UpdateCourseInfoUseCase;
 import edu.cuit.bc.course.domain.UpdateCourseInfoException;
-import edu.cuit.bc.course.application.model.UpdateCoursesTypeCommand;
 import edu.cuit.bc.course.application.usecase.UpdateCourseTypeEntryUseCase;
-import edu.cuit.bc.course.application.usecase.UpdateCoursesTypeUseCase;
+import edu.cuit.bc.course.application.usecase.UpdateCoursesTypeEntryUseCase;
 import edu.cuit.bc.course.application.model.UpdateSingleCourseCommand;
 import edu.cuit.bc.course.application.usecase.UpdateSingleCourseUseCase;
 import edu.cuit.bc.course.domain.UpdateSingleCourseException;
@@ -52,7 +51,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     private final ImportCourseFileUseCase importCourseFileUseCase;
     private final UpdateCourseInfoUseCase updateCourseInfoUseCase;
     private final UpdateCourseTypeEntryUseCase updateCourseTypeEntryUseCase;
-    private final UpdateCoursesTypeUseCase updateCoursesTypeUseCase;
+    private final UpdateCoursesTypeEntryUseCase updateCoursesTypeEntryUseCase;
     private final UpdateSelfCourseUseCase updateSelfCourseUseCase;
     private final AddCourseTypeEntryUseCase addCourseTypeEntryUseCase;
     private final AddNotExistCoursesDetailsUseCase addNotExistCoursesDetailsUseCase;
@@ -200,6 +199,6 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     @Transactional
     public void updateCoursesType(UpdateCoursesToTypeCmd updateCoursesToTypeCmd) {
         // 历史路径：收敛到 bc-course 用例，基础设施层避免继续堆“批量课程类型修改”业务流程
-        updateCoursesTypeUseCase.execute(new UpdateCoursesTypeCommand(updateCoursesToTypeCmd));
+        updateCoursesTypeEntryUseCase.updateCoursesType(updateCoursesToTypeCmd);
     }
 }
