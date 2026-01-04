@@ -3,8 +3,8 @@ package edu.cuit.infra.gateway.impl.course;
 import edu.cuit.bc.course.application.model.DeleteCourseCommand;
 import edu.cuit.bc.course.application.model.DeleteCoursesCommand;
 import edu.cuit.bc.course.application.model.DeleteSelfCourseCommand;
+import edu.cuit.bc.course.application.usecase.DeleteCourseGatewayEntryUseCase;
 import edu.cuit.bc.course.application.usecase.DeleteCourseTypeEntryUseCase;
-import edu.cuit.bc.course.application.usecase.DeleteCourseUseCase;
 import edu.cuit.bc.course.application.usecase.DeleteCoursesUseCase;
 import edu.cuit.bc.course.application.usecase.DeleteSelfCourseUseCase;
 import edu.cuit.client.dto.data.course.CoursePeriod;
@@ -21,7 +21,7 @@ import java.util.Map;
 public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
     private final DeleteSelfCourseUseCase deleteSelfCourseUseCase;
     private final DeleteCoursesUseCase deleteCoursesUseCase;
-    private final DeleteCourseUseCase deleteCourseUseCase;
+    private final DeleteCourseGatewayEntryUseCase deleteCourseGatewayEntryUseCase;
     private final DeleteCourseTypeEntryUseCase deleteCourseTypeEntryUseCase;
 
 
@@ -50,7 +50,7 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
     @Transactional
     public Map<String, Map<Integer, Integer>> deleteCourse(Integer semId, Integer id) {
         // 历史路径：收敛到 bc-course 用例，基础设施层避免继续堆“删课”业务流程（行为不变）
-        return deleteCourseUseCase.execute(new DeleteCourseCommand(semId, id));
+        return deleteCourseGatewayEntryUseCase.deleteCourse(semId, id);
     }
 
 
