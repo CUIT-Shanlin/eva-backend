@@ -69,6 +69,7 @@ import edu.cuit.bc.course.application.usecase.DeleteCourseEntryUseCase;
 import edu.cuit.bc.course.application.port.UpdateSelfCoursePort;
 import edu.cuit.bc.course.application.usecase.ImportCourseFileEntryUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateCourseEntryUseCase;
+import edu.cuit.bc.course.application.usecase.UpdateCourseGatewayEntryUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateCoursesEntryUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateSelfCourseEntryUseCase;
 import edu.cuit.bc.template.application.CourseTemplateLockService;
@@ -200,6 +201,11 @@ public class BcCourseConfiguration {
     @Bean
     public UpdateCourseInfoUseCase updateCourseInfoUseCase(UpdateCourseInfoRepository repository) {
         return new UpdateCourseInfoUseCase(repository);
+    }
+
+    @Bean
+    public UpdateCourseGatewayEntryUseCase updateCourseGatewayEntryUseCase(UpdateCourseInfoUseCase useCase) {
+        return new UpdateCourseGatewayEntryUseCase(useCase);
     }
 
     @Bean
