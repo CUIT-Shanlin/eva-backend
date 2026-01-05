@@ -21,6 +21,9 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-01-05（本次会话）**
+- ✅ **bc-course（课程，S0：旧 gateway 压扁为委托壳）**：压扁 `CourseUpdateGatewayImpl.addExistCoursesDetails`：新增 `AddExistCoursesDetailsGatewayEntryUseCase`，旧 gateway 不再构造 Command，仅保留事务边界 + 委托调用（Serena：调用点为 `AddExistCoursesDetailsPortImpl.addExistCoursesDetails`；保持行为不变；最小回归通过；落地提交：`de34a308`）。
+
 **2026-01-04（本次会话）**
 - ✅ **bc-course（课程，S0：旧 gateway 压扁为委托壳）**：压扁 `CourseUpdateGatewayImpl.addNotExistCoursesDetails`：新增 `AddNotExistCoursesDetailsGatewayEntryUseCase`，旧 gateway 不再构造 Command，仅保留事务边界 + 委托调用（Serena：调用点为 `AddNotExistCoursesDetailsPortImpl.addNotExistCoursesDetails`；副作用顺序完全不变；最小回归通过；落地提交：`62d48ee6`）。
 - ✅ **bc-course（课程，S0：旧 gateway 压扁为委托壳）**：压扁 `CourseUpdateGatewayImpl.updateSelfCourse`：新增 `UpdateSelfCourseGatewayEntryUseCase`，旧 gateway 不再构造 Command，仅保留事务边界 + 委托调用（Serena：调用点为 `UpdateSelfCoursePortImpl.updateSelfCourse`；副作用顺序完全不变；最小回归通过；落地提交：`c0f30c1f`）。
@@ -347,7 +350,7 @@
   7) ✅ bc-course（课程，S0：旧 gateway 压扁为委托壳）：已进一步压扁 `CourseDeleteGatewayImpl.deleteCourses`（Serena：调用点为 `DeleteCoursesPortImpl.deleteCourses`；旧 gateway 仅保留事务边界与委托调用；保持行为不变；细节见 0.9）。
   8) ✅ bc-course（课程，S0：旧 gateway 压扁为委托壳）：已进一步压扁 `CourseDeleteGatewayImpl.deleteSelfCourse`（Serena：调用点为 `DeleteSelfCoursePortImpl.deleteSelfCourse`；旧 gateway 仅保留事务边界与委托调用；保持行为不变；细节见 0.9）。
   9) ✅ bc-course（课程，S0：旧 gateway 压扁为委托壳）：已压扁 `CourseUpdateGatewayImpl.assignTeacher`（Serena：调用点为 `AllocateTeacherPortImpl.allocateTeacher`；旧 gateway 不再构造命令；保持事务边界/异常文案/副作用顺序完全不变；细节见 0.9）。
-  10) 下一步（保持行为不变；每次只改 1 个方法）：继续压扁 `CourseUpdateGatewayImpl.addExistCoursesDetails`（目标：旧 gateway 不再构造 Command，逐步退化为委托壳；保持行为不变）。
+  10) ✅ bc-course（课程，S0：旧 gateway 压扁为委托壳）：已完成压扁 `CourseUpdateGatewayImpl.addExistCoursesDetails`（Serena：调用点为 `AddExistCoursesDetailsPortImpl.addExistCoursesDetails`；旧 gateway 不再构造 Command，仅保留事务边界 + 委托调用；保持行为不变；落地：`de34a308`）。下一步建议：进入 **S0.1（收敛 `eva-domain` → `eva-client` 依赖）**，按“先 Serena 盘点 import，再小步迁移协议对象”的节奏推进（保持行为不变）。
   11) 避坑（保持行为不变）：不要选 `CourseUpdateGatewayImpl.addCourse` 作为“压扁样例”（当前为 TODO 空实现 `return null`，不适合作为行为对照链路）。
 
 - 历史闭环（2025-12-30，便于续接；更早细节仍保留如下）：  
@@ -510,7 +513,7 @@
 
 本会话目标（按顺序执行；每步闭环=Serena→最小回归→提交→三文档同步；保持行为不变）：
 
-1) 🎯 当前主线（bc-course，S0：旧 gateway 压扁为委托壳，保持行为不变）：继续压扁 `CourseUpdateGatewayImpl.addExistCoursesDetails`（目标：旧 gateway 不再构造 Command；事务边界/异常文案/副作用顺序完全不变；每次只改 1 个方法）。
+1) 🎯 当前主线（S0.1：收敛 `eva-domain` → `eva-client` 依赖，保持行为不变）：以 `eva-domain/pom.xml` 的 `eva-client` 依赖为收敛口，先用 Serena 盘点 `eva-domain` 的 `import edu.cuit.client.*` 清单，再按 BC 归属小步迁移协议对象到对应 `bc-*/contract` 或 `shared-kernel`，最终在“可证实不再需要”的前提下移除该依赖（每步闭环：Serena→最小回归→commit→三文档同步）。
 
 0) ✅ 已闭环（避免重复劳动）：
    - 评教统计导出基础设施归位：装饰器/工厂归位 + `EvaStatisticsExportPort` 装配切换 + `eva-app` 移除 POI Maven 直依赖（见 0.9）。
@@ -525,7 +528,7 @@
    - bc-messaging（消息域）：应用侧事件载荷已下沉到 `bc-messaging-contract`：`CourseOperationMessageMode/CourseOperationSideEffectsEvent/CourseTeacherTaskMessagesEvent`（均保持 `package edu.cuit.bc.messaging.application.event` 不变；见 0.9）。
    - bc-messaging（消息域）：依赖收敛阶段性闭环：`eva-app` 已将对 `bc-messaging` 的编译期依赖收敛为仅依赖 `bc-messaging-contract`（仅用于事件载荷类型；见 0.9）。
 
-1) ✅ **bc-course（课程）写侧入口用例归位继续（方向 A → B）**：`ICourseServiceImpl.updateSingleCourse/addNotExistCoursesDetails/addExistCoursesDetails` 与 `IUserCourseServiceImpl.deleteSelfCourse/updateSelfCourse/importCourse` 已闭环，且 `ICourseDetailServiceImpl.updateCourse/updateCourses/delete/addCourse` 已完成入口用例归位/调用点端口化（见 0.9）。当前主线：**S0（旧 gateway 压扁为委托壳）**，已完成压扁 `CourseUpdateGatewayImpl.updateCourseType/addCourseType/updateCoursesType`，并已进一步压扁 `CourseDeleteGatewayImpl.deleteCourseType/deleteCourse/deleteCourses/deleteSelfCourse`；且已压扁 `CourseUpdateGatewayImpl.assignTeacher`（见 0.9），并已压扁 `CourseUpdateGatewayImpl.updateCourse`（落地：`c31df92c`）、`CourseUpdateGatewayImpl.updateCourses`（落地：`84dffcc2`）、`CourseUpdateGatewayImpl.importCourseFile`（落地：`5e93a08a`）、`CourseUpdateGatewayImpl.updateSingleCourse`（落地：`9eea1a54`）、`CourseUpdateGatewayImpl.updateSelfCourse`（落地：`c0f30c1f`）与 `CourseUpdateGatewayImpl.addNotExistCoursesDetails`（落地：`62d48ee6`）。下一步建议：如需继续推进 bc-course 的 S0（旧 gateway 压扁为委托壳），建议继续压扁 `CourseUpdateGatewayImpl.addExistCoursesDetails`（保持事务边界/异常文案/副作用顺序完全不变；每次只改 1 个方法）。避坑：不要选 `CourseUpdateGatewayImpl.addCourse`（TODO 空实现）作为“压扁样例”。
+1) ✅ **bc-course（课程）写侧入口用例归位继续（方向 A → B）**：`ICourseServiceImpl.updateSingleCourse/addNotExistCoursesDetails/addExistCoursesDetails` 与 `IUserCourseServiceImpl.deleteSelfCourse/updateSelfCourse/importCourse` 已闭环，且 `ICourseDetailServiceImpl.updateCourse/updateCourses/delete/addCourse` 已完成入口用例归位/调用点端口化（见 0.9）。S0（旧 gateway 压扁为委托壳）已完成：`CourseUpdateGatewayImpl.updateCourse`（`c31df92c`）、`updateCourses`（`84dffcc2`）、`importCourseFile`（`5e93a08a`）、`updateSingleCourse`（`9eea1a54`）、`updateSelfCourse`（`c0f30c1f`）、`addNotExistCoursesDetails`（`62d48ee6`）与 `addExistCoursesDetails`（`de34a308`）。下一步建议：进入 **S0.1（收敛 `eva-domain` → `eva-client` 依赖）**（保持行为不变）。避坑：不要选 `CourseUpdateGatewayImpl.addCourse`（TODO 空实现）作为“压扁样例”。
 
 2) **bc-messaging（依赖收敛）**：✅ 已闭环（见 0.9）。本会话不继续；后置如需再推进，优先做结构折叠（S0，仅搬运/依赖收敛，保持行为不变）。
 
@@ -1029,9 +1032,9 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
      - infra 端口实现：`eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/AddNotExistCoursesDetailsRepositoryImpl.java`
      - 旧 gateway 退化委托壳：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseUpdateGatewayImpl.java`（`addNotExistCoursesDetails`）
 
-10) **批量新建多节课（已有课程）链路收敛到 bc-course（闭环 L，保持行为不变）**
-   - 背景：`POST /course/batch/exist/{courseId}` 入口最终落到 `CourseUpdateGatewayImpl.addExistCoursesDetails`，旧实现包含“逐周新增课次 + 教室冲突校验 + 课程/科目存在性校验 + 日志 + 缓存失效”等完整写流程，属于 infra 层承载业务。
-   - 做法：新增 bc-course 用例骨架 + 端口，并在 eva-infra 端口适配器中原样搬运旧逻辑；旧 gateway 退化为委托壳。
+10) ✅ **批量新建多节课（已有课程）链路收敛到 bc-course（闭环 L，保持行为不变）**
+   - 背景：`POST /course/batch/exist/{courseId}` 入口最终落到 `CourseUpdateGatewayImpl.addExistCoursesDetails`，历史实现包含“逐周新增课次 + 教室冲突校验 + 课程/科目存在性校验 + 日志 + 缓存失效”等完整写流程，属于 infra 层承载业务。
+   - 做法：新增 bc-course 用例骨架 + 端口，并在 eva-infra 端口适配器中原样搬运旧逻辑；新增 `AddExistCoursesDetailsGatewayEntryUseCase` 承接 Command 构造；旧 gateway 退化为委托壳（不再构造 Command；保持行为不变）。
    - 行为不变约束（必须保持）：
      - 冲突校验与文案不变：教室冲突抛 `UpdateException("该时间段教室冲突，请修改时间")`；
      - 课程/科目不存在异常不变：`QueryException("不存在对应的课程")`、`QueryException("不存在对应的课程的科目")`；
@@ -1407,7 +1410,7 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
    - 已新增 `AddNotExistCoursesDetailsUseCase` + `AddNotExistCoursesDetailsRepositoryImpl`，旧 gateway 退化委托壳（保持行为不变）。
 
 8) ✅ **已完成：压扁 `CourseUpdateGatewayImpl.addExistCoursesDetails()`**
-   - 已新增 `AddExistCoursesDetailsUseCase` + `AddExistCoursesDetailsRepositoryImpl`，旧 gateway 退化委托壳（保持行为不变）。
+   - 已新增 `AddExistCoursesDetailsUseCase` + `AddExistCoursesDetailsRepositoryImpl` + `AddExistCoursesDetailsGatewayEntryUseCase`，旧 gateway 不再构造 Command，仅保留事务边界 + 委托调用（保持行为不变）。
 
 9) ✅ **已完成：收敛“课程时间/教室冲突校验”的重复片段（保持行为不变）**
    - 已抽取：
