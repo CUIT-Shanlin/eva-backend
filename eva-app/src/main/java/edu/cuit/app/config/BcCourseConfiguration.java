@@ -53,6 +53,7 @@ import edu.cuit.bc.course.application.usecase.TimeCourseQueryUseCase;
 import edu.cuit.bc.course.application.usecase.AllocateTeacherUseCase;
 import edu.cuit.bc.course.application.usecase.DeleteCoursesEntryUseCase;
 import edu.cuit.bc.course.application.usecase.ImportCourseFileUseCase;
+import edu.cuit.bc.course.application.usecase.ImportCourseFileGatewayEntryUseCase;
 import edu.cuit.bc.course.application.usecase.IsCourseImportedUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateCourseInfoUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateCourseTypeEntryUseCase;
@@ -196,6 +197,11 @@ public class BcCourseConfiguration {
     @Bean
     public ImportCourseFileUseCase importCourseFileUseCase(ImportCourseFileRepository repository) {
         return new ImportCourseFileUseCase(repository);
+    }
+
+    @Bean
+    public ImportCourseFileGatewayEntryUseCase importCourseFileGatewayEntryUseCase(ImportCourseFileUseCase useCase) {
+        return new ImportCourseFileGatewayEntryUseCase(useCase);
     }
 
     @Bean

@@ -13,8 +13,7 @@ import edu.cuit.bc.course.application.usecase.UpdateCoursesEntryUseCase;
 import edu.cuit.bc.course.domain.ChangeCourseTemplateException;
 import edu.cuit.bc.course.application.usecase.AssignTeacherGatewayEntryUseCase;
 import edu.cuit.bc.course.domain.AssignEvaTeachersException;
-import edu.cuit.bc.course.application.model.ImportCourseFileCommand;
-import edu.cuit.bc.course.application.usecase.ImportCourseFileUseCase;
+import edu.cuit.bc.course.application.usecase.ImportCourseFileGatewayEntryUseCase;
 import edu.cuit.bc.course.domain.ImportCourseFileException;
 import edu.cuit.bc.course.application.usecase.IsCourseImportedUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateCourseGatewayEntryUseCase;
@@ -45,7 +44,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     private final UpdateCoursesEntryUseCase updateCoursesEntryUseCase;
     private final AssignTeacherGatewayEntryUseCase assignTeacherGatewayEntryUseCase;
     private final UpdateSingleCourseUseCase updateSingleCourseUseCase;
-    private final ImportCourseFileUseCase importCourseFileUseCase;
+    private final ImportCourseFileGatewayEntryUseCase importCourseFileGatewayEntryUseCase;
     private final UpdateCourseGatewayEntryUseCase updateCourseGatewayEntryUseCase;
     private final UpdateCourseTypeEntryUseCase updateCourseTypeEntryUseCase;
     private final UpdateCoursesTypeEntryUseCase updateCoursesTypeEntryUseCase;
@@ -150,7 +149,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     public Map<String,Map<Integer,Integer>> importCourseFile(Map<String, List<CourseExcelBO>> courseExce, SemesterCO semester, Integer type) {
         // 历史路径：收敛到 bc-course 用例，基础设施层避免继续堆“导入课表”业务流程
         try {
-            return importCourseFileUseCase.execute(new ImportCourseFileCommand(courseExce, semester, type));
+            return importCourseFileGatewayEntryUseCase.importCourseFile(courseExce, semester, type);
         } catch (ImportCourseFileException e) {
             throw new UpdateException(e.getMessage());
         }
