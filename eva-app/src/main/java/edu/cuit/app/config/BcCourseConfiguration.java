@@ -28,13 +28,14 @@ import edu.cuit.bc.course.application.port.DeleteCourseRepository;
 import edu.cuit.bc.course.application.port.DeleteCoursesRepository;
 import edu.cuit.bc.course.application.port.DeleteCourseTypeRepository;
 import edu.cuit.bc.course.application.port.UpdateSingleCoursePort;
-import edu.cuit.bc.course.application.usecase.AddCourseTypeUseCase;
-import edu.cuit.bc.course.application.usecase.AddCourseEntryUseCase;
-import edu.cuit.bc.course.application.usecase.AddExistCoursesDetailsEntryUseCase;
-import edu.cuit.bc.course.application.usecase.AddExistCoursesDetailsUseCase;
-import edu.cuit.bc.course.application.usecase.AddNotExistCoursesDetailsEntryUseCase;
-import edu.cuit.bc.course.application.usecase.AddNotExistCoursesDetailsGatewayEntryUseCase;
-import edu.cuit.bc.course.application.usecase.AddNotExistCoursesDetailsUseCase;
+	import edu.cuit.bc.course.application.usecase.AddCourseTypeUseCase;
+	import edu.cuit.bc.course.application.usecase.AddCourseEntryUseCase;
+	import edu.cuit.bc.course.application.usecase.AddExistCoursesDetailsEntryUseCase;
+	import edu.cuit.bc.course.application.usecase.AddExistCoursesDetailsGatewayEntryUseCase;
+	import edu.cuit.bc.course.application.usecase.AddExistCoursesDetailsUseCase;
+	import edu.cuit.bc.course.application.usecase.AddNotExistCoursesDetailsEntryUseCase;
+	import edu.cuit.bc.course.application.usecase.AddNotExistCoursesDetailsGatewayEntryUseCase;
+	import edu.cuit.bc.course.application.usecase.AddNotExistCoursesDetailsUseCase;
 import edu.cuit.bc.course.application.usecase.AssignTeacherGatewayEntryUseCase;
 import edu.cuit.bc.course.application.usecase.AssignEvaTeachersUseCase;
 import edu.cuit.bc.course.application.usecase.ChangeCourseTemplateUseCase;
@@ -315,5 +316,10 @@ public class BcCourseConfiguration {
     @Bean
     public AddExistCoursesDetailsUseCase addExistCoursesDetailsUseCase(AddExistCoursesDetailsRepository repository) {
         return new AddExistCoursesDetailsUseCase(repository);
+    }
+
+    @Bean
+    public AddExistCoursesDetailsGatewayEntryUseCase addExistCoursesDetailsGatewayEntryUseCase(AddExistCoursesDetailsUseCase useCase) {
+        return new AddExistCoursesDetailsGatewayEntryUseCase(useCase);
     }
 }
