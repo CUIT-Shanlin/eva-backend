@@ -33,6 +33,7 @@ import edu.cuit.bc.course.application.usecase.AddCourseEntryUseCase;
 import edu.cuit.bc.course.application.usecase.AddExistCoursesDetailsEntryUseCase;
 import edu.cuit.bc.course.application.usecase.AddExistCoursesDetailsUseCase;
 import edu.cuit.bc.course.application.usecase.AddNotExistCoursesDetailsEntryUseCase;
+import edu.cuit.bc.course.application.usecase.AddNotExistCoursesDetailsGatewayEntryUseCase;
 import edu.cuit.bc.course.application.usecase.AddNotExistCoursesDetailsUseCase;
 import edu.cuit.bc.course.application.usecase.AssignTeacherGatewayEntryUseCase;
 import edu.cuit.bc.course.application.usecase.AssignEvaTeachersUseCase;
@@ -304,6 +305,11 @@ public class BcCourseConfiguration {
     @Bean
     public AddNotExistCoursesDetailsUseCase addNotExistCoursesDetailsUseCase(AddNotExistCoursesDetailsRepository repository) {
         return new AddNotExistCoursesDetailsUseCase(repository);
+    }
+
+    @Bean
+    public AddNotExistCoursesDetailsGatewayEntryUseCase addNotExistCoursesDetailsGatewayEntryUseCase(AddNotExistCoursesDetailsUseCase useCase) {
+        return new AddNotExistCoursesDetailsGatewayEntryUseCase(useCase);
     }
 
     @Bean
