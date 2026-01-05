@@ -9,8 +9,7 @@ import edu.cuit.client.dto.cmd.course.*;
 import edu.cuit.client.dto.data.Term;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.domain.gateway.course.CourseUpdateGateway;
-import edu.cuit.bc.course.application.model.ChangeCourseTemplateCommand;
-import edu.cuit.bc.course.application.usecase.ChangeCourseTemplateUseCase;
+import edu.cuit.bc.course.application.usecase.UpdateCoursesEntryUseCase;
 import edu.cuit.bc.course.domain.ChangeCourseTemplateException;
 import edu.cuit.bc.course.application.usecase.AssignTeacherGatewayEntryUseCase;
 import edu.cuit.bc.course.domain.AssignEvaTeachersException;
@@ -43,7 +42,7 @@ import java.util.*;
 @Component
 @RequiredArgsConstructor
 public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
-    private final ChangeCourseTemplateUseCase changeCourseTemplateUseCase;
+    private final UpdateCoursesEntryUseCase updateCoursesEntryUseCase;
     private final AssignTeacherGatewayEntryUseCase assignTeacherGatewayEntryUseCase;
     private final UpdateSingleCourseUseCase updateSingleCourseUseCase;
     private final ImportCourseFileUseCase importCourseFileUseCase;
@@ -86,11 +85,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     public void updateCourses(Integer semId, UpdateCoursesCmd updateCoursesCmd) {
         // 历史路径：收敛到 bc-course 用例，避免基础设施层重复实现与重复校验
         try {
-            changeCourseTemplateUseCase.execute(new ChangeCourseTemplateCommand(
-                    semId,
-                    updateCoursesCmd.getTemplateId(),
-                    updateCoursesCmd.getCourseIdList()
-            ));
+            updateCoursesEntryUseCase.updateCourses(semId, updateCoursesCmd);
         } catch (ChangeCourseTemplateException e) {
             throw new UpdateException(e.getMessage());
         }
