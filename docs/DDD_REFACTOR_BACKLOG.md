@@ -120,6 +120,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ bc-course（课程，S0：旧 gateway 压扁为委托壳）：压扁 `CourseUpdateGatewayImpl.addNotExistCoursesDetails`：新增 `AddNotExistCoursesDetailsGatewayEntryUseCase`，旧 gateway 不再构造 Command，仅保留事务边界 + 委托调用（Serena：调用点为 `AddNotExistCoursesDetailsPortImpl.addNotExistCoursesDetails`；保持行为不变；最小回归通过；落地：`62d48ee6`）。
 - ✅ bc-course（课程，S0：旧 gateway 压扁为委托壳）：压扁 `CourseUpdateGatewayImpl.addExistCoursesDetails`：新增 `AddExistCoursesDetailsGatewayEntryUseCase`，旧 gateway 不再构造 Command，仅保留事务边界 + 委托调用（Serena：调用点为 `AddExistCoursesDetailsPortImpl.addExistCoursesDetails`；保持行为不变；最小回归通过；落地：`de34a308`）。
 - ✅ S0.2（依赖面收敛，保持行为不变）：将学期 CO `SemesterCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`77126c4a`）。
+- ✅ S0.2（依赖面收敛，保持行为不变）：将通用学期入参 `Term` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`23bff82f`）。
 - ✅ 规划与证据化（保持行为不变）：用 Serena 盘点 bc-course 写侧 `@CheckSemId` 入口清单与 `eva-infra` 旧 `*GatewayImpl` 候选清单，并落盘到本文件 `4.3`，作为后续 S1/S2 退场/排期依据；同时修正文档中 `bc-messaging` 的主线口径为“后置仅做结构折叠/依赖证伪”（不改业务语义；最小回归通过；落地提交以 `git log -n 1 -- docs/DDD_REFACTOR_BACKLOG.md` 为准）。
 - 评教用户读侧（D1：用例归位深化—去评教/被评教记录）：新增 `UserEvaQueryUseCase` 并将旧入口 `UserEvaServiceImpl.getEvaLogInfo/getEvaLoggingInfo` 退化为纯委托壳（旧入口仍保留 `@CheckSemId` 与当前用户解析：`StpUtil` + `userQueryGateway`；异常文案/副作用顺序不变；保持行为不变；最小回归通过；落地提交：`96e65019`）。
 - 评教任务读侧用例归位深化（本人任务列表）：将旧入口 `EvaTaskServiceImpl.evaSelfTaskInfo` 的“任务列表查询 + 懒加载顺序对齐的实体→CO 组装”归位到 `EvaTaskQueryUseCase`；旧入口仍保留 `@CheckSemId` 与当前用户解析（`StpUtil` + `userQueryGateway`）并委托 UseCase（异常文案/副作用顺序不变；保持行为不变；最小回归通过；落地提交：`1ac196c6`）。
@@ -356,7 +357,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
    - 背景：`eva-domain/pom.xml` 当前仍依赖 `bc-course`（应用层 jar）。核心原因是 `eva-domain` 仍引用一批 `edu.cuit.client.*` 协议对象，而这些类型的定义文件仍落在 `bc-course/application`（Serena 证据化盘点）。
    - 证据（示例，均保持 `package` 不变）：
      - ✅ `edu.cuit.client.dto.clientobject.SemesterCO`：已迁移至 `shared-kernel/src/main/java/edu/cuit/client/dto/clientobject/SemesterCO.java`（落地：`77126c4a`）
-     - `edu.cuit.client.dto.data.Term`：`bc-course/application/src/main/java/edu/cuit/client/dto/data/Term.java`
+     - ✅ `edu.cuit.client.dto.data.Term`：已迁移至 `shared-kernel/src/main/java/edu/cuit/client/dto/data/Term.java`（落地：`23bff82f`）
      - `edu.cuit.client.bo.CourseExcelBO`：`bc-course/application/src/main/java/edu/cuit/client/bo/CourseExcelBO.java`
      - `edu.cuit.client.dto.query.CourseQuery`：`bc-course/application/src/main/java/edu/cuit/client/dto/query/CourseQuery.java`
      - `edu.cuit.client.dto.query.condition.CourseConditionalQuery`：`bc-course/application/src/main/java/edu/cuit/client/dto/query/condition/CourseConditionalQuery.java`
