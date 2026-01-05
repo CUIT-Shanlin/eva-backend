@@ -321,18 +321,19 @@
 >
 > 规则提醒：每个小提交都必须做到：Serena 符号级定位/引用分析 → **最小回归** → `git commit` → 同步三份文档（本文件 + `DDD_REFACTOR_PLAN.md` + `docs/DDD_REFACTOR_BACKLOG.md`）。
 >
-> 阶段性策略微调（2025-12-29，持续有效）：允许“微调”（仅结构性重构；不改业务语义；缓存/日志/异常文案/副作用顺序完全不变）。在“评教统计导出基础设施归位”与“课程课表解析归位/端口化”闭环后，`bc-messaging` 的“归位 + 依赖收敛”已阶段性闭环（见 0.9）；当前主线切换为 **bc-course 写侧入口归位继续（方向 A → B） + S0（旧 gateway 压扁为委托壳）**，仍按“小步可回滚 + 每步闭环”推进。
+> 阶段性策略微调（2025-12-29，持续有效）：允许“微调”（仅结构性重构；不改业务语义；缓存/日志/异常文案/副作用顺序完全不变）。在“评教统计导出基础设施归位”与“课程课表解析归位/端口化”闭环后，`bc-messaging` 的“归位 + 依赖收敛”已阶段性闭环（见 0.9）；`bc-course` 的 **S0（旧 gateway 压扁为委托壳）** 已推进到阶段性闭环（见 0.9/0.10）；当前主线切换为 **S0.1（收敛 `eva-domain` → `eva-client` 依赖）**，仍按“小步可回滚 + 每步闭环”推进。
 >
 
 - 当前重构进度汇报（截至当前 `HEAD`，用于“还没完成什么/下一步怎么排”）：
-  - ✅ **bc-course 写侧（方向 A → B）**：入口用例归位已覆盖主干簇（见 0.9）；当前聚焦 **S0（旧 gateway 压扁为委托壳）**，已压扁 `CourseUpdateGatewayImpl.assignTeacher/updateCourseType/addCourseType/updateCoursesType`，以及 `CourseDeleteGatewayImpl.deleteCourseType/deleteCourse/deleteCourses/deleteSelfCourse`（见 0.9）。
+  - ✅ **bc-course 写侧（方向 A → B）**：入口用例归位已覆盖主干簇（见 0.9）；**S0（旧 gateway 压扁为委托壳）** 已覆盖 `CourseUpdateGatewayImpl` 的 `updateCourse/updateCourses/importCourseFile/updateSingleCourse/updateSelfCourse/addNotExistCoursesDetails/addExistCoursesDetails` 等核心方法簇（保持行为不变；见 0.9）。
   - ✅ **bc-evaluation 写侧**：发布评教任务、删除评教记录/模板等主链路已收敛；统计导出基础设施已阶段性归位（见 0.9/10.2）。
   - ✅ **bc-messaging**：组合根/监听器/端口适配器归位与“依赖收敛关键环节”已阶段性闭环（见 0.9/10.3）；后置仅做结构折叠与依赖证伪（保持行为不变）。
   - ✅ **`eva-client` 退场**：已从 reactor 移除并从仓库删除；跨 BC 通用对象已开始沉淀 `shared-kernel`（见 10.5）。
   - ⏳ **仍未完成（核心阻塞项）**：
-    1) `eva-infra` 仍残留大量旧 `*GatewayImpl` 未退化为委托壳/未归位到对应 BC（详见 `docs/DDD_REFACTOR_BACKLOG.md` 4.3）。
-    2) `eva-app` 仍存在大量业务入口实现（`*ServiceImpl`），尚未全部退化为“仅 `@CheckSemId` / 登录态解析 / 委托 UseCase”的壳。
-    3) `eva-adapter` 的 Controller 仍需逐步收敛为“纯 HTTP 协议适配”（避免直接依赖基础设施实现细节）。
+    1) `eva-infra` 仍保留 **18 个** `*GatewayImpl.java`（Serena：目录 `eva-infra/src/main/java/edu/cuit/infra/gateway/impl` 下盘点），其中大量方法仍未退化为“仅事务边界 + 委托调用”的壳/未归位到对应 BC（详见 `docs/DDD_REFACTOR_BACKLOG.md` 4.3）。
+    2) `eva-app` 仍保留 **18 个** `*ServiceImpl.java`（Serena：目录 `eva-app/src/main/java/edu/cuit/app/service/impl` 下盘点），尚未全部退化为“仅 `@CheckSemId` / 登录态解析 / 委托 UseCase”的壳（仍需要继续把业务编排逐步归位到各 BC）。
+    3) `eva-adapter` 仍保留 **22 个** `*Controller.java`（Serena：目录 `eva-adapter/src/main/java` 下盘点），Controller 仍需逐步收敛为“纯 HTTP 协议适配”（避免直接依赖基础设施实现细节；保持行为不变）。
+    4) **S0.1（收敛依赖）仍未完成**：`eva-domain` 仍存在对历史协议对象包的引用，需要按 BC 归属继续迁移/沉淀并最终移除该依赖（保持行为不变；每次只迁 1 个小包/小类簇）。
 
 - Q：什么时候可以把 `eva-*` 技术切片“全部整合进各业务 bc-* 模块”？
   - A：不要用固定日期衡量，按 **可验证的 DoD**（见 `DDD_REFACTOR_PLAN.md` 10.5）：
