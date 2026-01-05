@@ -20,8 +20,7 @@ import edu.cuit.bc.course.application.usecase.UpdateCourseGatewayEntryUseCase;
 import edu.cuit.bc.course.domain.UpdateCourseInfoException;
 import edu.cuit.bc.course.application.usecase.UpdateCourseTypeEntryUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateCoursesTypeEntryUseCase;
-import edu.cuit.bc.course.application.model.UpdateSingleCourseCommand;
-import edu.cuit.bc.course.application.usecase.UpdateSingleCourseUseCase;
+import edu.cuit.bc.course.application.usecase.UpdateSingleCourseGatewayEntryUseCase;
 import edu.cuit.bc.course.domain.UpdateSingleCourseException;
 import edu.cuit.bc.course.application.usecase.AddCourseTypeEntryUseCase;
 import edu.cuit.bc.course.application.model.AddNotExistCoursesDetailsCommand;
@@ -43,7 +42,7 @@ import java.util.*;
 public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     private final UpdateCoursesEntryUseCase updateCoursesEntryUseCase;
     private final AssignTeacherGatewayEntryUseCase assignTeacherGatewayEntryUseCase;
-    private final UpdateSingleCourseUseCase updateSingleCourseUseCase;
+    private final UpdateSingleCourseGatewayEntryUseCase updateSingleCourseGatewayEntryUseCase;
     private final ImportCourseFileGatewayEntryUseCase importCourseFileGatewayEntryUseCase;
     private final UpdateCourseGatewayEntryUseCase updateCourseGatewayEntryUseCase;
     private final UpdateCourseTypeEntryUseCase updateCourseTypeEntryUseCase;
@@ -96,15 +95,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     public Map<String,Map<Integer,Integer>> updateSingleCourse(String userName,Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd) {
         // 历史路径：收敛到 bc-course 用例（保持行为不变）
         try {
-            return updateSingleCourseUseCase.execute(new UpdateSingleCourseCommand(
-                    semId,
-                    updateSingleCourseCmd.getId(),
-                    updateSingleCourseCmd.getTime() == null ? null : updateSingleCourseCmd.getTime().getWeek(),
-                    updateSingleCourseCmd.getTime() == null ? null : updateSingleCourseCmd.getTime().getDay(),
-                    updateSingleCourseCmd.getTime() == null ? null : updateSingleCourseCmd.getTime().getStartTime(),
-                    updateSingleCourseCmd.getTime() == null ? null : updateSingleCourseCmd.getTime().getEndTime(),
-                    updateSingleCourseCmd.getLocation()
-            ));
+            return updateSingleCourseGatewayEntryUseCase.updateSingleCourse(userName, semId, updateSingleCourseCmd);
         } catch (UpdateSingleCourseException e) {
             throw new UpdateException(e.getMessage());
         }
