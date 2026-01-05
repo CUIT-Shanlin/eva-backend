@@ -351,6 +351,21 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：以下是仍在旧 gateway/技术切片中的能力，优先级按“写侧优先 + 影响范围”排序。
 
+0) **S0.2（下一批主线，保持行为不变）：收敛 `eva-domain` 对 `bc-course` 的编译期依赖面**
+   - 背景：`eva-domain/pom.xml` 当前仍依赖 `bc-course`（应用层 jar）。核心原因是 `eva-domain` 仍引用一批 `edu.cuit.client.*` 协议对象，而这些类型的定义文件仍落在 `bc-course/application`（Serena 证据化盘点）。
+   - 证据（示例，均保持 `package` 不变）：
+     - `edu.cuit.client.dto.clientobject.SemesterCO`：`bc-course/application/src/main/java/edu/cuit/client/dto/clientobject/SemesterCO.java`
+     - `edu.cuit.client.dto.data.Term`：`bc-course/application/src/main/java/edu/cuit/client/dto/data/Term.java`
+     - `edu.cuit.client.bo.CourseExcelBO`：`bc-course/application/src/main/java/edu/cuit/client/bo/CourseExcelBO.java`
+     - `edu.cuit.client.dto.query.CourseQuery`：`bc-course/application/src/main/java/edu/cuit/client/dto/query/CourseQuery.java`
+     - `edu.cuit.client.dto.query.condition.CourseConditionalQuery`：`bc-course/application/src/main/java/edu/cuit/client/dto/query/condition/CourseConditionalQuery.java`
+     - `edu.cuit.client.dto.query.condition.MobileCourseQuery`：`bc-course/application/src/main/java/edu/cuit/client/dto/query/condition/MobileCourseQuery.java`
+     - `edu.cuit.client.dto.clientobject.course.CourseDetailCO`：`bc-course/application/src/main/java/edu/cuit/client/dto/clientobject/course/CourseDetailCO.java`
+     - （以及其它 `edu.cuit.client.dto.clientobject.course/*` 与 `edu.cuit.client.dto.cmd.course/*`，此处不逐项展开，避免文档噪声）
+   - 计划（每步只迁 1 个小包/小类簇；每步闭环=Serena→最小回归→提交→三文档同步；保持行为不变）：
+     1) 先把以上“阻塞 `eva-domain` 去 `bc-course` 依赖”的协议对象按小簇迁移到 `shared-kernel`（优先保持 `package` 不变以降风险）。
+     2) Serena 证伪 `eva-domain` 不再引用“仅由 `bc-course` 提供的 `edu.cuit.client.*` 类型”后，再独立提交移除 `eva-domain/pom.xml` 对 `bc-course` 的依赖（保持行为不变）。
+
 1) AI 报告 / 审计日志（条目 25）：已完成提交点 A（模块骨架 + 组合根 wiring；落地提交：`a30a1ff9`），已完成提交点 B（审计日志写入 `LogGatewayImpl.insertLog`；落地提交：`b0b72263`）  
    - 补充进展（条目 25 之外）：已完成提交点 B2（AI 报告导出链路收敛；落地提交：`c68b3174`）；已完成提交点 B3（旧入口进一步退化为纯委托壳；落地提交：`7f4b3358`）。
    - 补充进展（条目 25 之外）：已将导出链路实现（`AiReportDocExportPortImpl` + `AiReportExporter`）从 `eva-app` 归位到 `bc-ai-report`（保持 `package` 不变；保持行为不变；落地提交：`d1262c32`）。
@@ -532,7 +547,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 阶段性策略微调（2025-12-29）：
 - ✅ 允许“微调”：仅限结构性重构（收窄依赖/拆接口/移动默认值兜底），**不改业务语义**；缓存/日志/异常文案/副作用顺序完全不变。
-- ✅ 主线口径更新（滚动）：`bc-messaging` 的“归位 + 依赖收敛”已阶段性闭环；`bc-course` 的 S0（旧 gateway 压扁为委托壳）已推进到阶段性闭环（见 4.2/4.3 与 `NEXT_SESSION_HANDOFF.md` 0.9）。当前下一批主线：**S0.1（收敛 `eva-domain` → `eva-client` 依赖）**，按“先 Serena 盘点 → 再按 BC 归属小步迁移/沉淀 → 最小回归 → 提交 → 三文档同步”的节奏推进（保持行为不变）。
+- ✅ 主线口径更新（滚动）：`bc-messaging` 的“归位 + 依赖收敛”已阶段性闭环；`bc-course` 的 S0（旧 gateway 压扁为委托壳）已推进到阶段性闭环（见 4.2/4.3 与 `NEXT_SESSION_HANDOFF.md` 0.9）。当前下一批主线：**S0.2（收敛 `eva-domain` 对 `bc-course` 的编译期依赖面）**，按“先 Serena 证据化 → 再小步迁移协议对象到 `shared-kernel` → 最小回归 → 提交 → 三文档同步”的节奏推进（保持行为不变）。
 - ✅ 下一步小簇建议（bc-messaging，保持行为不变）：按 `DDD_REFACTOR_PLAN.md` 10.3 路线推进（先组合根 → 再监听器/应用侧适配器 → 最后基础设施端口适配器与依赖收敛）。
   - ✅ 已完成：组合根 `BcMessagingConfiguration`（`4e3e2cf2`）；✅ 已完成：监听器 `CourseOperationSideEffectsListener`（`22ee30e7`）；✅ 已完成：监听器 `CourseTeacherTaskMessagesListener`（`0987f96f`）
   - ✅ 已完成：支撑类 `MsgResult`（`31878b61`，当前位于 `bc-messaging-contract`）；✅ 已完成：应用侧端口适配器 `CourseBroadcastPortAdapter`（`84ee070a`）；✅ 已完成：应用侧端口适配器 `TeacherTaskMessagePortAdapter`（`9ea14cff`）；✅ 已完成：应用侧端口适配器 `EvaMessageCleanupPortAdapter`（`73ab3f3c`）。

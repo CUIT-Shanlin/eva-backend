@@ -504,13 +504,13 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 ### 10.2 下一步优先顺序（保持“写侧优先 + 行为不变”）
 
-> 滚动口径（更新至 2026-01-05）：当前主线为 **bc-course 的 S0（旧 gateway 压扁为委托壳）**；✅ 已压扁 `CourseUpdateGatewayImpl.updateCourse`（Serena：调用点为 `UpdateCoursePortImpl.updateCourse`；旧 gateway 不再构造 Command；保持行为不变；落地：`c31df92c`）、`CourseUpdateGatewayImpl.updateCourses`（旧 gateway 不再构造 Command；保持行为不变；落地：`84dffcc2`）、`CourseUpdateGatewayImpl.importCourseFile`（Serena：调用点为 `ImportCourseFilePortImpl.importCourseFile`；旧 gateway 不再构造 Command；保持行为不变；落地：`5e93a08a`）、`CourseUpdateGatewayImpl.updateSingleCourse`（Serena：调用点为 `UpdateSingleCoursePortImpl.updateSingleCourse`；旧 gateway 不再构造 Command；保持行为不变；落地：`9eea1a54`）、`CourseUpdateGatewayImpl.updateSelfCourse`（Serena：调用点为 `UpdateSelfCoursePortImpl.updateSelfCourse`；旧 gateway 不再构造 Command；保持行为不变；落地：`c0f30c1f`）、`CourseUpdateGatewayImpl.addNotExistCoursesDetails`（Serena：调用点为 `AddNotExistCoursesDetailsPortImpl.addNotExistCoursesDetails`；旧 gateway 不再构造 Command；保持行为不变；落地：`62d48ee6`）与 `CourseUpdateGatewayImpl.addExistCoursesDetails`（Serena：调用点为 `AddExistCoursesDetailsPortImpl.addExistCoursesDetails`；旧 gateway 不再构造 Command；保持行为不变；落地：`de34a308`）。下一步建议：进入 **S0.1（收敛 `eva-domain` → `eva-client` 依赖）**，保持行为不变。
+> 滚动口径（更新至 2026-01-05）：当前主线为 **bc-course 的 S0（旧 gateway 压扁为委托壳）**；✅ 已压扁 `CourseUpdateGatewayImpl.updateCourse`（Serena：调用点为 `UpdateCoursePortImpl.updateCourse`；旧 gateway 不再构造 Command；保持行为不变；落地：`c31df92c`）、`CourseUpdateGatewayImpl.updateCourses`（旧 gateway 不再构造 Command；保持行为不变；落地：`84dffcc2`）、`CourseUpdateGatewayImpl.importCourseFile`（Serena：调用点为 `ImportCourseFilePortImpl.importCourseFile`；旧 gateway 不再构造 Command；保持行为不变；落地：`5e93a08a`）、`CourseUpdateGatewayImpl.updateSingleCourse`（Serena：调用点为 `UpdateSingleCoursePortImpl.updateSingleCourse`；旧 gateway 不再构造 Command；保持行为不变；落地：`9eea1a54`）、`CourseUpdateGatewayImpl.updateSelfCourse`（Serena：调用点为 `UpdateSelfCoursePortImpl.updateSelfCourse`；旧 gateway 不再构造 Command；保持行为不变；落地：`c0f30c1f`）、`CourseUpdateGatewayImpl.addNotExistCoursesDetails`（Serena：调用点为 `AddNotExistCoursesDetailsPortImpl.addNotExistCoursesDetails`；旧 gateway 不再构造 Command；保持行为不变；落地：`62d48ee6`）与 `CourseUpdateGatewayImpl.addExistCoursesDetails`（Serena：调用点为 `AddExistCoursesDetailsPortImpl.addExistCoursesDetails`；旧 gateway 不再构造 Command；保持行为不变；落地：`de34a308`）。下一步建议：进入 **S0.2（收敛 `eva-domain` 对 `bc-course` 的编译期依赖面）**，保持行为不变。
 > 新会话续接方式：优先复制 `NEXT_SESSION_HANDOFF.md` 的 0.11 推荐版提示词，并按 0.10 的“下一步拆分与里程碑/提交点”顺序执行，避免遗漏约束与回归命令。
 
 **下一步建议（S0.1，保持行为不变；每步只改 1 个小包/小类簇）：**
-1) 用 Serena 盘点 `eva-domain` 的 `import edu.cuit.client.*` 清单与对应类型落点（先证伪“类型是否已迁移/是否仍需依赖”）。
-2) 选择“单一归属”的协议对象（优先课程/学期/消息等）迁移到对应 `bc-*/contract` 或 `shared-kernel`（尽量保持 `package` 不变以降风险；确需改包名则同步全引用点）。
-3) 逐项移除 `eva-domain` 对历史依赖的编译期耦合（以 `eva-domain/pom.xml` 为收敛口；确保装配不变）。
+1) 用 Serena 盘点 `eva-domain` 的 `import edu.cuit.client.*` 清单，并证伪“每个类型当前由哪个模块提供”（避免凭直觉改依赖）。
+2) 聚焦一个高收益收敛口：**收敛 `eva-domain` 对 `bc-course`（应用层 jar）的编译期依赖面**。做法：把仍落在 `bc-course/application` 下、但本质是“边界协议对象”（`edu.cuit.client.*` 的 BO/CO/Query/Cmd）的小簇，逐步迁移到 `shared-kernel`（优先保持 `package` 不变以降风险）。
+3) 当 Serena 证伪 `eva-domain` 不再引用 “仅由 `bc-course` 提供的 `edu.cuit.client.*` 类型” 后，再独立提交移除 `eva-domain/pom.xml` 对 `bc-course` 的依赖（保持行为不变；确保装配/编译闭合）。
 4) 每步闭环：Serena → 最小回归 → commit → 同步三文档（保持行为不变）。
 
 1) ✅ **评教任务发布写侧收敛**：把 `EvaUpdateGatewayImpl.postEvaTask` 收敛到 `bc-evaluation` 用例 + 端口，跨域副作用（消息/日志/缓存）按“事务提交后事件”固化（行为不变；落地提交：`8e434fe1/ca69b131/e9043f96`）。
