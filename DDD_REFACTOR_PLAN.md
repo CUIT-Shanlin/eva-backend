@@ -507,6 +507,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 > 滚动口径（更新至 2026-01-05）：当前主线为 **bc-course 的 S0（旧 gateway 压扁为委托壳）**；✅ 已压扁 `CourseUpdateGatewayImpl.updateCourse`（Serena：调用点为 `UpdateCoursePortImpl.updateCourse`；旧 gateway 不再构造 Command；保持行为不变；落地：`c31df92c`）、`CourseUpdateGatewayImpl.updateCourses`（旧 gateway 不再构造 Command；保持行为不变；落地：`84dffcc2`）、`CourseUpdateGatewayImpl.importCourseFile`（Serena：调用点为 `ImportCourseFilePortImpl.importCourseFile`；旧 gateway 不再构造 Command；保持行为不变；落地：`5e93a08a`）、`CourseUpdateGatewayImpl.updateSingleCourse`（Serena：调用点为 `UpdateSingleCoursePortImpl.updateSingleCourse`；旧 gateway 不再构造 Command；保持行为不变；落地：`9eea1a54`）、`CourseUpdateGatewayImpl.updateSelfCourse`（Serena：调用点为 `UpdateSelfCoursePortImpl.updateSelfCourse`；旧 gateway 不再构造 Command；保持行为不变；落地：`c0f30c1f`）、`CourseUpdateGatewayImpl.addNotExistCoursesDetails`（Serena：调用点为 `AddNotExistCoursesDetailsPortImpl.addNotExistCoursesDetails`；旧 gateway 不再构造 Command；保持行为不变；落地：`62d48ee6`）与 `CourseUpdateGatewayImpl.addExistCoursesDetails`（Serena：调用点为 `AddExistCoursesDetailsPortImpl.addExistCoursesDetails`；旧 gateway 不再构造 Command；保持行为不变；落地：`de34a308`）。下一步建议：进入 **S0.2（收敛 `eva-domain` 对 `bc-course` 的编译期依赖面）**，保持行为不变。
 > 新会话续接方式：优先复制 `NEXT_SESSION_HANDOFF.md` 的 0.11 推荐版提示词，并按 0.10 的“下一步拆分与里程碑/提交点”顺序执行，避免遗漏约束与回归命令。
 
+- 补充进展（2026-01-05，S0.2 起步，保持行为不变）：已将学期 CO `SemesterCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`77126c4a`）。
+
 **下一步建议（S0.1，保持行为不变；每步只改 1 个小包/小类簇）：**
 1) 用 Serena 盘点 `eva-domain` 的 `import edu.cuit.client.*` 清单，并证伪“每个类型当前由哪个模块提供”（避免凭直觉改依赖）。
 2) 聚焦一个高收益收敛口：**收敛 `eva-domain` 对 `bc-course`（应用层 jar）的编译期依赖面**。做法：把仍落在 `bc-course/application` 下、但本质是“边界协议对象”（`edu.cuit.client.*` 的 BO/CO/Query/Cmd）的小簇，逐步迁移到 `shared-kernel`（优先保持 `package` 不变以降风险）。

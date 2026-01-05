@@ -23,6 +23,7 @@
 
 **2026-01-05（本次会话）**
 - ✅ **bc-course（课程，S0：旧 gateway 压扁为委托壳）**：压扁 `CourseUpdateGatewayImpl.addExistCoursesDetails`：新增 `AddExistCoursesDetailsGatewayEntryUseCase`，旧 gateway 不再构造 Command，仅保留事务边界 + 委托调用（Serena：调用点为 `AddExistCoursesDetailsPortImpl.addExistCoursesDetails`；保持行为不变；最小回归通过；落地提交：`de34a308`）。
+- ✅ **S0.2（依赖面收敛，保持行为不变）**：将学期 CO `SemesterCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地提交：`77126c4a`），为后续移除 `eva-domain/pom.xml` 对 `bc-course` 的依赖做前置准备。
 
 **2026-01-04（本次会话）**
 - ✅ **bc-course（课程，S0：旧 gateway 压扁为委托壳）**：压扁 `CourseUpdateGatewayImpl.addNotExistCoursesDetails`：新增 `AddNotExistCoursesDetailsGatewayEntryUseCase`，旧 gateway 不再构造 Command，仅保留事务边界 + 委托调用（Serena：调用点为 `AddNotExistCoursesDetailsPortImpl.addNotExistCoursesDetails`；副作用顺序完全不变；最小回归通过；落地提交：`62d48ee6`）。
@@ -514,7 +515,7 @@
 
 本会话目标（按顺序执行；每步闭环=Serena→最小回归→提交→三文档同步；保持行为不变）：
 
-1) 🎯 当前主线（S0.2：收敛 `eva-domain` 对 `bc-course` 的编译期依赖面，保持行为不变）：先用 Serena 盘点 `eva-domain` 的 `import edu.cuit.client.*` 清单并证伪类型来源，然后把仍落在 `bc-course/application` 的 `edu.cuit.client.*` 协议对象小簇逐步迁移到 `shared-kernel`（优先保持 `package` 不变），最终在 Serena 证伪“`eva-domain` 不再需要 `bc-course` 提供这些类型”后移除 `eva-domain/pom.xml` 对 `bc-course` 的依赖（每步闭环：Serena→最小回归→commit→三文档同步）。
+1) 🎯 当前主线（S0.2：收敛 `eva-domain` 对 `bc-course` 的编译期依赖面，保持行为不变）：先用 Serena 盘点 `eva-domain` 的 `import edu.cuit.client.*` 清单并证伪类型来源，然后把仍落在 `bc-course/application` 的 `edu.cuit.client.*` 协议对象小簇逐步迁移到 `shared-kernel`（优先保持 `package` 不变），最终在 Serena 证伪“`eva-domain` 不再需要 `bc-course` 提供这些类型”后移除 `eva-domain/pom.xml` 对 `bc-course` 的依赖（每步闭环：Serena→最小回归→commit→三文档同步）。已起步：✅ `SemesterCO` 已迁移 `shared-kernel`（`77126c4a`）。下一步建议顺序：`Term` → `CourseQuery` → `CourseConditionalQuery` → `MobileCourseQuery` → `CourseExcelBO` →（视引用面）逐步处理 `dto/cmd/course/*` 与 `dto/clientobject/course/*`。
 
 0) ✅ 已闭环（避免重复劳动）：
    - 评教统计导出基础设施归位：装饰器/工厂归位 + `EvaStatisticsExportPort` 装配切换 + `eva-app` 移除 POI Maven 直依赖（见 0.9）。
