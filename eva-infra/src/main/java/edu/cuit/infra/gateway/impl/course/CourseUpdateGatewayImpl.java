@@ -28,7 +28,7 @@ import edu.cuit.bc.course.application.usecase.AddNotExistCoursesDetailsUseCase;
 import edu.cuit.bc.course.application.model.AddExistCoursesDetailsCommand;
 import edu.cuit.bc.course.application.usecase.AddExistCoursesDetailsUseCase;
 import edu.cuit.bc.course.application.model.UpdateSelfCourseCommand;
-import edu.cuit.bc.course.application.usecase.UpdateSelfCourseUseCase;
+import edu.cuit.bc.course.application.usecase.UpdateSelfCourseGatewayEntryUseCase;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +47,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     private final UpdateCourseGatewayEntryUseCase updateCourseGatewayEntryUseCase;
     private final UpdateCourseTypeEntryUseCase updateCourseTypeEntryUseCase;
     private final UpdateCoursesTypeEntryUseCase updateCoursesTypeEntryUseCase;
-    private final UpdateSelfCourseUseCase updateSelfCourseUseCase;
+    private final UpdateSelfCourseGatewayEntryUseCase updateSelfCourseGatewayEntryUseCase;
     private final AddCourseTypeEntryUseCase addCourseTypeEntryUseCase;
     private final AddNotExistCoursesDetailsUseCase addNotExistCoursesDetailsUseCase;
     private final AddExistCoursesDetailsUseCase addExistCoursesDetailsUseCase;
@@ -150,7 +150,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     @Transactional
     public Map<String,Map<Integer,Integer>> updateSelfCourse(String userName, SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeInfoCO> timeList) {
         // 历史路径：收敛到 bc-course 用例，基础设施层避免继续堆“自助改课”业务流程（行为不变）
-        return updateSelfCourseUseCase.execute(new UpdateSelfCourseCommand(userName, selfTeachCourseCO, timeList));
+        return updateSelfCourseGatewayEntryUseCase.updateSelfCourse(userName, selfTeachCourseCO, timeList);
     }
 
     @Override
