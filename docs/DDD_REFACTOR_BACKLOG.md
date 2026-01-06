@@ -354,9 +354,10 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：以下是仍在旧 gateway/技术切片中的能力，优先级按“写侧优先 + 影响范围”排序。
 
-0) **S0.2（下一批主线，保持行为不变）：收敛 `eva-domain` 对 `bc-course` 的编译期依赖面**
+0) **S0.2（已闭环，后续延伸，保持行为不变）：收敛 `eva-domain` 对 `bc-course` 的编译期依赖面**
    - 背景：`eva-domain/pom.xml` **此前**依赖 `bc-course`（应用层 jar）。核心原因是 `eva-domain` 引用一批 `edu.cuit.client.*` 协议对象，而这些类型的定义文件当时仍落在 `bc-course/application`（Serena 证据化盘点）。
-   - ✅ 进展（2026-01-06）：Serena 证伪后已移除 `eva-domain/pom.xml` 对 `bc-course` 的 Maven 依赖，改为显式依赖 `shared-kernel`（保持行为不变；最小回归通过；落地：`01b36508`）。
+	   - ✅ 进展（2026-01-06）：Serena 证伪后已移除 `eva-domain/pom.xml` 对 `bc-course` 的 Maven 依赖，改为显式依赖 `shared-kernel`（保持行为不变；最小回归通过；落地：`01b36508`）。
+	   - ✅ 补充进展（2026-01-06）：`IUserCourseService` 已迁移至 `shared-kernel`，从而使 `bc-ai-report-infra` 不再需要显式依赖 `bc-course`（保持行为不变；细节以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
    - 证据（示例，均保持 `package` 不变）：
      - ✅ `edu.cuit.client.dto.clientobject.SemesterCO`：已迁移至 `shared-kernel/src/main/java/edu/cuit/client/dto/clientobject/SemesterCO.java`（落地：`77126c4a`）
      - ✅ `edu.cuit.client.dto.data.Term`：已迁移至 `shared-kernel/src/main/java/edu/cuit/client/dto/data/Term.java`（落地：`23bff82f`）
@@ -374,9 +375,10 @@ scope: 全仓库（离线扫描 + 规则归纳）
      - ✅ `edu.cuit.client.dto.clientobject.course.CourseModelCO`：已迁移至 `shared-kernel/src/main/java/edu/cuit/client/dto/clientobject/course/CourseModelCO.java`（落地：`4dbcb2de`）
      - ✅ `edu.cuit.client.dto.clientobject.course.TeacherInfoCO`：已迁移至 `shared-kernel/src/main/java/edu/cuit/client/dto/clientobject/course/TeacherInfoCO.java`（落地：`4dbcb2de`）
      - （以及其它 `edu.cuit.client.dto.clientobject.course/*`，此处不逐项展开，避免文档噪声）
-    - 计划（每步只迁 1 个小包/小类簇；每步闭环=Serena→最小回归→提交→三文档同步；保持行为不变）：
-      1) 先把以上“阻塞 `eva-domain` 去 `bc-course` 依赖”的协议对象按小簇迁移到 `shared-kernel`（优先保持 `package` 不变以降风险）。
-      2) Serena 证伪 `eva-domain` 不再引用“仅由 `bc-course` 提供的 `edu.cuit.client.*` 类型”后，再独立提交移除 `eva-domain/pom.xml` 对 `bc-course` 的依赖（保持行为不变）。
+	    - 计划（每步只迁 1 个小包/小类簇；每步闭环=Serena→最小回归→提交→三文档同步；保持行为不变）：
+	      1) ✅ 已完成：先把以上“阻塞 `eva-domain` 去 `bc-course` 依赖”的协议对象按小簇迁移到 `shared-kernel`（优先保持 `package` 不变以降风险）。
+	      2) ✅ 已完成：Serena 证伪 `eva-domain` 不再引用“仅由 `bc-course` 提供的 `edu.cuit.client.*` 类型”后，独立提交移除 `eva-domain/pom.xml` 对 `bc-course` 的依赖（保持行为不变）。
+	      3) ⏳ 后续延伸：继续收敛 `bc-course/application` 的“协议承载面”（例如 `edu.cuit.client.api.course` 下残留接口与其签名依赖的跨 BC DTO），避免迁移到 `shared-kernel` 时引入 Maven 依赖环；建议先按 `NEXT_SESSION_HANDOFF.md` 0.10 的“方案 A/B”定路线再落地。
 
 1) AI 报告 / 审计日志（条目 25）：已完成提交点 A（模块骨架 + 组合根 wiring；落地提交：`a30a1ff9`），已完成提交点 B（审计日志写入 `LogGatewayImpl.insertLog`；落地提交：`b0b72263`）  
    - 补充进展（条目 25 之外）：已完成提交点 B2（AI 报告导出链路收敛；落地提交：`c68b3174`）；已完成提交点 B3（旧入口进一步退化为纯委托壳；落地提交：`7f4b3358`）。

@@ -33,6 +33,7 @@
 - ✅ **S0.2（依赖面收敛，保持行为不变）**：Serena 证伪 `eva-domain` 已不再需要 `bc-course` 提供的 `edu.cuit.client.*` 类型后，移除 `eva-domain/pom.xml` 对 `bc-course` 的 Maven 依赖，改为显式依赖 `shared-kernel`（最小回归通过；落地提交：`01b36508`）。
   - 补充（保持行为不变）：`bc-ai-report-infra` 原先通过 `eva-domain` 间接获得 `IUserCourseService` 类型依赖；本次在 `bc-ai-report-infra/pom.xml` 补齐对 `bc-course` 的显式依赖以闭合编译依赖（同一提交：`01b36508`）。
 - ✅ **依赖收敛（保持行为不变）**：将课程用户侧接口 `IUserCourseService`（以及其出参 `SimpleSubjectResultCO`）迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地提交：`e2a697f1`），从而移除 `bc-ai-report-infra` 对 `bc-course` 的显式编译期依赖（避免依赖回潮）。
+- ✅ **docs（交接与计划同步，保持行为不变）**：补齐本次“依赖收敛补齐点”的三文档同步（`NEXT_SESSION_HANDOFF.md` / `DDD_REFACTOR_PLAN.md` / `docs/DDD_REFACTOR_BACKLOG.md`），并按铁律再次执行最小回归（Java17；命令见 0.10；`BUILD SUCCESS`）；落地提交以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准。
 
 **2026-01-05（本次会话）**
 - ✅ **bc-course（课程，S0：旧 gateway 压扁为委托壳）**：压扁 `CourseUpdateGatewayImpl.addExistCoursesDetails`：新增 `AddExistCoursesDetailsGatewayEntryUseCase`，旧 gateway 不再构造 Command，仅保留事务边界 + 委托调用（Serena：调用点为 `AddExistCoursesDetailsPortImpl.addExistCoursesDetails`；保持行为不变；最小回归通过；落地提交：`de34a308`）。
@@ -344,11 +345,21 @@
   - ✅ **bc-evaluation 写侧**：发布评教任务、删除评教记录/模板等主链路已收敛；统计导出基础设施已阶段性归位（见 0.9/10.2）。
   - ✅ **bc-messaging**：组合根/监听器/端口适配器归位与“依赖收敛关键环节”已阶段性闭环（见 0.9/10.3）；后置仅做结构折叠与依赖证伪（保持行为不变）。
   - ✅ **`eva-client` 退场**：已从 reactor 移除并从仓库删除；跨 BC 通用对象已开始沉淀 `shared-kernel`（见 10.5）。
-  - ⏳ **仍未完成（核心阻塞项）**：
-    1) `eva-infra` 仍保留 **18 个** `*GatewayImpl.java`（Serena：目录 `eva-infra/src/main/java/edu/cuit/infra/gateway/impl` 下盘点），其中大量方法仍未退化为“仅事务边界 + 委托调用”的壳/未归位到对应 BC（详见 `docs/DDD_REFACTOR_BACKLOG.md` 4.3）。
-    2) `eva-app` 仍保留 **18 个** `*ServiceImpl.java`（Serena：目录 `eva-app/src/main/java/edu/cuit/app/service/impl` 下盘点），尚未全部退化为“仅 `@CheckSemId` / 登录态解析 / 委托 UseCase”的壳（仍需要继续把业务编排逐步归位到各 BC）。
-    3) `eva-adapter` 仍保留 **22 个** `*Controller.java`（Serena：目录 `eva-adapter/src/main/java` 下盘点），Controller 仍需逐步收敛为“纯 HTTP 协议适配”（避免直接依赖基础设施实现细节；保持行为不变）。
-    4) **S0.2（收敛依赖）仍未完成**：`eva-domain` 当前仍依赖 `bc-course`（应用层 jar）。下一步建议把仍落在 `bc-course/application` 的 `edu.cuit.client.*` 协议对象小簇逐步迁移到 `shared-kernel`（优先保持 `package` 不变），最终在 Serena 证伪“无剩余仅由 `bc-course` 提供的类型”后移除该依赖（保持行为不变；每次只迁 1 个小包/小类簇）。
+	  - ⏳ **仍未完成（核心阻塞项）**：
+	    1) `eva-infra` 仍保留 **18 个** `*GatewayImpl.java`（Serena：目录 `eva-infra/src/main/java/edu/cuit/infra/gateway/impl` 下盘点），其中大量方法仍未退化为“仅事务边界 + 委托调用”的壳/未归位到对应 BC（详见 `docs/DDD_REFACTOR_BACKLOG.md` 4.3）。
+	    2) `eva-app` 仍保留 **18 个** `*ServiceImpl.java`（Serena：目录 `eva-app/src/main/java/edu/cuit/app/service/impl` 下盘点），尚未全部退化为“仅 `@CheckSemId` / 登录态解析 / 委托 UseCase”的壳（仍需要继续把业务编排逐步归位到各 BC）。
+	    3) `eva-adapter` 仍保留 **22 个** `*Controller.java`（Serena：目录 `eva-adapter/src/main/java` 下盘点），Controller 仍需逐步收敛为“纯 HTTP 协议适配”（避免直接依赖基础设施实现细节；保持行为不变）。
+	    4) ✅ **S0.2（收敛依赖，主目标已闭环）**：`eva-domain` 已移除对 `bc-course`（应用层 jar）的 Maven 依赖；且 `bc-ai-report-infra` 已不再需要显式依赖 `bc-course`（`IUserCourseService` 已沉 `shared-kernel`），均已在最小回归下验证闭合（细节见 0.9）。
+	    5) ⏳ **S0.2（延伸：继续收敛 `bc-course` 的“协议承载面”）**：`bc-course/application/src/main/java/edu/cuit/client/api/course` 仍保留 `ICourseDetailService/ICourseService/ICourseTypeService` 等接口；其中 `ICourseDetailService` 的方法签名引用 `edu.cuit.client.dto.clientobject.eva.CourseScoreCO`（当前在 `bc-evaluation-contract`），且 `SingleCourseDetailCO` 引用 `EvaTeacherInfoCO`（同在 `bc-evaluation-contract`）。若直接把这些接口/CO 迁到 `shared-kernel`，可能导致 `shared-kernel` 需要依赖 `bc-evaluation-contract` 或引入 Maven 依赖环，下一会话需先定“跨 BC 协议对象”的承载路线（先 Serena 证据化再动手）。
+
+- 下一会话优先建议（聚焦 **S0.2 延伸**，保持行为不变；每步只改 1 个小包/小类簇，便于回滚）：
+  1) **Serena 证据化盘点**：
+     - `edu.cuit.client.api.course` 下残留接口：`ICourseDetailService/ICourseService/ICourseTypeService`（位于 `bc-course/application`）。
+     - 这些接口签名依赖的“跨 BC”类型：至少 `CourseScoreCO`、`EvaTeacherInfoCO`、`SingleCourseDetailCO` 的定义落点与引用面。
+  2) **路线选择（两种方案对比，择一推进）**：
+     - 方案 A（推荐，最小改动）：将确属“跨 BC 协议对象”的 `edu.cuit.client.dto.clientobject.eva` 小簇（至少 `CourseScoreCO/EvaTeacherInfoCO`）迁移到 `shared-kernel`（保持 `package` 不变），以避免 `shared-kernel` 反向依赖 `bc-evaluation-contract`；随后再把 `ICourseDetailService`/`SingleCourseDetailCO` 等按需迁移到 `shared-kernel`，并逐步移除引用方对 `bc-course` 的编译期依赖（每步闭环）。
+     - 方案 B（结构更清晰但成本更高）：新增 `bc-course-contract`（或更中立的 `edu.cuit.client-contract`）承载这些接口/CO，避免继续“膨胀 shared-kernel”；然后把依赖方从 `bc-course` 改为依赖该 contract 模块（仍保持 `package` 不变与行为不变）。
+  3) 每步闭环：Serena → 最小回归（见本节命令）→ commit → 同步三文档（保持行为不变）。
 
 - Q：什么时候可以把 `eva-*` 技术切片“全部整合进各业务 bc-* 模块”？
   - A：不要用固定日期衡量，按 **可验证的 DoD**（见 `DDD_REFACTOR_PLAN.md` 10.5）：
@@ -532,28 +543,20 @@
 
 本会话目标（按顺序执行；每步闭环=Serena→最小回归→提交→三文档同步；保持行为不变）：
 
-1) 🎯 当前主线（S0.2：收敛 `eva-domain` 对 `bc-course` 的编译期依赖面，保持行为不变）：先用 Serena 盘点 `eva-domain` 的 `import edu.cuit.client.*` 清单并证伪类型来源，然后把仍落在 `bc-course/application` 的 `edu.cuit.client.*` 协议对象小簇逐步迁移到 `shared-kernel`（优先保持 `package` 不变），最终在 Serena 证伪“`eva-domain` 不再需要 `bc-course` 提供这些类型”后移除 `eva-domain/pom.xml` 对 `bc-course` 的依赖（每步闭环：Serena→最小回归→commit→三文档同步）。已起步：✅ `SemesterCO/Term` 已迁移 `shared-kernel`。下一步建议顺序：`CourseQuery` → `CourseConditionalQuery` → `MobileCourseQuery` → `CourseExcelBO` →（视引用面）逐步处理 `dto/cmd/course/*` 与 `dto/clientobject/course/*`。
+1) 🎯 当前主线（**S0.2 延伸：继续收敛 `bc-course` 的“协议承载面”**，保持行为不变）：
+   - 先用 Serena 盘点 `bc-course/application/src/main/java/edu/cuit/client/api/course` 下残留接口（`ICourseDetailService/ICourseService/ICourseTypeService`）的签名依赖面，并证伪“跨 BC 类型”的定义落点与引用面（至少：`CourseScoreCO`、`EvaTeacherInfoCO`、`SingleCourseDetailCO`）。
+   - 在不引入 Maven 循环依赖的前提下，选择路线并只推进 1 个最小小簇：
+     - 方案 A（推荐）：先将确属“跨 BC 协议对象”的 `edu.cuit.client.dto.clientobject.eva` 小簇（至少 `CourseScoreCO/EvaTeacherInfoCO`）迁移到 `shared-kernel`（保持 `package` 不变），再按需迁移 `ICourseDetailService/SingleCourseDetailCO` 等到 `shared-kernel`，逐步移除引用方对 `bc-course` 的编译期依赖。
+     - 方案 B（成本更高）：新增 `bc-course-contract`（或更中立的 contract 模块）承载这些接口/CO，避免继续“膨胀 shared-kernel”；再把依赖方从 `bc-course` 切到 contract 模块（仍保持 `package`/行为不变）。
 
-0) ✅ 已闭环（避免重复劳动）：
-   - 评教统计导出基础设施归位：装饰器/工厂归位 + `EvaStatisticsExportPort` 装配切换 + `eva-app` 移除 POI Maven 直依赖（见 0.9）。
-   - bc-course 课表解析：POI 解析归位到 `bc-course-infra` + `CourseExcelResolvePort` 端口化 + 调用侧依赖收敛（见 0.9）。
-   - bc-messaging（消息域）：组合根 `BcMessagingConfiguration` 已归位到 `bc-messaging`（保持 `package` 不变；见 0.9）。
-   - bc-messaging（消息域）：监听器 `CourseOperationSideEffectsListener` 已归位到 `bc-messaging`（保持 `package` 不变；见 0.9）。
-   - bc-messaging（消息域）：监听器 `CourseTeacherTaskMessagesListener` 已归位到 `bc-messaging`（保持 `package` 不变；见 0.9）。
-   - bc-messaging（消息域）：支撑类 `MsgResult` 已归位到 `bc-messaging-contract`（保持 `package` 不变；见 0.9）。
-   - bc-messaging（消息域）：应用侧端口适配器 `CourseBroadcastPortAdapter` 已归位到 `bc-messaging`（保持 `package` 不变；见 0.9）。
-   - bc-messaging（消息域）：应用侧端口适配器 `TeacherTaskMessagePortAdapter` 已归位到 `bc-messaging`（保持 `package` 不变；见 0.9）。
-   - bc-messaging（消息域）：应用侧端口适配器 `EvaMessageCleanupPortAdapter` 已归位到 `bc-messaging`（保持 `package` 不变；见 0.9）。
-   - bc-messaging（消息域）：应用侧事件载荷已下沉到 `bc-messaging-contract`：`CourseOperationMessageMode/CourseOperationSideEffectsEvent/CourseTeacherTaskMessagesEvent`（均保持 `package edu.cuit.bc.messaging.application.event` 不变；见 0.9）。
-   - bc-messaging（消息域）：依赖收敛阶段性闭环：`eva-app` 已将对 `bc-messaging` 的编译期依赖收敛为仅依赖 `bc-messaging-contract`（仅用于事件载荷类型；见 0.9）。
+2) ✅ 已闭环（避免重复劳动，细节以 0.9 为准）：
+   - **S0.2 主目标已闭环**：`eva-domain` 已移除对 `bc-course` 的 Maven 依赖；`IUserCourseService` 已沉 `shared-kernel`，`bc-ai-report-infra` 不再需要显式依赖 `bc-course`。
+   - **bc-course 写侧（方向 A → B）**：入口用例归位与旧 gateway 委托壳压扁已推进到阶段性闭环（见 0.9）。
+   - **bc-messaging**：归位 + 依赖收敛已阶段性闭环（见 0.9）。
 
-1) ✅ **bc-course（课程）写侧入口用例归位继续（方向 A → B）**：`ICourseServiceImpl.updateSingleCourse/addNotExistCoursesDetails/addExistCoursesDetails` 与 `IUserCourseServiceImpl.deleteSelfCourse/updateSelfCourse/importCourse` 已闭环，且 `ICourseDetailServiceImpl.updateCourse/updateCourses/delete/addCourse` 已完成入口用例归位/调用点端口化（见 0.9）。S0（旧 gateway 压扁为委托壳）已完成：`CourseUpdateGatewayImpl.updateCourse`（`c31df92c`）、`updateCourses`（`84dffcc2`）、`importCourseFile`（`5e93a08a`）、`updateSingleCourse`（`9eea1a54`）、`updateSelfCourse`（`c0f30c1f`）、`addNotExistCoursesDetails`（`62d48ee6`）与 `addExistCoursesDetails`（`de34a308`）。下一步建议：进入 **S0.1（收敛 `eva-domain` → `eva-client` 依赖）**（保持行为不变）。避坑：不要选 `CourseUpdateGatewayImpl.addCourse`（TODO 空实现）作为“压扁样例”。
+3) （可选）评教读侧（D1，方向 A → B）：继续挑选其它仍在 `eva-app` 的 `@CheckSemId` 读侧入口方法簇复制同套路（每次只迁 1 个方法簇；保持行为不变）。
 
-2) **bc-messaging（依赖收敛）**：✅ 已闭环（见 0.9）。本会话不继续；后置如需再推进，优先做结构折叠（S0，仅搬运/依赖收敛，保持行为不变）。
-
-3) （可选）**评教读侧（D1，方向 A → B）**：目前已覆盖统计/记录/任务/模板/用户评教记录 5 个入口（见 0.9）。若要继续推进读侧归位，挑选其它仍在 `eva-app` 的 `@CheckSemId` 读侧入口方法簇复制同套路（每次只迁 1 个方法簇；保持行为不变）。
-
-4) （可选/后置）**条目 25 / S0（AI 报告）**：消息域推进顺利后，再回到 `bc-ai-report` 的 S0 做“仅搬运/依赖收敛”（保持行为不变）。
+4) （可选/后置）条目 25 / S0（AI 报告）：按 0.10 的口径推进 `bc-ai-report` 的“仅搬运/依赖收敛”（保持行为不变）。
 
 已闭环（用于避免重复劳动）：
 - ✅ S0.1：`eva-client` 已从主干依赖链彻底退出（含：来源证伪 + 退出 reactor + 目录从仓库移除；保持行为不变；落地提交以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准）。
