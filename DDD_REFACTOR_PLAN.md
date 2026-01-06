@@ -516,6 +516,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-01-06，S0.2 持续推进，保持行为不变）：已将课程写侧剩余命令对象（`UpdateCourseCmd/AddCoursesAndCourInfoCmd/UpdateCourseInfoAndTimeCmd`）从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`0d18e4ad`），从而完成 `edu.cuit.client.dto.cmd.course/*` 的迁移闭包。
 - 补充进展（2026-01-06，S0.2 持续推进，保持行为不变）：已将推荐课程 CO `RecommendCourseCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`24595a53`）。
 - 补充进展（2026-01-06，S0.2 持续推进，保持行为不变）：已将评教模板 CO `EvaTemplateCO` 从 `bc-evaluation-contract` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`34579fe0`），用于解除课程 CO（`CourseModelCO`）的类型依赖阻塞，支撑后续迁移 `CourseDetailCO`。
+- 补充进展（2026-01-06，S0.2 持续推进，保持行为不变）：已将课程详情相关 CO（`TeacherInfoCO/CourseModelCO/CourseDetailCO`）从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`4dbcb2de`），进一步消除 eva-domain 对 bc-course 的类型依赖。
 
 **下一步建议（S0.1，保持行为不变；每步只改 1 个小包/小类簇）：**
 1) 用 Serena 盘点 `eva-domain` 的 `import edu.cuit.client.*` 清单，并证伪“每个类型当前由哪个模块提供”（避免凭直觉改依赖）。

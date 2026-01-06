@@ -366,11 +366,13 @@ scope: 全仓库（离线扫描 + 规则归纳）
      - ✅ `edu.cuit.client.dto.clientobject.course` 子簇（`SubjectCO/SelfTeachCourseCO/SelfTeachCourseTimeCO/SelfTeachCourseTimeInfoCO`）：已迁移至 `shared-kernel/src/main/java/edu/cuit/client/dto/clientobject/course/`（落地：`87d8c692`）
      - ✅ `edu.cuit.client.dto.clientobject.course.RecommendCourseCO`：已迁移至 `shared-kernel/src/main/java/edu/cuit/client/dto/clientobject/course/RecommendCourseCO.java`（落地：`24595a53`）
      - ✅ `edu.cuit.client.dto.clientobject.eva.EvaTemplateCO`：已迁移至 `shared-kernel/src/main/java/edu/cuit/client/dto/clientobject/eva/EvaTemplateCO.java`（落地：`34579fe0`）
-     - `edu.cuit.client.dto.clientobject.course.CourseDetailCO`：`bc-course/application/src/main/java/edu/cuit/client/dto/clientobject/course/CourseDetailCO.java`
+     - ✅ `edu.cuit.client.dto.clientobject.course.CourseDetailCO`：已迁移至 `shared-kernel/src/main/java/edu/cuit/client/dto/clientobject/course/CourseDetailCO.java`（落地：`4dbcb2de`）
+     - ✅ `edu.cuit.client.dto.clientobject.course.CourseModelCO`：已迁移至 `shared-kernel/src/main/java/edu/cuit/client/dto/clientobject/course/CourseModelCO.java`（落地：`4dbcb2de`）
+     - ✅ `edu.cuit.client.dto.clientobject.course.TeacherInfoCO`：已迁移至 `shared-kernel/src/main/java/edu/cuit/client/dto/clientobject/course/TeacherInfoCO.java`（落地：`4dbcb2de`）
      - （以及其它 `edu.cuit.client.dto.clientobject.course/*`，此处不逐项展开，避免文档噪声）
-   - 计划（每步只迁 1 个小包/小类簇；每步闭环=Serena→最小回归→提交→三文档同步；保持行为不变）：
-     1) 先把以上“阻塞 `eva-domain` 去 `bc-course` 依赖”的协议对象按小簇迁移到 `shared-kernel`（优先保持 `package` 不变以降风险）。
-     2) Serena 证伪 `eva-domain` 不再引用“仅由 `bc-course` 提供的 `edu.cuit.client.*` 类型”后，再独立提交移除 `eva-domain/pom.xml` 对 `bc-course` 的依赖（保持行为不变）。
+    - 计划（每步只迁 1 个小包/小类簇；每步闭环=Serena→最小回归→提交→三文档同步；保持行为不变）：
+      1) 先把以上“阻塞 `eva-domain` 去 `bc-course` 依赖”的协议对象按小簇迁移到 `shared-kernel`（优先保持 `package` 不变以降风险）。
+      2) Serena 证伪 `eva-domain` 不再引用“仅由 `bc-course` 提供的 `edu.cuit.client.*` 类型”后，再独立提交移除 `eva-domain/pom.xml` 对 `bc-course` 的依赖（保持行为不变）。
 
 1) AI 报告 / 审计日志（条目 25）：已完成提交点 A（模块骨架 + 组合根 wiring；落地提交：`a30a1ff9`），已完成提交点 B（审计日志写入 `LogGatewayImpl.insertLog`；落地提交：`b0b72263`）  
    - 补充进展（条目 25 之外）：已完成提交点 B2（AI 报告导出链路收敛；落地提交：`c68b3174`）；已完成提交点 B3（旧入口进一步退化为纯委托壳；落地提交：`7f4b3358`）。
