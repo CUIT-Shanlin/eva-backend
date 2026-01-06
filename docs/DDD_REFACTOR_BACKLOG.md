@@ -354,7 +354,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：以下是仍在旧 gateway/技术切片中的能力，优先级按“写侧优先 + 影响范围”排序。
 
 0) **S0.2（下一批主线，保持行为不变）：收敛 `eva-domain` 对 `bc-course` 的编译期依赖面**
-   - 背景：`eva-domain/pom.xml` 当前仍依赖 `bc-course`（应用层 jar）。核心原因是 `eva-domain` 仍引用一批 `edu.cuit.client.*` 协议对象，而这些类型的定义文件仍落在 `bc-course/application`（Serena 证据化盘点）。
+   - 背景：`eva-domain/pom.xml` **此前**依赖 `bc-course`（应用层 jar）。核心原因是 `eva-domain` 引用一批 `edu.cuit.client.*` 协议对象，而这些类型的定义文件当时仍落在 `bc-course/application`（Serena 证据化盘点）。
+   - ✅ 进展（2026-01-06）：Serena 证伪后已移除 `eva-domain/pom.xml` 对 `bc-course` 的 Maven 依赖，改为显式依赖 `shared-kernel`（保持行为不变；最小回归通过；落地：`01b36508`）。
    - 证据（示例，均保持 `package` 不变）：
      - ✅ `edu.cuit.client.dto.clientobject.SemesterCO`：已迁移至 `shared-kernel/src/main/java/edu/cuit/client/dto/clientobject/SemesterCO.java`（落地：`77126c4a`）
      - ✅ `edu.cuit.client.dto.data.Term`：已迁移至 `shared-kernel/src/main/java/edu/cuit/client/dto/data/Term.java`（落地：`23bff82f`）
