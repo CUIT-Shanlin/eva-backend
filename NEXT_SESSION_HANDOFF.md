@@ -32,6 +32,7 @@
 - ✅ **S0.2（依赖面收敛，保持行为不变）**：将课程详情相关 CO（`TeacherInfoCO/CourseModelCO/CourseDetailCO`）从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地提交：`4dbcb2de`），进一步消除 eva-domain 对 bc-course 的类型依赖。
 - ✅ **S0.2（依赖面收敛，保持行为不变）**：Serena 证伪 `eva-domain` 已不再需要 `bc-course` 提供的 `edu.cuit.client.*` 类型后，移除 `eva-domain/pom.xml` 对 `bc-course` 的 Maven 依赖，改为显式依赖 `shared-kernel`（最小回归通过；落地提交：`01b36508`）。
   - 补充（保持行为不变）：`bc-ai-report-infra` 原先通过 `eva-domain` 间接获得 `IUserCourseService` 类型依赖；本次在 `bc-ai-report-infra/pom.xml` 补齐对 `bc-course` 的显式依赖以闭合编译依赖（同一提交：`01b36508`）。
+- ✅ **依赖收敛（保持行为不变）**：将课程用户侧接口 `IUserCourseService`（以及其出参 `SimpleSubjectResultCO`）迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地提交：`e2a697f1`），从而移除 `bc-ai-report-infra` 对 `bc-course` 的显式编译期依赖（避免依赖回潮）。
 
 **2026-01-05（本次会话）**
 - ✅ **bc-course（课程，S0：旧 gateway 压扁为委托壳）**：压扁 `CourseUpdateGatewayImpl.addExistCoursesDetails`：新增 `AddExistCoursesDetailsGatewayEntryUseCase`，旧 gateway 不再构造 Command，仅保留事务边界 + 委托调用（Serena：调用点为 `AddExistCoursesDetailsPortImpl.addExistCoursesDetails`；保持行为不变；最小回归通过；落地提交：`de34a308`）。
