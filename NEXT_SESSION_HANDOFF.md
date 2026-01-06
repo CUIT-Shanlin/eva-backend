@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-01-06（本次会话）**
+- ✅ **S0.2 延伸（bc-course 协议承载面收敛，保持行为不变）**：将课程 API 接口 `ICourseService/ICourseTypeService` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；仅接口定义搬运，不改业务语义；最小回归通过；落地提交：`4dbeb55f`）。
 - ✅ **S0.2 延伸（bc-course 协议承载面收敛，保持行为不变）**：将单课次衍生详情 CO `ModifySingleCourseDetailCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；Serena 证据化：仓库内未发现引用点，属于协议残留；最小回归通过；落地提交：`1e9be81d`）。
 - ✅ **S0.2 延伸（bc-course 协议承载面收敛，保持行为不变）**：将单节课详情 CO `SingleCourseDetailCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变），继续削减 `bc-course` 的“协议承载面”（最小回归通过；落地提交：`95b01a07`）。
 - ✅ **S0.2 延伸（bc-course 协议承载面收敛，保持行为不变）**：将评教域 CO `CourseScoreCO/EvaTeacherInfoCO` 从 `bc-evaluation/contract` 迁移到 `shared-kernel`（保持 `package` 不变），并移除 `bc-course/application` 对 `bc-evaluation-contract` 的编译期依赖（其在应用层仅剩这两处类型引用；避免“课程协议签名依赖评教 contract”导致的跨 BC 编译期耦合；最小回归通过，含补充 `UserServiceImplTest`；落地提交：`bc30e9de`）。
