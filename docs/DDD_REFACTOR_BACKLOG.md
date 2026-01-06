@@ -362,10 +362,10 @@ scope: 全仓库（离线扫描 + 规则归纳）
      - ✅ `edu.cuit.client.dto.query.condition.CourseConditionalQuery`：已迁移至 `shared-kernel/src/main/java/edu/cuit/client/dto/query/condition/CourseConditionalQuery.java`（落地：`e479ce0e`）
      - ✅ `edu.cuit.client.dto.query.condition.MobileCourseQuery`：已迁移至 `shared-kernel/src/main/java/edu/cuit/client/dto/query/condition/MobileCourseQuery.java`（落地：`e479ce0e`）
      - ✅ `edu.cuit.client.bo.CourseExcelBO`：已迁移至 `shared-kernel/src/main/java/edu/cuit/client/bo/CourseExcelBO.java`（落地：`1f47a032`）
-     - ✅ `edu.cuit.client.dto.cmd.course` 子簇（`AlignTeacherCmd/UpdateCourseTypeCmd/UpdateCoursesCmd/UpdateCoursesToTypeCmd/UpdateSingleCourseCmd`）：已迁移至 `shared-kernel/src/main/java/edu/cuit/client/dto/cmd/course/`（落地：`0978b3cb`）
+     - ✅ `edu.cuit.client.dto.cmd.course`（全部 8 个 Cmd）：已迁移至 `shared-kernel/src/main/java/edu/cuit/client/dto/cmd/course/`（落地：`0978b3cb`、`0d18e4ad`）
      - ✅ `edu.cuit.client.dto.clientobject.course` 子簇（`SubjectCO/SelfTeachCourseCO/SelfTeachCourseTimeCO/SelfTeachCourseTimeInfoCO`）：已迁移至 `shared-kernel/src/main/java/edu/cuit/client/dto/clientobject/course/`（落地：`87d8c692`）
      - `edu.cuit.client.dto.clientobject.course.CourseDetailCO`：`bc-course/application/src/main/java/edu/cuit/client/dto/clientobject/course/CourseDetailCO.java`
-     - （以及其它 `edu.cuit.client.dto.clientobject.course/*` 与 `edu.cuit.client.dto.cmd.course/*`，此处不逐项展开，避免文档噪声）
+     - （以及其它 `edu.cuit.client.dto.clientobject.course/*`，此处不逐项展开，避免文档噪声）
    - 计划（每步只迁 1 个小包/小类簇；每步闭环=Serena→最小回归→提交→三文档同步；保持行为不变）：
      1) 先把以上“阻塞 `eva-domain` 去 `bc-course` 依赖”的协议对象按小簇迁移到 `shared-kernel`（优先保持 `package` 不变以降风险）。
      2) Serena 证伪 `eva-domain` 不再引用“仅由 `bc-course` 提供的 `edu.cuit.client.*` 类型”后，再独立提交移除 `eva-domain/pom.xml` 对 `bc-course` 的依赖（保持行为不变）。
