@@ -514,6 +514,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-01-06，S0.2 持续推进，保持行为不变）：已将课程写侧命令对象子簇（`AlignTeacherCmd/UpdateCourseTypeCmd/UpdateCoursesCmd/UpdateCoursesToTypeCmd/UpdateSingleCourseCmd`）从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`0978b3cb`）。
 - 补充进展（2026-01-06，S0.2 持续推进，保持行为不变）：已将课程 CO 子簇（`SubjectCO/SelfTeachCourseCO/SelfTeachCourseTimeCO/SelfTeachCourseTimeInfoCO`）从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`87d8c692`）。
 - 补充进展（2026-01-06，S0.2 持续推进，保持行为不变）：已将课程写侧剩余命令对象（`UpdateCourseCmd/AddCoursesAndCourInfoCmd/UpdateCourseInfoAndTimeCmd`）从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`0d18e4ad`），从而完成 `edu.cuit.client.dto.cmd.course/*` 的迁移闭包。
+- 补充进展（2026-01-06，S0.2 持续推进，保持行为不变）：已将推荐课程 CO `RecommendCourseCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`24595a53`）。
 
 **下一步建议（S0.1，保持行为不变；每步只改 1 个小包/小类簇）：**
 1) 用 Serena 盘点 `eva-domain` 的 `import edu.cuit.client.*` 清单，并证伪“每个类型当前由哪个模块提供”（避免凭直觉改依赖）。

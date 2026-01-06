@@ -27,6 +27,7 @@
 - ✅ **S0.2（依赖面收敛，保持行为不变）**：将课程写侧命令对象子簇（`AlignTeacherCmd/UpdateCourseTypeCmd/UpdateCoursesCmd/UpdateCoursesToTypeCmd/UpdateSingleCourseCmd`）从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地提交：`0978b3cb`），继续削减 `eva-domain` 依赖 `bc-course` 的原因集合。
 - ✅ **S0.2（依赖面收敛，保持行为不变）**：将课程 CO 子簇（`SubjectCO/SelfTeachCourseCO/SelfTeachCourseTimeCO/SelfTeachCourseTimeInfoCO`）从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地提交：`87d8c692`），为后续迁移剩余课程 cmd 做前置准备。
 - ✅ **S0.2（依赖面收敛，保持行为不变）**：将课程写侧剩余命令对象（`UpdateCourseCmd/AddCoursesAndCourInfoCmd/UpdateCourseInfoAndTimeCmd`）从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地提交：`0d18e4ad`），从而完成 `edu.cuit.client.dto.cmd.course/*` 的迁移闭包。
+- ✅ **S0.2（依赖面收敛，保持行为不变）**：将推荐课程 CO `RecommendCourseCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地提交：`24595a53`），继续削减 `eva-domain` 依赖 `bc-course` 的原因集合。
 
 **2026-01-05（本次会话）**
 - ✅ **bc-course（课程，S0：旧 gateway 压扁为委托壳）**：压扁 `CourseUpdateGatewayImpl.addExistCoursesDetails`：新增 `AddExistCoursesDetailsGatewayEntryUseCase`，旧 gateway 不再构造 Command，仅保留事务边界 + 委托调用（Serena：调用点为 `AddExistCoursesDetailsPortImpl.addExistCoursesDetails`；保持行为不变；最小回归通过；落地提交：`de34a308`）。
