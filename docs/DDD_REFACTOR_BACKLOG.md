@@ -383,7 +383,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
 	    - 计划（每步只迁 1 个小包/小类簇；每步闭环=Serena→最小回归→提交→三文档同步；保持行为不变）：
 	      1) ✅ 已完成：先把以上“阻塞 `eva-domain` 去 `bc-course` 依赖”的协议对象按小簇迁移到 `shared-kernel`（优先保持 `package` 不变以降风险）。
 	      2) ✅ 已完成：Serena 证伪 `eva-domain` 不再引用“仅由 `bc-course` 提供的 `edu.cuit.client.*` 类型”后，独立提交移除 `eva-domain/pom.xml` 对 `bc-course` 的依赖（保持行为不变）。
-	      3) ⏳ 后续延伸：继续收敛 `bc-course/application` 的“协议承载面”（例如 `edu.cuit.client.api.course` 下残留接口与其签名依赖的跨 BC DTO），避免迁移到 `shared-kernel` 时引入 Maven 依赖环；建议先按 `NEXT_SESSION_HANDOFF.md` 0.10 的“方案 A/B”定路线再落地。
+	      3) ✅ 已完成（S0.2 延伸，保持行为不变）：继续收敛 `bc-course/application` 的“协议承载面”，将课程域接口/CO（`edu.cuit.client.api.course` 下残留接口 `ICourseDetailService/ICourseService/ICourseTypeService` 及其签名依赖的跨 BC DTO，如 `CourseScoreCO/EvaTeacherInfoCO/SingleCourseDetailCO/SimpleCourseResultCO` 等）逐步下沉到 `shared-kernel`（均保持 `package` 不变），并移除 `bc-course/application` 对 `bc-evaluation-contract` 的编译期依赖，避免跨 BC 编译期耦合与 Maven 环依赖（细节以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
+	      4) ⏳ 后续延伸（保持行为不变）：在课程域协议已进入 `shared-kernel` 的前提下，逐个模块收敛对 `bc-course` 的编译期依赖（每次只改 1 个 `pom.xml`）：先用 Serena 证伪该模块是否引用 `bc-course` 内部实现类；若仅使用 `edu.cuit.client.*` 类型，则将其对 `bc-course` 的编译期依赖替换为显式依赖 `shared-kernel`（每步闭环：Serena → 最小回归 → commit → 三文档同步）。
 
 1) AI 报告 / 审计日志（条目 25）：已完成提交点 A（模块骨架 + 组合根 wiring；落地提交：`a30a1ff9`），已完成提交点 B（审计日志写入 `LogGatewayImpl.insertLog`；落地提交：`b0b72263`）  
    - 补充进展（条目 25 之外）：已完成提交点 B2（AI 报告导出链路收敛；落地提交：`c68b3174`）；已完成提交点 B3（旧入口进一步退化为纯委托壳；落地提交：`7f4b3358`）。
