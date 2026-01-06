@@ -667,7 +667,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   1) ✅ Serena 证据化盘点：`edu.cuit.client.api.course` 下残留接口（`ICourseDetailService/ICourseService/ICourseTypeService`）以及其签名依赖的“跨 BC”类型落点与引用面（已完成；证据与结论以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
   2) ✅ 路线 A（推荐，最小改动）：已将确属“跨 BC 协议对象”的 `edu.cuit.client.dto.clientobject.eva` 小簇（`CourseScoreCO/EvaTeacherInfoCO`）迁到 `shared-kernel`（保持 `package` 不变；落地：`bc30e9de`）。
   3) ✅ 路线 A（继续推进，保持行为不变）：已将 `SingleCourseDetailCO/ModifySingleCourseDetailCO/SimpleCourseResultCO` 与课程 API 接口（`ICourseDetailService/ICourseService/ICourseTypeService`）逐步下沉到 `shared-kernel`（均保持 `package` 不变；细节以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
-  4) ✅ 延伸主线（依赖方收敛，保持行为不变）：已选 `bc-evaluation-infra`，Serena 证伪其未引用 `edu.cuit.bc.course.*` 内部实现类/包，仅使用 `edu.cuit.client.*` 课程域 API；因此将其对 `bc-course` 的编译期依赖替换为显式依赖 `shared-kernel`（最小回归通过；落地：`a0bcf74f`）。下一步：继续对 `eva-adapter`/`eva-app` 做同样的“证伪 → 依赖替换”（每步只改 1 个 `pom.xml`，保持行为不变）。
+  4) ✅ 延伸主线（依赖方收敛，保持行为不变）：已完成两处“依赖方收敛”闭环：`bc-evaluation-infra` 去 `bc-course` 编译期依赖（落地：`a0bcf74f`）与 `eva-infra-shared` 去 `bc-course` 编译期依赖（落地：`6ab3837a`）。下一步：继续对 `eva-adapter`/`eva-app` 做同样的“证伪 → 依赖替换”（每步只改 1 个 `pom.xml`，保持行为不变；注意 `eva-adapter` 当前仅经由 `eva-app` 间接获得 `bc-course`，需先评估是否存在“可替换的显式依赖点”再动手）。
   5) 路线 B（后置，结构更清晰但成本更高）：若后续发现 `shared-kernel` 承载课程域接口/CO 规模继续膨胀，可新增 `bc-course-contract`（或更中立的 contract 模块）承载这些接口/CO，避免继续膨胀 `shared-kernel`；再逐步把依赖方从 `shared-kernel` 切到 contract（保持 `package`/行为不变）。
 
 #### bc-messaging（消息域）后置规划（仅规划，不落地；保持行为不变）
