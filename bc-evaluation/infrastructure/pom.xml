@@ -27,10 +27,10 @@
             <version>${revision}</version>
         </dependency>
 
-        <!-- 评教导出链路依赖课程/学期等应用层 API（保持包名不变） -->
+        <!-- 评教导出链路依赖课程/学期等应用层 API（shared-kernel 承载，保持包名不变） -->
         <dependency>
             <groupId>edu.cuit</groupId>
-            <artifactId>bc-course</artifactId>
+            <artifactId>shared-kernel</artifactId>
             <version>${revision}</version>
         </dependency>
 
