@@ -519,6 +519,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-01-06，S0.2 持续推进，保持行为不变）：已将课程详情相关 CO（`TeacherInfoCO/CourseModelCO/CourseDetailCO`）从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`4dbcb2de`），进一步消除 eva-domain 对 bc-course 的类型依赖。
 - 补充进展（2026-01-06，S0.2 收尾，保持行为不变）：Serena 证伪 `eva-domain` 已不再需要 `bc-course` 提供的 `edu.cuit.client.*` 类型后，移除 `eva-domain/pom.xml` 对 `bc-course` 的 Maven 依赖，改为显式依赖 `shared-kernel`（最小回归通过；落地：`01b36508`）。
 - 补充进展（2026-01-06，S0.2 依赖收敛补齐，保持行为不变）：将课程用户侧接口 `IUserCourseService`（以及其出参 `SimpleSubjectResultCO`）迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`e2a697f1`），从而移除 `bc-ai-report-infra` 对 `bc-course` 的显式编译期依赖（避免依赖回潮）。
+- 补充进展（2026-01-06，S0.2 延伸，保持行为不变）：已将评教域 CO `CourseScoreCO/EvaTeacherInfoCO` 从 `bc-evaluation/contract` 迁移到 `shared-kernel`（保持 `package` 不变），并移除 `bc-course/application` 对 `bc-evaluation-contract` 的编译期依赖（最小回归通过；落地：`bc30e9de`）。
 
 **下一步建议（S0.1，保持行为不变；每步只改 1 个小包/小类簇）：**
 1) 用 Serena 盘点 `eva-domain` 的 `import edu.cuit.client.*` 清单，并证伪“每个类型当前由哪个模块提供”（避免凭直觉改依赖）。
@@ -656,11 +657,11 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 #### bc-course（课程）S0.2 延伸：协议承载面继续收敛（保持行为不变）
 
-> 背景：S0.2 的“主目标”（`eva-domain` 去 `bc-course` 编译期依赖）已闭环；但 `bc-course/application` 仍承载一批 `edu.cuit.client.*` 协议接口/对象，且部分签名依赖评教域 DTO（如 `CourseScoreCO/EvaTeacherInfoCO`），若直接迁到 `shared-kernel` 可能引入 Maven 依赖环。
+> 背景：S0.2 的“主目标”（`eva-domain` 去 `bc-course` 编译期依赖）已闭环；但 `bc-course/application` 仍承载一批 `edu.cuit.client.*` 协议接口/对象，且部分签名依赖评教域 DTO（如 `CourseScoreCO/EvaTeacherInfoCO`）。本次已先按路线 A 将该小簇下沉到 `shared-kernel`（保持 `package` 不变；落地：`bc30e9de`），后续继续收敛接口/CO 的承载面与依赖。
 
 - 下一步（建议每步只改 1 个小包/小类簇，保持行为不变）：
-  1) Serena 证据化盘点：`edu.cuit.client.api.course` 下残留接口（`ICourseDetailService/ICourseService/ICourseTypeService`）以及其签名依赖的“跨 BC”类型落点与引用面。
-  2) 路线 A（推荐，最小改动）：先将确属“跨 BC 协议对象”的 `edu.cuit.client.dto.clientobject.eva` 小簇（至少 `CourseScoreCO/EvaTeacherInfoCO`）迁到 `shared-kernel`（保持 `package` 不变），再按需迁移接口/CO，逐步移除引用方对 `bc-course` 的编译期依赖。
+  1) ✅ Serena 证据化盘点：`edu.cuit.client.api.course` 下残留接口（`ICourseDetailService/ICourseService/ICourseTypeService`）以及其签名依赖的“跨 BC”类型落点与引用面（已完成；证据与结论以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
+  2) ✅ 路线 A（推荐，最小改动）：已将确属“跨 BC 协议对象”的 `edu.cuit.client.dto.clientobject.eva` 小簇（`CourseScoreCO/EvaTeacherInfoCO`）迁到 `shared-kernel`（保持 `package` 不变；落地：`bc30e9de`）。
   3) 路线 B（结构更清晰但成本更高）：新增 `bc-course-contract`（或更中立的 contract 模块）承载这些接口/CO，避免继续膨胀 `shared-kernel`；然后把依赖方从 `bc-course` 切到 contract（保持 `package`/行为不变）。
 
 #### bc-messaging（消息域）后置规划（仅规划，不落地；保持行为不变）
