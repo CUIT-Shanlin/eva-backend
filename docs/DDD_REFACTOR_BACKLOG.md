@@ -365,6 +365,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
      - ✅ `edu.cuit.client.dto.cmd.course`（全部 8 个 Cmd）：已迁移至 `shared-kernel/src/main/java/edu/cuit/client/dto/cmd/course/`（落地：`0978b3cb`、`0d18e4ad`）
      - ✅ `edu.cuit.client.dto.clientobject.course` 子簇（`SubjectCO/SelfTeachCourseCO/SelfTeachCourseTimeCO/SelfTeachCourseTimeInfoCO`）：已迁移至 `shared-kernel/src/main/java/edu/cuit/client/dto/clientobject/course/`（落地：`87d8c692`）
      - ✅ `edu.cuit.client.dto.clientobject.course.RecommendCourseCO`：已迁移至 `shared-kernel/src/main/java/edu/cuit/client/dto/clientobject/course/RecommendCourseCO.java`（落地：`24595a53`）
+     - ✅ `edu.cuit.client.dto.clientobject.eva.EvaTemplateCO`：已迁移至 `shared-kernel/src/main/java/edu/cuit/client/dto/clientobject/eva/EvaTemplateCO.java`（落地：`34579fe0`）
      - `edu.cuit.client.dto.clientobject.course.CourseDetailCO`：`bc-course/application/src/main/java/edu/cuit/client/dto/clientobject/course/CourseDetailCO.java`
      - （以及其它 `edu.cuit.client.dto.clientobject.course/*`，此处不逐项展开，避免文档噪声）
    - 计划（每步只迁 1 个小包/小类簇；每步闭环=Serena→最小回归→提交→三文档同步；保持行为不变）：
