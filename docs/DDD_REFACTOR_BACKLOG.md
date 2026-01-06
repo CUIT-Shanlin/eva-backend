@@ -359,9 +359,9 @@ scope: 全仓库（离线扫描 + 规则归纳）
      - ✅ `edu.cuit.client.dto.clientobject.SemesterCO`：已迁移至 `shared-kernel/src/main/java/edu/cuit/client/dto/clientobject/SemesterCO.java`（落地：`77126c4a`）
      - ✅ `edu.cuit.client.dto.data.Term`：已迁移至 `shared-kernel/src/main/java/edu/cuit/client/dto/data/Term.java`（落地：`23bff82f`）
      - `edu.cuit.client.bo.CourseExcelBO`：`bc-course/application/src/main/java/edu/cuit/client/bo/CourseExcelBO.java`
-     - `edu.cuit.client.dto.query.CourseQuery`：`bc-course/application/src/main/java/edu/cuit/client/dto/query/CourseQuery.java`
-     - `edu.cuit.client.dto.query.condition.CourseConditionalQuery`：`bc-course/application/src/main/java/edu/cuit/client/dto/query/condition/CourseConditionalQuery.java`
-     - `edu.cuit.client.dto.query.condition.MobileCourseQuery`：`bc-course/application/src/main/java/edu/cuit/client/dto/query/condition/MobileCourseQuery.java`
+     - ✅ `edu.cuit.client.dto.query.CourseQuery`：已迁移至 `shared-kernel/src/main/java/edu/cuit/client/dto/query/CourseQuery.java`（落地：`e479ce0e`）
+     - ✅ `edu.cuit.client.dto.query.condition.CourseConditionalQuery`：已迁移至 `shared-kernel/src/main/java/edu/cuit/client/dto/query/condition/CourseConditionalQuery.java`（落地：`e479ce0e`）
+     - ✅ `edu.cuit.client.dto.query.condition.MobileCourseQuery`：已迁移至 `shared-kernel/src/main/java/edu/cuit/client/dto/query/condition/MobileCourseQuery.java`（落地：`e479ce0e`）
      - `edu.cuit.client.dto.clientobject.course.CourseDetailCO`：`bc-course/application/src/main/java/edu/cuit/client/dto/clientobject/course/CourseDetailCO.java`
      - （以及其它 `edu.cuit.client.dto.clientobject.course/*` 与 `edu.cuit.client.dto.cmd.course/*`，此处不逐项展开，避免文档噪声）
    - 计划（每步只迁 1 个小包/小类簇；每步闭环=Serena→最小回归→提交→三文档同步；保持行为不变）：

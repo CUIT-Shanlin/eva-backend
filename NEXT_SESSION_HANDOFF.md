@@ -21,6 +21,9 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-01-06（本次会话）**
+- ✅ **S0.2（依赖面收敛，保持行为不变）**：将课程查询 Query（`CourseQuery/CourseConditionalQuery/MobileCourseQuery`）从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地提交：`e479ce0e`），继续削减 `eva-domain` 依赖 `bc-course` 的原因集合。
+
 **2026-01-05（本次会话）**
 - ✅ **bc-course（课程，S0：旧 gateway 压扁为委托壳）**：压扁 `CourseUpdateGatewayImpl.addExistCoursesDetails`：新增 `AddExistCoursesDetailsGatewayEntryUseCase`，旧 gateway 不再构造 Command，仅保留事务边界 + 委托调用（Serena：调用点为 `AddExistCoursesDetailsPortImpl.addExistCoursesDetails`；保持行为不变；最小回归通过；落地提交：`de34a308`）。
 - ✅ **S0.2（依赖面收敛，保持行为不变）**：将学期 CO `SemesterCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地提交：`77126c4a`），为后续移除 `eva-domain/pom.xml` 对 `bc-course` 的依赖做前置准备。
