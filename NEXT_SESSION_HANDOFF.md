@@ -27,6 +27,7 @@
 - ✅ **S0.2 延伸（课程域基础设施归位起步，保持行为不变）**：将 `edu.cuit.infra.bccourse.adapter` 下 15 个无缓存/无事务注解的 `*PortImpl` 从 `eva-infra` 迁移到 `bc-course-infra`（仅搬运文件，`package` 不变；行为不变），为后续 `eva-infra` 去 `bc-course` 编译期依赖铺路（最小回归通过；落地提交：`c4179654`）。
 - ✅ **S0.2 延伸（课程域基础设施归位：RepositoryImpl 起步，保持行为不变）**：将 `AddCourseTypeRepositoryImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`（仅搬运文件，`package`/缓存失效/事务边界/异常文案完全不变）；为闭合编译期依赖，在 `bc-course-infra` 补齐 `zym-spring-boot-starter-cache`（`LocalCacheManager`）依赖；并用 Serena 证伪：`eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/*RepositoryImpl` 残留由 15 减至 14（最小回归通过；落地提交：`8426d4f2`）。
 - ✅ **S0.2 延伸（课程域基础设施归位：RepositoryImpl 推进，保持行为不变）**：将 `UpdateCoursesTypeRepositoryImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`（仅搬运文件，`package`/事务边界/异常文案/副作用顺序完全不变）；并用 Serena 证伪：`eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/*RepositoryImpl` 残留由 14 减至 13（最小回归通过；落地提交：`12d16c6a`）。
+- ✅ **S0.2 延伸（课程域基础设施归位：RepositoryImpl 推进，保持行为不变）**：将 `UpdateCourseInfoRepositoryImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`（仅搬运文件，`package`/事务边界/异常文案/副作用顺序完全不变）；并用 Serena 证伪：`eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/*RepositoryImpl` 残留由 13 减至 12（最小回归通过；落地提交：`eb940498`）。
 
 **2026-01-06（本次会话）**
 - ✅ **S0.2 延伸（依赖方收敛，证伪：eva-infra 暂不可去 bc-course，保持行为不变）**：Serena 证据化确认：`eva-infra` 仍大量引用 `edu.cuit.bc.course.*`（课程域用例/端口/异常；落点包括 `infra/bccourse/adapter/*` 与旧 `Course*GatewayImpl`），因此不满足“仅使用 `edu.cuit.client.*`”的前提，**本阶段不可**将 `eva-infra/pom.xml` 的 `bc-course` 依赖替换为 `shared-kernel`（避免引入编译错误/装配缺失）。下一步应先按里程碑把这批课程域基础设施/委托壳逐步归位到 `bc-course-infra`（或 `bc-course/infrastructure`），再评估去依赖（保持行为不变）。
@@ -1304,7 +1305,7 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
 
 落地：
 - bc-course 新增用例：`bc-course/src/main/java/edu/cuit/bc/course/application/usecase/UpdateCourseInfoUseCase.java`
-- infra 端口实现：`eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/UpdateCourseInfoRepositoryImpl.java`
+- infra 端口实现：`bc-course/infrastructure/src/main/java/edu/cuit/infra/bccourse/adapter/UpdateCourseInfoRepositoryImpl.java`
 - 旧 gateway 退化委托壳：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseUpdateGatewayImpl.java`（`updateCourse`）
 
 ### 3.8 闭环 H：课程类型修改链路收敛（Update Course Type）
