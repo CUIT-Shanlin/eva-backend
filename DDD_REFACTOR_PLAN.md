@@ -532,6 +532,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-01-07，S0.2 延伸（课程域基础设施归位推进），保持行为不变）：将 `UpdateSelfCourseRepositoryImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`（仅搬运文件，行为不变）；为闭合编译期依赖，将 `ClassroomOccupancyChecker` 归位到 `eva-infra-shared`（保持 `package` 不变；最小回归通过；落地：`3d1dd4f1`）。
 - 补充进展（2026-01-07，S0.2 延伸（课程域基础设施归位批量推进试点），保持行为不变）：按“选项 2（2 类同簇）”试点，将 `AddExistCoursesDetailsRepositoryImpl` 与 `AddNotExistCoursesDetailsRepositoryImpl` 从 `eva-infra` 批量归位到 `bc-course/infrastructure`（仅搬运文件，行为不变）；并试点引入 IDEA MCP `get_file_problems(errorsOnly=true)` 作为搬运后快速预检（不替代最小回归；最小回归通过；落地：`bd042ea9`）。
 - 补充进展（2026-01-07，S0.2 延伸（课程域基础设施归位推进，按“选项 2（2 类同簇）”），保持行为不变）：将 `DeleteCourseRepositoryImpl` 与 `DeleteCoursesRepositoryImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`（仅搬运文件，行为不变；最小回归通过；落地：`df4ac6ca`）。
+- 补充进展（2026-01-07，S0.2 延伸（课程域基础设施归位推进，按“选项 2（2 类同簇）”），保持行为不变）：将 `DeleteCourseTypeRepositoryImpl` 与 `UpdateCourseTypeRepositoryImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`（仅搬运文件，行为不变；最小回归通过；落地：`33844ce0`）。
 
 **下一步建议（S0.1，保持行为不变；每步只改 1 个小包/小类簇）：**
 1) 用 Serena 盘点 `eva-domain` 的 `import edu.cuit.client.*` 清单，并证伪“每个类型当前由哪个模块提供”（避免凭直觉改依赖）。
