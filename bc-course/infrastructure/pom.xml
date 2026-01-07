@@ -39,6 +39,12 @@
             <artifactId>zym-spring-boot-starter-cache</artifactId>
         </dependency>
 
+        <!-- bc-course-infra：编译期需要日志工具（LogUtils），运行期仍由组合根装配 -->
+        <dependency>
+            <groupId>edu.cuit.zhuyimeng</groupId>
+            <artifactId>zym-spring-boot-starter-logging</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
