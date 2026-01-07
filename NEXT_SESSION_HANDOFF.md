@@ -22,6 +22,8 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-01-07（本次会话）**
+- ✅ **S0.2 延伸（依赖方收敛补齐：学期 API 下沉 shared-kernel，保持行为不变）**：为闭合 `bc-evaluation-infra` 对 `edu.cuit.client.api.ISemesterService` 的编译期引用，将 `ISemesterService` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；行为不变），从而确保 `bc-evaluation-infra` 无需再经由 `bc-course` 才能编译通过（最小回归通过；落地提交：`c22802ff`）。
+- ✅ **S0.2 延伸（课程域基础设施归位前置：缓存常量归位，保持行为不变）**：将 `ClassroomCacheConstants` 从 `eva-infra` 归位到 `eva-infra-shared`（保持 `package` 与 Spring Bean 名称 `classroomCacheConstants` 不变；行为不变），为后续迁移 `bccourse adapter/*RepositoryImpl` 出 `eva-infra` 做依赖闭包准备（最小回归通过；落地提交：`c22802ff`）。
 - ✅ **S0.2 延伸（课程域基础设施归位起步，保持行为不变）**：将 `edu.cuit.infra.bccourse.adapter` 下 15 个无缓存/无事务注解的 `*PortImpl` 从 `eva-infra` 迁移到 `bc-course-infra`（仅搬运文件，`package` 不变；行为不变），为后续 `eva-infra` 去 `bc-course` 编译期依赖铺路（最小回归通过；落地提交：`c4179654`）。
 
 **2026-01-06（本次会话）**
