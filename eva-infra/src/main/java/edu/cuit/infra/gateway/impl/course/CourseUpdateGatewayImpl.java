@@ -11,6 +11,7 @@ import edu.cuit.client.dto.cmd.course.*;
 import edu.cuit.client.dto.data.Term;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.domain.gateway.course.CourseUpdateGateway;
+import edu.cuit.infra.aop.annotation.JudgeClassForSemester;
 import edu.cuit.infra.convertor.course.CourseConvertor;
 import edu.cuit.infra.dal.database.dataobject.course.*;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
@@ -287,6 +288,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
 
     @Override
     @Transactional
+    @JudgeClassForSemester
     public Map<String,Map<Integer,Integer>> assignTeacher(Integer semId, AlignTeacherCmd alignTeacherCmd) {
 
         Integer courseId=alignTeacherCmd.getId();
@@ -346,9 +348,13 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         }
 
     }
-
     private void judgeAlsoHasTask(List<Integer> userList,CourInfDO courInfDO){
-        List<Integer> courInfoList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in(!userList.isEmpty(),"teacher_id", userList).eq("status",0)).stream().map(EvaTaskDO::getCourInfId).toList();
+        List<Integer> courInfoList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>()
+                .in(!userList.isEmpty(),"teacher_id", userList)
+                .eq("status",0))
+                .stream()
+                .map(EvaTaskDO::getCourInfId)
+                .toList();
         if(courInfoList.isEmpty()){
             return;
         }
