@@ -21,6 +21,9 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-01-07（本次会话）**
+- ✅ **S0.2 延伸（课程域基础设施归位起步，保持行为不变）**：将 `edu.cuit.infra.bccourse.adapter` 下 15 个无缓存/无事务注解的 `*PortImpl` 从 `eva-infra` 迁移到 `bc-course-infra`（仅搬运文件，`package` 不变；行为不变），为后续 `eva-infra` 去 `bc-course` 编译期依赖铺路（最小回归通过；落地提交：`c4179654`）。
+
 **2026-01-06（本次会话）**
 - ✅ **S0.2 延伸（依赖方收敛，证伪：eva-infra 暂不可去 bc-course，保持行为不变）**：Serena 证据化确认：`eva-infra` 仍大量引用 `edu.cuit.bc.course.*`（课程域用例/端口/异常；落点包括 `infra/bccourse/adapter/*` 与旧 `Course*GatewayImpl`），因此不满足“仅使用 `edu.cuit.client.*`”的前提，**本阶段不可**将 `eva-infra/pom.xml` 的 `bc-course` 依赖替换为 `shared-kernel`（避免引入编译错误/装配缺失）。下一步应先按里程碑把这批课程域基础设施/委托壳逐步归位到 `bc-course-infra`（或 `bc-course/infrastructure`），再评估去依赖（保持行为不变）。
 - ✅ **S0.2 延伸（依赖方收敛：bc-course 编译期依赖削减，保持行为不变）**：Serena 证伪 `eva-infra-shared` 未引用 `edu.cuit.bc.course.*` 内部实现类/包，仅使用已由 `shared-kernel` 承载的 `edu.cuit.client.*` 类型（例如 `CourseExcelBO/CourseDetailCO/UpdateCourseCmd/CoursePeriod/CourseType` 等）；因此将 `eva-infra-shared/pom.xml` 中对 `bc-course` 的编译期依赖替换为显式依赖 `shared-kernel`（最小回归通过；落地提交：`6ab3837a`）。
