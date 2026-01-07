@@ -583,15 +583,15 @@
      3) 跑最小回归 → `git commit` → 三文档同步 → `git push`。
    - 路线 B（后置，成本更高，按“先 A 再 B”）：若后续发现 `shared-kernel` 承载课程域接口/CO 规模继续膨胀，再评估新增 `bc-course-contract`（或更中立的 contract 模块）承载这些接口/CO，并逐步把依赖方从 `shared-kernel` 切到 contract（仍保持 `package`/行为不变；每步闭环）。
 
-2) ✅ 已闭环（避免重复劳动，细节以 0.9 为准）：
+3) ✅ 已闭环（避免重复劳动，细节以 0.9 为准）：
    - **S0.2 主目标已闭环**：`eva-domain` 已移除对 `bc-course` 的 Maven 依赖；`IUserCourseService` 已沉 `shared-kernel`，`bc-ai-report-infra` 不再需要显式依赖 `bc-course`。
    - **S0.2 延伸（协议承载面已闭环）**：`edu.cuit.client.api.course` 下残留接口（`ICourseDetailService/ICourseService/ICourseTypeService`）及其签名依赖的关键 CO（`CourseScoreCO/EvaTeacherInfoCO/SingleCourseDetailCO/SimpleCourseResultCO` 等）已下沉到 `shared-kernel`（均保持 `package` 不变）；`bc-course/application` 已移除对 `bc-evaluation-contract` 的编译期依赖（见 0.9）。
    - **bc-course 写侧（方向 A → B）**：入口用例归位与旧 gateway 委托壳压扁已推进到阶段性闭环（见 0.9）。
    - **bc-messaging**：归位 + 依赖收敛已阶段性闭环（见 0.9）。
 
-3) （可选）评教读侧（D1，方向 A → B）：继续挑选其它仍在 `eva-app` 的 `@CheckSemId` 读侧入口方法簇复制同套路（每次只迁 1 个方法簇；保持行为不变）。
+4) （可选）评教读侧（D1，方向 A → B）：继续挑选其它仍在 `eva-app` 的 `@CheckSemId` 读侧入口方法簇复制同套路（每次只迁 1 个方法簇；保持行为不变）。
 
-4) （可选/后置）条目 25 / S0（AI 报告）：按 0.10 的口径推进 `bc-ai-report` 的“仅搬运/依赖收敛”（保持行为不变）。
+5) （可选/后置）条目 25 / S0（AI 报告）：按 0.10 的口径推进 `bc-ai-report` 的“仅搬运/依赖收敛”（保持行为不变）。
 
 已闭环（用于避免重复劳动）：
 - ✅ S0.1：`eva-client` 已从主干依赖链彻底退出（含：来源证伪 + 退出 reactor + 目录从仓库移除；保持行为不变；落地提交以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准）。
