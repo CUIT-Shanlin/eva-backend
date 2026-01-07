@@ -525,6 +525,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-01-06，S0.2 延伸，保持行为不变）：已将课程 API 接口 `ICourseService/ICourseTypeService` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`4dbeb55f`）。
 - 补充进展（2026-01-06，S0.2 延伸，保持行为不变）：已将课程详情接口 `ICourseDetailService` 从 `bc-course/application` 迁移到 `shared-kernel`，并将其签名依赖的 `SimpleCourseResultCO` 一并下沉（均保持 `package` 不变；最小回归通过；落地：`f9ccc6e9`）。
 - 补充进展（2026-01-07，S0.2 延伸（课程域基础设施归位起步），保持行为不变）：将 `AddCourseTypeRepositoryImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`（仅搬运文件，行为不变）；并在 `bc-course-infra` 补齐 `zym-spring-boot-starter-cache` 编译期依赖以闭合 `LocalCacheManager`（最小回归通过；落地：`8426d4f2`）。
+- 补充进展（2026-01-07，S0.2 延伸（课程域基础设施归位推进），保持行为不变）：将 `UpdateCoursesTypeRepositoryImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`（仅搬运文件，行为不变；最小回归通过；落地：`12d16c6a`）。
 
 **下一步建议（S0.1，保持行为不变；每步只改 1 个小包/小类簇）：**
 1) 用 Serena 盘点 `eva-domain` 的 `import edu.cuit.client.*` 清单，并证伪“每个类型当前由哪个模块提供”（避免凭直觉改依赖）。
