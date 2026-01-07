@@ -130,4 +130,3 @@ public class UpdateCourseInfoRepositoryImpl implements UpdateCourseInfoRepositor
         return map;
     }
 }
-
