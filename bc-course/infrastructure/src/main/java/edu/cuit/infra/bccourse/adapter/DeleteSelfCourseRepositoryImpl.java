@@ -108,4 +108,3 @@ public class DeleteSelfCourseRepositoryImpl implements DeleteSelfCourseRepositor
         return map;
     }
 }
-
