@@ -39,4 +39,3 @@ public class AddCourseTypeRepositoryImpl implements AddCourseTypeRepository {
         }
     }
 }
-
