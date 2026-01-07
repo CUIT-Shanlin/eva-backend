@@ -24,6 +24,7 @@
 **2026-01-07（本次会话）**
 - ✅ **S0.2 延伸（课程域基础设施归位：RepositoryImpl 推进，保持行为不变）**：将 `DeleteCourseTypeRepositoryImpl/UpdateCourseTypeRepositoryImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`（仅搬运文件，`package`/事务边界/异常文案/副作用顺序完全不变）；并用 Serena 证伪：`eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/*RepositoryImpl` 残留由 5 减至 3（最小回归通过；落地提交：`33844ce0`）。
 - ✅ **S0.2 延伸（课程域基础设施归位：RepositoryImpl 推进，保持行为不变）**：将 `DeleteCourseRepositoryImpl/DeleteCoursesRepositoryImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`（仅搬运文件，`package`/事务边界/异常文案/副作用顺序完全不变）；并用 Serena 证伪：`eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/*RepositoryImpl` 残留由 7 减至 5（最小回归通过；落地提交：`df4ac6ca`）。
+- ✅ **docs（交接与计划同步，保持行为不变）**：同步本次会话“RepositoryImpl 归位推进进度 + 残留清单 + 下一步里程碑/提交点 + 新对话开启提示词（含 IDEA MCP 预检用法）”到三文档（`NEXT_SESSION_HANDOFF.md` / `DDD_REFACTOR_PLAN.md` / `docs/DDD_REFACTOR_BACKLOG.md`；最小回归通过；落地提交：`22e8d970`、`88f94467`）。
 - ✅ **S0.2 延伸（依赖方收敛补齐：学期 API 下沉 shared-kernel，保持行为不变）**：为闭合 `bc-evaluation-infra` 对 `edu.cuit.client.api.ISemesterService` 的编译期引用，将 `ISemesterService` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；行为不变），从而确保 `bc-evaluation-infra` 无需再经由 `bc-course` 才能编译通过（最小回归通过；落地提交：`c22802ff`）。
 - ✅ **S0.2 延伸（课程域基础设施归位前置：缓存常量归位，保持行为不变）**：将 `ClassroomCacheConstants` 从 `eva-infra` 归位到 `eva-infra-shared`（保持 `package` 与 Spring Bean 名称 `classroomCacheConstants` 不变；行为不变），为后续迁移 `bccourse adapter/*RepositoryImpl` 出 `eva-infra` 做依赖闭包准备（最小回归通过；落地提交：`c22802ff`）。
 - ✅ **S0.2 延伸（课程域基础设施归位起步，保持行为不变）**：将 `edu.cuit.infra.bccourse.adapter` 下 15 个无缓存/无事务注解的 `*PortImpl` 从 `eva-infra` 迁移到 `bc-course-infra`（仅搬运文件，`package` 不变；行为不变），为后续 `eva-infra` 去 `bc-course` 编译期依赖铺路（最小回归通过；落地提交：`c4179654`）。
@@ -362,6 +363,11 @@
 >
 > 阶段性策略微调（2025-12-29，持续有效）：允许“微调”（仅结构性重构；不改业务语义；缓存/日志/异常文案/副作用顺序完全不变）。在“评教统计导出基础设施归位”与“课程课表解析归位/端口化”闭环后，`bc-messaging` 的“归位 + 依赖收敛”已阶段性闭环（见 0.9）；`bc-course` 的 **S0（旧 gateway 压扁为委托壳）** 已推进到阶段性闭环（见 0.9/0.10）；**S0.2 主目标**（`eva-domain` 去 `bc-course` 编译期依赖）已闭环；当前主线进入 **S0.2 延伸（收敛 `bc-course` 的“协议承载面”，并进一步收敛依赖方对 `bc-course` 的编译期依赖）**，仍按“小步可回滚 + 每步闭环”推进。
 >
+
+IDEA MCP 使用要点（可选，保持行为不变；不替代最小回归）：
+- 建议时机：完成 `git mv`（或少量“编译闭合”改动）后、跑 `mvn test` 前；用于**尽早暴露**搬运导致的导入/符号缺失/编译错误。
+- 推荐调用：`mcp__idea__get_file_problems(errorsOnly=true)`（仅看 errors；warnings 不作为阻断）。
+- 失败处理：若 IDEA 索引未就绪或 MCP 不可用，**不阻塞主线**；继续以 `mvn -pl start -am test ...` 为唯一验收口径（必要时在 0.9 记录降级原因与可复现证据）。
 
 - 当前重构进度汇报（截至当前 `HEAD`，用于“还没完成什么/下一步怎么排”）：
   - ✅ **bc-course 写侧（方向 A → B）**：入口用例归位已覆盖主干簇（见 0.9）；**S0（旧 gateway 压扁为委托壳）** 已覆盖 `CourseUpdateGatewayImpl` 的 `updateCourse/updateCourses/importCourseFile/updateSingleCourse/updateSelfCourse/addNotExistCoursesDetails/addExistCoursesDetails` 等核心方法簇（保持行为不变；见 0.9）。
