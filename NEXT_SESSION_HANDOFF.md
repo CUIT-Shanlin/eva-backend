@@ -373,7 +373,15 @@
 	    4) ✅ **S0.2（收敛依赖，主目标已闭环）**：`eva-domain` 已移除对 `bc-course`（应用层 jar）的 Maven 依赖；且 `bc-ai-report-infra` 已不再需要显式依赖 `bc-course`（`IUserCourseService` 已沉 `shared-kernel`），均已在最小回归下验证闭合（细节见 0.9）。
 	    5) ✅ **S0.2（延伸：继续收敛 `bc-course` 的“协议承载面”）**：已将 `edu.cuit.client.api.course` 下残留接口（`ICourseDetailService/ICourseService/ICourseTypeService`）以及其签名依赖的跨 BC 类型（`CourseScoreCO/EvaTeacherInfoCO`、`SingleCourseDetailCO`、`SimpleCourseResultCO` 等）逐步下沉到 `shared-kernel`（均保持 `package` 不变；细节以 0.9 为准）。
 	    6) ⏳ **S0.2（延伸：收敛依赖方对 `bc-course` 的编译期依赖）**：在课程域 API/CO 已进入 `shared-kernel` 的前提下，下一会话需要逐个模块收敛 Maven 依赖：凡“仅使用 `edu.cuit.client.*` 类型”且不依赖 `bc-course` 内部实现的模块，优先把对 `bc-course` 的编译期依赖替换为显式依赖 `shared-kernel`（每步只改 1 个 `pom.xml`，保持行为不变）。
-	    7) ⏳ **S0.2 延伸（并行支线：课程域基础设施归位，保持行为不变）**：`eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/*RepositoryImpl` 已按“仅搬运 + 编译闭合”推进归位；当前残留 **7 个**（以 0.9 为准）。下一会话继续按“选项 2（2~3 类同簇）”推进，优先把残留清零以降低 `eva-infra` 对 `bc-course` 的实现承载面，从而为后续 `eva-infra` 去 `bc-course` 编译期依赖创造前提。
+	    7) ⏳ **S0.2 延伸（并行支线：课程域基础设施归位，保持行为不变）**：`eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/*RepositoryImpl` 已按“仅搬运 + 编译闭合”推进归位；当前残留 **7 个**（以 0.9 为准）：
+	       - `AssignEvaTeachersRepositoryImpl`
+	       - `ChangeCourseTemplateRepositoryImpl`
+	       - `DeleteCourseRepositoryImpl`
+	       - `DeleteCourseTypeRepositoryImpl`
+	       - `DeleteCoursesRepositoryImpl`
+	       - `ImportCourseFileRepositoryImpl`
+	       - `UpdateCourseTypeRepositoryImpl`
+	       下一会话继续按“选项 2（2~3 类同簇）”推进，优先把残留清零以降低 `eva-infra` 对 `bc-course` 的实现承载面，从而为后续 `eva-infra` 去 `bc-course` 编译期依赖创造前提。
 
 - 下一会话优先建议（聚焦 **S0.2 延伸**，保持行为不变；每步只改 1 个小点，便于回滚）：
   1) **继续推进：课程域基础设施归位（RepositoryImpl 残留清零，保持行为不变）**：
@@ -569,6 +577,14 @@
 1) 🎯 当前主线（**S0.2 延伸：继续收敛 `eva-infra` 对 `bc-course` 的实现承载面**，保持行为不变）：
    - 背景：`eva-infra` 仍大量引用 `edu.cuit.bc.course.*`（见 0.9 与 Serena 证伪记录），因此短期不可直接把 `eva-infra/pom.xml` 的 `bc-course` 依赖替换为 `shared-kernel`。
    - 立即可做且低风险的推进：继续把 `eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/*RepositoryImpl` 归位到 `bc-course/infrastructure`，**优先按“选项 2（2~3 类同簇）”**推进；当前残留 **7 个**（见 0.9）。
+   - 当前残留清单（便于直接选簇，不用重复盘点）：
+     - `AssignEvaTeachersRepositoryImpl`
+     - `ChangeCourseTemplateRepositoryImpl`
+     - `DeleteCourseRepositoryImpl`
+     - `DeleteCourseTypeRepositoryImpl`
+     - `DeleteCoursesRepositoryImpl`
+     - `ImportCourseFileRepositoryImpl`
+     - `UpdateCourseTypeRepositoryImpl`
    - 推荐下一簇：`DeleteCourseRepositoryImpl` + `DeleteCoursesRepositoryImpl`（可选第 3 个：`DeleteCourseTypeRepositoryImpl`）。
    - Serena + IDEA（试点已验证，仍不替代最小回归）：
      1) Serena 证据化盘点依赖与引用面
