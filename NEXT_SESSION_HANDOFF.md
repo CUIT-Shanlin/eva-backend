@@ -28,6 +28,7 @@
 - ✅ **S0.2 延伸（课程域基础设施归位：RepositoryImpl 起步，保持行为不变）**：将 `AddCourseTypeRepositoryImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`（仅搬运文件，`package`/缓存失效/事务边界/异常文案完全不变）；为闭合编译期依赖，在 `bc-course-infra` 补齐 `zym-spring-boot-starter-cache`（`LocalCacheManager`）依赖；并用 Serena 证伪：`eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/*RepositoryImpl` 残留由 15 减至 14（最小回归通过；落地提交：`8426d4f2`）。
 - ✅ **S0.2 延伸（课程域基础设施归位：RepositoryImpl 推进，保持行为不变）**：将 `UpdateCoursesTypeRepositoryImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`（仅搬运文件，`package`/事务边界/异常文案/副作用顺序完全不变）；并用 Serena 证伪：`eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/*RepositoryImpl` 残留由 14 减至 13（最小回归通过；落地提交：`12d16c6a`）。
 - ✅ **S0.2 延伸（课程域基础设施归位：RepositoryImpl 推进，保持行为不变）**：将 `UpdateCourseInfoRepositoryImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`（仅搬运文件，`package`/事务边界/异常文案/副作用顺序完全不变）；并用 Serena 证伪：`eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/*RepositoryImpl` 残留由 13 减至 12（最小回归通过；落地提交：`eb940498`）。
+- ✅ **S0.2 延伸（课程域基础设施归位：RepositoryImpl 推进，保持行为不变）**：将 `DeleteSelfCourseRepositoryImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`（仅搬运文件，`package`/事务边界/异常文案/副作用顺序完全不变）；并用 Serena 证伪：`eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/*RepositoryImpl` 残留由 12 减至 11（最小回归通过；落地提交：`73ed7c7d`）。
 
 **2026-01-06（本次会话）**
 - ✅ **S0.2 延伸（依赖方收敛，证伪：eva-infra 暂不可去 bc-course，保持行为不变）**：Serena 证据化确认：`eva-infra` 仍大量引用 `edu.cuit.bc.course.*`（课程域用例/端口/异常；落点包括 `infra/bccourse/adapter/*` 与旧 `Course*GatewayImpl`），因此不满足“仅使用 `edu.cuit.client.*`”的前提，**本阶段不可**将 `eva-infra/pom.xml` 的 `bc-course` 依赖替换为 `shared-kernel`（避免引入编译错误/装配缺失）。下一步应先按里程碑把这批课程域基础设施/委托壳逐步归位到 `bc-course-infra`（或 `bc-course/infrastructure`），再评估去依赖（保持行为不变）。
@@ -997,7 +998,7 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
         - 迁移内容包含：原先 gateway 内部的课程/课次/评教任务/缓存失效逻辑，全部按原样搬运（不做优化）。
         - 关键文件：
           - `bc-course/src/main/java/edu/cuit/bc/course/application/usecase/DeleteSelfCourseUseCase.java`
-          - `eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/DeleteSelfCourseRepositoryImpl.java`
+          - `bc-course/infrastructure/src/main/java/edu/cuit/infra/bccourse/adapter/DeleteSelfCourseRepositoryImpl.java`
           - `bc-course/src/main/java/edu/cuit/bc/course/application/usecase/UpdateSelfCourseUseCase.java`
           - `eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/UpdateSelfCourseRepositoryImpl.java`
           - `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseDeleteGatewayImpl.java`
@@ -1285,7 +1286,7 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
 落地（保持 API/异常文案/副作用不变，仅重构调用链）：
 - 自助删课：
   - bc-course 用例：`bc-course/src/main/java/edu/cuit/bc/course/application/usecase/DeleteSelfCourseUseCase.java`
-  - infra 端口实现：`eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/DeleteSelfCourseRepositoryImpl.java`
+- infra 端口实现：`bc-course/infrastructure/src/main/java/edu/cuit/infra/bccourse/adapter/DeleteSelfCourseRepositoryImpl.java`
   - 旧入口退化委托壳：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseDeleteGatewayImpl.java`（`deleteSelfCourse`）
   - 应用层副作用事件化：`eva-app/src/main/java/edu/cuit/app/service/impl/course/IUserCourseServiceImpl.java`（`deleteSelfCourse`）
 - 自助改课：
