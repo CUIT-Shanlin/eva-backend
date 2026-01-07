@@ -559,6 +559,7 @@
      1) 证伪该模块是否仍引用 `bc-course` 的内部实现类/包（而不仅是 `edu.cuit.client.*` 类型）。
      2) 若证伪仅使用 `edu.cuit.client.*`，则只改该模块的 1 个 `pom.xml`：将对 `bc-course` 的编译期依赖替换为显式依赖 `shared-kernel`（不引入 Maven 循环依赖；保持行为不变）。
      3) 跑最小回归 → `git commit` → 三文档同步 → `git push`。
+   - 并行支线（用于后续让 `eva-infra` 也能去 `bc-course` 编译期依赖，保持行为不变）：若证伪发现 `eva-infra` 仍大量引用 `edu.cuit.bc.course.*`，则优先把 `eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/*RepositoryImpl` 逐步归位到 `bc-course-infra`（每次只迁 1 个类/小簇；`package`、缓存注解、事务边界、日志、异常文案与副作用顺序完全不变），并在每次迁移后用 Serena 重新证伪 `eva-infra` 的 `import edu.cuit.bc.course.*` 残留面，再评估是否可将 `eva-infra/pom.xml` 的 `bc-course` 依赖替换为更窄依赖。
    - 路线 B（后置，成本更高，按“先 A 再 B”）：若后续发现 `shared-kernel` 承载课程域接口/CO 规模继续膨胀，再评估新增 `bc-course-contract`（或更中立的 contract 模块）承载这些接口/CO，并逐步把依赖方从 `shared-kernel` 切到 contract（仍保持 `package`/行为不变；每步闭环）。
 
 2) ✅ 已闭环（避免重复劳动，细节以 0.9 为准）：

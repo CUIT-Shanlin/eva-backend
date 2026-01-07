@@ -107,7 +107,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
-**已完成（更新至 2026-01-06）**
+**已完成（更新至 2026-01-07）**
 - ✅ bc-course（课程，写侧入口归位继续，方向 A → B）：已完成 `ICourseDetailServiceImpl.updateCourses/delete/addCourse` 的入口用例归位/调用点端口化（保持 `@CheckSemId`/事务边界/异常文案/副作用顺序完全不变；落地：`849ed92e/e38463c2/5c989ace`；细节以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
 - ✅ bc-course（课程，S0 收尾：依赖收窄）：已清理旧入口 `ICourseServiceImpl` / `IUserCourseServiceImpl` 中可证实“仅声明无调用点”的残留注入依赖，并将 `IUserCourseServiceImpl.isImported` 的依赖从 `CourseUpdateGateway` 收敛为直接依赖 `IsCourseImportedUseCase`（保持行为不变；落地：`9577cd85/402affc2/25aad45a`）。
 - ✅ bc-course（课程，S0：旧 gateway 压扁为委托壳）：已完成 `CourseUpdateGatewayImpl.updateCourseType/addCourseType` 压扁样例（旧 gateway 仅保留事务边界与委托调用；保持行为不变；落地：`785974a6/34e9a0a8`）。
@@ -573,7 +573,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 阶段性策略微调（2025-12-29）：
 - ✅ 允许“微调”：仅限结构性重构（收窄依赖/拆接口/移动默认值兜底），**不改业务语义**；缓存/日志/异常文案/副作用顺序完全不变。
-- ✅ 主线口径更新（滚动）：`bc-messaging` 的“归位 + 依赖收敛”已阶段性闭环；`bc-course` 的 S0（旧 gateway 压扁为委托壳）已推进到阶段性闭环（见 4.2/4.3 与 `NEXT_SESSION_HANDOFF.md` 0.9）。当前下一批主线：**S0.2（收敛 `eva-domain` 对 `bc-course` 的编译期依赖面）**，按“先 Serena 证据化 → 再小步迁移协议对象到 `shared-kernel` → 最小回归 → 提交 → 三文档同步”的节奏推进（保持行为不变）。
+  - ✅ 主线口径更新（滚动）：`bc-messaging` 的“归位 + 依赖收敛”已阶段性闭环；`bc-course` 的 S0（旧 gateway 压扁为委托壳）已推进到阶段性闭环（见 4.2/4.3 与 `NEXT_SESSION_HANDOFF.md` 0.9）。当前下一批主线：**S0.2 延伸（收敛 `bc-course` 的协议承载面 + 收敛依赖方对 `bc-course` 的编译期依赖）**，按“先 Serena 证据化 → 再小步迁移协议对象到 `shared-kernel` / 依赖替换 `pom.xml` → 最小回归 → 提交 → 三文档同步”的节奏推进（保持行为不变）。
 - ✅ 下一步小簇建议（bc-messaging，保持行为不变）：按 `DDD_REFACTOR_PLAN.md` 10.3 路线推进（先组合根 → 再监听器/应用侧适配器 → 最后基础设施端口适配器与依赖收敛）。
   - ✅ 已完成：组合根 `BcMessagingConfiguration`（`4e3e2cf2`）；✅ 已完成：监听器 `CourseOperationSideEffectsListener`（`22ee30e7`）；✅ 已完成：监听器 `CourseTeacherTaskMessagesListener`（`0987f96f`）
   - ✅ 已完成：支撑类 `MsgResult`（`31878b61`，当前位于 `bc-messaging-contract`）；✅ 已完成：应用侧端口适配器 `CourseBroadcastPortAdapter`（`84ee070a`）；✅ 已完成：应用侧端口适配器 `TeacherTaskMessagePortAdapter`（`9ea14cff`）；✅ 已完成：应用侧端口适配器 `EvaMessageCleanupPortAdapter`（`73ab3f3c`）。
