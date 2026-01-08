@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 
 @Component
 @Aspect
@@ -38,10 +39,10 @@ public class JudgeSemester {
         AlignTeacherCmd alignTeacherCmd= (AlignTeacherCmd) args[1];
         CourInfDO courInfDO = courInfMapper.selectById(alignTeacherCmd.getId());
         CourseDO courseDO = courseMapper.selectById(courInfDO.getCourseId());
-        if(courseDO.getSemesterId()!=semId){
+        if(!Objects.equals(courseDO.getSemesterId(), semId)){
             throw new UpdateException("该课程不属于该学期，请核对学期");
         }
-        SemesterDO semesterDO = semesterMapper.selectById(semId);
+       /* SemesterDO semesterDO = semesterMapper.selectById(semId);
         LocalDate now = LocalDate.now();
         int week=calculateWeekNumber(semesterDO.getStartDate(),now);
         int day=calculateDayOfWeek(semesterDO.getStartDate(),now);
@@ -52,7 +53,7 @@ public class JudgeSemester {
         }
         LocalDateTime localDateTime = LocalDateTime.now();
         judgeTime(localDateTime.getHour(),localDateTime.getMinute(),courInfDO.getStartTime());
-
+*/
 
         return joinPoint.proceed();
     }
