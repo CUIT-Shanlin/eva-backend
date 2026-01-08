@@ -22,6 +22,19 @@
             <groupId>edu.cuit</groupId>
             <artifactId>eva-app</artifactId>
             <version>${revision}</version>
+            <exclusions>
+                <!-- 仅用于类型引用：课程域协议已进入 shared-kernel，避免经由 eva-app 传递引入 bc-course -->
+                <exclusion>
+                    <groupId>edu.cuit</groupId>
+                    <artifactId>bc-course</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- 显式依赖 shared-kernel 承接跨 BC 协议类型（保持行为不变） -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>shared-kernel</artifactId>
+            <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
