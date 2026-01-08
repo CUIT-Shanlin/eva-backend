@@ -504,7 +504,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 ### 10.2 下一步优先顺序（保持“写侧优先 + 行为不变”）
 
-> 滚动口径（更新至 2026-01-08）：✅ `bc-course` 的 S0（旧 gateway 压扁为委托壳）已推进到阶段性闭环；✅ S0.2（`eva-domain` 去 `bc-course` 编译期依赖）已闭环；当前主线进入 **S0.2 延伸（收敛 `eva-infra` 对 `bc-course` 的实现承载面 + 继续收敛依赖方编译期依赖）**。优先小簇建议：先把 `eva-infra` 中仍残留的课程旧 gateway（`CourseQueryGatewayImpl` / `CourseUpdateGatewayImpl`）归位到 `bc-course/infrastructure`（仅搬运文件，保持 `package`/事务边界/异常文案/副作用顺序完全不变），以继续缩小 `eva-infra` 的实现承载面。
+> 滚动口径（更新至 2026-01-08）：✅ `bc-course` 的 S0（旧 gateway 压扁为委托壳）已推进到阶段性闭环；✅ S0.2（`eva-domain` 去 `bc-course` 编译期依赖）已闭环；当前主线进入 **S0.2 延伸（收敛 `eva-infra` 对 `bc-course` 的实现承载面 + 继续收敛依赖方编译期依赖）**。✅ 已完成：将 `CourseQueryGatewayImpl/CourseUpdateGatewayImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`（仅搬运文件，保持 `package`/事务边界/异常文案/副作用顺序完全不变；落地：`d438e060`），以继续缩小 `eva-infra` 的实现承载面。
 > 新会话续接方式：优先复制 `NEXT_SESSION_HANDOFF.md` 的 0.11 推荐版提示词，并按 0.10 的“下一步拆分与里程碑/提交点”顺序执行，避免遗漏约束与回归命令。
 
 - 补充进展（2026-01-05，S0.2 起步，保持行为不变）：已将学期 CO `SemesterCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`77126c4a`）。

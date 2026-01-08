@@ -108,6 +108,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-01-08）**
+- ✅ S0.2 延伸（课程旧 gateway 归位，保持行为不变）：将 `CourseQueryGatewayImpl/CourseUpdateGatewayImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`，并将 `CourseQueryRepo` 从 `eva-infra` 迁移到 `eva-infra-shared` 以闭合编译期依赖（均保持 `package` 不变；最小回归通过；落地：`d438e060`；细节以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
 - ✅ S0.2 延伸（依赖方收敛补齐，保持行为不变）：为闭合 `eva-adapter` 对 `edu.cuit.client.api.IClassroomService` 的编译期引用，将 `IClassroomService` 从 `bc-course/application` 下沉到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`38f58e0a`；细节以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
 - ✅ S0.2 延伸（依赖方收敛，保持行为不变）：Serena 证伪 `eva-adapter` 未引用 `edu.cuit.bc.course.*`，因此在 `eva-adapter/pom.xml` 排除经由 `eva-app` 传递的 `bc-course`，并改为显式依赖 `shared-kernel`（最小回归通过；落地：`f8ff84f5`；细节以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
 - ✅ S0.2 延伸（课程域基础设施归位，保持行为不变）：将 `ChangeCourseTemplateRepositoryImpl/ImportCourseFileRepositoryImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`，并将 `CourseImportExce` 归位到 `eva-infra-shared` 以闭合编译依赖；`eva-infra/.../bccourse/adapter/*RepositoryImpl` 残留由 3 减至 1（落地：`33032890`；细节以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
@@ -471,8 +472,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
    - ✅ 进展（保持行为不变；每次只改 1 个方法）：已压扁 `CourseUpdateGatewayImpl.assignTeacher`：新增 `AssignTeacherGatewayEntryUseCase`，旧 gateway 不再构造命令（落地：`0b85c612`）。下一步建议：继续压扁 `CourseUpdateGatewayImpl.updateCourse`（Serena：调用点为 `UpdateCoursePortImpl.updateCourse`；每次只改 1 个方法，保持行为不变）。
 
 4) 基础设施（S1 退场候选，保持行为不变）：`eva-infra` 仍存在多处旧 `*GatewayImpl`（需逐个用 Serena 证伪其剩余方法是否仅为委托壳；以及评估“归属到哪个 BC / shared-kernel / 继续保留在共享技术模块”）。
-   - 候选清单（Serena 盘点，2026-01-08 更新）：`ClassroomGatewayImpl/DepartmentGatewayImpl/LdapPersonGatewayImpl/LogGatewayImpl/SemesterGatewayImpl/MsgGatewayImpl/CourseQueryGatewayImpl/CourseUpdateGatewayImpl/EvaConfigGatewayImpl/EvaDeleteGatewayImpl/EvaUpdateGatewayImpl/MenuQueryGatewayImpl/RoleQueryGatewayImpl/UserQueryGatewayImpl/UserUpdateGatewayImpl/RoleUpdateGatewayImpl/MenuUpdateGatewayImpl`。
-   - 补充：`CourseDeleteGatewayImpl` 已归位到 `bc-course/infrastructure`（保持 `package` 不变；细节见 `NEXT_SESSION_HANDOFF.md` 0.9），因此不再计入 `eva-infra` 残留。
+   - 候选清单（Serena 盘点，2026-01-08 更新）：`ClassroomGatewayImpl/DepartmentGatewayImpl/LdapPersonGatewayImpl/LogGatewayImpl/SemesterGatewayImpl/MsgGatewayImpl/EvaConfigGatewayImpl/EvaDeleteGatewayImpl/EvaUpdateGatewayImpl/MenuQueryGatewayImpl/RoleQueryGatewayImpl/UserQueryGatewayImpl/UserUpdateGatewayImpl/RoleUpdateGatewayImpl/MenuUpdateGatewayImpl`。
+   - 补充：`CourseDeleteGatewayImpl`、`CourseQueryGatewayImpl`、`CourseUpdateGatewayImpl` 已归位到 `bc-course/infrastructure`（保持 `package` 不变；细节见 `NEXT_SESSION_HANDOFF.md` 0.9；落地：`38f58e0a/d438e060`），因此不再计入 `eva-infra` 残留。
 
 ---
 
@@ -482,19 +483,19 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 ### 5.1 课程域（course）
 
-#### A) `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseUpdateGatewayImpl.java`
+#### A) `bc-course/infrastructure/src/main/java/edu/cuit/infra/gateway/impl/course/CourseUpdateGatewayImpl.java`
 
 写侧目标说明（已在最近会话完成收敛/清理，作为回溯保留）：
 - ✅ `addNotExistCoursesDetails/addExistCoursesDetails/updateSelfCourse/updateCourse/updateCourses/updateSingleCourse` 等已收敛为“委托壳”，主写逻辑迁移到 `bc-course` 用例 + `eva-infra` 端口适配器（行为保持不变）。
 - ✅ `JudgeCourseTime/JudgeCourseType/toJudge/getDifference` 等遗留私有逻辑已清理（避免旧 gateway 回潮承载业务流程）。
 - ⏳ `isImported` 仍保留在 gateway（偏查询/校验），可在读侧收敛阶段再统一处理。
 
-#### B) `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseQueryGatewayImpl.java`
+#### B) `bc-course/infrastructure/src/main/java/edu/cuit/infra/gateway/impl/course/CourseQueryGatewayImpl.java`
 
 ✅ 已收敛（先结构化 QueryRepo，行为不变）：
 - `CourseQueryGatewayImpl` 已退化为委托壳（读侧入口不变）。
 - 复杂查询/组装逻辑已抽取到：
-  - `eva-infra/src/main/java/edu/cuit/infra/bccourse/query/CourseQueryRepo.java`
+  - `eva-infra-shared/src/main/java/edu/cuit/infra/bccourse/query/CourseQueryRepo.java`
   - `eva-infra/src/main/java/edu/cuit/infra/bccourse/query/CourseQueryRepository.java`
 - 落地提交：`ba8f2003`
 
