@@ -70,6 +70,12 @@
             <artifactId>zym-spring-boot-starter-jdbc</artifactId>
         </dependency>
 
+        <!-- 编译期需要缓存能力（LocalCacheManager 等），运行期仍由组合根装配 -->
+        <dependency>
+            <groupId>edu.cuit.zhuyimeng</groupId>
+            <artifactId>zym-spring-boot-starter-cache</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>io.github.linpeilie</groupId>
             <artifactId>mapstruct-plus-spring-boot-starter</artifactId>
