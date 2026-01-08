@@ -56,5 +56,5 @@ jobs:
           build-args: |
             JVMOPTIONS=-Dspring.profiles.active=prod
           tags: |
-            ${{ env.PROD_IMAGE }}:${{ env.EVA_VERSION }}
+#            ${{ env.PROD_IMAGE }}:${{ env.EVA_VERSION }}
             ${{ env.PROD_IMAGE }}:latest

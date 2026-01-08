@@ -51,10 +51,14 @@ jobs:
         with:
           context: .
           push: true
-          cache-from: type=registry,ref=${{ env.TEST_IMAGE }}:latest
-          cache-to: type=inline
+#          cache-from: type=registry,ref=${{ env.TEST_IMAGE }}:latest
+#          cache-to: type=inline
           build-args: |
             JVMOPTIONS=-Dspring.profiles.active=debug
           tags: |
-            ${{ env.TEST_IMAGE }}:${{ env.EVA_TEST_VERSION }}
+#            ${{ env.TEST_IMAGE }}:${{ env.EVA_TEST_VERSION }}
             ${{ env.TEST_IMAGE }}:latest
+
+      - name: Recreate container
+        run: |
+          curl -X POST ${{ secrets.PORTAINER_UPDATE_TEST_URL }}
