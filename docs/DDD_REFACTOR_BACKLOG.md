@@ -109,6 +109,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 **已完成（更新至 2026-01-08）**
 - ✅ S0.2 延伸（课程旧 gateway 归位，保持行为不变）：将 `CourseQueryGatewayImpl/CourseUpdateGatewayImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`，并将 `CourseQueryRepo` 从 `eva-infra` 迁移到 `eva-infra-shared` 以闭合编译期依赖（均保持 `package` 不变；最小回归通过；落地：`d438e060`；细节以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
+- ✅ S0.2 延伸（依赖方收敛，保持行为不变）：Serena 证伪 `eva-infra` 未引用 `edu.cuit.bc.course.*` 后，将 `eva-infra/pom.xml` 的 `bc-course` 依赖替换为 `shared-kernel`（每次只改 1 个 `pom.xml`；最小回归通过；落地：`8d806bf0`；细节以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
 - ✅ S0.2 延伸（依赖方收敛补齐，保持行为不变）：为闭合 `eva-adapter` 对 `edu.cuit.client.api.IClassroomService` 的编译期引用，将 `IClassroomService` 从 `bc-course/application` 下沉到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`38f58e0a`；细节以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
 - ✅ S0.2 延伸（依赖方收敛，保持行为不变）：Serena 证伪 `eva-adapter` 未引用 `edu.cuit.bc.course.*`，因此在 `eva-adapter/pom.xml` 排除经由 `eva-app` 传递的 `bc-course`，并改为显式依赖 `shared-kernel`（最小回归通过；落地：`f8ff84f5`；细节以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
 - ✅ S0.2 延伸（课程域基础设施归位，保持行为不变）：将 `ChangeCourseTemplateRepositoryImpl/ImportCourseFileRepositoryImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`，并将 `CourseImportExce` 归位到 `eva-infra-shared` 以闭合编译依赖；`eva-infra/.../bccourse/adapter/*RepositoryImpl` 残留由 3 减至 1（落地：`33032890`；细节以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
@@ -146,7 +147,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（课程域基础设施归位批量推进试点，保持行为不变）：按“选项 2（2 类同簇）”试点，将 `AddExistCoursesDetailsRepositoryImpl` 与 `AddNotExistCoursesDetailsRepositoryImpl` 从 `eva-infra` 批量归位到 `bc-course/infrastructure`（仅搬运文件，事务/日志/异常文案/副作用顺序完全不变）；并试点引入 IDEA MCP `get_file_problems(errorsOnly=true)` 作为搬运后快速预检（不替代最小回归；最小回归通过；落地：`bd042ea9`）。
 - ✅ S0.2 延伸（课程域基础设施归位推进，按“选项 2（2 类同簇）”，保持行为不变）：将 `DeleteCourseRepositoryImpl` 与 `DeleteCoursesRepositoryImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`（仅搬运文件，事务/日志/异常文案/副作用顺序完全不变；最小回归通过；落地：`df4ac6ca`）。
 - ✅ S0.2 延伸（课程域基础设施归位推进，按“选项 2（2 类同簇）”，保持行为不变）：将 `DeleteCourseTypeRepositoryImpl` 与 `UpdateCourseTypeRepositoryImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`（仅搬运文件，事务/日志/异常文案/副作用顺序完全不变；最小回归通过；落地：`33844ce0`）。
-- ⏳ S0.2 延伸（依赖方收敛，阻塞项，保持行为不变）：`eva-infra` 仍大量引用 `edu.cuit.bc.course.*`（课程域用例/端口/异常 + `infra/bccourse/adapter/*` + 旧 `Course*GatewayImpl`），因此暂不可将 `eva-infra/pom.xml` 的 `bc-course` 依赖替换为 `shared-kernel`。下一步建议：按“每步只搬运 1 个小簇/1 个类群”的节奏，将课程域基础设施逐步归位到 `bc-course-infra`（或 `bc-course/infrastructure`），再评估去依赖（保持行为不变）。
+- ✅ S0.2 延伸（依赖方收敛，保持行为不变）：Serena 证伪 `eva-infra` 未引用 `edu.cuit.bc.course.*` 后，将 `eva-infra/pom.xml` 的 `bc-course` 依赖替换为 `shared-kernel`（每次只改 1 个 `pom.xml`；最小回归通过；落地：`8d806bf0`）。
 - ✅ 规划与证据化（保持行为不变）：用 Serena 盘点 bc-course 写侧 `@CheckSemId` 入口清单与 `eva-infra` 旧 `*GatewayImpl` 候选清单，并落盘到本文件 `4.3`，作为后续 S1/S2 退场/排期依据；同时修正文档中 `bc-messaging` 的主线口径为“后置仅做结构折叠/依赖证伪”（不改业务语义；最小回归通过；落地提交以 `git log -n 1 -- docs/DDD_REFACTOR_BACKLOG.md` 为准）。
 - 评教用户读侧（D1：用例归位深化—去评教/被评教记录）：新增 `UserEvaQueryUseCase` 并将旧入口 `UserEvaServiceImpl.getEvaLogInfo/getEvaLoggingInfo` 退化为纯委托壳（旧入口仍保留 `@CheckSemId` 与当前用户解析：`StpUtil` + `userQueryGateway`；异常文案/副作用顺序不变；保持行为不变；最小回归通过；落地提交：`96e65019`）。
 - 评教任务读侧用例归位深化（本人任务列表）：将旧入口 `EvaTaskServiceImpl.evaSelfTaskInfo` 的“任务列表查询 + 懒加载顺序对齐的实体→CO 组装”归位到 `EvaTaskQueryUseCase`；旧入口仍保留 `@CheckSemId` 与当前用户解析（`StpUtil` + `userQueryGateway`）并委托 UseCase（异常文案/副作用顺序不变；保持行为不变；最小回归通过；落地提交：`1ac196c6`）。
