@@ -504,7 +504,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 ### 10.2 下一步优先顺序（保持“写侧优先 + 行为不变”）
 
-> 滚动口径（更新至 2026-01-08）：✅ `bc-course` 的 S0（旧 gateway 压扁为委托壳）已推进到阶段性闭环；✅ S0.2（`eva-domain` 去 `bc-course` 编译期依赖）已闭环；当前主线进入 **S0.2 延伸（收敛 `eva-infra` 对 `bc-course` 的实现承载面 + 继续收敛依赖方编译期依赖）**。✅ 已完成：将 `CourseQueryGatewayImpl/CourseUpdateGatewayImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`（落地：`d438e060`）；✅ 已完成：将 `CourseQueryRepository` 从 `eva-infra` 归位到 `bc-course/infrastructure` 并将 `CourseRecommendExce` 迁移到 `eva-infra-shared` 以闭合依赖（落地：`881e1d12`）；✅ 已完成：将 `CourseQueryRepo` 从 `eva-infra-shared` 归位到 `bc-course/infrastructure`（落地：`5101a341`）；✅ 已完成：`eva-infra/pom.xml` 的 `bc-course` 依赖替换为 `shared-kernel`（落地：`8d806bf0`）。均保持 `package`/事务边界/异常文案/副作用顺序完全不变。
+> 滚动口径（更新至 2026-01-08）：✅ `bc-course` 的 S0（旧 gateway 压扁为委托壳）已推进到阶段性闭环；✅ S0.2（`eva-domain` 去 `bc-course` 编译期依赖）已闭环；当前主线进入 **S0.2 延伸（收敛 `eva-infra` 对 `bc-course` 的实现承载面 + 继续收敛依赖方编译期依赖）**。✅ 已完成：将 `CourseQueryGatewayImpl/CourseUpdateGatewayImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`（落地：`d438e060`）；✅ 已完成：将 `CourseQueryRepository` 从 `eva-infra` 归位到 `bc-course/infrastructure` 并将 `CourseRecommendExce` 迁移到 `eva-infra-shared` 以闭合依赖（落地：`881e1d12`）；✅ 已完成：将 `CourseQueryRepo` 从 `eva-infra-shared` 归位到 `bc-course/infrastructure`（落地：`5101a341`）；✅ 已完成：`eva-infra/pom.xml` 的 `bc-course` 依赖替换为 `shared-kernel`（落地：`8d806bf0`）。补充：✅ 已将 `CourseImportExce/CourseRecommendExce` 从 `eva-infra-shared` 归位到 `bc-course/infrastructure`（保持 `package` 不变；落地：`d3b9247e`）；`CourseFormat` 跨 BC 复用继续留在 `eva-infra-shared`。均保持 `package`/事务边界/异常文案/副作用顺序完全不变。
 > 新会话续接方式：优先复制 `NEXT_SESSION_HANDOFF.md` 的 0.11 推荐版提示词，并按 0.10 的“下一步拆分与里程碑/提交点”顺序执行，避免遗漏约束与回归命令。
 
 - 补充进展（2026-01-05，S0.2 起步，保持行为不变）：已将学期 CO `SemesterCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`77126c4a`）。
@@ -680,7 +680,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
      - 补充阻塞（保持行为不变）：`eva-app` 当前仍大量引用 `edu.cuit.bc.course.*`（组合根/旧入口对用例/端口/异常的直接依赖），因此暂不满足“仅使用 `edu.cuit.client.*`”的前提；需先按里程碑继续收敛旧入口/装配与依赖面，再评估 `eva-app` 去 `bc-course` 依赖（证据与记录以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
   5) 路线 B（后置，结构更清晰但成本更高）：若后续发现 `shared-kernel` 承载课程域接口/CO 规模继续膨胀，可新增 `bc-course-contract`（或更中立的 contract 模块）承载这些接口/CO，避免继续膨胀 `shared-kernel`；再逐步把依赖方从 `shared-kernel` 切到 contract（保持 `package`/行为不变）。
   6) ✅ 并行支线（课程域基础设施归位，保持行为不变）：`eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/*RepositoryImpl` 已完成归位，残留清零（以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
-  7) ⏳ 延伸主线（实现承载面继续收敛，保持行为不变）：用 Serena 证伪 `eva-infra-shared/src/main/java/edu/cuit/infra/gateway/impl/course/operate/` 下 `CourseFormat/CourseImportExce/CourseRecommendExce` 的引用面；对“仅课程域使用”的类归位到 `bc-course/infrastructure`（保持 `package` 不变，仅搬运与编译闭合），对“跨域共享”的类继续留在 `eva-infra-shared`。
+  7) ✅ 延伸主线（实现承载面继续收敛，保持行为不变）：Serena 证伪：`CourseImportExce/CourseRecommendExce` 的引用点均仅位于 `bc-course/infrastructure`，因此将其从 `eva-infra-shared` 归位到 `bc-course/infrastructure`（保持 `package` 不变，仅搬运与编译闭合；落地：`d3b9247e`）；`CourseFormat` 被课程/评教/旧入口复用，继续留在 `eva-infra-shared`。
 
 #### bc-messaging（消息域）后置规划（仅规划，不落地；保持行为不变）
 
