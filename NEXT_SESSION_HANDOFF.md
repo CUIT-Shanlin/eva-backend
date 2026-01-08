@@ -26,6 +26,7 @@
 - ✅ **S0.2 延伸（依赖方收敛：证伪 `eva-app` 暂不可去 `bc-course`，保持行为不变）**：Serena 证据化确认：`eva-app` 仍大量引用 `edu.cuit.bc.course.*`（典型落点：`BcCourseConfiguration` 与 `ICourse*ServiceImpl/IUserCourseServiceImpl` 对 `bc-course` 用例/端口/异常的直接依赖），因此不满足“仅使用 `edu.cuit.client.*` 类型”的前提；本阶段不改 `eva-app/pom.xml` 的 `bc-course` 依赖，避免引入编译/装配缺失（最小回归通过）。
 - ✅ **S0.2 延伸（课程域基础设施归位：RepositoryImpl 收尾，保持行为不变）**：将 `AssignEvaTeachersRepositoryImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`（仅搬运文件，`package`/事务边界/日志/异常文案/副作用顺序完全不变）；并用 Serena 证伪：`eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/*RepositoryImpl` 残留由 1 清零（最小回归通过；落地提交：`7f5beed9`）。
 - ✅ **S0.2 延伸（依赖方收敛：eva-adapter 去 bc-course 传递依赖，保持行为不变）**：Serena 证伪 `eva-adapter` 未引用 `edu.cuit.bc.course.*` 内部实现类/包，仅使用 `edu.cuit.client.*` 协议类型；因此在 `eva-adapter/pom.xml` 对 `eva-app` 的依赖上排除传递的 `bc-course`，并显式依赖 `shared-kernel`（最小回归通过；落地提交：`f8ff84f5`）。
+- ✅ **S0.2 延伸（依赖方收敛补齐：教室接口下沉 shared-kernel + 旧网关归位，保持行为不变）**：为闭合 `eva-adapter` 对 `edu.cuit.client.api.IClassroomService` 的编译期引用，将 `IClassroomService` 从 `bc-course/application` 下沉到 `shared-kernel`（保持 `package` 不变）；同时将旧 `CourseDeleteGatewayImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`（保持 `package` 不变），以缩小 `eva-infra` 对 `bc-course` 用例的实现承载面（最小回归通过；落地提交：`38f58e0a`）。
 
 **2026-01-07（本次会话）**
 - ✅ **S0.2 延伸（课程域基础设施归位：RepositoryImpl 推进，保持行为不变）**：将 `DeleteCourseTypeRepositoryImpl/UpdateCourseTypeRepositoryImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`（仅搬运文件，`package`/事务边界/异常文案/副作用顺序完全不变）；并用 Serena 证伪：`eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/*RepositoryImpl` 残留由 5 减至 3（最小回归通过；落地提交：`33844ce0`）。
@@ -270,7 +271,7 @@
 - ✅ **S0.1（依赖路径继续收敛）**：移除 `eva-infra-shared` → `eva-client` Maven 直依赖（保持行为不变；最小回归通过；落地提交：`9437bb12`）。
 - ✅ **S0.1（通用/跨域对象继续沉淀）**：将 `EvaProp` 从 `eva-client` 迁移到 `shared-kernel`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`4feabdd0`）。
 - ✅ **S0.1（AI 报告协议继续拆 `eva-client`）**：将 AI 接口与 BO（`IAiCourseAnalysisService/AiAnalysisBO/AiCourseSuggestionBO`）从 `eva-client` 迁移到 `bc-ai-report`，并移除 `bc-ai-report` → `eva-client` 依赖，改为显式依赖 `commons-lang3`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`badb9db6`）。
-- ✅ **S0.1（课程协议继续拆 `eva-client`，教室接口）**：将 `IClassroomService` 从 `eva-client` 迁移到 `bc-course`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`59471a96`）。
+- ✅ **S0.1（课程协议继续拆 `eva-client`，教室接口）**：将 `IClassroomService` 从 `eva-client` 迁移到 `bc-course`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`59471a96`）；后续为支撑“依赖方去 `bc-course`”，已进一步下沉到 `shared-kernel`（保持 `package` 不变；保持行为不变；落地提交：`38f58e0a`）。
 - ✅ **S0.1（消息协议继续拆 `eva-client`，clientobject）**：将 `EvaMsgCO` 从 `eva-client` 迁移到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`2f257a86`）。
 - ✅ **S0.1（消息协议继续拆 `eva-client`，cmd）**：将 `SendWarningMsgCmd` 从 `eva-client` 迁移到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`e6aa5913`）。
 - ✅ **S0.1（消息协议继续拆 `eva-client`，cmd/interface/bo）**：将消息域 `IMsgService/SendMessageCmd/MessageBO` 从 `eva-client` 迁移到 `bc-messaging-contract`（保持 `package` 不变；保持行为不变；最小回归通过；落地提交：`431a5a23`）。
@@ -1028,7 +1029,7 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
           - `bc-course/infrastructure/src/main/java/edu/cuit/infra/bccourse/adapter/DeleteSelfCourseRepositoryImpl.java`
           - `bc-course/src/main/java/edu/cuit/bc/course/application/usecase/UpdateSelfCourseUseCase.java`
           - `bc-course/infrastructure/src/main/java/edu/cuit/infra/bccourse/adapter/UpdateSelfCourseRepositoryImpl.java`
-          - `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseDeleteGatewayImpl.java`
+          - `bc-course/infrastructure/src/main/java/edu/cuit/infra/gateway/impl/course/CourseDeleteGatewayImpl.java`
           - `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseUpdateGatewayImpl.java`
 
 5) **课程类型修改链路收敛到 bc-course（保持行为不变）**  
@@ -1055,7 +1056,7 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
 	     - `bc-course/src/main/java/edu/cuit/bc/course/application/usecase/DeleteCoursesUseCase.java`
 	     - `bc-course/infrastructure/src/main/java/edu/cuit/infra/bccourse/adapter/DeleteCourseRepositoryImpl.java`
 	     - `bc-course/infrastructure/src/main/java/edu/cuit/infra/bccourse/adapter/DeleteCoursesRepositoryImpl.java`
-	     - `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseDeleteGatewayImpl.java`
+	     - `bc-course/infrastructure/src/main/java/edu/cuit/infra/gateway/impl/course/CourseDeleteGatewayImpl.java`
 
 7) **删除课程类型链路收敛到 bc-course（保持行为不变）**
    - 目标：✅ 已完成压扁 `CourseDeleteGatewayImpl.deleteCourseType()`，让 infra 不再承载“删课程类型”的业务流程（保持行为不变；细节见 0.9）。
@@ -1070,7 +1071,7 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
    - 关键文件：
      - `bc-course/src/main/java/edu/cuit/bc/course/application/usecase/DeleteCourseTypeUseCase.java`
      - `bc-course/infrastructure/src/main/java/edu/cuit/infra/bccourse/adapter/DeleteCourseTypeRepositoryImpl.java`
-     - `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseDeleteGatewayImpl.java`
+     - `bc-course/infrastructure/src/main/java/edu/cuit/infra/gateway/impl/course/CourseDeleteGatewayImpl.java`
 
 8) **新增课程类型链路收敛到 bc-course（保持行为不变）**
    - 目标：压扁 `CourseUpdateGatewayImpl.addCourseType()`，让 infra 不再承载“新增课程类型”的写流程。
@@ -1314,7 +1315,7 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
 - 自助删课：
   - bc-course 用例：`bc-course/src/main/java/edu/cuit/bc/course/application/usecase/DeleteSelfCourseUseCase.java`
 - infra 端口实现：`bc-course/infrastructure/src/main/java/edu/cuit/infra/bccourse/adapter/DeleteSelfCourseRepositoryImpl.java`
-  - 旧入口退化委托壳：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseDeleteGatewayImpl.java`（`deleteSelfCourse`）
+  - 旧入口退化委托壳：`bc-course/infrastructure/src/main/java/edu/cuit/infra/gateway/impl/course/CourseDeleteGatewayImpl.java`（`deleteSelfCourse`）
   - 应用层副作用事件化：`eva-app/src/main/java/edu/cuit/app/service/impl/course/IUserCourseServiceImpl.java`（`deleteSelfCourse`）
 - 自助改课：
   - bc-course 用例：`bc-course/src/main/java/edu/cuit/bc/course/application/usecase/UpdateSelfCourseUseCase.java`
@@ -1352,7 +1353,7 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
 落地：
 - bc-course 用例骨架：`DeleteCourseUseCase` / `DeleteCoursesUseCase`
 - infra 端口实现：`DeleteCourseRepositoryImpl` / `DeleteCoursesRepositoryImpl`（原 `isEmptiy` 条件拼装逻辑已随端口实现私有化）
-- 旧 gateway 退化为委托壳：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseDeleteGatewayImpl.java`
+- 旧 gateway 退化为委托壳：`bc-course/infrastructure/src/main/java/edu/cuit/infra/gateway/impl/course/CourseDeleteGatewayImpl.java`
 
 ### 3.10 闭环 J：删除课程类型链路收敛（Delete Course Type）
 
@@ -1361,7 +1362,7 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
 落地：
 - bc-course 用例骨架：`DeleteCourseTypeUseCase`
 - infra 端口实现：`DeleteCourseTypeRepositoryImpl`
-- 旧 gateway 退化为委托壳：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/course/CourseDeleteGatewayImpl.java`
+- 旧 gateway 退化为委托壳：`bc-course/infrastructure/src/main/java/edu/cuit/infra/gateway/impl/course/CourseDeleteGatewayImpl.java`
 
 验证命令（离线优先，避免网络受限）：
 - `mvn -o -pl bc-course -am test -q -Dmaven.repo.local=.m2/repository`
