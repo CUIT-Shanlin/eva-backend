@@ -108,6 +108,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-01-08）**
+- ✅ S0.2 延伸（课程读侧端口适配器归位，保持行为不变）：将 `CourseDetailQueryPortImpl` 从 `eva-app` 归位到 `bc-course-infra`（保持 `package edu.cuit.app.bccourse.adapter` 不变；实现逻辑不变；最小回归通过；落地：`250002d5`），用于继续削减 `eva-app` 的课程域编译期引用面（细节以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
 - ✅ S0.2 延伸（课程域转换器归位，保持行为不变）：将 `CourseBizConvertor` 从 `eva-app` 迁移到 `eva-infra-shared`（保持 `package edu.cuit.app.convertor.course` 不变；仅搬运/编译闭合；最小回归通过；落地：`eec5d45c`），用于为后续继续归位课程域端口适配器/旧入口并削减 `eva-app` 课程域引用面提供依赖闭包。
 - ✅ S0.2 延伸（课程域组合根归位，保持行为不变）：将课程域组合根 `BcCourseConfiguration` 从 `eva-app` 归位到 `bc-course-infra`（保持 `package edu.cuit.app.config` 不变；Bean 定义/装配顺序不变；最小回归通过；落地：`49477dd1`），用于继续收敛 `eva-app` 对课程 BC 的编译期引用面（细节以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
 - ✅ S0.2 延伸（课程读侧查询接口归位，保持行为不变）：Serena 证伪 `CourseQueryRepo` 仅由课程读侧委托壳/查询仓储使用后，将 `CourseQueryRepo` 从 `eva-infra-shared` 归位到 `bc-course/infrastructure`（保持 `package` 不变；最小回归通过；落地：`5101a341`；细节以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。

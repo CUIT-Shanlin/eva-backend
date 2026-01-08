@@ -684,6 +684,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   8) ✅ 并行主线（依赖方编译期依赖继续收敛，证伪结论，保持行为不变）：本次重新盘点显示：除 `eva-app` 外，未发现仍显式依赖 `bc-course` 且满足“仅使用 `edu.cuit.client.*` 类型”的模块，因此本会话无可执行的 `pom.xml` 依赖替换点；而 `eva-app` 仍存在大量 `edu.cuit.bc.course.*` 引用，暂不满足替换前提。下一步应先继续收敛 `eva-app` 对课程域用例/端口/异常的直接引用，再回到“逐个模块依赖替换”。
   9) ✅ 延伸主线（继续削减 `eva-app` 课程域编译期引用面，保持行为不变）：将课程域组合根 `BcCourseConfiguration` 从 `eva-app` 归位到 `bc-course-infra`（保持 `package edu.cuit.app.config` 不变；Bean 定义/装配顺序不变；落地：`49477dd1`）。该步用于为后续 `eva-app/pom.xml` 去 `bc-course` 依赖创造前置条件。
   10) ✅ 延伸主线（为后续继续归位端口适配器/旧入口做准备，保持行为不变）：将课程域 `CourseBizConvertor` 从 `eva-app` 迁移到 `eva-infra-shared`（保持 `package edu.cuit.app.convertor.course` 不变；仅搬运/编译闭合；落地：`eec5d45c`），以便后续把依赖该转换器的课程域端口适配器/旧入口逐步归位到 `bc-course-infra`，继续削减 `eva-app` 的课程域编译期引用面。
+  11) ✅ 延伸主线（课程读侧端口适配器归位，保持行为不变）：将 `CourseDetailQueryPortImpl` 从 `eva-app` 归位到 `bc-course-infra`（保持 `package edu.cuit.app.bccourse.adapter` 不变；实现逻辑不变；落地：`250002d5`），继续削减 `eva-app` 的课程域编译期引用面。
 
 #### bc-messaging（消息域）后置规划（仅规划，不落地；保持行为不变）
 
