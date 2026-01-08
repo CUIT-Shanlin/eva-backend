@@ -50,6 +50,8 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          cache-from: type=registry,ref=${{ env.TEST_IMAGE }}:latest
+          cache-to: type=inline
           push: true
           build-args: |
             JVMOPTIONS=-Dspring.profiles.active=debug
