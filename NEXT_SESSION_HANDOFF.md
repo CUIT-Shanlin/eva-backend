@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-01-08（本次会话）**
+- ✅ **S0.2 延伸（课程读侧查询实现归位：QueryRepository，保持行为不变）**：将 `CourseQueryRepository` 从 `eva-infra` 归位到 `bc-course/infrastructure`（保持 `package edu.cuit.infra.bccourse.query` 不变，仅搬运文件/编译闭合，不改任何业务语义）；为闭合编译期依赖，将 `CourseRecommendExce` 从 `eva-infra` 迁移到 `eva-infra-shared`（保持 `package` 不变；最小回归通过；落地提交：`881e1d12`）。
 - ✅ **S0.2 延伸（依赖方收敛：eva-infra 去 bc-course 编译期依赖，保持行为不变）**：Serena 证伪 `eva-infra` 未引用 `edu.cuit.bc.course.*` 后，将 `eva-infra/pom.xml` 的 `bc-course` 依赖替换为 `shared-kernel`（每次只改 1 个 `pom.xml`；保持行为不变；最小回归通过；落地提交：`8d806bf0`）。
 - ✅ **S0.2 延伸（课程旧 gateway 归位：Query/Update，保持行为不变）**：将 `CourseQueryGatewayImpl/CourseUpdateGatewayImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`（仅搬运文件，`package`/事务边界/异常文案/副作用顺序完全不变）；为闭合编译期依赖，将 `CourseQueryRepo` 从 `eva-infra` 迁移到 `eva-infra-shared`（保持 `package` 不变）；并用 Serena 证伪：两类均无显式引用点（最小回归通过；落地提交：`d438e060`）。
 - ✅ **S0.2 延伸（课程域基础设施归位：RepositoryImpl 推进，保持行为不变）**：将 `ChangeCourseTemplateRepositoryImpl/ImportCourseFileRepositoryImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`（仅搬运文件，`package`/事务边界/日志/异常文案/副作用顺序完全不变）；为闭合编译期依赖，将 `CourseImportExce` 从 `eva-infra` 迁移到 `eva-infra-shared`（保持 `package` 不变）并在 `eva-infra-shared` 补齐 `zym-spring-boot-starter-cache`（`LocalCacheManager`）；并用 Serena 证伪：`eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/*RepositoryImpl` 残留由 3 减至 1（最小回归通过；落地提交：`33032890`）。
@@ -461,7 +462,8 @@ IDEA MCP 使用要点（可选，保持行为不变；不替代最小回归）�
 
   3) ✅ **bc-course（课程）写侧入口用例归位继续（方向 A → B）**：已完成 `ICourseServiceImpl.updateSingleCourse/addNotExistCoursesDetails/addExistCoursesDetails`，以及 `IUserCourseServiceImpl.deleteSelfCourse/updateSelfCourse/importCourse` 与 `ICourseDetailServiceImpl.updateCourse/updateCourses/delete/addCourse` 的写侧入口收敛（见 0.9）。下一步建议：进入 **S0 收尾**，先清理旧入口残留的未使用依赖注入（保持行为不变；每次只改 1 个类；参考上条）。
   4) ✅ 🎯 **S0.2 延伸（课程旧 gateway 归位，保持行为不变）**：已将课程旧 gateway `CourseQueryGatewayImpl/CourseUpdateGatewayImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`（保持 `package` 不变；仅搬运文件/编译闭合；不改任何业务语义；落地：`d438e060`）。
-     - 下一簇建议（保持行为不变）：如需继续收敛课程域实现承载面，可盘点并逐步归位 `edu.cuit.infra.bccourse.query.CourseQueryRepository`（及其依赖闭包；每次只动 1 个小簇，仍按“Serena→最小回归→commit→三文档同步→push”闭环）。
+     - ✅ 已闭环：`edu.cuit.infra.bccourse.query.CourseQueryRepository` 已归位到 `bc-course/infrastructure`（保持 `package` 不变；落地：`881e1d12`）。
+     - 下一簇建议（保持行为不变）：如需继续收敛课程读侧实现承载面，优先用 Serena 盘点 `CourseQueryRepository` 的“跨域依赖闭包”（评教任务/表单/用户等 Mapper 与查询组装），作为后续“按查询主题拆分 QueryRepo/QueryService”与“进一步收敛共享 DAL”的输入（仍不改业务语义）。
 
 - ✅ 提交点 0（纯文档闭环）：已完成（落地提交：`1adc80bd`）。
 - ✅ 提交点 A（结构落点，不迁业务）：已完成（落地提交：`a30a1ff9`）。
@@ -587,7 +589,8 @@ IDEA MCP 使用要点（可选，保持行为不变；不替代最小回归）�
 1) 🎯 当前主线（**S0.2 延伸：继续收敛 `eva-infra` 对 `bc-course` 的实现承载面**，保持行为不变）：
    - ✅ 已闭环：Serena 证伪 `eva-infra` 未引用 `edu.cuit.bc.course.*` 后，已将 `eva-infra/pom.xml` 的 `bc-course` 依赖替换为 `shared-kernel`（保持行为不变；落地以 0.9 为准）。
    - ✅ 已闭环：`eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/*RepositoryImpl` 已全部归位到 `bc-course/infrastructure`，残留清零（见 0.9）。
-   - 下一簇建议（保持行为不变）：继续盘点并逐步归位 `eva-infra` 中课程域残留实现承载面（优先：`edu.cuit.infra.bccourse.query.CourseQueryRepository` 与其依赖闭包；每次只动 1 个小簇，仍按“Serena→最小回归→提交→三文档同步→push”闭环）。
+   - ✅ 已闭环：`edu.cuit.infra.bccourse.query.CourseQueryRepository` 已归位到 `bc-course/infrastructure`（保持 `package` 不变；落地以 0.9 为准）。
+   - 下一簇建议（保持行为不变）：继续盘点 `eva-infra` 中是否仍存在“仅为课程域服务”的残留实现承载面（例如 `edu.cuit.infra.bccourse.*` / `edu.cuit.infra.gateway.impl.course.*`），若确认仅为课程域服务，则按“最小闭合”原则归位到 `bc-course/infrastructure` 或 `eva-infra-shared`（仍保持包名/异常/日志/副作用顺序不变；每次只动 1 个小簇）。
    - Serena + IDEA（试点已验证，仍不替代最小回归）：
      1) Serena 证据化盘点依赖与引用面
      2) （可选）IDEA MCP `mcp__idea__get_file_problems(errorsOnly=true)` 做搬运后快速预检（不替代 `mvn test`）
@@ -1514,7 +1517,7 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
 13) ✅ **已完成：课程读侧渐进收敛（`CourseQueryGatewayImpl`）**
    - 背景：课程查询（分页/课表/评教统计/移动端周期课程等）存在大量 query 与组装逻辑，长期堆在 gateway 内。
    - 目标：按“先结构化 QueryRepo，再谈 CQRS 投影表”的策略，抽离查询仓储并让 gateway 退化为委托壳（行为不变）。
-   - 落地：新增 `CourseQueryRepo/CourseQueryRepository`，旧 `CourseQueryGatewayImpl` 退化为委托壳（提交：`ba8f2003`）。
+   - 落地：新增 `CourseQueryRepo/CourseQueryRepository`，旧 `CourseQueryGatewayImpl` 退化为委托壳（抽取：`ba8f2003`）；后续将 `CourseQueryRepository` 归位到 `bc-course/infrastructure`，并将其依赖的 `CourseRecommendExce` 归位到 `eva-infra-shared`（均保持 `package` 不变；归位：`881e1d12`）。
 
 14) ✅ **已完成：评教读侧渐进收敛（`EvaQueryGatewayImpl`）**
    - 背景：评教读侧统计/分页/聚合仍大量集中在 `EvaQueryGatewayImpl`，是下一阶段“结构化读模型”的高收益目标。

@@ -108,6 +108,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-01-08）**
+- ✅ S0.2 延伸（课程读侧查询实现归位，保持行为不变）：将 `CourseQueryRepository` 从 `eva-infra` 归位到 `bc-course/infrastructure`，并将其依赖的 `CourseRecommendExce` 从 `eva-infra` 迁移到 `eva-infra-shared` 以闭合编译期依赖（均保持 `package` 不变；最小回归通过；落地：`881e1d12`；细节以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
 - ✅ S0.2 延伸（课程旧 gateway 归位，保持行为不变）：将 `CourseQueryGatewayImpl/CourseUpdateGatewayImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`，并将 `CourseQueryRepo` 从 `eva-infra` 迁移到 `eva-infra-shared` 以闭合编译期依赖（均保持 `package` 不变；最小回归通过；落地：`d438e060`；细节以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
 - ✅ S0.2 延伸（依赖方收敛，保持行为不变）：Serena 证伪 `eva-infra` 未引用 `edu.cuit.bc.course.*` 后，将 `eva-infra/pom.xml` 的 `bc-course` 依赖替换为 `shared-kernel`（每次只改 1 个 `pom.xml`；最小回归通过；落地：`8d806bf0`；细节以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
 - ✅ S0.2 延伸（依赖方收敛补齐，保持行为不变）：为闭合 `eva-adapter` 对 `edu.cuit.client.api.IClassroomService` 的编译期引用，将 `IClassroomService` 从 `bc-course/application` 下沉到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`38f58e0a`；细节以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
@@ -359,7 +360,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - 评教任务发布：`EvaUpdateGatewayImpl.postEvaTask` 收敛到 `bc-evaluation`（落地提交：`8e434fe1/ca69b131/e9043f96`）。
   - 评教删除：`EvaDeleteGatewayImpl.deleteEvaRecord/deleteEvaTemplate` 收敛到 `bc-evaluation`（落地提交：`ea928055/07b65663/05900142`）。
 - 课程读侧收敛（保持行为不变）：
-  - `CourseQueryGatewayImpl` 退化委托壳 + 抽取 `CourseQueryRepo/CourseQueryRepository`（落地提交：`ba8f2003`）。
+  - `CourseQueryGatewayImpl` 退化委托壳 + 抽取 `CourseQueryRepo/CourseQueryRepository`（抽取：`ba8f2003`；后续归位：`881e1d12`）。
 - 评教读侧收敛（保持行为不变）：
   - `EvaQueryGatewayImpl` 退化委托壳 + 抽取 `EvaQueryRepo/EvaQueryRepository`（落地提交：`02f4167d`）。
   - 进一步拆分统计/任务/记录/模板查询端口，并让旧 `EvaQueryGatewayImpl` 委托到细分端口（落地提交：`bb391698/570fecb6/ec5191a3/3e5da427`）。
@@ -497,8 +498,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - `CourseQueryGatewayImpl` 已退化为委托壳（读侧入口不变）。
 - 复杂查询/组装逻辑已抽取到：
   - `eva-infra-shared/src/main/java/edu/cuit/infra/bccourse/query/CourseQueryRepo.java`
-  - `eva-infra/src/main/java/edu/cuit/infra/bccourse/query/CourseQueryRepository.java`
-- 落地提交：`ba8f2003`
+  - `bc-course/infrastructure/src/main/java/edu/cuit/infra/bccourse/query/CourseQueryRepository.java`
+- 落地提交：`ba8f2003/881e1d12`
 
 建议策略：
 - 后续如需继续优化：可按“查询主题”拆 QueryService（例如：课表视图/评教统计/移动端周期课表），或再引入 CQRS 投影表（后置）。
