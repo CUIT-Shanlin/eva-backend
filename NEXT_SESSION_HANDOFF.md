@@ -593,10 +593,8 @@ IDEA MCP 使用要点（可选，保持行为不变；不替代最小回归）�
 
 2) 🎯 并行主线（**S0.2 延伸：收敛依赖方对 `bc-course` 的编译期依赖**，保持行为不变）：
    - 背景：课程域协议（`edu.cuit.client.api.course/*`）与其关键签名依赖（`CourseScoreCO/EvaTeacherInfoCO/SingleCourseDetailCO/SimpleCourseResultCO` 等）已进入 `shared-kernel`（均保持 `package` 不变；细节以 0.9 为准）。因此下一步应把“仅为类型引用而依赖 `bc-course`”的模块逐个收敛掉。
-   - 先用 Serena 选择 1 个模块做证伪（优先：`eva-app`；或后续当 `eva-infra` 的实现承载面足够收敛后再评估 `eva-infra`）：
-     1) 证伪该模块是否仍引用 `bc-course` 的内部实现类/包（而不仅是 `edu.cuit.client.*` 类型）。
-     2) 若证伪仅使用 `edu.cuit.client.*`，则只改该模块的 1 个 `pom.xml`：将对 `bc-course` 的编译期依赖替换为显式依赖 `shared-kernel`（不引入 Maven 循环依赖；保持行为不变）。
-     3) 跑最小回归 → `git commit` → 三文档同步 → `git push`。
+   - 已证伪（本会话已完成，保持行为不变）：Serena 证据化确认 `eva-app` 仍大量引用 `edu.cuit.bc.course.*`（组合根与旧入口对 `bc-course` 用例/端口/异常的直接依赖），因此不满足“仅使用 `edu.cuit.client.*` 类型”的前提，本阶段不改 `eva-app/pom.xml` 的 `bc-course` 依赖。
+   - 后续推进建议（待前置条件满足再做；每次只改 1 个 `pom.xml`，保持行为不变）：若后续出现某模块仍显式依赖 `bc-course` 但仅使用 `edu.cuit.client.*` 类型，则将其对 `bc-course` 的编译期依赖替换为显式依赖 `shared-kernel`（每步闭环：Serena → 最小回归 → commit → 三文档同步 → push）。
    - 路线 B（后置，成本更高，按“先 A 再 B”）：若后续发现 `shared-kernel` 承载课程域接口/CO 规模继续膨胀，再评估新增 `bc-course-contract`（或更中立的 contract 模块）承载这些接口/CO，并逐步把依赖方从 `shared-kernel` 切到 contract（仍保持 `package`/行为不变；每步闭环）。
 
 3) ✅ 已闭环（避免重复劳动，细节以 0.9 为准）：
