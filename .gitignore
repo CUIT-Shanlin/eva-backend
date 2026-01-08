@@ -46,3 +46,7 @@ build/
 
 data/avatar
 data/records
+
+.serena
+.m2
+**/.m2
