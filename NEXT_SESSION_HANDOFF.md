@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-01-08（本次会话）**
+- ✅ **S0.2 延伸（课程域组合根归位：BcCourseConfiguration，保持行为不变）**：将课程域组合根 `BcCourseConfiguration` 从 `eva-app` 归位到 `bc-course-infra`（保持 `package edu.cuit.app.config` 不变；Bean 定义/装配顺序不变；最小回归通过；落地提交：`49477dd1`）。该步用于继续削减 `eva-app` 对课程 BC 的直接编译期引用面，为后续 `eva-app/pom.xml` 去 `bc-course` 依赖创造前提。
 - ✅ **docs（统计口径校准，保持行为不变）**：使用 Serena 重新盘点 `eva-infra/src/main/java/edu/cuit/infra/gateway/impl` 下残留 `*GatewayImpl.java` 数量为 **15**（不含已归位 `bc-course/infrastructure` 的 `Course*GatewayImpl`），据此修正本文件 0.10 的历史统计口径（仅文档更新，不改代码）。
 - ✅ **S0.2 延伸（课程读侧查询接口归位：CourseQueryRepo，保持行为不变）**：Serena 证伪 `CourseQueryRepo` 仅由课程读侧委托壳/查询仓储使用后，将 `CourseQueryRepo` 从 `eva-infra-shared` 归位到 `bc-course/infrastructure`（保持 `package` 不变；最小回归通过；落地提交：`5101a341`）。
 - ✅ **S0.2 延伸（课程读侧查询实现归位：QueryRepository，保持行为不变）**：将 `CourseQueryRepository` 从 `eva-infra` 归位到 `bc-course/infrastructure`（保持 `package edu.cuit.infra.bccourse.query` 不变，仅搬运文件/编译闭合，不改任何业务语义）；为闭合编译期依赖，将 `CourseRecommendExce` 从 `eva-infra` 迁移到 `eva-infra-shared`（保持 `package` 不变；最小回归通过；落地提交：`881e1d12`）。
