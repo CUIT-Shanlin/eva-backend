@@ -471,7 +471,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
    - ✅ 进展（保持行为不变；每次只改 1 个方法）：已压扁 `CourseUpdateGatewayImpl.assignTeacher`：新增 `AssignTeacherGatewayEntryUseCase`，旧 gateway 不再构造命令（落地：`0b85c612`）。下一步建议：继续压扁 `CourseUpdateGatewayImpl.updateCourse`（Serena：调用点为 `UpdateCoursePortImpl.updateCourse`；每次只改 1 个方法，保持行为不变）。
 
 4) 基础设施（S1 退场候选，保持行为不变）：`eva-infra` 仍存在多处旧 `*GatewayImpl`（需逐个用 Serena 证伪其剩余方法是否仅为委托壳；以及评估“归属到哪个 BC / shared-kernel / 继续保留在共享技术模块”）。
-   - 候选清单（Serena 盘点，2026-01-02）：`ClassroomGatewayImpl/DepartmentGatewayImpl/LdapPersonGatewayImpl/LogGatewayImpl/SemesterGatewayImpl/MsgGatewayImpl/CourseDeleteGatewayImpl/CourseQueryGatewayImpl/CourseUpdateGatewayImpl/EvaConfigGatewayImpl/EvaDeleteGatewayImpl/EvaUpdateGatewayImpl/MenuQueryGatewayImpl/RoleQueryGatewayImpl/UserQueryGatewayImpl/UserUpdateGatewayImpl/RoleUpdateGatewayImpl/MenuUpdateGatewayImpl`。
+   - 候选清单（Serena 盘点，2026-01-08 更新）：`ClassroomGatewayImpl/DepartmentGatewayImpl/LdapPersonGatewayImpl/LogGatewayImpl/SemesterGatewayImpl/MsgGatewayImpl/CourseQueryGatewayImpl/CourseUpdateGatewayImpl/EvaConfigGatewayImpl/EvaDeleteGatewayImpl/EvaUpdateGatewayImpl/MenuQueryGatewayImpl/RoleQueryGatewayImpl/UserQueryGatewayImpl/UserUpdateGatewayImpl/RoleUpdateGatewayImpl/MenuUpdateGatewayImpl`。
+   - 补充：`CourseDeleteGatewayImpl` 已归位到 `bc-course/infrastructure`（保持 `package` 不变；细节见 `NEXT_SESSION_HANDOFF.md` 0.9），因此不再计入 `eva-infra` 残留。
 
 ---
 
