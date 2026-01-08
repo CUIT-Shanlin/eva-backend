@@ -680,6 +680,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
      - 补充阻塞（保持行为不变）：`eva-app` 当前仍大量引用 `edu.cuit.bc.course.*`（组合根/旧入口对用例/端口/异常的直接依赖），因此暂不满足“仅使用 `edu.cuit.client.*`”的前提；需先按里程碑继续收敛旧入口/装配与依赖面，再评估 `eva-app` 去 `bc-course` 依赖（证据与记录以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
   5) 路线 B（后置，结构更清晰但成本更高）：若后续发现 `shared-kernel` 承载课程域接口/CO 规模继续膨胀，可新增 `bc-course-contract`（或更中立的 contract 模块）承载这些接口/CO，避免继续膨胀 `shared-kernel`；再逐步把依赖方从 `shared-kernel` 切到 contract（保持 `package`/行为不变）。
   6) ✅ 并行支线（课程域基础设施归位，保持行为不变）：`eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/*RepositoryImpl` 已完成归位，残留清零（以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
+  7) ⏳ 延伸主线（实现承载面继续收敛，保持行为不变）：用 Serena 证伪 `eva-infra-shared/src/main/java/edu/cuit/infra/gateway/impl/course/operate/` 下 `CourseFormat/CourseImportExce/CourseRecommendExce` 的引用面；对“仅课程域使用”的类归位到 `bc-course/infrastructure`（保持 `package` 不变，仅搬运与编译闭合），对“跨域共享”的类继续留在 `eva-infra-shared`。
 
 #### bc-messaging（消息域）后置规划（仅规划，不落地；保持行为不变）
 

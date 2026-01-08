@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-01-08（本次会话）**
+- ✅ **docs（统计口径校准，保持行为不变）**：使用 Serena 重新盘点 `eva-infra/src/main/java/edu/cuit/infra/gateway/impl` 下残留 `*GatewayImpl.java` 数量为 **15**（不含已归位 `bc-course/infrastructure` 的 `Course*GatewayImpl`），据此修正本文件 0.10 的历史统计口径（仅文档更新，不改代码）。
 - ✅ **S0.2 延伸（课程读侧查询接口归位：CourseQueryRepo，保持行为不变）**：Serena 证伪 `CourseQueryRepo` 仅由课程读侧委托壳/查询仓储使用后，将 `CourseQueryRepo` 从 `eva-infra-shared` 归位到 `bc-course/infrastructure`（保持 `package` 不变；最小回归通过；落地提交：`5101a341`）。
 - ✅ **S0.2 延伸（课程读侧查询实现归位：QueryRepository，保持行为不变）**：将 `CourseQueryRepository` 从 `eva-infra` 归位到 `bc-course/infrastructure`（保持 `package edu.cuit.infra.bccourse.query` 不变，仅搬运文件/编译闭合，不改任何业务语义）；为闭合编译期依赖，将 `CourseRecommendExce` 从 `eva-infra` 迁移到 `eva-infra-shared`（保持 `package` 不变；最小回归通过；落地提交：`881e1d12`）。
 - ✅ **S0.2 延伸（依赖方收敛：eva-infra 去 bc-course 编译期依赖，保持行为不变）**：Serena 证伪 `eva-infra` 未引用 `edu.cuit.bc.course.*` 后，将 `eva-infra/pom.xml` 的 `bc-course` 依赖替换为 `shared-kernel`（每次只改 1 个 `pom.xml`；保持行为不变；最小回归通过；落地提交：`8d806bf0`）。
@@ -386,7 +387,7 @@ IDEA MCP 使用要点（可选，保持行为不变；不替代最小回归）�
   - ✅ **bc-messaging**：组合根/监听器/端口适配器归位与“依赖收敛关键环节”已阶段性闭环（见 0.9/10.3）；后置仅做结构折叠与依赖证伪（保持行为不变）。
   - ✅ **`eva-client` 退场**：已从 reactor 移除并从仓库删除；跨 BC 通用对象已开始沉淀 `shared-kernel`（见 10.5）。
 	  - ⏳ **仍未完成（核心阻塞项）**：
-	    1) `eva-infra` 仍保留 **18 个** `*GatewayImpl.java`（Serena：目录 `eva-infra/src/main/java/edu/cuit/infra/gateway/impl` 下盘点），其中大量方法仍未退化为“仅事务边界 + 委托调用”的壳/未归位到对应 BC（详见 `docs/DDD_REFACTOR_BACKLOG.md` 4.3）。
+	    1) `eva-infra` 仍保留 **15 个** `*GatewayImpl.java`（Serena：目录 `eva-infra/src/main/java/edu/cuit/infra/gateway/impl` 下盘点），其中大量方法仍未退化为“仅事务边界 + 委托调用”的壳/未归位到对应 BC（详见 `docs/DDD_REFACTOR_BACKLOG.md` 4.3）。
 	    2) `eva-app` 仍保留 **18 个** `*ServiceImpl.java`（Serena：目录 `eva-app/src/main/java/edu/cuit/app/service/impl` 下盘点），尚未全部退化为“仅 `@CheckSemId` / 登录态解析 / 委托 UseCase”的壳（仍需要继续把业务编排逐步归位到各 BC）。
 	    3) `eva-adapter` 仍保留 **22 个** `*Controller.java`（Serena：目录 `eva-adapter/src/main/java` 下盘点），Controller 仍需逐步收敛为“纯 HTTP 协议适配”（避免直接依赖基础设施实现细节；保持行为不变）。
 	    4) ✅ **S0.2（收敛依赖，主目标已闭环）**：`eva-domain` 已移除对 `bc-course`（应用层 jar）的 Maven 依赖；且 `bc-ai-report-infra` 已不再需要显式依赖 `bc-course`（`IUserCourseService` 已沉 `shared-kernel`），均已在最小回归下验证闭合（细节见 0.9）。
@@ -591,7 +592,10 @@ IDEA MCP 使用要点（可选，保持行为不变；不替代最小回归）�
    - ✅ 已闭环：Serena 证伪 `eva-infra` 未引用 `edu.cuit.bc.course.*` 后，已将 `eva-infra/pom.xml` 的 `bc-course` 依赖替换为 `shared-kernel`（保持行为不变；落地以 0.9 为准）。
    - ✅ 已闭环：`eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/*RepositoryImpl` 已全部归位到 `bc-course/infrastructure`，残留清零（见 0.9）。
    - ✅ 已闭环：`edu.cuit.infra.bccourse.query.CourseQueryRepository` 已归位到 `bc-course/infrastructure`（保持 `package` 不变；落地以 0.9 为准）。
-   - 下一簇建议（保持行为不变）：继续盘点 `eva-infra` 中是否仍存在“仅为课程域服务”的残留实现承载面（例如 `edu.cuit.infra.bccourse.*` / `edu.cuit.infra.gateway.impl.course.*`），若确认仅为课程域服务，则按“最小闭合”原则归位到 `bc-course/infrastructure` 或 `eva-infra-shared`（仍保持包名/异常/日志/副作用顺序不变；每次只动 1 个小簇）。
+   - 下一簇建议（保持行为不变；推荐按 1 小簇闭环推进）：
+     1) 用 Serena 证伪 `eva-infra-shared/src/main/java/edu/cuit/infra/gateway/impl/course/operate/` 下 `CourseFormat/CourseImportExce/CourseRecommendExce` 的引用面是否“仅课程域使用”。
+     2) 若 `CourseImportExce/CourseRecommendExce` 确认仅课程域使用，则将其归位到 `bc-course/infrastructure`（保持 `package` 不变，仅搬运与编译闭合）。
+     3) 若 `CourseFormat` 仍被评教/消息等 BC 复用，则保持其留在 `eva-infra-shared`，避免把跨域共享能力绑定到课程 BC。
    - Serena + IDEA（试点已验证，仍不替代最小回归）：
      1) Serena 证据化盘点依赖与引用面
      2) （可选）IDEA MCP `mcp__idea__get_file_problems(errorsOnly=true)` 做搬运后快速预检（不替代 `mvn test`）
