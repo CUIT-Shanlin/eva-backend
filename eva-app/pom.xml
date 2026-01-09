@@ -45,11 +45,6 @@
         </dependency>
         <dependency>
             <groupId>edu.cuit</groupId>
-            <artifactId>bc-course</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>edu.cuit</groupId>
             <artifactId>bc-course-infra</artifactId>
             <version>${revision}</version>
             <scope>runtime</scope>
