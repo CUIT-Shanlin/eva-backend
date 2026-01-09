@@ -3,10 +3,10 @@ package edu.cuit.adapter.controller.course.query;
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import edu.cuit.adapter.controller.course.util.CalculateClassTime;
-import edu.cuit.app.service.impl.course.ICourseDetailServiceImpl;
-import edu.cuit.app.service.impl.course.ICourseServiceImpl;
-import edu.cuit.app.service.impl.course.ICourseTypeServiceImpl;
-import edu.cuit.app.service.impl.course.IUserCourseServiceImpl;
+import edu.cuit.client.api.course.ICourseDetailService;
+import edu.cuit.client.api.course.ICourseService;
+import edu.cuit.client.api.course.ICourseTypeService;
+import edu.cuit.client.api.course.IUserCourseService;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.SimpleSubjectResultCO;
 import edu.cuit.client.dto.clientobject.course.*;
@@ -30,10 +30,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @Validated
 public class QueryUserCourseController {
-    private final ICourseDetailServiceImpl courseDetailService;
-    private final ICourseServiceImpl courseService;
-    private final ICourseTypeServiceImpl courseTypeService;
-    private final IUserCourseServiceImpl userCourseService;
+    private final ICourseDetailService courseDetailService;
+    private final ICourseService courseService;
+    private final ICourseTypeService courseTypeService;
+    private final IUserCourseService userCourseService;
 
     /**
      * 获取自己教学的课程基础信息

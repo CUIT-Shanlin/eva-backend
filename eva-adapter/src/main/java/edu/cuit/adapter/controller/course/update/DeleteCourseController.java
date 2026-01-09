@@ -1,10 +1,10 @@
 package edu.cuit.adapter.controller.course.update;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
-import edu.cuit.app.service.impl.course.ICourseDetailServiceImpl;
-import edu.cuit.app.service.impl.course.ICourseServiceImpl;
-import edu.cuit.app.service.impl.course.ICourseTypeServiceImpl;
-import edu.cuit.app.service.impl.course.IUserCourseServiceImpl;
+import edu.cuit.client.api.course.ICourseDetailService;
+import edu.cuit.client.api.course.ICourseService;
+import edu.cuit.client.api.course.ICourseTypeService;
+import edu.cuit.client.api.course.IUserCourseService;
 import edu.cuit.client.dto.data.course.CoursePeriod;
 import edu.cuit.common.enums.LogModule;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
@@ -25,10 +25,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @Validated
 public class DeleteCourseController {
-    private final ICourseDetailServiceImpl courseDetailService;
-    private final ICourseServiceImpl courseService;
-    private final ICourseTypeServiceImpl courseTypeService;
-    private final IUserCourseServiceImpl userCourseService;
+    private final ICourseDetailService courseDetailService;
+    private final ICourseService courseService;
+    private final ICourseTypeService courseTypeService;
+    private final IUserCourseService userCourseService;
     /**
      * 连带删除一门课程
      *  @param semId 学期id
