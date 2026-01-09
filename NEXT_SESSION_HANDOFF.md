@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-01-09（本次会话）**
+- ✅ **S0.2 延伸（依赖方收敛：eva-app 去 bc-course 编译期依赖，保持行为不变）**：在 `ICourseServiceImpl/IUserCourseServiceImpl/ICourseDetailServiceImpl` 已全部归位到 `bc-course-infra` 且 Serena + `rg` 证伪 `eva-app` 不再引用 `edu.cuit.bc.course.*` 的前提下，将 `eva-app/pom.xml` 中对 `bc-course` 的编译期依赖替换为 `shared-kernel`（即移除 `bc-course` 依赖；`shared-kernel` 依赖已存在；每次只改 1 个 `pom.xml`；保持行为不变）；最小回归通过；落地提交：`6fe8ffc8`。
 - ✅ **S0.2 延伸（课程旧入口归位：ICourseDetailServiceImpl，保持行为不变）**：将课程旧入口实现类 `ICourseDetailServiceImpl` 从 `eva-app` 归位到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl.course` 不变；仅 `git mv` 搬运与编译闭合；逻辑/异常文案/副作用顺序完全不变）；最小回归通过；落地提交：`bd85a006`。
 - ✅ **S0.2 延伸（课程旧入口归位：IUserCourseServiceImpl，保持行为不变）**：将课程旧入口实现类 `IUserCourseServiceImpl` 从 `eva-app` 归位到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl.course` 不变；以 `git mv` 搬运为主并闭合编译期依赖；逻辑/异常文案/副作用顺序完全不变）。为避免 `bc-course-infra` 反向依赖 `eva-app`，将 `IUserCourseServiceImpl` 对 `UserCourseDetailQueryExec/FileImportExec` 的依赖收敛为类内私有方法（实现逻辑逐行对齐原有实现；保持行为不变）；最小回归通过；落地提交：`79a351c3`。
 - ✅ **S0.2 延伸（课程 Controller 注入收敛到接口，保持行为不变）**：为继续收敛依赖方对 `bc-course` 的编译期耦合，先在 `eva-adapter` 的课程相关 Controller 子簇试点：将注入类型从 `edu.cuit.app.service.impl.course.*ServiceImpl` 收窄为 `shared-kernel` 下的 `edu.cuit.client.api.course.*Service` 接口（Serena 证伪：`ICourseService/ICourseDetailService/ICourseTypeService/IUserCourseService` 均只有一个 `@Service` 实现类）；Spring 注入目标不变，仅减少编译期绑定实现类的耦合；最小回归通过；落地提交：`47a6b06c`。
@@ -416,7 +417,7 @@ IDEA MCP 使用要点（可选，保持行为不变；不替代最小回归）�
   2) ✅ **课程 Controller 注入接口化（先解耦再搬运，保持行为不变）**：已对课程相关 Controller 子簇完成“注入类型从 `*ServiceImpl` 收窄为 `shared-kernel` 的 `edu.cuit.client.api.course.*Service` 接口”的改造，避免 Controller 编译期绑定实现类（落地：`47a6b06c`）。
   3) **继续收敛 `eva-app` 的课程域实现承载面（关键前置，保持行为不变）**：在 Controller 已不再注入实现类的前提下，下一步优先把课程旧入口实现类从 `eva-app` 归位到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl.course` 不变；只做搬运/编译闭合，不改任何业务逻辑/异常文案/副作用顺序）。建议顺序：`ICourseServiceImpl` → `IUserCourseServiceImpl` → `ICourseDetailServiceImpl`（体量最大、依赖最多）。
      - 补充进展：`ICourseServiceImpl`（落地：`2b5bcecb`）、`IUserCourseServiceImpl`（落地：`79a351c3`）与 `ICourseDetailServiceImpl`（落地：`bd85a006`）均已完成归位到 `bc-course-infra`；至此课程旧入口三件套已从 `eva-app` 清零（保持行为不变）。
-  4) **回到“依赖方收敛（每次只改 1 个 pom）”**：已用 Serena + `rg` 证伪：`eva-app` 不再引用 `edu.cuit.bc.course.*`，因此可以评估将 `eva-app/pom.xml` 的 `bc-course` 编译期依赖替换为 `shared-kernel`（每次只改 1 个 `pom.xml`，保持行为不变；最小回归通过）。
+  4) ✅ **回到“依赖方收敛（每次只改 1 个 pom）”**：已用 Serena + `rg` 证伪：`eva-app` 不再引用 `edu.cuit.bc.course.*`，因此已完成将 `eva-app/pom.xml` 的 `bc-course` 编译期依赖替换为 `shared-kernel`（落地：`6fe8ffc8`；保持行为不变；最小回归通过）。下一步可继续按同套路评估其它模块的 `pom.xml`（每次只改 1 个 `pom.xml`）。
   5) **路线 B（后置，成本更高）**：若后续发现 `shared-kernel` 承载课程域接口/CO 规模继续膨胀，可再引入 `bc-course-contract`（或更中立的 contract 模块）承载这些接口/CO（保持 `package` 不变），并逐步把依赖方从 `shared-kernel` 切到该 contract（每步闭环；保持行为不变）。
 
 - Q：什么时候可以把 `eva-*` 技术切片“全部整合进各业务 bc-* 模块”？

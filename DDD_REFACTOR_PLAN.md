@@ -691,7 +691,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   15) ✅ 延伸主线（课程旧入口归位：ICourseServiceImpl，保持行为不变）：将 `ICourseServiceImpl` 从 `eva-app` 归位到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl.course` 不变，仅搬运与编译闭合；不改业务语义/异常文案/副作用顺序）。为闭合 `StpUtil`（Sa-Token）编译期依赖，在 `bc-course-infra` 补齐 `zym-spring-boot-starter-security`（运行时 classpath 已存在，保持行为不变；落地：`2b5bcecb`）。
   16) ✅ 延伸主线（课程旧入口归位：IUserCourseServiceImpl，保持行为不变）：将 `IUserCourseServiceImpl` 从 `eva-app` 归位到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl.course` 不变；仅搬运与编译闭合，不改业务语义/异常文案/副作用顺序）。为避免 `bc-course-infra` 反向依赖 `eva-app`，将 `IUserCourseServiceImpl` 对 `UserCourseDetailQueryExec/FileImportExec` 的依赖收敛为类内私有方法（逻辑逐行对齐原实现；保持行为不变；落地：`79a351c3`）。
   17) ✅ 延伸主线（课程旧入口归位：ICourseDetailServiceImpl，保持行为不变）：将 `ICourseDetailServiceImpl` 从 `eva-app` 归位到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl.course` 不变，仅搬运与编译闭合；不改业务语义/异常文案/副作用顺序；落地：`bd85a006`）。
-  18) ⏳ 下一步建议（依赖方编译期依赖收敛，保持行为不变）：在 Serena + `rg` 证伪 `eva-app` 不再引用 `edu.cuit.bc.course.*` 后，评估将 `eva-app/pom.xml` 的 `bc-course` 编译期依赖替换为 `shared-kernel`（每次只改 1 个 `pom.xml`；最小回归通过）。
+  18) ✅ 延伸主线（依赖方编译期依赖收敛：eva-app 去 bc-course，保持行为不变）：在 Serena + `rg` 证伪 `eva-app` 不再引用 `edu.cuit.bc.course.*` 后，已完成将 `eva-app/pom.xml` 的 `bc-course` 编译期依赖替换为 `shared-kernel`（即移除 `bc-course` 依赖；每次只改 1 个 `pom.xml`；最小回归通过；落地：`6fe8ffc8`）。
 
 #### bc-messaging（消息域）后置规划（仅规划，不落地；保持行为不变）
 
