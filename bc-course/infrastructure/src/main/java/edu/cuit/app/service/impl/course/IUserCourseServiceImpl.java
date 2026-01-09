@@ -9,8 +9,6 @@ import edu.cuit.app.aop.CheckSemId;
 import edu.cuit.app.convertor.course.CourseBizConvertor;
 import edu.cuit.app.event.AfterCommitEventPublisher;
 
-import edu.cuit.app.service.operate.course.query.UserCourseDetailQueryExec;
-import edu.cuit.app.service.operate.course.update.FileImportExec;
 import edu.cuit.bc.course.application.port.CourseExcelResolvePort;
 import edu.cuit.bc.course.application.usecase.DeleteSelfCourseEntryUseCase;
 import edu.cuit.bc.course.application.usecase.ImportCourseFileEntryUseCase;
@@ -24,6 +22,8 @@ import edu.cuit.client.dto.clientobject.SemesterCO;
 import edu.cuit.client.dto.clientobject.SimpleSubjectResultCO;
 import edu.cuit.client.dto.clientobject.course.*;
 import edu.cuit.client.dto.data.Term;
+import edu.cuit.client.dto.data.course.CoursePeriod;
+import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
@@ -41,7 +41,6 @@ import java.util.stream.Collectors;
 public class IUserCourseServiceImpl implements IUserCourseService {
     private final CourseQueryGateway courseQueryGateway;
     private final CourseBizConvertor courseConvertor;
-    private final UserCourseDetailQueryExec userCourseDetailQueryExec;
     private final UserQueryGateway userQueryGateway;
     private final AfterCommitEventPublisher afterCommitEventPublisher;
 
@@ -67,7 +66,7 @@ public class IUserCourseServiceImpl implements IUserCourseService {
         List<List<SingleCourseEntity>> courseList = courseQueryGateway.getUserCourseDetail(id, semId);
         List<CourseDetailCO> result=new ArrayList<>();
         for (List<SingleCourseEntity> singleCourseEntities : courseList) {
-           result.add(userCourseDetailQueryExec.getUserCourseDetail(singleCourseEntities, semId));
+           result.add(buildUserCourseDetail(singleCourseEntities, semId));
         }
         return result;
     }
@@ -88,9 +87,9 @@ public class IUserCourseServiceImpl implements IUserCourseService {
         }
         Map<String, List<CourseExcelBO>> courseExce;
         if(type==0){
-            courseExce = FileImportExec.importCourse(courseExcelResolvePort.resolveTheoryCourse(fileStream));
+            courseExce = importCourse(courseExcelResolvePort.resolveTheoryCourse(fileStream));
         }else if(type==1){
-            courseExce = FileImportExec.importCourse(courseExcelResolvePort.resolveExperimentalCourse(fileStream));
+            courseExce = importCourse(courseExcelResolvePort.resolveExperimentalCourse(fileStream));
         }else{
             throw new BizException("课表类型转换错误");
         }
@@ -132,6 +131,63 @@ public class IUserCourseServiceImpl implements IUserCourseService {
             list.add(time);
         }
         return list;
+    }
+
+    private static Map<String, List<CourseExcelBO>> importCourse(List<CourseExcelBO> list){
+        Map<String, List<CourseExcelBO>> courseExce = new HashMap<>();
+        //根据CourseExcelBO中的课程名称进行分类
+        for (CourseExcelBO entity : list) {
+            String courseName = entity.getCourseName();
+            courseExce.computeIfAbsent(courseName, k -> new ArrayList<>()).add(entity);
+        }
+        return courseExce;
+    }
+
+    private CourseDetailCO buildUserCourseDetail(List<SingleCourseEntity> singleCourseEntities,Integer semId){
+        List<CourseType> typeList=null;
+        CourseModelCO courseModelCO=null;
+        if(!singleCourseEntities.isEmpty()){
+            typeList = courseQueryGateway.getCourseType(singleCourseEntities.get(0).getCourseEntity().getId());
+//             List<String> location=si
+            courseModelCO = courseConvertor.toCourseModelCO(singleCourseEntities.get(0).getCourseEntity(), courseQueryGateway.getLocation(singleCourseEntities.get(0).getCourseEntity().getId()));
+        }
+
+        //根据singleCourseEntities中的上课的星期数和startTime以及endTime，将课程分类
+        Map<String, List<SingleCourseEntity>> courseByDay = new HashMap<>();
+        for (SingleCourseEntity entity : singleCourseEntities) {
+            String dayOfWeek = entity.getDay().toString()+entity.getStartTime().toString()+entity.getEndTime().toString();
+            courseByDay.computeIfAbsent(dayOfWeek, k -> new ArrayList<>()).add(entity);
+        }
+        List<CoursePeriod> coursePeriodList = getCoursePeriods(courseByDay);
+
+
+        return new CourseDetailCO().setCourseBaseMsg(courseModelCO).setDateList(coursePeriodList).setTypeList(typeList);
+    }
+
+    private static List<CoursePeriod> getCoursePeriods(Map<String, List<SingleCourseEntity>> courseByDay) {
+        List<CoursePeriod> coursePeriodList = new ArrayList<>();
+        CoursePeriod temp=new CoursePeriod();
+        for (Map.Entry<String, List<SingleCourseEntity>> entry : courseByDay.entrySet()) {
+            temp.setStartTime(entry.getValue().get(0).getStartTime());
+            temp.setEndTime(entry.getValue().get(0).getEndTime());
+            temp.setDay(entry.getValue().get(0).getDay());
+            int startWeek=entry.getValue().get(0).getWeek();
+            int endWeek=entry.getValue().get(0).getWeek();
+            for (SingleCourseEntity singleCourseEntity : entry.getValue()) {
+                if(singleCourseEntity.getWeek()>=endWeek){
+                    endWeek=singleCourseEntity.getWeek();
+                }
+                if(singleCourseEntity.getWeek()<=startWeek){
+                    startWeek=singleCourseEntity.getWeek();
+                }
+            }
+            temp.setStartWeek(startWeek);
+            temp.setEndWeek(endWeek);
+            coursePeriodList.add(temp);
+            //清空temp
+            temp=new CoursePeriod();
+        }
+        return coursePeriodList;
     }
 
     @Override
