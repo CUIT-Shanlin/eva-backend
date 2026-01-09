@@ -687,6 +687,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   11) ✅ 延伸主线（课程读侧端口适配器归位，保持行为不变）：将 `CourseDetailQueryPortImpl` 从 `eva-app` 归位到 `bc-course-infra`（保持 `package edu.cuit.app.bccourse.adapter` 不变；实现逻辑不变；落地：`250002d5`），继续削减 `eva-app` 的课程域编译期引用面。
   12) ✅ 延伸主线（事务提交后事件发布器归位，保持行为不变）：将 `AfterCommitEventPublisher` 从 `eva-app` 迁移到 `eva-infra-shared`（保持 `package edu.cuit.app.event` 不变；逻辑不变；落地：`fc85f548`），用于为后续归位课程旧入口/端口适配器时闭合依赖，避免 `bc-course-infra` 反向依赖 `eva-app`。
   13) ✅ 延伸主线（分页转换器归位，保持行为不变）：将 `PaginationBizConvertor` 从 `eva-app` 迁移到 `eva-infra-shared`（保持 `package edu.cuit.app.convertor` 不变；逻辑不变；落地：`c8c17225`），用于为后续归位课程旧入口/其它旧入口时闭合依赖，避免基础设施模块反向依赖 `eva-app`。
+  14) ✅ 延伸主线（课程 Controller 注入收敛到接口，保持行为不变）：为避免 Controller 编译期绑定 `eva-app` 的实现类，先在 `eva-adapter` 的课程相关 Controller 子簇试点：将注入类型从 `edu.cuit.app.service.impl.course.*ServiceImpl` 收窄为 `shared-kernel` 下的 `edu.cuit.client.api.course.*Service` 接口（Spring 注入目标不变，仅减少编译期耦合；落地：`47a6b06c`）。
 
 #### bc-messaging（消息域）后置规划（仅规划，不落地；保持行为不变）
 
