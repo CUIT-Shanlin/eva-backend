@@ -23,6 +23,7 @@
 
 **2026-01-09（本次会话）**
 - ✅ **S0.2 延伸（课程 Controller 注入收敛到接口，保持行为不变）**：为继续收敛依赖方对 `bc-course` 的编译期耦合，先在 `eva-adapter` 的课程相关 Controller 子簇试点：将注入类型从 `edu.cuit.app.service.impl.course.*ServiceImpl` 收窄为 `shared-kernel` 下的 `edu.cuit.client.api.course.*Service` 接口（Serena 证伪：`ICourseService/ICourseDetailService/ICourseTypeService/IUserCourseService` 均只有一个 `@Service` 实现类）；Spring 注入目标不变，仅减少编译期绑定实现类的耦合；最小回归通过；落地提交：`47a6b06c`。
+- ✅ **S0.2 延伸（课程旧入口归位：ICourseServiceImpl，保持行为不变）**：在 Controller 已不再注入实现类的前提下，先把课程旧入口实现类 `ICourseServiceImpl` 从 `eva-app` 归位到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl.course` 不变，仅 `git mv` 搬运与编译闭合；逻辑/异常文案/副作用顺序完全不变）。由于该旧入口依赖 `StpUtil`（Sa-Token 登录态读取），为保证 `bc-course-infra` 编译闭合补齐 `zym-spring-boot-starter-security` 依赖（运行时 classpath 已存在，仅模块内补齐编译期依赖；保持行为不变）；最小回归通过；落地提交：`2b5bcecb`。
 
 **2026-01-08（本次会话）**
 - ✅ **S0.2 延伸（分页转换器归位：PaginationBizConvertor，保持行为不变）**：将通用分页业务对象转换器 `PaginationBizConvertor` 从 `eva-app` 迁移到 `eva-infra-shared`（保持 `package edu.cuit.app.convertor` 不变；逻辑不变；最小回归通过；落地提交：`c8c17225`），用于为后续归位课程旧入口/其它旧入口时闭合依赖，避免基础设施模块反向依赖 `eva-app`。
@@ -412,6 +413,7 @@ IDEA MCP 使用要点（可选，保持行为不变；不替代最小回归）�
      - 标准闭环：Serena 盘点依赖/引用 →（可选）IDEA MCP `get_file_problems(errorsOnly=true)` 预检 → `git mv` 搬运（必要时仅做“编译闭合”的 support 类归位/依赖补齐）→ 最小回归 → `git commit` → 三文档同步 → `git push` → Serena 证伪残留数变化。
   2) ✅ **课程 Controller 注入接口化（先解耦再搬运，保持行为不变）**：已对课程相关 Controller 子簇完成“注入类型从 `*ServiceImpl` 收窄为 `shared-kernel` 的 `edu.cuit.client.api.course.*Service` 接口”的改造，避免 Controller 编译期绑定实现类（落地：`47a6b06c`）。
   3) **继续收敛 `eva-app` 的课程域实现承载面（关键前置，保持行为不变）**：在 Controller 已不再注入实现类的前提下，下一步优先把课程旧入口实现类从 `eva-app` 归位到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl.course` 不变；只做搬运/编译闭合，不改任何业务逻辑/异常文案/副作用顺序）。建议顺序：`ICourseServiceImpl` → `IUserCourseServiceImpl` → `ICourseDetailServiceImpl`（体量最大、依赖最多）。
+     - 补充进展：`ICourseServiceImpl` 已完成归位到 `bc-course-infra`（落地：`2b5bcecb`）；下一步继续 `IUserCourseServiceImpl` → `ICourseDetailServiceImpl`。
   4) **回到“依赖方收敛（每次只改 1 个 pom）”**：当 `eva-app` 不再引用 `edu.cuit.bc.course.*`（Serena 证伪 + `rg` 复核）后，再评估将 `eva-app/pom.xml` 的 `bc-course` 编译期依赖替换为 `shared-kernel`（保持行为不变；最小回归通过）。
   5) **路线 B（后置，成本更高）**：若后续发现 `shared-kernel` 承载课程域接口/CO 规模继续膨胀，可再引入 `bc-course-contract`（或更中立的 contract 模块）承载这些接口/CO（保持 `package` 不变），并逐步把依赖方从 `shared-kernel` 切到该 contract（每步闭环；保持行为不变）。
 
