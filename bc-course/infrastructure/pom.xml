@@ -45,6 +45,12 @@
             <artifactId>zym-spring-boot-starter-logging</artifactId>
         </dependency>
 
+        <!-- bc-course-infra：旧入口（ServiceImpl）依赖 Sa-Token 登录态读取（StpUtil），保持行为不变 -->
+        <dependency>
+            <groupId>edu.cuit.zhuyimeng</groupId>
+            <artifactId>zym-spring-boot-starter-security</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
