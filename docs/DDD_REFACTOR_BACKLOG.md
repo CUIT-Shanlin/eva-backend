@@ -110,6 +110,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 **已完成（更新至 2026-01-09）**
 - ✅ S0.2 延伸（课程 Controller 注入收敛到接口，保持行为不变）：在 `eva-adapter` 的课程相关 Controller 子簇试点，将注入类型从 `edu.cuit.app.service.impl.course.*ServiceImpl` 收窄为 `shared-kernel` 下的 `edu.cuit.client.api.course.*Service` 接口（Serena 证伪：各接口均只有一个 `@Service` 实现类；Spring 注入目标不变，仅减少编译期耦合；最小回归通过；落地：`47a6b06c`）。
 - ✅ S0.2 延伸（课程旧入口归位：ICourseServiceImpl，保持行为不变）：将 `ICourseServiceImpl` 从 `eva-app` 归位到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl.course` 不变，仅搬运与编译闭合；不改业务语义/异常文案/副作用顺序）。为闭合 `StpUtil`（Sa-Token）编译期依赖，在 `bc-course-infra` 补齐 `zym-spring-boot-starter-security`（运行时 classpath 已存在，保持行为不变；最小回归通过；落地：`2b5bcecb`）。
+- ✅ S0.2 延伸（课程旧入口归位：IUserCourseServiceImpl，保持行为不变）：将 `IUserCourseServiceImpl` 从 `eva-app` 归位到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl.course` 不变，仅搬运与编译闭合；不改业务语义/异常文案/副作用顺序）。为避免 `bc-course-infra` 反向依赖 `eva-app`，将 `IUserCourseServiceImpl` 对 `UserCourseDetailQueryExec/FileImportExec` 的依赖收敛为类内私有方法（逻辑逐行对齐原实现；保持行为不变；最小回归通过；落地：`79a351c3`）。
 - ✅ S0.2 延伸（分页转换器归位，保持行为不变）：将通用分页业务对象转换器 `PaginationBizConvertor` 从 `eva-app` 迁移到 `eva-infra-shared`（保持 `package edu.cuit.app.convertor` 不变；逻辑不变；最小回归通过；落地：`c8c17225`），用于为后续归位课程旧入口/其它旧入口时闭合依赖并避免基础设施模块反向依赖 `eva-app`。
 - ✅ S0.2 延伸（事务提交后事件发布器归位，保持行为不变）：将通用“事务提交后发布事件”发布器 `AfterCommitEventPublisher` 从 `eva-app` 迁移到 `eva-infra-shared`（保持 `package edu.cuit.app.event` 不变；逻辑不变；最小回归通过；落地：`fc85f548`），用于为后续归位课程旧入口/端口适配器时闭合依赖并避免 `bc-course-infra` 反向依赖 `eva-app`。
 - ✅ S0.2 延伸（课程读侧端口适配器归位，保持行为不变）：将 `CourseDetailQueryPortImpl` 从 `eva-app` 归位到 `bc-course-infra`（保持 `package edu.cuit.app.bccourse.adapter` 不变；实现逻辑不变；最小回归通过；落地：`250002d5`），用于继续削减 `eva-app` 的课程域编译期引用面（细节以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
@@ -396,7 +397,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - **S0.2 延伸（课程域：继续削减 `eva-app` 的课程旧入口实现承载面）**：
   - ✅ 已完成：课程相关 Controller 注入已从 `*ServiceImpl` 收窄为 `shared-kernel` 下的 `edu.cuit.client.api.course.*Service` 接口（避免 Controller 编译期绑定实现类；保持行为不变；落地以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
   - ✅ 已完成：`ICourseServiceImpl` 已从 `eva-app` 归位到 `bc-course-infra`（保持 `package` 不变，仅搬运与编译闭合；保持行为不变；落地以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
-  - ⏳ 下一步（每步只迁 1 个类，保持行为不变）：继续归位 `IUserCourseServiceImpl` → `ICourseDetailServiceImpl` 到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl.course` 不变）。
+  - ✅ 已完成：`IUserCourseServiceImpl` 已从 `eva-app` 归位到 `bc-course-infra`（保持 `package` 不变，仅搬运与编译闭合；保持行为不变；落地以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
+  - ⏳ 下一步（每步只迁 1 个类，保持行为不变）：继续归位 `ICourseDetailServiceImpl` 到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl.course` 不变）。
   - ⏳ 后置目标：在 `eva-app` 不再引用 `edu.cuit.bc.course.*`（Serena 证伪 + `rg` 复核）后，再评估将 `eva-app/pom.xml` 的 `bc-course` 编译期依赖替换为 `shared-kernel`（每次只改 1 个 `pom.xml`，保持行为不变）。
 
 0) **S0.2（已闭环，后续延伸，保持行为不变）：收敛 `eva-domain` 对 `bc-course` 的编译期依赖面**

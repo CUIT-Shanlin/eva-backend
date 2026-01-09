@@ -689,7 +689,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   13) ✅ 延伸主线（分页转换器归位，保持行为不变）：将 `PaginationBizConvertor` 从 `eva-app` 迁移到 `eva-infra-shared`（保持 `package edu.cuit.app.convertor` 不变；逻辑不变；落地：`c8c17225`），用于为后续归位课程旧入口/其它旧入口时闭合依赖，避免基础设施模块反向依赖 `eva-app`。
   14) ✅ 延伸主线（课程 Controller 注入收敛到接口，保持行为不变）：为避免 Controller 编译期绑定 `eva-app` 的实现类，先在 `eva-adapter` 的课程相关 Controller 子簇试点：将注入类型从 `edu.cuit.app.service.impl.course.*ServiceImpl` 收窄为 `shared-kernel` 下的 `edu.cuit.client.api.course.*Service` 接口（Spring 注入目标不变，仅减少编译期耦合；落地：`47a6b06c`）。
   15) ✅ 延伸主线（课程旧入口归位：ICourseServiceImpl，保持行为不变）：将 `ICourseServiceImpl` 从 `eva-app` 归位到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl.course` 不变，仅搬运与编译闭合；不改业务语义/异常文案/副作用顺序）。为闭合 `StpUtil`（Sa-Token）编译期依赖，在 `bc-course-infra` 补齐 `zym-spring-boot-starter-security`（运行时 classpath 已存在，保持行为不变；落地：`2b5bcecb`）。
-  16) ⏳ 下一步建议（继续削减 `eva-app` 课程域实现承载面，保持行为不变）：在 Controller 已完成“注入接口化”的前提下，继续将 `IUserCourseServiceImpl` 与 `ICourseDetailServiceImpl` 从 `eva-app` 归位到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl.course` 不变；每步只搬 1 个类并闭环：Serena → 最小回归 → commit → 三文档同步 → push）。
+  16) ✅ 延伸主线（课程旧入口归位：IUserCourseServiceImpl，保持行为不变）：将 `IUserCourseServiceImpl` 从 `eva-app` 归位到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl.course` 不变；仅搬运与编译闭合，不改业务语义/异常文案/副作用顺序）。为避免 `bc-course-infra` 反向依赖 `eva-app`，将 `IUserCourseServiceImpl` 对 `UserCourseDetailQueryExec/FileImportExec` 的依赖收敛为类内私有方法（逻辑逐行对齐原实现；保持行为不变；落地：`79a351c3`）。
+  17) ⏳ 下一步建议（继续削减 `eva-app` 课程域实现承载面，保持行为不变）：在 Controller 已完成“注入接口化”的前提下，继续将 `ICourseDetailServiceImpl` 从 `eva-app` 归位到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl.course` 不变；每步只搬 1 个类并闭环：Serena → 最小回归 → commit → 三文档同步 → push）。
 
 #### bc-messaging（消息域）后置规划（仅规划，不落地；保持行为不变）
 
