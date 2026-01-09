@@ -391,6 +391,14 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：以下是仍在旧 gateway/技术切片中的能力，优先级按“写侧优先 + 影响范围”排序。
 
+（新增，更新至 2026-01-09，保持行为不变）
+
+- **S0.2 延伸（课程域：继续削减 `eva-app` 的课程旧入口实现承载面）**：
+  - ✅ 已完成：课程相关 Controller 注入已从 `*ServiceImpl` 收窄为 `shared-kernel` 下的 `edu.cuit.client.api.course.*Service` 接口（避免 Controller 编译期绑定实现类；保持行为不变；落地以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
+  - ✅ 已完成：`ICourseServiceImpl` 已从 `eva-app` 归位到 `bc-course-infra`（保持 `package` 不变，仅搬运与编译闭合；保持行为不变；落地以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
+  - ⏳ 下一步（每步只迁 1 个类，保持行为不变）：继续归位 `IUserCourseServiceImpl` → `ICourseDetailServiceImpl` 到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl.course` 不变）。
+  - ⏳ 后置目标：在 `eva-app` 不再引用 `edu.cuit.bc.course.*`（Serena 证伪 + `rg` 复核）后，再评估将 `eva-app/pom.xml` 的 `bc-course` 编译期依赖替换为 `shared-kernel`（每次只改 1 个 `pom.xml`，保持行为不变）。
+
 0) **S0.2（已闭环，后续延伸，保持行为不变）：收敛 `eva-domain` 对 `bc-course` 的编译期依赖面**
    - 背景：`eva-domain/pom.xml` **此前**依赖 `bc-course`（应用层 jar）。核心原因是 `eva-domain` 引用一批 `edu.cuit.client.*` 协议对象，而这些类型的定义文件当时仍落在 `bc-course/application`（Serena 证据化盘点）。
 	   - ✅ 进展（2026-01-06）：Serena 证伪后已移除 `eva-domain/pom.xml` 对 `bc-course` 的 Maven 依赖，改为显式依赖 `shared-kernel`（保持行为不变；最小回归通过；落地：`01b36508`）。

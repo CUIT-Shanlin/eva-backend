@@ -602,6 +602,12 @@ IDEA MCP 使用要点（可选，保持行为不变；不替代最小回归）�
 
 本会话目标（按顺序执行；每步闭环=Serena→最小回归→提交→三文档同步；保持行为不变）：
 
+0) 🎯 续接优先（课程域：先解耦 Controller → 再归位旧入口，保持行为不变）：
+   - ✅ 已完成：课程相关 Controller 注入类型已从 `*ServiceImpl` 收敛为 `shared-kernel` 下的 `edu.cuit.client.api.course.*Service` 接口（Spring 注入目标不变，仅减少编译期耦合；细节见 0.9）。
+   - ✅ 已完成：`ICourseServiceImpl` 已从 `eva-app` 归位到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl.course` 不变，仅搬运与编译闭合；保持行为不变；细节见 0.9）。为闭合 `StpUtil` 编译期依赖，`bc-course-infra/pom.xml` 已补齐 `zym-spring-boot-starter-security`（运行时 classpath 已存在，保持行为不变）。
+   - 下一步（每步只迁 1 个类，保持行为不变）：按顺序归位 `IUserCourseServiceImpl` → `ICourseDetailServiceImpl` 到 `bc-course-infra`（保持 `package` 不变；每步闭环：Serena → 最小回归 → commit → 三文档同步 → push）。
+   - 后置条件满足后再做：当 `eva-app` 不再引用 `edu.cuit.bc.course.*`（Serena 证伪 + `rg` 复核）后，再评估将 `eva-app/pom.xml` 的 `bc-course` 编译期依赖替换为显式依赖 `shared-kernel`（每次只改 1 个 `pom.xml`，保持行为不变）。
+
 1) 🎯 当前主线（**S0.2 延伸：继续收敛 `eva-infra` 对 `bc-course` 的实现承载面**，保持行为不变）：
    - ✅ 已闭环：Serena 证伪 `eva-infra` 未引用 `edu.cuit.bc.course.*` 后，已将 `eva-infra/pom.xml` 的 `bc-course` 依赖替换为 `shared-kernel`（保持行为不变；落地以 0.9 为准）。
    - ✅ 已闭环：`eva-infra/src/main/java/edu/cuit/infra/bccourse/adapter/*RepositoryImpl` 已全部归位到 `bc-course/infrastructure`，残留清零（见 0.9）。
