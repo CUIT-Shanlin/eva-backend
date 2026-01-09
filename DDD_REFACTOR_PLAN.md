@@ -685,6 +685,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   9) ✅ 延伸主线（继续削减 `eva-app` 课程域编译期引用面，保持行为不变）：将课程域组合根 `BcCourseConfiguration` 从 `eva-app` 归位到 `bc-course-infra`（保持 `package edu.cuit.app.config` 不变；Bean 定义/装配顺序不变；落地：`49477dd1`）。该步用于为后续 `eva-app/pom.xml` 去 `bc-course` 依赖创造前置条件。
   10) ✅ 延伸主线（为后续继续归位端口适配器/旧入口做准备，保持行为不变）：将课程域 `CourseBizConvertor` 从 `eva-app` 迁移到 `eva-infra-shared`（保持 `package edu.cuit.app.convertor.course` 不变；仅搬运/编译闭合；落地：`eec5d45c`），以便后续把依赖该转换器的课程域端口适配器/旧入口逐步归位到 `bc-course-infra`，继续削减 `eva-app` 的课程域编译期引用面。
   11) ✅ 延伸主线（课程读侧端口适配器归位，保持行为不变）：将 `CourseDetailQueryPortImpl` 从 `eva-app` 归位到 `bc-course-infra`（保持 `package edu.cuit.app.bccourse.adapter` 不变；实现逻辑不变；落地：`250002d5`），继续削减 `eva-app` 的课程域编译期引用面。
+  12) ✅ 延伸主线（事务提交后事件发布器归位，保持行为不变）：将 `AfterCommitEventPublisher` 从 `eva-app` 迁移到 `eva-infra-shared`（保持 `package edu.cuit.app.event` 不变；逻辑不变；落地：`fc85f548`），用于为后续归位课程旧入口/端口适配器时闭合依赖，避免 `bc-course-infra` 反向依赖 `eva-app`。
 
 #### bc-messaging（消息域）后置规划（仅规划，不落地；保持行为不变）
 
