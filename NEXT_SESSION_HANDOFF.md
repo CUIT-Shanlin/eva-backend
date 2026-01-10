@@ -34,6 +34,7 @@
 - ✅ **基础设施（S1 退场候选：旧 gateway 归位，保持行为不变）**：将 `RoleQueryGatewayImpl` 从 `eva-infra` 归位到 `bc-iam-infra`（保持 `package edu.cuit.infra.gateway.impl.user` 不变；仅 `git mv` 搬运与编译闭合；最小回归通过；落地提交：`457b6780`）。
 - ✅ **基础设施（S1 退场候选：旧 gateway 归位，保持行为不变）**：将 `RoleUpdateGatewayImpl` 从 `eva-infra` 归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.gateway.impl.user` 不变；仅 `git mv` 搬运与编译闭合；最小回归通过；落地提交：`1826ac99`）。
 - ✅ **基础设施（S1 退场候选：旧 gateway 归位，保持行为不变）**：将 `UserQueryGatewayImpl` 从 `eva-infra` 归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.gateway.impl.user` 不变；仅 `git mv` 搬运与编译闭合；最小回归通过；落地提交：`b9d8e6b8`）。
+- ✅ **基础设施（S1 退场候选：旧 gateway 归位，保持行为不变）**：将 `UserUpdateGatewayImpl` 从 `eva-infra` 归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.gateway.impl.user` 不变；仅 `git mv` 搬运与编译闭合；最小回归通过；落地提交：`69b72d86`）。
 
 **2026-01-09（本次会话）**
 - ✅ **S0.2 延伸（依赖方收敛：eva-app 去 bc-course 编译期依赖，保持行为不变）**：在 `ICourseServiceImpl/IUserCourseServiceImpl/ICourseDetailServiceImpl` 已全部归位到 `bc-course-infra` 且 Serena + `rg` 证伪 `eva-app` 不再引用 `edu.cuit.bc.course.*` 的前提下，将 `eva-app/pom.xml` 中对 `bc-course` 的编译期依赖替换为 `shared-kernel`（即移除 `bc-course` 依赖；`shared-kernel` 依赖已存在；每次只改 1 个 `pom.xml`；保持行为不变）；最小回归通过；落地提交：`6fe8ffc8`。
@@ -415,10 +416,9 @@ IDEA MCP 使用要点（可选，保持行为不变；不替代最小回归）�
   - ✅ **bc-messaging**：组合根/监听器/端口适配器归位与“依赖收敛关键环节”已阶段性闭环（见 0.9/10.3）；后置仅做结构折叠与依赖证伪（保持行为不变）。
   - ✅ **`eva-client` 退场**：已从 reactor 移除并从仓库删除；跨 BC 通用对象已开始沉淀 `shared-kernel`（见 10.5）。
 	  - ⏳ **仍未完成（核心阻塞项）**：
-	    1) `eva-infra` 仍保留 **4 个** `*GatewayImpl.java`（Serena：目录 `eva-infra/src/main/java/edu/cuit/infra/gateway/impl` 下盘点；`UserQueryGatewayImpl` 已归位到 `bc-iam/infrastructure`，落地：`b9d8e6b8`；`RoleUpdateGatewayImpl` 已归位到 `bc-iam/infrastructure`，落地：`1826ac99`；`RoleQueryGatewayImpl` 已归位到 `bc-iam-infra`，落地：`457b6780`；`MenuUpdateGatewayImpl` 已归位到 `bc-iam-infra`，落地：`09574045`；`MenuQueryGatewayImpl` 已归位到 `bc-iam-infra`，落地：`a7cb96e9`；`LdapPersonGatewayImpl` 已归位到 `bc-iam-infra`，落地：`1ff96d75`；`LogGatewayImpl` 已归位到 `bc-audit-infra`，落地：`673a19e3`；`MsgGatewayImpl` 已归位到 `bc-messaging`，落地：`8ffcfe35`；`DepartmentGatewayImpl` 已归位到 `bc-iam-infra`，落地：`acb13124`；`ClassroomGatewayImpl` 已归位到 `bc-course-infra`，落地：`26b183d5`；`SemesterGatewayImpl` 已归位到 `bc-course-infra`，落地：`30e6a160`），其中大量方法仍未退化为“仅事务边界 + 委托调用”的壳/未归位到对应 BC（详见 `docs/DDD_REFACTOR_BACKLOG.md` 4.3）。
+	    1) `eva-infra` 仍保留 **3 个** `*GatewayImpl.java`（Serena：目录 `eva-infra/src/main/java/edu/cuit/infra/gateway/impl` 下盘点；`UserUpdateGatewayImpl` 已归位到 `bc-iam/infrastructure`，落地：`69b72d86`；`UserQueryGatewayImpl` 已归位到 `bc-iam/infrastructure`，落地：`b9d8e6b8`；`RoleUpdateGatewayImpl` 已归位到 `bc-iam/infrastructure`，落地：`1826ac99`；`RoleQueryGatewayImpl` 已归位到 `bc-iam-infra`，落地：`457b6780`；`MenuUpdateGatewayImpl` 已归位到 `bc-iam-infra`，落地：`09574045`；`MenuQueryGatewayImpl` 已归位到 `bc-iam-infra`，落地：`a7cb96e9`；`LdapPersonGatewayImpl` 已归位到 `bc-iam-infra`，落地：`1ff96d75`；`LogGatewayImpl` 已归位到 `bc-audit-infra`，落地：`673a19e3`；`MsgGatewayImpl` 已归位到 `bc-messaging`，落地：`8ffcfe35`；`DepartmentGatewayImpl` 已归位到 `bc-iam-infra`，落地：`acb13124`；`ClassroomGatewayImpl` 已归位到 `bc-course-infra`，落地：`26b183d5`；`SemesterGatewayImpl` 已归位到 `bc-course-infra`，落地：`30e6a160`），其中大量方法仍未退化为“仅事务边界 + 委托调用”的壳/未归位到对应 BC（详见 `docs/DDD_REFACTOR_BACKLOG.md` 4.3）。
 	       - 下一步建议（保持行为不变；每次只迁 1 个类；每步闭环=Serena→最小回归→commit→三文档→push）：继续把该清单逐个从 `eva-infra` 归位到其目标 BC 的 `infrastructure`/过渡模块（保持 `package` 不变），建议顺序：
-	         1) `user/*GatewayImpl`（剩余：`UserUpdate`）→ `bc-iam-infra`（IAM 域）
-	         2) `eva/*GatewayImpl`（`EvaConfig/EvaDelete/EvaUpdate`）→ `bc-evaluation-infra`（评教域/配置支撑）
+	         1) `eva/*GatewayImpl`（`EvaConfig/EvaDelete/EvaUpdate`）→ `bc-evaluation-infra`（评教域/配置支撑）
 	       - 规则：若归位 `*GatewayImpl` 时暴露“仅为编译闭合”的支撑类缺失（例如 Convertor/Constants/Utils），先按同套路将该支撑类归位到 `eva-infra-shared`（保持包名不变；保持行为不变），再继续归位 gateway。
 	    2) `eva-app` 仍保留 **18 个** `*ServiceImpl.java`（Serena：目录 `eva-app/src/main/java/edu/cuit/app/service/impl` 下盘点），尚未全部退化为“仅 `@CheckSemId` / 登录态解析 / 委托 UseCase”的壳（仍需要继续把业务编排逐步归位到各 BC）。
 	    3) `eva-adapter` 仍保留 **22 个** `*Controller.java`（Serena：目录 `eva-adapter/src/main/java` 下盘点），Controller 仍需逐步收敛为“纯 HTTP 协议适配”（避免直接依赖基础设施实现细节；保持行为不变）。
@@ -622,10 +622,9 @@ IDEA MCP 使用要点（可选，保持行为不变；不替代最小回归）�
 本轮目标（B）：继续将 `eva-infra/src/main/java/edu/cuit/infra/gateway/impl` 下残留旧 `*GatewayImpl` 归位到对应 BC 的 `infrastructure` 子模块（通常 artifactId 为 `bc-xxx-infra`；**保持 package 不变、行为不变**）。
 
 当前残留（以 Serena 盘点为准，建议按顺序逐个闭环）：
-1) `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/user/UserUpdateGatewayImpl.java` → `bc-iam/infrastructure`
-2) `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/eva/EvaConfigGatewayImpl.java` → `bc-evaluation/infrastructure`
-3) `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/eva/EvaDeleteGatewayImpl.java` → `bc-evaluation/infrastructure`
-4) `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/eva/EvaUpdateGatewayImpl.java` → `bc-evaluation/infrastructure`
+1) `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/eva/EvaConfigGatewayImpl.java` → `bc-evaluation/infrastructure`
+2) `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/eva/EvaDeleteGatewayImpl.java` → `bc-evaluation/infrastructure`
+3) `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/eva/EvaUpdateGatewayImpl.java` → `bc-evaluation/infrastructure`
 
 落点提示（保持 package 不变）：
 - IAM：`bc-iam/infrastructure/src/main/java/edu/cuit/infra/gateway/impl/user/`
@@ -694,8 +693,7 @@ IDEA MCP 使用要点（可选，保持行为不变；不替代最小回归）�
    - 背景：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl` 下仍残留 `*GatewayImpl.java`（以 `NEXT_SESSION_HANDOFF.md` 0.10 的最新盘点为准；候选清单以 `docs/DDD_REFACTOR_BACKLOG.md` 4.3 为准）。
    - 已完成（保持行为不变，细节见 0.9）：`DepartmentGatewayImpl` → `bc-iam-infra`、`ClassroomGatewayImpl/SemesterGatewayImpl` → `bc-course-infra`；且已前置归位 `SemesterConverter` → `eva-infra-shared` 以闭合编译期依赖。
    - 下一步建议顺序（仍保持行为不变；每次只迁 1 个类；每步闭环=Serena→最小回归→commit→三文档同步→push）：
-     1) `user/*GatewayImpl`（剩余：`UserUpdate`）→ `bc-iam-infra`
-     2) `eva/*GatewayImpl`（`EvaConfig/EvaDelete/EvaUpdate`）→ `bc-evaluation-infra`
+     1) `eva/*GatewayImpl`（`EvaConfig/EvaDelete/EvaUpdate`）→ `bc-evaluation-infra`
    - 规则：若归位时暴露“仅为编译闭合”的支撑类缺失（Convertor/Constants/Utils），先将该支撑类归位到 `eva-infra-shared`（保持包名不变；保持行为不变），再继续归位 gateway。
 
 4) ✅ 已闭环（避免重复劳动，细节以 0.9 为准）：
@@ -1639,7 +1637,7 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
      - 顺序与时机不变：DB 删除 → LDAP 删除 → 角色解绑 → 缓存失效 → 日志记录。
      - 缓存 key/area 不变：沿用旧 `handleUserUpdateCache` 失效清单（含 `COURSE_LIST_BY_SEM` 等）。
    - 关键落地点（便于快速定位）：
-     - 旧 gateway（已退化委托壳）：`eva-infra/src/main/java/edu/cuit/infra/gateway/impl/user/UserUpdateGatewayImpl.java`
+     - 旧 gateway（已退化委托壳）：`bc-iam/infrastructure/src/main/java/edu/cuit/infra/gateway/impl/user/UserUpdateGatewayImpl.java`
      - 用例与端口：`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/usecase/DeleteUserUseCase.java`、`bc-iam/application/src/main/java/edu/cuit/bc/iam/application/port/UserDeletionPort.java`
      - 端口适配器：`bc-iam/infrastructure/src/main/java/edu/cuit/infra/bciam/adapter/UserDeletionPortImpl.java`
      - 组合根：`eva-app/src/main/java/edu/cuit/app/config/BcIamConfiguration.java`
