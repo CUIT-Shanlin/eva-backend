@@ -500,11 +500,12 @@ scope: 全仓库（离线扫描 + 规则归纳）
    - ✅ 进展（保持行为不变；每次只改 1 个方法）：已压扁 `CourseUpdateGatewayImpl.assignTeacher`：新增 `AssignTeacherGatewayEntryUseCase`，旧 gateway 不再构造命令（落地：`0b85c612`）。下一步建议：继续压扁 `CourseUpdateGatewayImpl.updateCourse`（Serena：调用点为 `UpdateCoursePortImpl.updateCourse`；每次只改 1 个方法，保持行为不变）。
 
 4) 基础设施（S1 退场候选，保持行为不变）：`eva-infra` 仍存在多处旧 `*GatewayImpl`（需逐个用 Serena 证伪其剩余方法是否仅为委托壳；以及评估“归属到哪个 BC / shared-kernel / 继续保留在共享技术模块”）。
-   - 候选清单（Serena 盘点，2026-01-08 更新；滚动修订）：`LdapPersonGatewayImpl/LogGatewayImpl/MsgGatewayImpl/EvaConfigGatewayImpl/EvaDeleteGatewayImpl/EvaUpdateGatewayImpl/MenuQueryGatewayImpl/RoleQueryGatewayImpl/UserQueryGatewayImpl/UserUpdateGatewayImpl/RoleUpdateGatewayImpl/MenuUpdateGatewayImpl`。
+   - 候选清单（Serena 盘点，2026-01-10 更新；滚动修订）：`LdapPersonGatewayImpl/LogGatewayImpl/EvaConfigGatewayImpl/EvaDeleteGatewayImpl/EvaUpdateGatewayImpl/MenuQueryGatewayImpl/RoleQueryGatewayImpl/UserQueryGatewayImpl/UserUpdateGatewayImpl/RoleUpdateGatewayImpl/MenuUpdateGatewayImpl`。
      - 补充进展（2026-01-10，保持行为不变）：`DepartmentGatewayImpl` 已从 `eva-infra` 归位到 `bc-iam-infra`（保持 `package` 不变；最小回归通过；落地：`acb13124`）。
      - 补充进展（2026-01-10，保持行为不变）：`ClassroomGatewayImpl` 已从 `eva-infra` 归位到 `bc-course-infra`（保持 `package` 不变；最小回归通过；落地：`26b183d5`）。
      - 补充进展（2026-01-10，保持行为不变）：为后续归位 `SemesterGatewayImpl` 做编译闭合前置，`SemesterConverter` 已从 `eva-infra` 归位到 `eva-infra-shared`（保持 `package edu.cuit.infra.convertor` 不变；最小回归通过；落地：`6c9e1d39`）。
      - 补充进展（2026-01-10，保持行为不变）：`SemesterGatewayImpl` 已从 `eva-infra` 归位到 `bc-course-infra`（保持 `package` 不变；最小回归通过；落地：`30e6a160`）。
+     - 补充进展（2026-01-10，保持行为不变）：`MsgGatewayImpl` 已从 `eva-infra` 归位到 `bc-messaging`（保持 `package` 不变；最小回归通过；落地：`8ffcfe35`）。
    - 补充：`CourseDeleteGatewayImpl`、`CourseQueryGatewayImpl`、`CourseUpdateGatewayImpl` 已归位到 `bc-course/infrastructure`（保持 `package` 不变；细节见 `NEXT_SESSION_HANDOFF.md` 0.9；落地：`38f58e0a/d438e060`），因此不再计入 `eva-infra` 残留。
 
 ---
@@ -571,7 +572,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 ### 5.3 消息域（msg）
 
-#### A) `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/MsgGatewayImpl.java`
+#### A) `bc-messaging/src/main/java/edu/cuit/infra/gateway/impl/MsgGatewayImpl.java`
 
 目前多为 CRUD/状态位更新（单方法体积不大），但仍属于“未模块化”的领域能力：
 - `queryMsg/queryTargetAmountMsg/updateMsgDisplay/updateMsgRead/updateMultipleMsgRead/insertMessage/deleteMessage/deleteTargetTypeMessage` 等。
@@ -580,7 +581,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - 若后续要继续做“跨域副作用事件化”，可逐步把消息发送/撤回/查询统一收敛到 `bc-messaging` 的端口与用例，旧 gateway 委托化。
 - 进展：删除/已读写侧已收敛到 `bc-messaging`（落地提交：`22cb60eb/dd7483aa`），查询读侧 `queryMsg/queryTargetAmountMsg` 已收敛到 `bc-messaging`（落地提交：`05a2381b`），剩余 `insert/display` 可作为下一阶段目标。
 - 进展：删除/已读写侧已收敛到 `bc-messaging`（落地提交：`22cb60eb/dd7483aa`），查询读侧 `queryMsg/queryTargetAmountMsg` 已收敛到 `bc-messaging`（落地提交：`05a2381b`），插入写侧 `insertMessage` 已收敛到 `bc-messaging`（落地提交：`8445bc41`），剩余 `display` 可作为下一阶段目标。
-- 进展：删除/已读写侧已收敛到 `bc-messaging`（落地提交：`22cb60eb/dd7483aa`），查询读侧 `queryMsg/queryTargetAmountMsg`、插入写侧 `insertMessage`、展示状态写侧 `updateMsgDisplay` 已收敛到 `bc-messaging`（落地提交：`05a2381b/8445bc41/c315fa22`），旧 `MsgGatewayImpl` 已全量退化为委托壳（行为不变）。
+- 进展：删除/已读写侧已收敛到 `bc-messaging`（落地提交：`22cb60eb/dd7483aa`），查询读侧 `queryMsg/queryTargetAmountMsg`、插入写侧 `insertMessage`、展示状态写侧 `updateMsgDisplay` 已收敛到 `bc-messaging`（落地提交：`05a2381b/8445bc41/c315fa22`），旧 `MsgGatewayImpl` 已全量退化为委托壳（行为不变），且已从 `eva-infra` 归位到 `bc-messaging`（落地：`8ffcfe35`）。
 
 ---
 

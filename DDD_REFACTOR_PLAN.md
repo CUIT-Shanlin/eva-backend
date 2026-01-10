@@ -911,7 +911,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - `bc-messaging`：消息查询读侧已收敛（`queryMsg/queryTargetAmountMsg`：用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；落地提交：`05a2381b`）。
 - `bc-messaging`：消息插入写侧已收敛（`insertMessage`：用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；落地提交：`8445bc41`）。
 - `bc-messaging`：消息展示状态写侧已收敛（`updateMsgDisplay`：用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；落地提交：`c315fa22`）。
-- `eva-infra`：旧 `MsgGatewayImpl` 已全量退化为委托壳（CRUD 能力全部委托到 `bc-messaging`，行为不变）。
+- `bc-messaging`：旧 `MsgGatewayImpl` 已全量退化为委托壳（CRUD 能力全部委托到 `bc-messaging`，行为不变），且已从 `eva-infra` 归位到 `bc-messaging`（保持 `package` 不变；落地提交：`8ffcfe35`）。
 - `bc-iam`：用户创建/分配角色写侧已收敛（`createUser/assignRole`：用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；落地提交：`16ff60b6/b65d311f/a707ab86`、`c3aa8739/a3232b78/a26e01b3/9e7d46dd`）。
 - `bc-iam`：用户信息更新写侧已收敛（`updateInfo`：用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；落地提交：`38c31541/6ce61024/db0fd6a3/cb789e21`）。
 - `bc-iam`：用户状态更新写侧已收敛（`updateStatus`：用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；落地提交：`e3fcdbf0/8e82e01f/eb54e13e`；行为快照与下一步拆分详见 `NEXT_SESSION_HANDOFF.md`，补充提交：`e4b94add`）。
@@ -942,7 +942,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - `evaluation`：评教模板新增/修改写侧已收敛到 `bc-evaluation`（新增用例 + 端口 + `eva-infra` 端口适配器，并切换 `eva-app` 入口；落地提交：`ea03dbd3`）。
 - `evaluation`：清理旧 `EvaUpdateGatewayImpl.putEvaTemplate` 遗留实现（提交评教写侧入口已在 `bc-evaluation`，避免旧代码回潮；落地提交：`12279f3f`）。
 - `bc-course`：基础设施能力继续归位（保持行为不变）：`SemesterGatewayImpl` 已从 `eva-infra` 归位到 `bc-course-infra`（保持 `package edu.cuit.infra.gateway.impl` 不变；最小回归通过；落地提交：`30e6a160`）。
-- 下一步建议（基础设施旧 gateway 归位，保持行为不变）：继续按“每次只迁 1 个类 + 最小回归 + 三文档同步 + push”的节奏归位 `eva-infra` 残留 `*GatewayImpl.java`（当前残留清单以 `docs/DDD_REFACTOR_BACKLOG.md` 4.3 为准），优先顺序建议：`MsgGatewayImpl` → `bc-messaging`、`LogGatewayImpl` → `bc-audit-infra`、`LdapPersonGatewayImpl` + `user/*GatewayImpl` → `bc-iam-infra`、`eva/*GatewayImpl` → `bc-evaluation-infra`。
+- 下一步建议（基础设施旧 gateway 归位，保持行为不变）：继续按“每次只迁 1 个类 + 最小回归 + 三文档同步 + push”的节奏归位 `eva-infra` 残留 `*GatewayImpl.java`（当前残留清单以 `docs/DDD_REFACTOR_BACKLOG.md` 4.3 为准），优先顺序建议：`LogGatewayImpl` → `bc-audit-infra`、`LdapPersonGatewayImpl` + `user/*GatewayImpl` → `bc-iam-infra`、`eva/*GatewayImpl` → `bc-evaluation-infra`。
 - 冲突校验底层片段已收敛：
   - 教室占用冲突：`ClassroomOccupancyChecker`
   - 时间段重叠：`CourInfTimeOverlapQuery`
