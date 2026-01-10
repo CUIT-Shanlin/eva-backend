@@ -921,6 +921,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - `bc-iam`：用户目录查询已收敛（`findAllUserId/findAllUsername/allUser/getUserRoleIds`：用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；落地提交：`56bbafcf/7e5f0a74/bc5fb3c6/6a1332b0`）。
 - `bc-iam`：基础设施能力继续归位（保持行为不变）：`DepartmentGatewayImpl` 已从 `eva-infra` 归位到 `bc-iam-infra`（保持 `package edu.cuit.infra.gateway.impl` 不变；最小回归通过；落地提交：`acb13124`）。
 - `bc-course`：多条课程写链路已收敛（导入课表、改课/自助课表、删课、课程类型、课次新增等），旧 gateway 逐步退化为委托壳。
+- `bc-course`：基础设施能力继续归位（保持行为不变）：`ClassroomGatewayImpl` 已从 `eva-infra` 归位到 `bc-course-infra`（保持 `package edu.cuit.infra.gateway.impl` 不变；最小回归通过；落地提交：`26b183d5`）。
 - `bc-course`：课程导入状态查询 `CourseUpdateGatewayImpl.isImported` 已收敛（QueryPort + 用例 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；落地提交：`4ed055a2/495287c8/f3e8e3cc`）。
 - `course`：课程读侧已结构化（`CourseQueryGatewayImpl` 退化委托壳 + `CourseQueryRepo` 抽取；落地提交：`ba8f2003`）。
 - `evaluation`：评教读侧已结构化（`EvaQueryGatewayImpl` 退化委托壳 + `EvaQueryRepo` 抽取；落地提交：`02f4167d`）。
