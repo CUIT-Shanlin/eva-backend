@@ -116,6 +116,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ 基础设施（S1 退场候选：旧 gateway 归位，保持行为不变）：将 `DepartmentGatewayImpl` 从 `eva-infra` 归位到 `bc-iam-infra`（保持 `package edu.cuit.infra.gateway.impl` 不变；仅搬运/编译闭合；最小回归通过；落地：`acb13124`）。
 - ✅ 基础设施（S1 退场候选：旧 gateway 归位，保持行为不变）：将 `ClassroomGatewayImpl` 从 `eva-infra` 归位到 `bc-course-infra`（保持 `package edu.cuit.infra.gateway.impl` 不变；仅搬运/编译闭合；最小回归通过；落地：`26b183d5`）。
 - ✅ 基础设施（S1 退场候选：支撑类归位，保持行为不变）：将 `SemesterConverter` 从 `eva-infra` 归位到 `eva-infra-shared`（保持 `package edu.cuit.infra.convertor` 不变；仅搬运；最小回归通过；落地：`6c9e1d39`）。
+- ✅ 基础设施（S1 退场候选：支撑类归位，保持行为不变）：将 `StaticConfigProperties` 从 `eva-infra` 归位到 `eva-infra-shared`（保持 `package edu.cuit.infra.property` 不变；仅搬运；最小回归通过；落地：`5a26af43`）。
 - ✅ 基础设施（S1 退场候选：旧 gateway 归位，保持行为不变）：将 `SemesterGatewayImpl` 从 `eva-infra` 归位到 `bc-course-infra`（保持 `package edu.cuit.infra.gateway.impl` 不变；仅搬运/编译闭合；最小回归通过；落地：`30e6a160`）。
 - ✅ 基础设施（S1 退场候选：旧 gateway 归位，保持行为不变）：将 `MsgGatewayImpl` 从 `eva-infra` 归位到 `bc-messaging`（保持 `package edu.cuit.infra.gateway.impl` 不变；仅搬运/编译闭合；最小回归通过；落地：`8ffcfe35`）。
 - ✅ 基础设施（S1 退场候选：旧 gateway 归位，保持行为不变）：将 `LogGatewayImpl` 从 `eva-infra` 归位到 `bc-audit-infra`（保持 `package edu.cuit.infra.gateway.impl` 不变；仅搬运/编译闭合；最小回归通过；落地：`673a19e3`）。
@@ -508,6 +509,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
      - 补充进展（2026-01-10，保持行为不变）：`DepartmentGatewayImpl` 已从 `eva-infra` 归位到 `bc-iam-infra`（保持 `package` 不变；最小回归通过；落地：`acb13124`）。
      - 补充进展（2026-01-10，保持行为不变）：`ClassroomGatewayImpl` 已从 `eva-infra` 归位到 `bc-course-infra`（保持 `package` 不变；最小回归通过；落地：`26b183d5`）。
      - 补充进展（2026-01-10，保持行为不变）：为后续归位 `SemesterGatewayImpl` 做编译闭合前置，`SemesterConverter` 已从 `eva-infra` 归位到 `eva-infra-shared`（保持 `package edu.cuit.infra.convertor` 不变；最小回归通过；落地：`6c9e1d39`）。
+     - 补充进展（2026-01-10，保持行为不变）：为后续归位评教配置旧 gateway（`EvaConfigGatewayImpl`）做编译闭合前置，`StaticConfigProperties` 已从 `eva-infra` 归位到 `eva-infra-shared`（保持 `package edu.cuit.infra.property` 不变；最小回归通过；落地：`5a26af43`）。
      - 补充进展（2026-01-10，保持行为不变）：`SemesterGatewayImpl` 已从 `eva-infra` 归位到 `bc-course-infra`（保持 `package` 不变；最小回归通过；落地：`30e6a160`）。
      - 补充进展（2026-01-10，保持行为不变）：`MsgGatewayImpl` 已从 `eva-infra` 归位到 `bc-messaging`（保持 `package` 不变；最小回归通过；落地：`8ffcfe35`）。
      - 补充进展（2026-01-10，保持行为不变）：`LogGatewayImpl` 已从 `eva-infra` 归位到 `bc-audit-infra`（保持 `package` 不变；最小回归通过；落地：`673a19e3`）。

@@ -24,6 +24,7 @@
 **2026-01-10（本次会话）**
 - ✅ **基础设施（S1 退场候选：旧 gateway 归位，保持行为不变）**：将 `SemesterGatewayImpl` 从 `eva-infra` 归位到 `bc-course-infra`（保持 `package edu.cuit.infra.gateway.impl` 不变；`getAll/getNow/getSemesterInfo/selectSemester` 的异常文案与分支语义完全不变；仅 `git mv` 搬运与编译闭合；最小回归通过；落地提交：`30e6a160`）。
 - ✅ **基础设施（S1 退场候选：支撑类归位，保持行为不变）**：为后续归位 `SemesterGatewayImpl`（学期查询）到 `bc-course-infra` 做编译闭合前置，将 `SemesterConverter` 从 `eva-infra` 归位到 `eva-infra-shared`（保持 `package edu.cuit.infra.convertor` 不变；仅 `git mv` 搬运；MapStruct `@Mapper` 定义不变；保持行为不变）；最小回归通过；落地提交：`6c9e1d39`。
+- ✅ **基础设施（S1 退场候选：支撑类归位，保持行为不变）**：为后续归位评教配置旧 gateway（`EvaConfigGatewayImpl`）到 `bc-evaluation/infrastructure` 做编译闭合前置，将 `StaticConfigProperties` 从 `eva-infra` 归位到 `eva-infra-shared`（保持 `package edu.cuit.infra.property` 不变；仅 `git mv` 搬运；保持行为不变）；最小回归通过；落地提交：`5a26af43`。
 - ✅ **基础设施（S1 退场候选：旧 gateway 归位，保持行为不变）**：将 `ClassroomGatewayImpl` 从 `eva-infra` 归位到 `bc-course-infra`（保持 `package edu.cuit.infra.gateway.impl` 不变；缓存注解/缓存 key 表达式/查询字段/排序/去重逻辑完全不变；仅 `git mv` 搬运与编译闭合；最小回归通过；落地提交：`26b183d5`）。
 - ✅ **基础设施（S1 退场候选：旧 gateway 归位，保持行为不变）**：将 `DepartmentGatewayImpl` 从 `eva-infra` 归位到 `bc-iam-infra`（保持 `package edu.cuit.infra.gateway.impl` 不变；缓存注解/缓存 key 表达式/异常语义完全不变；仅 `git mv` 搬运与编译闭合；最小回归通过；落地提交：`acb13124`）。
 - ✅ **基础设施（S1 退场候选：旧 gateway 归位，保持行为不变）**：将 `MsgGatewayImpl` 从 `eva-infra` 归位到 `bc-messaging`（保持 `package edu.cuit.infra.gateway.impl` 不变；仅 `git mv` 搬运与编译闭合；最小回归通过；落地提交：`8ffcfe35`）。

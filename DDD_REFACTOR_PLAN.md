@@ -940,6 +940,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 规则：下一个会话每个步骤结束都需跑最小回归用例并记录结果。
 - `evaluation`：旧 `EvaQueryGateway`/`EvaQueryGatewayImpl` 已移除，避免继续引入旧网关依赖。
 - `eva-infra-shared`：支撑类继续归位（保持行为不变）：`SemesterConverter` 已从 `eva-infra` 归位到 `eva-infra-shared`（保持 `package edu.cuit.infra.convertor` 不变；最小回归通过；落地提交：`6c9e1d39`）。
+- `eva-infra-shared`：支撑类继续归位（保持行为不变）：`StaticConfigProperties` 已从 `eva-infra` 归位到 `eva-infra-shared`（保持 `package edu.cuit.infra.property` 不变；最小回归通过；落地提交：`5a26af43`）。
 - 评教读侧用例级回归测试已补充（固化统计口径；落地提交：`a48cf044`）。
 - `start`：回归测试稳定化（去除本地文件/外部服务依赖；落地提交：`daf343ef`）。
 - `evaluation`：评教模板新增/修改写侧已收敛到 `bc-evaluation`（新增用例 + 端口 + `eva-infra` 端口适配器，并切换 `eva-app` 入口；落地提交：`ea03dbd3`）。
