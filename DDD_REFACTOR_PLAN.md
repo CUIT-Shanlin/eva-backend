@@ -941,6 +941,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - `start`：回归测试稳定化（去除本地文件/外部服务依赖；落地提交：`daf343ef`）。
 - `evaluation`：评教模板新增/修改写侧已收敛到 `bc-evaluation`（新增用例 + 端口 + `eva-infra` 端口适配器，并切换 `eva-app` 入口；落地提交：`ea03dbd3`）。
 - `evaluation`：清理旧 `EvaUpdateGatewayImpl.putEvaTemplate` 遗留实现（提交评教写侧入口已在 `bc-evaluation`，避免旧代码回潮；落地提交：`12279f3f`）。
+- `bc-course`：基础设施能力继续归位（保持行为不变）：`SemesterGatewayImpl` 已从 `eva-infra` 归位到 `bc-course-infra`（保持 `package edu.cuit.infra.gateway.impl` 不变；最小回归通过；落地提交：`30e6a160`）。
 - 冲突校验底层片段已收敛：
   - 教室占用冲突：`ClassroomOccupancyChecker`
   - 时间段重叠：`CourInfTimeOverlapQuery`
