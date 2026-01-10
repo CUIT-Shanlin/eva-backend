@@ -949,7 +949,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - `bc-iam`：基础设施能力继续归位（保持行为不变）：`RoleUpdateGatewayImpl` 已从 `eva-infra` 归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.gateway.impl.user` 不变；最小回归通过；落地提交：`1826ac99`）。
 - `bc-iam`：基础设施能力继续归位（保持行为不变）：`UserQueryGatewayImpl` 已从 `eva-infra` 归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.gateway.impl.user` 不变；最小回归通过；落地提交：`b9d8e6b8`）。
 - `bc-iam`：基础设施能力继续归位（保持行为不变）：`UserUpdateGatewayImpl` 已从 `eva-infra` 归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.gateway.impl.user` 不变；最小回归通过；落地提交：`69b72d86`）。
-- 下一步建议（基础设施旧 gateway 归位，保持行为不变）：继续按“每次只迁 1 个类 + 最小回归 + 三文档同步 + push”的节奏归位 `eva-infra` 残留 `*GatewayImpl.java`（当前残留清单以 `docs/DDD_REFACTOR_BACKLOG.md` 4.3 为准），优先顺序建议：`eva/*GatewayImpl` → `bc-evaluation-infra`（剩余：`EvaConfig/EvaDelete/EvaUpdate`）。
+- `bc-evaluation`：基础设施能力继续归位（保持行为不变）：`EvaConfigGatewayImpl` 已从 `eva-infra` 归位到 `bc-evaluation/infrastructure`（保持 `package edu.cuit.infra.gateway.impl.eva` 不变；最小回归通过；落地提交：`9a4e28aa`）。
+- 下一步建议（基础设施旧 gateway 归位，保持行为不变）：继续按“每次只迁 1 个类 + 最小回归 + 三文档同步 + push”的节奏归位 `eva-infra` 残留 `*GatewayImpl.java`（当前残留清单以 `docs/DDD_REFACTOR_BACKLOG.md` 4.3 为准），优先顺序建议：`eva/*GatewayImpl` → `bc-evaluation-infra`（剩余：`EvaDelete/EvaUpdate`）。
 - 冲突校验底层片段已收敛：
   - 教室占用冲突：`ClassroomOccupancyChecker`
   - 时间段重叠：`CourInfTimeOverlapQuery`
