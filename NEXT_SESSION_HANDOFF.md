@@ -594,6 +594,46 @@ IDEA MCP 使用要点（可选，保持行为不变；不替代最小回归）�
 
 ## 0.11 新对话开启提示词（直接复制粘贴）
 
+### B 专用简版（旧 *GatewayImpl 归位，推荐本阶段使用）
+
+你是资深全栈架构师/技术导师，只用中文回答。
+
+仓库：/home/lystran/programming/java/web/eva-backend  
+先确认（必须）：
+1) `git branch --show-current` 必须输出 `ddd`
+2) `git rev-parse HEAD`；且 `git merge-base --is-ancestor 2e4c4923 HEAD` 退出码必须为 `0`
+3) 当前交接基线（用于对照）：以 `git rev-parse --short HEAD` 输出为准
+4) 本会话交接文档基线：以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准（不在提示词里固化 commitId）
+
+开始前按顺序阅读（必须）：
+1) `NEXT_SESSION_HANDOFF.md`（重点看 0.0、0.9、0.10、0.11，以及条目 24/25/26）
+2) `DDD_REFACTOR_PLAN.md`（重点看 10.2/10.3/10.4/10.5）
+3) `docs/DDD_REFACTOR_BACKLOG.md`（重点看 4.2、4.3、6）
+4) `data/` 与 `data/doc/`（如需核对表/字段语义）
+
+强约束（必须严格执行）：
+- 只做重构，不改业务语义；缓存/日志/异常文案/副作用顺序完全不变
+- 必须使用 Serena 做符号级定位与引用分析
+- 每个小步骤闭环：Serena → 最小回归 → `git commit` → 同步 `NEXT_SESSION_HANDOFF.md` / `DDD_REFACTOR_PLAN.md` / `docs/DDD_REFACTOR_BACKLOG.md` → `git commit` → `git push`
+- 每次只迁 1 个类（或只改 1 个 pom）
+
+本轮目标（B）：继续将 `eva-infra/src/main/java/edu/cuit/infra/gateway/impl` 下残留旧 `*GatewayImpl` 归位到对应 BC 的 `infrastructure` 子模块（通常 artifactId 为 `bc-xxx-infra`；**保持 package 不变、行为不变**）。
+
+当前残留（以 Serena 盘点为准，建议按顺序逐个闭环）：
+1) `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/user/RoleUpdateGatewayImpl.java` → `bc-iam/infrastructure`
+2) `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/user/UserQueryGatewayImpl.java` → `bc-iam/infrastructure`
+3) `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/user/UserUpdateGatewayImpl.java` → `bc-iam/infrastructure`
+4) `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/eva/EvaConfigGatewayImpl.java` → `bc-evaluation/infrastructure`
+5) `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/eva/EvaDeleteGatewayImpl.java` → `bc-evaluation/infrastructure`
+6) `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/eva/EvaUpdateGatewayImpl.java` → `bc-evaluation/infrastructure`
+
+落点提示（保持 package 不变）：
+- IAM：`bc-iam/infrastructure/src/main/java/edu/cuit/infra/gateway/impl/user/`
+- Evaluation：`bc-evaluation/infrastructure/src/main/java/edu/cuit/infra/gateway/impl/eva/`
+
+最小回归命令（每步结束必跑，Java17）：  
+`export JAVA_HOME="$HOME/.sdkman/candidates/java/17.0.17-zulu" && export PATH="$JAVA_HOME/bin:$PATH" && mvn -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repositorya`
+
 ### 推荐版（不固化 commitId，优先复制本段）
 
 你是资深全栈架构师/技术导师，只用中文回答。

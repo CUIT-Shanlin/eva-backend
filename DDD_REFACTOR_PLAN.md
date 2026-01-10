@@ -912,6 +912,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - `bc-messaging`：消息插入写侧已收敛（`insertMessage`：用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；落地提交：`8445bc41`）。
 - `bc-messaging`：消息展示状态写侧已收敛（`updateMsgDisplay`：用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；落地提交：`c315fa22`）。
 - `bc-messaging`：旧 `MsgGatewayImpl` 已全量退化为委托壳（CRUD 能力全部委托到 `bc-messaging`，行为不变），且已从 `eva-infra` 归位到 `bc-messaging`（保持 `package` 不变；落地提交：`8ffcfe35`）。
+- `bc-audit`：基础设施能力继续归位（保持行为不变）：`LogGatewayImpl` 已从 `eva-infra` 归位到 `bc-audit-infra`（保持 `package edu.cuit.infra.gateway.impl` 不变；最小回归通过；落地提交：`673a19e3`）。
 - `bc-iam`：用户创建/分配角色写侧已收敛（`createUser/assignRole`：用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；落地提交：`16ff60b6/b65d311f/a707ab86`、`c3aa8739/a3232b78/a26e01b3/9e7d46dd`）。
 - `bc-iam`：用户信息更新写侧已收敛（`updateInfo`：用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；落地提交：`38c31541/6ce61024/db0fd6a3/cb789e21`）。
 - `bc-iam`：用户状态更新写侧已收敛（`updateStatus`：用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；落地提交：`e3fcdbf0/8e82e01f/eb54e13e`；行为快照与下一步拆分详见 `NEXT_SESSION_HANDOFF.md`，补充提交：`e4b94add`）。
@@ -919,6 +920,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - `bc-iam`：用户查询装配已收敛（`fileUserEntity`：用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；落地提交：`3e6f2cb2/8c245098/92a9beb3`）。
 - `bc-iam`：用户基础查询已收敛（`findIdByUsername/findUsernameById/getUserStatus/isUsernameExist`：用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；落地提交：`9f664229/38384628/de662d1c/8a74faf5`）。
 - `bc-iam`：用户目录查询已收敛（`findAllUserId/findAllUsername/allUser/getUserRoleIds`：用例 + 端口 + `eva-infra` 端口适配器 + 旧 gateway 委托壳；落地提交：`56bbafcf/7e5f0a74/bc5fb3c6/6a1332b0`）。
+- `bc-iam`：基础设施能力继续归位（保持行为不变）：`LdapPersonGatewayImpl` 已从 `eva-infra` 归位到 `bc-iam-infra`（保持 `package edu.cuit.infra.gateway.impl` 不变；最小回归通过；落地提交：`1ff96d75`）。
+- `bc-iam`：基础设施能力继续归位（保持行为不变）：`MenuQueryGatewayImpl`/`MenuUpdateGatewayImpl`/`RoleQueryGatewayImpl` 已从 `eva-infra` 归位到 `bc-iam-infra`（保持 `package edu.cuit.infra.gateway.impl.user` 不变；最小回归通过；落地提交：`a7cb96e9/09574045/457b6780`）。
 - `bc-iam`：基础设施能力继续归位（保持行为不变）：`DepartmentGatewayImpl` 已从 `eva-infra` 归位到 `bc-iam-infra`（保持 `package edu.cuit.infra.gateway.impl` 不变；最小回归通过；落地提交：`acb13124`）。
 - `bc-course`：多条课程写链路已收敛（导入课表、改课/自助课表、删课、课程类型、课次新增等），旧 gateway 逐步退化为委托壳。
 - `bc-course`：基础设施能力继续归位（保持行为不变）：`ClassroomGatewayImpl` 已从 `eva-infra` 归位到 `bc-course-infra`（保持 `package edu.cuit.infra.gateway.impl` 不变；最小回归通过；落地提交：`26b183d5`）。

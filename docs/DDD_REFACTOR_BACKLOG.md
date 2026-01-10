@@ -117,6 +117,10 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ 基础设施（S1 退场候选：旧 gateway 归位，保持行为不变）：将 `ClassroomGatewayImpl` 从 `eva-infra` 归位到 `bc-course-infra`（保持 `package edu.cuit.infra.gateway.impl` 不变；仅搬运/编译闭合；最小回归通过；落地：`26b183d5`）。
 - ✅ 基础设施（S1 退场候选：支撑类归位，保持行为不变）：将 `SemesterConverter` 从 `eva-infra` 归位到 `eva-infra-shared`（保持 `package edu.cuit.infra.convertor` 不变；仅搬运；最小回归通过；落地：`6c9e1d39`）。
 - ✅ 基础设施（S1 退场候选：旧 gateway 归位，保持行为不变）：将 `SemesterGatewayImpl` 从 `eva-infra` 归位到 `bc-course-infra`（保持 `package edu.cuit.infra.gateway.impl` 不变；仅搬运/编译闭合；最小回归通过；落地：`30e6a160`）。
+- ✅ 基础设施（S1 退场候选：旧 gateway 归位，保持行为不变）：将 `MsgGatewayImpl` 从 `eva-infra` 归位到 `bc-messaging`（保持 `package edu.cuit.infra.gateway.impl` 不变；仅搬运/编译闭合；最小回归通过；落地：`8ffcfe35`）。
+- ✅ 基础设施（S1 退场候选：旧 gateway 归位，保持行为不变）：将 `LogGatewayImpl` 从 `eva-infra` 归位到 `bc-audit-infra`（保持 `package edu.cuit.infra.gateway.impl` 不变；仅搬运/编译闭合；最小回归通过；落地：`673a19e3`）。
+- ✅ 基础设施（S1 退场候选：旧 gateway 归位，保持行为不变）：将 `LdapPersonGatewayImpl` 从 `eva-infra` 归位到 `bc-iam-infra`（保持 `package edu.cuit.infra.gateway.impl` 不变；仅搬运/编译闭合；最小回归通过；落地：`1ff96d75`）。
+- ✅ 基础设施（S1 退场候选：旧 gateway 归位，保持行为不变）：将 `MenuQueryGatewayImpl`/`MenuUpdateGatewayImpl`/`RoleQueryGatewayImpl` 从 `eva-infra` 归位到 `bc-iam-infra`（保持 `package edu.cuit.infra.gateway.impl.user` 不变；仅搬运/编译闭合；最小回归通过；落地：`a7cb96e9/09574045/457b6780`）。
 - ✅ S0.2 延伸（分页转换器归位，保持行为不变）：将通用分页业务对象转换器 `PaginationBizConvertor` 从 `eva-app` 迁移到 `eva-infra-shared`（保持 `package edu.cuit.app.convertor` 不变；逻辑不变；最小回归通过；落地：`c8c17225`），用于为后续归位课程旧入口/其它旧入口时闭合依赖并避免基础设施模块反向依赖 `eva-app`。
 - ✅ S0.2 延伸（事务提交后事件发布器归位，保持行为不变）：将通用“事务提交后发布事件”发布器 `AfterCommitEventPublisher` 从 `eva-app` 迁移到 `eva-infra-shared`（保持 `package edu.cuit.app.event` 不变；逻辑不变；最小回归通过；落地：`fc85f548`），用于为后续归位课程旧入口/端口适配器时闭合依赖并避免 `bc-course-infra` 反向依赖 `eva-app`。
 - ✅ S0.2 延伸（课程读侧端口适配器归位，保持行为不变）：将 `CourseDetailQueryPortImpl` 从 `eva-app` 归位到 `bc-course-infra`（保持 `package edu.cuit.app.bccourse.adapter` 不变；实现逻辑不变；最小回归通过；落地：`250002d5`），用于继续削减 `eva-app` 的课程域编译期引用面（细节以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
