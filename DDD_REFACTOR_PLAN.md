@@ -942,7 +942,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - `evaluation`：评教模板新增/修改写侧已收敛到 `bc-evaluation`（新增用例 + 端口 + `eva-infra` 端口适配器，并切换 `eva-app` 入口；落地提交：`ea03dbd3`）。
 - `evaluation`：清理旧 `EvaUpdateGatewayImpl.putEvaTemplate` 遗留实现（提交评教写侧入口已在 `bc-evaluation`，避免旧代码回潮；落地提交：`12279f3f`）。
 - `bc-course`：基础设施能力继续归位（保持行为不变）：`SemesterGatewayImpl` 已从 `eva-infra` 归位到 `bc-course-infra`（保持 `package edu.cuit.infra.gateway.impl` 不变；最小回归通过；落地提交：`30e6a160`）。
-- 下一步建议（基础设施旧 gateway 归位，保持行为不变）：继续按“每次只迁 1 个类 + 最小回归 + 三文档同步 + push”的节奏归位 `eva-infra` 残留 `*GatewayImpl.java`（当前残留清单以 `docs/DDD_REFACTOR_BACKLOG.md` 4.3 为准），优先顺序建议：`user/*GatewayImpl`（剩余：`MenuUpdate/RoleQuery/RoleUpdate/UserQuery/UserUpdate`）→ `bc-iam-infra`、`eva/*GatewayImpl` → `bc-evaluation-infra`。
+- 下一步建议（基础设施旧 gateway 归位，保持行为不变）：继续按“每次只迁 1 个类 + 最小回归 + 三文档同步 + push”的节奏归位 `eva-infra` 残留 `*GatewayImpl.java`（当前残留清单以 `docs/DDD_REFACTOR_BACKLOG.md` 4.3 为准），优先顺序建议：`user/*GatewayImpl`（剩余：`RoleQuery/RoleUpdate/UserQuery/UserUpdate`）→ `bc-iam-infra`、`eva/*GatewayImpl` → `bc-evaluation-infra`。
 - 冲突校验底层片段已收敛：
   - 教室占用冲突：`ClassroomOccupancyChecker`
   - 时间段重叠：`CourInfTimeOverlapQuery`

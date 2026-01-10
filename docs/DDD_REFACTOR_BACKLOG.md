@@ -500,7 +500,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
    - ✅ 进展（保持行为不变；每次只改 1 个方法）：已压扁 `CourseUpdateGatewayImpl.assignTeacher`：新增 `AssignTeacherGatewayEntryUseCase`，旧 gateway 不再构造命令（落地：`0b85c612`）。下一步建议：继续压扁 `CourseUpdateGatewayImpl.updateCourse`（Serena：调用点为 `UpdateCoursePortImpl.updateCourse`；每次只改 1 个方法，保持行为不变）。
 
 4) 基础设施（S1 退场候选，保持行为不变）：`eva-infra` 仍存在多处旧 `*GatewayImpl`（需逐个用 Serena 证伪其剩余方法是否仅为委托壳；以及评估“归属到哪个 BC / shared-kernel / 继续保留在共享技术模块”）。
-   - 候选清单（Serena 盘点，2026-01-10 更新；滚动修订）：`EvaConfigGatewayImpl/EvaDeleteGatewayImpl/EvaUpdateGatewayImpl/RoleQueryGatewayImpl/UserQueryGatewayImpl/UserUpdateGatewayImpl/RoleUpdateGatewayImpl/MenuUpdateGatewayImpl`。
+   - 候选清单（Serena 盘点，2026-01-10 更新；滚动修订）：`EvaConfigGatewayImpl/EvaDeleteGatewayImpl/EvaUpdateGatewayImpl/RoleQueryGatewayImpl/UserQueryGatewayImpl/UserUpdateGatewayImpl/RoleUpdateGatewayImpl`。
      - 补充进展（2026-01-10，保持行为不变）：`DepartmentGatewayImpl` 已从 `eva-infra` 归位到 `bc-iam-infra`（保持 `package` 不变；最小回归通过；落地：`acb13124`）。
      - 补充进展（2026-01-10，保持行为不变）：`ClassroomGatewayImpl` 已从 `eva-infra` 归位到 `bc-course-infra`（保持 `package` 不变；最小回归通过；落地：`26b183d5`）。
      - 补充进展（2026-01-10，保持行为不变）：为后续归位 `SemesterGatewayImpl` 做编译闭合前置，`SemesterConverter` 已从 `eva-infra` 归位到 `eva-infra-shared`（保持 `package edu.cuit.infra.convertor` 不变；最小回归通过；落地：`6c9e1d39`）。
@@ -509,6 +509,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
      - 补充进展（2026-01-10，保持行为不变）：`LogGatewayImpl` 已从 `eva-infra` 归位到 `bc-audit-infra`（保持 `package` 不变；最小回归通过；落地：`673a19e3`）。
      - 补充进展（2026-01-10，保持行为不变）：`LdapPersonGatewayImpl` 已从 `eva-infra` 归位到 `bc-iam-infra`（保持 `package` 不变；最小回归通过；落地：`1ff96d75`）。
      - 补充进展（2026-01-10，保持行为不变）：`MenuQueryGatewayImpl` 已从 `eva-infra` 归位到 `bc-iam-infra`（保持 `package` 不变；最小回归通过；落地：`a7cb96e9`）。
+     - 补充进展（2026-01-10，保持行为不变）：`MenuUpdateGatewayImpl` 已从 `eva-infra` 归位到 `bc-iam-infra`（保持 `package` 不变；最小回归通过；落地：`09574045`）。
    - 补充：`CourseDeleteGatewayImpl`、`CourseQueryGatewayImpl`、`CourseUpdateGatewayImpl` 已归位到 `bc-course/infrastructure`（保持 `package` 不变；细节见 `NEXT_SESSION_HANDOFF.md` 0.9；落地：`38f58e0a/d438e060`），因此不再计入 `eva-infra` 残留。
 
 ---
