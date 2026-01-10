@@ -107,12 +107,16 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
-**已完成（更新至 2026-01-09）**
+**已完成（更新至 2026-01-10）**
 - ✅ S0.2 延伸（课程 Controller 注入收敛到接口，保持行为不变）：在 `eva-adapter` 的课程相关 Controller 子簇试点，将注入类型从 `edu.cuit.app.service.impl.course.*ServiceImpl` 收窄为 `shared-kernel` 下的 `edu.cuit.client.api.course.*Service` 接口（Serena 证伪：各接口均只有一个 `@Service` 实现类；Spring 注入目标不变，仅减少编译期耦合；最小回归通过；落地：`47a6b06c`）。
 - ✅ S0.2 延伸（课程旧入口归位：ICourseServiceImpl，保持行为不变）：将 `ICourseServiceImpl` 从 `eva-app` 归位到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl.course` 不变，仅搬运与编译闭合；不改业务语义/异常文案/副作用顺序）。为闭合 `StpUtil`（Sa-Token）编译期依赖，在 `bc-course-infra` 补齐 `zym-spring-boot-starter-security`（运行时 classpath 已存在，保持行为不变；最小回归通过；落地：`2b5bcecb`）。
 - ✅ S0.2 延伸（课程旧入口归位：IUserCourseServiceImpl，保持行为不变）：将 `IUserCourseServiceImpl` 从 `eva-app` 归位到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl.course` 不变，仅搬运与编译闭合；不改业务语义/异常文案/副作用顺序）。为避免 `bc-course-infra` 反向依赖 `eva-app`，将 `IUserCourseServiceImpl` 对 `UserCourseDetailQueryExec/FileImportExec` 的依赖收敛为类内私有方法（逻辑逐行对齐原实现；保持行为不变；最小回归通过；落地：`79a351c3`）。
 - ✅ S0.2 延伸（课程旧入口归位：ICourseDetailServiceImpl，保持行为不变）：将 `ICourseDetailServiceImpl` 从 `eva-app` 归位到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl.course` 不变，仅搬运与编译闭合；不改业务语义/异常文案/副作用顺序；最小回归通过；落地：`bd85a006`）。
 - ✅ S0.2 延伸（依赖方收敛：eva-app 去 bc-course 编译期依赖，保持行为不变）：Serena + `rg` 证伪 `eva-app` 不再引用 `edu.cuit.bc.course.*` 后，已将 `eva-app/pom.xml` 中对 `bc-course` 的编译期依赖替换为 `shared-kernel`（即移除 `bc-course` 依赖；每次只改 1 个 `pom.xml`；最小回归通过；落地：`6fe8ffc8`）。
+- ✅ 基础设施（S1 退场候选：旧 gateway 归位，保持行为不变）：将 `DepartmentGatewayImpl` 从 `eva-infra` 归位到 `bc-iam-infra`（保持 `package edu.cuit.infra.gateway.impl` 不变；仅搬运/编译闭合；最小回归通过；落地：`acb13124`）。
+- ✅ 基础设施（S1 退场候选：旧 gateway 归位，保持行为不变）：将 `ClassroomGatewayImpl` 从 `eva-infra` 归位到 `bc-course-infra`（保持 `package edu.cuit.infra.gateway.impl` 不变；仅搬运/编译闭合；最小回归通过；落地：`26b183d5`）。
+- ✅ 基础设施（S1 退场候选：支撑类归位，保持行为不变）：将 `SemesterConverter` 从 `eva-infra` 归位到 `eva-infra-shared`（保持 `package edu.cuit.infra.convertor` 不变；仅搬运；最小回归通过；落地：`6c9e1d39`）。
+- ✅ 基础设施（S1 退场候选：旧 gateway 归位，保持行为不变）：将 `SemesterGatewayImpl` 从 `eva-infra` 归位到 `bc-course-infra`（保持 `package edu.cuit.infra.gateway.impl` 不变；仅搬运/编译闭合；最小回归通过；落地：`30e6a160`）。
 - ✅ S0.2 延伸（分页转换器归位，保持行为不变）：将通用分页业务对象转换器 `PaginationBizConvertor` 从 `eva-app` 迁移到 `eva-infra-shared`（保持 `package edu.cuit.app.convertor` 不变；逻辑不变；最小回归通过；落地：`c8c17225`），用于为后续归位课程旧入口/其它旧入口时闭合依赖并避免基础设施模块反向依赖 `eva-app`。
 - ✅ S0.2 延伸（事务提交后事件发布器归位，保持行为不变）：将通用“事务提交后发布事件”发布器 `AfterCommitEventPublisher` 从 `eva-app` 迁移到 `eva-infra-shared`（保持 `package edu.cuit.app.event` 不变；逻辑不变；最小回归通过；落地：`fc85f548`），用于为后续归位课程旧入口/端口适配器时闭合依赖并避免 `bc-course-infra` 反向依赖 `eva-app`。
 - ✅ S0.2 延伸（课程读侧端口适配器归位，保持行为不变）：将 `CourseDetailQueryPortImpl` 从 `eva-app` 归位到 `bc-course-infra`（保持 `package edu.cuit.app.bccourse.adapter` 不变；实现逻辑不变；最小回归通过；落地：`250002d5`），用于继续削减 `eva-app` 的课程域编译期引用面（细节以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
@@ -619,7 +623,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ 允许“微调”：仅限结构性重构（收窄依赖/拆接口/移动默认值兜底），**不改业务语义**；缓存/日志/异常文案/副作用顺序完全不变。
   - ✅ 主线口径更新（滚动）：`bc-messaging` 的“归位 + 依赖收敛”已阶段性闭环；`bc-course` 的 S0（旧 gateway 压扁为委托壳）已推进到阶段性闭环（见 4.2/4.3 与 `NEXT_SESSION_HANDOFF.md` 0.9）。当前下一批主线：**S0.2 延伸（收敛 `bc-course` 的协议承载面 + 收敛依赖方对 `bc-course` 的编译期依赖）**，按“先 Serena 证据化 → 再小步迁移协议对象到 `shared-kernel` / 依赖替换 `pom.xml` → 最小回归 → 提交 → 三文档同步”的节奏推进（保持行为不变）。
   - ✅ 已完成（bc-course，实现承载面，保持行为不变）：Serena 证伪 `eva-infra-shared/src/main/java/edu/cuit/infra/gateway/impl/course/operate/` 下 `CourseImportExce/CourseRecommendExce` 仅课程域使用后，已归位到 `bc-course/infrastructure`（保持 `package` 不变，仅搬运与编译闭合；落地：`d3b9247e`）；`CourseFormat` 跨 BC 复用继续留在 `eva-infra-shared`。下一簇建议：进入“依赖方编译期依赖收敛”，逐个模块证伪后每次只改 1 个 `pom.xml`，将 `bc-course` 替换为 `shared-kernel`（保持行为不变）。
-  - ✅ 并行证伪（依赖方编译期依赖收敛，保持行为不变）：本次重新盘点显示：除 `eva-app` 外，未发现仍显式依赖 `bc-course` 且满足“仅使用 `edu.cuit.client.*` 类型”的模块，因此本会话无可执行的 `pom.xml` 依赖替换点；`eva-app` 仍存在大量 `edu.cuit.bc.course.*` 引用，暂不满足替换前提。下一里程碑：先继续收敛 `eva-app` 对课程域用例/端口/异常的直接引用，再回到“逐个模块依赖替换”。
+  - ✅ 并行证伪（依赖方编译期依赖收敛，保持行为不变）：最新盘点显示：当前未发现仍显式依赖 `bc-course` 且满足“仅使用 `edu.cuit.client.*` 类型”的模块；且 `eva-app` 已完成去 `bc-course` 编译期依赖（落地：`6fe8ffc8`）。因此“收敛依赖方对 `bc-course` 的编译期依赖”短期内暂无可执行的 `pom.xml` 依赖替换点（保持行为不变）。
+  - ✅ 并行主线（基础设施 S1 退场候选：旧 gateway 归位，保持行为不变）：已完成 `DepartmentGatewayImpl` → `bc-iam-infra`（`acb13124`）、`ClassroomGatewayImpl` → `bc-course-infra`（`26b183d5`）、`SemesterGatewayImpl` → `bc-course-infra`（`30e6a160`）；且为闭合编译期依赖已先归位 `SemesterConverter` → `eva-infra-shared`（`6c9e1d39`）。下一步建议：继续按 `NEXT_SESSION_HANDOFF.md` 0.10 的顺序归位剩余 `*GatewayImpl.java`（每次只迁 1 个类；保持行为不变）。
 - ✅ 下一步小簇建议（bc-messaging，保持行为不变）：按 `DDD_REFACTOR_PLAN.md` 10.3 路线推进（先组合根 → 再监听器/应用侧适配器 → 最后基础设施端口适配器与依赖收敛）。
   - ✅ 已完成：组合根 `BcMessagingConfiguration`（`4e3e2cf2`）；✅ 已完成：监听器 `CourseOperationSideEffectsListener`（`22ee30e7`）；✅ 已完成：监听器 `CourseTeacherTaskMessagesListener`（`0987f96f`）
   - ✅ 已完成：支撑类 `MsgResult`（`31878b61`，当前位于 `bc-messaging-contract`）；✅ 已完成：应用侧端口适配器 `CourseBroadcastPortAdapter`（`84ee070a`）；✅ 已完成：应用侧端口适配器 `TeacherTaskMessagePortAdapter`（`9ea14cff`）；✅ 已完成：应用侧端口适配器 `EvaMessageCleanupPortAdapter`（`73ab3f3c`）。
