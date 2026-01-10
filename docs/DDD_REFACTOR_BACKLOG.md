@@ -499,6 +499,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
    - 候选清单（Serena 盘点，2026-01-08 更新；滚动修订）：`LdapPersonGatewayImpl/LogGatewayImpl/SemesterGatewayImpl/MsgGatewayImpl/EvaConfigGatewayImpl/EvaDeleteGatewayImpl/EvaUpdateGatewayImpl/MenuQueryGatewayImpl/RoleQueryGatewayImpl/UserQueryGatewayImpl/UserUpdateGatewayImpl/RoleUpdateGatewayImpl/MenuUpdateGatewayImpl`。
      - 补充进展（2026-01-10，保持行为不变）：`DepartmentGatewayImpl` 已从 `eva-infra` 归位到 `bc-iam-infra`（保持 `package` 不变；最小回归通过；落地：`acb13124`）。
      - 补充进展（2026-01-10，保持行为不变）：`ClassroomGatewayImpl` 已从 `eva-infra` 归位到 `bc-course-infra`（保持 `package` 不变；最小回归通过；落地：`26b183d5`）。
+     - 补充进展（2026-01-10，保持行为不变）：为后续归位 `SemesterGatewayImpl` 做编译闭合前置，`SemesterConverter` 已从 `eva-infra` 归位到 `eva-infra-shared`（保持 `package edu.cuit.infra.convertor` 不变；最小回归通过；落地：`6c9e1d39`）。
    - 补充：`CourseDeleteGatewayImpl`、`CourseQueryGatewayImpl`、`CourseUpdateGatewayImpl` 已归位到 `bc-course/infrastructure`（保持 `package` 不变；细节见 `NEXT_SESSION_HANDOFF.md` 0.9；落地：`38f58e0a/d438e060`），因此不再计入 `eva-infra` 残留。
 
 ---
