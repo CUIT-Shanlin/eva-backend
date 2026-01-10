@@ -505,7 +505,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
    - ✅ 进展（保持行为不变；每次只改 1 个方法）：已压扁 `CourseUpdateGatewayImpl.assignTeacher`：新增 `AssignTeacherGatewayEntryUseCase`，旧 gateway 不再构造命令（落地：`0b85c612`）。下一步建议：继续压扁 `CourseUpdateGatewayImpl.updateCourse`（Serena：调用点为 `UpdateCoursePortImpl.updateCourse`；每次只改 1 个方法，保持行为不变）。
 
 4) 基础设施（S1 退场候选，保持行为不变）：`eva-infra` 仍存在多处旧 `*GatewayImpl`（需逐个用 Serena 证伪其剩余方法是否仅为委托壳；以及评估“归属到哪个 BC / shared-kernel / 继续保留在共享技术模块”）。
-   - 候选清单（Serena 盘点，2026-01-10 更新；滚动修订）：`EvaUpdateGatewayImpl`。
+   - 候选清单（Serena 盘点，2026-01-10 更新；滚动修订）：✅ 已清零。
      - 补充进展（2026-01-10，保持行为不变）：`DepartmentGatewayImpl` 已从 `eva-infra` 归位到 `bc-iam-infra`（保持 `package` 不变；最小回归通过；落地：`acb13124`）。
      - 补充进展（2026-01-10，保持行为不变）：`ClassroomGatewayImpl` 已从 `eva-infra` 归位到 `bc-course-infra`（保持 `package` 不变；最小回归通过；落地：`26b183d5`）。
      - 补充进展（2026-01-10，保持行为不变）：为后续归位 `SemesterGatewayImpl` 做编译闭合前置，`SemesterConverter` 已从 `eva-infra` 归位到 `eva-infra-shared`（保持 `package edu.cuit.infra.convertor` 不变；最小回归通过；落地：`6c9e1d39`）。
@@ -554,7 +554,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 ### 5.2 评教域（eva）
 
-#### A) `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/eva/EvaUpdateGatewayImpl.java`
+#### A) `bc-evaluation/infrastructure/src/main/java/edu/cuit/infra/gateway/impl/eva/EvaUpdateGatewayImpl.java`
 
 写侧高价值目标（体积大、跨表）：
 - ✅ `postEvaTask`（~145 LOC，含 DB/Mapper）：发布评教任务已收敛到 `bc-evaluation`（落地提交：`8e434fe1/ca69b131/e9043f96`）。
