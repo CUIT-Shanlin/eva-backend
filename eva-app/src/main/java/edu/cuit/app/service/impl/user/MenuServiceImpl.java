@@ -7,9 +7,12 @@ import edu.cuit.bc.iam.application.contract.dto.clientobject.user.GenericMenuSec
 import edu.cuit.bc.iam.application.contract.dto.clientobject.user.MenuCO;
 import edu.cuit.bc.iam.application.contract.dto.cmd.user.NewMenuCmd;
 import edu.cuit.bc.iam.application.contract.dto.cmd.user.UpdateMenuCmd;
+import edu.cuit.bc.iam.application.usecase.CreateMenuUseCase;
+import edu.cuit.bc.iam.application.usecase.DeleteMenuUseCase;
+import edu.cuit.bc.iam.application.usecase.DeleteMultipleMenuUseCase;
+import edu.cuit.bc.iam.application.usecase.UpdateMenuInfoUseCase;
 import edu.cuit.client.dto.query.condition.MenuConditionalQuery;
 import edu.cuit.domain.gateway.user.MenuQueryGateway;
-import edu.cuit.domain.gateway.user.MenuUpdateGateway;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +24,11 @@ import java.util.List;
 public class MenuServiceImpl implements IMenuService {
 
     private final MenuQueryGateway menuQueryGateway;
-    private final MenuUpdateGateway menuUpdateGateway;
+
+    private final UpdateMenuInfoUseCase updateMenuInfoUseCase;
+    private final CreateMenuUseCase createMenuUseCase;
+    private final DeleteMenuUseCase deleteMenuUseCase;
+    private final DeleteMultipleMenuUseCase deleteMultipleMenuUseCase;
 
     private final MenuBizConvertor menuBizConvertor;
 
@@ -41,24 +48,24 @@ public class MenuServiceImpl implements IMenuService {
     @Override
     @Transactional
     public void update(UpdateMenuCmd updateMenuCmd) {
-        menuUpdateGateway.updateMenuInfo(updateMenuCmd);
+        updateMenuInfoUseCase.execute(updateMenuCmd);
     }
 
     @Override
     @Transactional
     public void create(NewMenuCmd newMenuCmd) {
-        menuUpdateGateway.createMenu(newMenuCmd);
+        createMenuUseCase.execute(newMenuCmd);
     }
 
     @Override
     @Transactional
     public void delete(Integer menuId) {
-        menuUpdateGateway.deleteMenu(menuId);
+        deleteMenuUseCase.execute(menuId);
     }
 
     @Override
     @Transactional
     public void multipleDelete(List<Integer> ids) {
-        menuUpdateGateway.deleteMultipleMenu(ids);
+        deleteMultipleMenuUseCase.execute(ids);
     }
 }
