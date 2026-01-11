@@ -510,6 +510,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-01-10，保持行为不变）：基础设施旧 `*GatewayImpl` 归位已阶段性闭环，`eva-infra/src/main/java/edu/cuit/infra/gateway/impl` 下残留已清零（详见 `NEXT_SESSION_HANDOFF.md` 0.10 与 `docs/DDD_REFACTOR_BACKLOG.md` 4.3）。下一会话不再投入该方向，避免重复劳动。
 - 下一步建议（更新至 2026-01-11，保持行为不变）：优先收敛 `eva-app` 残留 `*ServiceImpl`（每次只改 1 个类），逐步把业务编排归位到各 BC 的 UseCase，让旧入口退化为“切面/登录态解析/委托壳”（验收仍以最小回归为准）。
 - 补充进展（2026-01-11，保持行为不变，入口壳收敛：角色写侧）：已将 `eva-app` 的 `RoleServiceImpl` 写侧方法改为委托 `bc-iam` 的 UseCase（`UpdateRoleInfoUseCase/UpdateRoleStatusUseCase/AssignRolePermsUseCase/CreateRoleUseCase/DeleteRoleUseCase/DeleteMultipleRoleUseCase`），减少对旧 `RoleUpdateGateway` 的直耦合（事务边界仍由旧入口承接；异常文案/缓存失效/日志顺序与副作用完全不变；最小回归通过；落地：`a71efb84`）。
+- 现状快照（更新至 2026-01-11，保持行为不变）：`eva-app` 下残留 `*ServiceImpl` 为 **15 个**，其中已显式委托 UseCase 的为 **6 个**；`eva-adapter` 下残留 `*Controller` 为 **22 个**（Controller 已不再直接注入 `*ServiceImpl`，但仍需继续收敛为纯协议适配与参数校验）。具体清单与优先级见 `NEXT_SESSION_HANDOFF.md` 0.10。
 
 - 补充进展（2026-01-05，S0.2 起步，保持行为不变）：已将学期 CO `SemesterCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`77126c4a`）。
 - 补充进展（2026-01-05，S0.2 持续推进，保持行为不变）：已将通用学期入参 `Term` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`23bff82f`）。
