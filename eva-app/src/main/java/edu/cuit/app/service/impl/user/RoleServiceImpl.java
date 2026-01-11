@@ -4,6 +4,12 @@ import com.alibaba.cola.exception.BizException;
 import edu.cuit.app.convertor.PaginationBizConvertor;
 import edu.cuit.app.convertor.user.RoleBizConvertor;
 import edu.cuit.bc.iam.application.contract.api.user.IRoleService;
+import edu.cuit.bc.iam.application.usecase.AssignRolePermsUseCase;
+import edu.cuit.bc.iam.application.usecase.CreateRoleUseCase;
+import edu.cuit.bc.iam.application.usecase.DeleteMultipleRoleUseCase;
+import edu.cuit.bc.iam.application.usecase.DeleteRoleUseCase;
+import edu.cuit.bc.iam.application.usecase.UpdateRoleInfoUseCase;
+import edu.cuit.bc.iam.application.usecase.UpdateRoleStatusUseCase;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.bc.iam.application.contract.dto.clientobject.user.RoleInfoCO;
 import edu.cuit.bc.iam.application.contract.dto.clientobject.user.SimpleRoleInfoCO;
@@ -15,7 +21,6 @@ import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.user.biz.RoleEntity;
 import edu.cuit.domain.gateway.user.RoleQueryGateway;
-import edu.cuit.domain.gateway.user.RoleUpdateGateway;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +32,13 @@ import java.util.List;
 public class RoleServiceImpl implements IRoleService {
 
     private final RoleQueryGateway roleQueryGateway;
-    private final RoleUpdateGateway roleUpdateGateway;
+
+    private final UpdateRoleInfoUseCase updateRoleInfoUseCase;
+    private final UpdateRoleStatusUseCase updateRoleStatusUseCase;
+    private final AssignRolePermsUseCase assignRolePermsUseCase;
+    private final CreateRoleUseCase createRoleUseCase;
+    private final DeleteRoleUseCase deleteRoleUseCase;
+    private final DeleteMultipleRoleUseCase deleteMultipleRoleUseCase;
 
     private final RoleBizConvertor roleBizConvertor;
     private final PaginationBizConvertor paginationBizConvertor;
@@ -61,37 +72,37 @@ public class RoleServiceImpl implements IRoleService {
     @Override
     @Transactional
     public void updateInfo(UpdateRoleCmd updateRoleCmd) {
-        roleUpdateGateway.updateRoleInfo(updateRoleCmd);
+        updateRoleInfoUseCase.execute(updateRoleCmd);
         if (updateRoleCmd.getStatus() != null) updateStatus(Math.toIntExact(updateRoleCmd.getId()),updateRoleCmd.getStatus());
     }
 
     @Override
     @Transactional
     public void updateStatus(Integer roleId, Integer status) {
-        roleUpdateGateway.updateRoleStatus(roleId,status);
+        updateRoleStatusUseCase.execute(roleId, status);
     }
 
     @Override
     @Transactional
     public void assignPerm(AssignPermCmd assignPermCmd) {
-        roleUpdateGateway.assignPerms(assignPermCmd.getRoleId(),assignPermCmd.getMenuIdList());
+        assignRolePermsUseCase.execute(assignPermCmd.getRoleId(), assignPermCmd.getMenuIdList());
     }
 
     @Override
     @Transactional
     public void create(NewRoleCmd newRoleCmd) {
-        roleUpdateGateway.createRole(newRoleCmd);
+        createRoleUseCase.execute(newRoleCmd);
     }
 
     @Override
     @Transactional
     public void delete(Integer roleId) {
-        roleUpdateGateway.deleteRole(roleId);
+        deleteRoleUseCase.execute(roleId);
     }
 
     @Override
     @Transactional
     public void multipleDelete(List<Integer> ids) {
-        roleUpdateGateway.deleteMultipleRole(ids);
+        deleteMultipleRoleUseCase.execute(ids);
     }
 }
