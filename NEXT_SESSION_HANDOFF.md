@@ -21,18 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
-**2026-01-11（本次会话：交接文档闭环 + 状态核对）**
+**2026-01-11（本次会话：RoleServiceImpl 写侧收敛 + 文档同步）**
 - ✅ **基线确认（可复现）**：分支 `ddd`；以 `git rev-parse --short HEAD` 输出为“当前交接基线”；`git merge-base --is-ancestor 2e4c4923 HEAD` 退出码为 `0`；交接文档基线以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准（不在文内固化 commitId）。
-- ⚠️ **Serena 降级记录（必须写清，避免下一会话误判）**：本次尝试用 Serena 做符号级定位/引用分析时，`mcp__serena__check_onboarding_performed` 与 `mcp__serena__find_symbol` 均持续 `TimeoutError`（`activate_project` 可成功）。因此本次“验证目标 B 是否已闭环”按约定临时降级为本地 `fd/rg` 证据化（不改变业务语义，仅用于定位/核对）。
-  - 证据 1（旧 gateway 残留清零）：`fd -t f "GatewayImpl\\.java$" eva-infra/src/main/java/edu/cuit/infra/gateway/impl | wc -l` → `0`
-  - 证据 2（6 个旧 gateway 已归位且包名不变）：  
-    - `fd -t f "RoleUpdateGatewayImpl.java" .` → `bc-iam/infrastructure/src/main/java/edu/cuit/infra/gateway/impl/user/RoleUpdateGatewayImpl.java`  
-    - `fd -t f "UserQueryGatewayImpl.java" .` → `bc-iam/infrastructure/src/main/java/edu/cuit/infra/gateway/impl/user/UserQueryGatewayImpl.java`  
-    - `fd -t f "UserUpdateGatewayImpl.java" .` → `bc-iam/infrastructure/src/main/java/edu/cuit/infra/gateway/impl/user/UserUpdateGatewayImpl.java`  
-    - `fd -t f "EvaConfigGatewayImpl.java" .` → `bc-evaluation/infrastructure/src/main/java/edu/cuit/infra/gateway/impl/eva/EvaConfigGatewayImpl.java`  
-    - `fd -t f "EvaDeleteGatewayImpl.java" .` → `bc-evaluation/infrastructure/src/main/java/edu/cuit/infra/gateway/impl/eva/EvaDeleteGatewayImpl.java`  
-    - `fd -t f "EvaUpdateGatewayImpl.java" .` → `bc-evaluation/infrastructure/src/main/java/edu/cuit/infra/gateway/impl/eva/EvaUpdateGatewayImpl.java`
-- ✅ **文档同步（本次会话唯一产出，代码/语义不变）**：对齐 `NEXT_SESSION_HANDOFF.md` 的 0.10/0.11 与条目 26，使“下一会话优先任务”不再指向已闭环事项；并同步到 `DDD_REFACTOR_PLAN.md` / `docs/DDD_REFACTOR_BACKLOG.md`。
+- ✅ **Serena 状态确认（已恢复）**：本会话可正常使用 Serena 做“符号级定位 + 引用分析”（`activate_project/check_onboarding_performed/find_symbol/find_referencing_symbols`），无需降级。
+- ✅ **IAM（入口壳收敛：角色写侧，保持行为不变）**：将 `eva-app` 的 `RoleServiceImpl` 写侧方法（`updateInfo/updateStatus/assignPerm/create/delete/multipleDelete`）退化为“仅委托 UseCase”的壳：改为委托 `bc-iam` 的 `UpdateRoleInfoUseCase/UpdateRoleStatusUseCase/AssignRolePermsUseCase/CreateRoleUseCase/DeleteRoleUseCase/DeleteMultipleRoleUseCase`（事务边界仍由旧入口承接；异常文案/缓存失效/日志顺序与副作用完全不变）；最小回归通过；落地提交：`a71efb84`。
+- ✅ **最小回归（保持行为不变）**：`JAVA_HOME=/home/lystran/.sdkman/candidates/java/17.0.17-zulu PATH=$JAVA_HOME/bin:$PATH mvn -pl start -am test -Dmaven.repo.local=.m2/repository`。
+- ✅ **文档同步（保持行为不变）**：同步更新 `NEXT_SESSION_HANDOFF.md` / `DDD_REFACTOR_PLAN.md` / `docs/DDD_REFACTOR_BACKLOG.md`。
 
 **2026-01-10（本次会话）**
 - ✅ **基础设施（S1 退场候选：旧 gateway 归位，保持行为不变）**：将 `SemesterGatewayImpl` 从 `eva-infra` 归位到 `bc-course-infra`（保持 `package edu.cuit.infra.gateway.impl` 不变；`getAll/getNow/getSemesterInfo/selectSemester` 的异常文案与分支语义完全不变；仅 `git mv` 搬运与编译闭合；最小回归通过；落地提交：`30e6a160`）。
