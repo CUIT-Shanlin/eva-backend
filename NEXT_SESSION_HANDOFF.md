@@ -22,7 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-01-11（本次会话：交接文档闭环 + 状态核对）**
-- ✅ **基线确认（可复现）**：分支 `ddd`；`git rev-parse --short HEAD` → `11844fab`；`git merge-base --is-ancestor 2e4c4923 HEAD` 退出码为 `0`；交接文档基线以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准（不在文内固化 commitId）。
+- ✅ **基线确认（可复现）**：分支 `ddd`；以 `git rev-parse --short HEAD` 输出为“当前交接基线”；`git merge-base --is-ancestor 2e4c4923 HEAD` 退出码为 `0`；交接文档基线以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准（不在文内固化 commitId）。
 - ⚠️ **Serena 降级记录（必须写清，避免下一会话误判）**：本次尝试用 Serena 做符号级定位/引用分析时，`mcp__serena__check_onboarding_performed` 与 `mcp__serena__find_symbol` 均持续 `TimeoutError`（`activate_project` 可成功）。因此本次“验证目标 B 是否已闭环”按约定临时降级为本地 `fd/rg` 证据化（不改变业务语义，仅用于定位/核对）。
   - 证据 1（旧 gateway 残留清零）：`fd -t f "GatewayImpl\\.java$" eva-infra/src/main/java/edu/cuit/infra/gateway/impl | wc -l` → `0`
   - 证据 2（6 个旧 gateway 已归位且包名不变）：  
