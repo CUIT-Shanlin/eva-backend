@@ -507,6 +507,9 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 > 滚动口径（更新至 2026-01-08）：✅ `bc-course` 的 S0（旧 gateway 压扁为委托壳）已推进到阶段性闭环；✅ S0.2（`eva-domain` 去 `bc-course` 编译期依赖）已闭环；当前主线进入 **S0.2 延伸（收敛 `eva-infra` 对 `bc-course` 的实现承载面 + 继续收敛依赖方编译期依赖）**。✅ 已完成：将 `CourseQueryGatewayImpl/CourseUpdateGatewayImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`（落地：`d438e060`）；✅ 已完成：将 `CourseQueryRepository` 从 `eva-infra` 归位到 `bc-course/infrastructure` 并将 `CourseRecommendExce` 迁移到 `eva-infra-shared` 以闭合依赖（落地：`881e1d12`）；✅ 已完成：将 `CourseQueryRepo` 从 `eva-infra-shared` 归位到 `bc-course/infrastructure`（落地：`5101a341`）；✅ 已完成：`eva-infra/pom.xml` 的 `bc-course` 依赖替换为 `shared-kernel`（落地：`8d806bf0`）。补充：✅ 已将 `CourseImportExce/CourseRecommendExce` 从 `eva-infra-shared` 归位到 `bc-course/infrastructure`（保持 `package` 不变；落地：`d3b9247e`）；`CourseFormat` 跨 BC 复用继续留在 `eva-infra-shared`。均保持 `package`/事务边界/异常文案/副作用顺序完全不变。
 > 新会话续接方式：优先复制 `NEXT_SESSION_HANDOFF.md` 的 0.11 推荐版提示词，并按 0.10 的“下一步拆分与里程碑/提交点”顺序执行，避免遗漏约束与回归命令。
 
+- 补充进展（2026-01-10，保持行为不变）：基础设施旧 `*GatewayImpl` 归位已阶段性闭环，`eva-infra/src/main/java/edu/cuit/infra/gateway/impl` 下残留已清零（详见 `NEXT_SESSION_HANDOFF.md` 0.10 与 `docs/DDD_REFACTOR_BACKLOG.md` 4.3）。下一会话不再投入该方向，避免重复劳动。
+- 下一步建议（更新至 2026-01-11，保持行为不变）：优先收敛 `eva-app` 残留 `*ServiceImpl`（每次只改 1 个类），逐步把业务编排归位到各 BC 的 UseCase，让旧入口退化为“切面/登录态解析/委托壳”（验收仍以最小回归为准）。
+
 - 补充进展（2026-01-05，S0.2 起步，保持行为不变）：已将学期 CO `SemesterCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`77126c4a`）。
 - 补充进展（2026-01-05，S0.2 持续推进，保持行为不变）：已将通用学期入参 `Term` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`23bff82f`）。
 - 补充进展（2026-01-06，S0.2 持续推进，保持行为不变）：已将课程查询 Query（`CourseQuery/CourseConditionalQuery/MobileCourseQuery`）从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`e479ce0e`）。
