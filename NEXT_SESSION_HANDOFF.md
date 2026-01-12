@@ -21,6 +21,9 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-01-12（本次会话：Controller 收敛起步）**
+- ✅ **IAM（用户，Controller：减少适配层编排噪声，保持行为不变）**：在 `UserUpdateController` 提取 `currentUserId()`（仍保持 `StpUtil.getLoginId()` → `userService.getIdByUsername(...)` 的调用顺序与次数不变；异常文案与日志不变）；最小回归通过；落地提交：`09cb6454`。
+
 **2026-01-12（本次会话：ICourseTypeServiceImpl 收敛准备）**
 - ✅ **课程（课程类型，用例骨架，保持行为不变）**：在 `bc-course` 新增课程类型用例 `CourseTypeUseCase`（读写合并；手写 `CourseTypeEntity` → `CourseType` 映射与 `PaginationQueryResultCO` 组装，不引入 `eva-infra-shared`；对齐旧入口逻辑与返回语义；最小回归通过）；落地提交：`325f221a`。
 - ✅ **课程（课程类型，用例装配，保持行为不变）**：在 `BcCourseConfiguration` 补齐 `CourseTypeUseCase` 的 Bean 装配（保持行为不变；最小回归通过）；落地提交：`55eb322e`。
