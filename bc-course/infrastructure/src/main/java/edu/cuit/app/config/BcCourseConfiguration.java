@@ -58,6 +58,7 @@ import edu.cuit.bc.course.application.usecase.ImportCourseFileUseCase;
 import edu.cuit.bc.course.application.usecase.ImportCourseFileGatewayEntryUseCase;
 import edu.cuit.bc.course.application.usecase.IsCourseImportedUseCase;
 import edu.cuit.bc.course.application.usecase.ClassroomQueryUseCase;
+import edu.cuit.bc.course.application.usecase.CourseTypeUseCase;
 import edu.cuit.bc.course.application.usecase.SemesterQueryUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateCourseInfoUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateCourseTypeEntryUseCase;
@@ -82,6 +83,9 @@ import edu.cuit.bc.course.application.usecase.UpdateSelfCourseEntryUseCase;
 import edu.cuit.bc.template.application.CourseTemplateLockService;
 import edu.cuit.domain.gateway.ClassroomGateway;
 import edu.cuit.domain.gateway.SemesterGateway;
+import edu.cuit.domain.gateway.course.CourseDeleteGateway;
+import edu.cuit.domain.gateway.course.CourseQueryGateway;
+import edu.cuit.domain.gateway.course.CourseUpdateGateway;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -120,6 +124,15 @@ public class BcCourseConfiguration {
     @Bean
     public ClassroomQueryUseCase classroomQueryUseCase(ClassroomGateway classroomGateway) {
         return new ClassroomQueryUseCase(classroomGateway);
+    }
+
+    @Bean
+    public CourseTypeUseCase courseTypeUseCase(
+            CourseQueryGateway courseQueryGateway,
+            CourseUpdateGateway courseUpdateGateway,
+            CourseDeleteGateway courseDeleteGateway
+    ) {
+        return new CourseTypeUseCase(courseQueryGateway, courseUpdateGateway, courseDeleteGateway);
     }
 
     @Bean
