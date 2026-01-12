@@ -2,7 +2,7 @@ package edu.cuit.app.service.impl;
 
 import edu.cuit.client.api.ISemesterService;
 import edu.cuit.client.dto.clientobject.SemesterCO;
-import edu.cuit.domain.gateway.SemesterGateway;
+import edu.cuit.bc.course.application.usecase.SemesterQueryUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,23 +13,23 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SemesterServiceImpl implements ISemesterService {
 
-    private final SemesterGateway semesterGateway;
+    private final SemesterQueryUseCase semesterQueryUseCase;
 
     @Override
     @Transactional
     public List<SemesterCO> all() {
-        return semesterGateway.getAll();
+        return semesterQueryUseCase.all();
     }
 
     @Override
     @Transactional
     public SemesterCO now() {
-        return semesterGateway.getNow();
+        return semesterQueryUseCase.now();
     }
 
     @Override
     @Transactional
     public SemesterCO semesterInfo(Integer id) {
-        return semesterGateway.getSemesterInfo(id);
+        return semesterQueryUseCase.semesterInfo(id);
     }
 }
