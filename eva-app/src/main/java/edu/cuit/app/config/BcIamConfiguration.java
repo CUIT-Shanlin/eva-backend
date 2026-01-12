@@ -29,6 +29,7 @@ import edu.cuit.bc.iam.application.usecase.DeleteMultipleMenuUseCase;
 import edu.cuit.bc.iam.application.usecase.DeleteUserUseCase;
 import edu.cuit.bc.iam.application.usecase.DeleteMultipleRoleUseCase;
 import edu.cuit.bc.iam.application.usecase.DeleteRoleUseCase;
+import edu.cuit.bc.iam.application.usecase.DepartmentQueryUseCase;
 import edu.cuit.bc.iam.application.usecase.FindAllUserIdUseCase;
 import edu.cuit.bc.iam.application.usecase.FindAllUsernameUseCase;
 import edu.cuit.bc.iam.application.usecase.FindUserIdByUsernameUseCase;
@@ -46,6 +47,7 @@ import edu.cuit.bc.iam.application.usecase.UpdateRoleStatusUseCase;
 import edu.cuit.bc.iam.application.usecase.UpdateUserInfoUseCase;
 import edu.cuit.bc.iam.application.usecase.UpdateUserStatusUseCase;
 import edu.cuit.bc.iam.application.usecase.CreateRoleUseCase;
+import edu.cuit.domain.gateway.DepartmentGateway;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -113,6 +115,11 @@ public class BcIamConfiguration {
     @Bean
     public IsUsernameExistUseCase isUsernameExistUseCase(UserBasicQueryPort queryPort) {
         return new IsUsernameExistUseCase(queryPort);
+    }
+
+    @Bean
+    public DepartmentQueryUseCase departmentQueryUseCase(DepartmentGateway departmentGateway) {
+        return new DepartmentQueryUseCase(departmentGateway);
     }
 
     @Bean
