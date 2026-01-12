@@ -515,7 +515,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-01-12，保持行为不变，入口壳收敛：用户写侧）：已将 `eva-app` 的 `UserServiceImpl` 写侧对 `UserUpdateGateway` 的调用改为直接委托 `bc-iam` 的 `UpdateUserInfoUseCase/UpdateUserStatusUseCase/AssignRoleUseCase/CreateUserUseCase/DeleteUserUseCase`（保留登录态解析/密码修改/登出/副作用顺序完全不变；读侧仍保留 `UserQueryGateway` 以保持缓存切面触发点不变；最小回归通过；落地：`2b095a69`）。
 - 补充进展（2026-01-12，保持行为不变，入口壳收敛：登录写侧）：已将 `eva-app` 的 `UserAuthServiceImpl.login` 中“LDAP 鉴权 + 用户状态校验”链路下沉到 `bc-iam` 的用例 `ValidateUserLoginUseCase`，旧入口退化为“登录态解析（`StpUtil.isLogin`）+ 委托用例 + `StpUtil.login` + 返回 token”的壳（异常文案/分支顺序完全不变；最小回归通过；落地：`d7c93768`）。
 - 补充进展（2026-01-12，保持行为不变，消息入口收敛准备）：为让 `eva-app` 的 `MsgServiceImpl` 后续能直接委托 `bc-messaging` 的 UseCase（保持行为不变），先在 `eva-app/pom.xml` 补齐对 `bc-messaging` 的编译期依赖（运行时 classpath 已包含该模块；最小回归通过；落地：`02d338a9`）。
-- 现状快照（更新至 2026-01-12，保持行为不变）：`eva-app` 下残留 `*ServiceImpl` 为 **15 个**，其中已显式委托 UseCase 的为 **10 个**；`eva-adapter` 下残留 `*Controller` 为 **22 个**（Controller 已不再直接注入 `*ServiceImpl`，但仍需继续收敛为纯协议适配与参数校验）。具体清单与优先级见 `NEXT_SESSION_HANDOFF.md` 0.10。
+- 补充进展（2026-01-12，保持行为不变，入口壳收敛：消息）：将 `eva-app` 的 `MsgServiceImpl` 中对消息查询/标记已读/展示状态/删除/落库的调用，改为直接委托 `bc-messaging` 的 `QueryMessageUseCase/MarkMessageReadUseCase/UpdateMessageDisplayUseCase/DeleteMessageUseCase/InsertMessageUseCase`（保持 `checkAndGetUserId()` 先执行；副作用顺序与异常文案完全不变；最小回归通过；落地：`28ba21e4`）。
+- 现状快照（更新至 2026-01-12，保持行为不变）：`eva-app` 下残留 `*ServiceImpl` 为 **15 个**，其中已显式委托 UseCase 的为 **11 个**；`eva-adapter` 下残留 `*Controller` 为 **22 个**（Controller 已不再直接注入 `*ServiceImpl`，但仍需继续收敛为纯协议适配与参数校验）。具体清单与优先级见 `NEXT_SESSION_HANDOFF.md` 0.10。
 
 - 补充进展（2026-01-05，S0.2 起步，保持行为不变）：已将学期 CO `SemesterCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`77126c4a`）。
 - 补充进展（2026-01-05，S0.2 持续推进，保持行为不变）：已将通用学期入参 `Term` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`23bff82f`）。
