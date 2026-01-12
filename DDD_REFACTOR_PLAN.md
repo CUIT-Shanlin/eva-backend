@@ -523,7 +523,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-01-12，保持行为不变，入口壳收敛：学期）：将 `eva-app` 的 `SemesterServiceImpl` 从直接调用 `SemesterGateway` 改为委托 `SemesterQueryUseCase`（事务边界仍由旧入口承接；异常文案与副作用顺序不变；最小回归通过；落地：`292eb1f2`）。
 - 补充进展（2026-01-12，保持行为不变，DepartmentServiceImpl 收敛准备）：在 `bc-iam` 新增院系查询用例 `DepartmentQueryUseCase`（当前仅委托 `DepartmentGateway.getAll()`，不改业务语义；最小回归通过；落地：`78fd4b0e`）。
 - 补充进展（2026-01-12，保持行为不变，DepartmentServiceImpl 收敛准备）：在 `BcIamConfiguration` 补齐 `DepartmentQueryUseCase` 的 Bean 装配（不改业务语义；最小回归通过；落地：`1cc7cc8a`）。
-- 现状快照（更新至 2026-01-12，保持行为不变）：`eva-app` 下残留 `*ServiceImpl` 为 **15 个**，其中已显式委托 UseCase 的为 **12 个**；`eva-adapter` 下残留 `*Controller` 为 **22 个**（Controller 已不再直接注入 `*ServiceImpl`，但仍需继续收敛为纯协议适配与参数校验）。具体清单与优先级见 `NEXT_SESSION_HANDOFF.md` 0.10。
+- 补充进展（2026-01-12，保持行为不变，入口壳收敛：院系）：将 `eva-app` 的 `DepartmentServiceImpl` 从直接调用 `DepartmentGateway` 改为委托 `DepartmentQueryUseCase`（异常文案与副作用顺序不变；最小回归通过；落地：`d9e4b7d6`）。
+- 现状快照（更新至 2026-01-12，保持行为不变）：`eva-app` 下残留 `*ServiceImpl` 为 **15 个**，其中已显式委托 UseCase 的为 **13 个**；`eva-adapter` 下残留 `*Controller` 为 **22 个**（Controller 已不再直接注入 `*ServiceImpl`，但仍需继续收敛为纯协议适配与参数校验）。具体清单与优先级见 `NEXT_SESSION_HANDOFF.md` 0.10。
 
 - 补充进展（2026-01-05，S0.2 起步，保持行为不变）：已将学期 CO `SemesterCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`77126c4a`）。
 - 补充进展（2026-01-05，S0.2 持续推进，保持行为不变）：已将通用学期入参 `Term` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`23bff82f`）。
