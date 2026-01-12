@@ -34,6 +34,10 @@ public class UserUpdateController {
 
     private final IUserService userService;
 
+    private Integer currentUserId() {
+        return userService.getIdByUsername(((String) StpUtil.getLoginId()));
+    }
+
     /**
      * 修改用户信息
      * @param isUpdatePwd 是否需要修改密码
@@ -67,7 +71,7 @@ public class UserUpdateController {
     @PutMapping("/password")
     @SaCheckLogin
     public CommonResult<Void> updatePassword(@RequestBody @Valid UpdatePasswordCmd cmd) {
-        userService.changePassword(userService.getIdByUsername(((String) StpUtil.getLoginId())), cmd);
+        userService.changePassword(currentUserId(), cmd);
         return CommonResult.success();
     }
 
@@ -130,7 +134,7 @@ public class UserUpdateController {
     @PostMapping("/info/avatar")
     public CommonResult<Void> uploadAvatar(@RequestParam("avatarFile") @NotNull(message = "头像文件不能为空") MultipartFile avatarFile) {
         try {
-            userService.uploadUserAvatar(userService.getIdByUsername(((String) StpUtil.getLoginId())), avatarFile.getInputStream());
+            userService.uploadUserAvatar(currentUserId(), avatarFile.getInputStream());
         } catch (IOException e) {
             SysException ex = new SysException("处理上传图片失败，请联系管理员");
             log.error("发生系统异常",ex);
