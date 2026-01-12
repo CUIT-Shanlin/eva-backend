@@ -21,6 +21,9 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-01-12（本次会话：ClassroomServiceImpl 收敛准备）**
+- ✅ **课程（教室，用例骨架，保持行为不变）**：在 `bc-course` 新增教室查询用例 `ClassroomQueryUseCase`（当前仅委托 `ClassroomGateway.getAll()`，不改业务语义；最小回归通过）；落地提交：`09822993`。
+
 **2026-01-12（本次会话：DepartmentServiceImpl 收敛准备）**
 - ✅ **IAM（院系，用例骨架，保持行为不变）**：在 `bc-iam` 新增院系查询用例 `DepartmentQueryUseCase`（当前仅委托 `DepartmentGateway.getAll()`，不改业务语义；最小回归通过）；落地提交：`78fd4b0e`。
 - ✅ **IAM（院系，用例装配，保持行为不变）**：在 `BcIamConfiguration` 补齐 `DepartmentQueryUseCase` 的 Bean 装配（不改业务语义；最小回归通过）；落地提交：`1cc7cc8a`。
