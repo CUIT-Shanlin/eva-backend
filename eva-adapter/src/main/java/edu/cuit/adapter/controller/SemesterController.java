@@ -29,7 +29,8 @@ public class SemesterController {
      */
     @GetMapping("/all")
     public CommonResult<List<SemesterCO>> all() {
-        return CommonResult.success(semesterService.all());
+        List<SemesterCO> allSemesters = semesterService.all();
+        return CommonResult.success(allSemesters);
     }
 
     /**
@@ -37,7 +38,8 @@ public class SemesterController {
      */
     @GetMapping("/now")
     public CommonResult<SemesterCO> now() {
-        return CommonResult.success(semesterService.now());
+        SemesterCO currentSemester = semesterService.now();
+        return CommonResult.success(currentSemester);
     }
 
     /**
@@ -46,7 +48,8 @@ public class SemesterController {
      */
     @GetMapping("/{id}")
     public CommonResult<SemesterCO> semesterInfo(@PathVariable Integer id) {
-        return CommonResult.success(semesterService.semesterInfo(id));
+        SemesterCO semesterInfo = semesterService.semesterInfo(id);
+        return CommonResult.success(semesterInfo);
     }
 
 }
