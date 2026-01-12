@@ -23,6 +23,7 @@
 
 **2026-01-12（本次会话：DepartmentServiceImpl 收敛准备）**
 - ✅ **IAM（院系，用例骨架，保持行为不变）**：在 `bc-iam` 新增院系查询用例 `DepartmentQueryUseCase`（当前仅委托 `DepartmentGateway.getAll()`，不改业务语义；最小回归通过）；落地提交：`78fd4b0e`。
+- ✅ **IAM（院系，用例装配，保持行为不变）**：在 `BcIamConfiguration` 补齐 `DepartmentQueryUseCase` 的 Bean 装配（不改业务语义；最小回归通过）；落地提交：`1cc7cc8a`。
 
 **2026-01-12（本次会话：SemesterServiceImpl 收敛准备）**
 - ✅ **课程（学期，编译依赖准备，保持行为不变）**：在 `bc-course/application/pom.xml` 补齐对 `eva-domain` 的编译期依赖，以便后续在 `bc-course` 应用层新增学期查询用例并复用 `SemesterGateway`（不改业务语义；最小回归通过）；落地提交：`d5ea0d96`。
