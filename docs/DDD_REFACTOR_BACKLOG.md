@@ -650,6 +650,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 	  - 下一步建议（`eva-app` 残留 `*ServiceImpl` 收敛，优先，保持行为不变）：当前 `eva-app/src/main/java/edu/cuit/app/service/impl` 下残留 `*ServiceImpl` 为 15 个，其中已显式委托 UseCase 的为 11 个；剩余 4 个建议按“易→难”优先级逐个收敛为委托壳：
 	    - `SemesterServiceImpl` → `DepartmentServiceImpl` → `ClassroomServiceImpl` → `ICourseTypeServiceImpl`
 	    - 每步闭环模板：Serena 证据化盘点（符号定位/引用分析）→ 最小回归 → 提交（代码）→ 三文档同步 → 提交（文档）→ push（保持行为不变）。
+	    - 新对话开启提示词：优先复制 `NEXT_SESSION_HANDOFF.md` 的 0.11「D 专用简版」（收敛 `eva-app` 残留 `*ServiceImpl`），避免继续使用历史 B/C 简版导致目标漂移。
 	    - 补充（保持行为不变）：为让 `MsgServiceImpl` 能直接委托 `bc-messaging` 的 UseCase，已先在 `eva-app/pom.xml` 补齐对 `bc-messaging` 的编译期依赖（运行时 classpath 已包含该模块；最小回归通过；落地：`02d338a9`）。
 	- ✅ 下一步小簇建议（bc-messaging，保持行为不变）：按 `DDD_REFACTOR_PLAN.md` 10.3 路线推进（先组合根 → 再监听器/应用侧适配器 → 最后基础设施端口适配器与依赖收敛）。
 	  - ✅ 已完成：组合根 `BcMessagingConfiguration`（`4e3e2cf2`）；✅ 已完成：监听器 `CourseOperationSideEffectsListener`（`22ee30e7`）；✅ 已完成：监听器 `CourseTeacherTaskMessagesListener`（`0987f96f`）
