@@ -109,6 +109,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 **已完成（更新至 2026-01-12）**
 - ✅ S0.2 延伸（ICourseTypeServiceImpl 收敛准备：用例骨架，保持行为不变）：在 `bc-course/application` 新增课程类型用例 `CourseTypeUseCase`（读写合并；手写 `CourseTypeEntity` → `CourseType` 映射与 `PaginationQueryResultCO` 组装，不引入 `eva-infra-shared`；对齐旧入口逻辑与返回语义；最小回归通过）；落地：`325f221a`。
+- ✅ S0.2 延伸（ICourseTypeServiceImpl 收敛准备：用例装配，保持行为不变）：在 `BcCourseConfiguration` 补齐 `CourseTypeUseCase` 的 Bean 装配（保持行为不变；最小回归通过）；落地：`55eb322e`。
 - ✅ S0.2 延伸（入口壳收敛：角色写侧，保持行为不变）：将 `eva-app` 的 `RoleServiceImpl` 写侧方法（`updateInfo/updateStatus/assignPerm/create/delete/multipleDelete`）改为委托 `bc-iam` 的 UseCase（`UpdateRoleInfoUseCase/UpdateRoleStatusUseCase/AssignRolePermsUseCase/CreateRoleUseCase/DeleteRoleUseCase/DeleteMultipleRoleUseCase`），减少对旧 `RoleUpdateGateway` 的直耦合（事务边界仍由旧入口承接；异常文案/缓存失效/日志顺序与副作用完全不变；最小回归通过；落地：`a71efb84`）。
 - ✅ S0.2 延伸（入口壳收敛：菜单写侧，保持行为不变）：将 `eva-app` 的 `MenuServiceImpl` 写侧方法（`update/create/delete/multipleDelete`）改为委托 `bc-iam` 的 UseCase（`UpdateMenuInfoUseCase/CreateMenuUseCase/DeleteMenuUseCase/DeleteMultipleMenuUseCase`），减少对旧 `MenuUpdateGateway` 的直耦合（事务边界仍由旧入口承接；异常文案/缓存失效/日志顺序与副作用完全不变；最小回归通过；落地：`905baf9f`）。
 - ✅ S0.2 延伸（入口壳收敛：审计日志写侧，保持行为不变）：将 `eva-app` 的 `LogServiceImpl.registerListener` 中“插入日志”链路改为委托 `bc-audit` 的 `InsertLogUseCase`，并保持异步执行语义与副作用顺序完全不变（最小回归通过；落地：`cdb885b0`）。
