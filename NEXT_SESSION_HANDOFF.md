@@ -21,6 +21,9 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-01-12（本次会话：MsgServiceImpl 收敛进行中：编译依赖准备 + 后续待落地）**
+- ✅ **消息（编译依赖准备，保持行为不变）**：为让 `eva-app` 的 `MsgServiceImpl` 能直接委托 `bc-messaging` 的 UseCase（而非继续只经由旧 `MsgGateway` 间接转发），先在 `eva-app/pom.xml` 补齐对 `bc-messaging` 的编译期依赖（不改任何业务语义；运行时 classpath 已包含该模块；最小回归通过）；落地提交：`02d338a9`。
+
 **2026-01-12（本次会话：LogServiceImpl/UserServiceImpl/UserAuthServiceImpl 写侧收敛 + 文档同步）**
 - ✅ **审计日志（入口壳收敛：日志写侧，保持行为不变）**：将 `eva-app` 的 `LogServiceImpl.registerListener` 中“插入日志”链路退化为委托 `bc-audit` 的 `InsertLogUseCase`（保持异步执行语义：仍使用 `CompletableFuture.runAsync(..., executor)`；异常文案/日志顺序与副作用顺序完全不变）；最小回归通过；落地提交：`cdb885b0`。
 - ✅ **IAM（入口壳收敛：用户写侧，保持行为不变）**：将 `eva-app` 的 `UserServiceImpl` 写侧对 `UserUpdateGateway` 的调用改为直接委托 `bc-iam` 的 `UpdateUserInfoUseCase/UpdateUserStatusUseCase/AssignRoleUseCase/CreateUserUseCase/DeleteUserUseCase`（保留登录态解析/密码修改/登出/副作用顺序完全不变；读侧仍保留 `UserQueryGateway` 以保持缓存切面触发点不变）；最小回归通过；落地提交：`2b095a69`。
