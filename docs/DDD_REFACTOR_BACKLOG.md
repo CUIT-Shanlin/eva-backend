@@ -107,7 +107,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
-**已完成（更新至 2026-01-11）**
+**已完成（更新至 2026-01-12）**
 - ✅ S0.2 延伸（入口壳收敛：角色写侧，保持行为不变）：将 `eva-app` 的 `RoleServiceImpl` 写侧方法（`updateInfo/updateStatus/assignPerm/create/delete/multipleDelete`）改为委托 `bc-iam` 的 UseCase（`UpdateRoleInfoUseCase/UpdateRoleStatusUseCase/AssignRolePermsUseCase/CreateRoleUseCase/DeleteRoleUseCase/DeleteMultipleRoleUseCase`），减少对旧 `RoleUpdateGateway` 的直耦合（事务边界仍由旧入口承接；异常文案/缓存失效/日志顺序与副作用完全不变；最小回归通过；落地：`a71efb84`）。
 - ✅ S0.2 延伸（入口壳收敛：菜单写侧，保持行为不变）：将 `eva-app` 的 `MenuServiceImpl` 写侧方法（`update/create/delete/multipleDelete`）改为委托 `bc-iam` 的 UseCase（`UpdateMenuInfoUseCase/CreateMenuUseCase/DeleteMenuUseCase/DeleteMultipleMenuUseCase`），减少对旧 `MenuUpdateGateway` 的直耦合（事务边界仍由旧入口承接；异常文案/缓存失效/日志顺序与副作用完全不变；最小回归通过；落地：`905baf9f`）。
 - ✅ S0.2 延伸（入口壳收敛：审计日志写侧，保持行为不变）：将 `eva-app` 的 `LogServiceImpl.registerListener` 中“插入日志”链路改为委托 `bc-audit` 的 `InsertLogUseCase`，并保持异步执行语义与副作用顺序完全不变（最小回归通过；落地：`cdb885b0`）。
