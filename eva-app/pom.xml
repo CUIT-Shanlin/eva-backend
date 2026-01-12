@@ -43,6 +43,12 @@
             <artifactId>bc-template</artifactId>
             <version>${revision}</version>
         </dependency>
+        <!-- 渐进式重构：SemesterServiceImpl 入口壳收敛需要委托 bc-course 的用例 -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>bc-course</artifactId>
+            <version>${revision}</version>
+        </dependency>
         <dependency>
             <groupId>edu.cuit</groupId>
             <artifactId>bc-course-infra</artifactId>
