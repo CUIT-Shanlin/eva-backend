@@ -542,6 +542,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-01-12，保持行为不变，Controller 收敛：院系查询入口）：在 `DepartmentController` 收敛返回表达式，用“局部变量 + return”显式固化“先调用 service → 再 `CommonResult.success(...)`”的执行顺序（不改异常文案/返回结构/副作用顺序；最小回归通过；落地：`e57c0e41`）。
 - 补充进展（2026-01-12，保持行为不变，Controller 收敛：教室查询入口）：在 `ClassroomController` 收敛返回表达式，用“局部变量 + return”显式固化“先调用 service → 再 `CommonResult.success(...)`”的执行顺序（不改异常文案/返回结构/副作用顺序；最小回归通过；落地：`f1606018`）。
 - 下一刀建议（保持行为不变）：继续收敛 `eva-adapter` 残留 `*Controller`，下一刀建议从 `QueryCourseController` 开始（每次只改 1 个 Controller；每步最小回归 + 提交 + 三文档同步）。
+- 推荐顺序（课程域，保持行为不变）：`QueryCourseController` → `QueryUserCourseController` → `UpdateCourseController` → `DeleteCourseController`（优先链路短、改动面可控；先固化“返回/日志/异常/副作用顺序不变”口径）。
 
 - 补充进展（2026-01-05，S0.2 起步，保持行为不变）：已将学期 CO `SemesterCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`77126c4a`）。
 - 补充进展（2026-01-05，S0.2 持续推进，保持行为不变）：已将通用学期入参 `Term` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`23bff82f`）。

@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-01-12（本次会话：Controller 收敛起步）**
+- 📌 本次会话主线：持续收敛 `eva-adapter` 残留 `*Controller`（每次只改 1 个 Controller；保持行为不变）；本次共推进 **10 个** Controller（含查询/写入口与学期/院系/教室），下一刀建议：`QueryCourseController`（课程查询入口）。
 - ✅ **IAM（用户，Controller：减少适配层编排噪声，保持行为不变）**：在 `UserUpdateController` 提取 `currentUserId()`（仍保持 `StpUtil.getLoginId()` → `userService.getIdByUsername(...)` 的调用顺序与次数不变；异常文案与日志不变）；最小回归通过；落地提交：`09cb6454`。
 - ✅ **IAM（认证，Controller：固化 login 返回顺序表达，保持行为不变）**：在 `AuthenticationController` 将 `login` 的内联调用收敛为“先 `userAuthService.login(loginCmd)` → 再 `CommonResult.success(...)`”的显式两步写法（不改异常文案/返回体结构/副作用顺序；参数校验与登录态注解保持不变）；最小回归通过；落地提交：`102a0cbb`。
 - ✅ **IAM（用户，Controller：固化返回包装顺序表达，保持行为不变）**：在 `UserQueryController` 将多个接口的返回表达式统一收敛为“先调用 service → 再 `CommonResult.success(...)`”的显式两步写法（不改异常文案/返回体结构/副作用顺序；参数校验与权限注解保持不变）；最小回归通过；落地提交：`18e0bb29`。
