@@ -47,7 +47,8 @@ public class MenuUpdateController {
     @OperateLog(module = LogModule.PERM,type = OperateLogType.CREATE)
     public CommonResult<Void> create(@RequestBody @Valid NewMenuCmd newMenuCmd) {
         menuService.create(newMenuCmd);
-        LogUtils.logContent(newMenuCmd.getName() + " 权限");
+        String logContent = newMenuCmd.getName() + " 权限";
+        LogUtils.logContent(logContent);
         return CommonResult.success();
     }
 
