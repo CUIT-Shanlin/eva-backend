@@ -23,6 +23,7 @@
 
 **2026-01-12（本次会话：SemesterServiceImpl 收敛准备）**
 - ✅ **课程（学期，编译依赖准备，保持行为不变）**：在 `bc-course/application/pom.xml` 补齐对 `eva-domain` 的编译期依赖，以便后续在 `bc-course` 应用层新增学期查询用例并复用 `SemesterGateway`（不改业务语义；最小回归通过）；落地提交：`d5ea0d96`。
+- ✅ **课程（学期，用例骨架，保持行为不变）**：在 `bc-course/application` 新增学期查询用例 `SemesterQueryUseCase`（当前仅委托 `SemesterGateway`，不改业务语义；最小回归通过）；落地提交：`7d8323b5`。
 
 **2026-01-12（本次会话：MsgServiceImpl 收敛 + 文档同步）**
 - ✅ **消息（编译依赖准备，保持行为不变）**：为让 `eva-app` 的 `MsgServiceImpl` 能直接委托 `bc-messaging` 的 UseCase（而非继续只经由旧 `MsgGateway` 间接转发），先在 `eva-app/pom.xml` 补齐对 `bc-messaging` 的编译期依赖（不改任何业务语义；运行时 classpath 已包含该模块；最小回归通过）；落地提交：`02d338a9`。
