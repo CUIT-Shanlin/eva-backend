@@ -75,7 +75,8 @@ public class RoleUpdateController {
     @OperateLog(module = LogModule.ROLE,type = OperateLogType.CREATE)
     public CommonResult<Void> create(@RequestBody @Valid NewRoleCmd newRoleCmd) {
         roleService.create(newRoleCmd);
-        LogUtils.logContent(newRoleCmd.getRoleName() + "角色");
+        String logContent = newRoleCmd.getRoleName() + "角色";
+        LogUtils.logContent(logContent);
         return CommonResult.success();
     }
 
