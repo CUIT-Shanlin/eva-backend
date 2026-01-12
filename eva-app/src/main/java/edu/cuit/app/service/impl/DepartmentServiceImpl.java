@@ -1,7 +1,7 @@
 package edu.cuit.app.service.impl;
 
 import edu.cuit.bc.iam.application.contract.api.department.IDepartmentService;
-import edu.cuit.domain.gateway.DepartmentGateway;
+import edu.cuit.bc.iam.application.usecase.DepartmentQueryUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,10 +11,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DepartmentServiceImpl implements IDepartmentService {
 
-    private final DepartmentGateway departmentGateway;
+    private final DepartmentQueryUseCase departmentQueryUseCase;
 
     @Override
     public List<String> all() {
-        return departmentGateway.getAll();
+        return departmentQueryUseCase.all();
     }
 }
