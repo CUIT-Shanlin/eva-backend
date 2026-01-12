@@ -26,6 +26,11 @@
             <artifactId>bc-course-domain</artifactId>
             <version>${revision}</version>
         </dependency>
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>eva-domain</artifactId>
+            <version>${revision}</version>
+        </dependency>
 
         <!-- 课程 BC 在“模板锁定”上依赖 bc-template 的用例服务（上游 BC）。 -->
         <dependency>
