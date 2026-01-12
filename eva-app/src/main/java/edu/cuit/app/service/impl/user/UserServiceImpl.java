@@ -16,6 +16,11 @@ import edu.cuit.client.api.course.ICourseService;
 import edu.cuit.client.api.course.IUserCourseService;
 import edu.cuit.client.api.eva.IEvaTaskService;
 import edu.cuit.bc.iam.application.contract.api.user.IUserService;
+import edu.cuit.bc.iam.application.usecase.AssignRoleUseCase;
+import edu.cuit.bc.iam.application.usecase.CreateUserUseCase;
+import edu.cuit.bc.iam.application.usecase.DeleteUserUseCase;
+import edu.cuit.bc.iam.application.usecase.UpdateUserInfoUseCase;
+import edu.cuit.bc.iam.application.usecase.UpdateUserStatusUseCase;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.SemesterCO;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
@@ -35,7 +40,6 @@ import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.bc.evaluation.application.port.EvaRecordCountQueryPort;
 import edu.cuit.domain.gateway.user.LdapPersonGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
-import edu.cuit.domain.gateway.user.UserUpdateGateway;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -52,7 +56,11 @@ import java.util.*;
 public class UserServiceImpl implements IUserService {
 
     private final UserQueryGateway userQueryGateway;
-    private final UserUpdateGateway userUpdateGateway;
+    private final AssignRoleUseCase assignRoleUseCase;
+    private final CreateUserUseCase createUserUseCase;
+    private final UpdateUserInfoUseCase updateUserInfoUseCase;
+    private final UpdateUserStatusUseCase updateUserStatusUseCase;
+    private final DeleteUserUseCase deleteUserUseCase;
     private final LdapPersonGateway ldapPersonGateway;
     private final CourseQueryGateway courseQueryGateway;
     private final EvaRecordCountQueryPort evaRecordCountQueryPort;
@@ -191,11 +199,11 @@ public class UserServiceImpl implements IUserService {
         }
         if (isUpdatePwd) {
             try {
-                userUpdateGateway.updateInfo(cmd);
+                updateUserInfoUseCase.execute(cmd);
             } catch (BizException e) {
                 throw new BizException(e.getMessage() + " (但是密码已成功修改)");
             }
-        } else userUpdateGateway.updateInfo(cmd);
+        } else updateUserInfoUseCase.execute(cmd);
         if (!userQueryGateway.findUsernameById(id).orElseThrow(() -> {
             SysException e = new SysException("用户名查找失败");
             log.error("发生系统异常", e);
@@ -238,7 +246,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     @Transactional
     public void updateStatus(Integer userId, Integer status) {
-        userUpdateGateway.updateStatus(userId, status);
+        updateUserStatusUseCase.execute(userId, status);
         if (status == 0) {
             StpUtil.logout(userQueryGateway.findUsernameById(Math.toIntExact(userId))
                     .orElseThrow(() -> new BizException("用户ID不存在")));
@@ -256,19 +264,19 @@ public class UserServiceImpl implements IUserService {
             }
         }
         evaTaskService.deleteAllTaskByTea(userId);
-        userUpdateGateway.deleteUser(userId);
+        deleteUserUseCase.execute(userId);
     }
 
     @Override
     @Transactional
     public void assignRole(AssignRoleCmd cmd) {
-        userUpdateGateway.assignRole(cmd.getUserId(), cmd.getRoleIdList());
+        assignRoleUseCase.execute(cmd.getUserId(), cmd.getRoleIdList());
     }
 
     @Override
     @Transactional
     public void create(NewUserCmd cmd) {
-        userUpdateGateway.createUser(cmd);
+        createUserUseCase.execute(cmd);
     }
 
     @Override
@@ -280,7 +288,7 @@ public class UserServiceImpl implements IUserService {
         for (NewUserCmd newUserCmd : cmdList) {
             if (usernameSet.contains(newUserCmd.getUsername())) continue;
             try {
-                userUpdateGateway.createUser(newUserCmd);
+                createUserUseCase.execute(newUserCmd);
             } catch (BizException ignored) {
             }
         }
