@@ -658,8 +658,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成（bc-course，实现承载面，保持行为不变）：Serena 证伪 `eva-infra-shared/src/main/java/edu/cuit/infra/gateway/impl/course/operate/` 下 `CourseImportExce/CourseRecommendExce` 仅课程域使用后，已归位到 `bc-course/infrastructure`（保持 `package` 不变，仅搬运与编译闭合；落地：`d3b9247e`）；`CourseFormat` 跨 BC 复用继续留在 `eva-infra-shared`。下一簇建议：进入“依赖方编译期依赖收敛”，逐个模块证伪后每次只改 1 个 `pom.xml`，将 `bc-course` 替换为 `shared-kernel`（保持行为不变）。
  - ✅ 并行证伪（依赖方编译期依赖收敛，保持行为不变）：最新盘点显示：当前未发现仍显式依赖 `bc-course` 且满足“仅使用 `edu.cuit.client.*` 类型”的模块；且 `eva-app` 已完成去 `bc-course` 编译期依赖（落地：`6fe8ffc8`）。因此“收敛依赖方对 `bc-course` 的编译期依赖”短期内暂无可执行的 `pom.xml` 依赖替换点（保持行为不变）。
 	  - ✅ 并行主线（基础设施 S1 退场候选：旧 gateway 归位，保持行为不变）：已完成 `DepartmentGatewayImpl` → `bc-iam-infra`（`acb13124`）、`ClassroomGatewayImpl` → `bc-course-infra`（`26b183d5`）、`SemesterGatewayImpl` → `bc-course-infra`（`30e6a160`）；且为闭合编译期依赖已先归位 `SemesterConverter` → `eva-infra-shared`（`6c9e1d39`）。补充：评教/IAM 的残留旧 `*GatewayImpl` 已归位到对应 BC 的 `infrastructure` 子模块，且 `eva-infra/src/main/java/edu/cuit/infra/gateway/impl` 下残留已清零（详见 `NEXT_SESSION_HANDOFF.md` 0.10）。下一步建议：转向收敛 `eva-app` 残留 `*ServiceImpl`（每次只改 1 个类；保持行为不变）。
-		  - 下一步建议（`eva-app` 残留 `*ServiceImpl` 收敛，优先，保持行为不变）：当前 `eva-app/src/main/java/edu/cuit/app/service/impl` 下残留 `*ServiceImpl` 为 15 个，其中已显式委托 UseCase 的为 13 个；剩余 2 个建议按“易→难”优先级逐个收敛为委托壳：
-		    - `ClassroomServiceImpl` → `ICourseTypeServiceImpl`
+		  - 下一步建议（`eva-app` 残留 `*ServiceImpl` 收敛，优先，保持行为不变）：当前 `eva-app/src/main/java/edu/cuit/app/service/impl` 下残留 `*ServiceImpl` 为 15 个，其中已显式委托 UseCase 的为 14 个；剩余 1 个建议按“易→难”优先级收敛为委托壳：
+		    - `ICourseTypeServiceImpl`
 	    - 每步闭环模板：Serena 证据化盘点（符号定位/引用分析）→ 最小回归 → 提交（代码）→ 三文档同步 → 提交（文档）→ push（保持行为不变）。
 	    - 新对话开启提示词：优先复制 `NEXT_SESSION_HANDOFF.md` 的 0.11「D 专用简版」（收敛 `eva-app` 残留 `*ServiceImpl`），避免继续使用历史 B/C 简版导致目标漂移。
 	    - 补充（保持行为不变）：为让 `MsgServiceImpl` 能直接委托 `bc-messaging` 的 UseCase，已先在 `eva-app/pom.xml` 补齐对 `bc-messaging` 的编译期依赖（运行时 classpath 已包含该模块；最小回归通过；落地：`02d338a9`）。
