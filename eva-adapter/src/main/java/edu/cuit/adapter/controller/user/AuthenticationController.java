@@ -27,8 +27,9 @@ public class AuthenticationController {
      * 登录请求
      */
     @PostMapping("/login")
-    public CommonResult<Pair<String,String>> login(@Valid @RequestBody UserLoginCmd loginCmd) {
-        return CommonResult.success(userAuthService.login(loginCmd));
+    public CommonResult<Pair<String, String>> login(@Valid @RequestBody UserLoginCmd loginCmd) {
+        Pair<String, String> loginResult = userAuthService.login(loginCmd);
+        return CommonResult.success(loginResult);
     }
 
     /**
