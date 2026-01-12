@@ -30,7 +30,8 @@ public class MenuQueryController {
     @PostMapping("/menus/tree")
     @SaCheckPermission("system.menu.tree")
     public CommonResult<List<MenuCO>> mainMenu(@RequestBody @Valid MenuConditionalQuery query) {
-        return CommonResult.success(menuService.mainMenu(query));
+        List<MenuCO> menuTree = menuService.mainMenu(query);
+        return CommonResult.success(menuTree);
     }
 
     /**
@@ -40,7 +41,8 @@ public class MenuQueryController {
     @GetMapping("/menu")
     @SaCheckPermission("system.menu.query")
     public CommonResult<GenericMenuSectionCO> one(@RequestParam("id") Integer id) {
-        return CommonResult.success(menuService.one(id));
+        GenericMenuSectionCO menuInfo = menuService.one(id);
+        return CommonResult.success(menuInfo);
     }
 
 
