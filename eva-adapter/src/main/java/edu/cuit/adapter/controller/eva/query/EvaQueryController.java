@@ -43,7 +43,8 @@ public class EvaQueryController {
     public CommonResult<PaginationQueryResultCO<EvaRecordCO>> pageEvaRecord(
         @RequestParam(value = "semId",required = false) Integer semId,
         @RequestBody PagingQuery<EvaLogConditionalQuery> query){
-        return CommonResult.success(iEvaRecordService.pageEvaRecord(semId,query));
+        PaginationQueryResultCO<EvaRecordCO> pageResult = iEvaRecordService.pageEvaRecord(semId, query);
+        return CommonResult.success(pageResult);
     }
     //评教任务相关
     /**
@@ -56,7 +57,8 @@ public class EvaQueryController {
     public CommonResult<PaginationQueryResultCO<EvaTaskBaseInfoCO>> pageEvaUnfinishedTask(
             @RequestParam(value = "semId",required = false) Integer semId,
             @RequestBody PagingQuery<EvaTaskConditionalQuery> query){
-        return CommonResult.success(iEvaTaskService.pageEvaUnfinishedTask(semId,query));
+        PaginationQueryResultCO<EvaTaskBaseInfoCO> pageResult = iEvaTaskService.pageEvaUnfinishedTask(semId, query);
+        return CommonResult.success(pageResult);
     }
     /**
      * 获取自己的所有待办评教任务
@@ -68,7 +70,8 @@ public class EvaQueryController {
     public CommonResult<List<EvaTaskDetailInfoCO>> evaSelfTaskInfo(
             @RequestParam(value = "semId",required = false) Integer semId,
             @RequestParam(value = "keyword",required = false) String keyword){
-        return CommonResult.success(iEvaTaskService.evaSelfTaskInfo(semId,keyword));
+        List<EvaTaskDetailInfoCO> selfTaskInfoList = iEvaTaskService.evaSelfTaskInfo(semId, keyword);
+        return CommonResult.success(selfTaskInfoList);
     }
     /**
      * 获取一个评教任务的详细信息
@@ -78,7 +81,8 @@ public class EvaQueryController {
     @SaCheckLogin
     public CommonResult<EvaTaskDetailInfoCO> oneEvaTaskInfo(
             @PathVariable ("id") Integer id){
-        return CommonResult.success(iEvaTaskService.oneEvaTaskInfo(id));
+        EvaTaskDetailInfoCO evaTaskInfo = iEvaTaskService.oneEvaTaskInfo(id);
+        return CommonResult.success(evaTaskInfo);
     }
     //评教模板相关
     /**
@@ -91,7 +95,8 @@ public class EvaQueryController {
     public CommonResult<PaginationQueryResultCO<EvaTemplateCO>> pageEvaTemplate(
             @RequestParam(value = "semId",required = false) Integer semId,
             @RequestBody PagingQuery<GenericConditionalQuery> query){
-        return CommonResult.success(iEvaTemplateService.pageEvaTemplate(semId,query));
+        PaginationQueryResultCO<EvaTemplateCO> pageResult = iEvaTemplateService.pageEvaTemplate(semId, query);
+        return CommonResult.success(pageResult);
     }
     /**
      * 获取所有模板的基础信息，仅包含名称和id信息
@@ -99,7 +104,8 @@ public class EvaQueryController {
     @GetMapping("/evaluate/template/all")
     @SaCheckLogin
     public CommonResult<List<SimpleResultCO>> evaAllTemplate (){
-        return CommonResult.success(iEvaTemplateService.evaAllTemplate());
+        List<SimpleResultCO> allTemplateList = iEvaTemplateService.evaAllTemplate();
+        return CommonResult.success(allTemplateList);
     }
     /**
      * 获取一个任务对应的评教模板
@@ -111,7 +117,8 @@ public class EvaQueryController {
     public CommonResult<String> getTaskTemplate(
             @PathVariable ("taskId") Integer taskId,
             @RequestParam(value = "semId",required = false) Integer semId){
-        return CommonResult.success(iEvaTemplateService.evaTemplateByTaskId(taskId,semId));
+        String taskTemplate = iEvaTemplateService.evaTemplateByTaskId(taskId, semId);
+        return CommonResult.success(taskTemplate);
     }
     //用户评教相关
     /**
@@ -124,7 +131,8 @@ public class EvaQueryController {
     public CommonResult<List<EvaRecordCO>> getEvaLogInfo(
             @RequestParam(value = "semId",required = false) Integer semId,
             @RequestParam(value = "keyword",required = false) String keyword){
-        return CommonResult.success(iUserEvaService.getEvaLogInfo(semId,keyword));
+        List<EvaRecordCO> evaLogInfoList = iUserEvaService.getEvaLogInfo(semId, keyword);
+        return CommonResult.success(evaLogInfoList);
     }
     /**
      * 获取对于自己进行的评教的记录
@@ -136,6 +144,7 @@ public class EvaQueryController {
     public CommonResult<List<EvaRecordCO>> getEvaLoggingInfo(
             @RequestParam(value = "courseId",required = false) Integer courseId,
             @RequestParam(value = "semId",required = false) Integer semId){
-        return CommonResult.success(iUserEvaService.getEvaLoggingInfo(courseId,semId));
+        List<EvaRecordCO> evaLoggingInfoList = iUserEvaService.getEvaLoggingInfo(courseId, semId);
+        return CommonResult.success(evaLoggingInfoList);
     }
 }
