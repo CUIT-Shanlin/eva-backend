@@ -530,7 +530,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-01-12，保持行为不变，ICourseTypeServiceImpl 收敛准备）：在 `bc-course/application` 新增课程类型用例 `CourseTypeUseCase`（读写合并；手写 `CourseTypeEntity` → `CourseType` 映射与 `PaginationQueryResultCO` 组装，不引入 `eva-infra-shared`；对齐旧入口逻辑与返回语义；最小回归通过；落地：`325f221a`）。
 - 补充进展（2026-01-12，保持行为不变，ICourseTypeServiceImpl 收敛准备）：在 `BcCourseConfiguration` 补齐 `CourseTypeUseCase` 的 Bean 装配（保持行为不变；最小回归通过；落地：`55eb322e`）。
 - 补充进展（2026-01-12，保持行为不变，入口壳收敛：课程类型）：将 `eva-app` 的 `ICourseTypeServiceImpl` 退化为纯委托壳，改为委托 `CourseTypeUseCase`（保持 `id==null` 语义与 `updateCoursesType` 返回 `null`（`Void`）等行为不变；最小回归通过；落地：`1aebda24`）。
-- 现状快照（更新至 2026-01-12，保持行为不变）：`eva-app` 下残留 `*ServiceImpl` 为 **15 个**，其中已显式委托 UseCase 的为 **15 个**；`eva-adapter` 下残留 `*Controller` 为 **22 个**（Controller 已不再直接注入 `*ServiceImpl`，但仍需继续收敛为纯协议适配与参数校验）。具体清单与优先级见 `NEXT_SESSION_HANDOFF.md` 0.10。
+- 现状快照（更新至 2026-01-13，保持行为不变）：`eva-app` 下残留 `*ServiceImpl` 为 **15 个**，其中已显式委托 UseCase 的为 **15 个**；`eva-adapter` 下残留 `*Controller` 为 **22 个**（Controller 已不再直接注入 `*ServiceImpl`，但仍需继续收敛为纯协议适配与参数校验）。具体清单与优先级见 `NEXT_SESSION_HANDOFF.md` 0.10。
 - 补充进展（2026-01-12，保持行为不变，Controller 收敛起步）：在 `UserUpdateController` 提取 `currentUserId()` 以减少适配层编排噪声（保持 `StpUtil.getLoginId()` 调用顺序与次数不变；最小回归通过；落地：`09cb6454`）。
 - 补充进展（2026-01-12，保持行为不变，Controller 收敛：登录入口）：在 `AuthenticationController` 收敛 `login` 表达式，用“局部变量 + return”显式固化 `userAuthService.login(...)` → `CommonResult.success(...)` 的执行顺序（不改异常文案/返回结构/副作用顺序；最小回归通过；落地：`102a0cbb`）。
 - 补充进展（2026-01-12，保持行为不变，Controller 收敛：用户查询入口）：在 `UserQueryController` 收敛返回表达式，用“局部变量 + return”显式固化“先调用 service → 再 `CommonResult.success(...)`”的执行顺序（不改异常文案/返回结构/副作用顺序；最小回归通过；落地：`18e0bb29`）。
@@ -541,8 +541,9 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-01-12，保持行为不变，Controller 收敛：学期查询入口）：在 `SemesterController` 收敛返回表达式，用“局部变量 + return”显式固化“先调用 service → 再 `CommonResult.success(...)`”的执行顺序（不改异常文案/返回结构/副作用顺序；最小回归通过；落地：`24e5ad3f`）。
 - 补充进展（2026-01-12，保持行为不变，Controller 收敛：院系查询入口）：在 `DepartmentController` 收敛返回表达式，用“局部变量 + return”显式固化“先调用 service → 再 `CommonResult.success(...)`”的执行顺序（不改异常文案/返回结构/副作用顺序；最小回归通过；落地：`e57c0e41`）。
 - 补充进展（2026-01-12，保持行为不变，Controller 收敛：教室查询入口）：在 `ClassroomController` 收敛返回表达式，用“局部变量 + return”显式固化“先调用 service → 再 `CommonResult.success(...)`”的执行顺序（不改异常文案/返回结构/副作用顺序；最小回归通过；落地：`f1606018`）。
-- 下一刀建议（保持行为不变）：继续收敛 `eva-adapter` 残留 `*Controller`，下一刀建议从 `QueryCourseController` 开始（每次只改 1 个 Controller；每步最小回归 + 提交 + 三文档同步）。
-- 推荐顺序（课程域，保持行为不变）：`QueryCourseController` → `QueryUserCourseController` → `UpdateCourseController` → `DeleteCourseController`（优先链路短、改动面可控；先固化“返回/日志/异常/副作用顺序不变”口径）。
+- 补充进展（2026-01-13，保持行为不变，Controller 收敛：课程查询入口）：在 `QueryCourseController` 收敛返回表达式，用“局部变量 + return”显式固化“先调用 service → 再 `CommonResult.success(...)`”的执行顺序（不改异常文案/返回结构/副作用顺序；最小回归通过；落地：`0a691bb1`）。
+- 下一刀建议（保持行为不变）：继续收敛 `eva-adapter` 残留 `*Controller`，下一刀建议从 `QueryUserCourseController` 开始（每次只改 1 个 Controller；每步最小回归 + 提交 + 三文档同步）。
+- 推荐顺序（课程域，保持行为不变）：`QueryCourseController`（✅ 已完成）→ `QueryUserCourseController` → `UpdateCourseController` → `DeleteCourseController`（优先链路短、改动面可控；先固化“返回/日志/异常/副作用顺序不变”口径）。
 
 - 补充进展（2026-01-05，S0.2 起步，保持行为不变）：已将学期 CO `SemesterCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`77126c4a`）。
 - 补充进展（2026-01-05，S0.2 持续推进，保持行为不变）：已将通用学期入参 `Term` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`23bff82f`）。
