@@ -117,7 +117,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（课程：旧入口归位，学期，保持行为不变）：将 `SemesterServiceImpl` 从 `eva-app` 搬运归位到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl` 不变；仍实现 `ISemesterService` 并委托 `SemesterQueryUseCase`；保留事务边界；最小回归通过）；落地：`8eddc643`。
 - ✅ S0.2 延伸（课程：旧入口归位，教室，保持行为不变）：将 `ClassroomServiceImpl` 从 `eva-app` 搬运归位到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl` 不变；仍实现 `IClassroomService` 并委托 `ClassroomQueryUseCase`；最小回归通过）；落地：`4bc8cfb1`。
 - ✅ S0.2 延伸（课程：旧入口归位，课程类型，保持行为不变）：将 `ICourseTypeServiceImpl` 从 `eva-app` 搬运归位到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl.course` 不变；仍实现 `ICourseTypeService` 并委托 `CourseTypeUseCase`；保持 `id==null` 语义与 `updateCoursesType` 返回 `null`（`Void`）语义不变；最小回归通过）；落地：`8a4a6774`。
-- ✅ S0.2 延伸（次优先：其它依赖收敛点盘点，证伪结论，保持行为不变）：Serena + `rg` 证据化确认：`eva-app` 已不再直接 `import edu.cuit.bc.course.application.usecase.*`（口径：`rg -n '^import edu\\.cuit\\.bc\\.course' eva-app/src/main/java` 证伪为 0），因此下一刀应转为“只改 1 个 `pom.xml`”收敛 `eva-app/pom.xml`：移除 `bc-course` 编译期依赖（改为显式依赖 `shared-kernel`；保持行为不变）。
+- ✅ S0.2 延伸（依赖方收敛：eva-app 去 bc-course 编译期依赖，保持行为不变）：Serena + `rg` 证据化确认：`eva-app` 已不再直接 `import edu.cuit.bc.course.application.usecase.*`（口径：`rg -n '^import edu\\.cuit\\.bc\\.course' eva-app/src/main/java` 证伪为 0）后，已收敛 `eva-app/pom.xml`：移除对 `bc-course` 的编译期依赖（`shared-kernel` 显式依赖保留；最小回归通过）；落地：`dca806fa`。
 - ✅ S0.2 延伸（ICourseTypeServiceImpl 收敛准备：用例骨架，保持行为不变）：在 `bc-course/application` 新增课程类型用例 `CourseTypeUseCase`（读写合并；手写 `CourseTypeEntity` → `CourseType` 映射与 `PaginationQueryResultCO` 组装，不引入 `eva-infra-shared`；对齐旧入口逻辑与返回语义；最小回归通过）；落地：`325f221a`。
 - ✅ S0.2 延伸（ICourseTypeServiceImpl 收敛准备：用例装配，保持行为不变）：在 `BcCourseConfiguration` 补齐 `CourseTypeUseCase` 的 Bean 装配（保持行为不变；最小回归通过）；落地：`55eb322e`。
 - ✅ S0.2 延伸（入口壳收敛：课程类型，保持行为不变）：将 `eva-app` 的 `ICourseTypeServiceImpl` 退化为纯委托壳，改为委托 `CourseTypeUseCase`（保持 `id==null` 语义与 `updateCoursesType` 返回 `null`（`Void`）等行为不变；最小回归通过）；落地：`1aebda24`。
@@ -464,7 +464,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成：`ICourseDetailServiceImpl` 已从 `eva-app` 归位到 `bc-course-infra`（保持 `package` 不变，仅搬运与编译闭合；保持行为不变；落地以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
   - ✅ 已完成：`ClassroomServiceImpl` 已从 `eva-app` 归位到 `bc-course-infra`（保持 `package` 不变，仅搬运与编译闭合；保持行为不变；落地以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
   - ✅ 已完成：`ICourseTypeServiceImpl` 已从 `eva-app` 归位到 `bc-course-infra`（保持 `package` 不变，仅搬运与编译闭合；保持行为不变；落地以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
-  - ⏳ 进行中（保持行为不变）：`eva-app/pom.xml` 当前仍显式依赖 `bc-course`（近期为支撑旧入口委托 UseCase 曾引入；例如 `9f61788b`）。当前已满足“去 `bc-course` 编译期依赖”的前置：Serena + `rg` 证伪 `eva-app` 不再 `import edu.cuit.bc.course.*`（以 `NEXT_SESSION_HANDOFF.md` 0.10 为准）；下一刀应改为“只改 1 个 `pom.xml`”收敛 `eva-app/pom.xml`：移除 `bc-course` 编译期依赖，改为显式依赖 `shared-kernel`（保持行为不变）。
+  - ✅ 已完成：收敛 `eva-app/pom.xml`：移除对 `bc-course` 的编译期依赖（`shared-kernel` 显式依赖保留；保持行为不变；最小回归通过；落地：`dca806fa`）。
 
 0) **S0.2（已闭环，后续延伸，保持行为不变）：收敛 `eva-domain` 对 `bc-course` 的编译期依赖面**
    - 背景：`eva-domain/pom.xml` **此前**依赖 `bc-course`（应用层 jar）。核心原因是 `eva-domain` 引用一批 `edu.cuit.client.*` 协议对象，而这些类型的定义文件当时仍落在 `bc-course/application`（Serena 证据化盘点）。
