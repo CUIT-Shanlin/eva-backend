@@ -114,6 +114,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（评教：组合根归位，保持行为不变）：将 `BcEvaluationConfiguration` 从 `eva-app` 搬运归位到 `bc-evaluation-infra`（保持 `package edu.cuit.app.config` 不变；Bean 装配/副作用顺序不变；用于后续收敛 `eva-app` 对 `bc-evaluation-infra` 的依赖边界；最小回归通过；落地：`c3f7fc56`）。
 - ✅ S0.2 延伸（评教：事件发布器归位，保持行为不变）：将 `SpringAfterCommitDomainEventPublisher` 从 `eva-app` 搬运归位到 `bc-evaluation-infra`（保持 `package edu.cuit.app.event` 不变；`@Component` 装配语义不变；事务提交后发布逻辑不变；最小回归通过；落地：`1b9e275c`）。
 - ✅ S0.2 延伸（评教：监听器归位前置，保持行为不变）：为后续归位评教事务事件监听器（需要 `IMsgService` 契约类型）做编译闭合前置，在 `bc-evaluation-infra/pom.xml` 补齐对 `bc-messaging-contract` 的编译期依赖（不引入实现侧依赖；最小回归通过；落地：`bcb8df45`）。
+- ✅ S0.2 延伸（评教：旧入口壳归位前置，保持行为不变）：为后续归位 `EvaTaskServiceImpl/UserEvaServiceImpl`（依赖 `StpUtil` 登录态解析）做编译闭合前置，在 `bc-evaluation-infra/pom.xml` 补齐 `zym-spring-boot-starter-security` 依赖（运行时 classpath 已存在；保持行为不变；最小回归通过；落地：`202a6386`）。
 - ✅ S0.2 延伸（评教：事务事件监听器归位，保持行为不变）：将 `EvaluationSubmittedMessageCleanupListener` 从 `eva-app` 搬运归位到 `bc-evaluation-infra`（保持 `package edu.cuit.app.event.listener` 不变；监听器触发点/调用顺序不变；注入类型收窄为 `IMsgService` 以避免依赖实现类；最小回归通过；落地：`314c5d6b`）。
 - ✅ S0.2 延伸（评教：事务事件监听器归位，保持行为不变）：将 `EvaluationTaskPostedMessageSenderListener` 从 `eva-app` 搬运归位到 `bc-evaluation-infra`（保持 `package edu.cuit.app.event.listener` 不变；监听器触发点/调用顺序不变；注入类型收窄为 `IMsgService` 以避免依赖实现类；最小回归通过；落地：`c9fbe6ef`）。
 - ✅ S0.2 延伸（评教：旧入口壳归位，保持行为不变）：将 `EvaStatisticsServiceImpl` 从 `eva-app` 搬运归位到 `bc-evaluation-infra`（保持 `package edu.cuit.app.service.impl.eva` 不变；`@CheckSemId` 触发点与委托顺序不变；类内容不变；最小回归通过；落地：`6db29b33`）。
