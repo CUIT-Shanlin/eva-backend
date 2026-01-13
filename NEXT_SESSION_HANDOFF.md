@@ -26,6 +26,7 @@
 - ✅ **课程（依赖收敛前置：旧入口归位，教室，保持行为不变）**：将 `ClassroomServiceImpl` 从 `eva-app` 搬运归位到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl` 不变；仍实现 `IClassroomService` 并委托 `ClassroomQueryUseCase`；仅改变类所在 Maven 模块以减少 `eva-app` → `bc-course` 的编译期耦合面；缓存/日志/异常文案/副作用顺序完全不变；最小回归通过）；落地提交：`4bc8cfb1`。
 - ✅ **课程（依赖收敛前置：旧入口归位，课程类型，保持行为不变）**：将 `ICourseTypeServiceImpl` 从 `eva-app` 搬运归位到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl.course` 不变；仍实现 `ICourseTypeService` 并委托 `CourseTypeUseCase`；`id==null` 语义与 `updateCoursesType` 返回 `null`（`Void`）语义保持不变；缓存/日志/异常文案/副作用顺序完全不变；最小回归通过）；落地提交：`8a4a6774`。
 - ✅ **课程（依赖收敛：eva-app 去 bc-course 编译期依赖，保持行为不变）**：在 Serena + `rg` 证伪 `eva-app` 不再 `import edu.cuit.bc.course.*`（口径：`rg -n '^import edu\\.cuit\\.bc\\.course' eva-app/src/main/java` 证伪为 0）后，收敛 `eva-app/pom.xml`：移除对 `bc-course` 的编译期依赖（`shared-kernel` 显式依赖保留；最小回归通过）；落地提交：`dca806fa`。
+- ✅ **模板（依赖收敛前置：组合根归位，保持行为不变）**：将 `BcTemplateConfiguration` 从 `eva-app` 搬运归位到 `bc-course-infra`（保持 `package edu.cuit.app.config` 不变；`CourseTemplateLockService` Bean 定义与注入不变；仅改变类所在 Maven 模块以减少 `eva-app` → `bc-template` 的编译期耦合面；最小回归通过）；落地提交：`0fbd5d63`。
 - 🧾 文档同步：已将上述变更同步到 `NEXT_SESSION_HANDOFF.md` / `DDD_REFACTOR_PLAN.md` / `docs/DDD_REFACTOR_BACKLOG.md`（以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准，不在文内固化 commitId）。
 
 **2026-01-13（本次会话：Controller 收敛推进（课程 + 评教 + 消息 + 日志） + S0.2 延伸（依赖方 pom 收敛），保持行为不变）**
@@ -1552,7 +1553,7 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
     1) 优先用 `cour_one_eva_template` 是否存在（`course_id + semester_id`）作为锁定证据
     2) 若快照缺失，则回退到 `form_record` 反查（`cour_inf` -> `eva_task` -> `form_record`）保守锁定
 - 单体装配：
-  - `eva-app/.../BcTemplateConfiguration.java`
+  - `bc-course-infra/.../BcTemplateConfiguration.java`
 - 在 `CourseUpdateGatewayImpl` 接入：
   - `updateCourse()`：模板切换逻辑已上移到 `bc-course`，不再在 infra 内重复做“锁定不可切换”校验
   - `updateCourses()`：历史路径仍保留，但已委托到 `bc-course` 入口用例（内部调用 `ChangeCourseTemplateUseCase`；收敛重复逻辑，便于后续删掉旧 gateway）

@@ -562,6 +562,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - 补充（保持行为不变，依赖收敛：课程）：将 `SemesterServiceImpl` 从 `eva-app` 搬运归位到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl` 不变；仍实现 `ISemesterService` 并委托 `SemesterQueryUseCase`；保留事务边界与异常/副作用顺序；仅改变类所在 Maven 模块以减少 `eva-app` → `bc-course` 的编译期耦合面；最小回归通过；落地：`8eddc643`）。
   - 补充（保持行为不变，依赖收敛：课程）：将 `ClassroomServiceImpl` 从 `eva-app` 搬运归位到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl` 不变；仍实现 `IClassroomService` 并委托 `ClassroomQueryUseCase`；仅改变类所在 Maven 模块以减少 `eva-app` → `bc-course` 的编译期耦合面；最小回归通过；落地：`4bc8cfb1`）。
   - 补充（保持行为不变，依赖收敛：课程）：将 `ICourseTypeServiceImpl` 从 `eva-app` 搬运归位到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl.course` 不变；仍实现 `ICourseTypeService` 并委托 `CourseTypeUseCase`；保持 `id==null` 语义与 `updateCoursesType` 返回 `null`（`Void`）语义不变；最小回归通过；落地：`8a4a6774`）。
+  - 补充（保持行为不变，依赖收敛：模板）：将 `BcTemplateConfiguration` 从 `eva-app` 搬运归位到 `bc-course-infra`（保持 `package edu.cuit.app.config` 不变；`CourseTemplateLockService` Bean 定义与注入不变；用于后续收敛 `eva-app` 对 `bc-template` 的编译期依赖面；最小回归通过；落地：`0fbd5d63`）。
   - 下一步（保持行为不变，依赖收敛：课程）：在 `eva-app/pom.xml` 已去 `bc-course` 编译期依赖后，继续盘点其它依赖方模块的可收敛点（每次只改 1 个 `pom.xml`；先 Serena + `rg` 证伪仅类型引用、无实现/副作用耦合，再动 `pom.xml`）。
 
 - 补充进展（2026-01-05，S0.2 起步，保持行为不变）：已将学期 CO `SemesterCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`77126c4a`）。

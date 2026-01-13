@@ -121,6 +121,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（ICourseTypeServiceImpl 收敛准备：用例骨架，保持行为不变）：在 `bc-course/application` 新增课程类型用例 `CourseTypeUseCase`（读写合并；手写 `CourseTypeEntity` → `CourseType` 映射与 `PaginationQueryResultCO` 组装，不引入 `eva-infra-shared`；对齐旧入口逻辑与返回语义；最小回归通过）；落地：`325f221a`。
 - ✅ S0.2 延伸（ICourseTypeServiceImpl 收敛准备：用例装配，保持行为不变）：在 `BcCourseConfiguration` 补齐 `CourseTypeUseCase` 的 Bean 装配（保持行为不变；最小回归通过）；落地：`55eb322e`。
 - ✅ S0.2 延伸（入口壳收敛：课程类型，保持行为不变）：将 `eva-app` 的 `ICourseTypeServiceImpl` 退化为纯委托壳，改为委托 `CourseTypeUseCase`（保持 `id==null` 语义与 `updateCoursesType` 返回 `null`（`Void`）等行为不变；最小回归通过）；落地：`1aebda24`。
+- ✅ S0.2 延伸（模板：组合根归位，保持行为不变）：将 `BcTemplateConfiguration` 从 `eva-app` 搬运归位到 `bc-course-infra`（保持 `package edu.cuit.app.config` 不变；`CourseTemplateLockService` Bean 定义与注入不变；最小回归通过）；落地：`0fbd5d63`。
 - ✅ S0.2 延伸（入口壳收敛：Controller 起步，保持行为不变）：在 `UserUpdateController` 提取 `currentUserId()` 以减少适配层编排噪声（保持 `StpUtil.getLoginId()` 调用顺序与次数不变；最小回归通过）；落地：`09cb6454`。
 - ✅ S0.2 延伸（入口壳收敛：Controller，登录入口，保持行为不变）：在 `AuthenticationController` 收敛 `login` 表达式，用“局部变量 + return”显式固化 `userAuthService.login(...)` → `CommonResult.success(...)` 的执行顺序（不改异常文案/返回结构/副作用顺序；最小回归通过）；落地：`102a0cbb`。
 - ✅ S0.2 延伸（入口壳收敛：Controller，用户查询入口，保持行为不变）：在 `UserQueryController` 收敛返回表达式，用“局部变量 + return”显式固化“先调用 service → 再 `CommonResult.success(...)`”的执行顺序（不改异常文案/返回结构/副作用顺序；最小回归通过）；落地：`18e0bb29`。
