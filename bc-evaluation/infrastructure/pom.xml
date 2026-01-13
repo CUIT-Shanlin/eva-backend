@@ -68,16 +68,22 @@
             <artifactId>zym-spring-boot-starter-cache</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>edu.cuit.zhuyimeng</groupId>
-            <artifactId>zym-spring-boot-starter-logging</artifactId>
-        </dependency>
+	        <dependency>
+	            <groupId>edu.cuit.zhuyimeng</groupId>
+	            <artifactId>zym-spring-boot-starter-logging</artifactId>
+	        </dependency>
 
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
-        </dependency>
+	        <!-- 评教旧入口壳（仍保留 Sa-Token 登录态解析）编译闭合 -->
+	        <dependency>
+	            <groupId>edu.cuit.zhuyimeng</groupId>
+	            <artifactId>zym-spring-boot-starter-security</artifactId>
+	        </dependency>
+
+	        <dependency>
+	            <groupId>org.projectlombok</groupId>
+	            <artifactId>lombok</artifactId>
+	            <scope>provided</scope>
+	        </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
