@@ -722,6 +722,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 阶段性策略微调（2025-12-29）：
 - ✅ 允许“微调”：仅限结构性重构（收窄依赖/拆接口/移动默认值兜底），**不改业务语义**；缓存/日志/异常文案/副作用顺序完全不变。
+  - 🎯 下一批主线建议（更新至 2026-01-13，保持行为不变）：继续推进 **评教 S0.2 延伸（收敛 `eva-app` → `bc-evaluation` 编译期依赖）**。前置已完成：`BcEvaluationConfiguration` 已归位到 `bc-evaluation-infra`，`start` 已显式依赖 `bc-evaluation-infra(runtime)`，`eva-app` 已移除对 `bc-evaluation-infra` 的依赖。下一步按“每次只改 1 个类”的节奏，把 `eva-app/src/main/java` 中仍 `import edu.cuit.bc.evaluation.*` 的评教入口壳/监听器/发布器逐个归位到 `bc-evaluation-infra`（保持 `package` 不变；保持行为不变）；最后再评估是否可独立提交移除 `eva-app/pom.xml` 对 `bc-evaluation` 的编译期依赖。
   - ✅ 主线口径更新（滚动）：`bc-messaging` 的“归位 + 依赖收敛”已阶段性闭环；`bc-course` 的 S0（旧 gateway 压扁为委托壳）已推进到阶段性闭环（见 4.2/4.3 与 `NEXT_SESSION_HANDOFF.md` 0.9）。当前下一批主线：**S0.2 延伸（收敛 `bc-course` 的协议承载面 + 收敛依赖方对 `bc-course` 的编译期依赖）**，按“先 Serena 证据化 → 再小步迁移协议对象到 `shared-kernel` / 依赖替换 `pom.xml` → 最小回归 → 提交 → 三文档同步”的节奏推进（保持行为不变）。
   - ✅ 已完成（bc-course，实现承载面，保持行为不变）：Serena 证伪 `eva-infra-shared/src/main/java/edu/cuit/infra/gateway/impl/course/operate/` 下 `CourseImportExce/CourseRecommendExce` 仅课程域使用后，已归位到 `bc-course/infrastructure`（保持 `package` 不变，仅搬运与编译闭合；落地：`d3b9247e`）；`CourseFormat` 跨 BC 复用继续留在 `eva-infra-shared`。下一簇建议：进入“依赖方编译期依赖收敛”，逐个模块证伪后每次只改 1 个 `pom.xml`，将 `bc-course` 替换为 `shared-kernel`（保持行为不变）。
  - ✅ 并行证伪（依赖方编译期依赖收敛，保持行为不变）：最新盘点显示：当前未发现仍显式依赖 `bc-course` 且满足“仅使用 `edu.cuit.client.*` 类型”的模块；且 `eva-app` 已完成去 `bc-course` 编译期依赖（落地：`6fe8ffc8`）。因此“收敛依赖方对 `bc-course` 的编译期依赖”短期内暂无可执行的 `pom.xml` 依赖替换点（保持行为不变）。

@@ -754,6 +754,14 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 ### 10.3 未完成清单（滚动，供下一会话排期）
 
+#### bc-evaluation（评教）S0.2 延伸：收敛 `eva-app` 对 `bc-evaluation` 的编译期依赖（保持行为不变）
+
+> 背景：为避免 `eva-app` 继续承担评教基础设施/装配责任，已完成三步前置（均保持行为不变）：`BcEvaluationConfiguration` 已从 `eva-app` 归位到 `bc-evaluation-infra`（`c3f7fc56`）；组合根 `start` 已显式依赖 `bc-evaluation-infra(runtime)`（`0f20d0cd`）；`eva-app/pom.xml` 已移除对 `bc-evaluation-infra` 的依赖（`e9feeb56`）。
+
+- 下一步（建议顺序；每次只改 1 个类；保持行为不变）：逐个把 `eva-app/src/main/java` 中仍 `import edu.cuit.bc.evaluation.*` 的类归位到 `bc-evaluation-infra`（保持 `package` 不变；不改缓存/日志/异常文案/副作用顺序）。
+- 证据口径（新会话先复核，避免口径漂移）：`rg -n '^import\\s+edu\\.cuit\\.bc\\.evaluation' eva-app/src/main/java`（以及 Serena `search_for_pattern` 同口径）。
+- 评估点（后置；每次只改 1 个 `pom.xml`；保持行为不变）：当 Serena + `rg` 证伪 `eva-app/src/main/java` 不再 `import edu.cuit.bc.evaluation.*` 后，再评估是否可以收敛 `eva-app/pom.xml` 对 `bc-evaluation`（application jar）的编译期依赖。
+
 #### bc-course（课程）S0.2 延伸：协议承载面继续收敛（保持行为不变）
 
 > 背景：S0.2 的“主目标”（`eva-domain` 去 `bc-course` 编译期依赖）已闭环；但 `bc-course/application` 曾长期承载一批 `edu.cuit.client.*` 协议接口/对象，且部分签名依赖评教域 DTO（如 `CourseScoreCO/EvaTeacherInfoCO`）。本阶段已按路线 A 将该簇逐步下沉到 `shared-kernel`（均保持 `package` 不变；保持行为不变），并移除 `bc-course/application` 对 `bc-evaluation-contract` 的编译期依赖，避免“课程协议签名反向依赖评教 contract”。下一步主线切换为：在协议承载面已进入 `shared-kernel` 的前提下，逐个模块收敛对 `bc-course` 的编译期依赖（每次只改 1 个 `pom.xml`，便于回滚）。
