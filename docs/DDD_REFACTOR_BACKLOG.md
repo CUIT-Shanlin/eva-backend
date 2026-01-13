@@ -111,6 +111,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（依赖方 `pom.xml` 依赖收敛，保持行为不变）：在 `start/pom.xml` 显式增加对 `eva-app` 的 `runtime` 依赖，使组合根承接装配责任的前置条件落地（最小回归通过；落地：`0a69dfb6`）。
 - ✅ S0.2 延伸（依赖方 `pom.xml` 依赖收敛，保持行为不变）：在 Serena + `rg` 证伪 `eva-adapter` 不再引用 `edu.cuit.app.*` 实现类型后，移除 `eva-adapter/pom.xml` 对 `eva-app` 的 Maven 依赖以减少编译期耦合（最小回归通过；落地：`f5980fcc`）。
 - ✅ S0.2 延伸（依赖方 `pom.xml` 依赖收敛，保持行为不变）：将 `start/pom.xml` 中 `bc-course-infra` 的依赖范围从 `test` 调整为 `runtime`，把课程域基础设施的运行时依赖显式上推到组合根（最小回归通过；落地：`2a442587`）。
+- ✅ S0.2 延伸（依赖方 `pom.xml` 依赖收敛，保持行为不变）：在组合根已显式兜底 `bc-course-infra` 运行时依赖后，移除 `eva-app/pom.xml` 中对 `bc-course-infra` 的 `runtime` 依赖，使装配责任更清晰地由组合根承接（最小回归通过；落地：`9e7bd82d`）。
 - ✅ S0.2 延伸（次优先：其它依赖收敛点盘点，证伪结论，保持行为不变）：Serena + `rg` 证据化确认：`eva-app` 仍直接 `import edu.cuit.bc.course.application.usecase.*` 与 `import edu.cuit.bc.messaging.application.usecase.*`，因此暂不可将 `eva-app/pom.xml` 的 `bc-course/bc-messaging` 编译期依赖替换为更轻的协议层依赖；需先完成“委托目标接口化/下沉到 contract/shared-kernel”的前置，再回到 `pom.xml` 收敛（证据命令：`rg -n '^import edu\\.cuit\\.bc\\.course' eva-app/src/main/java`、`rg -n '^import edu\\.cuit\\.bc\\.messaging' eva-app/src/main/java`）。
 - ✅ S0.2 延伸（ICourseTypeServiceImpl 收敛准备：用例骨架，保持行为不变）：在 `bc-course/application` 新增课程类型用例 `CourseTypeUseCase`（读写合并；手写 `CourseTypeEntity` → `CourseType` 映射与 `PaginationQueryResultCO` 组装，不引入 `eva-infra-shared`；对齐旧入口逻辑与返回语义；最小回归通过）；落地：`325f221a`。
 - ✅ S0.2 延伸（ICourseTypeServiceImpl 收敛准备：用例装配，保持行为不变）：在 `BcCourseConfiguration` 补齐 `CourseTypeUseCase` 的 Bean 装配（保持行为不变；最小回归通过）；落地：`55eb322e`。
