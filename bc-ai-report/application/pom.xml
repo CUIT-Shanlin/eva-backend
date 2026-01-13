@@ -47,13 +47,6 @@
             <version>${revision}</version>
         </dependency>
 
-        <!-- AI 报告分析依赖评教读侧端口（跨 BC 复用，保持行为不变） -->
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>bc-evaluation</artifactId>
-            <version>${revision}</version>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
