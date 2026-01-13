@@ -574,6 +574,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - ✅ 已完成（保持行为不变，依赖收敛：bc-ai-report application）：在 Serena + `rg` 证伪 `bc-ai-report/application/src/main/java` 未引用 `edu.cuit.bc.evaluation.*` 相关类型后，已收敛 `bc-ai-report/application/pom.xml`：移除对 `bc-evaluation` 的 Maven 编译期依赖，由 `bc-ai-report-infra` 显式承接该依赖（最小回归通过；落地：`87179f19`）。
   - ✅ 已完成（保持行为不变，IAM 旧入口归位：部门查询）：将 `DepartmentServiceImpl` 从 `eva-app` 搬运归位到 `bc-iam-infra`（保持 `package` 不变；仍实现 `IDepartmentService` 并委托 `DepartmentQueryUseCase`；最小回归通过；落地：`68dea36a`）。
   - ✅ 已完成（保持行为不变，IAM 支撑类归位：菜单 Convertor）：为后续将 `MenuServiceImpl` 从 `eva-app` 归位到 `bc-iam-infra` 做前置，先将 `MenuBizConvertor` 从 `eva-app` 搬运归位到 `bc-iam-infra`（保持 `package` 不变；最小回归通过；落地：`6298e5a7`）。
+  - ✅ 已完成（保持行为不变，IAM 旧入口归位：菜单）：将 `MenuServiceImpl` 从 `eva-app` 搬运归位到 `bc-iam-infra`（保持 `package` 不变；仍实现 `IMenuService` 并保留事务边界；最小回归通过；落地：`6aef1d96`）。
   - 下一步（保持行为不变，依赖收敛：课程）：在 `eva-app/pom.xml` 已去 `bc-course` 编译期依赖后，继续盘点其它依赖方模块的可收敛点（每次只改 1 个 `pom.xml`；先 Serena + `rg` 证伪仅类型引用、无实现/副作用耦合，再动 `pom.xml`）。
 
 - 补充进展（2026-01-05，S0.2 起步，保持行为不变）：已将学期 CO `SemesterCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`77126c4a`）。
