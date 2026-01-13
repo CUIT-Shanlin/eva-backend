@@ -545,8 +545,9 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-01-13，保持行为不变，Controller 收敛：用户-课程查询入口）：在 `QueryUserCourseController` 收敛返回表达式，用“局部变量 + return”显式固化“先调用 service → 再 `CommonResult.success(...)`”的执行顺序（不改异常文案/返回结构/副作用顺序；最小回归通过；落地：`d49976cf`）。
 - 补充进展（2026-01-13，保持行为不变，Controller 收敛：课程写入口）：在 `UpdateCourseController` 收敛返回表达式与日志内容构造写法（日志内容仍在 `CommonResult.success(..., supplier)` 内部构造；不改异常文案/返回结构/副作用顺序；最小回归通过；落地：`58b1b763`）。
 - 补充进展（2026-01-13，保持行为不变，Controller 收敛：课程删除入口）：在 `DeleteCourseController` 清理无用 import，并收敛参数/调用的格式表达（不改异常文案/返回结构/副作用顺序；最小回归通过；落地：`20e1214c`）。
-- 下一刀建议（保持行为不变）：继续收敛 `eva-adapter` 残留 `*Controller`，下一刀建议从 `EvaStatisticsController` 开始（每次只改 1 个 Controller；每步最小回归 + 提交 + 三文档同步）。
-- 推荐顺序（课程域→评教域，保持行为不变）：课程 `QueryCourseController`（✅）→ `QueryUserCourseController`（✅）→ `UpdateCourseController`（✅）→ `DeleteCourseController`（✅）后，转入评教 `EvaStatisticsController` → `EvaQueryController` → `UpdateEvaController` → `DeleteEvaController`（优先链路短、改动面可控；先固化“返回/日志/异常/副作用顺序不变”口径）。
+- 补充进展（2026-01-13，保持行为不变，Controller 收敛：评教统计查询入口）：在 `EvaStatisticsController` 收敛返回表达式，用“局部变量 + return”显式固化“先调用 service → 再 `CommonResult.success(...)`”的执行顺序（不改异常文案/返回结构/副作用顺序；最小回归通过；落地：`7c465c5d`）。
+- 下一刀建议（保持行为不变）：继续收敛 `eva-adapter` 残留 `*Controller`，下一刀建议从 `EvaQueryController` 开始（每次只改 1 个 Controller；每步最小回归 + 提交 + 三文档同步）。
+- 推荐顺序（课程域→评教域，保持行为不变）：课程 `QueryCourseController`（✅）→ `QueryUserCourseController`（✅）→ `UpdateCourseController`（✅）→ `DeleteCourseController`（✅）后，转入评教 `EvaStatisticsController`（✅）→ `EvaQueryController` → `UpdateEvaController` → `DeleteEvaController`（优先链路短、改动面可控；先固化“返回/日志/异常/副作用顺序不变”口径）。
 
 - 补充进展（2026-01-05，S0.2 起步，保持行为不变）：已将学期 CO `SemesterCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`77126c4a`）。
 - 补充进展（2026-01-05，S0.2 持续推进，保持行为不变）：已将通用学期入参 `Term` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`23bff82f`）。
