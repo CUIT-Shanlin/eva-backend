@@ -590,6 +590,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - ✅ 已完成（保持行为不变，装配责任上推：start 显式依赖 bc-iam-infra）：为后续收敛 `eva-app` 的运行期装配依赖边界，在 `start/pom.xml` 增加对 `bc-iam-infra` 的 `runtime` 依赖（与原 transitive 结果等价，仅显式化；最小回归通过；落地：`8a5df2d0`）。
   - ✅ 已完成（保持行为不变，依赖收敛：eva-app 去 bc-iam-infra 依赖）：在 Serena 证据化确认 `eva-app/src/main/java` 不再引用 `edu.cuit.app.*` 的 IAM 实现类后，收敛 `eva-app/pom.xml`：移除对 `bc-iam-infra` 的依赖；运行期装配由组合根 `start` 显式兜底（最小回归通过；落地：`e7b46f36`）。
   - ✅ 已完成（保持行为不变，评教组合根归位：BcEvaluationConfiguration）：将 `BcEvaluationConfiguration` 从 `eva-app` 搬运归位到 `bc-evaluation-infra`（保持 `package edu.cuit.app.config` 不变；Bean 装配/副作用顺序不变；用于后续收敛 `eva-app` 对 `bc-evaluation-infra` 的依赖边界；最小回归通过；落地：`c3f7fc56`）。
+  - ✅ 已完成（保持行为不变，装配责任上推：start 显式依赖 bc-evaluation-infra）：为后续收敛 `eva-app` 的运行期装配依赖边界，在 `start/pom.xml` 增加对 `bc-evaluation-infra` 的 `runtime` 依赖（与原 transitive 结果等价，仅显式化；最小回归通过；落地：`0f20d0cd`）。
 
 - 补充进展（2026-01-05，S0.2 起步，保持行为不变）：已将学期 CO `SemesterCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`77126c4a`）。
 - 补充进展（2026-01-05，S0.2 持续推进，保持行为不变）：已将通用学期入参 `Term` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`23bff82f`）。
