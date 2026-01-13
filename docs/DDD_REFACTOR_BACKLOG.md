@@ -109,6 +109,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-01-13）**
+- ✅ S0.2 延伸（评教：依赖收敛，保持行为不变）：在 Serena + `rg` 证伪 `eva-app/src/main/java` 不再直接引用 `edu.cuit.infra.bcevaluation.*` 实现类型后，收敛 `eva-app/pom.xml`：移除对 `bc-evaluation-infra` 的依赖；运行期装配由组合根 `start` 显式兜底（最小回归通过；落地：`e9feeb56`）。
 - ✅ S0.2 延伸（评教：装配责任上推，保持行为不变）：在 `start/pom.xml` 增加对 `bc-evaluation-infra` 的 `runtime` 依赖，使组合根显式承接评教基础设施运行时装配责任（与原 transitive 结果等价，仅显式化；最小回归通过；落地：`0f20d0cd`）。
 - ✅ S0.2 延伸（评教：组合根归位，保持行为不变）：将 `BcEvaluationConfiguration` 从 `eva-app` 搬运归位到 `bc-evaluation-infra`（保持 `package edu.cuit.app.config` 不变；Bean 装配/副作用顺序不变；用于后续收敛 `eva-app` 对 `bc-evaluation-infra` 的依赖边界；最小回归通过；落地：`c3f7fc56`）。
 - ✅ S0.2 延伸（依赖方 `pom.xml` 依赖收敛，保持行为不变）：在 `start/pom.xml` 显式增加对 `eva-app` 的 `runtime` 依赖，使组合根承接装配责任的前置条件落地（最小回归通过；落地：`0a69dfb6`）。
