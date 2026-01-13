@@ -1,15 +1,9 @@
 package edu.cuit.app.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
-import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.cola.exception.BizException;
 import com.alibaba.cola.exception.SysException;
-import edu.cuit.bc.messaging.application.usecase.DeleteMessageUseCase;
-import edu.cuit.bc.messaging.application.usecase.InsertMessageUseCase;
-import edu.cuit.bc.messaging.application.usecase.MarkMessageReadUseCase;
-import edu.cuit.bc.messaging.application.usecase.QueryMessageUseCase;
-import edu.cuit.bc.messaging.application.usecase.UpdateMessageDisplayUseCase;
 import edu.cuit.app.convertor.MsgBizConvertor;
 import edu.cuit.app.convertor.course.CourseBizConvertor;
 import edu.cuit.app.websocket.WebsocketManager;
@@ -34,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -59,8 +52,7 @@ public class MsgServiceImpl implements IMsgService {
     @Transactional
     public List<GenericResponseMsg> getUserSelfNormalMsg(Integer type) {
         Integer userId = checkAndGetUserId();
-        return SpringUtil.getBean(QueryMessageUseCase.class)
-                .queryMsg(userId, type, 0).stream()
+        return msgGateway.queryMsg(userId, type, 0).stream()
                 .map(msgBizConvertor::toResponseMsg).toList();
     }
 
@@ -87,8 +79,7 @@ public class MsgServiceImpl implements IMsgService {
     @Transactional
     public List<EvaResponseMsg> getUserSelfEvaMsg(Integer type) {
         Integer userId = checkAndGetUserId();
-        List<MsgEntity> msgEntities = SpringUtil.getBean(QueryMessageUseCase.class)
-                .queryMsg(userId, type, 1);
+        List<MsgEntity> msgEntities = msgGateway.queryMsg(userId, type, 1);
         return msgEntities.stream().map(this::toEvaResponseMsg).toList();
     }
 
@@ -108,8 +99,7 @@ public class MsgServiceImpl implements IMsgService {
     public List<GenericResponseMsg> getUserTargetAmountAndTypeMsg(Integer num, Integer type) {
         Integer userId = checkAndGetUserId();
         List<GenericResponseMsg> result = new ArrayList<>();
-        List<MsgEntity> msgEntities = SpringUtil.getBean(QueryMessageUseCase.class)
-                .queryTargetAmountMsg(userId, num, type);
+        List<MsgEntity> msgEntities = msgGateway.queryTargetAmountMsg(userId, num, type);
         msgEntities.forEach(msgEntity -> {
                     if (msgEntity.getMode() == 1) {
                         result.add(toEvaResponseMsg(msgEntity));
@@ -122,27 +112,27 @@ public class MsgServiceImpl implements IMsgService {
     @Transactional
     public void updateMsgDisplay(Integer id, Integer isDisplayed) {
         Integer userId = checkAndGetUserId();
-        SpringUtil.getBean(UpdateMessageDisplayUseCase.class).updateDisplay(userId, id, isDisplayed);
+        msgGateway.updateMsgDisplay(userId, id, isDisplayed);
     }
 
     @Override
     @Transactional
     public void updateMsgRead(Integer id, Integer isRead) {
         Integer userId = checkAndGetUserId();
-        SpringUtil.getBean(MarkMessageReadUseCase.class).updateRead(userId, id, isRead);
+        msgGateway.updateMsgRead(userId, id, isRead);
     }
 
     @Override
     @Transactional
     public void updateMultipleMsgRead(Integer mode) {
         Integer userId = checkAndGetUserId();
-        SpringUtil.getBean(MarkMessageReadUseCase.class).markAllRead(userId, mode);
+        msgGateway.updateMultipleMsgRead(userId, mode);
     }
 
     @Override
     @Transactional
     public void deleteEvaMsg(Integer taskId, Integer type) {
-        SpringUtil.getBean(DeleteMessageUseCase.class).deleteByTask(taskId, type);
+        msgGateway.deleteMessage(taskId, type);
     }
 
     @Override
@@ -170,18 +160,17 @@ public class MsgServiceImpl implements IMsgService {
         if (msg.getRecipientId() == null || msg.getRecipientId() < 0) {
             // 异步处理
             CompletableFuture.runAsync(() -> {
-                InsertMessageUseCase insertMessageUseCase = SpringUtil.getBean(InsertMessageUseCase.class);
                 for (Integer id : userQueryGateway.findAllUserId()) {
                     GenericRequestMsg cloneMsg = ObjectUtil.clone(requestMsg);
                     cloneMsg.setRecipientId(id);
-                    insertMessageUseCase.insertMessage(cloneMsg);
+                    msgGateway.insertMessage(cloneMsg);
                 }
                 responseMsg.setCreateTime(LocalDateTime.now());
                 websocketManager.broadcastMessage(responseMsg);
             },executor);
 
         } else {
-            SpringUtil.getBean(InsertMessageUseCase.class).insertMessage(requestMsg);
+            msgGateway.insertMessage(requestMsg);
             websocketManager.sendMessage(userQueryGateway.findUsernameById(msg.getRecipientId()).orElse(null),responseMsg);
         }
     }
@@ -196,7 +185,7 @@ public class MsgServiceImpl implements IMsgService {
     @Transactional
     public void deleteUserSelfTargetTypeMsg(Integer type, Integer mode) {
         Integer userId = checkAndGetUserId();
-        SpringUtil.getBean(DeleteMessageUseCase.class).deleteUserMessages(userId, mode, type);
+        msgGateway.deleteTargetTypeMessage(userId, mode, type);
     }
 
     private SingleCourseCO getSingleCourseByTaskId(Integer taskId) {
