@@ -581,6 +581,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - ✅ 已完成（保持行为不变，IAM 旧入口归位：登录）：将 `UserAuthServiceImpl` 从 `eva-app` 搬运归位到 `bc-iam-infra`（保持 `package edu.cuit.app.service.impl.user` 不变；类内容不变；最小回归通过；落地：`b2d885a7`）。
   - ✅ 已完成（保持行为不变，IAM 支撑类归位：头像配置属性）：为后续归位 `AvatarManager`/`UserServiceImpl` 做编译闭合前置，将 `AvatarProperties` 从 `eva-infra` 搬运归位到 `eva-infra-shared`（保持 `package edu.cuit.infra.property` 不变；类内容不变；最小回归通过；落地：`bb97f037`）。
   - ✅ 已完成（保持行为不变，IAM 支撑类归位：头像管理）：为后续归位 `UserServiceImpl` 做编译闭合前置，将 `AvatarManager` 从 `eva-app` 搬运归位到 `bc-iam-infra`（保持 `package edu.cuit.app` 不变；类内容不变；最小回归通过；落地：`50ab6c9e`）。
+  - ✅ 已完成（保持行为不变，IAM 支撑类归位：用户 Convertor）：为后续归位 `UserServiceImpl` 做编译闭合前置，将 `UserBizConvertor` 从 `eva-app` 搬运归位到 `bc-iam-infra`（保持 `package edu.cuit.app.convertor.user` 不变；类内容不变；最小回归通过；落地：`10eeb4f3`）。
   - 下一步（保持行为不变，S0.2 延伸：IAM 旧入口归位 → 为后续依赖收敛创造前置）：按顺序继续搬运 `UserServiceImpl` → `BcIamConfiguration` 到 `bc-iam-infra`（保持 `package` 不变；不改缓存/日志/异常文案/副作用顺序；每次只改 1 个类闭环）。优先恢复 Serena 的符号级引用分析；若持续 `TimeoutError`，按 `NEXT_SESSION_HANDOFF.md` 0.9 的口径记录“降级原因 + 可复现 `rg` 证据”后继续。完成后再评估是否可以收敛 `eva-app/pom.xml` 对 `bc-iam` 的编译期依赖（每次只改 1 个 `pom.xml`）。
 
 - 补充进展（2026-01-05，S0.2 起步，保持行为不变）：已将学期 CO `SemesterCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`77126c4a`）。
