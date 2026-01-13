@@ -25,6 +25,7 @@
 - ✅ **评教（装配责任上推：start 显式依赖 bc-evaluation-infra，保持行为不变）**：在 `start/pom.xml` 增加对 `bc-evaluation-infra` 的 `runtime` 依赖（与原 transitive 结果等价，仅显式化；最小回归通过）；落地提交：`0f20d0cd`。
 - ✅ **评教（依赖收敛：eva-app 去 bc-evaluation-infra 依赖，保持行为不变）**：在 Serena + `rg` 证伪 `eva-app/src/main/java` 不再直接引用 `edu.cuit.infra.bcevaluation.*` 实现类型后，收敛 `eva-app/pom.xml`：移除对 `bc-evaluation-infra` 的依赖；运行期装配由组合根 `start` 显式兜底（最小回归通过）；证据口径：`rg -n '^import\\s+edu\\.cuit\\.infra\\.bcevaluation' eva-app/src/main/java` → 0；落地提交：`e9feeb56`。
 - ✅ **评教（事件发布器归位：SpringAfterCommitDomainEventPublisher，保持行为不变）**：将 `SpringAfterCommitDomainEventPublisher` 从 `eva-app` 搬运归位到 `bc-evaluation-infra`（保持 `package edu.cuit.app.event` 不变；`@Component` 装配语义不变；事务提交后发布逻辑不变；最小回归通过）；落地提交：`1b9e275c`。
+- ✅ **评教（监听器归位前置：bc-messaging-contract 依赖补齐，保持行为不变）**：为后续归位评教事务事件监听器（需要 `IMsgService` 契约类型）做编译闭合前置，在 `bc-evaluation-infra/pom.xml` 补齐对 `bc-messaging-contract` 的编译期依赖（不引入实现侧依赖；最小回归通过）；落地提交：`bcb8df45`。
 - 🔍 **阻塞提醒（保持行为不变）**：`eva-app/src/main/java` 仍直接 `import edu.cuit.bc.evaluation.*`（例如 `EvaRecordServiceImpl/EvaTaskServiceImpl/EvaTemplateServiceImpl/EvaStatisticsServiceImpl/UserEvaServiceImpl`、`MsgServiceImpl` 以及评教领域事件监听器等），因此**暂不可**收敛 `eva-app/pom.xml` 对 `bc-evaluation`（application jar）的编译期依赖；证据口径：`rg -n '^import\\s+edu\\.cuit\\.bc\\.evaluation' eva-app/src/main/java`。
 - ✅ 最小回归通过（Java17）：命令见 0.10。
 
