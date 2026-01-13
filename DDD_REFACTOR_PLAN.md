@@ -569,6 +569,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - ✅ 已完成（保持行为不变，依赖收敛：模板）：在 Serena 证据化确认 `bc-template-infra` 当前无源码（仅 `pom.xml`）后，已收敛 `bc-template/infrastructure/pom.xml`：将对 `bc-template` 的 Maven 依赖替换为 `bc-template-domain`（版本不变；最小回归通过；落地：`aee98f9b`）。
   - ✅ 已完成（保持行为不变，依赖收敛：课程相关前置）：为后续让 `bc-course/application` 可收敛对 `bc-template` 应用层 jar 的编译期依赖，将模板锁定服务 `CourseTemplateLockService` 从 `bc-template/application` 下沉到 `bc-template-domain`（保持 `package edu.cuit.bc.template.application` 与代码不变；最小回归通过；落地：`8a1319df`）。
   - ✅ 已完成（保持行为不变，依赖收敛：课程）：在 Serena + `rg` 证伪 `bc-course/application` 仅引用 `CourseTemplateLockService/CourseTemplateLockQueryPort/TemplateLockedException` 后，已收敛 `bc-course/application/pom.xml`：将对 `bc-template` 的 Maven 依赖替换为 `bc-template-domain`（版本不变；最小回归通过；落地：`2de83046`）。
+  - 下一步（保持行为不变，依赖收敛：下一批候选）：继续盘点并收敛 `eva-infra/pom.xml` 中对业务模块（如 `bc-evaluation/bc-iam/bc-audit`）的编译期依赖，优先尝试替换为各自的 `*-contract` 或 `*-domain`（前置：Serena + `rg` 证伪仅类型引用、无实现/副作用耦合；每次只改 1 个 `pom.xml`）。
   - 下一步（保持行为不变，依赖收敛：课程）：在 `eva-app/pom.xml` 已去 `bc-course` 编译期依赖后，继续盘点其它依赖方模块的可收敛点（每次只改 1 个 `pom.xml`；先 Serena + `rg` 证伪仅类型引用、无实现/副作用耦合，再动 `pom.xml`）。
 
 - 补充进展（2026-01-05，S0.2 起步，保持行为不变）：已将学期 CO `SemesterCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`77126c4a`）。
