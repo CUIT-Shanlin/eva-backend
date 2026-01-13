@@ -585,7 +585,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - ✅ 已完成（保持行为不变，IAM 支撑类归位：路由工厂）：为后续归位 `UserServiceImpl` 做编译闭合前置，将 `RouterDetailFactory` 从 `eva-app` 搬运归位到 `bc-iam-infra`（保持 `package edu.cuit.app.factory.user` 不变；类内容不变；最小回归通过；落地：`be21d2a6`）。
   - ✅ 已完成（保持行为不变，IAM 编译闭合前置：评教端口依赖）：为后续归位 `UserServiceImpl` 做前置，在 `bc-iam/infrastructure/pom.xml` 补齐对 `bc-evaluation` 的编译期依赖（原因：`UserServiceImpl` 依赖 `EvaRecordCountQueryPort`；最小回归通过；落地：`8f5fc4ca`）。
   - ✅ 已完成（保持行为不变，IAM 旧入口归位：用户管理）：将 `UserServiceImpl` 从 `eva-app` 搬运归位到 `bc-iam-infra`（保持 `package edu.cuit.app.service.impl.user` 不变；类内容不变；最小回归通过；落地：`c4552031`）。
-  - 下一步（保持行为不变，S0.2 延伸：IAM 旧入口归位 → 为后续依赖收敛创造前置）：继续搬运 `BcIamConfiguration` 到 `bc-iam-infra`（保持 `package edu.cuit.app.config` 不变；Bean 装配/副作用顺序不变；每次只改 1 个类闭环）。完成后再评估是否可以收敛 `eva-app/pom.xml` 对 `bc-iam` 的编译期依赖（每次只改 1 个 `pom.xml`）。
+  - ✅ 已完成（保持行为不变，组合根归位：BcIamConfiguration）：将 `BcIamConfiguration` 从 `eva-app` 搬运归位到 `bc-iam-infra`（保持 `package edu.cuit.app.config` 不变；Bean 装配/副作用顺序不变；最小回归通过；落地：`14cd4108`）。
+  - 下一步（保持行为不变，S0.2 延伸：IAM 依赖收敛）：用 Serena + `rg` 证伪 `eva-app/src/main/java` 对 `edu.cuit.bc.iam.*` 的直接类型引用面后，评估是否可以收敛 `eva-app/pom.xml` 对 `bc-iam` 的编译期依赖（每次只改 1 个 `pom.xml`，并确保装配/副作用顺序不漂移）。
 
 - 补充进展（2026-01-05，S0.2 起步，保持行为不变）：已将学期 CO `SemesterCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`77126c4a`）。
 - 补充进展（2026-01-05，S0.2 持续推进，保持行为不变）：已将通用学期入参 `Term` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`23bff82f`）。
