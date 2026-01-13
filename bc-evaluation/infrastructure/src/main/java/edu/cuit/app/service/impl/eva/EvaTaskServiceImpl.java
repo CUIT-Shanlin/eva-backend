@@ -8,7 +8,7 @@ import edu.cuit.bc.evaluation.application.usecase.PostEvaTaskUseCase;
 import edu.cuit.bc.evaluation.domain.PostEvaTaskQueryException;
 import edu.cuit.bc.evaluation.domain.PostEvaTaskUpdateException;
 import edu.cuit.app.aop.CheckSemId;
-import edu.cuit.app.service.impl.MsgServiceImpl;
+import edu.cuit.client.api.IMsgService;
 import edu.cuit.client.api.eva.IEvaTaskService;
 import edu.cuit.client.dto.clientobject.PaginationQueryResultCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskBaseInfoCO;
@@ -43,7 +43,7 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
     private final UserQueryGateway userQueryGateway;
     private final CourseQueryGateway courseQueryGateway;
     private final EvaConfigGateway evaConfigGateway;
-    private final MsgServiceImpl msgService;
+    private final IMsgService msgService;
     private final PostEvaTaskUseCase postEvaTaskUseCase;
     @Override
     @CheckSemId
