@@ -54,12 +54,6 @@
             <artifactId>bc-messaging-contract</artifactId>
             <version>${revision}</version>
         </dependency>
-        <!-- 渐进式重构：MsgServiceImpl 入口壳收敛需要委托 bc-messaging 的用例 -->
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>bc-messaging</artifactId>
-            <version>${revision}</version>
-        </dependency>
         <dependency>
             <groupId>edu.cuit</groupId>
             <artifactId>bc-iam</artifactId>
