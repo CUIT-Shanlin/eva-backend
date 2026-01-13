@@ -1,7 +1,7 @@
 package edu.cuit.app.event.listener;
 
-import edu.cuit.app.service.impl.MsgServiceImpl;
 import edu.cuit.bc.evaluation.domain.event.EvaluationTaskPostedEvent;
+import edu.cuit.client.api.IMsgService;
 import edu.cuit.client.bo.MessageBO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class EvaluationTaskPostedMessageSenderListener {
-    private final MsgServiceImpl msgService;
+    private final IMsgService msgService;
 
     @EventListener
     public void on(EvaluationTaskPostedEvent event) {
@@ -25,4 +25,3 @@ public class EvaluationTaskPostedMessageSenderListener {
                 .setType(0).setTaskId(event.taskId()));
     }
 }
-
