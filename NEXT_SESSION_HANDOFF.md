@@ -30,6 +30,7 @@
 - ✅ **IAM（旧入口归位：编译闭合前置，评教端口依赖，保持行为不变）**：为后续归位 `UserServiceImpl` 做前置，在 `bc-iam/infrastructure/pom.xml` 补齐对 `bc-evaluation` 的编译期依赖（原因：`UserServiceImpl` 依赖 `EvaRecordCountQueryPort`；最小回归通过）；落地提交：`8f5fc4ca`。
 - ✅ **IAM（旧入口归位：用户管理，保持行为不变）**：将 `UserServiceImpl` 从 `eva-app` 搬运归位到 `bc-iam-infra`（保持 `package edu.cuit.app.service.impl.user` 不变；类内容不变；事务/异常文案/副作用顺序完全不变；最小回归通过）；落地提交：`c4552031`。
 - ✅ **IAM（组合根归位：BcIamConfiguration，保持行为不变）**：将 `BcIamConfiguration` 从 `eva-app` 搬运归位到 `bc-iam-infra`（保持 `package edu.cuit.app.config` 不变；Bean 装配/副作用顺序不变；最小回归通过）；落地提交：`14cd4108`。
+- ✅ **IAM（依赖收敛：eva-app 去 bc-iam 编译期依赖，保持行为不变）**：在 Serena + `rg` 证伪 `eva-app/src/main/java` 不再直接引用 `edu.cuit.bc.iam.*` 后，收敛 `eva-app/pom.xml`：移除对 `bc-iam` 的 Maven 编译期依赖（保留 `bc-iam-infra` 以闭合运行期装配；最小回归通过）；证据口径：`rg -n '^import\\s+edu\\.cuit\\.bc\\.iam' eva-app/src/main/java` → 0；落地提交：`290f2b82`。
 - ✅ 最小回归通过（Java17）：命令见 0.10。
 - ⚠️ **MCP Serena 状态（符号级定位/引用分析）**：本会话推进到“搬运 `UserAuthServiceImpl`”时，Serena 出现持续 `TimeoutError`（`mcp__serena__initial_instructions` / `mcp__serena__check_onboarding_performed` 等均超时），因此该步按铁律**临时降级**为本地 `rg` 证据化校验；下一会话优先排查恢复 Serena 后再回到“符号级引用分析”的标准口径。可复现证据（均在本仓库 `ddd` 分支执行）：
   - `rg -n --column "class\\s+UserAuthServiceImpl\\b" .` → `bc-iam/infrastructure/src/main/java/edu/cuit/app/service/impl/user/UserAuthServiceImpl.java:16`
