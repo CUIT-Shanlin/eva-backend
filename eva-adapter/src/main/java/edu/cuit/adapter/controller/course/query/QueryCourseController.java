@@ -50,8 +50,8 @@ public class QueryCourseController {
     public CommonResult<PaginationQueryResultCO<CourseModelCO>> pageCoursesInfo(
             @RequestParam(value = "semId",required = false) Integer semId,
             @Valid @RequestBody PagingQuery<CourseConditionalQuery> queryObj){
-        return CommonResult.success(courseDetailService.pageCoursesInfo(semId, queryObj));
-
+        PaginationQueryResultCO<CourseModelCO> pageResult = courseDetailService.pageCoursesInfo(semId, queryObj);
+        return CommonResult.success(pageResult);
     }
 
     /**
@@ -65,7 +65,8 @@ public class QueryCourseController {
     public CommonResult<CourseDetailCO> courseInfo(
             @RequestParam(value = "id",required = true) Integer id,
             @RequestParam(value = "semId",required = false) Integer semId){
-        return CommonResult.success(courseDetailService.courseInfo(id, semId));
+        CourseDetailCO courseDetail = courseDetailService.courseInfo(id, semId);
+        return CommonResult.success(courseDetail);
     }
 
     /**
@@ -76,7 +77,8 @@ public class QueryCourseController {
     @SaCheckPermission("course.tabulation.eva.query")
     public CommonResult<List<CourseScoreCO>> evaResult(
             @RequestParam(value = "id",required = true) Integer id){
-        return CommonResult.success(courseDetailService.evaResult(id));
+        List<CourseScoreCO> courseScoreList = courseDetailService.evaResult(id);
+        return CommonResult.success(courseScoreList);
     }
 
     /**
@@ -89,7 +91,8 @@ public class QueryCourseController {
     @SaCheckPermission("course.tabulation.list")
     public CommonResult<List<SimpleCourseResultCO>> allCourseInfo(
             @RequestParam(value = "semId",required = false) Integer semId){
-       return CommonResult.success(courseDetailService.allCourseInfo(semId));
+        List<SimpleCourseResultCO> allCourseInfo = courseDetailService.allCourseInfo(semId);
+        return CommonResult.success(allCourseInfo);
     }
 
     /**
@@ -98,7 +101,8 @@ public class QueryCourseController {
     @GetMapping("/courses/subject/all")
     @SaCheckPermission("course.tabulation.list")
     public CommonResult<List<SimpleSubjectResultCO>> allSubjectInfo(){
-        return CommonResult.success(courseDetailService.allSubjectInfo());
+        List<SimpleSubjectResultCO> allSubjectInfo = courseDetailService.allSubjectInfo();
+        return CommonResult.success(allSubjectInfo);
     }
 
     /**
@@ -112,7 +116,8 @@ public class QueryCourseController {
     public CommonResult<List<List<Integer>>> courseNum(
             @RequestParam(value = "week",required = true) Integer week,
             @RequestParam(value = "semId",required = false) Integer semId){
-       return CommonResult.success(courseService.courseNum(week, semId));
+        List<List<Integer>> courseNumList = courseService.courseNum(week, semId);
+        return CommonResult.success(courseNumList);
     }
 
     /**
@@ -125,7 +130,8 @@ public class QueryCourseController {
     public CommonResult<List<SingleCourseCO>> courseTimeDetail(
             @RequestParam(value = "semId",required = false) Integer semId,
             @Valid @RequestBody CourseQuery courseQuery){
-        return CommonResult.success(courseService.courseTimeDetail(semId, courseQuery));
+        List<SingleCourseCO> courseTimeDetailList = courseService.courseTimeDetail(semId, courseQuery);
+        return CommonResult.success(courseTimeDetailList);
     }
 
     /**
@@ -138,7 +144,8 @@ public class QueryCourseController {
     public CommonResult<SingleCourseDetailCO> getCourseDetail(
             @RequestParam(value = "id",required = true) Integer id,
             @RequestParam(value = "semId",required = false) Integer semId){
-       return CommonResult.success(courseService.getCourseDetail(semId, id));
+        SingleCourseDetailCO courseDetail = courseService.getCourseDetail(semId, id);
+        return CommonResult.success(courseDetail);
     }
 
     /**
@@ -153,7 +160,8 @@ public class QueryCourseController {
             @RequestParam(value = "semId",required = false) Integer semId,
             @RequestParam(value = "week",required = true) Integer week,
             @RequestParam(value = "day",required = true) Integer day){
-        return CommonResult.success(courseService.getDate(semId, week, day));
+        String date = courseService.getDate(semId, week, day);
+        return CommonResult.success(date);
     }
 
     /**
@@ -166,7 +174,8 @@ public class QueryCourseController {
     public CommonResult<List<RecommendCourseCO>> getTimeCourse(
             @RequestParam(value = "semId",required = false) Integer semId,
              @RequestBody MobileCourseQuery courseQuery){
-        return CommonResult.success(courseService.getTimeCourse(semId, courseQuery));
+        List<RecommendCourseCO> recommendCourseList = courseService.getTimeCourse(semId, courseQuery);
+        return CommonResult.success(recommendCourseList);
     }
 
     /**
@@ -178,7 +187,8 @@ public class QueryCourseController {
     @SaCheckPermission("course.type.query")
     public CommonResult<PaginationQueryResultCO<CourseType>> pageCourseType(
             @Valid @RequestBody PagingQuery<GenericConditionalQuery> courseQuery){
-        return CommonResult.success(courseTypeService.pageCourseType(courseQuery));
+        PaginationQueryResultCO<CourseType> pageResult = courseTypeService.pageCourseType(courseQuery);
+        return CommonResult.success(pageResult);
     }
 
     /**
@@ -187,7 +197,8 @@ public class QueryCourseController {
     @GetMapping("/courses/types/all")
     @SaCheckPermission("course.type.query")
     public CommonResult<List<CourseType>> allCourseType(){
-        return CommonResult.success(courseTypeService.allCourseType());
+        List<CourseType> allCourseTypes = courseTypeService.allCourseType();
+        return CommonResult.success(allCourseTypes);
     }
 
 
