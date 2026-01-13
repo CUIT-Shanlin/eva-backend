@@ -24,6 +24,13 @@
             <artifactId>eva-adapter</artifactId>
             <version>${revision}</version>
         </dependency>
+        <!-- 组合根显式承接 eva-app 运行时装配责任（保持行为不变；为后续收敛 eva-adapter -> eva-app 做前置） -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>eva-app</artifactId>
+            <version>${revision}</version>
+            <scope>runtime</scope>
+        </dependency>
         <!-- 组合根承接消息域运行时装配责任（保持行为不变，仅上推依赖边界） -->
         <dependency>
             <groupId>edu.cuit</groupId>
