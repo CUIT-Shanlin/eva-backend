@@ -74,6 +74,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
    - `mvn -o -pl eva-infra -am -DskipTests test -q -Dmaven.repo.local=.m2/repository`
 6. **沉淀文档（交接与回溯）**
    - 在 `NEXT_SESSION_HANDOFF.md` 追加闭环/commit；
+   - （2026-01-13 补充）已在 `NEXT_SESSION_HANDOFF.md` 更新 0.9/0.10/0.11：记录 `UserAuthServiceImpl` 归位到 `bc-iam-infra` 的闭环与 Serena `TimeoutError` 的降级口径，并将新会话 `F 推荐版` 提示词主线更新为 IAM 旧入口归位（`UserServiceImpl` → `BcIamConfiguration`），避免续接丢信息。
    - 在本文件更新“目标池状态”（可选，若目标池变更明显再更新）。
 
 ### 3.3 风险控制清单（动手前必须逐条核对）
