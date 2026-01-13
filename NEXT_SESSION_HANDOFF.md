@@ -41,6 +41,7 @@
 - ✅ **S0.2 延伸（IAM：旧入口归位，菜单，保持行为不变）**：将 `MenuServiceImpl` 从 `eva-app` 搬运归位到 `bc-iam-infra`（保持 `package edu.cuit.app.service.impl.user` 不变；仍实现 `IMenuService` 并保持 `@Transactional` 事务边界不变；内部仍按“查询网关 → convertor 组装 / 委托 UseCase”的既有顺序执行；仅改变类所在 Maven 模块以减少 `eva-app` → `bc-iam` 的编译期耦合面；最小回归通过）；落地提交：`6aef1d96`。
 - ✅ **S0.2 延伸（IAM：支撑类归位，角色 Convertor，保持行为不变）**：为后续将 `RoleServiceImpl/UserServiceImpl` 从 `eva-app` 归位到 `bc-iam-infra` 做前置，先将 `RoleBizConvertor` 从 `eva-app` 搬运归位到 `bc-iam-infra`（保持 `package edu.cuit.app.convertor.user` 不变；仅改变类所在 Maven 模块以减少 `eva-app` → `bc-iam` 的编译期耦合面；最小回归通过）；落地提交：`cf0773ac`。
 - ✅ **S0.2 延伸（IAM：旧入口归位，角色，保持行为不变）**：将 `RoleServiceImpl` 从 `eva-app` 搬运归位到 `bc-iam-infra`（保持 `package edu.cuit.app.service.impl.user` 不变；仍实现 `IRoleService` 并保持 `@Transactional` 事务边界不变；内部仍按“查询网关 → convertor/pagination 组装 / 委托 UseCase”的既有顺序执行；仅改变类所在 Maven 模块以减少 `eva-app` → `bc-iam` 的编译期耦合面；最小回归通过）；落地提交：`3011ab83`。
+- ✅ **S0.2 延伸（IAM：编译闭合前置，安全依赖，保持行为不变）**：为后续将 `UserAuthServiceImpl` 从 `eva-app` 归位到 `bc-iam-infra` 做前置，在 `bc-iam/infrastructure/pom.xml` 补齐 `zym-spring-boot-starter-security`（与 `eva-app` 同源；避免新增运行时差异；最小回归通过）；落地提交：`bded148a`。
 - 🧾 文档同步：已将上述变更同步到 `NEXT_SESSION_HANDOFF.md` / `DDD_REFACTOR_PLAN.md` / `docs/DDD_REFACTOR_BACKLOG.md`（以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准，不在文内固化 commitId）。
 
 **2026-01-13（本次会话：Controller 收敛推进（课程 + 评教 + 消息 + 日志） + S0.2 延伸（依赖方 pom 收敛），保持行为不变）**
