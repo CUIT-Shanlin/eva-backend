@@ -578,6 +578,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - ✅ 已完成（保持行为不变，IAM 支撑类归位：角色 Convertor）：为后续将 `RoleServiceImpl/UserServiceImpl` 从 `eva-app` 归位到 `bc-iam-infra` 做前置，先将 `RoleBizConvertor` 从 `eva-app` 搬运归位到 `bc-iam-infra`（保持 `package` 不变；最小回归通过；落地：`cf0773ac`）。
   - ✅ 已完成（保持行为不变，IAM 旧入口归位：角色）：将 `RoleServiceImpl` 从 `eva-app` 搬运归位到 `bc-iam-infra`（保持 `package` 不变；仍实现 `IRoleService` 并保留事务边界；最小回归通过；落地：`3011ab83`）。
   - ✅ 已完成（保持行为不变，IAM 编译闭合前置：安全依赖）：为后续将 `UserAuthServiceImpl` 从 `eva-app` 归位到 `bc-iam-infra` 做前置，已在 `bc-iam/infrastructure/pom.xml` 补齐 `zym-spring-boot-starter-security`（最小回归通过；落地：`bded148a`）。
+  - ✅ 已完成（保持行为不变，IAM 旧入口归位：登录）：将 `UserAuthServiceImpl` 从 `eva-app` 搬运归位到 `bc-iam-infra`（保持 `package edu.cuit.app.service.impl.user` 不变；类内容不变；最小回归通过；落地：`b2d885a7`）。
   - 下一步（保持行为不变，依赖收敛：课程）：在 `eva-app/pom.xml` 已去 `bc-course` 编译期依赖后，继续盘点其它依赖方模块的可收敛点（每次只改 1 个 `pom.xml`；先 Serena + `rg` 证伪仅类型引用、无实现/副作用耦合，再动 `pom.xml`）。
 
 - 补充进展（2026-01-05，S0.2 起步，保持行为不变）：已将学期 CO `SemesterCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`77126c4a`）。

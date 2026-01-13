@@ -42,6 +42,7 @@
 - ✅ **S0.2 延伸（IAM：支撑类归位，角色 Convertor，保持行为不变）**：为后续将 `RoleServiceImpl/UserServiceImpl` 从 `eva-app` 归位到 `bc-iam-infra` 做前置，先将 `RoleBizConvertor` 从 `eva-app` 搬运归位到 `bc-iam-infra`（保持 `package edu.cuit.app.convertor.user` 不变；仅改变类所在 Maven 模块以减少 `eva-app` → `bc-iam` 的编译期耦合面；最小回归通过）；落地提交：`cf0773ac`。
 - ✅ **S0.2 延伸（IAM：旧入口归位，角色，保持行为不变）**：将 `RoleServiceImpl` 从 `eva-app` 搬运归位到 `bc-iam-infra`（保持 `package edu.cuit.app.service.impl.user` 不变；仍实现 `IRoleService` 并保持 `@Transactional` 事务边界不变；内部仍按“查询网关 → convertor/pagination 组装 / 委托 UseCase”的既有顺序执行；仅改变类所在 Maven 模块以减少 `eva-app` → `bc-iam` 的编译期耦合面；最小回归通过）；落地提交：`3011ab83`。
 - ✅ **S0.2 延伸（IAM：编译闭合前置，安全依赖，保持行为不变）**：为后续将 `UserAuthServiceImpl` 从 `eva-app` 归位到 `bc-iam-infra` 做前置，在 `bc-iam/infrastructure/pom.xml` 补齐 `zym-spring-boot-starter-security`（与 `eva-app` 同源；避免新增运行时差异；最小回归通过）；落地提交：`bded148a`。
+- ✅ **S0.2 延伸（IAM：旧入口归位，登录，保持行为不变）**：将 `UserAuthServiceImpl` 从 `eva-app` 搬运归位到 `bc-iam-infra`（保持 `package edu.cuit.app.service.impl.user` 不变；类内容不变；仅改变类所在 Maven 模块以减少 `eva-app` → `bc-iam` 的编译期耦合面；最小回归通过）；落地提交：`b2d885a7`。
 - 🧾 文档同步：已将上述变更同步到 `NEXT_SESSION_HANDOFF.md` / `DDD_REFACTOR_PLAN.md` / `docs/DDD_REFACTOR_BACKLOG.md`（以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准，不在文内固化 commitId）。
 
 **2026-01-13（本次会话：Controller 收敛推进（课程 + 评教 + 消息 + 日志） + S0.2 延伸（依赖方 pom 收敛），保持行为不变）**
@@ -290,7 +291,9 @@
 - ✅ **评教读侧进一步解耦（导出基础设施归位：迁移 FillEvaRecordExporterDecorator）**：将导出装饰器 `FillEvaRecordExporterDecorator` 从 `eva-app` 迁移到 `bc-evaluation-infra`（保持 `package edu.cuit.app.poi.eva` 不变；仅类归位，不改任何业务语义；最小回归通过；落地提交：`b3afcb11`）。
 - ✅ **评教读侧进一步解耦（导出基础设施归位：迁移 FillAverageScoreExporterDecorator）**：将导出装饰器 `FillAverageScoreExporterDecorator` 从 `eva-app` 迁移到 `bc-evaluation-infra`（保持 `package edu.cuit.app.poi.eva` 不变；仅类归位，不改任何业务语义；最小回归通过；落地提交：`4e150984`）。
 - ✅ **评教读侧进一步解耦（导出基础设施归位：迁移 EvaStatisticsExporter）**：将导出基类 `EvaStatisticsExporter` 从 `eva-app` 迁移到 `bc-evaluation-infra`（保持 `package edu.cuit.app.poi.eva` 不变），并在 `bc-evaluation-infra` 补齐对 `bc-course/bc-iam-contract` 的编译依赖以闭合类型引用（仅类归位+依赖闭包，不改任何业务语义；静态初始化 `SpringUtil.getBean(...)` 次数/顺序不变；最小回归通过；落地提交：`e8ca391c`）。
-- ✅ **MCP Serena 状态（符号级定位/引用分析）**：本会话使用 Serena 成功完成符号级定位与引用分析（未再复现 `TimeoutError`）。如后续出现 `TimeoutError`，允许临时降级为本地 `rg` 证据，但必须在本节记录“降级原因 + 可复现 rg 证据”，并在下一会话优先排查恢复。当前可复现证据（均在本仓库 `ddd` 分支执行）：
+- ✅ **MCP Serena 状态（符号级定位/引用分析）**：本会话推进到“搬运 `UserAuthServiceImpl`”时，Serena 出现持续 `TimeoutError`（`mcp__serena__initial_instructions` / `mcp__serena__check_onboarding_performed` 等均超时），因此该步按铁律**临时降级**为本地 `rg` 证据化校验；下一会话优先排查恢复 Serena 后再回到“符号级引用分析”的标准口径。当前可复现证据（均在本仓库 `ddd` 分支执行）：
+  - `rg -n --column \"class\\s+UserAuthServiceImpl\\b\" .` → `bc-iam/infrastructure/src/main/java/edu/cuit/app/service/impl/user/UserAuthServiceImpl.java:16`
+  - `rg -n --column \"\\bUserAuthServiceImpl\\b\" eva-app/src/main/java` → 0（旧模块不再包含该实现类）
   - `rg -n --column "class\\s+EvaStatisticsExporter\\b" .` → `bc-evaluation/infrastructure/src/main/java/edu/cuit/app/poi/eva/EvaStatisticsExporter.java:24`
   - `rg -n --column "class\\s+FillUserStatisticsExporterDecorator\\b" .` → `bc-evaluation/infrastructure/src/main/java/edu/cuit/app/poi/eva/FillUserStatisticsExporterDecorator.java:19`
   - `rg -n --column "class\\s+EvaStatisticsExcelFactory\\b" .` → `bc-evaluation/infrastructure/src/main/java/edu/cuit/app/poi/eva/EvaStatisticsExcelFactory.java:13`
