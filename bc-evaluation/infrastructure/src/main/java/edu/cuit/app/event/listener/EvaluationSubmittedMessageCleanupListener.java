@@ -1,6 +1,6 @@
 package edu.cuit.app.event.listener;
 
-import edu.cuit.app.service.impl.MsgServiceImpl;
+import edu.cuit.client.api.IMsgService;
 import edu.cuit.bc.evaluation.domain.event.EvaluationSubmittedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
@@ -14,11 +14,10 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class EvaluationSubmittedMessageCleanupListener {
-    private final MsgServiceImpl msgService;
+    private final IMsgService msgService;
 
     @EventListener
     public void on(EvaluationSubmittedEvent event) {
         msgService.deleteEvaMsg(event.taskId(), null);
     }
 }
-
