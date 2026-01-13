@@ -34,7 +34,8 @@ public class MessageController {
     @SaCheckLogin
     public CommonResult<List<GenericResponseMsg>> getUserTargetTypeMsg(@PathVariable("type") @ValidStatus(value = {-1,0,1,2,3}, message = "消息类型只能为0,1,2,3,-1") Integer type,
                                                                        @PathVariable("mode") @ValidStatus(value = {-1, 0, 1},message = "mode只能是0,1,-1") Integer mode) {
-        return CommonResult.success(msgService.getUserTargetTypeMsg(type,mode));
+        List<GenericResponseMsg> messages = msgService.getUserTargetTypeMsg(type, mode);
+        return CommonResult.success(messages);
     }
 
     /**
@@ -46,7 +47,8 @@ public class MessageController {
     @SaCheckLogin
     public CommonResult<List<GenericResponseMsg>> getUserTargetAmountAndTypeMsg(@PathVariable("num") Integer num,
                                                                                 @PathVariable("type") @ValidStatus(value = {-1,0,1,2,3}, message = "消息类型只能为0,1,2,3,-1") Integer type) {
-        return CommonResult.success(msgService.getUserTargetAmountAndTypeMsg(num,type));
+        List<GenericResponseMsg> messages = msgService.getUserTargetAmountAndTypeMsg(num, type);
+        return CommonResult.success(messages);
     }
 
     /**
