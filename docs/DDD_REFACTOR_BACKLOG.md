@@ -108,6 +108,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-01-13）**
+- ✅ S0.2 延伸（依赖方 `pom.xml` 依赖收敛，保持行为不变）：在 `start/pom.xml` 显式增加对 `eva-app` 的 `runtime` 依赖，使组合根承接装配责任的前置条件落地（最小回归通过；落地：`0a69dfb6`）。
 - ✅ S0.2 延伸（ICourseTypeServiceImpl 收敛准备：用例骨架，保持行为不变）：在 `bc-course/application` 新增课程类型用例 `CourseTypeUseCase`（读写合并；手写 `CourseTypeEntity` → `CourseType` 映射与 `PaginationQueryResultCO` 组装，不引入 `eva-infra-shared`；对齐旧入口逻辑与返回语义；最小回归通过）；落地：`325f221a`。
 - ✅ S0.2 延伸（ICourseTypeServiceImpl 收敛准备：用例装配，保持行为不变）：在 `BcCourseConfiguration` 补齐 `CourseTypeUseCase` 的 Bean 装配（保持行为不变；最小回归通过）；落地：`55eb322e`。
 - ✅ S0.2 延伸（入口壳收敛：课程类型，保持行为不变）：将 `eva-app` 的 `ICourseTypeServiceImpl` 退化为纯委托壳，改为委托 `CourseTypeUseCase`（保持 `id==null` 语义与 `updateCoursesType` 返回 `null`（`Void`）等行为不变；最小回归通过）；落地：`1aebda24`。
@@ -683,7 +684,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成（bc-course，实现承载面，保持行为不变）：Serena 证伪 `eva-infra-shared/src/main/java/edu/cuit/infra/gateway/impl/course/operate/` 下 `CourseImportExce/CourseRecommendExce` 仅课程域使用后，已归位到 `bc-course/infrastructure`（保持 `package` 不变，仅搬运与编译闭合；落地：`d3b9247e`）；`CourseFormat` 跨 BC 复用继续留在 `eva-infra-shared`。下一簇建议：进入“依赖方编译期依赖收敛”，逐个模块证伪后每次只改 1 个 `pom.xml`，将 `bc-course` 替换为 `shared-kernel`（保持行为不变）。
  - ✅ 并行证伪（依赖方编译期依赖收敛，保持行为不变）：最新盘点显示：当前未发现仍显式依赖 `bc-course` 且满足“仅使用 `edu.cuit.client.*` 类型”的模块；且 `eva-app` 已完成去 `bc-course` 编译期依赖（落地：`6fe8ffc8`）。因此“收敛依赖方对 `bc-course` 的编译期依赖”短期内暂无可执行的 `pom.xml` 依赖替换点（保持行为不变）。
 	  - ✅ 并行主线（基础设施 S1 退场候选：旧 gateway 归位，保持行为不变）：已完成 `DepartmentGatewayImpl` → `bc-iam-infra`（`acb13124`）、`ClassroomGatewayImpl` → `bc-course-infra`（`26b183d5`）、`SemesterGatewayImpl` → `bc-course-infra`（`30e6a160`）；且为闭合编译期依赖已先归位 `SemesterConverter` → `eva-infra-shared`（`6c9e1d39`）。补充：评教/IAM 的残留旧 `*GatewayImpl` 已归位到对应 BC 的 `infrastructure` 子模块，且 `eva-infra/src/main/java/edu/cuit/infra/gateway/impl` 下残留已清零（详见 `NEXT_SESSION_HANDOFF.md` 0.10）。下一步建议：转向收敛 `eva-app` 残留 `*ServiceImpl`（每次只改 1 个类；保持行为不变）。
-		  - 下一步建议（入口壳收敛阶段性闭环，保持行为不变）：当前 `eva-app/src/main/java/edu/cuit/app/service/impl` 下残留 `*ServiceImpl` 为 15 个，其中已显式委托 UseCase 的为 15 个；剩余 0 个（已闭环）。下一步建议：转入 **S0.2 延伸（依赖方 `pom.xml` 依赖收敛）**：优先提交点为 `start/pom.xml` 显式依赖 `eva-app`（保持行为不变；为后续在 `eva-adapter/pom.xml` 移除对 `eva-app` 的依赖做前置），之后再逐个依赖方模块做 Serena + `rg` 证据化盘点并收敛编译期依赖边界（每次只改 1 个 `pom.xml`；保持行为不变）。
+		  - 下一步建议（入口壳收敛阶段性闭环，保持行为不变）：当前 `eva-app/src/main/java/edu/cuit/app/service/impl` 下残留 `*ServiceImpl` 为 15 个，其中已显式委托 UseCase 的为 15 个；剩余 0 个（已闭环）。下一步建议：继续 **S0.2 延伸（依赖方 `pom.xml` 依赖收敛）**：优先候选为收敛 `eva-adapter/pom.xml` 对 `eva-app` 的编译期依赖（减少编译期耦合；保持行为不变），但 **必须**先 Serena + `rg` 证伪 `eva-adapter` 不再引用 `edu.cuit.app.*` 实现类型（若仍引用，则先做“注入类型接口化/接口下沉”，再动 `pom.xml`），之后再逐个依赖方模块证据化盘点“仅类型引用”场景并收敛编译期依赖边界（每次只改 1 个 `pom.xml`；保持行为不变）。
 	    - 每步闭环模板：Serena 证据化盘点（符号定位/引用分析）→ 最小回归 → 提交（代码）→ 三文档同步 → 提交（文档）→ push（保持行为不变）。
 	    - 新对话开启提示词：优先复制 `NEXT_SESSION_HANDOFF.md` 的 0.11「E 专用简版」（收敛 `eva-adapter` 残留 `*Controller`），避免继续使用历史 B/C/D 简版导致目标漂移。
 	    - 补充（保持行为不变）：为让 `MsgServiceImpl` 能直接委托 `bc-messaging` 的 UseCase，已先在 `eva-app/pom.xml` 补齐对 `bc-messaging` 的编译期依赖（运行时 classpath 已包含该模块；最小回归通过；落地：`02d338a9`）。
