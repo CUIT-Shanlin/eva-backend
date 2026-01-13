@@ -32,6 +32,7 @@
 - ✅ **模板（依赖收敛：eva-infra 去 bc-template 编译期依赖，保持行为不变）**：在 Serena + `rg` 证伪 `eva-infra` 仅引用模板锁定查询端口接口 `CourseTemplateLockQueryPort`（无实现/副作用耦合）后，收敛 `eva-infra/pom.xml`：将对 `bc-template` 的 Maven 依赖替换为 `bc-template-domain`（版本不变；最小回归通过）；落地提交：`5910762e`。
 - ✅ **模板（依赖收敛：bc-template-infra 去 bc-template 编译期依赖，保持行为不变）**：在 Serena 证据化确认 `bc-template-infra` 当前仅包含 `pom.xml`（暂无源码/副作用）后，收敛 `bc-template/infrastructure/pom.xml`：将对 `bc-template` 的 Maven 依赖替换为 `bc-template-domain`（版本不变；最小回归通过）；落地提交：`aee98f9b`。
 - ✅ **课程（依赖收敛前置：模板锁定服务下沉，保持行为不变）**：为后续让 `bc-course/application` 可收敛对 `bc-template` 应用层 jar 的编译期依赖，将 `CourseTemplateLockService` 从 `bc-template/application` 下沉到 `bc-template-domain`（保持 `package edu.cuit.bc.template.application` 与代码不变；调用/行为不变；最小回归通过）；落地提交：`8a1319df`。
+- ✅ **课程（依赖收敛：bc-course/application 去 bc-template 编译期依赖，保持行为不变）**：在 Serena + `rg` 证伪 `bc-course/application` 仅引用 `CourseTemplateLockService/CourseTemplateLockQueryPort/TemplateLockedException`（均已归属 `bc-template-domain`）后，收敛 `bc-course/application/pom.xml`：将对 `bc-template` 的 Maven 依赖替换为 `bc-template-domain`（版本不变；最小回归通过）；落地提交：`2de83046`。
 - 🧾 文档同步：已将上述变更同步到 `NEXT_SESSION_HANDOFF.md` / `DDD_REFACTOR_PLAN.md` / `docs/DDD_REFACTOR_BACKLOG.md`（以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准，不在文内固化 commitId）。
 
 **2026-01-13（本次会话：Controller 收敛推进（课程 + 评教 + 消息 + 日志） + S0.2 延伸（依赖方 pom 收敛），保持行为不变）**
