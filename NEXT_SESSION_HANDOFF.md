@@ -27,6 +27,7 @@
 - ✅ **课程（依赖收敛前置：旧入口归位，课程类型，保持行为不变）**：将 `ICourseTypeServiceImpl` 从 `eva-app` 搬运归位到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl.course` 不变；仍实现 `ICourseTypeService` 并委托 `CourseTypeUseCase`；`id==null` 语义与 `updateCoursesType` 返回 `null`（`Void`）语义保持不变；缓存/日志/异常文案/副作用顺序完全不变；最小回归通过）；落地提交：`8a4a6774`。
 - ✅ **课程（依赖收敛：eva-app 去 bc-course 编译期依赖，保持行为不变）**：在 Serena + `rg` 证伪 `eva-app` 不再 `import edu.cuit.bc.course.*`（口径：`rg -n '^import edu\\.cuit\\.bc\\.course' eva-app/src/main/java` 证伪为 0）后，收敛 `eva-app/pom.xml`：移除对 `bc-course` 的编译期依赖（`shared-kernel` 显式依赖保留；最小回归通过）；落地提交：`dca806fa`。
 - ✅ **模板（依赖收敛前置：组合根归位，保持行为不变）**：将 `BcTemplateConfiguration` 从 `eva-app` 搬运归位到 `bc-course-infra`（保持 `package edu.cuit.app.config` 不变；`CourseTemplateLockService` Bean 定义与注入不变；仅改变类所在 Maven 模块以减少 `eva-app` → `bc-template` 的编译期耦合面；最小回归通过）；落地提交：`0fbd5d63`。
+- ✅ **模板（依赖收敛：eva-app 去 bc-template 编译期依赖，保持行为不变）**：在 Serena + `rg` 证伪 `eva-app` 不再引用 `edu.cuit.bc.template.*` 后，收敛 `eva-app/pom.xml`：移除对 `bc-template` 的编译期依赖（运行时仍由 `bc-course-infra` 等模块提供；最小回归通过）；落地提交：`c53fd53d`。
 - 🧾 文档同步：已将上述变更同步到 `NEXT_SESSION_HANDOFF.md` / `DDD_REFACTOR_PLAN.md` / `docs/DDD_REFACTOR_BACKLOG.md`（以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准，不在文内固化 commitId）。
 
 **2026-01-13（本次会话：Controller 收敛推进（课程 + 评教 + 消息 + 日志） + S0.2 延伸（依赖方 pom 收敛），保持行为不变）**
