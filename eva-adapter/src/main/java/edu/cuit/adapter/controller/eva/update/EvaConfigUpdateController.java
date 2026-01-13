@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 动态配修覅相关接口
+ * 动态配置修改相关接口
  */
 @RestController
 @RequiredArgsConstructor
@@ -28,7 +28,10 @@ public class EvaConfigUpdateController {
     @SaCheckPermission("evaluate.config.update")
     public CommonResult<Void> updateConfig(@RequestBody @Valid EvaConfig evaConfig) {
         evaConfigService.updateEvaConfig(evaConfig);
-        return CommonResult.success();
+        return success();
     }
 
+    private static CommonResult<Void> success() {
+        return CommonResult.success();
+    }
 }
