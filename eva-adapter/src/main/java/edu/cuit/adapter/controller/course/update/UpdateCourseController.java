@@ -49,7 +49,10 @@ public class UpdateCourseController {
             @RequestParam(value = "semId",required = false) Integer semId,
             @Valid @RequestBody UpdateCourseCmd updateCourseCmd){
         courseDetailService.updateCourse(semId, updateCourseCmd);
-        return CommonResult.success(null,()->LogUtils.logContent(updateCourseCmd.getSubjectMsg().getName()+"课程内容"));
+        return CommonResult.success(null, () -> {
+            String logContent = updateCourseCmd.getSubjectMsg().getName() + "课程内容";
+            LogUtils.logContent(logContent);
+        });
     }
 
     /**
@@ -65,7 +68,6 @@ public class UpdateCourseController {
             @RequestParam(value = "semId",required = false) Integer semId,
             @Valid @RequestBody UpdateCoursesCmd updateCoursesCmd){
         courseDetailService.updateCourses(semId, updateCoursesCmd);
-
         return CommonResult.success(null);
     }
 
@@ -139,7 +141,10 @@ public class UpdateCourseController {
     @SaCheckPermission("course.type.add")
     public CommonResult<Void> addCourseType(@Valid @RequestBody CourseType courseType){
         courseTypeService.addCourseType(courseType);
-        return CommonResult.success(null,()->LogUtils.logContent(courseType.getName()+"课程类型"));
+        return CommonResult.success(null, () -> {
+            String logContent = courseType.getName() + "课程类型";
+            LogUtils.logContent(logContent);
+        });
     }
 
     /**
@@ -171,9 +176,8 @@ public class UpdateCourseController {
     public CommonResult<Boolean> isImport(
             @PathVariable(value = "type",required = true) Integer type,
             @Valid @RequestBody Term term){
-
-        return CommonResult.success(userCourseService.isImported(type, term));
-
+        Boolean imported = userCourseService.isImported(type, term);
+        return CommonResult.success(imported);
     }
 
     /**
@@ -184,8 +188,12 @@ public class UpdateCourseController {
     @SaCheckPermission("course.tabulation.update")
     public CommonResult<Void> updateSelfCourse(
             @Valid @RequestBody UpdateCourseInfoAndTimeCmd updateCourseInfoAndTimeCmd){
-        if(updateCourseInfoAndTimeCmd ==null)throw new QueryException("请传入完整的课程及时间段信息");
-        userCourseService.updateSelfCourse(updateCourseInfoAndTimeCmd.getCourseInfo(), updateCourseInfoAndTimeCmd.getDateArr());
+        if (updateCourseInfoAndTimeCmd == null) {
+            throw new QueryException("请传入完整的课程及时间段信息");
+        }
+        userCourseService.updateSelfCourse(
+                updateCourseInfoAndTimeCmd.getCourseInfo(),
+                updateCourseInfoAndTimeCmd.getDateArr());
         return CommonResult.success(null);
     }
 
@@ -221,8 +229,11 @@ public class UpdateCourseController {
           @RequestParam(value = "teacherId",required = true) Integer teacherId,
           @Valid @RequestBody AddCoursesAndCourInfoCmd addcourse){
         courseService.addNotExistCoursesDetails(semId, teacherId, addcourse.getCourseInfo(), addcourse.getDateArr());
-
-        return CommonResult.success(null,()-> LogUtils.logContent("教师ID为"+teacherId+"的"+addcourse.getCourseInfo().getSubjectMsg().getName()+"课程"));
+        return CommonResult.success(null, () -> {
+            String courseName = addcourse.getCourseInfo().getSubjectMsg().getName();
+            String logContent = "教师ID为" + teacherId + "的" + courseName + "课程";
+            LogUtils.logContent(logContent);
+        });
     }
 
     /**
