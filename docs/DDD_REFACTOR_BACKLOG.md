@@ -115,6 +115,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（评教：事件发布器归位，保持行为不变）：将 `SpringAfterCommitDomainEventPublisher` 从 `eva-app` 搬运归位到 `bc-evaluation-infra`（保持 `package edu.cuit.app.event` 不变；`@Component` 装配语义不变；事务提交后发布逻辑不变；最小回归通过；落地：`1b9e275c`）。
 - ✅ S0.2 延伸（评教：监听器归位前置，保持行为不变）：为后续归位评教事务事件监听器（需要 `IMsgService` 契约类型）做编译闭合前置，在 `bc-evaluation-infra/pom.xml` 补齐对 `bc-messaging-contract` 的编译期依赖（不引入实现侧依赖；最小回归通过；落地：`bcb8df45`）。
 - ✅ S0.2 延伸（评教：事务事件监听器归位，保持行为不变）：将 `EvaluationSubmittedMessageCleanupListener` 从 `eva-app` 搬运归位到 `bc-evaluation-infra`（保持 `package edu.cuit.app.event.listener` 不变；监听器触发点/调用顺序不变；注入类型收窄为 `IMsgService` 以避免依赖实现类；最小回归通过；落地：`314c5d6b`）。
+- ✅ S0.2 延伸（评教：事务事件监听器归位，保持行为不变）：将 `EvaluationTaskPostedMessageSenderListener` 从 `eva-app` 搬运归位到 `bc-evaluation-infra`（保持 `package edu.cuit.app.event.listener` 不变；监听器触发点/调用顺序不变；注入类型收窄为 `IMsgService` 以避免依赖实现类；最小回归通过；落地：`c9fbe6ef`）。
 - ✅ S0.2 延伸（依赖方 `pom.xml` 依赖收敛，保持行为不变）：在 `start/pom.xml` 显式增加对 `eva-app` 的 `runtime` 依赖，使组合根承接装配责任的前置条件落地（最小回归通过；落地：`0a69dfb6`）。
 - ✅ S0.2 延伸（依赖方 `pom.xml` 依赖收敛，保持行为不变）：在 Serena + `rg` 证伪 `eva-adapter` 不再引用 `edu.cuit.app.*` 实现类型后，移除 `eva-adapter/pom.xml` 对 `eva-app` 的 Maven 依赖以减少编译期耦合（最小回归通过；落地：`f5980fcc`）。
 - ✅ S0.2 延伸（依赖方 `pom.xml` 依赖收敛，保持行为不变）：将 `start/pom.xml` 中 `bc-course-infra` 的依赖范围从 `test` 调整为 `runtime`，把课程域基础设施的运行时依赖显式上推到组合根（最小回归通过；落地：`2a442587`）。
