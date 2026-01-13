@@ -587,6 +587,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - ✅ 已完成（保持行为不变，IAM 旧入口归位：用户管理）：将 `UserServiceImpl` 从 `eva-app` 搬运归位到 `bc-iam-infra`（保持 `package edu.cuit.app.service.impl.user` 不变；类内容不变；最小回归通过；落地：`c4552031`）。
   - ✅ 已完成（保持行为不变，组合根归位：BcIamConfiguration）：将 `BcIamConfiguration` 从 `eva-app` 搬运归位到 `bc-iam-infra`（保持 `package edu.cuit.app.config` 不变；Bean 装配/副作用顺序不变；最小回归通过；落地：`14cd4108`）。
   - ✅ 已完成（保持行为不变，IAM 依赖收敛：eva-app 去 bc-iam 编译期依赖）：在 Serena + `rg` 证伪 `eva-app/src/main/java` 不再直接引用 `edu.cuit.bc.iam.*` 后，收敛 `eva-app/pom.xml`：移除对 `bc-iam` 的 Maven 编译期依赖（保留 `bc-iam-infra` 以闭合运行期装配；最小回归通过；落地：`290f2b82`）。
+  - ✅ 已完成（保持行为不变，装配责任上推：start 显式依赖 bc-iam-infra）：为后续收敛 `eva-app` 的运行期装配依赖边界，在 `start/pom.xml` 增加对 `bc-iam-infra` 的 `runtime` 依赖（与原 transitive 结果等价，仅显式化；最小回归通过；落地：`8a5df2d0`）。
   - 下一步（可选，保持行为不变，依赖收敛）：继续评估 `eva-app/pom.xml` 对 `bc-iam-infra` 的依赖是否可下沉到组合根（`start`）以进一步减少耦合面（需先用 Serena + `rg` 证伪 `eva-app/src/main/java` 不再引用 `edu.cuit.app.*` 的 IAM 实现类，且确认运行期装配仍由组合根显式兜底）。
 
 - 补充进展（2026-01-05，S0.2 起步，保持行为不变）：已将学期 CO `SemesterCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`77126c4a`）。
