@@ -553,7 +553,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-01-13，保持行为不变，Controller 收敛：评教配置修改入口）：在 `EvaConfigUpdateController` 收敛返回表达式，抽取 `success()` 以显式固化“先调用 service → 再 `CommonResult.success()`”的执行顺序（不改异常文案/返回结构/副作用顺序；权限注解保持不变；最小回归通过；落地：`c7ab9633`）。
 - 补充进展（2026-01-13，保持行为不变，Controller 收敛：消息入口）：在 `MessageController` 将查询接口的返回表达式收敛为“先调用 service → 再 `CommonResult.success(...)`”的显式两步写法（不改异常文案/返回结构/副作用顺序；最小回归通过；落地：`aa99c775`）。
 - 补充进展（2026-01-13，保持行为不变，Controller 收敛：日志入口）：在 `LogController` 将查询接口的返回表达式收敛为“先调用 service → 再 `CommonResult.success(...)`”的显式两步写法（不改异常文案/返回结构/副作用顺序；最小回归通过；落地：`e19278a6`）。
-- 补充进展（2026-01-13，保持行为不变，S0.2 延伸，每次只改 1 个 `pom.xml`）：已在 `start/pom.xml` 显式增加对 `eva-app` 的 `runtime` 依赖，使组合根承接装配责任的前置条件落地（最小回归通过；落地：`0a69dfb6`）。下一刀建议：先 Serena + `rg` 证伪 `eva-adapter` 不再引用 `edu.cuit.app.*` 实现类型（或先完成注入类型接口化/接口下沉），再考虑收敛 `eva-adapter/pom.xml` 对 `eva-app` 的编译期依赖（仍保持行为不变）。
+- 补充进展（2026-01-13，保持行为不变，S0.2 延伸，每次只改 1 个 `pom.xml`）：已在 `start/pom.xml` 显式增加对 `eva-app` 的 `runtime` 依赖，使组合根承接装配责任的前置条件落地（最小回归通过；落地：`0a69dfb6`）。随后已在 Serena + `rg` 证伪 `eva-adapter` 不再引用 `edu.cuit.app.*` 实现类型后，移除 `eva-adapter/pom.xml` 对 `eva-app` 的 Maven 依赖，以减少编译期耦合（保持行为不变；最小回归通过；落地：`f5980fcc`）。
 
 - 补充进展（2026-01-05，S0.2 起步，保持行为不变）：已将学期 CO `SemesterCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`77126c4a`）。
 - 补充进展（2026-01-05，S0.2 持续推进，保持行为不变）：已将通用学期入参 `Term` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`23bff82f`）。
