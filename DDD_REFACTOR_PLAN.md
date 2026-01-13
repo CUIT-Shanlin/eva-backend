@@ -530,7 +530,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-01-12，保持行为不变，ICourseTypeServiceImpl 收敛准备）：在 `bc-course/application` 新增课程类型用例 `CourseTypeUseCase`（读写合并；手写 `CourseTypeEntity` → `CourseType` 映射与 `PaginationQueryResultCO` 组装，不引入 `eva-infra-shared`；对齐旧入口逻辑与返回语义；最小回归通过；落地：`325f221a`）。
 - 补充进展（2026-01-12，保持行为不变，ICourseTypeServiceImpl 收敛准备）：在 `BcCourseConfiguration` 补齐 `CourseTypeUseCase` 的 Bean 装配（保持行为不变；最小回归通过；落地：`55eb322e`）。
 - 补充进展（2026-01-12，保持行为不变，入口壳收敛：课程类型）：将 `eva-app` 的 `ICourseTypeServiceImpl` 退化为纯委托壳，改为委托 `CourseTypeUseCase`（保持 `id==null` 语义与 `updateCoursesType` 返回 `null`（`Void`）等行为不变；最小回归通过；落地：`1aebda24`）。
-- 现状快照（更新至 2026-01-13，保持行为不变）：`eva-app` 下残留 `*ServiceImpl` 为 **15 个**，其中已显式委托 UseCase 的为 **15 个**；`eva-adapter` 下残留 `*Controller` 为 **22 个**（Controller 已不再直接注入 `*ServiceImpl`，但仍需继续收敛为纯协议适配与参数校验）。具体清单与优先级见 `NEXT_SESSION_HANDOFF.md` 0.10。
+- 现状快照（更新至 2026-01-13，保持行为不变）：`eva-app` 下残留 `*ServiceImpl` 为 **14 个**，其中已显式委托 UseCase 的为 **13 个**；`eva-adapter` 下残留 `*Controller` 为 **22 个**（Controller 已不再直接注入 `*ServiceImpl`，但仍需继续收敛为纯协议适配与参数校验）。具体清单与优先级见 `NEXT_SESSION_HANDOFF.md` 0.10。
 - 补充进展（2026-01-12，保持行为不变，Controller 收敛起步）：在 `UserUpdateController` 提取 `currentUserId()` 以减少适配层编排噪声（保持 `StpUtil.getLoginId()` 调用顺序与次数不变；最小回归通过；落地：`09cb6454`）。
 - 补充进展（2026-01-12，保持行为不变，Controller 收敛：登录入口）：在 `AuthenticationController` 收敛 `login` 表达式，用“局部变量 + return”显式固化 `userAuthService.login(...)` → `CommonResult.success(...)` 的执行顺序（不改异常文案/返回结构/副作用顺序；最小回归通过；落地：`102a0cbb`）。
 - 补充进展（2026-01-12，保持行为不变，Controller 收敛：用户查询入口）：在 `UserQueryController` 收敛返回表达式，用“局部变量 + return”显式固化“先调用 service → 再 `CommonResult.success(...)`”的执行顺序（不改异常文案/返回结构/副作用顺序；最小回归通过；落地：`18e0bb29`）。
@@ -554,11 +554,12 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-01-13，保持行为不变，Controller 收敛：消息入口）：在 `MessageController` 将查询接口的返回表达式收敛为“先调用 service → 再 `CommonResult.success(...)`”的显式两步写法（不改异常文案/返回结构/副作用顺序；最小回归通过；落地：`aa99c775`）。
 - 补充进展（2026-01-13，保持行为不变，Controller 收敛：日志入口）：在 `LogController` 将查询接口的返回表达式收敛为“先调用 service → 再 `CommonResult.success(...)`”的显式两步写法（不改异常文案/返回结构/副作用顺序；最小回归通过；落地：`e19278a6`）。
 - 补充进展（2026-01-13，保持行为不变，S0.2 延伸，每次只改 1 个 `pom.xml`）：已在 `start/pom.xml` 显式增加对 `eva-app` 的 `runtime` 依赖，使组合根承接装配责任的前置条件落地（最小回归通过；落地：`0a69dfb6`）。随后已在 Serena + `rg` 证伪 `eva-adapter` 不再引用 `edu.cuit.app.*` 实现类型后，移除 `eva-adapter/pom.xml` 对 `eva-app` 的 Maven 依赖，以减少编译期耦合（保持行为不变；最小回归通过；落地：`f5980fcc`）。
-  - 并行证伪（保持行为不变）：`eva-app` 仍直接依赖 `bc-course/bc-messaging` 的 UseCase 实现类型（例如 `SemesterServiceImpl/ClassroomServiceImpl/ICourseTypeServiceImpl`、`MsgServiceImpl`），因此当前 **不可** 将 `eva-app/pom.xml` 的 `bc-course/bc-messaging` 编译期依赖替换为 `shared-kernel` 或 `bc-messaging-contract`；应先把这类委托目标收敛到可稳定承载的 contract/接口层，再回到 `pom.xml` 收敛（证据：`rg -n '^import edu\\.cuit\\.bc\\.course' eva-app/src/main/java`、`rg -n '^import edu\\.cuit\\.bc\\.messaging' eva-app/src/main/java`）。
+  - 并行证伪（保持行为不变）：`eva-app` 仍直接依赖 `bc-course` 的 UseCase 实现类型（例如 `ClassroomServiceImpl/ICourseTypeServiceImpl`），因此当前 **不可** 将 `eva-app/pom.xml` 的 `bc-course` 编译期依赖替换为更轻的协议层依赖；应先把这类委托目标搬运/收敛到可稳定承载的 contract/接口层，再回到 `pom.xml` 收敛（证据：`rg -n '^import edu\\.cuit\\.bc\\.course' eva-app/src/main/java`）。
   - 补充（保持行为不变，装配责任上推）：已将 `start/pom.xml` 中 `bc-course-infra` 的依赖范围从 `test` 调整为 `runtime`，使课程域基础设施的运行时依赖由组合根显式兜底（最小回归通过；落地：`2a442587`）。后续可在确认组合根已兜底后，再评估是否能移除 `eva-app/pom.xml` 中对 `bc-course-infra` 的 `runtime` 依赖（每次只改 1 个 `pom.xml`；保持行为不变）。
   - 补充（保持行为不变，装配责任上推）：在组合根已显式兜底后，已移除 `eva-app/pom.xml` 中对 `bc-course-infra` 的 `runtime` 依赖，使课程域基础设施的运行时 classpath 更清晰地由组合根承接（最小回归通过；落地：`9e7bd82d`）。
   - 补充（保持行为不变，依赖收敛：消息）：为进一步收敛 `eva-app` 对消息域的编译期耦合，已将 `MsgServiceImpl` 内部对 `bc-messaging` 用例实现类型的直接依赖改为委托 `MsgGateway`（`MsgGatewayImpl` 仍由 `bc-messaging` 在运行时提供，并继续内部委托 `MessageUseCaseFacade`/UseCase，确保行为不变）；为后续在 `eva-app/pom.xml` 去 `bc-messaging` 编译期依赖做前置（最小回归通过；落地：`35b8eb90`）。
   - 补充（保持行为不变，依赖收敛：消息）：在上述前置完成后，已移除 `eva-app/pom.xml` 中对 `bc-messaging` 的 Maven 依赖，仅保留 `bc-messaging-contract` 承载协议对象；消息域运行时装配由组合根 `start` 显式兜底（最小回归通过；落地：`afbe2e6c`）。
+  - 补充（保持行为不变，依赖收敛：课程）：将 `SemesterServiceImpl` 从 `eva-app` 搬运归位到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl` 不变；仍实现 `ISemesterService` 并委托 `SemesterQueryUseCase`；保留事务边界与异常/副作用顺序；仅改变类所在 Maven 模块以减少 `eva-app` → `bc-course` 的编译期耦合面；最小回归通过；落地：`8eddc643`）。
 
 - 补充进展（2026-01-05，S0.2 起步，保持行为不变）：已将学期 CO `SemesterCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`77126c4a`）。
 - 补充进展（2026-01-05，S0.2 持续推进，保持行为不变）：已将通用学期入参 `Term` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`23bff82f`）。
