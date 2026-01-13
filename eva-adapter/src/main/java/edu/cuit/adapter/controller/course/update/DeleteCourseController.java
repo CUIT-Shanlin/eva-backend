@@ -10,12 +10,10 @@ import edu.cuit.common.enums.LogModule;
 import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import edu.cuit.zhuyimeng.framework.logging.aspect.annotation.OperateLog;
 import edu.cuit.zhuyimeng.framework.logging.aspect.enums.OperateLogType;
-import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.reflect.Array;
 import java.util.List;
 /**
  * 课程删除相关接口
@@ -40,8 +38,8 @@ public class DeleteCourseController {
     public CommonResult<Void> delete(
             @RequestParam(value = "courseId",required = true) Integer courseId,
             @RequestParam(value = "semId",required = false) Integer semId){
-        courseDetailService.delete(semId,courseId);
-       return CommonResult.success(null);
+        courseDetailService.delete(semId, courseId);
+        return CommonResult.success(null);
     }
 
     /**
@@ -57,7 +55,7 @@ public class DeleteCourseController {
             @RequestParam(value = "id",required = true) Integer id,
             @RequestParam(value = "semId",required = false) Integer semId,
             @RequestBody CoursePeriod coursePeriod){
-        courseService.deleteCourses(semId,id,coursePeriod);
+        courseService.deleteCourses(semId, id, coursePeriod);
         return CommonResult.success(null);
     }
 
@@ -96,7 +94,6 @@ public class DeleteCourseController {
     public CommonResult<Void> deleteSelfCourse(
            @PathVariable(value = "courseId") Integer courseId){
         userCourseService.deleteSelfCourse(courseId);
-
         return CommonResult.success(null);
     }
 
