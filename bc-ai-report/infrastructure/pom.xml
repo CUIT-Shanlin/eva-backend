@@ -26,6 +26,13 @@
             <version>${revision}</version>
         </dependency>
 
+        <!-- AI 报告基础设施实现依赖评教 application port（先显式声明，避免经由 bc-ai-report(application) 传递） -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>bc-evaluation</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
