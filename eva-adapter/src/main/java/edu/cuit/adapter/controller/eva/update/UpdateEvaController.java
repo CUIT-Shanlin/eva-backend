@@ -5,10 +5,6 @@ import cn.dev33.satoken.annotation.SaCheckPermission;
 import edu.cuit.client.api.eva.IEvaRecordService;
 import edu.cuit.client.api.eva.IEvaTaskService;
 import edu.cuit.client.api.eva.IEvaTemplateService;
-import edu.cuit.client.dto.clientobject.eva.AddTaskCO;
-import edu.cuit.client.dto.clientobject.eva.EvaInfoCO;
-import edu.cuit.client.dto.clientobject.eva.EvaTaskFormCO;
-import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
 import edu.cuit.client.dto.cmd.eva.EvaTemplateCmd;
 import edu.cuit.client.dto.cmd.eva.NewEvaLogCmd;
 import edu.cuit.client.dto.cmd.eva.NewEvaTaskCmd;
@@ -46,7 +42,8 @@ public class UpdateEvaController {
     public CommonResult<Void> updateEvaTemplate(
             @Valid @RequestBody EvaTemplateCmd evaTemplateCmd){
         iEvaTemplateService.updateEvaTemplate(evaTemplateCmd);
-        LogUtils.logContent(evaTemplateCmd.getName()+" 的评教模板");
+        String logContent = evaTemplateCmd.getName() + " 的评教模板";
+        LogUtils.logContent(logContent);
         return CommonResult.success(null);
     }
 
@@ -83,7 +80,8 @@ public class UpdateEvaController {
     public CommonResult<Void> addEvaTemplate(
             @Valid @RequestBody NewEvaTemplateCmd newEvaTemplateCmd) throws ParseException {
         iEvaTemplateService.addEvaTemplate(newEvaTemplateCmd);
-        LogUtils.logContent(newEvaTemplateCmd.getName()+" 的评教模板");
+        String logContent = newEvaTemplateCmd.getName() + " 的评教模板";
+        LogUtils.logContent(logContent);
         return CommonResult.success(null);
     }
     /**
@@ -108,7 +106,8 @@ public class UpdateEvaController {
     public CommonResult<Void> cancelMyEvaTask(
             @PathVariable ("id") Integer id){
         iEvaTaskService.cancelMyEvaTask(id);
-        LogUtils.logContent("ID为"+id+" 的评教任务");
+        String logContent = "ID为" + id + " 的评教任务";
+        LogUtils.logContent(logContent);
         return CommonResult.success(null);
     }
 
