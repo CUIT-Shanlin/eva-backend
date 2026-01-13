@@ -35,7 +35,7 @@
         <!-- 课程 BC 在“模板锁定”上依赖 bc-template 的用例服务（上游 BC）。 -->
         <dependency>
             <groupId>edu.cuit</groupId>
-            <artifactId>bc-template</artifactId>
+            <artifactId>bc-template-domain</artifactId>
             <version>${revision}</version>
         </dependency>
 
