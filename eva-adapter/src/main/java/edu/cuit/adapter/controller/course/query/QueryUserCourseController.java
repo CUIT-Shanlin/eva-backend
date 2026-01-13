@@ -44,7 +44,8 @@ public class QueryUserCourseController {
     @SaCheckLogin
     public CommonResult<List<SimpleSubjectResultCO>> getUserCourseInfo(
             @RequestParam(value = "semId",required = false) Integer semId){
-        return CommonResult.success(userCourseService.getUserCourseInfo(semId));
+        List<SimpleSubjectResultCO> userCourseInfo = userCourseService.getUserCourseInfo(semId);
+        return CommonResult.success(userCourseInfo);
     }
 
     /**
@@ -57,7 +58,8 @@ public class QueryUserCourseController {
     public CommonResult<List<CourseDetailCO>> getUserCourseDetail(
             @RequestParam(value = "id",required = true) Integer id,
             @RequestParam(value = "semId",required = false) Integer semId){
-            return CommonResult.success(userCourseService.getUserCourseDetail(id,semId));
+        List<CourseDetailCO> userCourseDetailList = userCourseService.getUserCourseDetail(id, semId);
+        return CommonResult.success(userCourseDetailList);
     }
 
     /**
@@ -68,7 +70,8 @@ public class QueryUserCourseController {
     @SaCheckLogin
     public CommonResult<List<RecommendCourseCO>> getSelfCourse(
             @RequestParam(value = "semId",required = false) Integer semId){
-        return CommonResult.success(userCourseService.getSelfCourse(semId));
+        List<RecommendCourseCO> recommendCourseList = userCourseService.getSelfCourse(semId);
+        return CommonResult.success(recommendCourseList);
     }
 
     /**
@@ -85,7 +88,9 @@ public class QueryUserCourseController {
         String dateTime = date + " 00:00";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         LocalDateTime localDateTime = LocalDateTime.parse(dateTime, formatter);
-        return CommonResult.success(CalculateClassTime.calculateClassTime(localDateTime, courseTime.getStartTime()));
+        LocalDateTime courseStartTime =
+                CalculateClassTime.calculateClassTime(localDateTime, courseTime.getStartTime());
+        return CommonResult.success(courseStartTime);
     }
 
     /**
@@ -96,7 +101,8 @@ public class QueryUserCourseController {
     @SaCheckLogin
     public CommonResult<List<SelfTeachCourseCO>> selfCourseDetail(
             @RequestParam(value = "semId",required = true)Integer semId){
-        return CommonResult.success(userCourseService.selfCourseDetail(semId));
+        List<SelfTeachCourseCO> selfTeachCourseList = userCourseService.selfCourseDetail(semId);
+        return CommonResult.success(selfTeachCourseList);
     }
 
     /**
@@ -107,7 +113,8 @@ public class QueryUserCourseController {
     @SaCheckLogin
     public CommonResult<List<SelfTeachCourseTimeInfoCO>> selfCourseTime(
             @PathVariable(value = "courseId",required = true) Integer courseId){
-        return CommonResult.success(userCourseService.selfCourseTime(courseId));
+        List<SelfTeachCourseTimeInfoCO> courseTimeInfoList = userCourseService.selfCourseTime(courseId);
+        return CommonResult.success(courseTimeInfoList);
     }
 
 
