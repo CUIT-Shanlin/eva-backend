@@ -21,7 +21,10 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
-**2026-01-13（本次会话：课程查询 Controller 收敛闭环）**
+**2026-01-13（本次会话：Controller 收敛推进（课程 + 评教），保持行为不变）**
+- 📌 本会话增量：按“每次只改 1 个 Controller”的模板持续收敛 `eva-adapter` 课程/评教相关 `*Controller`，Controller 仅做协议适配与参数校验；不引入新副作用；并保持 **缓存/日志/异常文案/副作用顺序完全不变**。
+- 🧾 本会话新增闭环（代码，按时间顺序；保持行为不变）：`0a691bb1`（QueryCourse）→ `d49976cf`（QueryUserCourse）→ `58b1b763`（UpdateCourse）→ `20e1214c`（DeleteCourse）→ `7c465c5d`（EvaStatistics）→ `74a34133`（EvaQuery）→ `87fc0475`（UpdateEva）。
+- 🧾 文档同步：已将上述变更同步到 `NEXT_SESSION_HANDOFF.md` / `DDD_REFACTOR_PLAN.md` / `docs/DDD_REFACTOR_BACKLOG.md`，以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准（不在文内固化 commitId）。
 - ✅ **课程（课程查询，Controller：固化返回包装顺序表达，保持行为不变）**：在 `QueryCourseController` 将多个接口的返回表达式收敛为“先调用 service → 再 `CommonResult.success(...)`”的显式两步写法（不改异常文案/返回体结构/副作用顺序；参数校验与登录态/权限注解保持不变）；最小回归通过；落地提交：`0a691bb1`。
 - ✅ **课程（用户-课程查询，Controller：固化返回包装顺序表达，保持行为不变）**：在 `QueryUserCourseController` 将多个接口的返回表达式收敛为“先调用 service → 再 `CommonResult.success(...)`”的显式两步写法（不改异常文案/返回体结构/副作用顺序；参数校验与登录态/权限注解保持不变）；最小回归通过；落地提交：`d49976cf`。
 - ✅ **课程（课程写入口，Controller：固化返回/日志表达，保持行为不变）**：在 `UpdateCourseController` 收敛返回表达式与日志内容构造写法（日志内容仍在 `CommonResult.success(..., supplier)` 内部构造；不改异常文案/返回体结构/副作用顺序；参数校验与权限注解保持不变）；最小回归通过；落地提交：`58b1b763`。
