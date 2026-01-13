@@ -28,6 +28,7 @@
 - ✅ **课程（依赖收敛：eva-app 去 bc-course 编译期依赖，保持行为不变）**：在 Serena + `rg` 证伪 `eva-app` 不再 `import edu.cuit.bc.course.*`（口径：`rg -n '^import edu\\.cuit\\.bc\\.course' eva-app/src/main/java` 证伪为 0）后，收敛 `eva-app/pom.xml`：移除对 `bc-course` 的编译期依赖（`shared-kernel` 显式依赖保留；最小回归通过）；落地提交：`dca806fa`。
 - ✅ **模板（依赖收敛前置：组合根归位，保持行为不变）**：将 `BcTemplateConfiguration` 从 `eva-app` 搬运归位到 `bc-course-infra`（保持 `package edu.cuit.app.config` 不变；`CourseTemplateLockService` Bean 定义与注入不变；仅改变类所在 Maven 模块以减少 `eva-app` → `bc-template` 的编译期耦合面；最小回归通过）；落地提交：`0fbd5d63`。
 - ✅ **模板（依赖收敛：eva-app 去 bc-template 编译期依赖，保持行为不变）**：在 Serena + `rg` 证伪 `eva-app` 不再引用 `edu.cuit.bc.template.*` 后，收敛 `eva-app/pom.xml`：移除对 `bc-template` 的编译期依赖（运行时仍由 `bc-course-infra` 等模块提供；最小回归通过）；落地提交：`c53fd53d`。
+- ✅ **模板（依赖收敛：端口下沉以降低依赖层级，保持行为不变）**：将 `CourseTemplateLockQueryPort` 从 `bc-template/application` 下沉到 `bc-template-domain`（保持 `package edu.cuit.bc.template.application.port` 不变；调用/行为不变），用于后续让基础设施实现侧（如 `eva-infra`）不必编译期依赖 `bc-template` 应用层；最小回归通过；落地提交：`d0fa4878`。
 - 🧾 文档同步：已将上述变更同步到 `NEXT_SESSION_HANDOFF.md` / `DDD_REFACTOR_PLAN.md` / `docs/DDD_REFACTOR_BACKLOG.md`（以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准，不在文内固化 commitId）。
 
 **2026-01-13（本次会话：Controller 收敛推进（课程 + 评教 + 消息 + 日志） + S0.2 延伸（依赖方 pom 收敛），保持行为不变）**
@@ -1545,7 +1546,7 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
 - 新增业务模块：`bc-template`
   - 根模块加入：`pom.xml` 新增 `<module>bc-template</module>`
   - 服务：`bc-template/.../CourseTemplateLockService.java`
-  - 端口：`bc-template/.../CourseTemplateLockQueryPort.java`
+  - 端口：`bc-template-domain/.../CourseTemplateLockQueryPort.java`（物理归属下沉到 `bc-template/domain`，包名不变）
   - 异常：`bc-template/.../TemplateLockedException.java`
   - 单测：`bc-template/.../CourseTemplateLockServiceTest.java`
 - 基础设施端口实现（读现有表判断锁定）：
