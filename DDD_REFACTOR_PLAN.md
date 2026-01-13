@@ -550,8 +550,9 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-01-13，保持行为不变，Controller 收敛：评教写入口）：在 `UpdateEvaController` 清理无用 import，并收敛日志内容构造写法（仍保持 `service` 调用 → `LogUtils.logContent(...)` → `CommonResult.success(null)` 的顺序不变；不改异常文案/返回结构/副作用顺序；最小回归通过；落地：`87fc0475`）。
 - 补充进展（2026-01-13，保持行为不变，Controller 收敛：评教删除入口）：在 `DeleteEvaController` 清理未使用注入依赖与无用 import，并抽取 `success()` 收敛 `CommonResult.success(null)` 的重复表达（仍保持 `service` 调用 → `CommonResult.success(null)` 的执行顺序不变；不改异常文案/返回结构/副作用顺序；最小回归通过；落地：`7809cc2d`）。
 - 补充进展（2026-01-13，保持行为不变，Controller 收敛：评教配置查询入口）：在 `EvaConfigQueryController` 收敛返回表达式，用“局部变量 + return”显式固化“先调用 service → 再 `CommonResult.success(...)`”的执行顺序（不改异常文案/返回结构/副作用顺序；权限注解保持不变；最小回归通过；落地：`d055c271`）。
-- 下一刀建议（保持行为不变）：继续收敛 `eva-adapter` 残留 `*Controller`，下一刀建议从 `EvaConfigUpdateController` 开始（每次只改 1 个 Controller；每步最小回归 + 提交 + 三文档同步）。
-- 推荐顺序（课程域→评教域，保持行为不变）：课程 `QueryCourseController`（✅）→ `QueryUserCourseController`（✅）→ `UpdateCourseController`（✅）→ `DeleteCourseController`（✅）后，转入评教 `EvaStatisticsController`（✅）→ `EvaQueryController`（✅）→ `UpdateEvaController`（✅）→ `DeleteEvaController`（✅）→ `EvaConfigQueryController`（✅）→ `EvaConfigUpdateController`。
+- 补充进展（2026-01-13，保持行为不变，Controller 收敛：评教配置修改入口）：在 `EvaConfigUpdateController` 收敛返回表达式，抽取 `success()` 以显式固化“先调用 service → 再 `CommonResult.success()`”的执行顺序（不改异常文案/返回结构/副作用顺序；权限注解保持不变；最小回归通过；落地：`c7ab9633`）。
+- 下一刀建议（保持行为不变）：继续收敛 `eva-adapter` 残留 `*Controller`，下一刀建议从 `MessageController` 开始（每次只改 1 个 Controller；每步最小回归 + 提交 + 三文档同步）。
+- 推荐顺序（课程域→评教域→消息域，保持行为不变）：课程 `QueryCourseController`（✅）→ `QueryUserCourseController`（✅）→ `UpdateCourseController`（✅）→ `DeleteCourseController`（✅）后，转入评教 `EvaStatisticsController`（✅）→ `EvaQueryController`（✅）→ `UpdateEvaController`（✅）→ `DeleteEvaController`（✅）→ `EvaConfigQueryController`（✅）→ `EvaConfigUpdateController`（✅）→ `MessageController`。
 
 - 补充进展（2026-01-05，S0.2 起步，保持行为不变）：已将学期 CO `SemesterCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`77126c4a`）。
 - 补充进展（2026-01-05，S0.2 持续推进，保持行为不变）：已将通用学期入参 `Term` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`23bff82f`）。
