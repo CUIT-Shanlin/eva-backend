@@ -22,7 +22,7 @@
     <dependencies>
         <dependency>
             <groupId>edu.cuit</groupId>
-            <artifactId>bc-template</artifactId>
+            <artifactId>bc-template-domain</artifactId>
             <version>${revision}</version>
         </dependency>
 
