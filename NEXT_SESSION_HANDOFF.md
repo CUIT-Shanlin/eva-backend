@@ -36,6 +36,7 @@
 - ✅ **S0.2 延伸（依赖方收敛：eva-infra 去 bc-evaluation/bc-iam/bc-audit 编译期依赖，保持行为不变）**：在 Serena + `rg` 证伪 `eva-infra/src/main/java` 未引用 `edu.cuit.bc.evaluation|edu.cuit.bc.iam|edu.cuit.bc.audit` 相关类型后，收敛 `eva-infra/pom.xml`：移除对 `bc-evaluation` / `bc-iam` / `bc-audit` 的 Maven 编译期依赖（最小回归通过）；落地提交：`023d63be`。
 - ✅ **S0.2 延伸（依赖归位：bc-ai-report-infra 显式依赖 bc-evaluation，保持行为不变）**：Serena 证据化确认 `bc-ai-report/infrastructure` 的 `AiReportAnalysisPortImpl` 引用评教 application port `EvaRecordExportQueryPort` 后，为避免经由 `bc-ai-report(application)` 传递依赖，已在 `bc-ai-report/infrastructure/pom.xml` 补齐对 `bc-evaluation` 的编译期依赖（最小回归通过）；落地提交：`c0f78068`。
 - ✅ **S0.2 延伸（依赖收敛：bc-ai-report(application) 去 bc-evaluation 编译期依赖，保持行为不变）**：在 Serena + `rg` 证伪 `bc-ai-report/application/src/main/java` 未引用 `edu.cuit.bc.evaluation.*` 相关类型后，收敛 `bc-ai-report/application/pom.xml`：移除对 `bc-evaluation` 的 Maven 编译期依赖，并由 `bc-ai-report-infra` 显式承接该依赖（最小回归通过）；落地提交：`87179f19`。
+- ✅ **S0.2 延伸（IAM：旧入口归位，部门查询，保持行为不变）**：将 `DepartmentServiceImpl` 从 `eva-app` 搬运归位到 `bc-iam-infra`（保持 `package edu.cuit.app.service.impl` 不变；仍实现 `IDepartmentService` 并委托 `DepartmentQueryUseCase`；仅改变类所在 Maven 模块以减少 `eva-app` → `bc-iam` 的编译期耦合面；最小回归通过）；落地提交：`68dea36a`。
 - 🧾 文档同步：已将上述变更同步到 `NEXT_SESSION_HANDOFF.md` / `DDD_REFACTOR_PLAN.md` / `docs/DDD_REFACTOR_BACKLOG.md`（以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` 为准，不在文内固化 commitId）。
 
 **2026-01-13（本次会话：Controller 收敛推进（课程 + 评教 + 消息 + 日志） + S0.2 延伸（依赖方 pom 收敛），保持行为不变）**
