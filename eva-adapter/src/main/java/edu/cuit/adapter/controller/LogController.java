@@ -34,7 +34,8 @@ public class LogController {
     @SaCheckPermission("system.log.query")
     public CommonResult<PaginationQueryResultCO<OperateLogCO>> page(@RequestBody @Valid PagingQuery<GenericConditionalQuery> query,
                                                                     @PathVariable("moduleId") Integer moduleId) {
-        return CommonResult.success(logService.page(query, moduleId));
+        PaginationQueryResultCO<OperateLogCO> pageResult = logService.page(query, moduleId);
+        return CommonResult.success(pageResult);
     }
 
     /**
@@ -43,7 +44,8 @@ public class LogController {
     @PostMapping("/modules")
     @SaCheckPermission("system.log.query")
     public CommonResult<List<LogModuleCO>> getModules() {
-        return CommonResult.success(logService.getModules());
+        List<LogModuleCO> modules = logService.getModules();
+        return CommonResult.success(modules);
     }
 
 }
