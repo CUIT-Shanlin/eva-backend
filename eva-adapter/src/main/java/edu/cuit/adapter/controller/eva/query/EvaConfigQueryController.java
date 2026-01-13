@@ -25,7 +25,8 @@ public class EvaConfigQueryController {
     @GetMapping("/evaluate/config")
     @SaCheckPermission("evaluate.config.query")
     public CommonResult<EvaConfig> getEvaConfig() {
-        return CommonResult.success(evaConfigService.getEvaConfig());
+        EvaConfig config = evaConfigService.getEvaConfig();
+        return CommonResult.success(config);
     }
 
 }
