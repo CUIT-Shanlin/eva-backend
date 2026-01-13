@@ -560,6 +560,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - 补充（保持行为不变，依赖收敛：消息）：为进一步收敛 `eva-app` 对消息域的编译期耦合，已将 `MsgServiceImpl` 内部对 `bc-messaging` 用例实现类型的直接依赖改为委托 `MsgGateway`（`MsgGatewayImpl` 仍由 `bc-messaging` 在运行时提供，并继续内部委托 `MessageUseCaseFacade`/UseCase，确保行为不变）；为后续在 `eva-app/pom.xml` 去 `bc-messaging` 编译期依赖做前置（最小回归通过；落地：`35b8eb90`）。
   - 补充（保持行为不变，依赖收敛：消息）：在上述前置完成后，已移除 `eva-app/pom.xml` 中对 `bc-messaging` 的 Maven 依赖，仅保留 `bc-messaging-contract` 承载协议对象；消息域运行时装配由组合根 `start` 显式兜底（最小回归通过；落地：`afbe2e6c`）。
   - 补充（保持行为不变，依赖收敛：课程）：将 `SemesterServiceImpl` 从 `eva-app` 搬运归位到 `bc-course-infra`（保持 `package edu.cuit.app.service.impl` 不变；仍实现 `ISemesterService` 并委托 `SemesterQueryUseCase`；保留事务边界与异常/副作用顺序；仅改变类所在 Maven 模块以减少 `eva-app` → `bc-course` 的编译期耦合面；最小回归通过；落地：`8eddc643`）。
+  - 下一步（保持行为不变，依赖收敛：课程）：按“每次只搬运 1 个旧入口类（保持包名不变）”继续搬运归位 `ClassroomServiceImpl` 与 `ICourseTypeServiceImpl` 到 `bc-course-infra`，待 `rg -n '^import edu\\.cuit\\.bc\\.course' eva-app/src/main/java` 证伪为 0 后，再回到 `eva-app/pom.xml` 移除对 `bc-course` 的编译期依赖（每次只改 1 个 `pom.xml`）。
 
 - 补充进展（2026-01-05，S0.2 起步，保持行为不变）：已将学期 CO `SemesterCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`77126c4a`）。
 - 补充进展（2026-01-05，S0.2 持续推进，保持行为不变）：已将通用学期入参 `Term` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`23bff82f`）。

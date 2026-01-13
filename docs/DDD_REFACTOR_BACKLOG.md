@@ -460,7 +460,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成：`ICourseServiceImpl` 已从 `eva-app` 归位到 `bc-course-infra`（保持 `package` 不变，仅搬运与编译闭合；保持行为不变；落地以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
   - ✅ 已完成：`IUserCourseServiceImpl` 已从 `eva-app` 归位到 `bc-course-infra`（保持 `package` 不变，仅搬运与编译闭合；保持行为不变；落地以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
   - ✅ 已完成：`ICourseDetailServiceImpl` 已从 `eva-app` 归位到 `bc-course-infra`（保持 `package` 不变，仅搬运与编译闭合；保持行为不变；落地以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
-  - ✅ 已完成（每次只改 1 个 `pom.xml`，保持行为不变）：Serena + `rg` 证伪 `eva-app` 不再引用 `edu.cuit.bc.course.*` 后，已将 `eva-app/pom.xml` 的 `bc-course` 编译期依赖替换为 `shared-kernel`（落地：`6fe8ffc8`；最小回归通过）。
+  - ⏳ 进行中（保持行为不变）：`eva-app/pom.xml` 当前仍显式依赖 `bc-course`（近期为支撑旧入口委托 UseCase 曾引入；例如 `9f61788b`），且 `eva-app` 仍残留对 `edu.cuit.bc.course.application.usecase.*` 的直接类型引用（最新阻塞项以 `NEXT_SESSION_HANDOFF.md` 0.10 为准；当前主线为搬运归位 `ClassroomServiceImpl/ICourseTypeServiceImpl`）。策略：按“每次只搬运 1 个旧入口类（保持包名不变）”逐步清空引用面，待 `rg -n '^import edu\\.cuit\\.bc\\.course' eva-app/src/main/java` 证伪为 0 后，再回到 `eva-app/pom.xml` 移除 `bc-course` 编译期依赖（每次只改 1 个 `pom.xml`）。
 
 0) **S0.2（已闭环，后续延伸，保持行为不变）：收敛 `eva-domain` 对 `bc-course` 的编译期依赖面**
    - 背景：`eva-domain/pom.xml` **此前**依赖 `bc-course`（应用层 jar）。核心原因是 `eva-domain` 引用一批 `edu.cuit.client.*` 协议对象，而这些类型的定义文件当时仍落在 `bc-course/application`（Serena 证据化盘点）。
