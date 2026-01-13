@@ -45,11 +45,6 @@
         </dependency>
         <dependency>
             <groupId>edu.cuit</groupId>
-            <artifactId>bc-iam</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>edu.cuit</groupId>
             <artifactId>bc-iam-infra</artifactId>
             <version>${revision}</version>
         </dependency>
