@@ -125,6 +125,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（依赖方收敛：eva-app 去 bc-template 编译期依赖，保持行为不变）：Serena + `rg` 证伪 `eva-app` 不再引用 `edu.cuit.bc.template.*` 后，收敛 `eva-app/pom.xml`：移除对 `bc-template` 的编译期依赖（最小回归通过）；落地：`c53fd53d`。
 - ✅ S0.2 延伸（模板：端口下沉以降低依赖层级，保持行为不变）：将 `CourseTemplateLockQueryPort` 从 `bc-template/application` 下沉到 `bc-template-domain`（保持 `package edu.cuit.bc.template.application.port` 不变；最小回归通过）；落地：`d0fa4878`。
 - ✅ S0.2 延伸（依赖方收敛：eva-infra 去 bc-template 编译期依赖，保持行为不变）：在 Serena + `rg` 证伪 `eva-infra` 仅引用 `CourseTemplateLockQueryPort` 接口类型后，收敛 `eva-infra/pom.xml`：将对 `bc-template` 的 Maven 依赖替换为 `bc-template-domain`（版本不变；最小回归通过）；落地：`5910762e`。
+- ✅ S0.2 延伸（依赖方收敛：bc-template-infra 去 bc-template 编译期依赖，保持行为不变）：在 Serena 证据化确认 `bc-template-infra` 当前无源码（仅 `pom.xml`）后，收敛 `bc-template/infrastructure/pom.xml`：将对 `bc-template` 的 Maven 依赖替换为 `bc-template-domain`（版本不变；最小回归通过）；落地：`aee98f9b`。
 - ✅ S0.2 延伸（入口壳收敛：Controller 起步，保持行为不变）：在 `UserUpdateController` 提取 `currentUserId()` 以减少适配层编排噪声（保持 `StpUtil.getLoginId()` 调用顺序与次数不变；最小回归通过）；落地：`09cb6454`。
 - ✅ S0.2 延伸（入口壳收敛：Controller，登录入口，保持行为不变）：在 `AuthenticationController` 收敛 `login` 表达式，用“局部变量 + return”显式固化 `userAuthService.login(...)` → `CommonResult.success(...)` 的执行顺序（不改异常文案/返回结构/副作用顺序；最小回归通过）；落地：`102a0cbb`。
 - ✅ S0.2 延伸（入口壳收敛：Controller，用户查询入口，保持行为不变）：在 `UserQueryController` 收敛返回表达式，用“局部变量 + return”显式固化“先调用 service → 再 `CommonResult.success(...)`”的执行顺序（不改异常文案/返回结构/副作用顺序；最小回归通过）；落地：`18e0bb29`。
