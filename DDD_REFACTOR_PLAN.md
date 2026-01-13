@@ -565,6 +565,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - 补充（保持行为不变，依赖收敛：模板）：将 `BcTemplateConfiguration` 从 `eva-app` 搬运归位到 `bc-course-infra`（保持 `package edu.cuit.app.config` 不变；`CourseTemplateLockService` Bean 定义与注入不变；用于后续收敛 `eva-app` 对 `bc-template` 的编译期依赖面；最小回归通过；落地：`0fbd5d63`）。
   - ✅ 已完成（保持行为不变，依赖收敛：模板）：Serena + `rg` 证伪 `eva-app` 不再引用 `edu.cuit.bc.template.*` 后，已收敛 `eva-app/pom.xml`：移除对 `bc-template` 的编译期依赖（最小回归通过；落地：`c53fd53d`）。
   - 补充（保持行为不变，依赖收敛：模板）：为降低基础设施实现侧的依赖层级，将模板锁定查询端口 `CourseTemplateLockQueryPort` 从 `bc-template/application` 下沉到 `bc-template-domain`（保持 `package edu.cuit.bc.template.application.port` 不变；最小回归通过；落地：`d0fa4878`）。
+  - ✅ 已完成（保持行为不变，依赖收敛：模板）：在 Serena + `rg` 证伪 `eva-infra` 仅引用 `CourseTemplateLockQueryPort` 接口类型后，已收敛 `eva-infra/pom.xml`：将对 `bc-template` 的 Maven 依赖替换为 `bc-template-domain`（版本不变；最小回归通过；落地：`5910762e`）。
   - 下一步（保持行为不变，依赖收敛：课程）：在 `eva-app/pom.xml` 已去 `bc-course` 编译期依赖后，继续盘点其它依赖方模块的可收敛点（每次只改 1 个 `pom.xml`；先 Serena + `rg` 证伪仅类型引用、无实现/副作用耦合，再动 `pom.xml`）。
 
 - 补充进展（2026-01-05，S0.2 起步，保持行为不变）：已将学期 CO `SemesterCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`77126c4a`）。
