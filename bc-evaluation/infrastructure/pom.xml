@@ -34,19 +34,26 @@
             <version>${revision}</version>
         </dependency>
 
-        <!-- 导出链路依赖用户 API（保持包名不变） -->
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>bc-iam-contract</artifactId>
-            <version>${revision}</version>
-        </dependency>
+	        <!-- 导出链路依赖用户 API（保持包名不变） -->
+	        <dependency>
+	            <groupId>edu.cuit</groupId>
+	            <artifactId>bc-iam-contract</artifactId>
+	            <version>${revision}</version>
+	        </dependency>
 
-        <!-- DAL：从 eva-infra 渐进式抽离，供多模块复用（保持包名/namespace 不变） -->
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>eva-infra-dal</artifactId>
-            <version>${revision}</version>
-        </dependency>
+	        <!-- 评教事务事件监听器依赖消息域契约（保持包名不变；不引入实现侧依赖） -->
+	        <dependency>
+	            <groupId>edu.cuit</groupId>
+	            <artifactId>bc-messaging-contract</artifactId>
+	            <version>${revision}</version>
+	        </dependency>
+
+	        <!-- DAL：从 eva-infra 渐进式抽离，供多模块复用（保持包名/namespace 不变） -->
+	        <dependency>
+	            <groupId>edu.cuit</groupId>
+	            <artifactId>eva-infra-dal</artifactId>
+	            <version>${revision}</version>
+	        </dependency>
 
         <!-- shared：从 eva-infra 渐进式抽离的可复用基础设施能力（Converter/缓存常量/工具等） -->
         <dependency>
