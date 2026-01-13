@@ -32,6 +32,7 @@
 - ✅ **IAM（组合根归位：BcIamConfiguration，保持行为不变）**：将 `BcIamConfiguration` 从 `eva-app` 搬运归位到 `bc-iam-infra`（保持 `package edu.cuit.app.config` 不变；Bean 装配/副作用顺序不变；最小回归通过）；落地提交：`14cd4108`。
 - ✅ **IAM（依赖收敛：eva-app 去 bc-iam 编译期依赖，保持行为不变）**：在 Serena + `rg` 证伪 `eva-app/src/main/java` 不再直接引用 `edu.cuit.bc.iam.*` 后，收敛 `eva-app/pom.xml`：移除对 `bc-iam` 的 Maven 编译期依赖（保留 `bc-iam-infra` 以闭合运行期装配；最小回归通过）；证据口径：`rg -n '^import\\s+edu\\.cuit\\.bc\\.iam' eva-app/src/main/java` → 0；落地提交：`290f2b82`。
 - ✅ **IAM（装配责任上推：start 显式依赖 bc-iam-infra，保持行为不变）**：为后续收敛 `eva-app` 的运行期装配依赖边界，在 `start/pom.xml` 增加对 `bc-iam-infra` 的 `runtime` 依赖（与原 transitive 结果等价，仅显式化；最小回归通过）；落地提交：`8a5df2d0`。
+- ✅ **IAM（依赖收敛：eva-app 去 bc-iam-infra 编译期依赖，保持行为不变）**：在 Serena 证据化确认 `eva-app/src/main/java` 不再引用 `edu.cuit.app.*` 的 IAM 实现类后，收敛 `eva-app/pom.xml`：移除对 `bc-iam-infra` 的依赖；运行期装配由组合根 `start` 显式兜底（最小回归通过）；落地提交：`e7b46f36`。
 - ✅ 最小回归通过（Java17）：命令见 0.10。
 - ⚠️ **MCP Serena 状态（符号级定位/引用分析）**：本会话推进到“搬运 `UserAuthServiceImpl`”时，Serena 出现持续 `TimeoutError`（`mcp__serena__initial_instructions` / `mcp__serena__check_onboarding_performed` 等均超时），因此该步按铁律**临时降级**为本地 `rg` 证据化校验；下一会话优先排查恢复 Serena 后再回到“符号级引用分析”的标准口径。可复现证据（均在本仓库 `ddd` 分支执行）：
   - `rg -n --column "class\\s+UserAuthServiceImpl\\b" .` → `bc-iam/infrastructure/src/main/java/edu/cuit/app/service/impl/user/UserAuthServiceImpl.java:16`
