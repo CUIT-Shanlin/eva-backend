@@ -571,6 +571,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - ✅ 已完成（保持行为不变，依赖收敛：课程）：在 Serena + `rg` 证伪 `bc-course/application` 仅引用 `CourseTemplateLockService/CourseTemplateLockQueryPort/TemplateLockedException` 后，已收敛 `bc-course/application/pom.xml`：将对 `bc-template` 的 Maven 依赖替换为 `bc-template-domain`（版本不变；最小回归通过；落地：`2de83046`）。
   - ✅ 已完成（保持行为不变，依赖收敛：eva-infra）：在 Serena + `rg` 证伪 `eva-infra/src/main/java` 未引用 `bc-evaluation/bc-iam/bc-audit` 相关类型后，已收敛 `eva-infra/pom.xml`：移除对 `bc-evaluation` / `bc-iam` / `bc-audit` 的 Maven 编译期依赖（最小回归通过；落地：`023d63be`）。
   - ✅ 已完成（保持行为不变，依赖归位：bc-ai-report-infra）：Serena 证据化确认 `bc-ai-report/infrastructure` 的 `AiReportAnalysisPortImpl` 引用评教 application port `EvaRecordExportQueryPort` 后，已在 `bc-ai-report/infrastructure/pom.xml` 显式补齐对 `bc-evaluation` 的编译期依赖（避免经由 `bc-ai-report(application)` 传递；为后续从 `bc-ai-report/application/pom.xml` 下沉/移除该依赖做前置；最小回归通过；落地：`c0f78068`）。
+  - ✅ 已完成（保持行为不变，依赖收敛：bc-ai-report application）：在 Serena + `rg` 证伪 `bc-ai-report/application/src/main/java` 未引用 `edu.cuit.bc.evaluation.*` 相关类型后，已收敛 `bc-ai-report/application/pom.xml`：移除对 `bc-evaluation` 的 Maven 编译期依赖，由 `bc-ai-report-infra` 显式承接该依赖（最小回归通过；落地：`87179f19`）。
   - 下一步（保持行为不变，依赖收敛：课程）：在 `eva-app/pom.xml` 已去 `bc-course` 编译期依赖后，继续盘点其它依赖方模块的可收敛点（每次只改 1 个 `pom.xml`；先 Serena + `rg` 证伪仅类型引用、无实现/副作用耦合，再动 `pom.xml`）。
 
 - 补充进展（2026-01-05，S0.2 起步，保持行为不变）：已将学期 CO `SemesterCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`77126c4a`）。
