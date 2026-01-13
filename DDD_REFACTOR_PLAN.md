@@ -597,6 +597,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - ✅ 已完成（保持行为不变，评教事务事件监听器归位：EvaluationSubmittedMessageCleanupListener）：将 `EvaluationSubmittedMessageCleanupListener` 从 `eva-app` 搬运归位到 `bc-evaluation-infra`（保持 `package edu.cuit.app.event.listener` 不变；监听器触发点/调用顺序不变；注入类型收窄为 `IMsgService` 以避免依赖实现类；最小回归通过；落地：`314c5d6b`）。
   - ✅ 已完成（保持行为不变，评教事务事件监听器归位：EvaluationTaskPostedMessageSenderListener）：将 `EvaluationTaskPostedMessageSenderListener` 从 `eva-app` 搬运归位到 `bc-evaluation-infra`（保持 `package edu.cuit.app.event.listener` 不变；监听器触发点/调用顺序不变；注入类型收窄为 `IMsgService` 以避免依赖实现类；最小回归通过；落地：`c9fbe6ef`）。
   - ✅ 已完成（保持行为不变，评教旧入口壳归位：EvaStatisticsServiceImpl）：将 `EvaStatisticsServiceImpl` 从 `eva-app` 搬运归位到 `bc-evaluation-infra`（保持 `package edu.cuit.app.service.impl.eva` 不变；`@CheckSemId` 触发点与委托顺序不变；类内容不变；最小回归通过；落地：`6db29b33`）。
+  - ✅ 已完成（保持行为不变，评教旧入口壳归位：EvaTemplateServiceImpl）：将 `EvaTemplateServiceImpl` 从 `eva-app` 搬运归位到 `bc-evaluation-infra`（保持 `package edu.cuit.app.service.impl.eva` 不变；异常转换与返回 `null` 语义不变；类内容不变；最小回归通过；落地：`c63b9875`）。
 
 - 补充进展（2026-01-05，S0.2 起步，保持行为不变）：已将学期 CO `SemesterCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`77126c4a`）。
 - 补充进展（2026-01-05，S0.2 持续推进，保持行为不变）：已将通用学期入参 `Term` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`23bff82f`）。
