@@ -112,6 +112,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（评教：依赖收敛，保持行为不变）：在 Serena + `rg` 证伪 `eva-app/src/main/java` 不再直接引用 `edu.cuit.infra.bcevaluation.*` 实现类型后，收敛 `eva-app/pom.xml`：移除对 `bc-evaluation-infra` 的依赖；运行期装配由组合根 `start` 显式兜底（最小回归通过；落地：`e9feeb56`）。
 - ✅ S0.2 延伸（评教：装配责任上推，保持行为不变）：在 `start/pom.xml` 增加对 `bc-evaluation-infra` 的 `runtime` 依赖，使组合根显式承接评教基础设施运行时装配责任（与原 transitive 结果等价，仅显式化；最小回归通过；落地：`0f20d0cd`）。
 - ✅ S0.2 延伸（评教：组合根归位，保持行为不变）：将 `BcEvaluationConfiguration` 从 `eva-app` 搬运归位到 `bc-evaluation-infra`（保持 `package edu.cuit.app.config` 不变；Bean 装配/副作用顺序不变；用于后续收敛 `eva-app` 对 `bc-evaluation-infra` 的依赖边界；最小回归通过；落地：`c3f7fc56`）。
+- ✅ S0.2 延伸（评教：事件发布器归位，保持行为不变）：将 `SpringAfterCommitDomainEventPublisher` 从 `eva-app` 搬运归位到 `bc-evaluation-infra`（保持 `package edu.cuit.app.event` 不变；`@Component` 装配语义不变；事务提交后发布逻辑不变；最小回归通过；落地：`1b9e275c`）。
 - ✅ S0.2 延伸（依赖方 `pom.xml` 依赖收敛，保持行为不变）：在 `start/pom.xml` 显式增加对 `eva-app` 的 `runtime` 依赖，使组合根承接装配责任的前置条件落地（最小回归通过；落地：`0a69dfb6`）。
 - ✅ S0.2 延伸（依赖方 `pom.xml` 依赖收敛，保持行为不变）：在 Serena + `rg` 证伪 `eva-adapter` 不再引用 `edu.cuit.app.*` 实现类型后，移除 `eva-adapter/pom.xml` 对 `eva-app` 的 Maven 依赖以减少编译期耦合（最小回归通过；落地：`f5980fcc`）。
 - ✅ S0.2 延伸（依赖方 `pom.xml` 依赖收敛，保持行为不变）：将 `start/pom.xml` 中 `bc-course-infra` 的依赖范围从 `test` 调整为 `runtime`，把课程域基础设施的运行时依赖显式上推到组合根（最小回归通过；落地：`2a442587`）。
@@ -722,7 +723,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 阶段性策略微调（2025-12-29）：
 - ✅ 允许“微调”：仅限结构性重构（收窄依赖/拆接口/移动默认值兜底），**不改业务语义**；缓存/日志/异常文案/副作用顺序完全不变。
-  - 🎯 下一批主线建议（更新至 2026-01-13，保持行为不变）：继续推进 **评教 S0.2 延伸（收敛 `eva-app` → `bc-evaluation` 编译期依赖）**。前置已完成：`BcEvaluationConfiguration` 已归位到 `bc-evaluation-infra`，`start` 已显式依赖 `bc-evaluation-infra(runtime)`，`eva-app` 已移除对 `bc-evaluation-infra` 的依赖。下一步按“每次只改 1 个类”的节奏，把 `eva-app/src/main/java` 中仍 `import edu.cuit.bc.evaluation.*` 的评教入口壳/监听器/发布器逐个归位到 `bc-evaluation-infra`（保持 `package` 不变；保持行为不变）；最后再评估是否可独立提交移除 `eva-app/pom.xml` 对 `bc-evaluation` 的编译期依赖。
+  - 🎯 下一批主线建议（更新至 2026-01-13，保持行为不变）：继续推进 **评教 S0.2 延伸（收敛 `eva-app` → `bc-evaluation` 编译期依赖）**。前置已完成：`BcEvaluationConfiguration` 已归位到 `bc-evaluation-infra`，`start` 已显式依赖 `bc-evaluation-infra(runtime)`，`eva-app` 已移除对 `bc-evaluation-infra` 的依赖；并且 ✅ 已完成：`SpringAfterCommitDomainEventPublisher` 已归位到 `bc-evaluation-infra`（落地：`1b9e275c`）。下一步按“每次只改 1 个类”的节奏，把 `eva-app/src/main/java` 中仍 `import edu.cuit.bc.evaluation.*` 的评教入口壳/监听器逐个归位到 `bc-evaluation-infra`（保持 `package` 不变；保持行为不变）；最后再评估是否可独立提交移除 `eva-app/pom.xml` 对 `bc-evaluation` 的编译期依赖。
   - ✅ 主线口径更新（滚动）：`bc-messaging` 的“归位 + 依赖收敛”已阶段性闭环；`bc-course` 的 S0（旧 gateway 压扁为委托壳）已推进到阶段性闭环（见 4.2/4.3 与 `NEXT_SESSION_HANDOFF.md` 0.9）。当前下一批主线：**S0.2 延伸（收敛 `bc-course` 的协议承载面 + 收敛依赖方对 `bc-course` 的编译期依赖）**，按“先 Serena 证据化 → 再小步迁移协议对象到 `shared-kernel` / 依赖替换 `pom.xml` → 最小回归 → 提交 → 三文档同步”的节奏推进（保持行为不变）。
   - ✅ 已完成（bc-course，实现承载面，保持行为不变）：Serena 证伪 `eva-infra-shared/src/main/java/edu/cuit/infra/gateway/impl/course/operate/` 下 `CourseImportExce/CourseRecommendExce` 仅课程域使用后，已归位到 `bc-course/infrastructure`（保持 `package` 不变，仅搬运与编译闭合；落地：`d3b9247e`）；`CourseFormat` 跨 BC 复用继续留在 `eva-infra-shared`。下一簇建议：进入“依赖方编译期依赖收敛”，逐个模块证伪后每次只改 1 个 `pom.xml`，将 `bc-course` 替换为 `shared-kernel`（保持行为不变）。
  - ✅ 并行证伪（依赖方编译期依赖收敛，保持行为不变）：最新盘点显示：当前未发现仍显式依赖 `bc-course` 且满足“仅使用 `edu.cuit.client.*` 类型”的模块；且 `eva-app` 已完成去 `bc-course` 编译期依赖（落地：`6fe8ffc8`）。因此“收敛依赖方对 `bc-course` 的编译期依赖”短期内暂无可执行的 `pom.xml` 依赖替换点（保持行为不变）。
