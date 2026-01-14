@@ -501,6 +501,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成（2026-01-14，保持行为不变）：将 `UserEvaServiceImpl` 从 `eva-app` 归位到 `bc-evaluation-infra`（保持 `package` 不变；不改 `@CheckSemId`/`StpUtil` 登录态解析次数与顺序；不改异常文案/副作用顺序；落地：`f4238a5c`）。
   - ✅ 前置（2026-01-14，保持行为不变）：为归位 `WebsocketManager` 做编译闭合前置，在 `eva-infra-shared/pom.xml` 补齐 `spring-websocket` 与 `commons-lang3`（落地：`82609bda`）。
   - ✅ 已完成（2026-01-14，保持行为不变）：将 `WebsocketManager` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package` 不变；落地：`406186ae`）。
+  - ✅ 已完成（2026-01-14，保持行为不变）：将 `MsgBizConvertor` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package` 不变；落地：`c69f494f`）。
   - ⏳ 待完成：处理并归位 `MsgServiceImpl`（当前仍 `import edu.cuit.bc.evaluation.*` 端口类型；优先仍按“归位到 `bc-evaluation-infra`（保持 `package` 不变）”推进，以清零 `eva-app/src/main/java` 对评教应用层类型的直接引用面；若出现 Maven 循环依赖风险，先 Serena 盘点依赖闭包并记录证据/降级方案）。
   - 验收口径：`rg -n '^import\\s+edu\\.cuit\\.bc\\.evaluation' eva-app/src/main/java` 命中为 0 后，再评估是否可收敛 `eva-app/pom.xml` 的 `bc-evaluation` 编译期依赖（每次只改 1 个 `pom.xml`；保持行为不变）。
 

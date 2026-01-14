@@ -24,6 +24,7 @@
 **2026-01-14（补充进展：评教旧入口壳归位支撑前置（S0.2 延伸），保持行为不变）**
 - ✅ **评教（旧入口壳归位支撑前置：websocket 依赖补齐，保持行为不变）**：为后续归位 `MsgServiceImpl`（依赖 `WebsocketManager`）做编译闭合前置，在 `eva-infra-shared/pom.xml` 补齐 `spring-websocket` 与 `commons-lang3` 依赖（运行时 classpath 已存在；保持行为不变；最小回归通过）；落地提交：`82609bda`。
 - ✅ **评教（旧入口壳归位支撑前置：WebsocketManager 归位，保持行为不变）**：将 `WebsocketManager` 从 `eva-app` 搬运归位到 `eva-infra-shared`（保持 `package edu.cuit.app.websocket` 不变；类内容不变；异常文案/日志内容与调用顺序不变；最小回归通过）；落地提交：`406186ae`。
+- ✅ **评教（旧入口壳归位支撑前置：MsgBizConvertor 归位，保持行为不变）**：将 `MsgBizConvertor` 从 `eva-app` 搬运归位到 `eva-infra-shared`（保持 `package edu.cuit.app.convertor` 不变；类内容不变；MapStruct 映射规则/表达式与异常文案不变；最小回归通过）；落地提交：`c69f494f`。
 - ✅ 最小回归通过（Java17）：命令见 0.10。
 
 **2026-01-14（补充进展：评教旧入口壳归位继续（S0.2 延伸），保持行为不变）**
@@ -567,8 +568,8 @@
 - ✅ **依赖收敛阶段性验收点**：`eva-infra` / `bc-template-infra` / `bc-course(application)` 均已将对 `bc-template` 的 Maven 依赖收敛为 `bc-template-domain`（保持行为不变；最小回归通过；详见 0.9 与 `docs/DDD_REFACTOR_BACKLOG.md` 4.2）。
 - ✅ **快速证据口径（可在新会话复核）**：`rg -n "<artifactId>bc-template</artifactId>" --glob "**/pom.xml" .` 当前应仅剩 `bc-template/application/pom.xml` 的“模块自身 artifactId 声明”，不应再出现“依赖方对 bc-template 的 dependency 声明”。
 - 🎯 **下一刀（建议，保持行为不变；每次只改 1 个类）**：继续推进 **S0.2 延伸（评教：旧入口归位 → 依赖收敛前置）**。截至当前基线：评教发布器/监听器/五个旧入口壳（统计/模板/记录/任务/用户）均已归位到 `bc-evaluation-infra`；`eva-app/src/main/java` 仍直接 `import edu.cuit.bc.evaluation.*` 的类只剩 **1 个**：`MsgServiceImpl`（证据口径：`rg -n '^import\\s+edu\\.cuit\\.bc\\.evaluation' eva-app/src/main/java`）。建议仍按“依赖闭包最小 + 易回滚”推进：
-  1) ✅ 支撑类前置（保持行为不变；每次只改 1 个类）：已将 `WebsocketManager` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package` 不变；落地：`406186ae`）。下一步继续归位 `MsgBizConvertor`（同样归位到 `eva-infra-shared`；保持 `package` 不变）。
-  2) 再处理 `eva-app/src/main/java/edu/cuit/app/service/impl/MsgServiceImpl.java`：归位到 `bc-evaluation-infra`（保持 `package` 不变），清零 `eva-app` 对评教端口类型的直接引用面；若出现 Maven 循环依赖风险，先用 Serena 盘点依赖闭包并在 0.9 记录证据与降级方案。
+  1) ✅ 支撑类前置（保持行为不变；每次只改 1 个类）：已将 `WebsocketManager`、`MsgBizConvertor` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package` 不变；落地：`406186ae` / `c69f494f`）。
+  2) 下一步处理 `eva-app/src/main/java/edu/cuit/app/service/impl/MsgServiceImpl.java`：归位到 `bc-evaluation-infra`（保持 `package` 不变），清零 `eva-app` 对评教端口类型的直接引用面；若出现 Maven 循环依赖风险，先用 Serena 盘点依赖闭包并在 0.9 记录证据与降级方案。
 - ✅ **完成条件（评估点）**：当 Serena + `rg` 证伪 `eva-app/src/main/java` 不再 `import edu.cuit.bc.evaluation.*` 后，再评估是否可收敛 `eva-app/pom.xml` 对 `bc-evaluation`（application jar）的编译期依赖（每次只改 1 个 `pom.xml`；保持行为不变）。
 - 快速证据口径（新会话先复核，避免口径漂移）：`rg -n '^import\\s+edu\\.cuit\\.bc\\.evaluation' eva-app/src/main/java`（以及 Serena `search_for_pattern` 同口径）。
 
