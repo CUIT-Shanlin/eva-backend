@@ -28,16 +28,11 @@
             <artifactId>shared-kernel</artifactId>
             <version>${revision}</version>
         </dependency>
-	        <dependency>
-	            <groupId>edu.cuit</groupId>
-	            <artifactId>bc-evaluation</artifactId>
-	            <version>${revision}</version>
-	        </dependency>
-	        <dependency>
-	            <groupId>edu.cuit</groupId>
-	            <artifactId>bc-messaging-contract</artifactId>
-	            <version>${revision}</version>
-	        </dependency>
+		        <dependency>
+		            <groupId>edu.cuit</groupId>
+		            <artifactId>bc-messaging-contract</artifactId>
+		            <version>${revision}</version>
+		        </dependency>
         <dependency>
             <groupId>edu.cuit</groupId>
             <artifactId>bc-ai-report</artifactId>
