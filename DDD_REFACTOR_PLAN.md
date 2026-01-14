@@ -770,6 +770,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 下一步（建议顺序；每次只改 1 个类；保持行为不变）：逐个把 `eva-app/src/main/java` 中仍 `import edu.cuit.bc.evaluation.*` 的类归位到 `bc-evaluation-infra`（保持 `package` 不变；不改缓存/日志/异常文案/副作用顺序）。
 - 证据口径（新会话先复核，避免口径漂移）：`rg -n '^import\\s+edu\\.cuit\\.bc\\.evaluation' eva-app/src/main/java`（以及 Serena `search_for_pattern` 同口径）。
 - 当前阻塞点（更新至 2026-01-14；保持行为不变）：按上述 `rg` 口径，`eva-app/src/main/java` 仍直接引用评教应用层类型的类只剩 **1 个**：`edu.cuit.app.service.impl.MsgServiceImpl`（`UserEvaServiceImpl` 已归位到 `bc-evaluation-infra`）。建议优先归位 `MsgServiceImpl`（若存在 Maven 循环依赖风险，先用 Serena 盘点依赖闭包并记录证据/降级方案）。
+- 支撑前置（更新至 2026-01-14；保持行为不变）：Serena 盘点发现 `MsgServiceImpl` 还依赖 `MsgBizConvertor/WebsocketManager`（当前仍在 `eva-app`）。为遵守“每次只改 1 个类/1 个 pom”且避免引入 Maven 反向依赖，建议先将这两个支撑类逐个归位到 `eva-infra-shared`（保持 `package` 不变）。已完成编译闭合前置：在 `eva-infra-shared/pom.xml` 补齐 `spring-websocket` 与 `commons-lang3`（落地：`82609bda`）。
 - 评估点（后置；每次只改 1 个 `pom.xml`；保持行为不变）：当 Serena + `rg` 证伪 `eva-app/src/main/java` 不再 `import edu.cuit.bc.evaluation.*` 后，再评估是否可以收敛 `eva-app/pom.xml` 对 `bc-evaluation`（application jar）的编译期依赖。
 
 #### bc-course（课程）S0.2 延伸：协议承载面继续收敛（保持行为不变）
