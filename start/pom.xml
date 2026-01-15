@@ -52,6 +52,13 @@
 	            <version>${revision}</version>
 	            <scope>runtime</scope>
 	        </dependency>
+	        <!-- 组合根承接审计域基础设施运行时装配责任（保持行为不变，仅上推依赖边界） -->
+	        <dependency>
+	            <groupId>edu.cuit</groupId>
+	            <artifactId>bc-audit-infra</artifactId>
+	            <version>${revision}</version>
+	            <scope>runtime</scope>
+	        </dependency>
 	        <!-- 组合根承接 IAM 基础设施运行时装配责任（保持行为不变，仅上推依赖边界） -->
 	        <dependency>
 	            <groupId>edu.cuit</groupId>
