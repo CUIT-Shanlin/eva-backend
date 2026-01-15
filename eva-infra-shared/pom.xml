@@ -46,6 +46,12 @@
             <artifactId>zym-spring-boot-starter-common</artifactId>
         </dependency>
 
+        <!-- websocket 配置/拦截器归位编译闭合前置：补齐 Sa-Token（StpUtil）编译期依赖，不改变业务语义 -->
+        <dependency>
+            <groupId>edu.cuit.zhuyimeng</groupId>
+            <artifactId>zym-spring-boot-starter-security</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>edu.cuit</groupId>
             <artifactId>eva-domain</artifactId>
