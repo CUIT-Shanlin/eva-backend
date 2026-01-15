@@ -115,6 +115,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（审计：旧入口壳归位，保持行为不变）：将 `LogServiceImpl` 从 `eva-app` 归位到 `bc-audit-infra`（保持 `package edu.cuit.app.service.impl` 不变；最小回归通过；落地：`d0af2bac`）。
 - ✅ S0.2 延伸（审计：装配责任上推，保持行为不变）：在 `start/pom.xml` 增加对 `bc-audit-infra` 的 `runtime` 依赖，使组合根显式承接审计基础设施运行时装配责任（与原 transitive 结果等价，仅显式化；最小回归通过；落地：`d6d9c480`）。
 - ✅ S0.2 延伸（AI 报告：装配责任上推，保持行为不变）：在 `start/pom.xml` 增加对 `bc-ai-report-infra` 的 `runtime` 依赖，使组合根显式承接 AI 报告基础设施运行时装配责任（与原 transitive 结果等价，仅显式化；最小回归通过；落地：`08862a4b`）。
+- ✅ S0.2 延伸（AI 报告：依赖收敛，保持行为不变）：在 Serena 证据化确认 `eva-app/src/main/java` 无 AI 相关直引后，收敛 `eva-app/pom.xml`：移除对 `bc-ai-report` 与 `bc-ai-report-infra` 的编译期依赖；运行期装配由组合根 `start` 显式兜底（最小回归通过；落地：`2a4736c0`）。
 - ✅ S0.2 延伸（审计：依赖收敛，保持行为不变）：在 `rg` 证伪 `eva-app/src/main/java` 不再 `import edu.cuit.bc.audit.*` 后，收敛 `eva-app/pom.xml`：移除对 `bc-audit` 与 `bc-audit-infra` 的编译期依赖；运行期装配由组合根 `start` 显式兜底（最小回归通过；落地：`b3ea5f58`）。
 - ✅ S0.2 延伸（评教：旧入口壳归位收尾，保持行为不变）：将 `UserEvaServiceImpl`、`MsgServiceImpl` 从 `eva-app` 归位到 `bc-evaluation-infra`（保持 `package` 不变；行为不变；最小回归通过；落地：`f4238a5c` / `5dea9347`）。
 - ✅ S0.2 延伸（评教：归位支撑类与编译闭合前置，保持行为不变）：为归位消息入口壳链路做编译闭合前置，在 `eva-infra-shared/pom.xml` 补齐 websocket 相关依赖，并将 `WebsocketManager`、`MsgBizConvertor` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package` 不变；最小回归通过；落地：`82609bda` / `406186ae` / `c69f494f`）。
