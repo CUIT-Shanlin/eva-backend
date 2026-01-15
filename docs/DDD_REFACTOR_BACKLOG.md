@@ -109,6 +109,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-01-15）**
+- ✅ S0.2 延伸（审计：编译闭合前置，保持行为不变）：在 `bc-audit/infrastructure/pom.xml` 补齐 `zym-spring-boot-starter-logging`，用于为后续归位 `LogBizConvertor/LogServiceImpl`（依赖 `LogManager/OperateLogBO`）做编译闭合前置（运行时 classpath 已存在，仅显式化；最小回归通过；落地：`e7e13736`）。
 - ✅ S0.2 延伸（审计：组合根归位，保持行为不变）：将 `BcAuditConfiguration` 从 `eva-app` 归位到 `bc-audit-infra`（保持 `package edu.cuit.app.config` 不变；Bean 装配/副作用顺序不变；最小回归通过；落地：`5a4d726b`）。
 - ✅ S0.2 延伸（评教：旧入口壳归位收尾，保持行为不变）：将 `UserEvaServiceImpl`、`MsgServiceImpl` 从 `eva-app` 归位到 `bc-evaluation-infra`（保持 `package` 不变；行为不变；最小回归通过；落地：`f4238a5c` / `5dea9347`）。
 - ✅ S0.2 延伸（评教：归位支撑类与编译闭合前置，保持行为不变）：为归位消息入口壳链路做编译闭合前置，在 `eva-infra-shared/pom.xml` 补齐 websocket 相关依赖，并将 `WebsocketManager`、`MsgBizConvertor` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package` 不变；最小回归通过；落地：`82609bda` / `406186ae` / `c69f494f`）。
@@ -503,6 +504,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 - **S0.2 延伸（审计域：收敛 `eva-app` 对 `bc-audit` 的编译期耦合面，保持行为不变）**：
   - ✅ 已完成：将 `eva-app/src/main/java/edu/cuit/app/config/BcAuditConfiguration.java` 归位到 `bc-audit-infra`（保持 `package edu.cuit.app.config` 不变；Bean 装配/副作用顺序不变；落地：`5a4d726b`）。
+  - ✅ 已完成（编译闭合前置，保持行为不变）：在 `bc-audit/infrastructure/pom.xml` 补齐 `zym-spring-boot-starter-logging`，用于为后续归位 `LogBizConvertor/LogServiceImpl`（依赖 `LogManager/OperateLogBO`）做编译闭合前置（运行时 classpath 已存在，仅显式化；落地：`e7e13736`）。
   - ⏳ 待完成：将 `eva-app/src/main/java/edu/cuit/app/service/impl/LogServiceImpl.java` 归位到 `bc-audit-infra`（保持 `package` 不变；异常文案/日志与副作用顺序不变）。
   - 验收口径：`rg -n '^import\\s+edu\\.cuit\\.bc\\.audit' eva-app/src/main/java` 命中为 0 后，再评估是否可收敛 `eva-app/pom.xml` 的 `bc-audit`（以及 `bc-audit-infra`）编译期依赖（每次只改 1 个 `pom.xml`；保持行为不变）。若运行时装配可能受影响，先在 `start/pom.xml` 显式增加 `bc-audit-infra(runtime)` 兜底（每次只改 1 个 pom）。
 
