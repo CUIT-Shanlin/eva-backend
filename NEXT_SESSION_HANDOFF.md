@@ -24,6 +24,7 @@
 **2026-01-15（本次会话：审计 S0.2 延伸（旧入口归位 → 依赖收敛前置），保持行为不变）**
 - ✅ **审计（组合根归位：BcAuditConfiguration，保持行为不变）**：将 `BcAuditConfiguration` 从 `eva-app` 搬运归位到 `bc-audit-infra`（保持 `package edu.cuit.app.config` 不变；Bean 定义/装配顺序不变；最小回归通过）；落地提交：`5a4d726b`。
 - ✅ **审计（编译闭合前置：bc-audit-infra 补齐 logging 依赖，保持行为不变）**：为后续归位 `LogServiceImpl/LogBizConvertor`（依赖 `LogManager/OperateLogBO`）做编译闭合前置，在 `bc-audit/infrastructure/pom.xml` 补齐 `zym-spring-boot-starter-logging` 依赖（运行时 classpath 已存在，仅显式化；最小回归通过）；落地提交：`e7e13736`。
+- ✅ **审计（归位支撑类：LogBizConvertor，保持行为不变）**：将 `LogBizConvertor` 从 `eva-app` 搬运归位到 `bc-audit-infra`（保持 `package edu.cuit.app.convertor` 不变；MapStruct 映射规则/表达式不变；最小回归通过）；落地提交：`99960c7f`。
 - ✅ 最小回归通过（Java17）：命令见 0.10。
 
 **2026-01-14（本次会话：评教 S0.2 延伸闭环（旧入口归位 → 依赖收敛前置），保持行为不变）**
@@ -576,6 +577,7 @@
   2) ✅ 已完成：`MsgServiceImpl` 已归位到 `bc-evaluation-infra`（落地：`5dea9347`），并已完成 `eva-app/pom.xml` 去 `bc-evaluation` 编译期依赖（落地：`2b42db5d`）。
   3) ✅ 已完成（保持行为不变）：`BcAuditConfiguration` 已从 `eva-app` 归位到 `bc-audit-infra`（落地：`5a4d726b`）；下一刀建议继续归位 `LogServiceImpl`（保持 `package` 不变；事务/日志/异常文案/副作用顺序不变）。
   4) ✅ 已完成（保持行为不变）：为避免后续归位 `LogServiceImpl/LogBizConvertor` 时出现编译缺口，已在 `bc-audit/infrastructure/pom.xml` 补齐 `zym-spring-boot-starter-logging`（落地：`e7e13736`）；下一刀建议先归位 `LogBizConvertor` 再归位 `LogServiceImpl`（每次只改 1 个类）。
+  5) ✅ 已完成（保持行为不变）：`LogBizConvertor` 已归位到 `bc-audit-infra`（落地：`99960c7f`）；下一刀建议归位 `LogServiceImpl`，从而把 `eva-app/src/main/java` 的 `import edu.cuit.bc.audit.*` 清零。
 - ✅ **完成条件（评估点）**：✅ 已满足（更新至 2026-01-14）：Serena + `rg` 证伪 `eva-app/src/main/java` 不再 `import edu.cuit.bc.evaluation.*`，且已收敛 `eva-app/pom.xml` 对 `bc-evaluation` 的编译期依赖（保持行为不变）。
 - 快速证据口径（新会话先复核，避免口径漂移）：
   - 评教：`rg -n '^import\\s+edu\\.cuit\\.bc\\.evaluation' eva-app/src/main/java`（当前应为 0；以及 Serena `search_for_pattern` 同口径）。

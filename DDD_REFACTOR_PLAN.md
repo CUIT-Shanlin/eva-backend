@@ -778,6 +778,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 建议顺序（每次只改 1 个类闭环，保持行为不变）：
   1) ✅ 已完成：归位 `eva-app/src/main/java/edu/cuit/app/config/BcAuditConfiguration.java` → `bc-audit-infra`（保持 `package edu.cuit.app.config` 不变；Bean 定义/装配顺序不变；落地：`5a4d726b`）。
   1.1) ✅ 编译闭合前置（保持行为不变）：为后续归位 `LogBizConvertor/LogServiceImpl`（依赖 `LogManager/OperateLogBO`），已在 `bc-audit/infrastructure/pom.xml` 补齐 `zym-spring-boot-starter-logging`（运行时 classpath 已存在，仅显式化；落地：`e7e13736`）。
+  1.2) ✅ 支撑类前置（保持行为不变）：将 `LogBizConvertor` 从 `eva-app` 归位到 `bc-audit-infra`（保持 `package edu.cuit.app.convertor` 不变；MapStruct 映射规则/表达式不变；落地：`99960c7f`），用于为后续归位 `LogServiceImpl` 闭合依赖。
   2) 再归位 `eva-app/src/main/java/edu/cuit/app/service/impl/LogServiceImpl.java` → `bc-audit-infra`（保持 `package` 不变；事务/日志/异常文案/副作用顺序不变）。
   3) 当 `rg` 证伪 `eva-app/src/main/java` 不再 `import edu.cuit.bc.audit.*` 后，再评估 `eva-app/pom.xml` 是否可移除 `bc-audit`（以及 `bc-audit-infra`）的编译期依赖；若运行期装配可能受影响，先在 `start/pom.xml` 显式增加 `bc-audit-infra(runtime)` 兜底（每次只改 1 个 pom）。
 
