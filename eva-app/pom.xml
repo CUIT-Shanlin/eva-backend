@@ -34,16 +34,6 @@
 		            <version>${revision}</version>
 		        </dependency>
         <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>bc-ai-report</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>bc-ai-report-infra</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
             <groupId>edu.cuit.zhuyimeng</groupId>
             <artifactId>zym-spring-boot-starter-security</artifactId>
         </dependency>
