@@ -26,6 +26,7 @@
 - ✅ **审计（编译闭合前置：bc-audit-infra 补齐 logging 依赖，保持行为不变）**：为后续归位 `LogServiceImpl/LogBizConvertor`（依赖 `LogManager/OperateLogBO`）做编译闭合前置，在 `bc-audit/infrastructure/pom.xml` 补齐 `zym-spring-boot-starter-logging` 依赖（运行时 classpath 已存在，仅显式化；最小回归通过）；落地提交：`e7e13736`。
 - ✅ **审计（归位支撑类：LogBizConvertor，保持行为不变）**：将 `LogBizConvertor` 从 `eva-app` 搬运归位到 `bc-audit-infra`（保持 `package edu.cuit.app.convertor` 不变；MapStruct 映射规则/表达式不变；最小回归通过）；落地提交：`99960c7f`。
 - ✅ **审计（旧入口壳归位：LogServiceImpl，保持行为不变）**：将 `LogServiceImpl` 从 `eva-app` 搬运归位到 `bc-audit-infra`（保持 `package edu.cuit.app.service.impl` 不变；`@PostConstruct` 注册监听器逻辑不变；异步执行语义/异常文案/日志与副作用顺序完全不变；最小回归通过）；落地提交：`d0af2bac`。
+- ✅ **审计（装配责任上推：start 显式依赖 bc-audit-infra，保持行为不变）**：为后续收敛 `eva-app/pom.xml` 的审计依赖边界，已在 `start/pom.xml` 增加对 `bc-audit-infra` 的 `runtime` 依赖（与原 transitive 结果等价，仅显式化；最小回归通过）；落地提交：`d6d9c480`。
 - ✅ 最小回归通过（Java17）：命令见 0.10。
 
 **2026-01-14（本次会话：评教 S0.2 延伸闭环（旧入口归位 → 依赖收敛前置），保持行为不变）**

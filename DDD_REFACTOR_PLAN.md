@@ -781,6 +781,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   1.2) ✅ 支撑类前置（保持行为不变）：将 `LogBizConvertor` 从 `eva-app` 归位到 `bc-audit-infra`（保持 `package edu.cuit.app.convertor` 不变；MapStruct 映射规则/表达式不变；落地：`99960c7f`），用于为后续归位 `LogServiceImpl` 闭合依赖。
   2) ✅ 已完成：归位 `eva-app/src/main/java/edu/cuit/app/service/impl/LogServiceImpl.java` → `bc-audit-infra`（保持 `package` 不变；事务/日志/异常文案/副作用顺序不变；落地：`d0af2bac`）。
   3) 当 `rg` 证伪 `eva-app/src/main/java` 不再 `import edu.cuit.bc.audit.*` 后，再评估 `eva-app/pom.xml` 是否可移除 `bc-audit`（以及 `bc-audit-infra`）的编译期依赖；若运行期装配可能受影响，先在 `start/pom.xml` 显式增加 `bc-audit-infra(runtime)` 兜底（每次只改 1 个 pom）。
+     - ✅ 进展（保持行为不变）：`start/pom.xml` 已显式增加 `bc-audit-infra(runtime)` 作为装配兜底（落地：`d6d9c480`），用于为下一步收敛 `eva-app/pom.xml` 审计依赖边界做前置。
 
 #### bc-course（课程）S0.2 延伸：协议承载面继续收敛（保持行为不变）
 
