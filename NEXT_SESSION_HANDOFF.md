@@ -31,6 +31,7 @@
 - ✅ **AI 报告（装配责任上推：start 显式依赖 bc-ai-report-infra，保持行为不变）**：为后续收敛 `eva-app/pom.xml` 的 AI 报告依赖边界，已在 `start/pom.xml` 增加对 `bc-ai-report-infra` 的 `runtime` 依赖（与原 transitive 结果等价，仅显式化；最小回归通过）；落地提交：`08862a4b`。
 - ✅ **AI 报告（依赖收敛：eva-app 去 bc-ai-report/bc-ai-report-infra 编译期依赖，保持行为不变）**：在 Serena 证据化确认 `eva-app/src/main/java` 无 AI 相关直引后，收敛 `eva-app/pom.xml`：移除对 `bc-ai-report`（application jar）与 `bc-ai-report-infra` 的 Maven 编译期依赖；运行期装配由组合根 `start` 显式兜底（最小回归通过）；落地提交：`2a4736c0`。
 - ✅ **websocket（装配责任上推：start 显式依赖 websocket starter，保持行为不变）**：为后续收敛 `eva-app/pom.xml` 的 websocket 依赖边界，已在 `start/pom.xml` 增加对 `spring-boot-starter-websocket` 的依赖（与原 transitive 结果等价，仅显式化；最小回归通过）；落地提交：`97b543b1`。
+- ✅ **websocket（支撑类归位：MessageChannel，保持行为不变）**：将 `MessageChannel` 从 `eva-app` 搬运归位到 `eva-infra-shared`（保持 `package edu.cuit.app.websocket` 不变；类内容不变；最小回归通过）；落地提交：`0fbc4aef`。
 - ✅ 最小回归通过（Java17）：命令见 0.10。
 
 **2026-01-14（本次会话：评教 S0.2 延伸闭环（旧入口归位 → 依赖收敛前置），保持行为不变）**
