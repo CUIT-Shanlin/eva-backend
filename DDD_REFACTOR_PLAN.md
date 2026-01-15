@@ -508,6 +508,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 > 新会话续接方式：优先复制 `NEXT_SESSION_HANDOFF.md` 的 0.11「D 专用简版」（收敛 `eva-app` 残留 `*ServiceImpl`），并按 0.10 的“下一步拆分与里程碑/提交点”顺序执行，避免遗漏约束与回归命令。
 
 - 补充进展（2026-01-10，保持行为不变）：基础设施旧 `*GatewayImpl` 归位已阶段性闭环，`eva-infra/src/main/java/edu/cuit/infra/gateway/impl` 下残留已清零（详见 `NEXT_SESSION_HANDOFF.md` 0.10 与 `docs/DDD_REFACTOR_BACKLOG.md` 4.3）。下一会话不再投入该方向，避免重复劳动。
+- 补充进展（2026-01-15，保持行为不变，装配责任上推：AI 报告）：已在 `start/pom.xml` 显式增加 `bc-ai-report-infra(runtime)`（落地：`08862a4b`），用于为后续收敛 `eva-app` 的 AI 报告编译期依赖边界做前置（保持行为不变）。
 - 下一步建议（更新至 2026-01-11，保持行为不变）：优先收敛 `eva-app` 残留 `*ServiceImpl`（每次只改 1 个类），逐步把业务编排归位到各 BC 的 UseCase，让旧入口退化为“切面/登录态解析/委托壳”（验收仍以最小回归为准）。
 - 补充进展（2026-01-11，保持行为不变，入口壳收敛：角色写侧）：已将 `eva-app` 的 `RoleServiceImpl` 写侧方法改为委托 `bc-iam` 的 UseCase（`UpdateRoleInfoUseCase/UpdateRoleStatusUseCase/AssignRolePermsUseCase/CreateRoleUseCase/DeleteRoleUseCase/DeleteMultipleRoleUseCase`），减少对旧 `RoleUpdateGateway` 的直耦合（事务边界仍由旧入口承接；异常文案/缓存失效/日志顺序与副作用完全不变；最小回归通过；落地：`a71efb84`）。
 - 补充进展（2026-01-11，保持行为不变，入口壳收敛：菜单写侧）：已将 `eva-app` 的 `MenuServiceImpl` 写侧方法改为委托 `bc-iam` 的 UseCase（`UpdateMenuInfoUseCase/CreateMenuUseCase/DeleteMenuUseCase/DeleteMultipleMenuUseCase`），减少对旧 `MenuUpdateGateway` 的直耦合（事务边界仍由旧入口承接；异常文案/缓存失效/日志顺序与副作用完全不变；最小回归通过；落地：`905baf9f`）。
