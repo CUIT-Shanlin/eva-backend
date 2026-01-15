@@ -32,6 +32,7 @@
 - ✅ **AI 报告（依赖收敛：eva-app 去 bc-ai-report/bc-ai-report-infra 编译期依赖，保持行为不变）**：在 Serena 证据化确认 `eva-app/src/main/java` 无 AI 相关直引后，收敛 `eva-app/pom.xml`：移除对 `bc-ai-report`（application jar）与 `bc-ai-report-infra` 的 Maven 编译期依赖；运行期装配由组合根 `start` 显式兜底（最小回归通过）；落地提交：`2a4736c0`。
 - ✅ **websocket（装配责任上推：start 显式依赖 websocket starter，保持行为不变）**：为后续收敛 `eva-app/pom.xml` 的 websocket 依赖边界，已在 `start/pom.xml` 增加对 `spring-boot-starter-websocket` 的依赖（与原 transitive 结果等价，仅显式化；最小回归通过）；落地提交：`97b543b1`。
 - ✅ **websocket（支撑类归位：MessageChannel，保持行为不变）**：将 `MessageChannel` 从 `eva-app` 搬运归位到 `eva-infra-shared`（保持 `package edu.cuit.app.websocket` 不变；类内容不变；最小回归通过）；落地提交：`0fbc4aef`。
+- ✅ **websocket（支撑类归位：UriUtils，保持行为不变）**：将 `UriUtils` 从 `eva-app` 搬运归位到 `eva-infra-shared`（保持 `package edu.cuit.app.util` 不变；类内容不变；用于为后续归位 `WebSocketInterceptor` 做编译闭合前置；最小回归通过）；落地提交：`c1a10d2d`。
 - ✅ 最小回归通过（Java17）：命令见 0.10。
 
 **2026-01-14（本次会话：评教 S0.2 延伸闭环（旧入口归位 → 依赖收敛前置），保持行为不变）**
@@ -584,9 +585,11 @@
 - 🎯 **下一刀（建议，保持行为不变；每次只改 1 个类或 1 个 pom）**：继续推进 `eva-app` 的 **websocket** 编译期耦合面收敛，按“先归位配置/拦截器/支撑类 → 再收敛 pom 依赖”的套路推进。
   1) ✅ 已完成（保持行为不变）：组合根兜底已就位：`start/pom.xml` 已显式依赖 `spring-boot-starter-websocket`（落地：`97b543b1`），用于确保后续 `eva-app` 去依赖时运行期 classpath 不漂移。
   2) ✅ 已完成（保持行为不变）：支撑类已归位：`MessageChannel` 已从 `eva-app` 归位到 `eva-infra-shared`（保持 `package edu.cuit.app.websocket` 不变；落地：`0fbc4aef`）。
-  3) 下一步 1（保持行为不变；每次只改 1 个类）：归位 `eva-app/src/main/java/edu/cuit/app/config/WebSocketInterceptor.java` → `eva-infra-shared`（保持 `package edu.cuit.app.config` 不变）。Serena 证据：其被 `WebSocketConfig/registerWebSocketHandlers` 中的 `new WebSocketInterceptor()` 直接引用。
-  4) 下一步 2（保持行为不变；每次只改 1 个类）：归位 `eva-app/src/main/java/edu/cuit/app/config/WebSocketConfig.java` → `eva-infra-shared`（保持 `package edu.cuit.app.config` 不变）。Serena 证据：无显式引用点（Spring 扫描装配）；仅需确保搬运不改变 Bean 装配与副作用顺序。
-  5) 评估点（保持行为不变；只改 1 个 pom）：当 `rg -n '^import\\s+org\\.springframework\\.web\\.socket' eva-app/src/main/java` 证伪为 0 后，再移除 `eva-app/pom.xml` 对 `spring-boot-starter-websocket` 的编译期依赖；运行期由组合根 `start` 已显式兜底。
+  3) ✅ 已完成（保持行为不变）：支撑类已归位：`UriUtils` 已从 `eva-app` 归位到 `eva-infra-shared`（保持 `package edu.cuit.app.util` 不变；落地：`c1a10d2d`）。
+  4) 下一步 1（保持行为不变；只改 1 个 pom）：为避免搬运 `WebSocketInterceptor` 时编译失败（其依赖 `cn.dev33.satoken.stp.StpUtil`），先在 `eva-infra-shared/pom.xml` 补齐 Sa-Token 编译期依赖（仅显式化；保持行为不变）。
+  5) 下一步 2（保持行为不变；每次只改 1 个类）：归位 `eva-app/src/main/java/edu/cuit/app/config/WebSocketInterceptor.java` → `eva-infra-shared`（保持 `package edu.cuit.app.config` 不变）。Serena 证据：其被 `WebSocketConfig/registerWebSocketHandlers` 中的 `new WebSocketInterceptor()` 直接引用。
+  6) 下一步 3（保持行为不变；每次只改 1 个类）：归位 `eva-app/src/main/java/edu/cuit/app/config/WebSocketConfig.java` → `eva-infra-shared`（保持 `package edu.cuit.app.config` 不变）。Serena 证据：无显式引用点（Spring 扫描装配）；仅需确保搬运不改变 Bean 装配与副作用顺序。
+  7) 评估点（保持行为不变；只改 1 个 pom）：当 `rg -n '^import\\s+org\\.springframework\\.web\\.socket' eva-app/src/main/java` 证伪为 0 后，再移除 `eva-app/pom.xml` 对 `spring-boot-starter-websocket` 的编译期依赖；运行期由组合根 `start` 已显式兜底。
 - ✅ **完成条件（评估点）**：
   - ✅ 已满足（评教）：Serena + `rg` 证伪 `eva-app/src/main/java` 不再 `import edu.cuit.bc.evaluation.*`，且已收敛 `eva-app/pom.xml` 对 `bc-evaluation` 的编译期依赖（保持行为不变）。
   - 待满足（websocket）：`eva-app/src/main/java` 不再 `import org.springframework.web.socket.*`，且 `eva-app/pom.xml` 已移除 `spring-boot-starter-websocket` 依赖（运行期由组合根兜底；保持行为不变）。
