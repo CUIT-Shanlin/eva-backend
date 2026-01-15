@@ -767,7 +767,18 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 > 背景：为避免 `eva-app` 继续承担评教基础设施/装配责任，已完成三步前置（均保持行为不变）：`BcEvaluationConfiguration` 已从 `eva-app` 归位到 `bc-evaluation-infra`（`c3f7fc56`）；组合根 `start` 已显式依赖 `bc-evaluation-infra(runtime)`（`0f20d0cd`）；`eva-app/pom.xml` 已移除对 `bc-evaluation-infra` 的依赖（`e9feeb56`）。
 
-- ✅ 已完成（更新至 2026-01-14；保持行为不变）：已将 `eva-app/src/main/java` 中仍 `import edu.cuit.bc.evaluation.*` 的残留类全部归位到 `bc-evaluation-infra`（关键落地：`MsgServiceImpl` 已归位；保持 `package` 不变），并在 `rg -n '^import\\s+edu\\.cuit\\.bc\\.evaluation' eva-app/src/main/java` 命中为 0 后，完成收敛 `eva-app/pom.xml`：移除对 `bc-evaluation`（application jar）的 Maven 编译期依赖（保持行为不变）。
+- ✅ 已完成（更新至 2026-01-14；保持行为不变）：已将 `eva-app/src/main/java` 中仍 `import edu.cuit.bc.evaluation.*` 的残留类全部归位到 `bc-evaluation-infra`（保持 `package` 不变），并在 `rg -n '^import\\s+edu\\.cuit\\.bc\\.evaluation' eva-app/src/main/java` 命中为 0 后，完成收敛 `eva-app/pom.xml`：移除对 `bc-evaluation`（application jar）的 Maven 编译期依赖（保持行为不变）。落地要点：`UserEvaServiceImpl`（`f4238a5c`）、`MsgServiceImpl`（`5dea9347`）、`eva-app/pom.xml` 去 `bc-evaluation`（`2b42db5d`）；支撑类前置：`WebsocketManager/MsgBizConvertor` 已归位到 `eva-infra-shared` 并补齐 websocket 依赖（`82609bda/406186ae/c69f494f`）。
+
+#### bc-audit（审计）S0.2 延伸：收敛 `eva-app` 对 `bc-audit` 的编译期依赖（保持行为不变）
+
+> 背景：当前 `eva-app` 仍直接依赖 `bc-audit` 应用层类型（例如 `InsertLogUseCase`）与审计组合根 `BcAuditConfiguration`，导致 `eva-app/pom.xml` 仍声明 `bc-audit` / `bc-audit-infra` 依赖。
+> 目标：按“旧入口/组合根逐个归位 → 再收敛 pom 依赖”的套路，逐步清空 `eva-app/src/main/java` 对 `edu.cuit.bc.audit.*` 的直接引用面，并在证伪为 0 后评估 `eva-app/pom.xml` 去 `bc-audit` 编译期依赖（每次只改 1 个类或 1 个 pom；保持行为不变）。
+
+- 证据口径（新会话先复核，避免口径漂移）：`rg -n '^import\\s+edu\\.cuit\\.bc\\.audit' eva-app/src/main/java`（当前应命中 `BcAuditConfiguration` 与 `LogServiceImpl`，以及可能的其它入口类）。
+- 建议顺序（每次只改 1 个类闭环，保持行为不变）：
+  1) 先归位 `eva-app/src/main/java/edu/cuit/app/config/BcAuditConfiguration.java` → `bc-audit-infra`（保持 `package edu.cuit.app.config` 不变；Bean 定义/装配顺序不变）。
+  2) 再归位 `eva-app/src/main/java/edu/cuit/app/service/impl/LogServiceImpl.java` → `bc-audit-infra`（保持 `package` 不变；事务/日志/异常文案/副作用顺序不变）。
+  3) 当 `rg` 证伪 `eva-app/src/main/java` 不再 `import edu.cuit.bc.audit.*` 后，再评估 `eva-app/pom.xml` 是否可移除 `bc-audit`（以及 `bc-audit-infra`）的编译期依赖；若运行期装配可能受影响，先在 `start/pom.xml` 显式增加 `bc-audit-infra(runtime)` 兜底（每次只改 1 个 pom）。
 
 #### bc-course（课程）S0.2 延伸：协议承载面继续收敛（保持行为不变）
 

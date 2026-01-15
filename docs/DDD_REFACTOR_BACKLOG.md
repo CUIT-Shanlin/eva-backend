@@ -108,7 +108,10 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
-**已完成（更新至 2026-01-13）**
+**已完成（更新至 2026-01-14）**
+- ✅ S0.2 延伸（评教：旧入口壳归位收尾，保持行为不变）：将 `UserEvaServiceImpl`、`MsgServiceImpl` 从 `eva-app` 归位到 `bc-evaluation-infra`（保持 `package` 不变；行为不变；最小回归通过；落地：`f4238a5c` / `5dea9347`）。
+- ✅ S0.2 延伸（评教：归位支撑类与编译闭合前置，保持行为不变）：为归位消息入口壳链路做编译闭合前置，在 `eva-infra-shared/pom.xml` 补齐 websocket 相关依赖，并将 `WebsocketManager`、`MsgBizConvertor` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package` 不变；最小回归通过；落地：`82609bda` / `406186ae` / `c69f494f`）。
+- ✅ S0.2 延伸（评教：依赖收敛，保持行为不变）：在 `rg` 证伪 `eva-app/src/main/java` 不再引用 `edu.cuit.bc.evaluation.*` 后，收敛 `eva-app/pom.xml`：移除对 `bc-evaluation`（application jar）的编译期依赖（最小回归通过；落地：`2b42db5d`）。
 - ✅ S0.2 延伸（评教：依赖收敛，保持行为不变）：在 Serena + `rg` 证伪 `eva-app/src/main/java` 不再直接引用 `edu.cuit.infra.bcevaluation.*` 实现类型后，收敛 `eva-app/pom.xml`：移除对 `bc-evaluation-infra` 的依赖；运行期装配由组合根 `start` 显式兜底（最小回归通过；落地：`e9feeb56`）。
 - ✅ S0.2 延伸（评教：装配责任上推，保持行为不变）：在 `start/pom.xml` 增加对 `bc-evaluation-infra` 的 `runtime` 依赖，使组合根显式承接评教基础设施运行时装配责任（与原 transitive 结果等价，仅显式化；最小回归通过；落地：`0f20d0cd`）。
 - ✅ S0.2 延伸（评教：组合根归位，保持行为不变）：将 `BcEvaluationConfiguration` 从 `eva-app` 搬运归位到 `bc-evaluation-infra`（保持 `package edu.cuit.app.config` 不变；Bean 装配/副作用顺序不变；用于后续收敛 `eva-app` 对 `bc-evaluation-infra` 的依赖边界；最小回归通过；落地：`c3f7fc56`）。
@@ -497,13 +500,10 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 （新增，更新至 2026-01-14，保持行为不变）
 
-- **S0.2 延伸（评教域：收敛 `eva-app` 对 `bc-evaluation` 的编译期耦合面，保持行为不变）**：
-  - ✅ 已完成（2026-01-14，保持行为不变）：将 `UserEvaServiceImpl` 从 `eva-app` 归位到 `bc-evaluation-infra`（保持 `package` 不变；不改 `@CheckSemId`/`StpUtil` 登录态解析次数与顺序；不改异常文案/副作用顺序；落地：`f4238a5c`）。
-  - ✅ 前置（2026-01-14，保持行为不变）：为归位 `WebsocketManager` 做编译闭合前置，在 `eva-infra-shared/pom.xml` 补齐 `spring-websocket` 与 `commons-lang3`（落地：`82609bda`）。
-  - ✅ 已完成（2026-01-14，保持行为不变）：将 `WebsocketManager` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package` 不变；落地：`406186ae`）。
-  - ✅ 已完成（2026-01-14，保持行为不变）：将 `MsgBizConvertor` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package` 不变；落地：`c69f494f`）。
-  - ✅ 已完成（2026-01-14，保持行为不变）：将 `MsgServiceImpl` 从 `eva-app` 归位到 `bc-evaluation-infra`（保持 `package` 不变；落地：`5dea9347`）。
-  - ✅ 已完成（2026-01-14，保持行为不变）：在 `rg` 证伪 `eva-app/src/main/java` 不再引用 `edu.cuit.bc.evaluation.*` 后，收敛 `eva-app/pom.xml`：移除对 `bc-evaluation` 的 Maven 编译期依赖（落地：`2b42db5d`）。
+- **S0.2 延伸（审计域：收敛 `eva-app` 对 `bc-audit` 的编译期耦合面，保持行为不变）**：
+  - ⏳ 待完成：将 `eva-app/src/main/java/edu/cuit/app/config/BcAuditConfiguration.java` 归位到 `bc-audit-infra`（保持 `package edu.cuit.app.config` 不变；Bean 装配/副作用顺序不变）。
+  - ⏳ 待完成：将 `eva-app/src/main/java/edu/cuit/app/service/impl/LogServiceImpl.java` 归位到 `bc-audit-infra`（保持 `package` 不变；异常文案/日志与副作用顺序不变）。
+  - 验收口径：`rg -n '^import\\s+edu\\.cuit\\.bc\\.audit' eva-app/src/main/java` 命中为 0 后，再评估是否可收敛 `eva-app/pom.xml` 的 `bc-audit`（以及 `bc-audit-infra`）编译期依赖（每次只改 1 个 `pom.xml`；保持行为不变）。若运行时装配可能受影响，先在 `start/pom.xml` 显式增加 `bc-audit-infra(runtime)` 兜底（每次只改 1 个 pom）。
 
 - **S0.2 延伸（课程域：继续削减 `eva-app` 的课程旧入口实现承载面）**：
   - ✅ 已完成：课程相关 Controller 注入已从 `*ServiceImpl` 收窄为 `shared-kernel` 下的 `edu.cuit.client.api.course.*Service` 接口（避免 Controller 编译期绑定实现类；保持行为不变；落地以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
