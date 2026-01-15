@@ -517,6 +517,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-01-15，保持行为不变，配置/拦截器归位：websocket）：将 `WebSocketInterceptor` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package edu.cuit.app.config` 不变；最小回归通过；落地：`df06f0e6`），用于继续收敛 `eva-app` 对 websocket 的编译期耦合面。
 - 补充进展（2026-01-15，保持行为不变，配置归位：websocket）：将 `WebSocketConfig` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package edu.cuit.app.config` 不变；最小回归通过；落地：`e03e60f9`），用于继续收敛 `eva-app` 对 websocket 的编译期耦合面。
 - 补充进展（2026-01-15，保持行为不变，依赖收敛：websocket）：在 Serena 证伪 `eva-app/src/main/java` 不再 `import org.springframework.web.socket.*` 后，已收敛 `eva-app/pom.xml` 并移除 `spring-boot-starter-websocket` 的编译期依赖（运行期由组合根 `start` 显式兜底；最小回归通过；落地：`4213a95a`）。
+- 下一步建议（更新至 2026-01-15，保持行为不变，依赖收敛：消息契约）：评估 `eva-app/pom.xml` 中的 `bc-messaging-contract` 是否仍必要；若 Serena + `rg` 证伪 `eva-app/src/main/java` 无消息契约引用面，则独立提交移除该编译期依赖（每次只改 1 个 `pom.xml`；最小回归为唯一验收口径）。
 - 下一步建议（更新至 2026-01-11，保持行为不变）：优先收敛 `eva-app` 残留 `*ServiceImpl`（每次只改 1 个类），逐步把业务编排归位到各 BC 的 UseCase，让旧入口退化为“切面/登录态解析/委托壳”（验收仍以最小回归为准）。
 - 补充进展（2026-01-11，保持行为不变，入口壳收敛：角色写侧）：已将 `eva-app` 的 `RoleServiceImpl` 写侧方法改为委托 `bc-iam` 的 UseCase（`UpdateRoleInfoUseCase/UpdateRoleStatusUseCase/AssignRolePermsUseCase/CreateRoleUseCase/DeleteRoleUseCase/DeleteMultipleRoleUseCase`），减少对旧 `RoleUpdateGateway` 的直耦合（事务边界仍由旧入口承接；异常文案/缓存失效/日志顺序与副作用完全不变；最小回归通过；落地：`a71efb84`）。
 - 补充进展（2026-01-11，保持行为不变，入口壳收敛：菜单写侧）：已将 `eva-app` 的 `MenuServiceImpl` 写侧方法改为委托 `bc-iam` 的 UseCase（`UpdateMenuInfoUseCase/CreateMenuUseCase/DeleteMenuUseCase/DeleteMultipleMenuUseCase`），减少对旧 `MenuUpdateGateway` 的直耦合（事务边界仍由旧入口承接；异常文案/缓存失效/日志顺序与副作用完全不变；最小回归通过；落地：`905baf9f`）。
