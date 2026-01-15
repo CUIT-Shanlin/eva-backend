@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-01-15（本次会话：审计 S0.2 延伸（旧入口归位 → 依赖收敛前置），保持行为不变）**
+- ✅ **websocket（编译闭合前置：eva-infra-shared 补齐 security 依赖，保持行为不变）**：为后续归位 `WebSocketInterceptor`（依赖 `cn.dev33.satoken.stp.StpUtil`）做编译闭合前置，在 `eva-infra-shared/pom.xml` 补齐 `zym-spring-boot-starter-security` 依赖（运行时 classpath 已存在，仅显式化；最小回归通过）；落地提交：`fa2faf1d`。
 - ✅ **审计（组合根归位：BcAuditConfiguration，保持行为不变）**：将 `BcAuditConfiguration` 从 `eva-app` 搬运归位到 `bc-audit-infra`（保持 `package edu.cuit.app.config` 不变；Bean 定义/装配顺序不变；最小回归通过）；落地提交：`5a4d726b`。
 - ✅ **审计（编译闭合前置：bc-audit-infra 补齐 logging 依赖，保持行为不变）**：为后续归位 `LogServiceImpl/LogBizConvertor`（依赖 `LogManager/OperateLogBO`）做编译闭合前置，在 `bc-audit/infrastructure/pom.xml` 补齐 `zym-spring-boot-starter-logging` 依赖（运行时 classpath 已存在，仅显式化；最小回归通过）；落地提交：`e7e13736`。
 - ✅ **审计（归位支撑类：LogBizConvertor，保持行为不变）**：将 `LogBizConvertor` 从 `eva-app` 搬运归位到 `bc-audit-infra`（保持 `package edu.cuit.app.convertor` 不变；MapStruct 映射规则/表达式不变；最小回归通过）；落地提交：`99960c7f`。
@@ -586,9 +587,9 @@
   1) ✅ 已完成（保持行为不变）：组合根兜底已就位：`start/pom.xml` 已显式依赖 `spring-boot-starter-websocket`（落地：`97b543b1`），用于确保后续 `eva-app` 去依赖时运行期 classpath 不漂移。
   2) ✅ 已完成（保持行为不变）：支撑类已归位：`MessageChannel` 已从 `eva-app` 归位到 `eva-infra-shared`（保持 `package edu.cuit.app.websocket` 不变；落地：`0fbc4aef`）。
   3) ✅ 已完成（保持行为不变）：支撑类已归位：`UriUtils` 已从 `eva-app` 归位到 `eva-infra-shared`（保持 `package edu.cuit.app.util` 不变；落地：`c1a10d2d`）。
-  4) 下一步 1（保持行为不变；只改 1 个 pom）：为避免搬运 `WebSocketInterceptor` 时编译失败（其依赖 `cn.dev33.satoken.stp.StpUtil`），先在 `eva-infra-shared/pom.xml` 补齐 Sa-Token 编译期依赖（仅显式化；保持行为不变）。
-  5) 下一步 2（保持行为不变；每次只改 1 个类）：归位 `eva-app/src/main/java/edu/cuit/app/config/WebSocketInterceptor.java` → `eva-infra-shared`（保持 `package edu.cuit.app.config` 不变）。Serena 证据：其被 `WebSocketConfig/registerWebSocketHandlers` 中的 `new WebSocketInterceptor()` 直接引用。
-  6) 下一步 3（保持行为不变；每次只改 1 个类）：归位 `eva-app/src/main/java/edu/cuit/app/config/WebSocketConfig.java` → `eva-infra-shared`（保持 `package edu.cuit.app.config` 不变）。Serena 证据：无显式引用点（Spring 扫描装配）；仅需确保搬运不改变 Bean 装配与副作用顺序。
+  4) ✅ 已完成（保持行为不变）：编译闭合前置已就位：`eva-infra-shared/pom.xml` 已补齐 `zym-spring-boot-starter-security`（用于闭合 `StpUtil`；落地：`fa2faf1d`）。
+  5) 下一步 1（保持行为不变；每次只改 1 个类）：归位 `eva-app/src/main/java/edu/cuit/app/config/WebSocketInterceptor.java` → `eva-infra-shared`（保持 `package edu.cuit.app.config` 不变）。Serena 证据：其被 `WebSocketConfig/registerWebSocketHandlers` 中的 `new WebSocketInterceptor()` 直接引用。
+  6) 下一步 2（保持行为不变；每次只改 1 个类）：归位 `eva-app/src/main/java/edu/cuit/app/config/WebSocketConfig.java` → `eva-infra-shared`（保持 `package edu.cuit.app.config` 不变）。Serena 证据：无显式引用点（Spring 扫描装配）；仅需确保搬运不改变 Bean 装配与副作用顺序。
   7) 评估点（保持行为不变；只改 1 个 pom）：当 `rg -n '^import\\s+org\\.springframework\\.web\\.socket' eva-app/src/main/java` 证伪为 0 后，再移除 `eva-app/pom.xml` 对 `spring-boot-starter-websocket` 的编译期依赖；运行期由组合根 `start` 已显式兜底。
 - ✅ **完成条件（评估点）**：
   - ✅ 已满足（评教）：Serena + `rg` 证伪 `eva-app/src/main/java` 不再 `import edu.cuit.bc.evaluation.*`，且已收敛 `eva-app/pom.xml` 对 `bc-evaluation` 的编译期依赖（保持行为不变）。
