@@ -517,7 +517,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-01-15，保持行为不变，配置/拦截器归位：websocket）：将 `WebSocketInterceptor` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package edu.cuit.app.config` 不变；最小回归通过；落地：`df06f0e6`），用于继续收敛 `eva-app` 对 websocket 的编译期耦合面。
 - 补充进展（2026-01-15，保持行为不变，配置归位：websocket）：将 `WebSocketConfig` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package edu.cuit.app.config` 不变；最小回归通过；落地：`e03e60f9`），用于继续收敛 `eva-app` 对 websocket 的编译期耦合面。
 - 补充进展（2026-01-15，保持行为不变，依赖收敛：websocket）：在 Serena 证伪 `eva-app/src/main/java` 不再 `import org.springframework.web.socket.*` 后，已收敛 `eva-app/pom.xml` 并移除 `spring-boot-starter-websocket` 的编译期依赖（运行期由组合根 `start` 显式兜底；最小回归通过；落地：`4213a95a`）。
-- 下一步建议（更新至 2026-01-15，保持行为不变，依赖收敛：消息契约）：评估 `eva-app/pom.xml` 中的 `bc-messaging-contract` 是否仍必要；若 Serena + `rg` 证伪 `eva-app/src/main/java` 无消息契约引用面，则独立提交移除该编译期依赖（每次只改 1 个 `pom.xml`；最小回归为唯一验收口径）。
+- ✅ 已完成（更新至 2026-01-16，保持行为不变，依赖收敛：消息契约）：在 Serena + `rg` 证伪 `eva-app/src/main/java` 无消息契约引用面后，已收敛 `eva-app/pom.xml` 并移除 `bc-messaging-contract` 的 Maven 编译期依赖（最小回归通过；落地：`b92314ef`）。
 - 下一步建议（更新至 2026-01-11，保持行为不变）：优先收敛 `eva-app` 残留 `*ServiceImpl`（每次只改 1 个类），逐步把业务编排归位到各 BC 的 UseCase，让旧入口退化为“切面/登录态解析/委托壳”（验收仍以最小回归为准）。
 - 补充进展（2026-01-11，保持行为不变，入口壳收敛：角色写侧）：已将 `eva-app` 的 `RoleServiceImpl` 写侧方法改为委托 `bc-iam` 的 UseCase（`UpdateRoleInfoUseCase/UpdateRoleStatusUseCase/AssignRolePermsUseCase/CreateRoleUseCase/DeleteRoleUseCase/DeleteMultipleRoleUseCase`），减少对旧 `RoleUpdateGateway` 的直耦合（事务边界仍由旧入口承接；异常文案/缓存失效/日志顺序与副作用完全不变；最小回归通过；落地：`a71efb84`）。
 - 补充进展（2026-01-11，保持行为不变，入口壳收敛：菜单写侧）：已将 `eva-app` 的 `MenuServiceImpl` 写侧方法改为委托 `bc-iam` 的 UseCase（`UpdateMenuInfoUseCase/CreateMenuUseCase/DeleteMenuUseCase/DeleteMultipleMenuUseCase`），减少对旧 `MenuUpdateGateway` 的直耦合（事务边界仍由旧入口承接；异常文案/缓存失效/日志顺序与副作用完全不变；最小回归通过；落地：`905baf9f`）。
@@ -834,7 +834,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - 依赖收敛准备（事件枚举下沉到 contract，保持行为不变）：将 `CourseOperationMessageMode` 从 `bc-messaging` 迁移到 `bc-messaging-contract`（保持 `package edu.cuit.bc.messaging.application.event` 不变；落地：`b2247e7f`）。
   - 依赖收敛准备（事件载荷下沉到 contract，保持行为不变）：将 `CourseOperationSideEffectsEvent` 从 `bc-messaging` 迁移到 `bc-messaging-contract`（保持 `package edu.cuit.bc.messaging.application.event` 不变；落地：`ea2c0d9b`）。
   - 依赖收敛准备（事件载荷下沉到 contract，保持行为不变）：将 `CourseTeacherTaskMessagesEvent` 从 `bc-messaging` 迁移到 `bc-messaging-contract`（保持 `package edu.cuit.bc.messaging.application.event` 不变；落地：`12f43323`）。
-  - 依赖收敛（应用侧编译期依赖面收窄，保持行为不变）：`eva-app` 对消息域的 Maven 依赖从 `bc-messaging` 收敛为仅依赖 `bc-messaging-contract`（仅用于事件载荷类型；落地：`d3aeb3ab`）。
+  - 依赖收敛（应用侧编译期依赖面收窄，保持行为不变）：`eva-app` 对消息域的 Maven 编译期依赖已收敛为 0（先收敛为仅依赖 `bc-messaging-contract`：`d3aeb3ab`；后续在证伪无引用后移除 `bc-messaging-contract`：`b92314ef`）。
 - 下一步建议（依赖收敛后半段，保持行为不变）：✅ 已完成：在 `start/pom.xml` 补齐 `bc-messaging` 的 `runtime` 依赖（保持行为不变；落地：`f23254ec`）；✅ 已完成：移除 `eva-infra/pom.xml` 中 `bc-messaging` 的 `runtime` 依赖，把“运行时装配责任”上推到组合根 `start`（保持行为不变；落地：`507f95b2`）。✅ 已完成后置建议：使用 Serena 证伪 `eva-infra` 无 `bcmessaging` / `edu.cuit.bc.messaging` / `bc-messaging` 的编译期引用，且运行时装配由 `start` 承接（证据见 `NEXT_SESSION_HANDOFF.md` 0.9；保持行为不变）。
 
 - 建议拆分提交（每步：Serena 符号级引用分析 → 最小回归 → commit → 三文档同步）：
