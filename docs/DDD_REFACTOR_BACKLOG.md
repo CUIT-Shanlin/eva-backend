@@ -109,6 +109,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-01-16）**
+- ✅ S1 前置（支撑类归位：Sa-Token 权限加载，保持行为不变）：将 `StpInterfaceImpl` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package edu.cuit.app.security` 不变；类内容不变；最小回归通过；落地：`bcce5582`）。
 - ✅ S1 前置（支撑类归位：Sa-Token 拦截器配置，保持行为不变）：将 `SaTokenInterceptorConfig` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package edu.cuit.app.config` 不变；类内容不变；最小回归通过；落地：`a14a4c68`）。
 - ✅ S1 前置（支撑类归位：Sa-Token 配置，保持行为不变）：将 `SaTokenConfig` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package edu.cuit.app.config` 不变；类内容不变；最小回归通过；落地：`c767663f`）。
 - ✅ S0.2 延伸（消息契约：依赖收敛，保持行为不变）：在 Serena 证据化确认 `eva-app/src/main/java` 无消息契约引用面后，已收敛 `eva-app/pom.xml`：移除 `bc-messaging-contract` 的 Maven 编译期依赖，使 `eva-app` 对消息域编译期依赖收敛为 0（最小回归通过；落地：`b92314ef`）。
