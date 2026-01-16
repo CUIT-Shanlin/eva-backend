@@ -760,6 +760,9 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 2) **可以移除 `eva-app` / `eva-adapter` 的判定标准（建议的 DoD）**
    - `eva-adapter`：Controller 仅承载 HTTP 协议适配与参数校验；业务编排已全部进入对应 `bc-*/application`（或由 `bc-*` 的入口类承接），并且 Controller 不再直接依赖 `eva-infra` 的实现细节。
    - `eva-app`：不再包含任何“业务入口实现”（大量 `*ServiceImpl` 只剩委托壳或已归位），`@CheckSemId` 触发点与 `StpUtil.getLoginId()` 调用次数/顺序在迁移后仍可逐项对照证伪；装配要么迁入 `start`，要么迁入对应 BC 的 configuration（保持 Bean 名称与初始化顺序不变）。
+   - 现状评估（更新至 2026-01-16，保持行为不变）：
+     - `eva-app`：`*ServiceImpl` 已清零，但仍残留少量支撑类（口径：`fd -t f -e java . eva-app/src/main/java | wc -l` 当前为 12；典型包括 Sa-Token 配置、切面配置、评教 Convertor、少量 Exec/Service 等）。组合根 `start` 仍显式依赖 `eva-app`（见 `start/pom.xml`），因此“移除模块”尚未满足。
+     - `eva-adapter`：仍保留 22 个 `*Controller.java`（口径：`fd -t f 'Controller\\.java$' eva-adapter/src/main/java | wc -l`），组合根 `start` 仍显式依赖 `eva-adapter`（见 `start/pom.xml`），因此“移除模块”尚未满足。
 
 3) **可以移除 `eva-infra` 的判定标准（建议的 DoD）**
    - `eva-infra` 中旧 `*GatewayImpl` 已全部退化为委托壳或迁入对应 `bc-*/infrastructure`（或其过渡落点），不再承担“业务编排”。
@@ -770,6 +773,10 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 先把“入口方法簇”按 BC 迁完（A→B），让 `eva-app` 业务实现逐步清空；再做“模块移除/目录折叠”类变更。
 - 每次只做一个维度：要么迁入口（业务代码），要么迁装配/模块结构（wiring/Maven），避免同时改动导致回滚困难。
 - 盘点清单落点：`docs/DDD_REFACTOR_BACKLOG.md` 的 4.3（未收敛清单）用于持续维护“仍在 eva-* 的入口/旧网关候选”。
+ - 建议的 S1 落地顺序（保持行为不变；每步只改 1 个类或 1 个 `pom.xml`）：
+   1) 先清空 `eva-app`：优先把 Sa-Token/切面/Convertor/Exec 等支撑类逐个归位到合适模块（候选：`eva-infra-shared` 或对应 BC 的 `*-infra`；保持 `package` 不变），让 `start` 未来可移除对 `eva-app` 的依赖。
+   2) 再处理 `eva-adapter`：逐个将 Controller 迁入对应 BC（或引入 `bc-*-adapter` 子模块承接 Web 入口），最终让 `start` 可移除对 `eva-adapter` 的依赖。
+   3) 最后才考虑 `eva-domain/eva-infra*`：它们当前仍被多个 BC 编译期依赖，属于“跨 BC 共享/过渡模块”，需要先完成端口归属与依赖边界收敛，避免硬整合导致循环依赖与装配漂移。
 
 ### 10.3 未完成清单（滚动，供下一会话排期）
 
