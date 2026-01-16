@@ -540,7 +540,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-01-12，保持行为不变，ICourseTypeServiceImpl 收敛准备）：在 `bc-course/application` 新增课程类型用例 `CourseTypeUseCase`（读写合并；手写 `CourseTypeEntity` → `CourseType` 映射与 `PaginationQueryResultCO` 组装，不引入 `eva-infra-shared`；对齐旧入口逻辑与返回语义；最小回归通过；落地：`325f221a`）。
 - 补充进展（2026-01-12，保持行为不变，ICourseTypeServiceImpl 收敛准备）：在 `BcCourseConfiguration` 补齐 `CourseTypeUseCase` 的 Bean 装配（保持行为不变；最小回归通过；落地：`55eb322e`）。
 - 补充进展（2026-01-12，保持行为不变，入口壳收敛：课程类型）：将 `eva-app` 的 `ICourseTypeServiceImpl` 退化为纯委托壳，改为委托 `CourseTypeUseCase`（保持 `id==null` 语义与 `updateCoursesType` 返回 `null`（`Void`）等行为不变；最小回归通过；落地：`1aebda24`）。
-- 现状快照（更新至 2026-01-16，保持行为不变）：`eva-app` 下 `*ServiceImpl` 已清零（0）；但仍残留少量支撑类（口径：`fd -t f -e java . eva-app/src/main/java | wc -l` 当前为 11）。`eva-adapter` 下残留 `*Controller` 为 **22 个**。具体清单与优先级见 `NEXT_SESSION_HANDOFF.md` 0.10。
+- 现状快照（更新至 2026-01-16，保持行为不变）：`eva-app` 下 `*ServiceImpl` 已清零（0）；但仍残留少量支撑类（口径：`fd -t f -e java . eva-app/src/main/java | wc -l` 当前为 10）。`eva-adapter` 下残留 `*Controller` 为 **22 个**。具体清单与优先级见 `NEXT_SESSION_HANDOFF.md` 0.10。
 - 补充进展（2026-01-12，保持行为不变，Controller 收敛起步）：在 `UserUpdateController` 提取 `currentUserId()` 以减少适配层编排噪声（保持 `StpUtil.getLoginId()` 调用顺序与次数不变；最小回归通过；落地：`09cb6454`）。
 - 补充进展（2026-01-12，保持行为不变，Controller 收敛：登录入口）：在 `AuthenticationController` 收敛 `login` 表达式，用“局部变量 + return”显式固化 `userAuthService.login(...)` → `CommonResult.success(...)` 的执行顺序（不改异常文案/返回结构/副作用顺序；最小回归通过；落地：`102a0cbb`）。
 - 补充进展（2026-01-12，保持行为不变，Controller 收敛：用户查询入口）：在 `UserQueryController` 收敛返回表达式，用“局部变量 + return”显式固化“先调用 service → 再 `CommonResult.success(...)`”的执行顺序（不改异常文案/返回结构/副作用顺序；最小回归通过；落地：`18e0bb29`）。
@@ -761,7 +761,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
    - `eva-adapter`：Controller 仅承载 HTTP 协议适配与参数校验；业务编排已全部进入对应 `bc-*/application`（或由 `bc-*` 的入口类承接），并且 Controller 不再直接依赖 `eva-infra` 的实现细节。
    - `eva-app`：不再包含任何“业务入口实现”（大量 `*ServiceImpl` 只剩委托壳或已归位），`@CheckSemId` 触发点与 `StpUtil.getLoginId()` 调用次数/顺序在迁移后仍可逐项对照证伪；装配要么迁入 `start`，要么迁入对应 BC 的 configuration（保持 Bean 名称与初始化顺序不变）。
    - 现状评估（更新至 2026-01-16，保持行为不变）：
-     - `eva-app`：`*ServiceImpl` 已清零，但仍残留少量支撑类（口径：`fd -t f -e java . eva-app/src/main/java | wc -l` 当前为 11；典型包括 Sa-Token 配置、切面配置、评教 Convertor、少量 Exec/Service 等）。组合根 `start` 仍显式依赖 `eva-app`（见 `start/pom.xml`），因此“移除模块”尚未满足。
+     - `eva-app`：`*ServiceImpl` 已清零，但仍残留少量支撑类（口径：`fd -t f -e java . eva-app/src/main/java | wc -l` 当前为 10；典型包括切面配置、评教 Convertor、少量 Exec/Service 等）。组合根 `start` 仍显式依赖 `eva-app`（见 `start/pom.xml`），因此“移除模块”尚未满足。
      - `eva-adapter`：仍保留 22 个 `*Controller.java`（口径：`fd -t f 'Controller\\.java$' eva-adapter/src/main/java | wc -l`），组合根 `start` 仍显式依赖 `eva-adapter`（见 `start/pom.xml`），因此“移除模块”尚未满足。
 
 3) **可以移除 `eva-infra` 的判定标准（建议的 DoD）**
