@@ -19,10 +19,12 @@
     </properties>
 
     <dependencies>
+        <!-- 组合根对 eva-adapter 仅需运行期装配（Controller 扫描）；start 源码不编译期引用 adapter 类型，收敛编译期依赖边界（保持行为不变） -->
         <dependency>
             <groupId>edu.cuit</groupId>
             <artifactId>eva-adapter</artifactId>
             <version>${revision}</version>
+            <scope>runtime</scope>
         </dependency>
         <!-- 组合根显式承接 eva-infra 运行时装配责任（保持行为不变；用于替代历史 eva-app 传递依赖） -->
         <dependency>
