@@ -11,7 +11,6 @@
   <modules>
     <module>start</module>
     <module>eva-adapter</module>
-    <module>eva-app</module>
     <module>shared-kernel</module>
     <module>eva-domain</module>
     <module>eva-infra-dal</module>
