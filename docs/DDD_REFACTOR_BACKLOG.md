@@ -109,6 +109,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-01-17）**
+- ✅ S1 前置（支撑类归位：评教模板 Convertor，保持行为不变）：将 `EvaTemplateBizConvertor` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package edu.cuit.app.convertor.eva` 不变；类内容不变；最小回归通过；落地：`470078ba`）。
 - ✅ S1 前置（支撑类归位：评教任务 Convertor，保持行为不变）：将 `EvaTaskBizConvertor` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package edu.cuit.app.convertor.eva` 不变；类内容不变；最小回归通过；落地：`80b3937c`）。
 - ✅ S1 前置（支撑类归位：评教记录 Convertor，保持行为不变）：将 `EvaRecordBizConvertor` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package edu.cuit.app.convertor.eva` 不变；类内容不变；最小回归通过；落地：`b3a3dab2`）。
 - ✅ S1 前置（支撑类归位：评教配置 Convertor，保持行为不变）：将 `EvaConfigBizConvertor` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package edu.cuit.app.convertor.eva` 不变；类内容不变；最小回归通过；落地：`5514463d`）。
@@ -763,7 +764,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 ## 6. “下一批行动”建议（不含实现，只给路线）
 
 阶段性策略微调（2025-12-29）：
-- ✅ 复核口径（2026-01-17，不改业务语义）：确认 `eva-app/pom.xml` 已无 `bc-messaging-contract` 依赖声明；`spring-boot-starter-websocket` 仅由组合根 `start` 显式承接；并已将 `EvaConfigBizConvertor`、`EvaRecordBizConvertor`、`EvaTaskBizConvertor` 从 `eva-app` 归位到 `eva-infra-shared`（保持行为不变）。当前 `eva-app` 残留源码侧口径为 5 个 Java 文件、`eva-adapter` 残留 22 个 Controller（详见 `NEXT_SESSION_HANDOFF.md` 0.9/0.10/0.11 与 `DDD_REFACTOR_PLAN.md` 10.5）。
+- ✅ 复核口径（2026-01-17，不改业务语义）：确认 `eva-app/pom.xml` 已无 `bc-messaging-contract` 依赖声明；`spring-boot-starter-websocket` 仅由组合根 `start` 显式承接；并已将 `EvaConfigBizConvertor`、`EvaRecordBizConvertor`、`EvaTaskBizConvertor`、`EvaTemplateBizConvertor` 从 `eva-app` 归位到 `eva-infra-shared`（保持行为不变）。当前 `eva-app` 残留源码侧口径为 4 个 Java 文件、`eva-adapter` 残留 22 个 Controller（详见 `NEXT_SESSION_HANDOFF.md` 0.9/0.10/0.11 与 `DDD_REFACTOR_PLAN.md` 10.5）。
 - ✅ 允许“微调”：仅限结构性重构（收窄依赖/拆接口/移动默认值兜底），**不改业务语义**；缓存/日志/异常文案/副作用顺序完全不变。
   - 🎯 下一批主线建议（更新至 2026-01-16，保持行为不变）：**websocket 的 S0.2 延伸已闭环**（配置/拦截器/支撑类已归位到 `eva-infra-shared`，且 `eva-app/pom.xml` 已移除 `spring-boot-starter-websocket` 编译期依赖；运行期由组合根 `start` 显式兜底；详见 4.2 与 `NEXT_SESSION_HANDOFF.md` 0.10.1）。同时 ✅ 已完成：`eva-app/pom.xml` 已移除 `bc-messaging-contract` 编译期依赖（保持行为不变；最小回归通过；落地：`b92314ef`）。下一步建议继续回到“依赖方编译期依赖收敛”主线：优先从 `eva-domain` / `eva-infra-shared` 等依赖方开始挑选 1 个 `pom.xml` 做依赖收敛评估（先 Serena 证据化盘点引用面与依赖闭包；保持行为不变）。
   - ✅ 主线口径更新（滚动）：`bc-messaging` 的“归位 + 依赖收敛”已阶段性闭环；`bc-course` 的 S0（旧 gateway 压扁为委托壳）已推进到阶段性闭环（见 4.2/4.3 与 `NEXT_SESSION_HANDOFF.md` 0.9）。当前下一批主线：**S0.2 延伸（收敛 `bc-course` 的协议承载面 + 收敛依赖方对 `bc-course` 的编译期依赖）**，按“先 Serena 证据化 → 再小步迁移协议对象到 `shared-kernel` / 依赖替换 `pom.xml` → 最小回归 → 提交 → 三文档同步”的节奏推进（保持行为不变）。
