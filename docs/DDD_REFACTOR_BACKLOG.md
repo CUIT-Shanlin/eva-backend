@@ -109,6 +109,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-01-17）**
+- ✅ S1（入口归位前置：bc-iam-infra 编译闭合补齐，保持行为不变）：为后续归位 `UserQueryController`（依赖 `IEvaStatisticsService`）做前置，在 `bc-iam/infrastructure/pom.xml` 补齐 `bc-evaluation-contract`（保持行为不变；最小回归通过；落地：`0781952e`）。
 - ✅ S1（入口归位前置：bc-iam-infra 编译闭合补齐，保持行为不变）：为后续归位 `UserUpdateController` 做前置，在 `bc-iam/infrastructure/pom.xml` 补齐 `cola-component-exception`、`shared-kernel`、`eva-base-common`（保持行为不变；最小回归通过；落地：`ddd5ff2a`）。
 - ✅ S1（入口归位前置：bc-iam-infra 编译闭合，保持行为不变）：为后续将 `AuthenticationController` 从 `eva-adapter` 归位到 `bc-iam-infra`，先在 `bc-iam/infrastructure/pom.xml` 补齐 `spring-boot-starter-web`、`zym-spring-boot-starter-common`、`commons-lang3`（仅编译闭合；最小回归通过；落地：`42d44f0b`）。
 - ✅ S0.2 延伸（依赖收敛：组合根→eva-adapter，保持行为不变）：Serena 证伪 `start` 源码未引用 `edu.cuit.adapter.*` 后，将 `start/pom.xml` 对 `eva-adapter` 的依赖 scope 改为 `runtime`（运行期装配不变，仅收敛编译期边界；最小回归通过；落地：`045891d1`）。

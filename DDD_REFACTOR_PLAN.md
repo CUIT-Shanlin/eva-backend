@@ -509,6 +509,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 - 补充进展（2026-01-17，保持行为不变，Controller 归位前置）：为后续将 `AuthenticationController` 从 `eva-adapter` 归位到 `bc-iam-infra`，先在 `bc-iam/infrastructure/pom.xml` 补齐 `spring-boot-starter-web`、`zym-spring-boot-starter-common`、`commons-lang3`（仅编译闭合；最小回归通过；落地：`42d44f0b`）。
 - 补充进展（2026-01-17，保持行为不变，Controller 归位前置）：为后续归位 `UserUpdateController`（依赖 `SysException/LogModule/ValidStatus`）做编译闭合前置，在 `bc-iam/infrastructure/pom.xml` 补齐 `cola-component-exception`、`shared-kernel`、`eva-base-common`（保持行为不变；最小回归通过；落地：`ddd5ff2a`）。
+- 补充进展（2026-01-17，保持行为不变，Controller 归位前置）：为后续归位 `UserQueryController`（依赖 `IEvaStatisticsService`）做编译闭合前置，在 `bc-iam/infrastructure/pom.xml` 补齐 `bc-evaluation-contract`（保持行为不变；最小回归通过；落地：`0781952e`）。
 - 补充进展（2026-01-17，保持行为不变，依赖收敛：组合根→eva-adapter）：Serena 证伪 `start` 源码未引用 `edu.cuit.adapter.*` 后，将 `start/pom.xml` 对 `eva-adapter` 的依赖 scope 改为 `runtime`（运行期装配不变，仅收敛编译期边界；最小回归通过；落地：`045891d1`）。
 - 补充进展（2026-01-10，保持行为不变）：基础设施旧 `*GatewayImpl` 归位已阶段性闭环，`eva-infra/src/main/java/edu/cuit/infra/gateway/impl` 下残留已清零（详见 `NEXT_SESSION_HANDOFF.md` 0.10 与 `docs/DDD_REFACTOR_BACKLOG.md` 4.3）。下一会话不再投入该方向，避免重复劳动。
 - 补充进展（2026-01-15，保持行为不变，装配责任上推：AI 报告）：已在 `start/pom.xml` 显式增加 `bc-ai-report-infra(runtime)`（落地：`08862a4b`），用于为后续收敛 `eva-app` 的 AI 报告编译期依赖边界做前置（保持行为不变）。

@@ -25,6 +25,7 @@
 - ✅ **基线复核（用于避免口径漂移）**：当前分支 `ddd`；`git merge-base --is-ancestor 2e4c4923 HEAD` 退出码为 0；本次会话最终基线以 `git rev-parse --short HEAD` 为准。
 - ✅ **S1（入口归位前置：bc-iam-infra 编译闭合，保持行为不变）**：为后续将 `AuthenticationController` 从 `eva-adapter` 归位到 `bc-iam-infra` 做前置，在 `bc-iam/infrastructure/pom.xml` 补齐 `spring-boot-starter-web`、`zym-spring-boot-starter-common`、`commons-lang3`（运行期 classpath 已存在，仅显式化编译期依赖；最小回归通过）；落地提交：`42d44f0b`。
 - ✅ **S1（入口归位前置：bc-iam-infra 编译闭合补齐，保持行为不变）**：为后续归位 `UserUpdateController` 做前置，在 `bc-iam/infrastructure/pom.xml` 补齐 `cola-component-exception`、`shared-kernel`、`eva-base-common`（避免依赖隐式传递导致后续收敛漂移；保持行为不变；最小回归通过）；落地提交：`ddd5ff2a`。
+- ✅ **S1（入口归位前置：bc-iam-infra 编译闭合补齐，保持行为不变）**：为后续归位 `UserQueryController`（依赖 `IEvaStatisticsService`）做前置，在 `bc-iam/infrastructure/pom.xml` 补齐 `bc-evaluation-contract`（保持行为不变；最小回归通过）；落地提交：`0781952e`。
 - ✅ **S1（入口归位：AuthenticationController，保持行为不变）**：将 `AuthenticationController` 从 `eva-adapter` 归位到 `bc-iam-infra`（保持 `package`/接口签名/URL/注解与行为不变，仅搬运归位；最小回归通过）；落地提交：`94a00022`。
 - ✅ **S1（入口归位：UserUpdateController，保持行为不变）**：将 `UserUpdateController` 从 `eva-adapter` 归位到 `bc-iam-infra`（保持 `package`/接口签名/URL/注解与行为不变，仅搬运归位；最小回归通过）；落地提交：`367f781d`。当前 `eva-adapter` 残留 Controller 口径更新为 **20**（见 0.10.1）。
 - ✅ **S0.2 延伸（依赖方 pom 收敛：组合根收敛 start→eva-adapter 编译期依赖，保持行为不变）**：Serena 证伪 `start/src/main/java` 与 `start/src/test/java` 未引用 `edu.cuit.adapter.*` 后，将 `start/pom.xml` 对 `eva-adapter` 的依赖 scope 改为 `runtime`（运行期装配不变，仅收敛编译期边界）；最小回归通过；落地提交：`045891d1`。
