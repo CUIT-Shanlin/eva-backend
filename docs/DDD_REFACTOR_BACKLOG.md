@@ -154,6 +154,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（评教：旧入口壳归位，保持行为不变）：将 `EvaTaskServiceImpl` 从 `eva-app` 搬运归位到 `bc-evaluation-infra`（保持 `package edu.cuit.app.service.impl.eva` 不变；`@Transactional`/异常文案/日志输出与副作用顺序不变；消息依赖类型收窄为 `IMsgService` 以避免引用实现类；最小回归通过；落地：`1aaff86f`）。
 - ✅ S0.2 延伸（依赖方 `pom.xml` 依赖收敛，保持行为不变）：在 `start/pom.xml` 显式增加对 `eva-app` 的 `runtime` 依赖，使组合根承接装配责任的前置条件落地（最小回归通过；落地：`0a69dfb6`）。（后续已在 `0a9ff564` 将组合根依赖从 `eva-app` 替换为 `eva-infra(runtime)`，并移除 `start` 对 `eva-app` 的依赖。）
 - ✅ S0.2 延伸（依赖方 `pom.xml` 依赖收敛，保持行为不变）：移除 `start/pom.xml` 对 `eva-app` 的依赖，并显式引入 `eva-infra(runtime)` 以保持运行期 classpath 不变（最小回归通过；落地：`0a9ff564`）。
+- ✅ S1 前置（模块退场准备：reactor 移除 eva-app，保持行为不变）：在 Serena + `rg` 证据化确认全仓库已无对 `eva-app` 的 Maven 依赖后，从根 `pom.xml` 的 reactor 中移除 `eva-app` 模块（最小回归通过；落地：`b5f15a4b`）。
 - ✅ S0.2 延伸（依赖方 `pom.xml` 依赖收敛，保持行为不变）：在 Serena + `rg` 证伪 `eva-adapter` 不再引用 `edu.cuit.app.*` 实现类型后，移除 `eva-adapter/pom.xml` 对 `eva-app` 的 Maven 依赖以减少编译期耦合（最小回归通过；落地：`f5980fcc`）。
 - ✅ S0.2 延伸（依赖方 `pom.xml` 依赖收敛，保持行为不变）：将 `start/pom.xml` 中 `bc-course-infra` 的依赖范围从 `test` 调整为 `runtime`，把课程域基础设施的运行时依赖显式上推到组合根（最小回归通过；落地：`2a442587`）。
 - ✅ S0.2 延伸（依赖方 `pom.xml` 依赖收敛，保持行为不变）：在组合根已显式兜底 `bc-course-infra` 运行时依赖后，移除 `eva-app/pom.xml` 中对 `bc-course-infra` 的 `runtime` 依赖，使装配责任更清晰地由组合根承接（最小回归通过；落地：`9e7bd82d`）。
