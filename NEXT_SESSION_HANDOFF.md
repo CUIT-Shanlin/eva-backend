@@ -37,10 +37,11 @@
 - ✅ **S0.2 延伸（依赖方 pom 收敛：组合根去 eva-app 依赖，保持行为不变）**：在 Serena 证据化盘点 `start/pom.xml` 依赖闭包后，移除 `start/pom.xml` 对 `eva-app` 的依赖，并显式引入 `eva-infra(runtime)` 以保持运行期 classpath 不变；最小回归通过；落地提交：`0a9ff564`。
 - ✅ **S1 前置（模块退场准备：reactor 移除 eva-app，保持行为不变）**：在 Serena + `rg` 证据化确认全仓库已无对 `eva-app` 的 Maven 依赖后，从根 `pom.xml` 的 reactor 中移除 `eva-app` 模块；最小回归通过；落地提交：`b5f15a4b`。
 - ✅ **S1 前置（模块退场收尾：删除 eva-app/pom.xml，保持行为不变）**：在确认 `eva-app/` 目录仅剩 `pom.xml` 且已不在 reactor 后，删除 `eva-app/pom.xml`；最小回归通过；落地提交：`4bfa9d40`。
+- ✅ **S1 前置（编译闭合：eva-adapter 依赖补齐，保持行为不变）**：触碰任意 Controller 会触发 `eva-adapter` 全量重新编译，暴露其 `pom.xml` 缺少编译期依赖的问题；因此收敛 `eva-adapter/pom.xml` 并补齐所需的最小编译依赖闭合（仅为编译与运行时加载注解/DTO/契约类型；不改业务语义）；最小回归通过；落地提交：`56273162`。
 - 📌 **当前仍未完成（进入 S1 前置的硬事实口径，保持行为不变）**：
   - `eva-adapter` 仍残留 22 个 `*Controller.java`（口径：`fd -t f 'Controller\\.java$' eva-adapter/src/main/java | wc -l`）。
 - 🎯 **下一步建议（保持行为不变；每步只改 1 个类或 1 个 pom）**：
-  1) 下一刀（优先，单类）：开始收敛 `eva-adapter` 残留 `*Controller`（每次只改 1 个 Controller；仅做协议适配/参数校验/委托壳；保持异常文案/副作用顺序完全不变）。
+  1) 下一刀（优先，单类）：开始收敛 `eva-adapter` 残留 `*Controller`（每次只改 1 个 Controller；仅做协议适配/参数校验/委托壳；保持异常文案/副作用顺序完全不变）。注：`eva-adapter/pom.xml` 已补齐编译依赖闭合（`56273162`），后续每次改 Controller 都应能稳定触发 Maven 重新编译并闭环。
   2) 并行主线（依赖方 pom 收敛，单 pom）：继续挑选 1 个依赖方模块（优先 `eva-domain` / `eva-infra-shared`）做“Serena 证据化盘点 → 单 pom 收敛”（保持行为不变）。
 
 **2026-01-16（本次会话：S0.2 延伸（依赖收敛：eva-app 去 bc-messaging-contract），保持行为不变）**
