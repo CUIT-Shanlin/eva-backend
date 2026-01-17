@@ -21,8 +21,8 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
-**2026-01-17（本次会话：进度复核 + 交接口径加固；不改代码行为）**
-- ✅ **基线复核（用于避免口径漂移）**：当前分支 `ddd`；`git merge-base --is-ancestor 2e4c4923 HEAD` 退出码为 0；交接基线（`git rev-parse --short HEAD`）为 `43ea911e`。
+**2026-01-17（本次会话：S1 前置推进（清空 eva-app 残留支撑类）；保持行为不变）**
+- ✅ **基线复核（用于避免口径漂移）**：当前分支 `ddd`；`git merge-base --is-ancestor 2e4c4923 HEAD` 退出码为 0；本次会话最终基线以 `git rev-parse --short HEAD` 为准。
 - ✅ **S0.2 延伸闭环项复核（保持行为不变）**：
   - Serena 证伪：`eva-app/src/main/java` 未发现 `org.springframework.web.socket`、`edu.cuit.client.api.msg`、`edu.cuit.bc.evaluation.*` 相关引用面（命中为 0）。
   - `rg` 口径复核：`spring-boot-starter-websocket` 仅命中 `start/pom.xml`；`eva-app/pom.xml` 不再包含 `bc-messaging-contract` 依赖声明。
@@ -35,7 +35,11 @@
 - 📌 **当前仍未完成（进入 S1 前置的硬事实口径，保持行为不变）**：
   - `eva-app` 仍残留 2 个 Java 文件（口径：`fd -t f -e java . eva-app/src/main/java | wc -l`）：课程 Exec（`FileImportExec`）以及 `package-info.java`。
   - `eva-adapter` 仍残留 22 个 `*Controller.java`（口径：`fd -t f 'Controller\\.java$' eva-adapter/src/main/java | wc -l`）。
-- 🎯 **下一步建议（保持行为不变；每步只改 1 个类或 1 个 pom）**：优先从 `eva-app` 残留支撑类里挑 1 个最独立的类先归位（建议从 `FileImportExec` 起步），按“Serena → 最小回归 → 提交 → 三文档同步”的节奏推进；并行主线继续选择 1 个“依赖方 pom 收敛”目标（优先 `eva-domain` / `eva-infra-shared`）。
+- 🎯 **下一步建议（保持行为不变；每步只改 1 个类或 1 个 pom）**：
+  1) 下一刀（优先）：`FileImportExec` 从 `eva-app` 归位到 `bc-course-infra`（保持 `package` 与行为不变），使 `eva-app` 残留进一步收敛。
+  2) 下一刀（次优先）：`package-info.java` 归位到合适落点（建议：随课程 Exec 一并归位到 `bc-course-infra`，保持包名不变），使 `eva-app/src/main/java` 清零。
+  3) 在 `eva-app` 源码清零后：评估 `start/pom.xml` 是否可移除对 `eva-app` 的编译期依赖（或至少降为 `runtime`），为后续 `eva-app` 模块退场创造条件（每次只改 1 个 `pom.xml`，保持行为不变）。
+  4) 并行主线（依赖方 pom 收敛）：继续挑选 1 个依赖方模块（优先 `eva-domain` / `eva-infra-shared`）做“Serena 证据化盘点 → 单 pom 收敛”。
 
 **2026-01-16（本次会话：S0.2 延伸（依赖收敛：eva-app 去 bc-messaging-contract），保持行为不变）**
 - ✅ **消息契约（依赖收敛：eva-app 去 bc-messaging-contract 编译期依赖，保持行为不变）**：Serena 证据化确认 `eva-app/src/main/java` 未引用消息契约关键类型（例如 `IMsgService`、`SendMessageCmd`）后，收敛 `eva-app/pom.xml`：移除 `bc-messaging-contract` 的 Maven 编译期依赖（最小回归通过）；落地提交：`b92314ef`。
@@ -600,7 +604,7 @@
 > 阶段性策略微调（2025-12-29，持续有效）：允许“微调”（仅结构性重构；不改业务语义；缓存/日志/异常文案/副作用顺序完全不变）。在“评教统计导出基础设施归位”与“课程课表解析归位/端口化”闭环后，`bc-messaging` 的“归位 + 依赖收敛”已阶段性闭环（见 0.9）；`bc-course` 的 **S0（旧 gateway 压扁为委托壳）** 已推进到阶段性闭环（见 0.9/0.10）；**S0.2 主目标**（`eva-domain` 去 `bc-course` 编译期依赖）已闭环；当前主线进入 **S0.2 延伸（收敛 `bc-course` 的“协议承载面”，并进一步收敛依赖方对 `bc-course` 的编译期依赖）**，仍按“小步可回滚 + 每步闭环”推进。
 >
 
-### 0.10.1 本次会话（2026-01-15）最新状态 & 下一步建议（聚焦：S0.2 延伸/依赖收敛）
+### 0.10.1 最新状态 & 下一步建议（滚动更新至 2026-01-17；聚焦：S1 前置 + 并行“依赖方 pom 收敛”）
 
 - ✅ **模板锁定能力的“可依赖面”已下沉到 `bc-template-domain`**：`CourseTemplateLockQueryPort`、`CourseTemplateLockService`、`TemplateLockedException` 均可由 `bc-template-domain` 提供（包名不变），从而让依赖方无需编译期绑定 `bc-template` 应用层 jar。
 - ✅ **依赖收敛阶段性验收点**：`eva-infra` / `bc-template-infra` / `bc-course(application)` 均已将对 `bc-template` 的 Maven 依赖收敛为 `bc-template-domain`（保持行为不变；最小回归通过；详见 0.9 与 `docs/DDD_REFACTOR_BACKLOG.md` 4.2）。
@@ -611,7 +615,7 @@
 - ✅ **websocket（S0.2 延伸）已闭环（保持行为不变）**：`WebSocketConfig/WebSocketInterceptor/MessageChannel/UriUtils` 已归位 `eva-infra-shared`，且 `eva-app/src/main/java` 不再 `import org.springframework.web.socket.*`，并已移除 `eva-app/pom.xml` 对 `spring-boot-starter-websocket` 的编译期依赖（运行期由组合根 `start` 显式兜底；详见 0.9）。
 - ✅ **已闭环（2026-01-16，保持行为不变，依赖收敛：消息契约）**：`eva-app/pom.xml` 已移除对 `bc-messaging-contract` 的 Maven 编译期依赖（详见 0.9，最小回归通过）。
 - 🎯 **下一刀（建议，保持行为不变；每次只改 1 个类或 1 个 pom）**：继续推进 **S0.2 延伸（依赖方编译期依赖收敛）**：选择下一条“依赖方编译期依赖收敛”目标（优先从 `eva-domain` / `eva-infra-shared` 等依赖方开始），用 Serena 证据化盘点引用面与依赖闭包后再收敛 `pom.xml`（每次只改 1 个 pom；保持行为不变）。
-  - 📌 **当前仍未完成（截至 2026-01-16，口径=可复现命令；保持行为不变）**：
+  - 📌 **当前仍未完成（截至 2026-01-17，口径=可复现命令；保持行为不变）**：
     - `eva-adapter` 仍保留 **22 个** `*Controller.java`（口径：`fd -t f 'Controller\\.java$' eva-adapter/src/main/java | wc -l`）；组合根 `start` 仍对 `eva-adapter` 有编译期依赖（见 `start/pom.xml`）。
     - `eva-app` 仍作为“过渡装配/支撑类”模块存在：当前源码侧仅剩 **2 个** Java 文件（口径：`fd -t f -e java . eva-app/src/main/java | wc -l`；包含课程 Exec 等）；组合根 `start` 仍对 `eva-app` 有编译期依赖（见 `start/pom.xml`）。
     - 多个 `bc-*` 模块仍编译期依赖 `eva-domain` / `eva-infra-shared` / `eva-infra-dal`（口径：`rg -n '<artifactId>eva-(domain|infra-shared|infra-dal)</artifactId>' --glob '**/pom.xml' .`）。因此“把所有 `eva-*` 模块全部整合进各 BC 并从 reactor 移除”尚不具备直接落地条件（整合判定标准见 `DDD_REFACTOR_PLAN.md` 的 10.5）。
