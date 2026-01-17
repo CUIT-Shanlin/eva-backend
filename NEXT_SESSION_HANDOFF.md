@@ -23,6 +23,7 @@
 
 **2026-01-17（本次会话：S1 前置推进（清空 eva-app 残留支撑类）；保持行为不变）**
 - ✅ **基线复核（用于避免口径漂移）**：当前分支 `ddd`；`git merge-base --is-ancestor 2e4c4923 HEAD` 退出码为 0；本次会话最终基线以 `git rev-parse --short HEAD` 为准。
+- ✅ **S0.2 延伸（依赖方 pom 收敛：组合根收敛 start→eva-adapter 编译期依赖，保持行为不变）**：Serena 证伪 `start/src/main/java` 与 `start/src/test/java` 未引用 `edu.cuit.adapter.*` 后，将 `start/pom.xml` 对 `eva-adapter` 的依赖 scope 改为 `runtime`（运行期装配不变，仅收敛编译期边界）；最小回归通过；落地提交：`045891d1`。
 - ✅ **S0.2 延伸闭环项复核（保持行为不变）**：
   - Serena 证伪：`eva-app/src/main/java` 未发现 `org.springframework.web.socket`、`edu.cuit.client.api.msg`、`edu.cuit.bc.evaluation.*` 相关引用面（命中为 0）。
   - `rg` 口径复核：`spring-boot-starter-websocket` 仅命中 `start/pom.xml`；`eva-app` 已从组合根与 reactor 退场（见下方提交点）。
