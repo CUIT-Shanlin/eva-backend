@@ -61,6 +61,12 @@
             <artifactId>bc-evaluation</artifactId>
             <version>${revision}</version>
         </dependency>
+        <!-- Controller（UserQueryController）依赖评教统计 service 契约接口（IEvaStatisticsService），保持行为不变 -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>bc-evaluation-contract</artifactId>
+            <version>${revision}</version>
+        </dependency>
 
         <!-- DAL：从 eva-infra 渐进式抽离，供多模块复用（保持包名/namespace 不变） -->
         <dependency>
