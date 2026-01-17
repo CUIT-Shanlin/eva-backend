@@ -760,7 +760,12 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 2) **可以移除 `eva-app` / `eva-adapter` 的判定标准（建议的 DoD）**
    - `eva-adapter`：Controller 仅承载 HTTP 协议适配与参数校验；业务编排已全部进入对应 `bc-*/application`（或由 `bc-*` 的入口类承接），并且 Controller 不再直接依赖 `eva-infra` 的实现细节。
+     - 推荐的“可复现证据口径”（保持行为不变）：`fd -t f 'Controller\\.java$' eva-adapter/src/main/java | wc -l` 逐步收敛为 0；且 `rg -n '<module>eva-adapter</module>' pom.xml` 命中为 0（reactor 移除后），并确保组合根装配责任已由 `start` 或对应 BC 的 configuration 承接。
    - `eva-app`：不再包含任何“业务入口实现”（大量 `*ServiceImpl` 只剩委托壳或已归位），`@CheckSemId` 触发点与 `StpUtil.getLoginId()` 调用次数/顺序在迁移后仍可逐项对照证伪；装配要么迁入 `start`，要么迁入对应 BC 的 configuration（保持 Bean 名称与初始化顺序不变）。
+
+3) **可以移除 `eva-domain` / `eva-infra*` / `eva-base*` 的判定标准（建议的 DoD）**
+   - 前置：相关能力已按 BC 归位（domain/application/infrastructure）或下沉到 `shared-kernel`（仅限跨 BC 协议/横切通用），且依赖方已完成编译期依赖收敛（先 Serena 证据化盘点，再逐个 `pom.xml` 收敛，保持行为不变）。
+   - 证据口径（保持行为不变）：`rg -n '<module>eva-' pom.xml` 命中为 0，且 `rg -n '<artifactId>eva-(domain|infra|infra-shared|infra-dal|base|base-common|base-config)</artifactId>' --glob '**/pom.xml' .` 不再出现“依赖方 dependency 声明”（允许剩余模块自身 artifactId 声明）；组合根 `start/pom.xml` 也不再需要显式 `eva-infra(runtime)` 兜底。
   - 现状评估（更新至 2026-01-17，保持行为不变）：
     - `eva-app`：已完成退场闭环（源码清零 + 组合根 `start` 去依赖 + root reactor 移除 + 删除 `eva-app/pom.xml`）；无需再围绕 `eva-app` 做依赖收敛或入口迁移。
     - `eva-adapter`：仍保留 22 个 `*Controller.java`（口径：`fd -t f 'Controller\\.java$' eva-adapter/src/main/java | wc -l`），组合根 `start` 仍显式依赖 `eva-adapter`（见 `start/pom.xml`），因此“移除模块”尚未满足。
