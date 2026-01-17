@@ -500,12 +500,12 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 - 微服务演进策略：**先拆服务，暂时共享库**（过渡期）。
 - 时间语义：`cour_inf.day` 中 `day=1` 表示 **周一**（周一是一周开始）。
-- 新对话启动方式：优先复制 `NEXT_SESSION_HANDOFF.md` 的 **0.11 推荐版**（不固化 commitId），并按其中顺序阅读与执行。
+- 新对话启动方式：优先复制 `NEXT_SESSION_HANDOFF.md` 的 **0.11 推荐版（Controller 优先）**（不固化 commitId），并按其中顺序阅读与执行。
 
 ### 10.2 下一步优先顺序（保持“写侧优先 + 行为不变”）
 
-> 滚动口径（更新至 2026-01-08）：✅ `bc-course` 的 S0（旧 gateway 压扁为委托壳）已推进到阶段性闭环；✅ S0.2（`eva-domain` 去 `bc-course` 编译期依赖）已闭环；当前主线进入 **S0.2 延伸（收敛 `eva-infra` 对 `bc-course` 的实现承载面 + 继续收敛依赖方编译期依赖）**。✅ 已完成：将 `CourseQueryGatewayImpl/CourseUpdateGatewayImpl` 从 `eva-infra` 归位到 `bc-course/infrastructure`（落地：`d438e060`）；✅ 已完成：将 `CourseQueryRepository` 从 `eva-infra` 归位到 `bc-course/infrastructure` 并将 `CourseRecommendExce` 迁移到 `eva-infra-shared` 以闭合依赖（落地：`881e1d12`）；✅ 已完成：将 `CourseQueryRepo` 从 `eva-infra-shared` 归位到 `bc-course/infrastructure`（落地：`5101a341`）；✅ 已完成：`eva-infra/pom.xml` 的 `bc-course` 依赖替换为 `shared-kernel`（落地：`8d806bf0`）。补充：✅ 已将 `CourseImportExce/CourseRecommendExce` 从 `eva-infra-shared` 归位到 `bc-course/infrastructure`（保持 `package` 不变；落地：`d3b9247e`）；`CourseFormat` 跨 BC 复用继续留在 `eva-infra-shared`。均保持 `package`/事务边界/异常文案/副作用顺序完全不变。
-> 新会话续接方式：优先复制 `NEXT_SESSION_HANDOFF.md` 的 0.11「G 推荐版」（S1 前置：清空 `eva-app` 残留支撑类 + 并行“依赖方 pom 收敛”），并按 0.10 的“下一步拆分与里程碑/提交点”顺序执行，避免遗漏约束与回归命令。
+> 滚动口径（更新至 2026-01-17）：✅ `eva-app` 已完成退场闭环（源码清零 + 组合根 `start` 去依赖 + root reactor 移除 + 删除 `eva-app/pom.xml`）；🎯 当前主线转为 **收敛 `eva-adapter` 残留 `*Controller`**（每次只改 1 个 Controller；仅协议适配/参数校验/委托壳；保持异常文案/副作用顺序完全不变），并行推进“依赖方 `pom.xml` 编译期依赖收敛”。补充：✅ 已补齐 `eva-adapter/pom.xml` 的最小编译依赖闭合（落地：`56273162`），避免触碰任意 Controller 时触发的全量重编译失败。
+> 新会话续接方式：优先复制 `NEXT_SESSION_HANDOFF.md` 的 0.11「推荐版（Controller 优先）」并按 0.10 的“下一步拆分与里程碑/提交点”顺序执行，避免遗漏约束与回归命令。
 
 - 补充进展（2026-01-10，保持行为不变）：基础设施旧 `*GatewayImpl` 归位已阶段性闭环，`eva-infra/src/main/java/edu/cuit/infra/gateway/impl` 下残留已清零（详见 `NEXT_SESSION_HANDOFF.md` 0.10 与 `docs/DDD_REFACTOR_BACKLOG.md` 4.3）。下一会话不再投入该方向，避免重复劳动。
 - 补充进展（2026-01-15，保持行为不变，装配责任上推：AI 报告）：已在 `start/pom.xml` 显式增加 `bc-ai-report-infra(runtime)`（落地：`08862a4b`），用于为后续收敛 `eva-app` 的 AI 报告编译期依赖边界做前置（保持行为不变）。
@@ -760,9 +760,9 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 2) **可以移除 `eva-app` / `eva-adapter` 的判定标准（建议的 DoD）**
    - `eva-adapter`：Controller 仅承载 HTTP 协议适配与参数校验；业务编排已全部进入对应 `bc-*/application`（或由 `bc-*` 的入口类承接），并且 Controller 不再直接依赖 `eva-infra` 的实现细节。
    - `eva-app`：不再包含任何“业务入口实现”（大量 `*ServiceImpl` 只剩委托壳或已归位），`@CheckSemId` 触发点与 `StpUtil.getLoginId()` 调用次数/顺序在迁移后仍可逐项对照证伪；装配要么迁入 `start`，要么迁入对应 BC 的 configuration（保持 Bean 名称与初始化顺序不变）。
-   - 现状评估（更新至 2026-01-17，保持行为不变）：
-     - `eva-app`：`*ServiceImpl` 已清零，且源码侧已清零（口径：`fd -t f -e java . eva-app/src/main/java | wc -l` 当前为 0）。但组合根 `start` 仍显式依赖 `eva-app`（见 `start/pom.xml`），因此“移除模块”尚未满足；下一刀建议先做 `start/pom.xml` 依赖收敛评估（保持行为不变）。
-     - `eva-adapter`：仍保留 22 个 `*Controller.java`（口径：`fd -t f 'Controller\\.java$' eva-adapter/src/main/java | wc -l`），组合根 `start` 仍显式依赖 `eva-adapter`（见 `start/pom.xml`），因此“移除模块”尚未满足。
+  - 现状评估（更新至 2026-01-17，保持行为不变）：
+    - `eva-app`：已完成退场闭环（源码清零 + 组合根 `start` 去依赖 + root reactor 移除 + 删除 `eva-app/pom.xml`）；无需再围绕 `eva-app` 做依赖收敛或入口迁移。
+    - `eva-adapter`：仍保留 22 个 `*Controller.java`（口径：`fd -t f 'Controller\\.java$' eva-adapter/src/main/java | wc -l`），组合根 `start` 仍显式依赖 `eva-adapter`（见 `start/pom.xml`），因此“移除模块”尚未满足。
 
 3) **可以移除 `eva-infra` 的判定标准（建议的 DoD）**
    - `eva-infra` 中旧 `*GatewayImpl` 已全部退化为委托壳或迁入对应 `bc-*/infrastructure`（或其过渡落点），不再承担“业务编排”。
@@ -774,8 +774,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 每次只做一个维度：要么迁入口（业务代码），要么迁装配/模块结构（wiring/Maven），避免同时改动导致回滚困难。
 - 盘点清单落点：`docs/DDD_REFACTOR_BACKLOG.md` 的 4.3（未收敛清单）用于持续维护“仍在 eva-* 的入口/旧网关候选”。
  - 建议的 S1 落地顺序（保持行为不变；每步只改 1 个类或 1 个 `pom.xml`）：
-   1) 先清空 `eva-app`：优先把 Sa-Token/切面/Convertor/Exec 等支撑类逐个归位到合适模块（候选：`eva-infra-shared` 或对应 BC 的 `*-infra`；保持 `package` 不变），让 `start` 未来可移除对 `eva-app` 的依赖。
-   2) 再处理 `eva-adapter`：逐个将 Controller 迁入对应 BC（或引入 `bc-*-adapter` 子模块承接 Web 入口），最终让 `start` 可移除对 `eva-adapter` 的依赖。
+   1) 先处理 `eva-adapter`：逐个收敛 `*Controller` 为“协议适配/参数校验/委托壳”，并逐步迁入对应 BC（或引入 `bc-*-adapter` 子模块承接 Web 入口），最终让 `start` 可移除对 `eva-adapter` 的依赖。
+   2) 并行推进“依赖方 `pom.xml` 收敛”：优先从“仅类型引用、无实现/副作用耦合”的依赖方模块开始（需先 Serena 证据化盘点引用面与依赖闭包）。
    3) 最后才考虑 `eva-domain/eva-infra*`：它们当前仍被多个 BC 编译期依赖，属于“跨 BC 共享/过渡模块”，需要先完成端口归属与依赖边界收敛，避免硬整合导致循环依赖与装配漂移。
 
 ### 10.3 未完成清单（滚动，供下一会话排期）
