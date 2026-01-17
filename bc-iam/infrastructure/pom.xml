@@ -27,6 +27,20 @@
             <version>${revision}</version>
         </dependency>
 
+        <!-- Controller（逐步从 eva-adapter 归位）：仅为编译期闭合（运行期 classpath 已存在），保持行为不变 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>edu.cuit.zhuyimeng</groupId>
+            <artifactId>zym-spring-boot-starter-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+
         <!-- 旧入口壳（UserServiceImpl）依赖评教统计端口（EvaRecordCountQueryPort），保持行为不变 -->
         <dependency>
             <groupId>edu.cuit</groupId>
