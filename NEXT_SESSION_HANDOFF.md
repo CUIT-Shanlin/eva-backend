@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-01-19（本次会话：S1 主线（收敛 eva-adapter 残留 Controller）；保持行为不变）**
+- ✅ **S1（入口归位前置：bc-messaging 编译闭合，保持行为不变）**：为后续将 `MessageController` 从 `eva-adapter` 归位到 `bc-messaging` 做编译闭合前置，在 `bc-messaging/pom.xml` 补齐 `spring-boot-starter-web`、`zym-spring-boot-starter-common`、`zym-spring-boot-starter-security`、`shared-kernel`（仅编译闭合；最小回归通过）；落地提交：`aa7d57bb`。
 - ✅ **S1（入口归位：DeleteEvaController，保持行为不变）**：将 `DeleteEvaController` 从 `eva-adapter` 归位到 `bc-evaluation/infrastructure`（保持 `package`/接口签名/URL/注解与行为不变，仅搬运归位；Serena 证伪无“代码级引用点”，仅由 Spring 扫描发现；最小回归通过）；落地提交：`d1471ff5`。`eva-adapter` 残留 Controller 口径以 0.10.2 为准。
 - ✅ **S1（入口归位：UpdateEvaController，保持行为不变）**：将 `UpdateEvaController` 从 `eva-adapter` 归位到 `bc-evaluation/infrastructure`（保持 `package`/接口签名/URL/注解与行为不变，仅搬运归位；Serena 证伪无“代码级引用点”，仅由 Spring 扫描发现；最小回归通过）；落地提交：`3972b7e4`。`eva-adapter` 残留 Controller 口径以 0.10.2 为准。
 - ✅ **S1（入口归位：EvaConfigUpdateController，保持行为不变）**：将 `EvaConfigUpdateController` 从 `eva-adapter` 归位到 `bc-evaluation/infrastructure`（保持 `package`/接口签名/URL/注解与行为不变，仅搬运归位；Serena 证伪无“代码级引用点”，仅由 Spring 扫描发现；最小回归通过）；落地提交：`b5530281`。`eva-adapter` 残留 Controller 口径以 0.10.2 为准。
