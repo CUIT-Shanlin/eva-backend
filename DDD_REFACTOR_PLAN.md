@@ -515,6 +515,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-01-15，保持行为不变，装配责任上推：AI 报告）：已在 `start/pom.xml` 显式增加 `bc-ai-report-infra(runtime)`（落地：`08862a4b`），用于为后续收敛 `eva-app` 的 AI 报告编译期依赖边界做前置（保持行为不变）。
 - 补充进展（2026-01-15，保持行为不变，依赖收敛：AI 报告）：在 Serena 证据化确认 `eva-app/src/main/java` 无 AI 相关直引后，已收敛 `eva-app/pom.xml`：移除对 `bc-ai-report` 与 `bc-ai-report-infra` 的 Maven 编译期依赖（运行期装配由组合根 `start` 显式兜底；落地：`2a4736c0`）。
 - 补充进展（2026-01-19，保持行为不变，Controller 归位前置：消息）：为后续将 `MessageController` 从 `eva-adapter` 归位到 `bc-messaging` 做编译闭合前置，在 `bc-messaging/pom.xml` 补齐 `spring-boot-starter-web`、`zym-spring-boot-starter-common`、`zym-spring-boot-starter-security`、`shared-kernel`（仅编译闭合；最小回归通过；落地：`aa7d57bb`）。
+- 补充进展（2026-01-19，保持行为不变，Controller 归位前置：审计）：为后续将 `LogController` 从 `eva-adapter` 归位到 `bc-audit/infrastructure` 做编译闭合前置，在 `bc-audit/infrastructure/pom.xml` 补齐 `spring-boot-starter-web`、`spring-boot-starter-validation`、`zym-spring-boot-starter-common`、`zym-spring-boot-starter-security`（运行时 classpath 已存在，仅显式化；最小回归通过；落地：`2464d2b9`）。
 - 补充进展（2026-01-15，保持行为不变，装配责任上推：websocket）：已在 `start/pom.xml` 显式增加 `spring-boot-starter-websocket`（落地：`97b543b1`），用于为后续收敛 `eva-app` 的 websocket 编译期依赖边界做前置（保持行为不变）。
 - 补充进展（2026-01-15，保持行为不变，支撑类归位：websocket）：将 `MessageChannel` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package edu.cuit.app.websocket` 不变；最小回归通过；落地：`0fbc4aef`），用于为后续归位 websocket 配置与依赖收敛做前置。
 - 补充进展（2026-01-15，保持行为不变，支撑类归位：websocket）：将 `UriUtils` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package edu.cuit.app.util` 不变；最小回归通过；落地：`c1a10d2d`），用于为后续归位 `WebSocketInterceptor` 做编译闭合前置。
