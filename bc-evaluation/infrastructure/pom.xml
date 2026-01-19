@@ -27,6 +27,20 @@
             <version>${revision}</version>
         </dependency>
 
+        <!-- 评教统计入口依赖评教统计协议（保持包名不变；避免依赖隐式传递导致口径漂移） -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>bc-evaluation-contract</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <!-- 评教统计入口依赖 AI 报告协议接口（当前仍在 bc-ai-report/application；保持包名不变） -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>bc-ai-report</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
         <!-- 评教导出链路依赖课程/学期等应用层 API（shared-kernel 承载，保持包名不变） -->
         <dependency>
             <groupId>edu.cuit</groupId>
@@ -78,6 +92,18 @@
 	            <groupId>edu.cuit.zhuyimeng</groupId>
 	            <artifactId>zym-spring-boot-starter-security</artifactId>
 	        </dependency>
+
+        <!-- bc-evaluation-infra：Controller 编译期需要 Spring MVC 注解/ResponseEntity 等，运行期仍由组合根装配 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- bc-evaluation-infra：Controller 编译期需要 CommonResult 等通用返回体类型，运行期仍由组合根装配 -->
+        <dependency>
+            <groupId>edu.cuit.zhuyimeng</groupId>
+            <artifactId>zym-spring-boot-starter-common</artifactId>
+        </dependency>
 
 	        <dependency>
 	            <groupId>org.projectlombok</groupId>
