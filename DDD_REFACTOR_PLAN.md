@@ -544,8 +544,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-01-12，保持行为不变，ICourseTypeServiceImpl 收敛准备）：在 `bc-course/application` 新增课程类型用例 `CourseTypeUseCase`（读写合并；手写 `CourseTypeEntity` → `CourseType` 映射与 `PaginationQueryResultCO` 组装，不引入 `eva-infra-shared`；对齐旧入口逻辑与返回语义；最小回归通过；落地：`325f221a`）。
 - 补充进展（2026-01-12，保持行为不变，ICourseTypeServiceImpl 收敛准备）：在 `BcCourseConfiguration` 补齐 `CourseTypeUseCase` 的 Bean 装配（保持行为不变；最小回归通过；落地：`55eb322e`）。
 - 补充进展（2026-01-12，保持行为不变，入口壳收敛：课程类型）：将 `eva-app` 的 `ICourseTypeServiceImpl` 退化为纯委托壳，改为委托 `CourseTypeUseCase`（保持 `id==null` 语义与 `updateCoursesType` 返回 `null`（`Void`）等行为不变；最小回归通过；落地：`1aebda24`）。
-- 现状快照（更新至 2026-01-17，保持行为不变）：`eva-app` 已退场（组合根去依赖：`0a9ff564`；reactor 移除：`b5f15a4b`；删除 `eva-app/pom.xml`：`4bfa9d40`）。`eva-adapter` 下残留 `*Controller` 为 **16 个**（已将 `AuthenticationController`、`UserUpdateController`、`UserQueryController`、`RoleQueryController`、`MenuQueryController`、`MenuUpdateController` 归位到 `bc-iam-infra`，落地：`94a00022`、`367f781d`、`f7c5d219`、`e7d51beb`、`76e19a47`、`d29b565b`），且已补齐 `eva-adapter/pom.xml` 的编译依赖闭合以避免增量编译掩盖问题（`56273162`）。下一刀建议继续按“每次只迁 1 个 Controller”推进（保持行为不变）。
-- 下一会话建议（S1 主线，保持行为不变；每次只迁 1 个 Controller）：优先归位 IAM 侧 `RoleUpdateController`（保持 `package/注解/URL/权限校验/日志与副作用顺序` 完全不变；若编译闭合缺依赖，先单独提交 1 次 `bc-iam/infrastructure/pom.xml` 的“编译闭合前置”）。
+- 现状快照（更新至 2026-01-17，保持行为不变）：`eva-app` 已退场（组合根去依赖：`0a9ff564`；reactor 移除：`b5f15a4b`；删除 `eva-app/pom.xml`：`4bfa9d40`）。`eva-adapter` 下残留 `*Controller` 为 **15 个**（已将 `AuthenticationController`、`UserUpdateController`、`UserQueryController`、`RoleQueryController`、`MenuQueryController`、`MenuUpdateController`、`RoleUpdateController` 归位到 `bc-iam-infra`，落地：`94a00022`、`367f781d`、`f7c5d219`、`e7d51beb`、`76e19a47`、`d29b565b`、`80888bed`），且已补齐 `eva-adapter/pom.xml` 的编译依赖闭合以避免增量编译掩盖问题（`56273162`）。下一刀建议继续按“每次只迁 1 个 Controller”推进（保持行为不变）。
+- 下一会话建议（S1 主线，保持行为不变；每次只迁 1 个 Controller）：优先归位 IAM 侧 `DepartmentController`（保持 `package/注解/URL/权限校验/日志与副作用顺序` 完全不变；若编译闭合缺依赖，先单独提交 1 次 `bc-iam/infrastructure/pom.xml` 的“编译闭合前置”）。
 - 补充进展（2026-01-12，保持行为不变，Controller 收敛起步）：在 `UserUpdateController` 提取 `currentUserId()` 以减少适配层编排噪声（保持 `StpUtil.getLoginId()` 调用顺序与次数不变；最小回归通过；落地：`09cb6454`）。
 - 补充进展（2026-01-12，保持行为不变，Controller 收敛：登录入口）：在 `AuthenticationController` 收敛 `login` 表达式，用“局部变量 + return”显式固化 `userAuthService.login(...)` → `CommonResult.success(...)` 的执行顺序（不改异常文案/返回结构/副作用顺序；最小回归通过；落地：`102a0cbb`）。
 - 补充进展（2026-01-12，保持行为不变，Controller 收敛：用户查询入口）：在 `UserQueryController` 收敛返回表达式，用“局部变量 + return”显式固化“先调用 service → 再 `CommonResult.success(...)`”的执行顺序（不改异常文案/返回结构/副作用顺序；最小回归通过；落地：`18e0bb29`）。
@@ -772,7 +772,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
    - 证据口径（保持行为不变）：`rg -n '<module>eva-' pom.xml` 命中为 0，且 `rg -n '<artifactId>eva-(domain|infra|infra-shared|infra-dal|base|base-common|base-config)</artifactId>' --glob '**/pom.xml' .` 不再出现“依赖方 dependency 声明”（允许剩余模块自身 artifactId 声明）；组合根 `start/pom.xml` 也不再需要显式 `eva-infra(runtime)` 兜底。
   - 现状评估（更新至 2026-01-17，保持行为不变）：
     - `eva-app`：已完成退场闭环（源码清零 + 组合根 `start` 去依赖 + root reactor 移除 + 删除 `eva-app/pom.xml`）；无需再围绕 `eva-app` 做依赖收敛或入口迁移。
-    - `eva-adapter`：仍保留 16 个 `*Controller.java`（口径：`fd -t f 'Controller\\.java$' eva-adapter/src/main/java | wc -l`），组合根 `start` 仍显式依赖 `eva-adapter`（见 `start/pom.xml`），因此“移除模块”尚未满足。
+    - `eva-adapter`：仍保留 15 个 `*Controller.java`（口径：`fd -t f 'Controller\\.java$' eva-adapter/src/main/java | wc -l`），组合根 `start` 仍显式依赖 `eva-adapter`（见 `start/pom.xml`），因此“移除模块”尚未满足。
 
 3) **可以移除 `eva-infra` 的判定标准（建议的 DoD）**
    - `eva-infra` 中旧 `*GatewayImpl` 已全部退化为委托壳或迁入对应 `bc-*/infrastructure`（或其过渡落点），不再承担“业务编排”。
