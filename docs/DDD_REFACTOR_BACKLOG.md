@@ -70,8 +70,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
    - 若历史对外签名为 `Void`，保持 `return null`。
 5. **离线验证（Java 17 + 本地 Maven repo）**
    - `export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\"$JAVA_HOME/bin:$PATH\"`
-   - `mvn -o -pl <bc-module> -am test -q -Dmaven.repo.local=.m2/repository`
-   - `mvn -o -pl eva-infra -am -DskipTests test -q -Dmaven.repo.local=.m2/repository`
+   - `mvnd -o -pl <bc-module> -am test -q -Dmaven.repo.local=.m2/repository`
+   - `mvnd -o -pl eva-infra -am -DskipTests test -q -Dmaven.repo.local=.m2/repository`
 6. **沉淀文档（交接与回溯）**
    - 在 `NEXT_SESSION_HANDOFF.md` 追加闭环/commit；
    - （2026-01-13 补充）已在 `NEXT_SESSION_HANDOFF.md` 更新 0.9/0.10/0.11：记录 `UserAuthServiceImpl` 归位到 `bc-iam-infra` 的闭环与 Serena `TimeoutError` 的降级口径，并将新会话 `F 推荐版` 提示词主线更新为 IAM 旧入口归位（`UserServiceImpl` → `BcIamConfiguration`），避免续接丢信息。
@@ -539,7 +539,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - 教室占用冲突：提炼 `ClassroomOccupancyChecker` 并在“新增课次 / 新建课程明细 / 自助改课”等端口适配器复用（异常文案与 SQL 条件保持不变）。
   - 时间段重叠：提炼 `CourInfTimeOverlapQuery` 并迁移“改课 / 自助改课 / 分配评教”等端口适配器复用（异常文案与 SQL 条件保持不变）。
 - 旧 gateway 退化加固：清理 `CourseUpdateGatewayImpl` 中已无引用的历史私有逻辑（防止“旧 gateway 继续承载业务流程”回潮）。
-- 构建基线固化：补充 **Java 17** 为构建基线，并在离线模式下完成 `eva-infra` 的 `mvn -o -pl eva-infra -am test` 验证。
+- 构建基线固化：补充 **Java 17** 为构建基线，并在离线模式下完成 `eva-infra` 的 `mvnd -o -pl eva-infra -am test` 验证。
 
 ---
 
@@ -789,10 +789,11 @@ scope: 全仓库（离线扫描 + 规则归纳）
 ## 6. “下一批行动”建议（不含实现，只给路线）
 
 阶段性策略微调（2025-12-29）：
-- ✅ 复核口径（2026-01-17，不改业务语义）：`spring-boot-starter-websocket` 仅由组合根 `start` 显式承接；并已将 `EvaConfigBizConvertor`、`EvaRecordBizConvertor`、`EvaTaskBizConvertor`、`EvaTemplateBizConvertor` 从 `eva-app` 归位到 `eva-infra-shared`（保持行为不变），并将 `EvaConfigService` 从 `eva-app` 归位到 `bc-evaluation-infra`（保持行为不变），并将 `UserCourseDetailQueryExec`、`FileImportExec`、`package-info.java` 从 `eva-app` 归位到 `bc-course-infra`（保持行为不变）。当前 `eva-app` 已退场（组合根去依赖：`0a9ff564`；reactor 移除：`b5f15a4b`；删除 `eva-app/pom.xml`：`4bfa9d40`）、`eva-adapter` 残留 12 个 Controller（已归位：`AuthenticationController`、`UserUpdateController`、`UserQueryController`、`RoleQueryController`、`MenuQueryController`、`MenuUpdateController`、`RoleUpdateController`、`DepartmentController`、`ClassroomController`、`SemesterController` → 对应 BC，落地：`94a00022`、`367f781d`、`f7c5d219`、`e7d51beb`、`76e19a47`、`d29b565b`、`80888bed`、`3e66a7b4`、`132f32f5`、`0257ddd0`）；且组合根 `start` 对 `eva-adapter` 已收敛为 `runtime` 依赖（落地：`045891d1`；保持行为不变，仅收敛编译期边界）。补充：触碰任意 Controller 会触发 `eva-adapter` 全量编译，已通过补齐 `eva-adapter/pom.xml` 最小编译依赖闭合修复该问题（落地：`56273162`）。
+- ✅ 复核口径（2026-01-19，不改业务语义）：`spring-boot-starter-websocket` 仅由组合根 `start` 显式承接；并已将 `EvaConfigBizConvertor`、`EvaRecordBizConvertor`、`EvaTaskBizConvertor`、`EvaTemplateBizConvertor` 从 `eva-app` 归位到 `eva-infra-shared`（保持行为不变），并将 `EvaConfigService` 从 `eva-app` 归位到 `bc-evaluation-infra`（保持行为不变），并将 `UserCourseDetailQueryExec`、`FileImportExec`、`package-info.java` 从 `eva-app` 归位到 `bc-course-infra`（保持行为不变）。当前 `eva-app` 已退场（组合根去依赖：`0a9ff564`；reactor 移除：`b5f15a4b`；删除 `eva-app/pom.xml`：`4bfa9d40`）；`eva-adapter` 残留 Controller 口径以 `NEXT_SESSION_HANDOFF.md` 0.10.2 为准（当前 7 个）；组合根 `start` 对 `eva-adapter` 已收敛为 `runtime` 依赖（落地：`045891d1`；保持行为不变，仅收敛编译期边界）。补充：触碰任意 Controller 会触发 `eva-adapter` 全量编译，已通过补齐 `eva-adapter/pom.xml` 最小编译依赖闭合修复该问题（落地：`56273162`）。
 - ✅ 允许“微调”：仅限结构性重构（收窄依赖/拆接口/移动默认值兜底），**不改业务语义**；缓存/日志/异常文案/副作用顺序完全不变。
   - 🎯 下一批主线建议（更新至 2026-01-17，保持行为不变）：优先回到 **S1：收敛 `eva-adapter` 残留 `*Controller`**（每次只改 1 个 Controller；仅协议适配/参数校验/委托壳；保持异常文案/缓存/日志/副作用顺序完全不变）。并行主线：继续推进“依赖方编译期依赖收敛”（每次只改 1 个 `pom.xml`；先 Serena 证据化盘点引用面与依赖闭包；保持行为不变）。
     - S1（入口归位，建议优先顺序；保持行为不变；每次只迁 1 个 Controller）：Evaluation 侧下一刀建议优先归位 `EvaQueryController`。执行要点：保持 `package/注解/URL/权限校验/参数校验/日志与副作用顺序` 完全不变；必要时先单独提交 1 次 `bc-evaluation/infrastructure/pom.xml` 的编译闭合前置，再做 `git mv`（避免“改类 + 改 pom”混在同一提交）。
+    - 更新（2026-01-19，保持行为不变）：为降低首次迁移改动面，Evaluation 侧更推荐先归位体量更小的 `EvaConfigQueryController`（仅依赖 `IEvaConfigService/EvaConfig`），再归位 `EvaConfigUpdateController`，最后处理 `EvaQueryController/UpdateEvaController/DeleteEvaController`。
     - 并行落点（建议，保持行为不变；每次只改 1 个类或 1 个 pom）：优先收敛 `eva-adapter/pom.xml` 中对 `bc-audit` / `bc-ai-report` 的编译期依赖（根因：`LogController` 引用 `ILogService`、`EvaStatisticsController` 引用 `IAiCourseAnalysisService`，而两类协议当前落在对应 BC 的 application 模块中）。推荐路线：把这两类 `edu.cuit.client.*` 协议接口及其签名依赖的 BO/CO 逐步下沉到 `shared-kernel`（保持 `package` 不变），再将 `eva-adapter/pom.xml` 的依赖替换为 `shared-kernel`/`*-contract`（保持行为不变；先 Serena 证据化盘点引用面与依赖闭包）。
   - ✅ 主线口径更新（滚动）：`bc-messaging` 的“归位 + 依赖收敛”已阶段性闭环；`bc-course` 的 S0（旧 gateway 压扁为委托壳）已推进到阶段性闭环（见 4.2/4.3 与 `NEXT_SESSION_HANDOFF.md` 0.9）。当前下一批主线：**S0.2 延伸（收敛 `bc-course` 的协议承载面 + 收敛依赖方对 `bc-course` 的编译期依赖）**，按“先 Serena 证据化 → 再小步迁移协议对象到 `shared-kernel` / 依赖替换 `pom.xml` → 最小回归 → 提交 → 三文档同步”的节奏推进（保持行为不变）。
   - ✅ 已完成（bc-course，实现承载面，保持行为不变）：Serena 证伪 `eva-infra-shared/src/main/java/edu/cuit/infra/gateway/impl/course/operate/` 下 `CourseImportExce/CourseRecommendExce` 仅课程域使用后，已归位到 `bc-course/infrastructure`（保持 `package` 不变，仅搬运与编译闭合；落地：`d3b9247e`）；`CourseFormat` 跨 BC 复用继续留在 `eva-infra-shared`。下一簇建议：进入“依赖方编译期依赖收敛”，逐个模块证伪后每次只改 1 个 `pom.xml`，将 `bc-course` 替换为 `shared-kernel`（保持行为不变）。
