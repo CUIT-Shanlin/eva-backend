@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-01-19（本次会话：S1 主线（收敛 eva-adapter 残留 Controller）；保持行为不变）**
+- ✅ **S1（入口归位前置：bc-evaluation-infra 编译闭合，保持行为不变）**：为后续将 `EvaStatisticsController` 从 `eva-adapter` 归位到 `bc-evaluation/infrastructure` 做前置，在 `bc-evaluation/infrastructure/pom.xml` 补齐 `spring-boot-starter-web`、`zym-spring-boot-starter-common`、`bc-evaluation-contract`、`bc-ai-report`（仅编译闭合；最小回归通过）；落地提交：`a5e1eb52`。
 - ✅ **S1（入口归位：UpdateCourseController，保持行为不变）**：将 `UpdateCourseController` 从 `eva-adapter` 归位到 `bc-course-infra`（保持 `package`/接口签名/URL/注解与行为不变，仅搬运归位；最小回归通过）；落地提交：`1d03d987`。当前 `eva-adapter` 残留 Controller 口径更新为 **8**（见 0.10.2）。
 - ✅ **S1（入口归位：DeleteCourseController，保持行为不变）**：将 `DeleteCourseController` 从 `eva-adapter` 归位到 `bc-course-infra`（保持 `package`/接口签名/URL/注解与行为不变，仅搬运归位；最小回归通过）；落地提交：`4b6219b9`。当前 `eva-adapter` 残留 Controller 口径更新为 **9**（见 0.10.2）。
 - ✅ **S1（入口归位：QueryUserCourseController，保持行为不变）**：将 `QueryUserCourseController` 从 `eva-adapter` 归位到 `bc-course-infra`（保持 `package`/接口签名/URL/注解与行为不变，仅搬运归位；最小回归通过）；落地提交：`bc37fa17`。当前 `eva-adapter` 残留 Controller 口径更新为 **10**（见 0.10.2）。
