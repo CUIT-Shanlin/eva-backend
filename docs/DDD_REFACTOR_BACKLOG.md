@@ -109,6 +109,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-01-19）**
+- ✅ S1 前置（支撑类归位：课程适配层时间计算工具，保持行为不变）：为后续归位 `QueryUserCourseController` 做编译闭合前置，将 `edu.cuit.adapter.controller.course.util.CalculateClassTime` 从 `eva-adapter` 下沉到 `shared-kernel`（保持 `package/逻辑` 不变，仅搬运归位；最小回归通过）；落地：`8a3f738c`。
 - ✅ S1（入口归位：QueryCourseController，保持行为不变）：将 `QueryCourseController` 从 `eva-adapter` 归位到 `bc-course-infra`（保持 `package/接口签名/URL/注解` 与行为不变，仅搬运归位；最小回归通过）；落地：`1b9a6fc7`。
 - ✅ S1（入口归位：SemesterController，保持行为不变）：将 `SemesterController` 从 `eva-adapter` 归位到 `bc-course-infra`（保持 `package/接口签名/URL/注解` 与行为不变，仅搬运归位；最小回归通过）；落地：`0257ddd0`。
  - ✅ S1（入口归位：MenuUpdateController，保持行为不变）：将 `MenuUpdateController` 从 `eva-adapter` 归位到 `bc-iam-infra`（保持 `package/接口签名/URL/注解` 与行为不变，仅搬运归位；最小回归通过）；落地：`d29b565b`。

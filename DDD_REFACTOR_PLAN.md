@@ -548,6 +548,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 下一会话建议（S1 主线，保持行为不变；每次只迁 1 个 Controller）：优先归位 Course 侧 `QueryUserCourseController`（保持 `package/注解/URL/权限校验/日志与副作用顺序` 完全不变；必要时先单独提交 1 次 `bc-course/infrastructure/pom.xml` 的“编译闭合前置”）。
 - 补充进展（2026-01-19，保持行为不变，Controller 归位前置）：为后续归位 `ClassroomController` 做编译闭合前置，在 `bc-course/infrastructure/pom.xml` 补齐 `spring-boot-starter-web`、`zym-spring-boot-starter-common`（运行期 classpath 已存在，仅显式化；最小回归通过；落地：`8915db14`）。
 - 补充进展（2026-01-19，保持行为不变，入口归位：教室查询入口）：将 `ClassroomController` 从 `eva-adapter` 归位到 `bc-course-infra`（保持 `package/接口签名/URL/注解` 不变；最小回归通过；落地：`132f32f5`）。
+- 补充进展（2026-01-19，保持行为不变，Controller 归位前置）：为后续归位 `QueryUserCourseController`（依赖 `CalculateClassTime`）做编译闭合前置，将 `edu.cuit.adapter.controller.course.util.CalculateClassTime` 从 `eva-adapter` 下沉到 `shared-kernel`（保持 `package/逻辑` 不变，仅搬运归位；最小回归通过；落地：`8a3f738c`）。
 - 补充进展（2026-01-19，保持行为不变，入口归位：学期查询入口）：将 `SemesterController` 从 `eva-adapter` 归位到 `bc-course-infra`（保持 `package/接口签名/URL/注解` 不变；最小回归通过；落地：`0257ddd0`）。
 - 补充进展（2026-01-19，保持行为不变，入口归位：课程信息查询入口）：将 `QueryCourseController` 从 `eva-adapter` 归位到 `bc-course-infra`（保持 `package/接口签名/URL/注解` 不变；最小回归通过；落地：`1b9a6fc7`）。
 - 补充进展（2026-01-12，保持行为不变，Controller 收敛起步）：在 `UserUpdateController` 提取 `currentUserId()` 以减少适配层编排噪声（保持 `StpUtil.getLoginId()` 调用顺序与次数不变；最小回归通过；落地：`09cb6454`）。

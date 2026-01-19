@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-01-19（本次会话：S1 主线（收敛 eva-adapter 残留 Controller）；保持行为不变）**
+- ✅ **S1 前置（支撑类归位：课程适配层时间计算工具，保持行为不变）**：为后续将 `QueryUserCourseController` 从 `eva-adapter` 归位到 `bc-course-infra` 做编译闭合前置，将 `edu.cuit.adapter.controller.course.util.CalculateClassTime` 从 `eva-adapter` 下沉到 `shared-kernel`（保持 `package` 与逻辑不变，仅搬运归位；最小回归通过）；落地提交：`8a3f738c`。
 - ✅ **S1（入口归位：QueryCourseController，保持行为不变）**：将 `QueryCourseController` 从 `eva-adapter` 归位到 `bc-course-infra`（保持 `package`/接口签名/URL/注解与行为不变，仅搬运归位；最小回归通过）；落地提交：`1b9a6fc7`。当前 `eva-adapter` 残留 Controller 口径更新为 **11**（见 0.10.2）。
 - ✅ **S1（入口归位：SemesterController，保持行为不变）**：将 `SemesterController` 从 `eva-adapter` 归位到 `bc-course-infra`（保持 `package`/接口签名/URL/注解与行为不变，仅搬运归位；最小回归通过）；落地提交：`0257ddd0`。当前 `eva-adapter` 残留 Controller 口径更新为 **12**（见 0.10.2）。
 - ✅ **S1（入口归位：RoleUpdateController，保持行为不变）**：将 `RoleUpdateController` 从 `eva-adapter` 归位到 `bc-iam-infra`（保持 `package`/接口签名/URL/注解与行为不变，仅搬运归位；最小回归通过）；落地提交：`80888bed`。`eva-adapter` 残留 Controller 口径以 0.10.2 为准。
