@@ -112,6 +112,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S1（入口归位：MenuUpdateController，保持行为不变）：将 `MenuUpdateController` 从 `eva-adapter` 归位到 `bc-iam-infra`（保持 `package/接口签名/URL/注解` 与行为不变，仅搬运归位；最小回归通过）；落地：`d29b565b`。
 - ✅ S1（入口归位：RoleUpdateController，保持行为不变）：将 `RoleUpdateController` 从 `eva-adapter` 归位到 `bc-iam-infra`（保持 `package/接口签名/URL/注解` 与行为不变，仅搬运归位；最小回归通过）；落地：`80888bed`。
 - ✅ S1（入口归位：DepartmentController，保持行为不变）：将 `DepartmentController` 从 `eva-adapter` 归位到 `bc-iam-infra`（保持 `package/接口签名/URL/注解` 与行为不变，仅搬运归位；最小回归通过）；落地：`3e66a7b4`。
+- ✅ S1（入口归位前置：bc-course-infra 编译闭合，保持行为不变）：为后续归位 `ClassroomController`，在 `bc-course/infrastructure/pom.xml` 补齐 `spring-boot-starter-web`、`zym-spring-boot-starter-common`（运行时 classpath 已存在，仅显式化；最小回归通过）；落地：`8915db14`。
 - ✅ S1（入口归位前置：bc-iam-infra 编译闭合补齐，保持行为不变）：为后续归位 `UserQueryController`（依赖 `IEvaStatisticsService`）做前置，在 `bc-iam/infrastructure/pom.xml` 补齐 `bc-evaluation-contract`（保持行为不变；最小回归通过；落地：`0781952e`）。
 - ✅ S1（入口归位前置：bc-iam-infra 编译闭合补齐，保持行为不变）：为后续归位 `UserUpdateController` 做前置，在 `bc-iam/infrastructure/pom.xml` 补齐 `cola-component-exception`、`shared-kernel`、`eva-base-common`（保持行为不变；最小回归通过；落地：`ddd5ff2a`）。
 - ✅ S1（入口归位前置：bc-iam-infra 编译闭合，保持行为不变）：为后续将 `AuthenticationController` 从 `eva-adapter` 归位到 `bc-iam-infra`，先在 `bc-iam/infrastructure/pom.xml` 补齐 `spring-boot-starter-web`、`zym-spring-boot-starter-common`、`commons-lang3`（仅编译闭合；最小回归通过；落地：`42d44f0b`）。
