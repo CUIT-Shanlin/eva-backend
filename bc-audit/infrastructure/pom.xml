@@ -26,6 +26,24 @@
             <version>${revision}</version>
         </dependency>
 
+        <!-- 编译闭合前置：LogController 归位到 bc-audit/infrastructure（运行时 classpath 已存在，仅显式化，保持行为不变） -->
+        <dependency>
+            <groupId>edu.cuit.zhuyimeng</groupId>
+            <artifactId>zym-spring-boot-starter-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>edu.cuit.zhuyimeng</groupId>
+            <artifactId>zym-spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>edu.cuit</groupId>
             <artifactId>eva-infra-dal</artifactId>
