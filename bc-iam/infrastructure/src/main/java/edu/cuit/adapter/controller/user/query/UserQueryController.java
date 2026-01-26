@@ -44,8 +44,7 @@ public class UserQueryController {
     @GetMapping("/user/{id}")
     @SaCheckPermission("system.user.query")
     public CommonResult<UserInfoCO> oneUserInfo(@PathVariable("id") Integer id) {
-        UserInfoCO userInfo = userService.getOneUserInfo(id);
-        return CommonResult.success(userInfo);
+        return CommonResult.success(userService.getOneUserInfo(id));
     }
 
     /**
@@ -56,8 +55,7 @@ public class UserQueryController {
     @SaCheckPermission("system.user.query")
     public CommonResult<PaginationQueryResultCO<UserInfoCO>> pageUserInfo(
             @RequestBody @Valid PagingQuery<GenericConditionalQuery> query) {
-        PaginationQueryResultCO<UserInfoCO> pageResult = userService.pageUserInfo(query);
-        return CommonResult.success(pageResult);
+        return CommonResult.success(userService.pageUserInfo(query));
     }
 
     /**
@@ -71,9 +69,7 @@ public class UserQueryController {
             @PathVariable("type") Integer type,
             @RequestBody @Valid PagingQuery<UnqualifiedUserConditionalQuery> query,
             @RequestParam(value = "semId",required = false) Integer semId) {
-        PaginationQueryResultCO<UnqualifiedUserInfoCO> pageResult =
-                evaStatisticsService.pageUnqualifiedUser(semId, type, query);
-        return CommonResult.success(pageResult);
+        return CommonResult.success(evaStatisticsService.pageUnqualifiedUser(semId, type, query));
     }
 
     /**
@@ -87,9 +83,7 @@ public class UserQueryController {
     public CommonResult<UnqualifiedUserResultCO> getTargetAmountUnqualifiedUser(@PathVariable("type") Integer type,
                                                                          @PathVariable("num") Integer num,
                                                                          @RequestParam(value = "semId",required = false) Integer semId) {
-        UnqualifiedUserResultCO unqualifiedUserResult =
-                evaStatisticsService.getTargetAmountUnqualifiedUser(semId, type, num);
-        return CommonResult.success(unqualifiedUserResult);
+        return CommonResult.success(evaStatisticsService.getTargetAmountUnqualifiedUser(semId, type, num));
     }
 
     /**
@@ -102,8 +96,7 @@ public class UserQueryController {
     public CommonResult<List<UserSingleCourseScoreCO>> oneUserScore(
             @PathVariable("userId") Integer userId,
             @RequestParam(value = "semId",required = false) Integer semId) {
-        List<UserSingleCourseScoreCO> userSingleCourseScores = userService.getOneUserScore(userId, semId);
-        return CommonResult.success(userSingleCourseScores);
+        return CommonResult.success(userService.getOneUserScore(userId, semId));
     }
 
     /**
@@ -111,9 +104,8 @@ public class UserQueryController {
      */
     @GetMapping("/users/all")
     @SaCheckPermission("system.user.list")
-    public CommonResult<List<SimpleResultCO>> allUserInfo(){
-        List<SimpleResultCO> allUserInfo = userService.getAllUserInfo();
-        return CommonResult.success(allUserInfo);
+    public CommonResult<List<SimpleResultCO>> allUserInfo() {
+        return CommonResult.success(userService.getAllUserInfo());
     }
 
     /**
@@ -121,9 +113,8 @@ public class UserQueryController {
      */
     @GetMapping("/user/info")
     @SaCheckLogin
-    public CommonResult<UserInfoCO> selfUserInfo(){
-        UserInfoCO selfUserInfo = userService.getSelfUserInfo();
-        return CommonResult.success(selfUserInfo);
+    public CommonResult<UserInfoCO> selfUserInfo() {
+        return CommonResult.success(userService.getSelfUserInfo());
     }
 
     /**
@@ -145,8 +136,7 @@ public class UserQueryController {
     @GetMapping("/user/username/exist")
     @SaCheckPermission("system.user.isExist")
     public CommonResult<Boolean> isExist(@RequestParam("username") String username) {
-        Boolean usernameExist = userService.isUsernameExist(username);
-        return CommonResult.success(usernameExist);
+        return CommonResult.success(userService.isUsernameExist(username));
     }
 
 }
