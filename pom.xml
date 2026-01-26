@@ -10,7 +10,6 @@
   <packaging>pom</packaging>
   <modules>
     <module>start</module>
-    <module>eva-adapter</module>
     <module>shared-kernel</module>
     <module>eva-domain</module>
     <module>eva-infra-dal</module>
