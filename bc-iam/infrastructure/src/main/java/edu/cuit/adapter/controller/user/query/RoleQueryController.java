@@ -32,8 +32,7 @@ public class RoleQueryController {
     @PostMapping("/roles")
     @SaCheckPermission("system.role.query")
     public CommonResult<PaginationQueryResultCO<RoleInfoCO>> page(@RequestBody @Valid PagingQuery<GenericConditionalQuery> pagingQuery) {
-        PaginationQueryResultCO<RoleInfoCO> pageResult = roleService.page(pagingQuery);
-        return CommonResult.success(pageResult);
+        return CommonResult.success(roleService.page(pagingQuery));
     }
 
     /**
@@ -43,8 +42,7 @@ public class RoleQueryController {
     @GetMapping("/role")
     @SaCheckPermission("system.role.query")
     public CommonResult<RoleInfoCO> one(@RequestParam("id") Integer id) {
-        RoleInfoCO roleInfo = roleService.one(id);
-        return CommonResult.success(roleInfo);
+        return CommonResult.success(roleService.one(id));
     }
 
     /**
@@ -53,8 +51,7 @@ public class RoleQueryController {
     @GetMapping("/role/all")
     @SaCheckPermission("system.role.query")
     public CommonResult<List<SimpleRoleInfoCO>> all() {
-        List<SimpleRoleInfoCO> allRoleInfo = roleService.all();
-        return CommonResult.success(allRoleInfo);
+        return CommonResult.success(roleService.all());
     }
 
     /**
@@ -64,9 +61,7 @@ public class RoleQueryController {
     @GetMapping("/menu/idList/{roleId}")
     @SaCheckPermission("system.menu.query")
     public CommonResult<List<Integer>> menus(@PathVariable("roleId") Integer roleId) {
-        List<Integer> menuIdList = roleService.roleMenus(roleId);
-        return CommonResult.success(menuIdList);
+        return CommonResult.success(roleService.roleMenus(roleId));
     }
-
 
 }
