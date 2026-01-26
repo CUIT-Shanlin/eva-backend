@@ -18,33 +18,7 @@
     </properties>
 
     <dependencies>
-        <!-- 显式依赖 shared-kernel 承接跨 BC 协议类型（保持行为不变） -->
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>shared-kernel</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <!-- 适配层所需的最小编译依赖闭合（保持行为不变；仅补齐编译期类型） -->
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>eva-base-common</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>bc-iam-contract</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>bc-evaluation-contract</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>bc-messaging-contract</artifactId>
-            <version>${revision}</version>
-        </dependency>
+        <!-- 说明：eva-adapter 残留 Controller 已清零，当前模块不再承接跨 BC 协议类型，仅保留运行时所需基础依赖（保持行为不变） -->
         <dependency>
             <groupId>com.alibaba.cola</groupId>
             <artifactId>cola-component-exception</artifactId>
