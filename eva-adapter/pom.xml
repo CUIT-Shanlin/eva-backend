@@ -48,11 +48,6 @@
         <!-- 暂时承接仍未下沉到 contract/shared-kernel 的协议类型（保持行为不变；仅用于编译闭合） -->
         <dependency>
             <groupId>edu.cuit</groupId>
-            <artifactId>bc-audit</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>edu.cuit</groupId>
             <artifactId>bc-ai-report</artifactId>
             <version>${revision}</version>
         </dependency>
