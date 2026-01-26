@@ -111,6 +111,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 **已完成（更新至 2026-01-19）**
 - ✅ S1（入口归位：LogController，保持行为不变）：将 `LogController` 从 `eva-adapter` 归位到 `bc-audit/infrastructure`（保持 `package/接口签名/URL/注解` 与行为不变，仅搬运归位；最小回归通过）；落地：`b592cc0f`。
 - ✅ S1（入口归位前置：bc-audit-infra 编译闭合，保持行为不变）：为后续将 `LogController` 从 `eva-adapter` 归位到 `bc-audit/infrastructure` 做编译闭合前置，在 `bc-audit/infrastructure/pom.xml` 补齐 `spring-boot-starter-web`、`spring-boot-starter-validation`、`zym-spring-boot-starter-common`、`zym-spring-boot-starter-security`（运行时 classpath 已存在，仅显式化；最小回归通过）；落地：`2464d2b9`。
+- ✅ S0.2 延伸（依赖收敛：eva-adapter 去 bc-audit 编译期依赖，保持行为不变）：在 Serena 证据化确认 `eva-adapter/src/main/java` 无源码引用审计类型后，收敛 `eva-adapter/pom.xml`：移除对 `bc-audit` 的 Maven 编译期依赖（最小回归通过）；落地：`3aa49c66`。
 - ✅ S1（入口归位前置：bc-evaluation-infra 编译闭合，保持行为不变）：为后续归位 `EvaStatisticsController`，在 `bc-evaluation/infrastructure/pom.xml` 补齐 `spring-boot-starter-web`、`zym-spring-boot-starter-common`、`bc-evaluation-contract`、`bc-ai-report`（仅编译闭合；最小回归通过）；落地：`a5e1eb52`。
 - ✅ S1（入口归位：EvaStatisticsController，保持行为不变）：将 `EvaStatisticsController` 从 `eva-adapter` 归位到 `bc-evaluation-infra`（保持 `package/接口签名/URL/注解` 与行为不变，仅搬运归位；最小回归通过）；落地：`f533261a`。
 - ✅ S1 前置（支撑类归位：课程适配层时间计算工具，保持行为不变）：为后续归位 `QueryUserCourseController` 做编译闭合前置，将 `edu.cuit.adapter.controller.course.util.CalculateClassTime` 从 `eva-adapter` 下沉到 `shared-kernel`（保持 `package/逻辑` 不变，仅搬运归位；最小回归通过）；落地：`8a3f738c`。
