@@ -519,6 +519,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-01-19，保持行为不变，入口归位：审计日志入口）：将 `LogController` 从 `eva-adapter` 归位到 `bc-audit/infrastructure`（保持 `package/接口签名/URL/注解` 与行为不变，仅搬运归位；最小回归通过；落地：`b592cc0f`）。
 - 补充进展（2026-01-26，保持行为不变，依赖收敛：eva-adapter 去 bc-audit）：在 Serena 证据化确认 `eva-adapter/src/main/java` 已无审计入口源码后，收敛 `eva-adapter/pom.xml`：移除对 `bc-audit` 的 Maven 编译期依赖（最小回归通过；落地：`3aa49c66`）。
 - 补充进展（2026-01-26，保持行为不变，依赖收敛：eva-adapter 去 bc-ai-report）：在 Serena 证据化确认 `eva-adapter/src/main/java` 无 AI 报告相关源码后，收敛 `eva-adapter/pom.xml`：移除对 `bc-ai-report` 的 Maven 编译期依赖（最小回归通过；落地：`a7f85ac7`）。
+- 补充进展（2026-01-26，保持行为不变，依赖收敛：eva-adapter 去 bc-*contract/shared-kernel）：在 Serena 证据化确认 `eva-adapter/src/main/java` 无源码后，进一步收敛 `eva-adapter/pom.xml`：移除 `shared-kernel` 与 `bc-iam-contract` / `bc-evaluation-contract` / `bc-messaging-contract` 的 Maven 编译期依赖（最小回归通过；落地：`84be3a4b`）。
 - 补充进展（2026-01-15，保持行为不变，装配责任上推：websocket）：已在 `start/pom.xml` 显式增加 `spring-boot-starter-websocket`（落地：`97b543b1`），用于为后续收敛 `eva-app` 的 websocket 编译期依赖边界做前置（保持行为不变）。
 - 补充进展（2026-01-15，保持行为不变，支撑类归位：websocket）：将 `MessageChannel` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package edu.cuit.app.websocket` 不变；最小回归通过；落地：`0fbc4aef`），用于为后续归位 websocket 配置与依赖收敛做前置。
 - 补充进展（2026-01-15，保持行为不变，支撑类归位：websocket）：将 `UriUtils` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package edu.cuit.app.util` 不变；最小回归通过；落地：`c1a10d2d`），用于为后续归位 `WebSocketInterceptor` 做编译闭合前置。

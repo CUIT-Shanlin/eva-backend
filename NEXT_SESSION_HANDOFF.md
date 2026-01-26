@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-01-19（本次会话：S1 主线（收敛 eva-adapter 残留 Controller）；保持行为不变）**
+- ✅ **S0.2 延伸（依赖收敛：eva-adapter 去 bc-*contract/shared-kernel 编译期依赖，保持行为不变）**：在 Serena 证据化确认 `eva-adapter/src/main/java` 无源码后，进一步收敛 `eva-adapter/pom.xml`：移除 `shared-kernel` 与 `bc-iam-contract` / `bc-evaluation-contract` / `bc-messaging-contract` 的 Maven 编译期依赖（最小回归通过）；落地提交：`84be3a4b`。
 - ✅ **S0.2 延伸（依赖收敛：eva-adapter 去 bc-ai-report 编译期依赖，保持行为不变）**：在 Serena 证据化确认 `eva-adapter/src/main/java` 无 AI 报告相关源码引用后，收敛 `eva-adapter/pom.xml`：移除对 `bc-ai-report` 的 Maven 编译期依赖（最小回归通过）；落地提交：`a7f85ac7`。
 - ✅ **S0.2 延伸（依赖收敛：eva-adapter 去 bc-audit 编译期依赖，保持行为不变）**：在 Serena 证据化确认 `eva-adapter/src/main/java` 无源码引用 `ILogService/OperateLogCO/LogModuleCO` 等审计类型后，收敛 `eva-adapter/pom.xml`：移除对 `bc-audit` 的 Maven 编译期依赖（最小回归通过）；落地提交：`3aa49c66`。
 - ✅ **S1（入口归位：LogController，保持行为不变）**：将 `LogController` 从 `eva-adapter` 归位到 `bc-audit/infrastructure`（保持 `package`/接口签名/URL/注解与行为不变，仅搬运归位；Serena 证伪无“代码级引用点”，仅由 Spring 扫描发现；最小回归通过）；落地提交：`b592cc0f`。`eva-adapter` 残留 Controller 口径以 0.10.2 为准。
