@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-01-19（本次会话：S1 主线（收敛 eva-adapter 残留 Controller）；保持行为不变）**
+- ✅ **S0.2 延伸（依赖收敛：eva-adapter 去 bc-ai-report 编译期依赖，保持行为不变）**：在 Serena 证据化确认 `eva-adapter/src/main/java` 无 AI 报告相关源码引用后，收敛 `eva-adapter/pom.xml`：移除对 `bc-ai-report` 的 Maven 编译期依赖（最小回归通过）；落地提交：`a7f85ac7`。
 - ✅ **S0.2 延伸（依赖收敛：eva-adapter 去 bc-audit 编译期依赖，保持行为不变）**：在 Serena 证据化确认 `eva-adapter/src/main/java` 无源码引用 `ILogService/OperateLogCO/LogModuleCO` 等审计类型后，收敛 `eva-adapter/pom.xml`：移除对 `bc-audit` 的 Maven 编译期依赖（最小回归通过）；落地提交：`3aa49c66`。
 - ✅ **S1（入口归位：LogController，保持行为不变）**：将 `LogController` 从 `eva-adapter` 归位到 `bc-audit/infrastructure`（保持 `package`/接口签名/URL/注解与行为不变，仅搬运归位；Serena 证伪无“代码级引用点”，仅由 Spring 扫描发现；最小回归通过）；落地提交：`b592cc0f`。`eva-adapter` 残留 Controller 口径以 0.10.2 为准。
 - ✅ **S1（入口归位前置：bc-audit-infra 编译闭合，保持行为不变）**：为后续将 `LogController` 从 `eva-adapter` 归位到 `bc-audit/infrastructure` 做编译闭合前置，在 `bc-audit/infrastructure/pom.xml` 补齐 `spring-boot-starter-web`、`spring-boot-starter-validation`、`zym-spring-boot-starter-common`、`zym-spring-boot-starter-security`（运行时 classpath 已存在，仅显式化；最小回归通过）；落地提交：`2464d2b9`。
@@ -656,7 +657,7 @@
 - 🎯 **下一刀（建议，保持行为不变；每次只改 1 个类或 1 个 pom）**：继续推进 **S0.2 延伸（依赖方编译期依赖收敛）**：选择下一条“依赖方编译期依赖收敛”目标（优先从 `eva-domain` / `eva-infra-shared` 等依赖方开始），用 Serena 证据化盘点引用面与依赖闭包后再收敛 `pom.xml`（每次只改 1 个 pom；保持行为不变）。
   - 📌 **当前状态快照（截至 2026-01-19，口径=可复现命令；保持行为不变）**：
     - ✅ `eva-adapter` 残留 `*Controller.java` 已清零（口径见 0.10.2；命令：`fd -t f 'Controller\\.java$' eva-adapter/src/main/java | wc -l` → 0）；组合根 `start` 对 `eva-adapter` 仍为 **runtime** 依赖（落地：`045891d1`；见 `start/pom.xml`；运行期装配不变，仅收敛编译期边界）。
-    - ⏳ `eva-adapter/pom.xml` 仍**声明** `bc-ai-report` 编译期依赖（口径：`rg -n '<artifactId>bc-ai-report</artifactId>' eva-adapter/pom.xml`）。`bc-ai-report` 是否仍有必要需在下一会话用 Serena 证据化盘点后再做“单 pom 收敛”（每次只改 1 个 `pom.xml`；保持行为不变）。
+    - ✅ `eva-adapter/pom.xml` 已移除 `bc-audit` / `bc-ai-report` 编译期依赖（均以 Serena 证据化盘点为前置，并在最小回归下闭环；保持行为不变）。
     - 多个 `bc-*` 模块仍编译期依赖 `eva-domain` / `eva-infra-shared` / `eva-infra-dal`（口径：`rg -n '<artifactId>eva-(domain|infra-shared|infra-dal)</artifactId>' --glob '**/pom.xml' .`）。因此“把所有 `eva-*` 模块全部整合进各 BC 并从 reactor 移除”尚不具备直接落地条件（整合判定标准见 `DDD_REFACTOR_PLAN.md` 的 10.5）。
   - ✅ **完成条件（评估点）**：
     - ✅ 已满足（eva-app 退场）：组合根 `start` 已去 `eva-app` 依赖并显式引入 `eva-infra(runtime)`（`0a9ff564`）；根 `pom.xml` 已从 reactor 移除 `eva-app`（`b5f15a4b`）；已删除 `eva-app/pom.xml`（`4bfa9d40`）。
