@@ -504,7 +504,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 ### 10.2 下一步优先顺序（保持“写侧优先 + 行为不变”）
 
-> 滚动口径（更新至 2026-01-26）：✅ `eva-app` 已完成退场闭环（源码清零 + 组合根 `start` 去依赖 + root reactor 移除 + 删除 `eva-app/pom.xml`）；✅ `eva-adapter` 残留 `*Controller` 已清零，且组合根 `start` 已移除对 `eva-adapter` 的 Maven 依赖（保持行为不变）；🎯 下一步主线转为 **让 `eva-adapter` 从 root reactor 退场**（每次只改 1 个 `pom.xml`：优先改 root `pom.xml` 移除 `<module>eva-adapter</module>`），并行推进“依赖方 `pom.xml` 编译期依赖收敛”。
+> 滚动口径（更新至 2026-01-26）：✅ `eva-app` 已完成退场闭环（源码清零 + 组合根 `start` 去依赖 + root reactor 移除 + 删除 `eva-app/pom.xml`）；✅ `eva-adapter` 残留 `*Controller` 已清零，且组合根 `start` 已移除对 `eva-adapter` 的 Maven 依赖（保持行为不变）；✅ `eva-adapter` 已从 root reactor 退场（root `pom.xml` 移除 `<module>eva-adapter</module>`；Serena 证伪无依赖方 `<artifactId>eva-adapter</artifactId>`；最小回归通过；落地：`86842a1f`）；🎯 下一步主线：并行推进“依赖方 `pom.xml` 编译期依赖收敛”，并评估是否需要删除 `eva-adapter/` 空模块（需独立提交；保持行为不变）。
 > 新会话续接方式：优先复制 `NEXT_SESSION_HANDOFF.md` 的 0.11「推荐版（Controller 优先）」并按 0.10 的“下一步拆分与里程碑/提交点”顺序执行，避免遗漏约束与回归命令。
 
 - 补充进展（2026-01-17，保持行为不变，Controller 归位前置）：为后续将 `AuthenticationController` 从 `eva-adapter` 归位到 `bc-iam-infra`，先在 `bc-iam/infrastructure/pom.xml` 补齐 `spring-boot-starter-web`、`zym-spring-boot-starter-common`、`commons-lang3`（仅编译闭合；最小回归通过；落地：`42d44f0b`）。
@@ -512,6 +512,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-01-17，保持行为不变，Controller 归位前置）：为后续归位 `UserQueryController`（依赖 `IEvaStatisticsService`）做编译闭合前置，在 `bc-iam/infrastructure/pom.xml` 补齐 `bc-evaluation-contract`（保持行为不变；最小回归通过；落地：`0781952e`）。
 - 补充进展（2026-01-17，保持行为不变，依赖收敛：组合根→eva-adapter）：Serena 证伪 `start` 源码未引用 `edu.cuit.adapter.*` 后，将 `start/pom.xml` 对 `eva-adapter` 的依赖 scope 改为 `runtime`（运行期装配不变，仅收敛编译期边界；最小回归通过；落地：`045891d1`；阶段性中间态）。
 - 补充进展（2026-01-26，保持行为不变，组合根收敛：start 去 eva-adapter）：在 `eva-adapter` Controller 已清零且入口已归位各 BC 的前提下，移除 `start/pom.xml` 对 `eva-adapter` 的 Maven 依赖（最小回归通过；落地：`92a70a9e`）。
+- 补充进展（2026-01-26，保持行为不变，组合根收敛：root reactor 去 eva-adapter）：在 Serena 证据化确认全仓库仅 `eva-adapter/pom.xml` 声明 `<artifactId>eva-adapter</artifactId>` 后，从根 `pom.xml` 的 reactor 中移除 `eva-adapter` 模块（最小回归通过；落地：`86842a1f`）。
 - 补充进展（2026-01-10，保持行为不变）：基础设施旧 `*GatewayImpl` 归位已阶段性闭环，`eva-infra/src/main/java/edu/cuit/infra/gateway/impl` 下残留已清零（详见 `NEXT_SESSION_HANDOFF.md` 0.10 与 `docs/DDD_REFACTOR_BACKLOG.md` 4.3）。下一会话不再投入该方向，避免重复劳动。
 - 补充进展（2026-01-15，保持行为不变，装配责任上推：AI 报告）：已在 `start/pom.xml` 显式增加 `bc-ai-report-infra(runtime)`（落地：`08862a4b`），用于为后续收敛 `eva-app` 的 AI 报告编译期依赖边界做前置（保持行为不变）。
 - 补充进展（2026-01-15，保持行为不变，依赖收敛：AI 报告）：在 Serena 证据化确认 `eva-app/src/main/java` 无 AI 相关直引后，已收敛 `eva-app/pom.xml`：移除对 `bc-ai-report` 与 `bc-ai-report-infra` 的 Maven 编译期依赖（运行期装配由组合根 `start` 显式兜底；落地：`2a4736c0`）。
