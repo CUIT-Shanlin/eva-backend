@@ -113,6 +113,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S1.1（eva-adapter 退场：删除模块 pom，保持行为不变）：在 `eva-adapter` 已从 root reactor 退场的前提下，删除 `eva-adapter/pom.xml`，使全仓库 `**/pom.xml` 不再出现 `<artifactId>eva-adapter</artifactId>`（最小回归通过）；落地：`ed244cad`。
 - ✅ S0.2 延伸（依赖收敛：eva-domain 去 bc-evaluation-contract 编译期依赖，保持行为不变）：在 Serena 证据化确认 `eva-domain/src/main/java` 无评教 contract 类型引用后，收敛 `eva-domain/pom.xml`：移除对 `bc-evaluation-contract` 的 Maven 编译期依赖（最小回归通过）；落地：`ccbb1cf9`。
 - ✅ S0.2 延伸（依赖收敛：eva-infra-shared 去 bc-evaluation-contract 编译期依赖，保持行为不变）：在 Serena 证据化确认 `eva-infra-shared/src/main/java` 无评教 contract 类型引用后，收敛 `eva-infra-shared/pom.xml`：移除对 `bc-evaluation-contract` 的 Maven 编译期依赖（最小回归通过）；落地：`d28a5904`。
+- ✅ S0.2 延伸（依赖收敛：bc-iam-contract 去 bc-evaluation-contract 编译期依赖，保持行为不变）：在 Serena 证据化确认 `bc-iam/contract/src/main/java` 无评教 contract 类型引用后，收敛 `bc-iam/contract/pom.xml`：移除对 `bc-evaluation-contract` 的 Maven 编译期依赖（最小回归通过）；落地：`dcf5849a`。
 - ✅ S1.1（eva-adapter 退场：组合根收敛，保持行为不变）：在 `eva-adapter` Controller 已清零且入口已归位各 BC 的前提下，移除 `start/pom.xml` 对 `eva-adapter` 的 Maven 依赖（最小回归通过）；落地：`92a70a9e`。
 - ✅ S1（入口归位：LogController，保持行为不变）：将 `LogController` 从 `eva-adapter` 归位到 `bc-audit/infrastructure`（保持 `package/接口签名/URL/注解` 与行为不变，仅搬运归位；最小回归通过）；落地：`b592cc0f`。
 - ✅ S1（入口归位前置：bc-audit-infra 编译闭合，保持行为不变）：为后续将 `LogController` 从 `eva-adapter` 归位到 `bc-audit/infrastructure` 做编译闭合前置，在 `bc-audit/infrastructure/pom.xml` 补齐 `spring-boot-starter-web`、`spring-boot-starter-validation`、`zym-spring-boot-starter-common`、`zym-spring-boot-starter-security`（运行时 classpath 已存在，仅显式化；最小回归通过）；落地：`2464d2b9`。
