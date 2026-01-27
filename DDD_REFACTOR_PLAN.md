@@ -823,8 +823,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 > 背景：`bc-iam/infrastructure` 下的 Controller 仅承载 HTTP 协议适配与参数校验；本阶段只做“结构性收敛”（收敛返回包装表达式/抽取 `success()` 等），用于降低适配层编排噪声，但 **不改业务语义**，且缓存/日志/异常文案/副作用顺序完全不变。
 
-- ✅ 已完成（保持行为不变）：`UserUpdateController`（落地：`5ee37fd2`）、`DepartmentController`（落地：`fbc5fb74`）。
-- ⏳ 待完成（建议顺序；每次只改 1 个类闭环）：`AuthenticationController` → `MenuUpdateController` → `RoleUpdateController`。
+- ✅ 已完成（保持行为不变）：`UserUpdateController`（落地：`5ee37fd2`）、`DepartmentController`（落地：`fbc5fb74`）、`AuthenticationController`（落地：`fd9e4d1c`）。
+- ⏳ 待完成（建议顺序；每次只改 1 个类闭环）：`MenuUpdateController` → `RoleUpdateController`。
 - 验收口径（每步闭环）：Serena（符号级定位 + 引用分析）→ 最小回归（`mvnd -pl start -am test ...`）→ `git commit` → 同步三文档 → `git commit` → `git push`。
 
 #### bc-evaluation（评教）S0.2 延伸：收敛 `eva-app` 对 `bc-evaluation` 的编译期依赖（保持行为不变）
