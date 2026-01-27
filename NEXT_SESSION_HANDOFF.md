@@ -23,6 +23,7 @@
 
 **2026-01-27（本次会话：S0.2 延伸（依赖收敛纠偏）；保持行为不变）**
 - ✅ **S0.2 延伸（依赖收敛纠偏：bc-iam-contract 恢复 bc-evaluation-contract 编译期依赖，保持行为不变）**：在 Serena 证据化确认 `IUserService#getOneUserScore` 仍返回 `UserSingleCourseScoreCO`（定义于 `bc-evaluation-contract`）后，恢复 `bc-iam/contract/pom.xml` 对 `bc-evaluation-contract` 的显式依赖（用于纠正 `dcf5849a` 的误判；最小回归通过）；落地提交：`918c5d45`。
+- ✅ **S1（IAM Controller：UserUpdateController 结构性收敛，保持行为不变）**：抽取 `success()` 统一封装 `CommonResult.success()` 的返回表达；并修正少量参数空格格式以降低噪声（不改 URL/注解/异常/副作用顺序；最小回归通过）；落地提交：`5ee37fd2`。
 
 **2026-01-26（本次会话：S1.1（eva-adapter 退场）+ S0.2 延伸（依赖方 pom 收敛）；保持行为不变）**
 - ✅ **S1.1（eva-adapter 退场：root reactor 移除模块，保持行为不变）**：在 Serena 证据化确认（当时）全仓库仅 `eva-adapter/pom.xml` 声明 `<artifactId>eva-adapter</artifactId>`，且根 `pom.xml` 仅残留 `<module>eva-adapter</module>` 的前提下，从根 `pom.xml` 的 reactor 中移除 `eva-adapter` 模块（最小回归通过）；落地提交：`86842a1f`。
