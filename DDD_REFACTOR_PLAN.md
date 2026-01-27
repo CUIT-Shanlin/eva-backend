@@ -797,9 +797,10 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 3) **可以移除 `eva-domain` / `eva-infra*` / `eva-base*` 的判定标准（建议的 DoD）**
    - 前置：相关能力已按 BC 归位（domain/application/infrastructure）或下沉到 `shared-kernel`（仅限跨 BC 协议/横切通用），且依赖方已完成编译期依赖收敛（先 Serena 证据化盘点，再逐个 `pom.xml` 收敛，保持行为不变）。
    - 证据口径（保持行为不变）：`rg -n '<module>eva-' pom.xml` 命中为 0，且 `rg -n '<artifactId>eva-(domain|infra|infra-shared|infra-dal|base|base-common|base-config)</artifactId>' --glob '**/pom.xml' .` 不再出现“依赖方 dependency 声明”（允许剩余模块自身 artifactId 声明）；组合根 `start/pom.xml` 也不再需要显式 `eva-infra(runtime)` 兜底。
-  - 现状评估（更新至 2026-01-19，保持行为不变）：
+  - 现状评估（更新至 2026-01-27，保持行为不变）：
     - `eva-app`：已完成退场闭环（源码清零 + 组合根 `start` 去依赖 + root reactor 移除 + 删除 `eva-app/pom.xml`）；无需再围绕 `eva-app` 做依赖收敛或入口迁移。
-    - `eva-adapter`：仍保留 7 个 `*Controller.java`（口径：`fd -t f 'Controller\\.java$' eva-adapter/src/main/java | wc -l`），组合根 `start` 仍显式依赖 `eva-adapter`（见 `start/pom.xml`），因此“移除模块”尚未满足。
+    - `eva-adapter`：已完成退场闭环（残留 Controller 清零 + 组合根去依赖 + root reactor 移除 + 删除模块 pom）；证据口径：`fd -t f 'Controller\\.java$' eva-adapter/src/main/java | wc -l` 为 0，且 `rg -n '<module>eva-adapter</module>' pom.xml` 命中为 0，且 `rg -n '<artifactId>eva-adapter</artifactId>' --glob '**/pom.xml' .` 命中为 0（保持行为不变）。
+    - `eva-domain/eva-infra*/eva-base*`：仍是“全量整合”的核心阻塞（组合根 `start` 仍显式依赖 `eva-infra`，且多个 `bc-*` 模块仍编译期依赖 `eva-domain/eva-infra-(shared|dal)`；证据口径见上方 3)）。因此“把所有 `eva-*` 模块全部整合进各业务 BC 并从 reactor 移除”暂不具备一次性落地条件，需要按“小步迁移类型/适配器 → 再收敛单个 pom → 再评估移除模块”的节奏推进。
 
 3) **可以移除 `eva-infra` 的判定标准（建议的 DoD）**
    - `eva-infra` 中旧 `*GatewayImpl` 已全部退化为委托壳或迁入对应 `bc-*/infrastructure`（或其过渡落点），不再承担“业务编排”。
@@ -817,6 +818,14 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   4) 后置再考虑 `eva-domain/eva-infra*`：它们仍被多个 BC 编译期依赖，属于“跨 BC 共享/过渡模块”；需要先完成端口归属与依赖边界收敛，避免硬整合导致循环依赖与装配漂移。
 
 ### 10.3 未完成清单（滚动，供下一会话排期）
+
+#### bc-iam（IAM）S1：Controller 入口壳结构性收敛（保持行为不变）
+
+> 背景：`bc-iam/infrastructure` 下的 Controller 仅承载 HTTP 协议适配与参数校验；本阶段只做“结构性收敛”（收敛返回包装表达式/抽取 `success()` 等），用于降低适配层编排噪声，但 **不改业务语义**，且缓存/日志/异常文案/副作用顺序完全不变。
+
+- ✅ 已完成（保持行为不变）：`UserUpdateController`（落地：`5ee37fd2`）、`DepartmentController`（落地：`fbc5fb74`）。
+- ⏳ 待完成（建议顺序；每次只改 1 个类闭环）：`AuthenticationController` → `MenuUpdateController` → `RoleUpdateController`。
+- 验收口径（每步闭环）：Serena（符号级定位 + 引用分析）→ 最小回归（`mvnd -pl start -am test ...`）→ `git commit` → 同步三文档 → `git commit` → `git push`。
 
 #### bc-evaluation（评教）S0.2 延伸：收敛 `eva-app` 对 `bc-evaluation` 的编译期依赖（保持行为不变）
 

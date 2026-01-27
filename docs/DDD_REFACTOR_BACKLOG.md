@@ -566,6 +566,10 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 （新增，更新至 2026-01-15，保持行为不变）
 
+- **S1（IAM：Controller 入口壳结构性收敛，保持行为不变）**：
+  - ✅ 已完成：`UserUpdateController`（落地：`5ee37fd2`）、`DepartmentController`（落地：`fbc5fb74`）。
+  - ⏳ 待完成（每次只改 1 个类闭环）：`AuthenticationController`、`MenuUpdateController`、`RoleUpdateController`（仅收敛返回包装表达式/抽取 `success()`/清理无用 import；URL/注解/异常文案/日志/缓存/副作用顺序完全不变）。
+
 - **S0.2 延伸（审计域：收敛 `eva-app` 对 `bc-audit` 的编译期耦合面，保持行为不变）**：
   - ✅ 已完成：将 `eva-app/src/main/java/edu/cuit/app/config/BcAuditConfiguration.java` 归位到 `bc-audit-infra`（保持 `package edu.cuit.app.config` 不变；Bean 装配/副作用顺序不变；落地：`5a4d726b`）。
   - ✅ 已完成（编译闭合前置，保持行为不变）：在 `bc-audit/infrastructure/pom.xml` 补齐 `zym-spring-boot-starter-logging`，用于为后续归位 `LogBizConvertor/LogServiceImpl`（依赖 `LogManager/OperateLogBO`）做编译闭合前置（运行时 classpath 已存在，仅显式化；落地：`e7e13736`）。
@@ -808,7 +812,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 阶段性策略微调（2025-12-29）：
 - ✅ 复核口径（2026-01-26，不改业务语义）：`spring-boot-starter-websocket` 仅由组合根 `start` 显式承接；并已将 `EvaConfigBizConvertor`、`EvaRecordBizConvertor`、`EvaTaskBizConvertor`、`EvaTemplateBizConvertor` 从 `eva-app` 归位到 `eva-infra-shared`（保持行为不变），并将 `EvaConfigService` 从 `eva-app` 归位到 `bc-evaluation-infra`（保持行为不变），并将 `UserCourseDetailQueryExec`、`FileImportExec`、`package-info.java` 从 `eva-app` 归位到 `bc-course-infra`（保持行为不变）。当前 `eva-app` 已退场（组合根去依赖：`0a9ff564`；reactor 移除：`b5f15a4b`；删除 `eva-app/pom.xml`：`4bfa9d40`）；`eva-adapter` 残留 Controller 口径以 `NEXT_SESSION_HANDOFF.md` 0.10.2 为准（当前 0 个，已清零）；组合根 `start` 已移除对 `eva-adapter` 的 Maven 依赖（落地：`92a70a9e`；保持行为不变）。补充：✅ 已完成消息入口归位前置（保持行为不变）：为后续将 `MessageController` 从 `eva-adapter` 归位到 `bc-messaging` 做编译闭合前置，在 `bc-messaging/pom.xml` 补齐 `spring-boot-starter-web`、`zym-spring-boot-starter-common`、`zym-spring-boot-starter-security`、`shared-kernel`（落地：`aa7d57bb`）。补充：✅ 已完成审计日志入口归位（保持行为不变）：`LogController` 已从 `eva-adapter` 归位到 `bc-audit/infrastructure`（编译闭合前置：`2464d2b9`；入口归位：`b592cc0f`）。
 - ✅ 允许“微调”：仅限结构性重构（收窄依赖/拆接口/移动默认值兜底），**不改业务语义**；缓存/日志/异常文案/副作用顺序完全不变。
-  - 🎯 下一批主线建议（更新至 2026-01-27，保持行为不变）：✅ 已闭环：**S1：`eva-adapter` 退场**（root reactor 移除 + `start` 去依赖 + 删除模块 pom；口径见 `NEXT_SESSION_HANDOFF.md` 0.9/0.10）；✅ 已闭环：**依赖收敛纠偏**（`bc-iam-contract` 已恢复对 `bc-evaluation-contract` 的显式依赖，避免误判导致编译漂移；见 `NEXT_SESSION_HANDOFF.md` 0.9）。下一刀建议：继续按“每次只改 1 个类/1 个 pom”推进 **IAM Controller 结构性收敛**（优先 `DepartmentController` / `AuthenticationController` / `MenuUpdateController` / `RoleUpdateController`），并并行推进依赖方 `pom.xml` 收敛（移除前必须 Serena + `rg` 双证据）。
+  - 🎯 下一批主线建议（更新至 2026-01-27，保持行为不变）：✅ 已闭环：**S1：`eva-adapter` 退场**（root reactor 移除 + `start` 去依赖 + 删除模块 pom；口径见 `NEXT_SESSION_HANDOFF.md` 0.9/0.10）；✅ 已闭环：**依赖收敛纠偏**（`bc-iam-contract` 已恢复对 `bc-evaluation-contract` 的显式依赖，避免误判导致编译漂移；见 `NEXT_SESSION_HANDOFF.md` 0.9）。下一刀建议：继续按“每次只改 1 个类/1 个 pom”推进 **IAM Controller 结构性收敛**（✅ `DepartmentController` 已完成；下一步优先 `AuthenticationController` / `MenuUpdateController` / `RoleUpdateController`），并并行推进依赖方 `pom.xml` 收敛（移除前必须 Serena + `rg` 双证据）。
     - ✅ 已完成（保持行为不变）：Audit 侧 `LogController` 已从 `eva-adapter` 归位到 `bc-audit/infrastructure`（编译闭合前置：`2464d2b9`；入口归位：`b592cc0f`）。
     - 更新（2026-01-19，保持行为不变）：✅ 已完成：`EvaConfigQueryController`（`5e7537ef`）、`EvaQueryController`（`d101ce07`）、`EvaConfigUpdateController`（`b5530281`）、`UpdateEvaController`（`3972b7e4`）、`DeleteEvaController`（`d1471ff5`）、`MessageController`（`7b076019`）与 `LogController`（`b592cc0f`）已从 `eva-adapter` 归位到对应 BC（保持行为不变）；`eva-adapter` 残留 Controller 已清零（口径见 `NEXT_SESSION_HANDOFF.md` 0.10.2）。
     - 并行落点（建议，保持行为不变；每次只改 1 个类或 1 个 pom）：继续以 `bc-iam` 为样例推进“入口壳结构性收敛（Controller）”，并将“依赖方 pom 收敛”作为并行主线（但务必先证据化，避免误删依赖导致 `contract` 签名不一致）。
