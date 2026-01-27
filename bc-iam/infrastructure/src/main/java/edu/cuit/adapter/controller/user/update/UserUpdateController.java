@@ -38,6 +38,10 @@ public class UserUpdateController {
         return userService.getIdByUsername(((String) StpUtil.getLoginId()));
     }
 
+    private static CommonResult<Void> success() {
+        return CommonResult.success();
+    }
+
     /**
      * 修改用户信息
      * @param isUpdatePwd 是否需要修改密码
@@ -48,8 +52,8 @@ public class UserUpdateController {
     @OperateLog(module = LogModule.USER,type = OperateLogType.UPDATE)
     public CommonResult<Void> updateInfo(@PathVariable("isUpdatePwd") Boolean isUpdatePwd,
                                      @RequestBody @Valid UpdateUserCmd cmd) {
-        userService.updateInfo(isUpdatePwd,cmd);
-        return CommonResult.success();
+        userService.updateInfo(isUpdatePwd, cmd);
+        return success();
     }
 
     /**
@@ -60,7 +64,7 @@ public class UserUpdateController {
     @SaCheckLogin
     public CommonResult<Void> updateOwnInfo(@RequestBody @Valid UpdateUserCmd cmd) {
         userService.updateOwnInfo(cmd);
-        return CommonResult.success();
+        return success();
     }
 
     /**
@@ -72,7 +76,7 @@ public class UserUpdateController {
     @SaCheckLogin
     public CommonResult<Void> updatePassword(@RequestBody @Valid UpdatePasswordCmd cmd) {
         userService.changePassword(currentUserId(), cmd);
-        return CommonResult.success();
+        return success();
     }
 
     /**
@@ -85,8 +89,8 @@ public class UserUpdateController {
     @OperateLog(module = LogModule.USER,type = OperateLogType.UPDATE)
     public CommonResult<Void> updateStatus(@PathVariable("userId") Integer userId,
                                            @PathVariable("status") @ValidStatus(message = "状态只能为0或1") Integer status) {
-        userService.updateStatus(userId,status);
-        return CommonResult.success();
+        userService.updateStatus(userId, status);
+        return success();
     }
 
     /**
@@ -98,7 +102,7 @@ public class UserUpdateController {
     @OperateLog(module = LogModule.USER,type = OperateLogType.DELETE)
     public CommonResult<Void> delete(@RequestParam("userId") Integer userId) {
         userService.delete(userId);
-        return CommonResult.success();
+        return success();
     }
 
     /**
@@ -110,7 +114,7 @@ public class UserUpdateController {
     @OperateLog(module = LogModule.USER,type = OperateLogType.UPDATE)
     public CommonResult<Void> assignRole(@RequestBody @Valid AssignRoleCmd cmd) {
         userService.assignRole(cmd);
-        return CommonResult.success();
+        return success();
     }
 
     /**
@@ -123,7 +127,7 @@ public class UserUpdateController {
     public CommonResult<Void> create(@RequestBody @Valid NewUserCmd cmd) {
         userService.create(cmd);
         LogUtils.logContent(cmd.getName() + " 用户");
-        return CommonResult.success();
+        return success();
     }
 
     /**
@@ -140,7 +144,7 @@ public class UserUpdateController {
             log.error("发生系统异常",ex);
             throw ex;
         }
-        return CommonResult.success();
+        return success();
     }
 
     /**
@@ -152,7 +156,7 @@ public class UserUpdateController {
     public CommonResult<Void> syncLdapUser() {
         userService.syncLdap();
         LogUtils.logContent(" 同步LDAP用户任务");
-        return CommonResult.success();
+        return success();
     }
 
 }
