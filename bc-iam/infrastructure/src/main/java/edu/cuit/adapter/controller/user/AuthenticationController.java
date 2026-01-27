@@ -29,7 +29,7 @@ public class AuthenticationController {
     @PostMapping("/login")
     public CommonResult<Pair<String, String>> login(@Valid @RequestBody UserLoginCmd loginCmd) {
         Pair<String, String> loginResult = userAuthService.login(loginCmd);
-        return CommonResult.success(loginResult);
+        return success(loginResult);
     }
 
     /**
@@ -39,6 +39,14 @@ public class AuthenticationController {
     @SaCheckLogin
     public CommonResult<Void> logout() {
         userAuthService.logout();
+        return success();
+    }
+
+    private static CommonResult<Pair<String, String>> success(Pair<String, String> data) {
+        return CommonResult.success(data);
+    }
+
+    private static CommonResult<Void> success() {
         return CommonResult.success();
     }
 
