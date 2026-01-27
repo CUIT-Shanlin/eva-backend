@@ -24,8 +24,12 @@ public class DepartmentController {
      */
     @GetMapping("/departments")
     public CommonResult<List<String>> all() {
-        List<String> allDepartments = departmentService.all();
-        return CommonResult.success(allDepartments);
+        List<String> departments = departmentService.all();
+        return success(departments);
+    }
+
+    private static CommonResult<List<String>> success(List<String> data) {
+        return CommonResult.success(data);
     }
 
 }
