@@ -519,6 +519,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-01-26，保持行为不变，依赖收敛：bc-iam-contract 去 bc-evaluation-contract）：在 Serena 证据化确认 `bc-iam/contract/src/main/java` 无评教 contract 类型引用后，收敛 `bc-iam/contract/pom.xml`：移除对 `bc-evaluation-contract` 的 Maven 编译期依赖（最小回归通过；落地：`dcf5849a`）。（后续证实误判，已恢复依赖：`918c5d45`）
 - 补充进展（2026-01-27，保持行为不变，依赖收敛纠偏：bc-iam-contract 恢复 bc-evaluation-contract）：在 Serena 证据化确认 `IUserService#getOneUserScore` 仍返回 `UserSingleCourseScoreCO`（定义于 `bc-evaluation-contract`）后，恢复 `bc-iam/contract/pom.xml` 对 `bc-evaluation-contract` 的显式依赖（用于纠正 `dcf5849a` 的误判；最小回归通过；落地：`918c5d45`）。
 - 补充进展（2026-01-27，保持行为不变，Controller 小幅重构：UserUpdateController）：在 `UserUpdateController` 抽取 `success()` 统一封装 `CommonResult.success()` 的返回表达，并修正少量参数空格格式以降低噪声（不改 URL/注解/异常/副作用顺序；最小回归通过；落地：`5ee37fd2`）。
+- 补充进展（2026-01-27，保持行为不变，Controller 小幅重构：DepartmentController）：在 `DepartmentController` 抽取 `success(...)` 统一封装 `CommonResult.success(...)` 的返回表达（不改 URL/注解/异常/副作用顺序；最小回归通过；落地：`fbc5fb74`）。
 - 补充进展（2026-01-26，保持行为不变，Controller 小幅重构：UserQueryController）：对 `UserQueryController` 进行纯结构性整理（简化临时变量与返回包装；不改 URL/注解/异常/副作用顺序；最小回归通过；落地：`a542abff`）。
 - 补充进展（2026-01-26，保持行为不变，Controller 小幅重构：MenuQueryController）：对 `MenuQueryController` 进行纯结构性整理（简化临时变量与返回包装；不改 URL/注解/异常/副作用顺序；最小回归通过；落地：`e388ae84`）。
 - 补充进展（2026-01-26，保持行为不变，Controller 小幅重构：RoleQueryController）：对 `RoleQueryController` 进行纯结构性整理（简化临时变量与返回包装；不改 URL/注解/异常/副作用顺序；最小回归通过；落地：`bb134377`）。
