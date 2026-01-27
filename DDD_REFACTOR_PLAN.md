@@ -561,8 +561,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-01-12，保持行为不变，ICourseTypeServiceImpl 收敛准备）：在 `bc-course/application` 新增课程类型用例 `CourseTypeUseCase`（读写合并；手写 `CourseTypeEntity` → `CourseType` 映射与 `PaginationQueryResultCO` 组装，不引入 `eva-infra-shared`；对齐旧入口逻辑与返回语义；最小回归通过；落地：`325f221a`）。
 - 补充进展（2026-01-12，保持行为不变，ICourseTypeServiceImpl 收敛准备）：在 `BcCourseConfiguration` 补齐 `CourseTypeUseCase` 的 Bean 装配（保持行为不变；最小回归通过；落地：`55eb322e`）。
 - 补充进展（2026-01-12，保持行为不变，入口壳收敛：课程类型）：将 `eva-app` 的 `ICourseTypeServiceImpl` 退化为纯委托壳，改为委托 `CourseTypeUseCase`（保持 `id==null` 语义与 `updateCoursesType` 返回 `null`（`Void`）等行为不变；最小回归通过；落地：`1aebda24`）。
-- 现状快照（更新至 2026-01-19，保持行为不变）：`eva-app` 已退场（组合根去依赖：`0a9ff564`；reactor 移除：`b5f15a4b`；删除 `eva-app/pom.xml`：`4bfa9d40`）。`eva-adapter` 下残留 `*Controller` 为 **0 个**（已将 `AuthenticationController`、`UserUpdateController`、`UserQueryController`、`RoleQueryController`、`MenuQueryController`、`MenuUpdateController`、`RoleUpdateController`、`DepartmentController`、`ClassroomController`、`SemesterController`、`QueryCourseController`、`QueryUserCourseController`、`DeleteCourseController`、`UpdateCourseController`、`EvaStatisticsController`、`EvaConfigQueryController`、`EvaQueryController`、`EvaConfigUpdateController`、`UpdateEvaController`、`DeleteEvaController`、`MessageController`、`LogController` 归位到对应 BC，落地：`94a00022`、`367f781d`、`f7c5d219`、`e7d51beb`、`76e19a47`、`d29b565b`、`80888bed`、`3e66a7b4`、`132f32f5`、`0257ddd0`、`1b9a6fc7`、`bc37fa17`、`4b6219b9`、`1d03d987`、`f533261a`、`5e7537ef`、`d101ce07`、`b5530281`、`3972b7e4`、`d1471ff5`、`7b076019`、`b592cc0f`），且已补齐 `eva-adapter/pom.xml` 的编译依赖闭合以避免增量编译掩盖问题（`56273162`）。下一刀建议转向“单 pom 依赖收敛”（保持行为不变）。
-- 下一会话建议（保持行为不变；每次只改 1 个 `pom.xml`）：优先评估 `eva-adapter/pom.xml` 中 `bc-audit` / `bc-ai-report` 的编译期依赖是否仍必要（先 Serena 证据化盘点引用面/依赖闭包，再按“单 pom 收敛”推进）。
+- 现状快照（更新至 2026-01-19，保持行为不变）：`eva-app` 已退场（组合根去依赖：`0a9ff564`；reactor 移除：`b5f15a4b`；删除 `eva-app/pom.xml`：`4bfa9d40`）。`eva-adapter` 下残留 `*Controller` 为 **0 个**（已将 `AuthenticationController`、`UserUpdateController`、`UserQueryController`、`RoleQueryController`、`MenuQueryController`、`MenuUpdateController`、`RoleUpdateController`、`DepartmentController`、`ClassroomController`、`SemesterController`、`QueryCourseController`、`QueryUserCourseController`、`DeleteCourseController`、`UpdateCourseController`、`EvaStatisticsController`、`EvaConfigQueryController`、`EvaQueryController`、`EvaConfigUpdateController`、`UpdateEvaController`、`DeleteEvaController`、`MessageController`、`LogController` 归位到对应 BC，落地：`94a00022`、`367f781d`、`f7c5d219`、`e7d51beb`、`76e19a47`、`d29b565b`、`80888bed`、`3e66a7b4`、`132f32f5`、`0257ddd0`、`1b9a6fc7`、`bc37fa17`、`4b6219b9`、`1d03d987`、`f533261a`、`5e7537ef`、`d101ce07`、`b5530281`、`3972b7e4`、`d1471ff5`、`7b076019`、`b592cc0f`），且历史上曾补齐 `eva-adapter/pom.xml` 的编译依赖闭合以避免增量编译掩盖问题（`56273162`；现模块已退场并删除 pom）。下一刀建议转向“BC 内 Controller 入口壳结构性收敛 + 依赖方 pom 收敛（含纠偏）”（保持行为不变）。
+- 下一会话建议（保持行为不变；每次只改 1 个类或 1 个 `pom.xml`）：优先继续推进 `bc-iam` 的 Controller 入口壳结构性收敛（每次 1 个 Controller），并并行推进“依赖方 `pom.xml` 编译期依赖收敛”（移除前必须 Serena + `rg` 双证据，避免误判导致构建漂移）。
 - 补充进展（2026-01-19，保持行为不变，Controller 归位前置）：为后续归位 `ClassroomController` 做编译闭合前置，在 `bc-course/infrastructure/pom.xml` 补齐 `spring-boot-starter-web`、`zym-spring-boot-starter-common`（运行期 classpath 已存在，仅显式化；最小回归通过；落地：`8915db14`）。
 - 补充进展（2026-01-19，保持行为不变，入口归位：教室查询入口）：将 `ClassroomController` 从 `eva-adapter` 归位到 `bc-course-infra`（保持 `package/接口签名/URL/注解` 不变；最小回归通过；落地：`132f32f5`）。
 - 补充进展（2026-01-19，保持行为不变，Controller 归位前置）：为后续归位 `QueryUserCourseController`（依赖 `CalculateClassTime`）做编译闭合前置，将 `edu.cuit.adapter.controller.course.util.CalculateClassTime` 从 `eva-adapter` 下沉到 `shared-kernel`（保持 `package/逻辑` 不变，仅搬运归位；最小回归通过；落地：`8a3f738c`）。
@@ -809,10 +809,11 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 先把“入口方法簇”按 BC 迁完（A→B），让 `eva-app` 业务实现逐步清空；再做“模块移除/目录折叠”类变更。
 - 每次只做一个维度：要么迁入口（业务代码），要么迁装配/模块结构（wiring/Maven），避免同时改动导致回滚困难。
 - 盘点清单落点：`docs/DDD_REFACTOR_BACKLOG.md` 的 4.3（未收敛清单）用于持续维护“仍在 eva-* 的入口/旧网关候选”。
- - 建议的 S1 落地顺序（保持行为不变；每步只改 1 个类或 1 个 `pom.xml`）：
-   1) 先处理 `eva-adapter`：逐个收敛 `*Controller` 为“协议适配/参数校验/委托壳”，并逐步迁入对应 BC（或引入 `bc-*-adapter` 子模块承接 Web 入口），最终让 `start` 可移除对 `eva-adapter` 的依赖。
-   2) 并行推进“依赖方 `pom.xml` 收敛”：优先从“仅类型引用、无实现/副作用耦合”的依赖方模块开始（需先 Serena 证据化盘点引用面与依赖闭包）。
-   3) 最后才考虑 `eva-domain/eva-infra*`：它们当前仍被多个 BC 编译期依赖，属于“跨 BC 共享/过渡模块”，需要先完成端口归属与依赖边界收敛，避免硬整合导致循环依赖与装配漂移。
+- 建议的 S1 落地顺序（保持行为不变；每步只改 1 个类或 1 个 `pom.xml`）：
+  1) ✅ 已完成：`eva-adapter` 退场关键闭环（`*Controller` 清零 + 组合根去依赖 + root reactor 移除 + 删除模块 pom），后续不再围绕 `eva-adapter` 投入“收敛入口”类工作，避免重复劳动。
+  2) 优先推进“入口壳结构性收敛（Controller）”：按 BC 粒度（建议先 `bc-iam`）逐个 Controller 做纯结构性重构（收敛返回表达式/抽私有方法/清理无用 import），严格保持 URL/注解/异常文案/副作用顺序不变。
+  3) 并行推进“依赖方 `pom.xml` 编译期依赖收敛（含纠偏）”：每次只改 1 个 pom；移除依赖前必须 Serena 证据化“无引用面”，并用 `rg` 留一条可复现兜底证据，避免增量编译/缓存掩盖问题导致误判（本周已出现一次，需要作为流程强约束固化）。
+  4) 后置再考虑 `eva-domain/eva-infra*`：它们仍被多个 BC 编译期依赖，属于“跨 BC 共享/过渡模块”；需要先完成端口归属与依赖边界收敛，避免硬整合导致循环依赖与装配漂移。
 
 ### 10.3 未完成清单（滚动，供下一会话排期）
 
