@@ -21,6 +21,9 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-01-28（本次会话：S0.2 延伸（依赖收敛前置）；保持行为不变）**
+- ✅ **S0.2 延伸（端口下沉：EvaRecordCountQueryPort → bc-evaluation-contract，保持行为不变）**：在 Serena 证据化确认引用面（`bc-iam-infra` 的 `UserServiceImpl`、`bc-evaluation-infra` 的 `MsgServiceImpl`、`start` 单测等）后，将 `EvaRecordCountQueryPort` 从 `bc-evaluation/application` 下沉到 `bc-evaluation-contract`（保持 `package edu.cuit.bc.evaluation.application.port` 不变），为后续收敛 `bc-iam/infrastructure/pom.xml` 去 `bc-evaluation` 编译期依赖创造前置；最小回归通过；落地提交：`4c30b02c`。
+
 **2026-01-27（本次会话：S0.2 延伸（依赖收敛纠偏）；保持行为不变）**
 - ✅ **S0.2 延伸（依赖收敛纠偏：bc-iam-contract 恢复 bc-evaluation-contract 编译期依赖，保持行为不变）**：在 Serena 证据化确认 `IUserService#getOneUserScore` 仍返回 `UserSingleCourseScoreCO`（定义于 `bc-evaluation-contract`）后，恢复 `bc-iam/contract/pom.xml` 对 `bc-evaluation-contract` 的显式依赖（用于纠正 `dcf5849a` 的误判；最小回归通过）；落地提交：`918c5d45`。
 - ✅ **S1（IAM Controller：UserUpdateController 结构性收敛，保持行为不变）**：抽取 `success()` 统一封装 `CommonResult.success()` 的返回表达；并修正少量参数空格格式以降低噪声（不改 URL/注解/异常/副作用顺序；最小回归通过）；落地提交：`5ee37fd2`。
