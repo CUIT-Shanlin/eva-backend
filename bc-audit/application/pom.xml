@@ -33,6 +33,12 @@
             <artifactId>shared-kernel</artifactId>
             <version>${revision}</version>
         </dependency>
+        <!-- 现状：SysLogBO 仍由 eva-domain 提供（保持 package 不变）；因此应用层需显式依赖以闭合编译 -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>eva-domain</artifactId>
+            <version>${revision}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.projectlombok</groupId>
