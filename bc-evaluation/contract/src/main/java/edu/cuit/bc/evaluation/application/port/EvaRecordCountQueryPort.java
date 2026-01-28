@@ -12,3 +12,4 @@ public interface EvaRecordCountQueryPort {
 
     Optional<Integer> getEvaNumByCourse(Integer courseId);
 }
+
