@@ -24,6 +24,7 @@
 **2026-01-28（本次会话：S0.2 延伸（依赖收敛前置）；保持行为不变）**
 - ✅ **S0.2 延伸（端口下沉：EvaRecordCountQueryPort → bc-evaluation-contract，保持行为不变）**：在 Serena 证据化确认引用面（`bc-iam-infra` 的 `UserServiceImpl`、`bc-evaluation-infra` 的 `MsgServiceImpl`、`start` 单测等）后，将 `EvaRecordCountQueryPort` 从 `bc-evaluation/application` 下沉到 `bc-evaluation-contract`（保持 `package edu.cuit.bc.evaluation.application.port` 不变），为后续收敛 `bc-iam/infrastructure/pom.xml` 去 `bc-evaluation` 编译期依赖创造前置；最小回归通过；落地提交：`4c30b02c`。
 - ✅ **S0.2 延伸（依赖收敛：bc-iam-infra 去 bc-evaluation 编译期依赖，保持行为不变）**：在 `EvaRecordCountQueryPort` 已下沉到 `bc-evaluation-contract` 且 Serena + `rg` 证伪 `bc-iam/infrastructure/src/main/java` 未引用其他 `bc-evaluation` 应用层类型后，收敛 `bc-iam/infrastructure/pom.xml`：移除对 `bc-evaluation` 的 Maven 编译期依赖，仅保留 `bc-evaluation-contract`（最小回归通过）；落地提交：`42a9e96c`。
+- ✅ **S0.2 延伸（IAM：去 `eva-domain` 前置，bc-iam-domain 编译闭合前置，保持行为不变）**：按 `DDD_REFACTOR_PLAN.md` 10.3 的 IAM 小节“Step 0（pom）”先行，在 `bc-iam/domain/pom.xml` 补齐后续搬运 `edu.cuit.domain.entity.user.*` / `edu.cuit.domain.gateway.user.*` 所需的最小编译期依赖（`shared-kernel`、`cola-component-domain-starter`、`spring-context(provided)`、`lombok(provided)`），仅用于编译闭合，不引入新业务语义；最小回归通过；落地提交：`a3d048d0`。
   - 备注（过程记录，便于下次排障）：本次在 `mvnd` 增量/并行编译过程中出现过一次**偶发编译失败**（现象类似注解处理器生成文件冲突），重跑同一最小回归命令后通过；未改变任何业务语义/装配结果。若下次重现，建议在同一步增加 `mvnd -DtrimStackTrace=false` 以保留更完整错误上下文。
 
 **2026-01-27（本次会话：S0.2 延伸（依赖收敛纠偏）；保持行为不变）**
