@@ -114,6 +114,7 @@
 - ✅ **S0.2 延伸（依赖收敛：eva-domain 去 spring-statemachine-core 编译期依赖，保持行为不变）**：在 Serena + `rg` 证伪 `eva-domain/src/main/java` 无 `statemachine` 相关引用后，收敛 `eva-domain/pom.xml`：移除 `spring-statemachine-core` Maven 依赖（最小回归通过）；落地提交：`12c8d4bb`。
 - 🔁 **S0.2 延伸（依赖收敛纠偏：bc-audit(application) 恢复 eva-domain 编译期依赖，保持行为不变）**：此前仅按 `edu.cuit.domain.*` 引用面误判可去 `eva-domain`（落地：`bf90c040`）；后续在最小回归触发重新编译时暴露：`bc-audit/application` 仍引用 `edu.cuit.client.bo.SysLogBO`（定义于 `eva-domain/src/main/java/edu/cuit/client/bo/SysLogBO.java`，包名保持不变）。因此恢复 `bc-audit/application/pom.xml` 对 `eva-domain` 的 Maven 编译期依赖以闭合编译（最小回归通过）；纠偏提交：`b47d71ab`。
 - ✅ **S0.2 延伸（类型下沉：PaginationResultEntity 归位 shared-kernel，保持行为不变）**：为逐步减少各 BC（含 IAM）对 `eva-domain` 的编译期耦合，将通用分页实体 `edu.cuit.domain.entity.PaginationResultEntity` 从 `eva-domain` 下沉到 `shared-kernel`（保持 `package` 与类内容不变，仅改变 Maven 模块归属；最小回归通过）；落地提交：`d31bb204`。
+- ✅ **S0.2 延伸（类型下沉：SysLogBO 归位 shared-kernel，保持行为不变）**：为进一步减少依赖方对 `eva-domain` 的编译期耦合，将日志 BO `edu.cuit.client.bo.SysLogBO` 从 `eva-domain` 下沉到 `shared-kernel`（保持 `package` 与类内容不变，仅改变 Maven 模块归属；最小回归通过）；落地提交：`96de4244`。
 
 **2026-01-15（本次会话：S0.2 延伸（websocket 闭环 + 审计/AI 依赖收敛），保持行为不变）**
 - ✅ **websocket（依赖收敛：eva-app 去 websocket starter 编译期依赖，保持行为不变）**：在 Serena 证伪 `eva-app/src/main/java` 不再 `import org.springframework.web.socket.*` 后，已收敛 `eva-app/pom.xml`：移除 `spring-boot-starter-websocket` 的编译期依赖；运行期由组合根 `start` 显式兜底（最小回归通过）；落地提交：`4213a95a`。
