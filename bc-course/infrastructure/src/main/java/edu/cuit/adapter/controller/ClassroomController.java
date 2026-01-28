@@ -26,8 +26,12 @@ public class ClassroomController {
     @GetMapping("/classrooms/all")
     @SaCheckLogin
     public CommonResult<List<String>> getAll() {
-        List<String> allClassrooms = classroomService.getAll();
-        return CommonResult.success(allClassrooms);
+        List<String> classrooms = classroomService.getAll();
+        return success(classrooms);
+    }
+
+    private static CommonResult<List<String>> success(List<String> data) {
+        return CommonResult.success(data);
     }
 
 }
