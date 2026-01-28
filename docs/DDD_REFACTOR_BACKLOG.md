@@ -118,6 +118,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S1（IAM Controller：UserUpdateController 结构性收敛，保持行为不变）：在 `UserUpdateController` 抽取 `success()` 统一封装 `CommonResult.success()` 的返回表达，并修正少量参数空格格式以降低噪声（不改 URL/注解/异常/副作用顺序；最小回归通过）；落地：`5ee37fd2`。
 - ✅ S1（IAM Controller：DepartmentController 结构性收敛，保持行为不变）：在 `DepartmentController` 抽取 `success(...)` 统一封装 `CommonResult.success(...)` 的返回表达（不改 URL/注解/异常/副作用顺序；最小回归通过）；落地：`fbc5fb74`。
 - ✅ S1（IAM Controller：AuthenticationController 结构性收敛，保持行为不变）：在 `AuthenticationController` 抽取 `success(...)`/`success()` 统一封装 `CommonResult.success(...)` 的返回表达（不改 URL/注解/权限/异常/副作用顺序；最小回归通过）；落地：`fd9e4d1c`。
+- ✅ S1（IAM Controller：MenuUpdateController 结构性收敛，保持行为不变）：在 `MenuUpdateController` 抽取 `success()` 统一封装 `CommonResult.success()` 的返回表达（严格保持 `menuService.create(...)` → `LogUtils.logContent(...)` → `return` 的执行顺序不变；不改 URL/注解/权限/异常/日志/副作用顺序；最小回归通过）；落地：`44bc649d`。
 - ✅ S1（IAM Controller：UserQueryController 小幅重构，保持行为不变）：对 `UserQueryController` 进行纯结构性整理（简化临时变量与返回包装；不改 URL/注解/异常/副作用顺序；最小回归通过）；落地：`a542abff`。
 - ✅ S1（IAM Controller：MenuQueryController 小幅重构，保持行为不变）：对 `MenuQueryController` 进行纯结构性整理（简化临时变量与返回包装；不改 URL/注解/异常/副作用顺序；最小回归通过）；落地：`e388ae84`。
 - ✅ S1（IAM Controller：RoleQueryController 小幅重构，保持行为不变）：对 `RoleQueryController` 进行纯结构性整理（简化临时变量与返回包装；不改 URL/注解/异常/副作用顺序；最小回归通过）；落地：`bb134377`。
@@ -568,8 +569,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
 （新增，更新至 2026-01-15，保持行为不变）
 
 - **S1（IAM：Controller 入口壳结构性收敛，保持行为不变）**：
-  - ✅ 已完成：`UserUpdateController`（落地：`5ee37fd2`）、`DepartmentController`（落地：`fbc5fb74`）、`AuthenticationController`（落地：`fd9e4d1c`）。
-  - ⏳ 待完成（每次只改 1 个类闭环）：`MenuUpdateController`、`RoleUpdateController`（仅收敛返回包装表达式/抽取 `success()`/清理无用 import；URL/注解/异常文案/日志/缓存/副作用顺序完全不变）。
+  - ✅ 已完成：`UserUpdateController`（落地：`5ee37fd2`）、`DepartmentController`（落地：`fbc5fb74`）、`AuthenticationController`（落地：`fd9e4d1c`）、`MenuUpdateController`（落地：`44bc649d`）。
+  - ⏳ 待完成（每次只改 1 个类闭环）：`RoleUpdateController`（仅收敛返回包装表达式/抽取 `success()`/清理无用 import；URL/注解/异常文案/日志/缓存/副作用顺序完全不变）。
 
 - **S0.2 延伸（审计域：收敛 `eva-app` 对 `bc-audit` 的编译期耦合面，保持行为不变）**：
   - ✅ 已完成：将 `eva-app/src/main/java/edu/cuit/app/config/BcAuditConfiguration.java` 归位到 `bc-audit-infra`（保持 `package edu.cuit.app.config` 不变；Bean 装配/副作用顺序不变；落地：`5a4d726b`）。
