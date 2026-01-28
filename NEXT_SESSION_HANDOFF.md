@@ -35,6 +35,7 @@
 - ✅ **S1（课程 Controller：SemesterController 结构性收敛，保持行为不变）**：抽取泛型 `success(data)` 统一封装 `CommonResult.success(data)` 的返回表达（仍保持“先调用 service → 再返回包装”的执行顺序不变；不改 URL/注解/异常/副作用顺序；最小回归通过）；落地提交：`13892e55`。
 - ✅ **S1（课程 Controller：ClassroomController 结构性收敛，保持行为不变）**：抽取 `success(data)` 统一封装 `CommonResult.success(data)` 的返回表达（仍保持“先调用 service → 再返回包装”的执行顺序不变；不改 URL/注解/权限/异常/副作用顺序；最小回归通过）；落地提交：`99eb17c0`。
 - ✅ **S1（课程 Controller：QueryCourseController 结构性收敛，保持行为不变）**：抽取泛型 `success(data)` 统一封装 `CommonResult.success(data)` 的返回表达（仍保持“先调用 service → 再返回包装”的执行顺序不变；不改 URL/注解/权限/异常/副作用顺序；最小回归通过）；落地提交：`4c54337f`。
+- ✅ **S1（课程 Controller：QueryUserCourseController 结构性收敛，保持行为不变）**：抽取泛型 `success(data)` 统一封装 `CommonResult.success(data)` 的返回表达（仍保持“先调用 service → 再返回包装”的执行顺序不变；不改 URL/注解/权限/异常/副作用顺序；最小回归通过）；落地提交：`c8ce3522`。
 
 **2026-01-26（本次会话：S1.1（eva-adapter 退场）+ S0.2 延伸（依赖方 pom 收敛）；保持行为不变）**
 - ✅ **S1.1（eva-adapter 退场：root reactor 移除模块，保持行为不变）**：在 Serena 证据化确认（当时）全仓库仅 `eva-adapter/pom.xml` 声明 `<artifactId>eva-adapter</artifactId>`，且根 `pom.xml` 仅残留 `<module>eva-adapter</module>` 的前提下，从根 `pom.xml` 的 reactor 中移除 `eva-adapter` 模块（最小回归通过）；落地提交：`86842a1f`。

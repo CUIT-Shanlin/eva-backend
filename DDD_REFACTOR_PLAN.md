@@ -844,6 +844,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 - ✅ 已完成（保持行为不变）：`SemesterController`（落地：`13892e55`）、`ClassroomController`（落地：`99eb17c0`）。
 - ✅ 已完成（保持行为不变）：`QueryCourseController`（落地：`4c54337f`）。
+- ✅ 已完成（保持行为不变）：`QueryUserCourseController`（落地：`c8ce3522`）。
 
 #### bc-evaluation（评教）S0.2 延伸：收敛 `eva-app` 对 `bc-evaluation` 的编译期依赖（保持行为不变）
 
