@@ -126,6 +126,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S1.1（eva-adapter 退场：组合根收敛，保持行为不变）：在 `eva-adapter` Controller 已清零且入口已归位各 BC 的前提下，移除 `start/pom.xml` 对 `eva-adapter` 的 Maven 依赖（最小回归通过）；落地：`92a70a9e`。
 - ✅ S1（入口归位：LogController，保持行为不变）：将 `LogController` 从 `eva-adapter` 归位到 `bc-audit/infrastructure`（保持 `package/接口签名/URL/注解` 与行为不变，仅搬运归位；最小回归通过）；落地：`b592cc0f`。
 - ✅ S1（审计 Controller：LogController 结构性收敛，保持行为不变）：在 `LogController` 抽取泛型 `success(data)` 统一封装 `CommonResult.success(data)` 的返回表达（不改 URL/注解/权限/异常/副作用顺序；最小回归通过）；落地：`14c9ab77`。
+- ✅ S1（消息 Controller：MessageController 结构性收敛，保持行为不变）：在 `MessageController` 抽取 `success(data)`/`success()` 统一封装 `CommonResult.success(...)` 的返回表达（不改 URL/注解/权限/异常/副作用顺序；最小回归通过）；落地：`9a3ef681`。
 - ✅ S1（入口归位前置：bc-audit-infra 编译闭合，保持行为不变）：为后续将 `LogController` 从 `eva-adapter` 归位到 `bc-audit/infrastructure` 做编译闭合前置，在 `bc-audit/infrastructure/pom.xml` 补齐 `spring-boot-starter-web`、`spring-boot-starter-validation`、`zym-spring-boot-starter-common`、`zym-spring-boot-starter-security`（运行时 classpath 已存在，仅显式化；最小回归通过）；落地：`2464d2b9`。
 - ✅ S0.2 延伸（依赖收敛：eva-adapter 去 bc-audit 编译期依赖，保持行为不变）：在 Serena 证据化确认 `eva-adapter/src/main/java` 无源码引用审计类型后，收敛 `eva-adapter/pom.xml`：移除对 `bc-audit` 的 Maven 编译期依赖（最小回归通过）；落地：`3aa49c66`。
 - ✅ S0.2 延伸（依赖收敛：eva-adapter 去 bc-ai-report 编译期依赖，保持行为不变）：在 Serena 证据化确认 `eva-adapter/src/main/java` 无 AI 报告相关源码引用后，收敛 `eva-adapter/pom.xml`：移除对 `bc-ai-report` 的 Maven 编译期依赖（最小回归通过）；落地：`a7f85ac7`。

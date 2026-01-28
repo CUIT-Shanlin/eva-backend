@@ -832,6 +832,12 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 - ✅ 已完成（保持行为不变）：`LogController`（落地：`14c9ab77`）。
 
+#### bc-messaging（消息）S1：Controller 入口壳结构性收敛（保持行为不变）
+
+> 背景：消息域的 Controller 同样只做结构性收敛（收敛返回包装表达式/抽取 `success()` 等），不改业务语义与副作用顺序。
+
+- ✅ 已完成（保持行为不变）：`MessageController`（落地：`9a3ef681`）。
+
 #### bc-evaluation（评教）S0.2 延伸：收敛 `eva-app` 对 `bc-evaluation` 的编译期依赖（保持行为不变）
 
 > 背景：为避免 `eva-app` 继续承担评教基础设施/装配责任，已完成三步前置（均保持行为不变）：`BcEvaluationConfiguration` 已从 `eva-app` 归位到 `bc-evaluation-infra`（`c3f7fc56`）；组合根 `start` 已显式依赖 `bc-evaluation-infra(runtime)`（`0f20d0cd`）；`eva-app/pom.xml` 已移除对 `bc-evaluation-infra` 的依赖（`e9feeb56`）。
