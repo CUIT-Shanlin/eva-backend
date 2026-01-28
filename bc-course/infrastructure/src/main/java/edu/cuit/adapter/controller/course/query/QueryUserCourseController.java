@@ -45,7 +45,7 @@ public class QueryUserCourseController {
     public CommonResult<List<SimpleSubjectResultCO>> getUserCourseInfo(
             @RequestParam(value = "semId",required = false) Integer semId){
         List<SimpleSubjectResultCO> userCourseInfo = userCourseService.getUserCourseInfo(semId);
-        return CommonResult.success(userCourseInfo);
+        return success(userCourseInfo);
     }
 
     /**
@@ -59,7 +59,7 @@ public class QueryUserCourseController {
             @RequestParam(value = "id",required = true) Integer id,
             @RequestParam(value = "semId",required = false) Integer semId){
         List<CourseDetailCO> userCourseDetailList = userCourseService.getUserCourseDetail(id, semId);
-        return CommonResult.success(userCourseDetailList);
+        return success(userCourseDetailList);
     }
 
     /**
@@ -71,7 +71,7 @@ public class QueryUserCourseController {
     public CommonResult<List<RecommendCourseCO>> getSelfCourse(
             @RequestParam(value = "semId",required = false) Integer semId){
         List<RecommendCourseCO> recommendCourseList = userCourseService.getSelfCourse(semId);
-        return CommonResult.success(recommendCourseList);
+        return success(recommendCourseList);
     }
 
     /**
@@ -90,7 +90,7 @@ public class QueryUserCourseController {
         LocalDateTime localDateTime = LocalDateTime.parse(dateTime, formatter);
         LocalDateTime courseStartTime =
                 CalculateClassTime.calculateClassTime(localDateTime, courseTime.getStartTime());
-        return CommonResult.success(courseStartTime);
+        return success(courseStartTime);
     }
 
     /**
@@ -102,7 +102,7 @@ public class QueryUserCourseController {
     public CommonResult<List<SelfTeachCourseCO>> selfCourseDetail(
             @RequestParam(value = "semId",required = true)Integer semId){
         List<SelfTeachCourseCO> selfTeachCourseList = userCourseService.selfCourseDetail(semId);
-        return CommonResult.success(selfTeachCourseList);
+        return success(selfTeachCourseList);
     }
 
     /**
@@ -114,7 +114,11 @@ public class QueryUserCourseController {
     public CommonResult<List<SelfTeachCourseTimeInfoCO>> selfCourseTime(
             @PathVariable(value = "courseId",required = true) Integer courseId){
         List<SelfTeachCourseTimeInfoCO> courseTimeInfoList = userCourseService.selfCourseTime(courseId);
-        return CommonResult.success(courseTimeInfoList);
+        return success(courseTimeInfoList);
+    }
+
+    private static <T> CommonResult<T> success(T data) {
+        return CommonResult.success(data);
     }
 
 
