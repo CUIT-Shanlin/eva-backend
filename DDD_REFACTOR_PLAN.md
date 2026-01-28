@@ -826,6 +826,12 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 已完成（保持行为不变）：`UserUpdateController`（落地：`5ee37fd2`）、`DepartmentController`（落地：`fbc5fb74`）、`AuthenticationController`（落地：`fd9e4d1c`）、`MenuUpdateController`（落地：`44bc649d`）、`RoleUpdateController`（落地：`c81eb2e0`）。
 - 验收口径（每步闭环）：Serena（符号级定位 + 引用分析）→ 最小回归（`mvnd -pl start -am test ...`）→ `git commit` → 同步三文档 → `git commit` → `git push`。
 
+#### bc-audit（审计）S1：Controller 入口壳结构性收敛（保持行为不变）
+
+> 背景：审计域的 Controller 同样遵循“仅结构性收敛、不改语义”的原则（不改 URL/注解/权限/异常文案/副作用顺序），用于降低入口壳噪声。
+
+- ✅ 已完成（保持行为不变）：`LogController`（落地：`14c9ab77`）。
+
 #### bc-evaluation（评教）S0.2 延伸：收敛 `eva-app` 对 `bc-evaluation` 的编译期依赖（保持行为不变）
 
 > 背景：为避免 `eva-app` 继续承担评教基础设施/装配责任，已完成三步前置（均保持行为不变）：`BcEvaluationConfiguration` 已从 `eva-app` 归位到 `bc-evaluation-infra`（`c3f7fc56`）；组合根 `start` 已显式依赖 `bc-evaluation-infra(runtime)`（`0f20d0cd`）；`eva-app/pom.xml` 已移除对 `bc-evaluation-infra` 的依赖（`e9feeb56`）。

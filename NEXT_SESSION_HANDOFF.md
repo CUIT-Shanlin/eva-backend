@@ -29,6 +29,9 @@
 - ✅ **S1（IAM Controller：MenuUpdateController 结构性收敛，保持行为不变）**：抽取 `success()` 统一封装 `CommonResult.success()` 的返回表达（严格保持 `menuService.create(...)` → `LogUtils.logContent(...)` → `return` 的执行顺序不变；不改 URL/注解/权限/异常/日志/副作用顺序；最小回归通过）；落地提交：`44bc649d`。
 - ✅ **S1（IAM Controller：RoleUpdateController 结构性收敛，保持行为不变）**：抽取 `success()` 统一封装 `CommonResult.success()` 的返回表达（严格保持 `roleService.create(...)` → `LogUtils.logContent(...)` → `return` 的执行顺序不变；不改 URL/注解/权限/异常/日志/副作用顺序；最小回归通过）；落地提交：`c81eb2e0`。
 
+**2026-01-28（本次会话：S1（其他 BC Controller 收敛）；保持行为不变）**
+- ✅ **S1（审计 Controller：LogController 结构性收敛，保持行为不变）**：抽取泛型 `success(data)` 统一封装 `CommonResult.success(data)` 的返回表达（仍保持“先调用 service → 再返回包装”的执行顺序不变；不改 URL/注解/权限/异常/副作用顺序；最小回归通过）；落地提交：`14c9ab77`。
+
 **2026-01-26（本次会话：S1.1（eva-adapter 退场）+ S0.2 延伸（依赖方 pom 收敛）；保持行为不变）**
 - ✅ **S1.1（eva-adapter 退场：root reactor 移除模块，保持行为不变）**：在 Serena 证据化确认（当时）全仓库仅 `eva-adapter/pom.xml` 声明 `<artifactId>eva-adapter</artifactId>`，且根 `pom.xml` 仅残留 `<module>eva-adapter</module>` 的前提下，从根 `pom.xml` 的 reactor 中移除 `eva-adapter` 模块（最小回归通过）；落地提交：`86842a1f`。
 - ✅ **S1.1（eva-adapter 退场：删除模块 pom，保持行为不变）**：在 `eva-adapter` 已从 root reactor 退场的前提下，删除 `eva-adapter/pom.xml`，使全仓库 `**/pom.xml` 中不再出现 `<artifactId>eva-adapter</artifactId>`（最小回归通过）；落地提交：`ed244cad`。
