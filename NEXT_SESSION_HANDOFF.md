@@ -23,6 +23,7 @@
 
 **2026-01-28（本次会话：S0.2 延伸（依赖收敛前置）；保持行为不变）**
 - ✅ **S0.2 延伸（端口下沉：EvaRecordCountQueryPort → bc-evaluation-contract，保持行为不变）**：在 Serena 证据化确认引用面（`bc-iam-infra` 的 `UserServiceImpl`、`bc-evaluation-infra` 的 `MsgServiceImpl`、`start` 单测等）后，将 `EvaRecordCountQueryPort` 从 `bc-evaluation/application` 下沉到 `bc-evaluation-contract`（保持 `package edu.cuit.bc.evaluation.application.port` 不变），为后续收敛 `bc-iam/infrastructure/pom.xml` 去 `bc-evaluation` 编译期依赖创造前置；最小回归通过；落地提交：`4c30b02c`。
+- ✅ **S0.2 延伸（依赖收敛：bc-iam-infra 去 bc-evaluation 编译期依赖，保持行为不变）**：在 `EvaRecordCountQueryPort` 已下沉到 `bc-evaluation-contract` 且 Serena + `rg` 证伪 `bc-iam/infrastructure/src/main/java` 未引用其他 `bc-evaluation` 应用层类型后，收敛 `bc-iam/infrastructure/pom.xml`：移除对 `bc-evaluation` 的 Maven 编译期依赖，仅保留 `bc-evaluation-contract`（最小回归通过）；落地提交：`42a9e96c`。
 
 **2026-01-27（本次会话：S0.2 延伸（依赖收敛纠偏）；保持行为不变）**
 - ✅ **S0.2 延伸（依赖收敛纠偏：bc-iam-contract 恢复 bc-evaluation-contract 编译期依赖，保持行为不变）**：在 Serena 证据化确认 `IUserService#getOneUserScore` 仍返回 `UserSingleCourseScoreCO`（定义于 `bc-evaluation-contract`）后，恢复 `bc-iam/contract/pom.xml` 对 `bc-evaluation-contract` 的显式依赖（用于纠正 `dcf5849a` 的误判；最小回归通过）；落地提交：`918c5d45`。
