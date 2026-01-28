@@ -834,6 +834,22 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 已完成（保持行为不变）：`UserUpdateController`（落地：`5ee37fd2`）、`DepartmentController`（落地：`fbc5fb74`）、`AuthenticationController`（落地：`fd9e4d1c`）、`MenuUpdateController`（落地：`44bc649d`）、`RoleUpdateController`（落地：`c81eb2e0`）。
 - 验收口径（每步闭环）：Serena（符号级定位 + 引用分析）→ 最小回归（`mvnd -pl start -am test ...`）→ `git commit` → 同步三文档 → `git commit` → `git push`。
 
+#### bc-iam（IAM）S0.2 延伸：收敛 `bc-iam(application)` 对 `eva-domain` 的编译期依赖（保持行为不变）
+
+> 背景：当前 `bc-iam/application/src/main/java` 仍直接 `import edu.cuit.domain.*`（例如 `UserEntity/UserQueryGateway/LdapPersonGateway/DepartmentGateway` 等），因此暂不能直接移除 `bc-iam/application/pom.xml` 对 `eva-domain` 的依赖。
+>
+> 目标：把“仅 IAM 使用”的 `edu.cuit.domain.entity.user.*` / `edu.cuit.domain.gateway.user.*` 等类型逐步归位到 `bc-iam-domain`（保持 `package` 不变，仅改变 Maven 模块归属），最终让 `bc-iam(application)` 仅依赖 `bc-iam-domain`（以及必要的 `shared-kernel/contract`），并在证伪引用面后收敛 `pom.xml`（保持行为不变）。
+
+- 落地拆分（每步只改 1 个类或 1 个 `pom.xml`，并严格闭环）：
+  0) （pom）先改 `bc-iam/domain/pom.xml`：补齐“搬运归位所需的最小编译期依赖”（例如 Lombok（provided）、必要的 Spring 注解依赖等），仅用于编译闭合，不引入新业务语义。
+  1) （类）选择一个**引用面仅在 IAM** 的 `edu.cuit.domain.*` 类型（优先纯 POJO/纯接口，且依赖最少），用 Serena 证据化引用面后，将该类从 `eva-domain` 搬运到 `bc-iam/domain`（保持 `package` 与类内容不变），并删除 `eva-domain` 原文件，确保全仓库同名 FQCN 仅存在一份。
+  2) （类）重复上一步：每次只搬运 1 个类，逐步清空“bc-iam 所需且仅 bc-iam 使用”的 `edu.cuit.domain.*` 子集。
+  3) （pom）当 Serena + `rg` 证伪 `bc-iam/application` 不再需要 `eva-domain` 提供的任何类型后，再改 `bc-iam/application/pom.xml`：移除 `eva-domain`，改为显式依赖 `bc-iam-domain`（保持行为不变）。
+
+- 关键风险控制（必须写进流程，避免“把共享类型误归位到单一 BC”）：
+  - 若某个 `edu.cuit.domain.*` 类型被多个 BC 复用，则**不得**直接归位到 `bc-iam-domain`；应重新评估其真实归属：跨 BC 协议 → `shared-kernel`；跨 BC 业务语义 → 明确归属后再迁（或保持在 `eva-domain` 过渡）。
+  - 对带有 Spring 注解/框架依赖的接口（例如历史上在 interface 上存在 `@Component` 的情况），搬运时不改注解/行为；如需补齐编译期依赖，优先通过“先改 1 个 pom.xml 补齐依赖”单步闭环完成。
+
 #### bc-audit（审计）S1：Controller 入口壳结构性收敛（保持行为不变）
 
 > 背景：审计域的 Controller 同样遵循“仅结构性收敛、不改语义”的原则（不改 URL/注解/权限/异常文案/副作用顺序），用于降低入口壳噪声。
