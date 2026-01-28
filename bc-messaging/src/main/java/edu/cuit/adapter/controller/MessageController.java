@@ -35,7 +35,7 @@ public class MessageController {
     public CommonResult<List<GenericResponseMsg>> getUserTargetTypeMsg(@PathVariable("type") @ValidStatus(value = {-1,0,1,2,3}, message = "消息类型只能为0,1,2,3,-1") Integer type,
                                                                        @PathVariable("mode") @ValidStatus(value = {-1, 0, 1},message = "mode只能是0,1,-1") Integer mode) {
         List<GenericResponseMsg> messages = msgService.getUserTargetTypeMsg(type, mode);
-        return CommonResult.success(messages);
+        return success(messages);
     }
 
     /**
@@ -48,7 +48,7 @@ public class MessageController {
     public CommonResult<List<GenericResponseMsg>> getUserTargetAmountAndTypeMsg(@PathVariable("num") Integer num,
                                                                                 @PathVariable("type") @ValidStatus(value = {-1,0,1,2,3}, message = "消息类型只能为0,1,2,3,-1") Integer type) {
         List<GenericResponseMsg> messages = msgService.getUserTargetAmountAndTypeMsg(num, type);
-        return CommonResult.success(messages);
+        return success(messages);
     }
 
     /**
@@ -61,7 +61,7 @@ public class MessageController {
     public CommonResult<Void> updateMsgDisplay(@RequestParam("id") Integer id,
                                                @RequestParam("isDisplayed") @ValidStatus(message = "显示状态只能为0或1") Integer isDisplayed) {
         msgService.updateMsgDisplay(id,isDisplayed);
-        return CommonResult.success();
+        return success();
     }
 
     /**
@@ -74,7 +74,7 @@ public class MessageController {
     public CommonResult<Void> updateMsgRead(@RequestParam("id") Integer id,
                                             @RequestParam("isRead") @ValidStatus(message = "已读状态只能为0或1") Integer isRead) {
         msgService.updateMsgRead(id,isRead);
-        return CommonResult.success();
+        return success();
     }
 
     /**
@@ -85,7 +85,7 @@ public class MessageController {
     @SaCheckLogin
     public CommonResult<Void> updateMultipleMsgRead(@PathVariable("mode") @ValidStatus(message = "mode只能为0或1") Integer mode) {
         msgService.updateMultipleMsgRead(mode);
-        return CommonResult.success();
+        return success();
     }
 
     /**
@@ -96,7 +96,7 @@ public class MessageController {
     @SaCheckPermission("msg.tips.send")
     public CommonResult<Void> sendMessage(@RequestBody @Valid SendMessageCmd msg) {
         msgService.handleUserSendMessage(msg);
-        return CommonResult.success();
+        return success();
     }
 
     /**
@@ -109,6 +109,14 @@ public class MessageController {
     public CommonResult<Void> deleteSelfTargetTypeMsg(@PathVariable("mode") Integer mode,
                                                       @PathVariable("type") Integer type) {
         msgService.deleteUserSelfTargetTypeMsg(type,mode);
+        return success();
+    }
+
+    private static <T> CommonResult<T> success(T data) {
+        return CommonResult.success(data);
+    }
+
+    private static CommonResult<Void> success() {
         return CommonResult.success();
     }
 }
