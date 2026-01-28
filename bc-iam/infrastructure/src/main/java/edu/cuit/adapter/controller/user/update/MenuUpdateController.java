@@ -35,7 +35,7 @@ public class MenuUpdateController {
     @OperateLog(module = LogModule.PERM,type = OperateLogType.UPDATE)
     public CommonResult<Void> update(@RequestBody @Valid UpdateMenuCmd updateMenuCmd) {
         menuService.update(updateMenuCmd);
-        return CommonResult.success();
+        return success();
     }
 
     /**
@@ -49,7 +49,7 @@ public class MenuUpdateController {
         menuService.create(newMenuCmd);
         String logContent = newMenuCmd.getName() + " 权限";
         LogUtils.logContent(logContent);
-        return CommonResult.success();
+        return success();
     }
 
     /**
@@ -61,7 +61,7 @@ public class MenuUpdateController {
     @OperateLog(module = LogModule.PERM,type = OperateLogType.DELETE)
     public CommonResult<Void> delete(@PathVariable("menuId") Integer menuId) {
         menuService.delete(menuId);
-        return CommonResult.success();
+        return success();
     }
 
     /**
@@ -73,6 +73,10 @@ public class MenuUpdateController {
     @OperateLog(module = LogModule.PERM,type = OperateLogType.DELETE)
     public CommonResult<Void> multipleDelete(@RequestBody List<Integer> ids) {
         menuService.multipleDelete(ids);
+        return success();
+    }
+
+    private static CommonResult<Void> success() {
         return CommonResult.success();
     }
 
