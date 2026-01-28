@@ -37,7 +37,7 @@ public class RoleUpdateController {
     @OperateLog(module = LogModule.ROLE,type = OperateLogType.UPDATE)
     public CommonResult<Void> updateInfo(@RequestBody @Valid UpdateRoleCmd updateRoleCmd) {
         roleService.updateInfo(updateRoleCmd);
-        return CommonResult.success();
+        return success();
     }
 
     /**
@@ -51,7 +51,7 @@ public class RoleUpdateController {
     public CommonResult<Void> updateStatus(@PathVariable("roleId") Integer roleId,
                                            @PathVariable("status") @ValidStatus Integer status) {
         roleService.updateStatus(roleId,status);
-        return CommonResult.success();
+        return success();
     }
 
     /**
@@ -63,7 +63,7 @@ public class RoleUpdateController {
     @OperateLog(module = LogModule.ROLE,type = OperateLogType.UPDATE)
     public CommonResult<Void> assignPerm(@RequestBody @Valid AssignPermCmd assignPermCmd) {
         roleService.assignPerm(assignPermCmd);
-        return CommonResult.success();
+        return success();
     }
 
     /**
@@ -77,7 +77,7 @@ public class RoleUpdateController {
         roleService.create(newRoleCmd);
         String logContent = newRoleCmd.getRoleName() + "角色";
         LogUtils.logContent(logContent);
-        return CommonResult.success();
+        return success();
     }
 
     /**
@@ -89,7 +89,7 @@ public class RoleUpdateController {
     @OperateLog(module = LogModule.ROLE,type = OperateLogType.DELETE)
     public CommonResult<Void> delete(@RequestParam("roleId") Integer roleId) {
         roleService.delete(roleId);
-        return CommonResult.success();
+        return success();
     }
 
     /**
@@ -101,6 +101,10 @@ public class RoleUpdateController {
     @OperateLog(module = LogModule.ROLE,type = OperateLogType.DELETE)
     public CommonResult<Void> multipleDelete(@RequestBody List<Integer> ids) {
         roleService.multipleDelete(ids);
+        return success();
+    }
+
+    private static CommonResult<Void> success() {
         return CommonResult.success();
     }
 
