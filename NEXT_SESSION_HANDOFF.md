@@ -112,7 +112,7 @@
 - ✅ **S1 前置（支撑类归位：Sa-Token 权限加载，保持行为不变）**：将 `StpInterfaceImpl` 从 `eva-app` 搬运归位到 `eva-infra-shared`（保持 `package edu.cuit.app.security` 不变；类内容不变；最小回归通过）；落地提交：`bcce5582`。
 - ✅ **S1 前置（支撑类归位：评教切面配置，保持行为不变）**：将 `AspectConfig` 从 `eva-app` 搬运归位到 `eva-infra-shared`（保持 `package edu.cuit.app.aop` 不变；类内容不变；最小回归通过）；落地提交：`18901dab`。
 - ✅ **S0.2 延伸（依赖收敛：eva-domain 去 spring-statemachine-core 编译期依赖，保持行为不变）**：在 Serena + `rg` 证伪 `eva-domain/src/main/java` 无 `statemachine` 相关引用后，收敛 `eva-domain/pom.xml`：移除 `spring-statemachine-core` Maven 依赖（最小回归通过）；落地提交：`12c8d4bb`。
-- ✅ **S0.2 延伸（依赖收敛：bc-audit(application) 去 eva-domain 编译期依赖，保持行为不变）**：在 Serena + `rg` 证伪 `bc-audit/application/src/main/java` 无 `edu.cuit.domain.*` 引用后，收敛 `bc-audit/application/pom.xml`：移除对 `eva-domain` 的 Maven 编译期依赖（最小回归通过）；落地提交：`bf90c040`。
+- 🔁 **S0.2 延伸（依赖收敛纠偏：bc-audit(application) 恢复 eva-domain 编译期依赖，保持行为不变）**：此前仅按 `edu.cuit.domain.*` 引用面误判可去 `eva-domain`（落地：`bf90c040`）；后续在最小回归触发重新编译时暴露：`bc-audit/application` 仍引用 `edu.cuit.client.bo.SysLogBO`（定义于 `eva-domain/src/main/java/edu/cuit/client/bo/SysLogBO.java`，包名保持不变）。因此恢复 `bc-audit/application/pom.xml` 对 `eva-domain` 的 Maven 编译期依赖以闭合编译（最小回归通过）；纠偏提交：`b47d71ab`。
 
 **2026-01-15（本次会话：S0.2 延伸（websocket 闭环 + 审计/AI 依赖收敛），保持行为不变）**
 - ✅ **websocket（依赖收敛：eva-app 去 websocket starter 编译期依赖，保持行为不变）**：在 Serena 证伪 `eva-app/src/main/java` 不再 `import org.springframework.web.socket.*` 后，已收敛 `eva-app/pom.xml`：移除 `spring-boot-starter-websocket` 的编译期依赖；运行期由组合根 `start` 显式兜底（最小回归通过）；落地提交：`4213a95a`。
