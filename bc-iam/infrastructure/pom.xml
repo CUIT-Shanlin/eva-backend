@@ -55,12 +55,7 @@
             <version>${revision}</version>
         </dependency>
 
-        <!-- 旧入口壳（UserServiceImpl）依赖评教统计端口（EvaRecordCountQueryPort），保持行为不变 -->
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>bc-evaluation</artifactId>
-            <version>${revision}</version>
-        </dependency>
+        <!-- 旧入口壳（UserServiceImpl）依赖评教统计端口（EvaRecordCountQueryPort）：已下沉至 bc-evaluation-contract（保持行为不变） -->
         <!-- Controller（UserQueryController）依赖评教统计 service 契约接口（IEvaStatisticsService），保持行为不变 -->
         <dependency>
             <groupId>edu.cuit</groupId>
