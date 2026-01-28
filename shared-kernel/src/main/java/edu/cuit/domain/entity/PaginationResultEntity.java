@@ -30,3 +30,4 @@ public class PaginationResultEntity<T> {
     private Integer current;
 
 }
+
