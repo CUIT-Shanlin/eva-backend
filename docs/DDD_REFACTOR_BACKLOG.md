@@ -3,7 +3,7 @@ title: DDD 渐进式重构目标清单与行为框架
 repo: eva-backend
 branch: ddd
 generated_at: 2025-12-18
-updated_at: 2026-01-17
+updated_at: 2026-01-28
 scope: 全仓库（离线扫描 + 规则归纳）
 ---
 
@@ -70,6 +70,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
    - 若历史对外签名为 `Void`，保持 `return null`。
 5. **离线验证（Java 17 + 本地 Maven repo）**
    - `export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\"$JAVA_HOME/bin:$PATH\"`
+   - （本机 `mvnd` 权限兜底）如遇默认写入 `~/.m2/mvnd/...` 报 `AccessDenied`，可设置：`export MVND_DAEMON_STORAGE=\"$PWD/.mvnd/daemon\" && export MVND_REGISTRY=\"$PWD/.mvnd/registry\"`（`.mvnd/` 保持未跟踪，不要提交）
    - `mvnd -o -pl <bc-module> -am test -q -Dmaven.repo.local=.m2/repository`
    - `mvnd -o -pl eva-infra -am -DskipTests test -q -Dmaven.repo.local=.m2/repository`
 6. **沉淀文档（交接与回溯）**
@@ -108,7 +109,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
-**已完成（更新至 2026-01-27）**
+**已完成（更新至 2026-01-28）**
 - ✅ S1.1（eva-adapter 退场：root reactor 退场，保持行为不变）：在 Serena 证据化确认（当时）全仓库仅 `eva-adapter/pom.xml` 声明 `<artifactId>eva-adapter</artifactId>` 后，从根 `pom.xml` 的 reactor 中移除 `eva-adapter` 模块（最小回归通过）；落地：`86842a1f`。
 - ✅ S1.1（eva-adapter 退场：删除模块 pom，保持行为不变）：在 `eva-adapter` 已从 root reactor 退场的前提下，删除 `eva-adapter/pom.xml`，使全仓库 `**/pom.xml` 不再出现 `<artifactId>eva-adapter</artifactId>`（最小回归通过）；落地：`ed244cad`。
 - ✅ S0.2 延伸（依赖收敛：eva-domain 去 bc-evaluation-contract 编译期依赖，保持行为不变）：在 Serena 证据化确认 `eva-domain/src/main/java` 无评教 contract 类型引用后，收敛 `eva-domain/pom.xml`：移除对 `bc-evaluation-contract` 的 Maven 编译期依赖（最小回归通过）；落地：`ccbb1cf9`。
