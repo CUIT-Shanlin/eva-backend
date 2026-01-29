@@ -128,6 +128,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（IAM：去 `eva-domain` 前置，逐类搬运，保持行为不变）：将 `DepartmentGateway` 从 `eva-domain` 搬运归位到 `bc-iam-domain`（保持 `package` 与接口签名/注解不变，仅改变 Maven 模块归属）；最小回归通过；落地：`68128578`。
 - ✅ S0.2 延伸（IAM：去 `eva-domain` 前置，编译闭合前置，保持行为不变）：为保证 `eva-domain` 内残留的 `UserEntity` 等类型在逐步搬运过程中仍可编译闭合，在 `eva-domain/pom.xml` 显式增加对 `bc-iam-domain` 的 Maven 编译期依赖（过渡期；保持行为不变）；最小回归通过；落地：`43e8b66e`。
 - ✅ S0.2 延伸（IAM：去 `eva-domain` 前置，逐类搬运，保持行为不变）：将 `UserUpdateGateway` 从 `eva-domain` 搬运归位到 `bc-iam-domain`（保持 `package` 与接口签名/注解不变，仅改变 Maven 模块归属）；最小回归通过；落地：`6630277b`。
+- ✅ S0.2 延伸（IAM：去 `eva-domain` 前置，逐类搬运，保持行为不变）：将 `edu.cuit.domain.entity.user.biz.MenuEntity` 从 `eva-domain` 搬运归位到 `bc-iam-domain`（保持 `package` 与类内容不变，仅改变 Maven 模块归属）；最小回归通过；落地：`6d700911`。
 - ✅ S0.2 延伸（依赖收敛：eva-infra-shared 去 bc-evaluation-contract 编译期依赖，保持行为不变）：在 Serena 证据化确认 `eva-infra-shared/src/main/java` 无评教 contract 类型引用后，收敛 `eva-infra-shared/pom.xml`：移除对 `bc-evaluation-contract` 的 Maven 编译期依赖（最小回归通过）；落地：`d28a5904`。
 - ✅ S0.2 延伸（依赖收敛：bc-iam-contract 去 bc-evaluation-contract 编译期依赖，保持行为不变）：在 Serena 证据化确认 `bc-iam/contract/src/main/java` 无评教 contract 类型引用后，收敛 `bc-iam/contract/pom.xml`：移除对 `bc-evaluation-contract` 的 Maven 编译期依赖（最小回归通过）；落地：`dcf5849a`。（后续证实误判，已恢复依赖：`918c5d45`）
 - ✅ S0.2 延伸（依赖收敛纠偏：bc-iam-contract 恢复 bc-evaluation-contract 编译期依赖，保持行为不变）：在 Serena 证据化确认 `IUserService#getOneUserScore` 仍返回 `UserSingleCourseScoreCO`（定义于 `bc-evaluation-contract`）后，恢复 `bc-iam/contract/pom.xml` 对 `bc-evaluation-contract` 的显式依赖（用于纠正 `dcf5849a` 的误判；最小回归通过）；落地：`918c5d45`。
@@ -604,6 +605,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成（逐类搬运，保持行为不变）：`DepartmentGateway` 已从 `eva-domain` 搬运归位到 `bc-iam-domain`（保持 `package` 与接口签名/注解不变；落地：`68128578`）。
   - ✅ 已完成（编译闭合前置，保持行为不变）：`eva-domain/pom.xml` 已显式依赖 `bc-iam-domain`（过渡期），用于为后续逐类搬运 `UserUpdateGateway/UserQueryGateway/MenuQueryGateway` 以及 `UserEntity/MenuEntity/RoleEntity` 等残留类型提供编译闭合支撑（落地：`43e8b66e`）。
   - ✅ 已完成（逐类搬运，保持行为不变）：`UserUpdateGateway` 已从 `eva-domain` 搬运归位到 `bc-iam-domain`（保持 `package` 与接口签名/注解不变；落地：`6630277b`）。
+  - ✅ 已完成（逐类搬运，保持行为不变）：`MenuEntity` 已从 `eva-domain` 搬运归位到 `bc-iam-domain`（保持 `package` 与类内容不变；落地：`6d700911`）。
   - ✅ 已完成（编译闭合前置，保持行为不变）：`bc-iam/application/pom.xml` 已显式依赖 `bc-iam-domain`（暂不移除 `eva-domain`），用于为后续“逐个搬运 `edu.cuit.domain.*` 类型到 `bc-iam-domain`”做前置（落地：`aeaa8471`）。
   - ⏳ 未完成（核心阻塞，保持行为不变）：`bc-iam/application` 仍 `import edu.cuit.domain.*`，因此暂不能直接移除其 `pom.xml` 对 `eva-domain` 的编译期依赖；下一步按“每次只改 1 个类”的闭环节奏，先选择一个**引用面仅在 IAM** 的 `edu.cuit.domain.*` 类型并逐个归位到 `bc-iam-domain`（保持 `package` 不变），再在证伪引用面后收敛 `pom.xml` 依赖边界（详见 `DDD_REFACTOR_PLAN.md` 10.3 的 IAM 小节）。
 
