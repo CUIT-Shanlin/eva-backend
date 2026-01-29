@@ -845,6 +845,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   0.1) ✅（pom）为保证后续“每次只搬运 1 个类”时仍可编译闭合：先在 `bc-iam/application/pom.xml` 显式增加对 `bc-iam-domain` 的 Maven 编译期依赖（暂不移除 `eva-domain`，保持行为不变）。（已完成：`aeaa8471`）
   0.2) ✅（pom）为保证后续搬运 `edu.cuit.domain.gateway.user.*`（其签名仍依赖 IAM 的 cmd/CO）时可编译闭合：在 `bc-iam/domain/pom.xml` 显式增加对 `bc-iam-contract` 的 Maven 编译期依赖（保持行为不变）。（已完成：`2fc02fed`）
   1) （类）选择一个**引用面仅在 IAM** 的 `edu.cuit.domain.*` 类型（优先纯 POJO/纯接口，且依赖最少），用 Serena 证据化引用面后，将该类从 `eva-domain` 搬运到 `bc-iam/domain`（保持 `package` 与类内容不变），并删除 `eva-domain` 原文件，确保全仓库同名 FQCN 仅存在一份。
+     - ✅ 已完成（保持行为不变）：`RoleUpdateGateway` → `bc-iam-domain`（落地：`95e37e8a`）。
   2) （类）重复上一步：每次只搬运 1 个类，逐步清空“bc-iam 所需且仅 bc-iam 使用”的 `edu.cuit.domain.*` 子集。
   3) （pom）当 Serena + `rg` 证伪 `bc-iam/application` 不再需要 `eva-domain` 提供的任何类型后，再改 `bc-iam/application/pom.xml`：移除 `eva-domain`，改为显式依赖 `bc-iam-domain`（保持行为不变）。
 
