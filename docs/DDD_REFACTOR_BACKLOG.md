@@ -109,7 +109,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
-**已完成（更新至 2026-01-28）**
+**已完成（更新至 2026-01-29）**
 - ✅ S1.1（eva-adapter 退场：root reactor 退场，保持行为不变）：在 Serena 证据化确认（当时）全仓库仅 `eva-adapter/pom.xml` 声明 `<artifactId>eva-adapter</artifactId>` 后，从根 `pom.xml` 的 reactor 中移除 `eva-adapter` 模块（最小回归通过）；落地：`86842a1f`。
 - ✅ S1.1（eva-adapter 退场：删除模块 pom，保持行为不变）：在 `eva-adapter` 已从 root reactor 退场的前提下，删除 `eva-adapter/pom.xml`，使全仓库 `**/pom.xml` 不再出现 `<artifactId>eva-adapter</artifactId>`（最小回归通过）；落地：`ed244cad`。
 - ✅ S0.2 延伸（依赖收敛：eva-domain 去 bc-evaluation-contract 编译期依赖，保持行为不变）：在 Serena 证据化确认 `eva-domain/src/main/java` 无评教 contract 类型引用后，收敛 `eva-domain/pom.xml`：移除对 `bc-evaluation-contract` 的 Maven 编译期依赖（最小回归通过）；落地：`ccbb1cf9`。
@@ -121,6 +121,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（端口下沉：EvaRecordCountQueryPort → bc-evaluation-contract，保持行为不变）：将评教读侧端口接口 `EvaRecordCountQueryPort` 从 `bc-evaluation/application` 下沉到 `bc-evaluation-contract`（保持 `package edu.cuit.bc.evaluation.application.port` 不变），为后续收敛 `bc-iam-infra` 对 `bc-evaluation` 的编译期依赖做前置；最小回归通过；落地：`4c30b02c`。
 - ✅ S0.2 延伸（依赖收敛：bc-iam-infra 去 bc-evaluation 编译期依赖，保持行为不变）：在 `EvaRecordCountQueryPort` 已下沉到 `bc-evaluation-contract` 后，收敛 `bc-iam/infrastructure/pom.xml`：移除对 `bc-evaluation` 的 Maven 编译期依赖，仅保留 `bc-evaluation-contract`（最小回归通过）；落地：`42a9e96c`。
 - ✅ S0.2 延伸（IAM：去 `eva-domain` 前置，bc-iam-domain 编译闭合前置，保持行为不变）：按 `DDD_REFACTOR_PLAN.md` 10.3 的 IAM 小节“Step 0（pom）”先行，在 `bc-iam/domain/pom.xml` 补齐搬运归位所需的最小编译期依赖（`shared-kernel`、`cola-component-domain-starter`、`spring-context(provided)`、`lombok(provided)`），仅用于编译闭合，不引入新业务语义；最小回归通过；落地：`a3d048d0`。
+- ✅ S0.2 延伸（IAM：去 `eva-domain` 前置，bc-iam(application) 显式依赖 bc-iam-domain，保持行为不变）：为保证后续“每次只搬运 1 个类”仍可编译闭合，在 `bc-iam/application/pom.xml` 显式增加对 `bc-iam-domain` 的编译期依赖（暂不移除 `eva-domain`；保持行为不变）；最小回归通过；落地：`aeaa8471`。
 - ✅ S0.2 延伸（依赖收敛：eva-infra-shared 去 bc-evaluation-contract 编译期依赖，保持行为不变）：在 Serena 证据化确认 `eva-infra-shared/src/main/java` 无评教 contract 类型引用后，收敛 `eva-infra-shared/pom.xml`：移除对 `bc-evaluation-contract` 的 Maven 编译期依赖（最小回归通过）；落地：`d28a5904`。
 - ✅ S0.2 延伸（依赖收敛：bc-iam-contract 去 bc-evaluation-contract 编译期依赖，保持行为不变）：在 Serena 证据化确认 `bc-iam/contract/src/main/java` 无评教 contract 类型引用后，收敛 `bc-iam/contract/pom.xml`：移除对 `bc-evaluation-contract` 的 Maven 编译期依赖（最小回归通过）；落地：`dcf5849a`。（后续证实误判，已恢复依赖：`918c5d45`）
 - ✅ S0.2 延伸（依赖收敛纠偏：bc-iam-contract 恢复 bc-evaluation-contract 编译期依赖，保持行为不变）：在 Serena 证据化确认 `IUserService#getOneUserScore` 仍返回 `UserSingleCourseScoreCO`（定义于 `bc-evaluation-contract`）后，恢复 `bc-iam/contract/pom.xml` 对 `bc-evaluation-contract` 的显式依赖（用于纠正 `dcf5849a` 的误判；最小回归通过）；落地：`918c5d45`。
@@ -591,6 +592,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成（端口下沉，保持行为不变）：`EvaRecordCountQueryPort` 已从 `bc-evaluation/application` 下沉到 `bc-evaluation-contract`（保持 `package` 不变；落地：`4c30b02c`）。
   - ✅ 已完成（依赖收敛，保持行为不变）：`bc-iam/infrastructure/pom.xml` 已移除对 `bc-evaluation`（application jar）的编译期依赖，仅保留 `bc-evaluation-contract`（落地：`42a9e96c`）。
   - ✅ 已完成（编译闭合前置，保持行为不变）：`bc-iam/domain/pom.xml` 已补齐后续搬运归位所需的最小编译期依赖（`shared-kernel`、`cola-component-domain-starter`、`spring-context(provided)`、`lombok(provided)`），仅用于编译闭合，不引入新业务语义（落地：`a3d048d0`）。
+  - ✅ 已完成（编译闭合前置，保持行为不变）：`bc-iam/application/pom.xml` 已显式依赖 `bc-iam-domain`（暂不移除 `eva-domain`），用于为后续“逐个搬运 `edu.cuit.domain.*` 类型到 `bc-iam-domain`”做前置（落地：`aeaa8471`）。
   - ⏳ 未完成（核心阻塞，保持行为不变）：`bc-iam/application` 仍 `import edu.cuit.domain.*`，因此暂不能直接移除其 `pom.xml` 对 `eva-domain` 的编译期依赖；下一步按“每次只改 1 个类”的闭环节奏，先选择一个**引用面仅在 IAM** 的 `edu.cuit.domain.*` 类型并逐个归位到 `bc-iam-domain`（保持 `package` 不变），再在证伪引用面后收敛 `pom.xml` 依赖边界（详见 `DDD_REFACTOR_PLAN.md` 10.3 的 IAM 小节）。
 
 - **S0.2 延伸（审计域：收敛 `eva-app` 对 `bc-audit` 的编译期耦合面，保持行为不变）**：
