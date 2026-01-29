@@ -853,7 +853,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
      - ✅ 已完成（保持行为不变）：`MenuEntity` → `bc-iam-domain`（落地：`6d700911`）。
      - ✅ 已完成（保持行为不变）：`MenuQueryGateway` → `bc-iam-domain`（落地：`9982af0a`）。
      - ✅ 已完成（保持行为不变）：`LdapPersonEntity` → `bc-iam-domain`（落地：`eb36c6ce`）。
-     - 下一刀建议（保持行为不变）：优先归位 `LdapPersonGateway`（接口，签名依赖 `LdapPersonEntity`，且引用面集中在 IAM），避免提前触碰跨 BC 复用的 `RoleEntity/RoleQueryGateway`。
+     - ✅ 已完成（保持行为不变）：`LdapPersonGateway` → `bc-iam-domain`（落地：`ce85525d`）。
+     - 下一刀建议（保持行为不变）：继续按 Serena 证据化盘点，逐类归位“仅 IAM 使用”的 `edu.cuit.domain.*` 子集（优先纯 POJO/纯接口），避免提前触碰跨 BC 复用的 `RoleEntity/RoleQueryGateway`。
   2) （类）重复上一步：每次只搬运 1 个类，逐步清空“bc-iam 所需且仅 bc-iam 使用”的 `edu.cuit.domain.*` 子集。
   3) （pom）当 Serena + `rg` 证伪 `bc-iam/application` 不再需要 `eva-domain` 提供的任何类型后，再改 `bc-iam/application/pom.xml`：移除 `eva-domain`，改为显式依赖 `bc-iam-domain`（保持行为不变）。
 
