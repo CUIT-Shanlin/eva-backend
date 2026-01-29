@@ -26,6 +26,12 @@
 	            <version>${revision}</version>
 	        </dependency>
 
+	        <dependency>
+	            <groupId>edu.cuit</groupId>
+	            <artifactId>bc-iam-domain</artifactId>
+	            <version>${revision}</version>
+	        </dependency>
+
 	        <!-- 渐进式重构阶段：复用旧系统领域模型，保证行为不变 -->
 	        <dependency>
 	            <groupId>edu.cuit</groupId>
