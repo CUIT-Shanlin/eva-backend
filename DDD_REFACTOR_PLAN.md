@@ -852,6 +852,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
      - ✅ 已完成（保持行为不变）：`UserUpdateGateway` → `bc-iam-domain`（落地：`6630277b`）。
      - ✅ 已完成（保持行为不变）：`MenuEntity` → `bc-iam-domain`（落地：`6d700911`）。
      - ✅ 已完成（保持行为不变）：`MenuQueryGateway` → `bc-iam-domain`（落地：`9982af0a`）。
+     - ✅ 已完成（保持行为不变）：`LdapPersonEntity` → `bc-iam-domain`（落地：`eb36c6ce`）。
   2) （类）重复上一步：每次只搬运 1 个类，逐步清空“bc-iam 所需且仅 bc-iam 使用”的 `edu.cuit.domain.*` 子集。
   3) （pom）当 Serena + `rg` 证伪 `bc-iam/application` 不再需要 `eva-domain` 提供的任何类型后，再改 `bc-iam/application/pom.xml`：移除 `eva-domain`，改为显式依赖 `bc-iam-domain`（保持行为不变）。
 
