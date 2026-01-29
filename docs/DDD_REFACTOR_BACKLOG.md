@@ -125,6 +125,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（IAM：去 `eva-domain` 前置，bc-iam-domain 显式依赖 bc-iam-contract，保持行为不变）：为保证后续搬运“仅依赖 IAM cmd/CO 的 gateway 接口”可编译闭合，在 `bc-iam/domain/pom.xml` 显式增加对 `bc-iam-contract` 的编译期依赖（保持行为不变）；最小回归通过；落地：`2fc02fed`。
 - ✅ S0.2 延伸（IAM：去 `eva-domain` 前置，逐类搬运，保持行为不变）：将 `RoleUpdateGateway` 从 `eva-domain` 搬运归位到 `bc-iam-domain`（保持 `package` 与接口签名/注解不变，仅改变 Maven 模块归属）；最小回归通过；落地：`95e37e8a`。
 - ✅ S0.2 延伸（IAM：去 `eva-domain` 前置，逐类搬运，保持行为不变）：将 `MenuUpdateGateway` 从 `eva-domain` 搬运归位到 `bc-iam-domain`（保持 `package` 与接口签名/注解不变，仅改变 Maven 模块归属）；最小回归通过；落地：`c31a7a1e`。
+- ✅ S0.2 延伸（IAM：去 `eva-domain` 前置，逐类搬运，保持行为不变）：将 `DepartmentGateway` 从 `eva-domain` 搬运归位到 `bc-iam-domain`（保持 `package` 与接口签名/注解不变，仅改变 Maven 模块归属）；最小回归通过；落地：`68128578`。
 - ✅ S0.2 延伸（依赖收敛：eva-infra-shared 去 bc-evaluation-contract 编译期依赖，保持行为不变）：在 Serena 证据化确认 `eva-infra-shared/src/main/java` 无评教 contract 类型引用后，收敛 `eva-infra-shared/pom.xml`：移除对 `bc-evaluation-contract` 的 Maven 编译期依赖（最小回归通过）；落地：`d28a5904`。
 - ✅ S0.2 延伸（依赖收敛：bc-iam-contract 去 bc-evaluation-contract 编译期依赖，保持行为不变）：在 Serena 证据化确认 `bc-iam/contract/src/main/java` 无评教 contract 类型引用后，收敛 `bc-iam/contract/pom.xml`：移除对 `bc-evaluation-contract` 的 Maven 编译期依赖（最小回归通过）；落地：`dcf5849a`。（后续证实误判，已恢复依赖：`918c5d45`）
 - ✅ S0.2 延伸（依赖收敛纠偏：bc-iam-contract 恢复 bc-evaluation-contract 编译期依赖，保持行为不变）：在 Serena 证据化确认 `IUserService#getOneUserScore` 仍返回 `UserSingleCourseScoreCO`（定义于 `bc-evaluation-contract`）后，恢复 `bc-iam/contract/pom.xml` 对 `bc-evaluation-contract` 的显式依赖（用于纠正 `dcf5849a` 的误判；最小回归通过）；落地：`918c5d45`。
