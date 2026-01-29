@@ -25,6 +25,7 @@
 - ✅ **S0.2 延伸（IAM：去 `eva-domain` 前置，编译闭合前置，保持行为不变）**：在 `bc-iam/application/pom.xml` 显式增加对 `bc-iam-domain` 的 Maven 编译期依赖（暂不移除 `eva-domain`，不改业务语义/装配/副作用顺序），用于为下一刀“逐个搬运 `edu.cuit.domain.*` 类型到 `bc-iam-domain`（保持 `package` 不变）”做前置；最小回归通过；落地提交：`aeaa8471`。
 - ✅ **S0.2 延伸（IAM：去 `eva-domain` 前置，编译闭合前置，保持行为不变）**：在 `bc-iam/domain/pom.xml` 显式增加对 `bc-iam-contract` 的 Maven 编译期依赖（不改业务语义/装配/副作用顺序），用于为下一刀搬运“仅依赖 IAM cmd/CO”的 `edu.cuit.domain.gateway.user.*` 接口（如 `UserUpdateGateway/RoleUpdateGateway`）做前置；最小回归通过；落地提交：`2fc02fed`。
 - ✅ **S0.2 延伸（IAM：去 `eva-domain` 前置，逐类搬运，保持行为不变）**：用 Serena 证据化确认 `RoleUpdateGateway` 引用面仅在 IAM 基础设施实现中后，将 `edu.cuit.domain.gateway.user.RoleUpdateGateway` 从 `eva-domain` 搬运归位到 `bc-iam-domain`（保持 `package` 与接口签名/注解不变，仅改变 Maven 模块归属）；最小回归通过；落地提交：`95e37e8a`。
+- ✅ **S0.2 延伸（IAM：去 `eva-domain` 前置，逐类搬运，保持行为不变）**：用 Serena 证据化确认 `MenuUpdateGateway` 引用面仅在 IAM 基础设施实现中后，将 `edu.cuit.domain.gateway.user.MenuUpdateGateway` 从 `eva-domain` 搬运归位到 `bc-iam-domain`（保持 `package` 与接口签名/注解不变，仅改变 Maven 模块归属）；最小回归通过；落地提交：`c31a7a1e`。
 
 **2026-01-28（本次会话：S0.2 延伸（依赖收敛前置）；保持行为不变）**
 - ✅ **S0.2 延伸（端口下沉：EvaRecordCountQueryPort → bc-evaluation-contract，保持行为不变）**：在 Serena 证据化确认引用面（`bc-iam-infra` 的 `UserServiceImpl`、`bc-evaluation-infra` 的 `MsgServiceImpl`、`start` 单测等）后，将 `EvaRecordCountQueryPort` 从 `bc-evaluation/application` 下沉到 `bc-evaluation-contract`（保持 `package edu.cuit.bc.evaluation.application.port` 不变），为后续收敛 `bc-iam/infrastructure/pom.xml` 去 `bc-evaluation` 编译期依赖创造前置；最小回归通过；落地提交：`4c30b02c`。
