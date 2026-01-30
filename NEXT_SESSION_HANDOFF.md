@@ -23,6 +23,7 @@
 
 **2026-01-30（本次会话：S1（`eva-*` 技术切片整合）试点前置：模板基础设施编译闭合；保持行为不变）**
 - ✅ **S1（模板：编译闭合前置，保持行为不变）**：为后续将 `CourseTemplateLockQueryPortImpl` 从 `eva-infra` 归位到 `bc-template-infra` 做前置，在 `bc-template/infrastructure/pom.xml` 显式增加对 `eva-infra-dal` 的 Maven 编译期依赖（仅用于闭合 `Mapper/DO/QueryWrapper` 等依赖；不改业务语义/装配/副作用顺序）；最小回归通过；落地提交：`4f819e13`。
+- ✅ **S1（模板：装配责任上推，保持行为不变）**：为后续 `CourseTemplateLockQueryPortImpl` 归位后仍可在运行期被组合根装配，在 `start/pom.xml` 显式增加对 `bc-template-infra` 的 `runtime` 依赖（与后续移除 `eva-infra` 的方向一致；保持行为不变）；最小回归通过；落地提交：`d51975fb`。
 
 **2026-01-29（本次会话：IAM 前置拆解（pom），保持行为不变）**
 - ✅ **S0.2 延伸（IAM：去 `eva-domain` 前置，编译闭合前置，保持行为不变）**：在 `bc-iam/application/pom.xml` 显式增加对 `bc-iam-domain` 的 Maven 编译期依赖（暂不移除 `eva-domain`，不改业务语义/装配/副作用顺序），用于为下一刀“逐个搬运 `edu.cuit.domain.*` 类型到 `bc-iam-domain`（保持 `package` 不变）”做前置；最小回归通过；落地提交：`aeaa8471`。
