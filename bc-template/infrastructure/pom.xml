@@ -26,6 +26,13 @@
             <version>${revision}</version>
         </dependency>
 
+        <!-- 编译闭合前置：CourseTemplateLockQueryPortImpl 归位到 bc-template-infra（保持行为不变） -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>eva-infra-dal</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
