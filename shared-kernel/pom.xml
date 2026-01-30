@@ -25,6 +25,13 @@
             <artifactId>cola-component-dto</artifactId>
         </dependency>
 
+        <!-- 编译闭合前置：为后续下沉含 @Entity 的旧领域类型提供注解依赖（保持行为不变；不强制向下游传递） -->
+        <dependency>
+            <groupId>com.alibaba.cola</groupId>
+            <artifactId>cola-component-domain-starter</artifactId>
+            <optional>true</optional>
+        </dependency>
+
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
