@@ -110,6 +110,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-01-30）**
+- ✅ S0.2 延伸（端口下沉：EvaRecordScoreQueryPort → bc-evaluation-contract，保持行为不变）：为后续收敛 AI 报告等依赖方对 `bc-evaluation`（application jar）的编译期耦合，将 `EvaRecordScoreQueryPort` 从 `bc-evaluation/application` 下沉到 `bc-evaluation-contract`（保持 `package/签名` 不变，仅改变 Maven 模块归属；最小回归通过）；落地：`78f45ee2`。
 - ✅ S0.2 延伸（依赖收敛：bc-ai-report(application) 去 eva-domain 编译期依赖，保持行为不变）：在 Serena + `rg` 证伪 `bc-ai-report/application/src/main/java` 无 `edu.cuit.domain.*` 引用后，收敛 `bc-ai-report/application/pom.xml`：移除对 `eva-domain` 的 Maven 编译期依赖（最小回归通过）；落地：`53a61ee8`。
 - ✅ S1.1（eva-adapter 退场：root reactor 退场，保持行为不变）：在 Serena 证据化确认（当时）全仓库仅 `eva-adapter/pom.xml` 声明 `<artifactId>eva-adapter</artifactId>` 后，从根 `pom.xml` 的 reactor 中移除 `eva-adapter` 模块（最小回归通过）；落地：`86842a1f`。
 - ✅ S1.1（eva-adapter 退场：删除模块 pom，保持行为不变）：在 `eva-adapter` 已从 root reactor 退场的前提下，删除 `eva-adapter/pom.xml`，使全仓库 `**/pom.xml` 不再出现 `<artifactId>eva-adapter</artifactId>`（最小回归通过）；落地：`ed244cad`。
