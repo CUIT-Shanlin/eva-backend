@@ -110,6 +110,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-01-30）**
+- ✅ S0.2 延伸（shared-kernel：编译闭合前置，保持行为不变）：为后续将评教等旧领域 `@Entity` 类型逐类下沉到 `shared-kernel` 提供编译闭合支撑，在 `shared-kernel/pom.xml` 显式增加 `cola-component-domain-starter(optional)`（最小回归通过）；落地：`a77e1b71`。
 - ✅ S0.2 延伸（AI 报告：编译闭合前置，保持行为不变）：为保持 AI 报告用例中 `SysException` 的异常语义不变且避免经由 `eva-domain` 间接依赖，在 `bc-ai-report/application/pom.xml` 显式增加 `cola-component-exception` 依赖（最小回归通过）；落地：`3e7fd3bd`。
 - ✅ S0.2 延伸（端口下沉：EvaRecordScoreQueryPort → bc-evaluation-contract，保持行为不变）：为后续收敛 AI 报告等依赖方对 `bc-evaluation`（application jar）的编译期耦合，将 `EvaRecordScoreQueryPort` 从 `bc-evaluation/application` 下沉到 `bc-evaluation-contract`（保持 `package/签名` 不变，仅改变 Maven 模块归属；最小回归通过）；落地：`78f45ee2`。
 - ✅ S0.2 延伸（依赖收敛：bc-ai-report(application) 去 eva-domain 编译期依赖，保持行为不变）：在 Serena + `rg` 证伪 `bc-ai-report/application/src/main/java` 无 `edu.cuit.domain.*` 引用后，收敛 `bc-ai-report/application/pom.xml`：移除对 `eva-domain` 的 Maven 编译期依赖（最小回归通过）；落地：`53a61ee8`。
