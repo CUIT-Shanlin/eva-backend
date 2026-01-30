@@ -879,6 +879,14 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 - ✅ 已完成（保持行为不变）：`LogController`（落地：`14c9ab77`）。
 
+#### bc-ai-report（AI 报告）S0.2 延伸：收敛 `bc-ai-report-infra` 对 `bc-evaluation` 的编译期依赖（保持行为不变）
+
+> 目标：让 AI 报告基础设施侧尽量只依赖评教 `contract`（`bc-evaluation-contract`），避免编译期绑定评教 `application jar`（`bc-evaluation`）。
+>
+> 当前阻塞（更新至 2026-01-30，保持行为不变）：Serena 证据化确认 `bc-ai-report/infrastructure` 的 `AiReportAnalysisPortImpl` 仍依赖 `EvaRecordExportQueryPort`，而该端口当前仍定义于 `bc-evaluation/application`，并通过 `EvaRecordCourseQueryPort` 引入 `EvaRecordEntity` 等旧领域实体（`eva-domain`）。因此现阶段无法仅通过“单 pom 替换”将 `bc-ai-report-infra` 的 `bc-evaluation` 依赖直接收敛为 `bc-evaluation-contract`，否则会引入 `contract` 反向依赖或类型重复风险。
+
+> 建议解法（后置，先证据化再拆）：先盘点“导出链路读侧端口”依赖的实体类型归属（`eva-domain` vs `shared-kernel` vs `contract`），再决定是继续下沉端口/实体到 `contract`，还是保持过渡并延后收敛 `pom.xml`。
+
 #### bc-messaging（消息）S1：Controller 入口壳结构性收敛（保持行为不变）
 
 > 背景：消息域的 Controller 同样只做结构性收敛（收敛返回包装表达式/抽取 `success()` 等），不改业务语义与副作用顺序。
