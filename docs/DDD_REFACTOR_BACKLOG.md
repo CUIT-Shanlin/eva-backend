@@ -110,6 +110,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-01-30）**
+- ✅ S0.2 延伸（依赖收敛：eva-domain 去 bc-iam-contract 编译期依赖，保持行为不变）：在 `SimpleRoleInfoCO` 已下沉到 `shared-kernel` 的前提下，Serena + `rg` 证伪 `eva-domain/src/main/java` 无其它 `bc-iam-contract` 类型引用后，收敛 `eva-domain/pom.xml`：移除对 `bc-iam-contract` 的 Maven 编译期依赖（最小回归通过）；落地：`49eadf1f`。
 - ✅ S0.2 延伸（类型下沉：SimpleRoleInfoCO → shared-kernel，保持行为不变）：为后续收敛 `eva-domain` 对 `bc-iam-contract` 的编译期耦合并保持 `RoleQueryGateway`（跨 BC 复用）稳定，将 `SimpleRoleInfoCO` 从 `bc-iam-contract` 下沉到 `shared-kernel`（保持 `package` 与类内容不变，仅改变 Maven 模块归属；最小回归通过）；落地：`a04dfd7c`。
 - ✅ S0.2 延伸（shared-kernel：编译闭合前置，保持行为不变）：为后续将评教等旧领域 `@Entity` 类型逐类下沉到 `shared-kernel` 提供编译闭合支撑，在 `shared-kernel/pom.xml` 显式增加 `cola-component-domain-starter(optional)`（最小回归通过）；落地：`a77e1b71`。
 - ✅ S0.2 延伸（AI 报告：编译闭合前置，保持行为不变）：为保持 AI 报告用例中 `SysException` 的异常语义不变且避免经由 `eva-domain` 间接依赖，在 `bc-ai-report/application/pom.xml` 显式增加 `cola-component-exception` 依赖（最小回归通过）；落地：`3e7fd3bd`。
