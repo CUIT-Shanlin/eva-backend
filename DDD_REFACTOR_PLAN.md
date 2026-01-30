@@ -618,6 +618,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - ✅ 已完成（保持行为不变，依赖收敛：模板）：在 Serena 证据化确认 `bc-template-infra` 当前无源码（仅 `pom.xml`）后，已收敛 `bc-template/infrastructure/pom.xml`：将对 `bc-template` 的 Maven 依赖替换为 `bc-template-domain`（版本不变；最小回归通过；落地：`aee98f9b`）。
   - ✅ 已完成（保持行为不变，编译闭合前置：模板）：为后续将 `CourseTemplateLockQueryPortImpl` 从 `eva-infra` 归位到 `bc-template-infra` 做前置，已在 `bc-template/infrastructure/pom.xml` 显式增加对 `eva-infra-dal` 的 Maven 编译期依赖（仅用于闭合 `Mapper/DO/QueryWrapper` 依赖；不改业务语义/装配/副作用顺序）；最小回归通过；落地：`4f819e13`。
   - ✅ 已完成（保持行为不变，装配责任上推：模板）：为后续 `CourseTemplateLockQueryPortImpl` 归位后仍可被组合根装配，已在 `start/pom.xml` 显式增加对 `bc-template-infra` 的 `runtime` 依赖（保持行为不变，仅上推依赖边界；最小回归通过；落地：`d51975fb`）。
+  - ✅ 已完成（保持行为不变，基础设施端口实现归位：模板）：将 `CourseTemplateLockQueryPortImpl` 从 `eva-infra` 搬运归位到 `bc-template-infra`（保持 `package` 与类内容不变，仅改变 Maven 模块归属）；最小回归通过；落地：`9b46d5a7`。
   - ✅ 已完成（保持行为不变，依赖收敛：课程相关前置）：为后续让 `bc-course/application` 可收敛对 `bc-template` 应用层 jar 的编译期依赖，将模板锁定服务 `CourseTemplateLockService` 从 `bc-template/application` 下沉到 `bc-template-domain`（保持 `package edu.cuit.bc.template.application` 与代码不变；最小回归通过；落地：`8a1319df`）。
   - ✅ 已完成（保持行为不变，依赖收敛：课程）：在 Serena + `rg` 证伪 `bc-course/application` 仅引用 `CourseTemplateLockService/CourseTemplateLockQueryPort/TemplateLockedException` 后，已收敛 `bc-course/application/pom.xml`：将对 `bc-template` 的 Maven 依赖替换为 `bc-template-domain`（版本不变；最小回归通过；落地：`2de83046`）。
   - ✅ 已完成（保持行为不变，依赖收敛：eva-infra）：在 Serena + `rg` 证伪 `eva-infra/src/main/java` 未引用 `bc-evaluation/bc-iam/bc-audit` 相关类型后，已收敛 `eva-infra/pom.xml`：移除对 `bc-evaluation` / `bc-iam` / `bc-audit` 的 Maven 编译期依赖（最小回归通过；落地：`023d63be`）。
@@ -810,8 +811,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
     - `eva-app`：已完成退场闭环（源码清零 + 组合根 `start` 去依赖 + root reactor 移除 + 删除 `eva-app/pom.xml`）；无需再围绕 `eva-app` 做依赖收敛或入口迁移。
     - `eva-adapter`：已完成退场闭环（残留 Controller 清零 + 组合根去依赖 + root reactor 移除 + 删除模块 pom）；证据口径：`fd -t f 'Controller\\.java$' eva-adapter/src/main/java | wc -l` 为 0，且 `rg -n '<module>eva-adapter</module>' pom.xml` 命中为 0，且 `rg -n '<artifactId>eva-adapter</artifactId>' --glob '**/pom.xml' .` 命中为 0（保持行为不变）。
     - `eva-domain/eva-infra*/eva-base*`：仍是“全量整合”的核心阻塞（组合根 `start` 仍显式依赖 `eva-infra`，且多个 `bc-*` 模块仍编译期依赖 `eva-domain/eva-infra-(shared|dal)`；证据口径见上方 3)）。因此“把所有 `eva-*` 模块全部整合进各业务 BC 并从 reactor 移除”暂不具备一次性落地条件，需要按“小步迁移类型/适配器 → 再收敛单个 pom → 再评估移除模块”的节奏推进。
-      - 可复现现状口径（更新至 2026-01-29，保持行为不变）：`rg -n '<module>eva-' pom.xml` 仍有命中；且 `rg -n '<artifactId>eva-domain</artifactId>' --glob '**/pom.xml' .` 仍可见多个依赖方模块；同时 `start/pom.xml` 仍 `runtime` 依赖 `eva-infra`。量化快照（口径=可复现命令）：`eva-domain` 约 29 个 Java 文件、`eva-infra-dal` 约 36 个、`eva-infra-shared` 约 47 个；`eva-infra` 仅剩 4 个 Java 文件，其中 3 个为 `package-info.java`，唯一业务实现类为 `CourseTemplateLockQueryPortImpl`（适合作为 S1 的“最小整合试点”优先清空）。
-      - 短期建议（保持行为不变）：优先把 `CourseTemplateLockQueryPortImpl` 搬运归位到 `bc-template` 的基础设施落点（每次只改 1 个类），再按 DoD 证伪后把 `eva-infra` 从 root reactor 移除（每次只改 1 个 pom）。
+      - 可复现现状口径（更新至 2026-01-30，保持行为不变）：`rg -n '<module>eva-' pom.xml` 仍有命中；且 `rg -n '<artifactId>eva-domain</artifactId>' --glob '**/pom.xml' .` 仍可见多个依赖方模块；当前 `start/pom.xml` 仍 `runtime` 依赖 `eva-infra`（过渡期兜底）。量化快照（口径=可复现命令）：`eva-domain` 约 29 个 Java 文件、`eva-infra-dal` 约 36 个、`eva-infra-shared` 约 47 个；`eva-infra` 已无业务实现类（仅剩 `package-info.java`；`CourseTemplateLockQueryPortImpl` 已归位到 `bc-template-infra`，落地：`9b46d5a7`）。
+      - 短期建议（保持行为不变；每次只改 1 个 `pom.xml`）：先证伪并收敛 `start/pom.xml` 去除 `eva-infra(runtime)`（避免运行期 classpath 漂移），再评估将 root reactor 的 `<module>eva-infra</module>` 移除（每步闭环）。
 
 3) **可以移除 `eva-infra` 的判定标准（建议的 DoD）**
    - `eva-infra` 中旧 `*GatewayImpl` 已全部退化为委托壳或迁入对应 `bc-*/infrastructure`（或其过渡落点），不再承担“业务编排”。
