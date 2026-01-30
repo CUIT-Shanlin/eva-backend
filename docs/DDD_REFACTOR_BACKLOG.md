@@ -110,6 +110,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-01-30）**
+- ✅ S0.2 延伸（依赖收敛：bc-template-infra 去无用测试依赖，保持行为不变）：在 Serena + `rg` 证伪 `bc-template/infrastructure` 无 `src/test` 且源码无 `org.junit.jupiter.*` 引用后，收敛 `bc-template/infrastructure/pom.xml`：移除 `junit-jupiter(test)` 依赖（最小回归通过）；落地：`a8b018a5`。
 - ✅ S0.2 延伸（依赖收敛：bc-audit(infrastructure) 去无用测试依赖，保持行为不变）：在 Serena + `rg` 证伪 `bc-audit/infrastructure` 无 `src/test` 且源码无 `org.junit.jupiter.*` 引用后，收敛 `bc-audit/infrastructure/pom.xml`：移除 `junit-jupiter(test)` 依赖（最小回归通过）；落地：`9cd9a96a`。
 - ✅ S0.2 延伸（依赖收敛：bc-audit(application) 去无用测试依赖，保持行为不变）：在 Serena + `rg` 证伪 `bc-audit/application/src` 无 `org.junit.jupiter.*` 引用且该模块当前无 `src/test/java` 后，收敛 `bc-audit/application/pom.xml`：移除 `junit-jupiter(test)` 依赖（最小回归通过）；落地：`182c34cf`。
 - ✅ S0.2 延伸（依赖收敛：shared-kernel 去无用测试依赖，保持行为不变）：在 Serena + `rg` 证伪 `shared-kernel` 无 `src/test` 且源码无 `org.junit.jupiter.*` 引用后，收敛 `shared-kernel/pom.xml`：移除 `junit-jupiter(test)` 依赖（最小回归通过）；落地：`61106d70`。
