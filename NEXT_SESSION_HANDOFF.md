@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-01-30（本次会话：S1（`eva-*` 技术切片整合）试点前置：模板基础设施编译闭合；保持行为不变）**
+- ✅ **S0.2 延伸（依赖收敛：shared-kernel 去无用测试依赖，保持行为不变）**：Serena + `rg` 证伪 `shared-kernel` 无 `src/test` 且源码无 `org.junit.jupiter.*` 引用后，收敛 `shared-kernel/pom.xml`：移除 `junit-jupiter(test)` 依赖（最小回归通过）；落地提交：`61106d70`。
 - ✅ **S0.2 延伸（依赖收敛：bc-evaluation-contract 去无用测试依赖，保持行为不变）**：Serena + `rg` 证伪 `bc-evaluation/contract/src` 无 `org.junit.jupiter.*` 引用且该模块当前无 `src/test/java` 后，收敛 `bc-evaluation/contract/pom.xml`：移除 `junit-jupiter(test)` 依赖（最小回归通过）；落地提交：`841ba3c3`。
 - ✅ **S0.2 延伸（依赖收敛：bc-messaging-contract 去无用测试依赖，保持行为不变）**：Serena + `rg` 证伪 `bc-messaging-contract/src` 无 `org.junit.jupiter.*` 引用且该模块当前无 `src/test/java` 后，收敛 `bc-messaging-contract/pom.xml`：移除 `junit-jupiter(test)` 依赖（最小回归通过）；落地提交：`f0047fb1`。
 - ✅ **S0.2 延伸（依赖收敛：eva-domain 去 bc-iam-contract 编译期依赖，保持行为不变）**：在 `SimpleRoleInfoCO` 已下沉到 `shared-kernel` 的前提下，Serena + `rg` 证伪 `eva-domain/src/main/java` 不再需要 `bc-iam-contract` 提供的类型后，收敛 `eva-domain/pom.xml`：移除对 `bc-iam-contract` 的 Maven 编译期依赖（最小回归通过）；落地提交：`49eadf1f`。
