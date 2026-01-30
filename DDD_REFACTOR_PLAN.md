@@ -891,6 +891,16 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 > 建议解法（后置，先证据化再拆）：先盘点“导出链路读侧端口”依赖的实体类型归属（`eva-domain` vs `shared-kernel` vs `contract`），再决定是继续下沉端口/实体到 `contract`，还是保持过渡并延后收敛 `pom.xml`。
 
+#### S0.2 延伸（并行主线）：清理“无测试源码模块”的无用测试依赖（保持行为不变）
+
+> 目标：在不改业务语义的前提下，逐个模块收敛 `pom.xml` 中“未使用的测试依赖”（典型：模块无 `src/test/java` 且源码无 `org.junit.jupiter.*` 引用，但仍声明 `junit-jupiter(test)`）。
+>
+> 执行原则（强约束）：每次只改 1 个 `pom.xml`；移除前必须 **Serena + `rg` 双证据**；每步闭环：最小回归 → `git commit` → 三文档同步 → `git commit` → `git push`。
+>
+> 可复现证据口径：
+> - `rg -n "<artifactId>junit-jupiter</artifactId>" --glob "**/pom.xml" .`（盘点候选）
+> - 对单个候选模块：`fd -t d src/test <module>` + `rg -n "org\\.junit\\.jupiter" <module>/src`
+
 #### bc-messaging（消息）S1：Controller 入口壳结构性收敛（保持行为不变）
 
 > 背景：消息域的 Controller 同样只做结构性收敛（收敛返回包装表达式/抽取 `success()` 等），不改业务语义与副作用顺序。

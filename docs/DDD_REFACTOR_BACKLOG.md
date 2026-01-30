@@ -627,6 +627,12 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成（编译闭合前置，保持行为不变）：`bc-iam/application/pom.xml` 已显式依赖 `bc-iam-domain`（暂不移除 `eva-domain`），用于为后续“逐个搬运 `edu.cuit.domain.*` 类型到 `bc-iam-domain`”做前置（落地：`aeaa8471`）。
   - ⏳ 未完成（核心阻塞，保持行为不变）：`bc-iam/application` 仍 `import edu.cuit.domain.*`，因此暂不能直接移除其 `pom.xml` 对 `eva-domain` 的编译期依赖；下一步按“每次只改 1 个类”的闭环节奏，先选择一个**引用面仅在 IAM** 的 `edu.cuit.domain.*` 类型并逐个归位到 `bc-iam-domain`（保持 `package` 不变），再在证伪引用面后收敛 `pom.xml` 依赖边界（详见 `DDD_REFACTOR_PLAN.md` 10.3 的 IAM 小节）。补充：更新至 2026-01-30，Serena 盘点 `eva-domain/src/main/java/edu/cuit/domain/(gateway|entity)/user*` 残留主要集中在 `UserQueryGateway/UserEntity/RoleQueryGateway/RoleEntity`（均跨 BC 复用，其中 `RoleQueryGateway/RoleEntity` 按强约束暂不动），因此下一刀需优先重新盘点是否仍存在“仅 IAM 引用”的其它 `edu.cuit.domain.*`（例如 LDAP/部门等已基本归位），或进入跨 BC 复用对象的归属设计后再继续搬运。
 
+- **S0.2 延伸（并行主线：依赖方 `pom.xml` 收敛，保持行为不变）**：
+  - ⏳ 未完成（建议优先做，风险低）：清理“无测试源码模块”的无用测试依赖（典型：模块无 `src/test/java` 且源码无 `org.junit.jupiter.*` 引用，但仍声明 `junit-jupiter(test)`）。
+    - 盘点口径：`rg -n "<artifactId>junit-jupiter</artifactId>" --glob "**/pom.xml" .`
+    - 单模块证伪口径：`fd -t d src/test <module>`（应为空） + `rg -n "org\\.junit\\.jupiter" <module>/src`（应为空）
+    - 注意：每次只改 1 个 `pom.xml`，移除前必须 Serena + `rg` 双证据，并跑最小回归闭环。
+
 - **S0.2 延伸（AI 报告 infra：依赖方 pom 收敛评估，保持行为不变）**：
   - ⏸️ 阻塞（更新至 2026-01-30，保持行为不变）：候选想把 `bc-ai-report/infrastructure/pom.xml` 中对 `bc-evaluation`（application jar）的编译期依赖收敛为仅依赖 `bc-evaluation-contract`；但 `AiReportAnalysisPortImpl` 仍依赖 `EvaRecordExportQueryPort`，而该端口当前仍定义于 `bc-evaluation/application`，并通过 `EvaRecordCourseQueryPort` 引入 `EvaRecordEntity` 等旧领域实体（`eva-domain`）。因此现阶段不建议直接做“单 pom 替换”，以免引入 `contract` 反向依赖或类型重复风险。可复现口径：`rg -n "EvaRecordExportQueryPort" bc-ai-report/infrastructure/src/main/java/edu/cuit/app/bcaireport/adapter/AiReportAnalysisPortImpl.java` 与 `rg -n "interface\\s+EvaRecordExportQueryPort\\b" bc-evaluation/application/src/main/java/edu/cuit/bc/evaluation/application/port/EvaRecordExportQueryPort.java`。
 
