@@ -65,4 +65,3 @@ public class CourseTemplateLockQueryPortImpl implements CourseTemplateLockQueryP
         return count != null && count > 0;
     }
 }
-
