@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-01-30（本次会话：S1（`eva-*` 技术切片整合）试点前置：模板基础设施编译闭合；保持行为不变）**
+- ✅ **S0.2 延伸（AI 报告：编译闭合前置，保持行为不变）**：为保持 AI 报告用例中 `SysException` 的异常语义不变且避免经由 `eva-domain` 间接依赖，在 `bc-ai-report/application/pom.xml` 显式增加 `cola-component-exception` 依赖（最小回归通过）；落地提交：`3e7fd3bd`。
 - ✅ **S0.2 延伸（评教：端口下沉，保持行为不变）**：为后续收敛 AI 报告/组合根等依赖方对 `bc-evaluation`（application jar）的编译期耦合，先将 `EvaRecordScoreQueryPort` 从 `bc-evaluation/application` 下沉到 `bc-evaluation-contract`（保持 `package edu.cuit.bc.evaluation.application.port` 与接口签名不变，仅改变 Maven 模块归属；最小回归通过）；落地提交：`78f45ee2`。
 - ✅ **S0.2 延伸（AI 报告：依赖收敛，保持行为不变）**：在 Serena + `rg` 证伪 `bc-ai-report/application/src/main/java` 无 `edu.cuit.domain.*` 引用，且 `edu.cuit.client.api.ai/edu.cuit.client.bo.ai` 已由 `bc-ai-report(application)` 内部承载后，收敛 `bc-ai-report/application/pom.xml`：移除对 `eva-domain` 的 Maven 编译期依赖（最小回归通过）；落地提交：`53a61ee8`。
 - ✅ **S1（`eva-infra` 退场：root reactor 移除模块，保持行为不变）**：在 Serena + `rg` 证据化确认全仓库已无对 `eva-infra` 的 Maven dependency 声明（仅 `eva-infra/pom.xml` 自身 artifactId 声明），且组合根 `start` 已移除 `eva-infra(runtime)` 兜底依赖后，从根 `pom.xml` 的 reactor 中移除 `<module>eva-infra</module>`（保持行为不变）；最小回归通过；落地提交：`0aab4516`。
