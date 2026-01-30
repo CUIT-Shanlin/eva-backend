@@ -11,14 +11,13 @@
   <modules>
     <module>start</module>
     <module>shared-kernel</module>
-    <module>eva-domain</module>
-    <module>eva-infra-dal</module>
-    <module>eva-infra-shared</module>
-    <module>eva-infra</module>
-    <module>eva-base</module>
-    <module>bc-evaluation</module>
-    <module>bc-template</module>
-    <module>bc-course</module>
+	    <module>eva-domain</module>
+	    <module>eva-infra-dal</module>
+	    <module>eva-infra-shared</module>
+	    <module>eva-base</module>
+	    <module>bc-evaluation</module>
+	    <module>bc-template</module>
+	    <module>bc-course</module>
     <module>bc-messaging-contract</module>
     <module>bc-messaging</module>
     <module>bc-iam</module>
