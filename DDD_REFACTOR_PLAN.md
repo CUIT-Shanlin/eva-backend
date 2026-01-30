@@ -811,9 +811,9 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - 现状评估（更新至 2026-01-29，保持行为不变）：
     - `eva-app`：已完成退场闭环（源码清零 + 组合根 `start` 去依赖 + root reactor 移除 + 删除 `eva-app/pom.xml`）；无需再围绕 `eva-app` 做依赖收敛或入口迁移。
     - `eva-adapter`：已完成退场闭环（残留 Controller 清零 + 组合根去依赖 + root reactor 移除 + 删除模块 pom）；证据口径：`fd -t f 'Controller\\.java$' eva-adapter/src/main/java | wc -l` 为 0，且 `rg -n '<module>eva-adapter</module>' pom.xml` 命中为 0，且 `rg -n '<artifactId>eva-adapter</artifactId>' --glob '**/pom.xml' .` 命中为 0（保持行为不变）。
-    - `eva-domain/eva-infra*/eva-base*`：仍是“全量整合”的核心阻塞（组合根 `start` 仍显式依赖 `eva-infra`，且多个 `bc-*` 模块仍编译期依赖 `eva-domain/eva-infra-(shared|dal)`；证据口径见上方 3)）。因此“把所有 `eva-*` 模块全部整合进各业务 BC 并从 reactor 移除”暂不具备一次性落地条件，需要按“小步迁移类型/适配器 → 再收敛单个 pom → 再评估移除模块”的节奏推进。
-      - 可复现现状口径（更新至 2026-01-30，保持行为不变）：`rg -n '<module>eva-' pom.xml` 仍有命中；且 `rg -n '<artifactId>eva-domain</artifactId>' --glob '**/pom.xml' .` 仍可见多个依赖方模块；组合根 `start/pom.xml` 已移除 `eva-infra(runtime)` 兜底依赖（落地：`1e2ffa89`）。量化快照（口径=可复现命令）：`eva-domain` 约 29 个 Java 文件、`eva-infra-dal` 约 36 个、`eva-infra-shared` 约 47 个；`eva-infra` 已无业务实现类（仅剩 `package-info.java`；`CourseTemplateLockQueryPortImpl` 已归位到 `bc-template-infra`，落地：`9b46d5a7`）。
-      - 短期建议（保持行为不变；每次只改 1 个 `pom.xml`）：在 Serena + `rg` 证伪 “全仓库已无 `eva-infra` 的 dependency 声明”后，从 root reactor 移除 `<module>eva-infra</module>`（每步闭环；保持行为不变）。
+    - `eva-domain/eva-infra-dal/eva-infra-shared/eva-base`：仍是“全量整合”的核心阻塞（多个 `bc-*` 模块仍编译期依赖 `eva-domain` 与 `eva-infra-(shared|dal)`；证据口径见上方 3)）。因此“把所有 `eva-*` 模块全部整合进各业务 BC 并从 reactor 移除”暂不具备一次性落地条件，需要按“小步迁移类型/适配器 → 再收敛单个 pom → 再评估移除模块”的节奏推进。
+      - 可复现现状口径（更新至 2026-01-30，保持行为不变）：`rg -n '<module>eva-' pom.xml` 仍有命中；且 `rg -n '<artifactId>eva-domain</artifactId>' --glob '**/pom.xml' .` 仍可见多个依赖方模块；组合根 `start/pom.xml` 已移除 `eva-infra(runtime)` 兜底依赖（落地：`1e2ffa89`）。量化快照（口径=可复现命令）：`eva-domain` 29 个 Java 文件、`eva-infra-dal` 36 个、`eva-infra-shared` 47 个；补充：`eva-infra` 已从 root reactor 退场（落地：`0aab4516`），目录下仅剩 3 个 `package-info.java`，可后置清理。
+      - ✅ 已完成（保持行为不变；每次只改 1 个 `pom.xml`）：在 Serena + `rg` 证伪 “全仓库已无 `eva-infra` 的 dependency 声明”后，已从 root reactor 移除 `<module>eva-infra</module>`（每步闭环；落地：`0aab4516`）。下一步（可选，独立提交）：评估是否删除 `eva-infra/` 目录与 `eva-infra/pom.xml`（当前已不再参与 reactor/无依赖方）。
 
 3) **可以移除 `eva-infra` 的判定标准（建议的 DoD）**
    - `eva-infra` 中旧 `*GatewayImpl` 已全部退化为委托壳或迁入对应 `bc-*/infrastructure`（或其过渡落点），不再承担“业务编排”。
