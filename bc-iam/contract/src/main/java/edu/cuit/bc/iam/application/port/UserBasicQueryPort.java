@@ -29,4 +29,3 @@ public interface UserBasicQueryPort {
      */
     Boolean isUsernameExist(String username);
 }
-
