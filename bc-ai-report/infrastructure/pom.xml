@@ -33,6 +33,13 @@
             <version>${revision}</version>
         </dependency>
 
+        <!-- AI 报告基础设施：按用户名查询 userId 等能力依赖 IAM contract（保持行为不变，仅收敛编译期边界） -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>bc-iam-contract</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
