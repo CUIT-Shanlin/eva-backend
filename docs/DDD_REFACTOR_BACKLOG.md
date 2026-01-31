@@ -109,7 +109,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
-**已完成（更新至 2026-01-30）**
+**已完成（更新至 2026-01-31）**
+- ✅ S0.2 延伸（IAM：端口下沉：UserBasicQueryPort → bc-iam-contract，保持行为不变）：将 `UserBasicQueryPort` 从 `bc-iam/application` 下沉到 `bc-iam-contract`（保持 `package edu.cuit.bc.iam.application.port` 与接口签名不变，仅改变 Maven 模块归属；最小回归通过）；落地：`739cb25f`。
 - ✅ S0.2 延伸（依赖收敛：bc-course-infra 去无用测试依赖，保持行为不变）：在 Serena + `rg` 证伪 `bc-course/infrastructure` 无 `src/test` 且源码无 `org.junit.jupiter.*` 引用后，收敛 `bc-course/infrastructure/pom.xml`：移除 `junit-jupiter(test)` 依赖（最小回归通过）；落地：`ff109643`。
 - ✅ S0.2 延伸（依赖收敛：bc-evaluation-infra 去无用测试依赖，保持行为不变）：在 Serena + `rg` 证伪 `bc-evaluation/infrastructure` 无 `src/test` 且源码无 `org.junit.jupiter.*` 引用后，收敛 `bc-evaluation/infrastructure/pom.xml`：移除 `junit-jupiter(test)` 依赖（最小回归通过）；落地：`6a882e4a`。
 - ✅ S0.2 延伸（依赖收敛：bc-iam-infra 去无用测试依赖，保持行为不变）：在 Serena + `rg` 证伪 `bc-iam/infrastructure` 无 `src/test` 且源码无 `org.junit.jupiter.*` 引用后，收敛 `bc-iam/infrastructure/pom.xml`：移除 `junit-jupiter(test)` 依赖（最小回归通过）；落地：`f65ce9a7`。
