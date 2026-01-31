@@ -883,9 +883,13 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   2) （类）重复上一步：每次只搬运 1 个类，逐步清空“bc-iam 所需且仅 bc-iam 使用”的 `edu.cuit.domain.*` 子集。
   3) （pom）当 Serena + `rg` 证伪 `bc-iam/application` 不再需要 `eva-domain` 提供的任何类型后，再改 `bc-iam/application/pom.xml`：移除 `eva-domain`，改为显式依赖 `bc-iam-domain`（保持行为不变）。
 
-- 关键风险控制（必须写进流程，避免“把共享类型误归位到单一 BC”）：
+  - 关键风险控制（必须写进流程，避免“把共享类型误归位到单一 BC”）：
   - 若某个 `edu.cuit.domain.*` 类型被多个 BC 复用，则**不得**直接归位到 `bc-iam-domain`；应重新评估其真实归属：跨 BC 协议 → `shared-kernel`；跨 BC 业务语义 → 明确归属后再迁（或保持在 `eva-domain` 过渡）。
   - 对带有 Spring 注解/框架依赖的接口（例如历史上在 interface 上存在 `@Component` 的情况），搬运时不改注解/行为；如需补齐编译期依赖，优先通过“先改 1 个 pom.xml 补齐依赖”单步闭环完成。
+
+> 补充进展（2026-01-31，保持行为不变，端口下沉）：为减少依赖方对 IAM 应用层 jar（`bc-iam`）的编译期绑定，已将 `UserBasicQueryPort` 从 `bc-iam/application` 下沉到 `bc-iam-contract`（保持 `package edu.cuit.bc.iam.application.port` 与接口签名不变，仅改变 Maven 模块归属；最小回归通过；落地：`739cb25f`）。
+>
+> 下一刀建议（保持行为不变；每次只改 1 个类闭环）：优先选择一个“仅需要基础用户查询（username/userId 等）”的依赖方（例如 `bc-ai-report/infrastructure` 的 `AiReportUserIdQueryPortImpl`），将其对 `edu.cuit.domain.gateway.user.UserQueryGateway` 的依赖收敛为依赖 `UserBasicQueryPort`（只替换该类实际用到的方法；行为不变）。这样依赖方可通过 `bc-iam-contract` 获取同名端口类型，同时不提前触碰跨 BC 复用的 `UserQueryGateway/UserEntity` 归属设计。
 
 #### bc-audit（审计）S1：Controller 入口壳结构性收敛（保持行为不变）
 

@@ -749,6 +749,8 @@
   - B（并行：IAM 方向，准备后续“去 eva-domain”，保持行为不变）：
     - ✅ 已完成前置（保持行为不变）：`bc-iam/application/pom.xml` 已显式依赖 `bc-iam-domain`（暂不移除 `eva-domain`），用于为后续“逐个搬运 `edu.cuit.domain.*` 类型到 `bc-iam-domain`（保持 `package` 不变）”做编译闭合前置（落地：`aeaa8471`）。
     - ✅ 已完成前置（保持行为不变）：`bc-iam/domain/pom.xml` 已显式依赖 `bc-iam-contract`，用于为后续搬运“仅依赖 cmd/CO”的 `edu.cuit.domain.gateway.user.*` 接口做编译闭合前置（落地：`2fc02fed`）。
+    - ✅ 已完成（保持行为不变）：端口下沉：`UserBasicQueryPort` 已从 `bc-iam/application` 下沉到 `bc-iam-contract`（保持 `package edu.cuit.bc.iam.application.port` 与接口签名不变，仅改变模块归属；落地：`739cb25f`）。
+    - 🎯 推荐下一刀（保持行为不变；每次只改 1 个类闭环）：选择一个“仅需要基础用户查询（username/userId 等）”的依赖方，优先处理 `bc-ai-report/infrastructure/src/main/java/edu/cuit/app/bcaireport/adapter/AiReportUserIdQueryPortImpl.java`，将其对 `edu.cuit.domain.gateway.user.UserQueryGateway` 的依赖收敛为依赖 `edu.cuit.bc.iam.application.port.UserBasicQueryPort`（仅替换该类实际用到的方法；行为不变）。这样依赖方可通过 `bc-iam-contract` 获取同名端口类型，减少对 `eva-domain` 的编译期绑定，同时不提前触碰跨 BC 复用的 `UserQueryGateway/UserEntity` 归属设计。
     - 下一步（每次只改 1 个类，保持行为不变）：优先选择一个“仅 IAM 引用且不被 `eva-domain` 内其它类引用”的 `edu.cuit.domain.*` 类型，逐个搬运归位到 `bc-iam-domain`（详见 `DDD_REFACTOR_PLAN.md` 10.3 的 IAM 小节）。
   - 📌 **当前状态快照（截至 2026-01-29，口径=可复现命令；保持行为不变）**：
     - ✅ `eva-adapter` 残留 `*Controller.java` 已清零（口径见 0.10.2；命令：`fd -t f 'Controller\\.java$' eva-adapter/src/main/java | wc -l` → 0）；组合根 `start` 已移除对 `eva-adapter` 的 Maven 依赖（落地：`92a70a9e`；见 `start/pom.xml`；保持行为不变）。

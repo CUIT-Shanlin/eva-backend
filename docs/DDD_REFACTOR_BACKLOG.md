@@ -636,6 +636,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成（逐类搬运，保持行为不变）：`LdapPersonEntity` 已从 `eva-domain` 搬运归位到 `bc-iam-domain`（保持 `package` 与类内容不变；落地：`eb36c6ce`）。
   - ✅ 已完成（编译闭合前置，保持行为不变）：`bc-iam/application/pom.xml` 已显式依赖 `bc-iam-domain`（暂不移除 `eva-domain`），用于为后续“逐个搬运 `edu.cuit.domain.*` 类型到 `bc-iam-domain`”做前置（落地：`aeaa8471`）。
   - ⏳ 未完成（核心阻塞，保持行为不变）：`bc-iam/application` 仍 `import edu.cuit.domain.*`，因此暂不能直接移除其 `pom.xml` 对 `eva-domain` 的编译期依赖；下一步按“每次只改 1 个类”的闭环节奏，先选择一个**引用面仅在 IAM** 的 `edu.cuit.domain.*` 类型并逐个归位到 `bc-iam-domain`（保持 `package` 不变），再在证伪引用面后收敛 `pom.xml` 依赖边界（详见 `DDD_REFACTOR_PLAN.md` 10.3 的 IAM 小节）。补充：更新至 2026-01-30，Serena 盘点 `eva-domain/src/main/java/edu/cuit/domain/(gateway|entity)/user*` 残留主要集中在 `UserQueryGateway/UserEntity/RoleQueryGateway/RoleEntity`（均跨 BC 复用，其中 `RoleQueryGateway/RoleEntity` 按强约束暂不动），因此下一刀需优先重新盘点是否仍存在“仅 IAM 引用”的其它 `edu.cuit.domain.*`（例如 LDAP/部门等已基本归位），或进入跨 BC 复用对象的归属设计后再继续搬运。
+  - 🎯 下一刀建议（保持行为不变；每次只改 1 个类闭环）：优先选择一个“仅需要基础用户查询（username/userId 等）”的依赖方（例如 `bc-ai-report/infrastructure/src/main/java/edu/cuit/app/bcaireport/adapter/AiReportUserIdQueryPortImpl.java`），将其对 `edu.cuit.domain.gateway.user.UserQueryGateway` 的依赖收敛为依赖 `edu.cuit.bc.iam.application.port.UserBasicQueryPort`（只替换该类实际用到的方法；行为不变）。这样依赖方可通过 `bc-iam-contract` 获取同名端口类型，减少对 `eva-domain` 的编译期绑定，同时不提前触碰跨 BC 复用的 `UserQueryGateway/UserEntity` 归属设计。
 
 - **S0.2 延伸（并行主线：依赖方 `pom.xml` 收敛，保持行为不变）**：
   - ⏳ 未完成（建议优先做，风险低）：清理“无测试源码模块”的无用测试依赖（典型：模块无 `src/test/java` 且源码无 `org.junit.jupiter.*` 引用，但仍声明 `junit-jupiter(test)`）。
