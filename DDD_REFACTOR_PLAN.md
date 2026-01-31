@@ -896,6 +896,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 > 补充进展（2026-01-31，保持行为不变，端口补齐前置）：为后续继续收敛 `bc-ai-report/infrastructure` 的 IAM 依赖（例如 `AiReportAnalysisPortImpl` 中的“按 userId 获取 teacherName”），已在 `bc-iam-contract` 新增 `UserNameQueryPort`（仅新增接口，不改装配/不改行为；落地：`cfccf4ca`）。
 >
 > 补充进展（2026-01-31，保持行为不变，端口适配器实现补齐）：已在 `bc-iam-infra` 新增 `UserNameQueryPortImpl`，内部委托旧 `UserQueryGateway.findById` 以保持缓存/切面触发点不变（落地：`8852b859`）。
+>
+> ✅ 进展（2026-01-31，保持行为不变；每次只改 1 个类闭环）：已将 `bc-ai-report/infrastructure` 的 `AiReportAnalysisPortImpl` 从直接依赖 `UserQueryGateway` 收敛为依赖 `UserNameQueryPort`（端口适配器内部仍委托旧 `UserQueryGateway.findById` 以保持缓存/切面触发点不变；保留 `@Deprecated` 旧构造方式仅用于测试过渡）；落地：`c374ae9b`。
 
 #### bc-audit（审计）S1：Controller 入口壳结构性收敛（保持行为不变）
 

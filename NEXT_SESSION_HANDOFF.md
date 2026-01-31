@@ -27,6 +27,7 @@
 - ✅ **IAM 并行（按 10.3：AiReportUserIdQueryPortImpl 依赖收敛；保持行为不变）**：将 `bc-ai-report/infrastructure` 的 `AiReportUserIdQueryPortImpl` 从依赖 `edu.cuit.domain.gateway.user.UserQueryGateway` 收敛为依赖 `edu.cuit.bc.iam.application.port.UserBasicQueryPort`（原链路 `UserQueryGateway.findIdByUsername` 本就最终委托 `UserBasicQueryPort`，因此缓存命中/回源顺序与历史语义保持不变）；最小回归通过；落地提交：`b16546ed`。
 - ✅ **IAM 并行（按 10.3：新增用户名查询端口，保持行为不变）**：为后续将 `bc-ai-report/infrastructure` 的 `AiReportAnalysisPortImpl` 从依赖 `UserQueryGateway` 收敛为依赖 IAM contract 端口做前置，在 `bc-iam-contract` 新增 `UserNameQueryPort`（仅新增接口，不改装配/不改行为；最小回归通过）；落地提交：`cfccf4ca`。
 - ✅ **IAM 并行（按 10.3：补齐端口适配器实现，保持行为不变）**：在 `bc-iam-infra` 新增 `UserNameQueryPortImpl`，内部委托旧 `UserQueryGateway.findById` 以保持缓存/切面触发点不变，用于为后续 `AiReportAnalysisPortImpl` 依赖收敛闭合编译与运行时装配；最小回归通过；落地提交：`8852b859`。
+- ✅ **IAM 并行（按 10.3：AiReportAnalysisPortImpl 依赖收敛（过渡），保持行为不变）**：将 `bc-ai-report/infrastructure` 的 `AiReportAnalysisPortImpl` 从直接依赖 `UserQueryGateway` 收敛为依赖 `UserNameQueryPort`（Spring 注入改走 contract 端口；端口适配器内部仍委托旧 `UserQueryGateway.findById` 以保持缓存/切面触发点不变；保留一个 `@Deprecated` 旧构造方式仅用于测试过渡）；最小回归通过；落地提交：`c374ae9b`。
 - ⚠️ **踩坑记录（评教导出端口下沉的阻塞：Maven 循环依赖）**：尝试让 `bc-evaluation-contract` 直接依赖 `eva-domain` 以承载 `EvaRecordEntity` 相关签名会触发循环：`bc-evaluation-contract -> eva-domain -> bc-iam-domain -> bc-iam-contract -> bc-evaluation-contract`（其中 `bc-iam-contract` 必须显式依赖 `bc-evaluation-contract`）。因此“将 `EvaRecordExportQueryPort/EvaRecordCourseQueryPort` 下沉到 `bc-evaluation-contract`”需要先拆解/下沉签名依赖的旧领域实体（或调整接口签名归属），再逐步推进。
 
 **2026-01-30（本次会话：S1（`eva-*` 技术切片整合）试点前置：模板基础设施编译闭合；保持行为不变）**
