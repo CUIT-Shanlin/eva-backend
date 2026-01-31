@@ -23,6 +23,7 @@
 
 **2026-01-31（本次会话：S0.2 延伸（IAM：端口下沉以收敛编译期边界）；保持行为不变）**
 - ✅ **S0.2 延伸（IAM：端口下沉：UserBasicQueryPort → bc-iam-contract，保持行为不变）**：为减少依赖方对 IAM 应用层 jar（`bc-iam`）的编译期绑定，将 `UserBasicQueryPort` 从 `bc-iam/application` 下沉到 `bc-iam-contract`（保持 `package edu.cuit.bc.iam.application.port` 与接口签名不变，仅改变 Maven 模块归属；最小回归通过）；落地提交：`739cb25f`。
+- ✅ **IAM 并行（按 10.3，编译闭合前置：bc-ai-report-infra 显式依赖 bc-iam-contract；保持行为不变）**：为后续将 `bc-ai-report/infrastructure` 的 `AiReportUserIdQueryPortImpl` 从依赖 `UserQueryGateway` 收敛为依赖 `UserBasicQueryPort` 做前置，在 `bc-ai-report/infrastructure/pom.xml` 显式增加对 `bc-iam-contract` 的 Maven 编译期依赖（仅编译边界收敛；最小回归通过）；落地提交：`bceb2576`。
 
 **2026-01-30（本次会话：S1（`eva-*` 技术切片整合）试点前置：模板基础设施编译闭合；保持行为不变）**
 - ✅ **S0.2 延伸（依赖收敛：bc-course-infra 去无用测试依赖，保持行为不变）**：Serena + `rg` 证伪 `bc-course/infrastructure` 无 `src/test` 且源码无 `org.junit.jupiter.*` 引用后，收敛 `bc-course/infrastructure/pom.xml`：移除 `junit-jupiter(test)` 依赖（最小回归通过）；落地提交：`ff109643`。
