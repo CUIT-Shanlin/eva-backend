@@ -892,6 +892,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 > 补充进展（2026-01-31，保持行为不变，编译闭合前置）：为后续将 `bc-ai-report/infrastructure` 的 `AiReportUserIdQueryPortImpl` 从依赖 `UserQueryGateway` 收敛为依赖 `UserBasicQueryPort` 做前置，已在 `bc-ai-report/infrastructure/pom.xml` 显式增加对 `bc-iam-contract` 的 Maven 编译期依赖（仅编译边界收敛；最小回归通过；落地：`bceb2576`）。
 >
 > ✅ 已完成（2026-01-31，保持行为不变；每次只改 1 个类闭环）：已将 `bc-ai-report/infrastructure` 的 `AiReportUserIdQueryPortImpl` 对 `edu.cuit.domain.gateway.user.UserQueryGateway` 的依赖收敛为依赖 `UserBasicQueryPort`（只替换该类实际用到的方法；行为不变）；落地：`b16546ed`。依赖方可通过 `bc-iam-contract` 获取同名端口类型，同时不提前触碰跨 BC 复用的 `UserQueryGateway/UserEntity` 归属设计。
+>
+> 补充进展（2026-01-31，保持行为不变，端口补齐前置）：为后续继续收敛 `bc-ai-report/infrastructure` 的 IAM 依赖（例如 `AiReportAnalysisPortImpl` 中的“按 userId 获取 teacherName”），已在 `bc-iam-contract` 新增 `UserNameQueryPort`（仅新增接口，不改装配/不改行为；落地：`cfccf4ca`）。
 
 #### bc-audit（审计）S1：Controller 入口壳结构性收敛（保持行为不变）
 
@@ -906,6 +908,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 > 当前阻塞（更新至 2026-01-30，保持行为不变）：Serena 证据化确认 `bc-ai-report/infrastructure` 的 `AiReportAnalysisPortImpl` 仍依赖 `EvaRecordExportQueryPort`，而该端口当前仍定义于 `bc-evaluation/application`，并通过 `EvaRecordCourseQueryPort` 引入 `EvaRecordEntity` 等旧领域实体（`eva-domain`）。因此现阶段无法仅通过“单 pom 替换”将 `bc-ai-report-infra` 的 `bc-evaluation` 依赖直接收敛为 `bc-evaluation-contract`，否则会引入 `contract` 反向依赖或类型重复风险。
 
 > 建议解法（后置，先证据化再拆）：先盘点“导出链路读侧端口”依赖的实体类型归属（`eva-domain` vs `shared-kernel` vs `contract`），再决定是继续下沉端口/实体到 `contract`，还是保持过渡并延后收敛 `pom.xml`。
+>
+> 补充踩坑（2026-01-31，保持行为不变）：尝试让 `bc-evaluation-contract` 直接依赖 `eva-domain` 以承载 `EvaRecordEntity` 相关签名会触发 Maven 循环依赖：`bc-evaluation-contract -> eva-domain -> bc-iam-domain -> bc-iam-contract -> bc-evaluation-contract`（其中 `bc-iam-contract` 必须显式依赖 `bc-evaluation-contract`）。因此推进“评教导出端口下沉”需要先拆解/下沉签名依赖的旧领域实体，或调整接口签名归属再推进。
 
 #### S0.2 延伸（并行主线）：清理“无测试源码模块”的无用测试依赖（保持行为不变）
 
