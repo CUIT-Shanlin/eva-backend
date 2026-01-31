@@ -2,9 +2,9 @@ package edu.cuit.app.bcaireport.adapter;
 
 import dev.langchain4j.community.model.dashscope.QwenChatModel;
 import edu.cuit.bc.evaluation.application.port.EvaRecordExportQueryPort;
+import edu.cuit.bc.iam.application.port.UserNameQueryPort;
 import edu.cuit.client.api.course.IUserCourseService;
 import edu.cuit.domain.gateway.eva.EvaConfigGateway;
-import edu.cuit.domain.gateway.user.UserQueryGateway;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -16,7 +16,7 @@ class AiReportAnalysisPortImplTest {
     void constructor_shouldNotThrow_whenAllDependenciesProvided() {
         IUserCourseService userCourseService = mock(IUserCourseService.class);
         EvaRecordExportQueryPort evaRecordQueryPort = mock(EvaRecordExportQueryPort.class);
-        UserQueryGateway userQueryGateway = mock(UserQueryGateway.class);
+        UserNameQueryPort userNameQueryPort = mock(UserNameQueryPort.class);
         EvaConfigGateway evaConfigGateway = mock(EvaConfigGateway.class);
 
         QwenChatModel qwenMaxChatModel = QwenChatModel.builder()
@@ -35,7 +35,7 @@ class AiReportAnalysisPortImplTest {
         assertDoesNotThrow(() -> new AiReportAnalysisPortImpl(
                 userCourseService,
                 evaRecordQueryPort,
-                userQueryGateway,
+                userNameQueryPort,
                 evaConfigGateway,
                 qwenMaxChatModel,
                 qwenTurboChatModel,
@@ -43,4 +43,3 @@ class AiReportAnalysisPortImplTest {
         ));
     }
 }
-
