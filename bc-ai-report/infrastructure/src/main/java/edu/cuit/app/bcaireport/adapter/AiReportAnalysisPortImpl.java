@@ -6,6 +6,7 @@ import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.service.AiServices;
 import edu.cuit.bc.aireport.application.port.AiReportAnalysisPort;
 import edu.cuit.bc.evaluation.application.port.EvaRecordExportQueryPort;
+import edu.cuit.bc.iam.application.port.UserNameQueryPort;
 import edu.cuit.client.api.course.IUserCourseService;
 import edu.cuit.client.bo.ai.AiAnalysisBO;
 import edu.cuit.client.bo.ai.AiCourseSuggestionBO;
@@ -17,6 +18,7 @@ import edu.cuit.infra.ai.aiservice.CourseAiServices;
 import edu.cuit.infra.ai.util.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -37,12 +39,35 @@ public class AiReportAnalysisPortImpl implements AiReportAnalysisPort {
 
     private final IUserCourseService userCourseService;
     private final EvaRecordExportQueryPort evaRecordQueryPort;
-    private final UserQueryGateway userQueryGateway;
+    private final UserNameQueryPort userNameQueryPort;
     private final EvaConfigGateway evaConfigGateway;
     private final QwenChatModel qwenMaxChatModel;
     private final QwenChatModel qwenTurboChatModel;
     private final QwenChatModel deepseekChatModel;
 
+    @Autowired
+    public AiReportAnalysisPortImpl(
+            IUserCourseService userCourseService,
+            EvaRecordExportQueryPort evaRecordQueryPort,
+            UserNameQueryPort userNameQueryPort,
+            EvaConfigGateway evaConfigGateway,
+            QwenChatModel qwenMaxChatModel,
+            QwenChatModel qwenTurboChatModel,
+            QwenChatModel deepseekChatModel
+    ) {
+        this.userCourseService = java.util.Objects.requireNonNull(userCourseService, "userCourseService");
+        this.evaRecordQueryPort = java.util.Objects.requireNonNull(evaRecordQueryPort, "evaRecordQueryPort");
+        this.userNameQueryPort = java.util.Objects.requireNonNull(userNameQueryPort, "userNameQueryPort");
+        this.evaConfigGateway = java.util.Objects.requireNonNull(evaConfigGateway, "evaConfigGateway");
+        this.qwenMaxChatModel = java.util.Objects.requireNonNull(qwenMaxChatModel, "qwenMaxChatModel");
+        this.qwenTurboChatModel = java.util.Objects.requireNonNull(qwenTurboChatModel, "qwenTurboChatModel");
+        this.deepseekChatModel = java.util.Objects.requireNonNull(deepseekChatModel, "deepseekChatModel");
+    }
+
+    /**
+     * 过渡期：兼容旧构造方式（保持行为不变），便于低成本调整测试代码。
+     */
+    @Deprecated
     public AiReportAnalysisPortImpl(
             IUserCourseService userCourseService,
             EvaRecordExportQueryPort evaRecordQueryPort,
@@ -52,13 +77,20 @@ public class AiReportAnalysisPortImpl implements AiReportAnalysisPort {
             QwenChatModel qwenTurboChatModel,
             QwenChatModel deepseekChatModel
     ) {
-        this.userCourseService = java.util.Objects.requireNonNull(userCourseService, "userCourseService");
-        this.evaRecordQueryPort = java.util.Objects.requireNonNull(evaRecordQueryPort, "evaRecordQueryPort");
-        this.userQueryGateway = java.util.Objects.requireNonNull(userQueryGateway, "userQueryGateway");
-        this.evaConfigGateway = java.util.Objects.requireNonNull(evaConfigGateway, "evaConfigGateway");
-        this.qwenMaxChatModel = java.util.Objects.requireNonNull(qwenMaxChatModel, "qwenMaxChatModel");
-        this.qwenTurboChatModel = java.util.Objects.requireNonNull(qwenTurboChatModel, "qwenTurboChatModel");
-        this.deepseekChatModel = java.util.Objects.requireNonNull(deepseekChatModel, "deepseekChatModel");
+        this(
+                userCourseService,
+                evaRecordQueryPort,
+                toUserNameQueryPort(userQueryGateway),
+                evaConfigGateway,
+                qwenMaxChatModel,
+                qwenTurboChatModel,
+                deepseekChatModel
+        );
+    }
+
+    private static UserNameQueryPort toUserNameQueryPort(UserQueryGateway userQueryGateway) {
+        UserQueryGateway nonNullGateway = java.util.Objects.requireNonNull(userQueryGateway, "userQueryGateway");
+        return id -> nonNullGateway.findById(id).map(user -> user.getName());
     }
 
     @Override
@@ -143,11 +175,11 @@ public class AiReportAnalysisPortImpl implements AiReportAnalysisPort {
         aiAnalysis
                 .setCourseSuggestions(courseSuggestionList)
                 .setOverallReport(overallSuggestion)
-                .setTeacherName(userQueryGateway.findById(teacherId).orElseThrow(() -> {
+                .setTeacherName(userNameQueryPort.findNameById(teacherId).orElseThrow(() -> {
                     BizException bizException = new BizException("导出报告失败，请联系管理员");
                     log.error("根据用户id获取用户失败", bizException);
                     return bizException;
-                }).getName())
+                }))
                 .setTotalBeEvaCount(totalBeEvaCount)
                 .setHighScoreEvaCount(highScoreBeEvaCount);
 
