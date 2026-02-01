@@ -13,6 +13,7 @@ import edu.cuit.bc.course.application.usecase.UpdateCourseEntryUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateCoursesEntryUseCase;
 import edu.cuit.bc.course.domain.ChangeCourseTemplateException;
 import edu.cuit.bc.course.domain.CourseNotFoundException;
+import edu.cuit.bc.iam.application.port.UserBasicQueryPort;
 import edu.cuit.bc.messaging.application.event.CourseOperationSideEffectsEvent;
 import edu.cuit.client.api.course.ICourseDetailService;
 import edu.cuit.client.bo.MessageBO;
@@ -33,7 +34,6 @@ import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.course.CourseEntity;
 import edu.cuit.domain.entity.course.SubjectEntity;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
-import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.infra.gateway.impl.course.operate.CourseFormat;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
@@ -47,7 +47,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ICourseDetailServiceImpl implements ICourseDetailService {
     private final CourseQueryGateway courseQueryGateway;
-    private final UserQueryGateway userQueryGateway;
+    private final UserBasicQueryPort userBasicQueryPort;
     private final CourseBizConvertor courseBizConvertor;
     private final PaginationBizConvertor pagenConvertor;
    private final CourseFormat courseFormat;
@@ -122,7 +122,7 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
         }
 
         Map<String, Map<Integer,Integer>> map = updateCourseEntryUseCase.updateCourse(semId, updateCourseCmd);
-        Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
+        Optional<Integer> userId = userBasicQueryPort.findIdByUsername((String) StpUtil.getLoginId());
         Integer operatorUserId = userId.orElseThrow(() -> new QueryException("请先登录"));
         afterCommitEventPublisher.publishAfterCommit(new CourseOperationSideEffectsEvent(operatorUserId, map));
     }
@@ -148,7 +148,7 @@ public class ICourseDetailServiceImpl implements ICourseDetailService {
     @Override
     public void delete(Integer semId, Integer id) {
         Map<String, Map<Integer,Integer>> map = deleteCourseEntryUseCase.deleteCourse(semId, id);
-        Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
+        Optional<Integer> userId = userBasicQueryPort.findIdByUsername((String) StpUtil.getLoginId());
         Integer operatorUserId = userId.orElseThrow(() -> new QueryException("请先登录"));
         afterCommitEventPublisher.publishAfterCommit(new CourseOperationSideEffectsEvent(operatorUserId, map));
 
