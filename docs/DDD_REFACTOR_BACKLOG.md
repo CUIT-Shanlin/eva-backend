@@ -118,6 +118,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ AI 报告（移除过渡构造，保持行为不变）：在测试已切到新构造的前提下，移除 `AiReportAnalysisPortImpl` 中 `@Deprecated` 旧构造与桥接逻辑，使该类彻底不再编译期依赖 `UserQueryGateway`（运行期仍通过 `UserNameQueryPortImpl -> UserQueryGateway.findById` 保持缓存/切面触发点不变；最小回归通过）；落地：`b2a6dc15`。
 - ✅ 审计（编译闭合前置：bc-audit-infra 显式依赖 bc-iam-contract；保持行为不变）：在 `bc-audit/infrastructure/pom.xml` 显式增加对 `bc-iam-contract` 的 Maven 编译期依赖，用于为后续收敛 `LogInsertionPortImpl` 的依赖类型闭合编译（仅编译边界收敛；最小回归通过）；落地：`77bb15b2`。
 - ✅ 审计（LogInsertionPortImpl 依赖收敛，保持行为不变）：将 `bc-audit/infrastructure` 的 `LogInsertionPortImpl` 从依赖 `UserQueryGateway` 收敛为依赖 `UserBasicQueryPort`（调用链原本就最终委托 `UserBasicQueryPortImpl`，因此缓存命中/回源顺序与历史语义保持不变；最小回归通过）；落地：`065183ab`。
+- ✅ 审计（LogGatewayImpl 依赖收敛，保持行为不变）：移除 `bc-audit/infrastructure` 的 `LogGatewayImpl` 中未使用的 `UserQueryGateway` 注入字段与 import（不影响任何业务逻辑/异常文案/副作用顺序；最小回归通过）；落地：`6d4b3661`。
 - ✅ IAM 并行（按 10.3，编译闭合前置：bc-ai-report-infra 显式依赖 bc-iam-contract；保持行为不变）：在 `bc-ai-report/infrastructure/pom.xml` 显式增加对 `bc-iam-contract` 的 Maven 编译期依赖，用于为后续收敛 `AiReportUserIdQueryPortImpl` 的依赖类型闭合编译（仅编译边界收敛；最小回归通过）；落地：`bceb2576`。
 - ✅ IAM 并行（按 10.3：AiReportUserIdQueryPortImpl 依赖收敛；保持行为不变）：将 `bc-ai-report/infrastructure` 的 `AiReportUserIdQueryPortImpl` 从依赖 `UserQueryGateway` 收敛为依赖 `UserBasicQueryPort`（原链路本就最终委托 `UserBasicQueryPort`，因此缓存命中/回源顺序与历史语义保持不变）；最小回归通过；落地：`b16546ed`。
 - ✅ S0.2 延伸（依赖收敛：bc-course-infra 去无用测试依赖，保持行为不变）：在 Serena + `rg` 证伪 `bc-course/infrastructure` 无 `src/test` 且源码无 `org.junit.jupiter.*` 引用后，收敛 `bc-course/infrastructure/pom.xml`：移除 `junit-jupiter(test)` 依赖（最小回归通过）；落地：`ff109643`。

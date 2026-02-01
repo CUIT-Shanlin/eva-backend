@@ -907,6 +907,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 > ✅ 进展（2026-02-01，保持行为不变；每次只改 1 个类闭环）：已将审计域 `LogInsertionPortImpl` 从依赖 `UserQueryGateway` 收敛为依赖 `UserBasicQueryPort`（调用链原本就最终委托 `UserBasicQueryPortImpl`，因此缓存命中/回源顺序与历史语义保持不变）；落地：`065183ab`。
 
+> ✅ 进展（2026-02-01，保持行为不变；每次只改 1 个类闭环）：已移除审计域 `LogGatewayImpl` 中未使用的 `UserQueryGateway` 注入字段与 import（不影响任何业务逻辑/异常文案/副作用顺序）；落地：`6d4b3661`。
+
 #### bc-audit（审计）S1：Controller 入口壳结构性收敛（保持行为不变）
 
 > 背景：审计域的 Controller 同样遵循“仅结构性收敛、不改语义”的原则（不改 URL/注解/权限/异常文案/副作用顺序），用于降低入口壳噪声。
