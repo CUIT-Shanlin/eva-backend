@@ -653,6 +653,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
     - 盘点口径：`rg -n "<artifactId>junit-jupiter</artifactId>" --glob "**/pom.xml" .`
     - 单模块证伪口径：`fd -t d src/test <module>`（应为空） + `rg -n "org\\.junit\\.jupiter" <module>/src`（应为空）
     - 注意：每次只改 1 个 `pom.xml`，移除前必须 Serena + `rg` 双证据，并跑最小回归闭环。
+  - ✅ 已完成（编译闭合前置，保持行为不变）：`bc-course/infrastructure/pom.xml` 已显式依赖 `bc-iam-contract`，用于为后续将 `bc-course-infrastructure` 的 `ICourseServiceImpl` 等从依赖 `UserQueryGateway` 收敛为依赖 `UserBasicQueryPort` 做前置（落地：`7b10d159`）。
 
 - **S0.2 延伸（AI 报告 infra：依赖方 pom 收敛评估，保持行为不变）**：
   - ⏸️ 阻塞（更新至 2026-01-30，保持行为不变）：候选想把 `bc-ai-report/infrastructure/pom.xml` 中对 `bc-evaluation`（application jar）的编译期依赖收敛为仅依赖 `bc-evaluation-contract`；但 `AiReportAnalysisPortImpl` 仍依赖 `EvaRecordExportQueryPort`，而该端口当前仍定义于 `bc-evaluation/application`，并通过 `EvaRecordCourseQueryPort` 引入 `EvaRecordEntity` 等旧领域实体（`eva-domain`）。因此现阶段不建议直接做“单 pom 替换”，以免引入 `contract` 反向依赖或类型重复风险。可复现口径：`rg -n "EvaRecordExportQueryPort" bc-ai-report/infrastructure/src/main/java/edu/cuit/app/bcaireport/adapter/AiReportAnalysisPortImpl.java` 与 `rg -n "interface\\s+EvaRecordExportQueryPort\\b" bc-evaluation/application/src/main/java/edu/cuit/bc/evaluation/application/port/EvaRecordExportQueryPort.java`。
