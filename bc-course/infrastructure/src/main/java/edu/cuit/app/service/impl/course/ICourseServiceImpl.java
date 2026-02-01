@@ -11,6 +11,7 @@ import edu.cuit.bc.course.application.usecase.TimeCourseQueryUseCase;
 import edu.cuit.bc.course.application.usecase.AllocateTeacherUseCase;
 import edu.cuit.bc.course.application.usecase.DeleteCoursesEntryUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateSingleCourseEntryUseCase;
+import edu.cuit.bc.iam.application.port.UserBasicQueryPort;
 import edu.cuit.bc.messaging.application.event.CourseOperationSideEffectsEvent;
 import edu.cuit.bc.messaging.application.event.CourseTeacherTaskMessagesEvent;
 import edu.cuit.client.api.course.ICourseService;
@@ -23,7 +24,6 @@ import edu.cuit.client.dto.cmd.course.UpdateSingleCourseCmd;
 import edu.cuit.client.dto.data.course.CoursePeriod;
 import edu.cuit.client.dto.query.CourseQuery;
 import edu.cuit.client.dto.query.condition.MobileCourseQuery;
-import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -41,7 +41,7 @@ public class ICourseServiceImpl implements ICourseService {
     private final UpdateSingleCourseEntryUseCase updateSingleCourseEntryUseCase;
     private final AddExistCoursesDetailsEntryUseCase addExistCoursesDetailsEntryUseCase;
     private final AddNotExistCoursesDetailsEntryUseCase addNotExistCoursesDetailsEntryUseCase;
-    private final UserQueryGateway userQueryGateway;
+    private final UserBasicQueryPort userBasicQueryPort;
     private final AfterCommitEventPublisher afterCommitEventPublisher;
     @CheckSemId
     @Override
@@ -83,7 +83,7 @@ public class ICourseServiceImpl implements ICourseService {
     public void updateSingleCourse(Integer semId, UpdateSingleCourseCmd updateSingleCourseCmd) {
         String userName =String.valueOf(StpUtil.getLoginId()) ;
         Map<String,Map<Integer,Integer>> map = updateSingleCourseEntryUseCase.updateSingleCourse(userName, semId, updateSingleCourseCmd);
-        Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
+        Optional<Integer> userId = userBasicQueryPort.findIdByUsername((String) StpUtil.getLoginId());
         Integer operatorUserId = userId.orElseThrow(() -> new QueryException("请先登录"));
         afterCommitEventPublisher.publishAfterCommit(new CourseOperationSideEffectsEvent(operatorUserId, map));
     }
@@ -92,7 +92,7 @@ public class ICourseServiceImpl implements ICourseService {
     @Override
     public void allocateTeacher(Integer semId, AlignTeacherCmd alignTeacherCmd) {
         Map<String, Map<Integer,Integer>> map = allocateTeacherUseCase.allocateTeacher(semId, alignTeacherCmd);
-        Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
+        Optional<Integer> userId = userBasicQueryPort.findIdByUsername((String) StpUtil.getLoginId());
         Integer operatorUserId = userId.orElseThrow(() -> new QueryException("请先登录"));
         afterCommitEventPublisher.publishAfterCommit(new CourseTeacherTaskMessagesEvent(operatorUserId, map));
     }
@@ -101,7 +101,7 @@ public class ICourseServiceImpl implements ICourseService {
     @Override
     public void deleteCourses(Integer semId, Integer id, CoursePeriod coursePeriod) {
         Map<String, Map<Integer,Integer>> map = deleteCoursesEntryUseCase.deleteCourses(semId, id, coursePeriod);
-        Optional<Integer> userId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
+        Optional<Integer> userId = userBasicQueryPort.findIdByUsername((String) StpUtil.getLoginId());
         Integer operatorUserId = userId.orElseThrow(() -> new QueryException("请先登录"));
         afterCommitEventPublisher.publishAfterCommit(new CourseOperationSideEffectsEvent(operatorUserId, map));
 
