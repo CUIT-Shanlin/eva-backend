@@ -15,7 +15,6 @@ import edu.cuit.domain.entity.log.SysLogModuleEntity;
 import edu.cuit.domain.entity.user.biz.RoleEntity;
 import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.domain.gateway.LogGateway;
-import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.infra.convertor.LogConverter;
 import edu.cuit.infra.convertor.PaginationConverter;
 import edu.cuit.infra.convertor.user.RoleConverter;
@@ -57,8 +56,6 @@ public class LogGatewayImpl implements LogGateway {
     private final SysLogModuleMapper logModuleMapper;
     private final LogConverter logConverter;
     private final PaginationConverter pageConverter;
-
-    private final UserQueryGateway userQueryGateway;
 
     private final InsertLogUseCase insertLogUseCase;
 
