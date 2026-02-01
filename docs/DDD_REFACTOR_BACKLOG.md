@@ -668,6 +668,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - **S0.2 延伸（课程域：继续削减 `eva-app` 的课程旧入口实现承载面）**：
   - ✅ 已完成：课程相关 Controller 注入已从 `*ServiceImpl` 收窄为 `shared-kernel` 下的 `edu.cuit.client.api.course.*Service` 接口（避免 Controller 编译期绑定实现类；保持行为不变；落地以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
   - ✅ 已完成：`ICourseServiceImpl` 已从 `eva-app` 归位到 `bc-course-infra`（保持 `package` 不变，仅搬运与编译闭合；保持行为不变；落地以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
+  - ✅ 已完成（依赖收敛，保持行为不变）：`bc-course/infrastructure` 的 `ICourseServiceImpl` 已将对 `edu.cuit.domain.gateway.user.UserQueryGateway` 的编译期依赖收敛为依赖 `edu.cuit.bc.iam.application.port.UserBasicQueryPort`（最小回归通过；落地：`24f141a1`）。
   - ✅ 已完成：`IUserCourseServiceImpl` 已从 `eva-app` 归位到 `bc-course-infra`（保持 `package` 不变，仅搬运与编译闭合；保持行为不变；落地以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
   - ✅ 已完成：`ICourseDetailServiceImpl` 已从 `eva-app` 归位到 `bc-course-infra`（保持 `package` 不变，仅搬运与编译闭合；保持行为不变；落地以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
   - ✅ 已完成：`ClassroomServiceImpl` 已从 `eva-app` 归位到 `bc-course-infra`（保持 `package` 不变，仅搬运与编译闭合；保持行为不变；落地以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
