@@ -13,7 +13,6 @@ import edu.cuit.client.bo.ai.AiCourseSuggestionBO;
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.domain.entity.eva.EvaRecordEntity;
 import edu.cuit.domain.gateway.eva.EvaConfigGateway;
-import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.infra.ai.aiservice.CourseAiServices;
 import edu.cuit.infra.ai.util.MessageUtils;
 import org.slf4j.Logger;
@@ -62,35 +61,6 @@ public class AiReportAnalysisPortImpl implements AiReportAnalysisPort {
         this.qwenMaxChatModel = java.util.Objects.requireNonNull(qwenMaxChatModel, "qwenMaxChatModel");
         this.qwenTurboChatModel = java.util.Objects.requireNonNull(qwenTurboChatModel, "qwenTurboChatModel");
         this.deepseekChatModel = java.util.Objects.requireNonNull(deepseekChatModel, "deepseekChatModel");
-    }
-
-    /**
-     * 过渡期：兼容旧构造方式（保持行为不变），便于低成本调整测试代码。
-     */
-    @Deprecated
-    public AiReportAnalysisPortImpl(
-            IUserCourseService userCourseService,
-            EvaRecordExportQueryPort evaRecordQueryPort,
-            UserQueryGateway userQueryGateway,
-            EvaConfigGateway evaConfigGateway,
-            QwenChatModel qwenMaxChatModel,
-            QwenChatModel qwenTurboChatModel,
-            QwenChatModel deepseekChatModel
-    ) {
-        this(
-                userCourseService,
-                evaRecordQueryPort,
-                toUserNameQueryPort(userQueryGateway),
-                evaConfigGateway,
-                qwenMaxChatModel,
-                qwenTurboChatModel,
-                deepseekChatModel
-        );
-    }
-
-    private static UserNameQueryPort toUserNameQueryPort(UserQueryGateway userQueryGateway) {
-        UserQueryGateway nonNullGateway = java.util.Objects.requireNonNull(userQueryGateway, "userQueryGateway");
-        return id -> nonNullGateway.findById(id).map(user -> user.getName());
     }
 
     @Override
