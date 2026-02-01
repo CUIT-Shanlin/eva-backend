@@ -671,6 +671,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成（依赖收敛，保持行为不变）：`bc-course/infrastructure` 的 `ICourseServiceImpl` 已将对 `edu.cuit.domain.gateway.user.UserQueryGateway` 的编译期依赖收敛为依赖 `edu.cuit.bc.iam.application.port.UserBasicQueryPort`（最小回归通过；落地：`24f141a1`）。
   - ✅ 已完成：`IUserCourseServiceImpl` 已从 `eva-app` 归位到 `bc-course-infra`（保持 `package` 不变，仅搬运与编译闭合；保持行为不变；落地以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
   - ✅ 已完成：`ICourseDetailServiceImpl` 已从 `eva-app` 归位到 `bc-course-infra`（保持 `package` 不变，仅搬运与编译闭合；保持行为不变；落地以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
+  - ✅ 已完成（依赖收敛，保持行为不变）：`bc-course/infrastructure` 的 `ICourseDetailServiceImpl` 已将对 `edu.cuit.domain.gateway.user.UserQueryGateway` 的编译期依赖收敛为依赖 `edu.cuit.bc.iam.application.port.UserBasicQueryPort`（最小回归通过；落地：`d6c1d692`）。
   - ✅ 已完成：`ClassroomServiceImpl` 已从 `eva-app` 归位到 `bc-course-infra`（保持 `package` 不变，仅搬运与编译闭合；保持行为不变；落地以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
   - ✅ 已完成：`ICourseTypeServiceImpl` 已从 `eva-app` 归位到 `bc-course-infra`（保持 `package` 不变，仅搬运与编译闭合；保持行为不变；落地以 `NEXT_SESSION_HANDOFF.md` 0.9 为准）。
   - ✅ 已完成：收敛 `eva-app/pom.xml`：移除对 `bc-course` 的编译期依赖（`shared-kernel` 显式依赖保留；保持行为不变；最小回归通过；落地：`dca806fa`）。
