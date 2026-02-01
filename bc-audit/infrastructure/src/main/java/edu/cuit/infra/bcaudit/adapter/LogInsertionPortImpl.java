@@ -1,8 +1,8 @@
 package edu.cuit.infra.bcaudit.adapter;
 
 import edu.cuit.bc.audit.application.port.LogInsertionPort;
+import edu.cuit.bc.iam.application.port.UserBasicQueryPort;
 import edu.cuit.client.bo.SysLogBO;
-import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.infra.convertor.LogConverter;
 import edu.cuit.infra.dal.database.dataobject.log.SysLogDO;
 import edu.cuit.infra.dal.database.mapper.log.SysLogMapper;
@@ -19,12 +19,11 @@ import org.springframework.stereotype.Component;
 public class LogInsertionPortImpl implements LogInsertionPort {
     private final SysLogMapper logMapper;
     private final LogConverter logConverter;
-    private final UserQueryGateway userQueryGateway;
+    private final UserBasicQueryPort userBasicQueryPort;
 
     @Override
     public void insertLog(SysLogBO logBO) {
-        SysLogDO logDO = logConverter.toLogDO(logBO, userQueryGateway.findIdByUsername(logBO.getUserId()).orElse(null));
+        SysLogDO logDO = logConverter.toLogDO(logBO, userBasicQueryPort.findIdByUsername(logBO.getUserId()).orElse(null));
         logMapper.insert(logDO);
     }
 }
-
