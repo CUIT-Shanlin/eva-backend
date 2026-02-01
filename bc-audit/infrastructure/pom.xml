@@ -26,6 +26,13 @@
             <version>${revision}</version>
         </dependency>
 
+        <!-- 审计侧依赖 IAM contract：用于查询用户ID等基础信息（保持行为不变，仅收敛编译期边界） -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>bc-iam-contract</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
         <!-- 编译闭合前置：LogController 归位到 bc-audit/infrastructure（运行时 classpath 已存在，仅显式化，保持行为不变） -->
         <dependency>
             <groupId>edu.cuit.zhuyimeng</groupId>
