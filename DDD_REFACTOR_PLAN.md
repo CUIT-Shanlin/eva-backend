@@ -905,6 +905,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 > 补充进展（2026-02-01，保持行为不变，编译闭合前置）：为后续将审计域 `LogInsertionPortImpl` 对 `UserQueryGateway` 的依赖收敛为依赖 IAM contract 端口做前置，已在 `bc-audit/infrastructure/pom.xml` 显式增加对 `bc-iam-contract` 的 Maven 编译期依赖（仅编译边界收敛；最小回归通过；落地：`77bb15b2`）。
 
+> ✅ 进展（2026-02-01，保持行为不变；每次只改 1 个类闭环）：已将审计域 `LogInsertionPortImpl` 从依赖 `UserQueryGateway` 收敛为依赖 `UserBasicQueryPort`（调用链原本就最终委托 `UserBasicQueryPortImpl`，因此缓存命中/回源顺序与历史语义保持不变）；落地：`065183ab`。
+
 #### bc-audit（审计）S1：Controller 入口壳结构性收敛（保持行为不变）
 
 > 背景：审计域的 Controller 同样遵循“仅结构性收敛、不改语义”的原则（不改 URL/注解/权限/异常文案/副作用顺序），用于降低入口壳噪声。
