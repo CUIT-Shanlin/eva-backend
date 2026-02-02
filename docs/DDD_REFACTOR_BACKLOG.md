@@ -109,7 +109,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
-**已完成（更新至 2026-01-31）**
+**已完成（更新至 2026-02-02）**
 - ✅ S0.2 延伸（IAM：端口下沉：UserBasicQueryPort → bc-iam-contract，保持行为不变）：将 `UserBasicQueryPort` 从 `bc-iam/application` 下沉到 `bc-iam-contract`（保持 `package edu.cuit.bc.iam.application.port` 与接口签名不变，仅改变 Maven 模块归属；最小回归通过）；落地：`739cb25f`。
 - ✅ IAM 并行（按 10.3：新增 UserNameQueryPort，保持行为不变）：在 `bc-iam-contract` 新增 `UserNameQueryPort`（为后续收敛 AI 报告基础设施对 `UserQueryGateway` 的依赖做前置；仅新增接口，不改装配/不改行为；最小回归通过）；落地：`cfccf4ca`。
 - ✅ IAM 并行（按 10.3：新增 UserNameQueryPortImpl，保持行为不变）：在 `bc-iam-infrastructure` 新增 `UserNameQueryPortImpl`，内部委托旧 `UserQueryGateway.findById` 以保持缓存/切面触发点不变（为后续 `AiReportAnalysisPortImpl` 依赖收敛闭合编译；最小回归通过）；落地：`8852b859`。
@@ -121,6 +121,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ 审计（LogGatewayImpl 依赖收敛，保持行为不变）：移除 `bc-audit/infrastructure` 的 `LogGatewayImpl` 中未使用的 `UserQueryGateway` 注入字段与 import（不影响任何业务逻辑/异常文案/副作用顺序；最小回归通过）；落地：`6d4b3661`。
 - ✅ IAM 并行（按 10.3，编译闭合前置：bc-ai-report-infra 显式依赖 bc-iam-contract；保持行为不变）：在 `bc-ai-report/infrastructure/pom.xml` 显式增加对 `bc-iam-contract` 的 Maven 编译期依赖，用于为后续收敛 `AiReportUserIdQueryPortImpl` 的依赖类型闭合编译（仅编译边界收敛；最小回归通过）；落地：`bceb2576`。
 - ✅ IAM 并行（按 10.3：AiReportUserIdQueryPortImpl 依赖收敛；保持行为不变）：将 `bc-ai-report/infrastructure` 的 `AiReportUserIdQueryPortImpl` 从依赖 `UserQueryGateway` 收敛为依赖 `UserBasicQueryPort`（原链路本就最终委托 `UserBasicQueryPort`，因此缓存命中/回源顺序与历史语义保持不变）；最小回归通过；落地：`b16546ed`。
+- ✅ IAM 并行（按 10.3：AvatarManager 依赖收敛；保持行为不变）：将 `bc-iam/infrastructure` 的 `AvatarManager` 从依赖 `UserQueryGateway` 收敛为依赖 `UserBasicQueryPort`（只替换该类实际用到的 `findUsernameById`；异常文案/文件 IO 行为不变；最小回归通过）；落地：`56872f30`。
 - ✅ S0.2 延伸（依赖收敛：bc-course-infra 去无用测试依赖，保持行为不变）：在 Serena + `rg` 证伪 `bc-course/infrastructure` 无 `src/test` 且源码无 `org.junit.jupiter.*` 引用后，收敛 `bc-course/infrastructure/pom.xml`：移除 `junit-jupiter(test)` 依赖（最小回归通过）；落地：`ff109643`。
 - ✅ S0.2 延伸（依赖收敛：bc-evaluation-infra 去无用测试依赖，保持行为不变）：在 Serena + `rg` 证伪 `bc-evaluation/infrastructure` 无 `src/test` 且源码无 `org.junit.jupiter.*` 引用后，收敛 `bc-evaluation/infrastructure/pom.xml`：移除 `junit-jupiter(test)` 依赖（最小回归通过）；落地：`6a882e4a`。
 - ✅ S0.2 延伸（依赖收敛：bc-iam-infra 去无用测试依赖，保持行为不变）：在 Serena + `rg` 证伪 `bc-iam/infrastructure` 无 `src/test` 且源码无 `org.junit.jupiter.*` 引用后，收敛 `bc-iam/infrastructure/pom.xml`：移除 `junit-jupiter(test)` 依赖（最小回归通过）；落地：`f65ce9a7`。
