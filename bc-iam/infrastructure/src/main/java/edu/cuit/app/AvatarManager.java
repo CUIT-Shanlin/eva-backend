@@ -2,7 +2,7 @@ package edu.cuit.app;
 
 import com.alibaba.cola.exception.BizException;
 import com.alibaba.cola.exception.SysException;
-import edu.cuit.domain.gateway.user.UserQueryGateway;
+import edu.cuit.bc.iam.application.port.UserBasicQueryPort;
 import edu.cuit.infra.property.AvatarProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ public class AvatarManager {
 
     private final AvatarProperties avatarProperties;
 
-    private final UserQueryGateway userQueryGateway;
+    private final UserBasicQueryPort userBasicQueryPort;
 
     /**
      * 获取用户头像base64数据
@@ -74,7 +74,7 @@ public class AvatarManager {
     }
 
     private void checkUserId(Integer id) {
-        userQueryGateway.findUsernameById(id).orElseThrow(() -> new BizException("该用户不存在"));
+        userBasicQueryPort.findUsernameById(id).orElseThrow(() -> new BizException("该用户不存在"));
     }
 
     private File getUserAvatarFile(Integer userId) {
