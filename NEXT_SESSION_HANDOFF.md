@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-02-02（本次会话：S0.2 延伸（IAM：端口下沉以收敛编译期边界）；保持行为不变）**
+- ✅ **消息（编译闭合前置，保持行为不变）**：为后续将 `bc-messaging` 的 `MessageQueryPortImpl` 对 `UserQueryGateway` 的编译期依赖收敛为依赖 `bc-iam-contract` 的最小 Port 做前置，在 `bc-messaging/pom.xml` 显式增加对 `bc-iam-contract` 的 Maven 编译期依赖（仅显式化依赖边界；最小回归通过）；落地提交：`16a90a5e`。
 - ✅ **评教（依赖收敛收尾，保持行为不变）**：清理 `bc-evaluation/infrastructure` 的 `UserEvaServiceImpl` 残留未使用 `UserQueryGateway` import，使该类彻底不再编译期依赖旧 gateway（仅删 import；行为不变；最小回归通过）；落地提交：`edc3f9c7`。
 - 🧾 **S0.2 延伸（junit-jupiter 口径复核，保持行为不变）**：Serena 盘点 `**/pom.xml` 中 `junit-jupiter` 仅出现在 `bc-iam/application`、`bc-course/application`、`bc-evaluation/application`、`bc-template/application`、`bc-messaging`，且均存在 `src/test/java` 测试源码，因此本次未产生“无测试源码模块”的可清理项。
 - ✅ **评教（测试过渡，保持行为不变）**：为后续将 `bc-evaluation/infrastructure` 的 `UserEvaServiceImpl` 从依赖 `UserQueryGateway` 收敛为依赖 `UserBasicQueryPort` 做前置，先将 `start/src/test/java/edu/cuit/app/service/impl/eva/UserEvaServiceImplTest.java` 改为同时兼容“旧构造（UserQueryGateway）/新构造（UserBasicQueryPort）”（仅测试代码；最小回归通过）；落地提交：`93ac4799`。
