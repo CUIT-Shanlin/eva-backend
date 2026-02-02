@@ -923,6 +923,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 > ✅ 进展（2026-02-02，保持行为不变，端口适配器实现补齐）：已在 `bc-iam-infra` 新增 `UserAllUserIdQueryPortImpl`，内部委托旧 `UserQueryGateway.findAllUserId()` 以保持缓存/切面触发点不变（最小回归通过；落地：`daff2644`）。
 
+> ✅ 进展（2026-02-02，保持行为不变；每次只改 1 个类闭环）：已将 `bc-evaluation/infrastructure` 的 `MsgServiceImpl` 从依赖 `edu.cuit.domain.gateway.user.UserQueryGateway` 收敛为依赖 IAM contract 端口 `UserBasicQueryPort + UserAllUserIdQueryPort`（广播消息的 `findAllUserId()` 由端口适配器委托旧 gateway 以保持缓存/切面触发点不变；异常文案/副作用顺序不变；最小回归通过；落地：`b4456be9`）。
+
 > 补充进展（2026-02-01，保持行为不变，编译闭合前置）：为后续将审计域 `LogInsertionPortImpl` 对 `UserQueryGateway` 的依赖收敛为依赖 IAM contract 端口做前置，已在 `bc-audit/infrastructure/pom.xml` 显式增加对 `bc-iam-contract` 的 Maven 编译期依赖（仅编译边界收敛；最小回归通过；落地：`77bb15b2`）。
 
 > ✅ 进展（2026-02-01，保持行为不变；每次只改 1 个类闭环）：已将审计域 `LogInsertionPortImpl` 从依赖 `UserQueryGateway` 收敛为依赖 `UserBasicQueryPort`（调用链原本就最终委托 `UserBasicQueryPortImpl`，因此缓存命中/回源顺序与历史语义保持不变）；落地：`065183ab`。
