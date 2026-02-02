@@ -6,7 +6,6 @@ import edu.cuit.bc.iam.application.port.UserBasicQueryPort;
 import edu.cuit.bc.evaluation.application.usecase.UserEvaQueryUseCase;
 import edu.cuit.client.api.eva.IUserEvaService;
 import edu.cuit.client.dto.clientobject.eva.EvaRecordCO;
-import edu.cuit.domain.gateway.user.UserQueryGateway;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
