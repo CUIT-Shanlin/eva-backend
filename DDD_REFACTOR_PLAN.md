@@ -915,6 +915,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 > ✅ 进展（2026-02-02，保持行为不变，测试过渡）：为后续收敛 `bc-evaluation/infrastructure` 的 `UserEvaServiceImpl` 对 `UserQueryGateway` 的编译期依赖，先将 `start` 模块中的 `UserEvaServiceImplTest` 改为兼容“旧构造（UserQueryGateway）/新构造（UserBasicQueryPort）”（仅测试代码；最小回归通过；落地：`93ac4799`）。
 
+> ✅ 进展（2026-02-02，保持行为不变；每次只改 1 个类闭环）：已将 `bc-evaluation/infrastructure` 的 `UserEvaServiceImpl` 从依赖 `edu.cuit.domain.gateway.user.UserQueryGateway` 收敛为依赖 `edu.cuit.bc.iam.application.port.UserBasicQueryPort`（只替换该类实际用到的 `findIdByUsername`；异常文案与分支顺序不变；最小回归通过；落地：`456e5346`）。
+
 > 补充进展（2026-02-01，保持行为不变，编译闭合前置）：为后续将审计域 `LogInsertionPortImpl` 对 `UserQueryGateway` 的依赖收敛为依赖 IAM contract 端口做前置，已在 `bc-audit/infrastructure/pom.xml` 显式增加对 `bc-iam-contract` 的 Maven 编译期依赖（仅编译边界收敛；最小回归通过；落地：`77bb15b2`）。
 
 > ✅ 进展（2026-02-01，保持行为不变；每次只改 1 个类闭环）：已将审计域 `LogInsertionPortImpl` 从依赖 `UserQueryGateway` 收敛为依赖 `UserBasicQueryPort`（调用链原本就最终委托 `UserBasicQueryPortImpl`，因此缓存命中/回源顺序与历史语义保持不变）；落地：`065183ab`。
