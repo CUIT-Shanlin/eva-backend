@@ -917,6 +917,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 > ✅ 进展（2026-02-02，保持行为不变；每次只改 1 个类闭环）：已将 `bc-evaluation/infrastructure` 的 `UserEvaServiceImpl` 从依赖 `edu.cuit.domain.gateway.user.UserQueryGateway` 收敛为依赖 `edu.cuit.bc.iam.application.port.UserBasicQueryPort`（只替换该类实际用到的 `findIdByUsername`；异常文案与分支顺序不变；最小回归通过；落地：`456e5346`）。
 
+> ✅ 进展（2026-02-02，保持行为不变；每次只改 1 个类闭环）：清理 `bc-evaluation/infrastructure` 的 `UserEvaServiceImpl` 中残留未使用 `UserQueryGateway` import，使该类彻底不再编译期依赖旧 gateway（仅删 import；最小回归通过；落地：`edc3f9c7`）。
+
 > ✅ 进展（2026-02-02，保持行为不变，测试过渡）：为后续收敛 `bc-evaluation/infrastructure` 的 `MsgServiceImpl` 对 `UserQueryGateway` 的编译期依赖，先将 `start` 模块中的 `MsgServiceImplTest` 改为兼容“旧构造（UserQueryGateway）/新构造（Port）”（仅测试代码；最小回归通过；落地：`f593b529`）。
 
 > ✅ 进展（2026-02-02，保持行为不变，端口补齐前置）：为后续收敛 `bc-evaluation/infrastructure` 的 `MsgServiceImpl` 对 `UserQueryGateway.findAllUserId()` 的依赖，已在 `bc-iam-contract` 新增用户ID列表查询端口 `UserAllUserIdQueryPort`（仅新增接口，不改装配/不改行为；最小回归通过；落地：`f244c9d0`）。
