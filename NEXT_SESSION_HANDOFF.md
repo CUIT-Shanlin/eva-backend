@@ -22,6 +22,8 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-02-02（本次会话：S0.2 延伸（IAM：端口下沉以收敛编译期边界）；保持行为不变）**
+- ✅ **IAM 并行（按 10.3：消息查询端口补齐，保持行为不变）**：为后续收敛 `bc-messaging` 的 `MessageQueryPortImpl` 对 `UserQueryGateway` 的编译期依赖做闭环，在 `bc-iam-contract` 新增最小端口 `UserEntityByIdQueryPort`（避免 contract 反向依赖旧领域实体导致 Maven 循环依赖；返回类型为 `Optional<?>`，过渡期实际返回 `UserEntity`），并在 `bc-iam-infra` 新增 `UserEntityByIdQueryPortImpl` 内部委托旧 `UserQueryGateway.findById` 以保持缓存/切面触发点不变；最小回归通过；落地提交：`7875e09e` / `2ea7d39f`。
+- ✅ **消息（依赖收敛，保持行为不变）**：将 `bc-messaging` 的 `MessageQueryPortImpl` 从依赖 `UserQueryGateway` 收敛为依赖 `UserEntityByIdQueryPort`（端口适配器内部仍委托旧 `UserQueryGateway.findById` 以保持缓存/切面触发点不变；异常文案不变）；最小回归通过；落地提交：`17509393`。
 - ✅ **消息（编译闭合前置，保持行为不变）**：为后续将 `bc-messaging` 的 `MessageQueryPortImpl` 对 `UserQueryGateway` 的编译期依赖收敛为依赖 `bc-iam-contract` 的最小 Port 做前置，在 `bc-messaging/pom.xml` 显式增加对 `bc-iam-contract` 的 Maven 编译期依赖（仅显式化依赖边界；最小回归通过）；落地提交：`16a90a5e`。
 - ✅ **评教（依赖收敛收尾，保持行为不变）**：清理 `bc-evaluation/infrastructure` 的 `UserEvaServiceImpl` 残留未使用 `UserQueryGateway` import，使该类彻底不再编译期依赖旧 gateway（仅删 import；行为不变；最小回归通过）；落地提交：`edc3f9c7`。
 - 🧾 **S0.2 延伸（junit-jupiter 口径复核，保持行为不变）**：Serena 盘点 `**/pom.xml` 中 `junit-jupiter` 仅出现在 `bc-iam/application`、`bc-course/application`、`bc-evaluation/application`、`bc-template/application`、`bc-messaging`，且均存在 `src/test/java` 测试源码，因此本次未产生“无测试源码模块”的可清理项。
