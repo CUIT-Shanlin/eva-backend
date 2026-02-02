@@ -3,9 +3,10 @@ package edu.cuit.infra.bcmessaging.adapter;
 import com.alibaba.cola.exception.BizException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import edu.cuit.bc.iam.application.port.UserEntityByIdQueryPort;
 import edu.cuit.bc.messaging.application.port.MessageQueryPort;
 import edu.cuit.domain.entity.MsgEntity;
-import edu.cuit.domain.gateway.user.UserQueryGateway;
+import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.infra.convertor.MsgConvertor;
 import edu.cuit.infra.dal.database.dataobject.MsgTipDO;
 import edu.cuit.infra.dal.database.mapper.MsgTipMapper;
@@ -21,7 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MessageQueryPortImpl implements MessageQueryPort {
     private final MsgTipMapper msgTipMapper;
-    private final UserQueryGateway userQueryGateway;
+    private final UserEntityByIdQueryPort userEntityByIdQueryPort;
     private final MsgConvertor msgConvertor;
 
     @Override
@@ -54,10 +55,10 @@ public class MessageQueryPortImpl implements MessageQueryPort {
                     if (msgTipDO.getSenderId() == null || msgTipDO.getSenderId() < 0) {
                         return null;
                     }
-                    return userQueryGateway.findById(msgTipDO.getSenderId())
+                    return (UserEntity) userEntityByIdQueryPort.findById(msgTipDO.getSenderId())
                             .orElseThrow(() -> new BizException("发送者id不存在"));
                 },
-                () -> userQueryGateway.findById(msgTipDO.getRecipientId())
+                () -> (UserEntity) userEntityByIdQueryPort.findById(msgTipDO.getRecipientId())
                         .orElseThrow(() -> new BizException("接受者id不存在")));
     }
 }
