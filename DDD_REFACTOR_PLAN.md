@@ -921,6 +921,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 > ✅ 进展（2026-02-02，保持行为不变，端口补齐前置）：为后续收敛 `bc-evaluation/infrastructure` 的 `MsgServiceImpl` 对 `UserQueryGateway.findAllUserId()` 的依赖，已在 `bc-iam-contract` 新增用户ID列表查询端口 `UserAllUserIdQueryPort`（仅新增接口，不改装配/不改行为；最小回归通过；落地：`f244c9d0`）。
 
+> ✅ 进展（2026-02-02，保持行为不变，端口适配器实现补齐）：已在 `bc-iam-infra` 新增 `UserAllUserIdQueryPortImpl`，内部委托旧 `UserQueryGateway.findAllUserId()` 以保持缓存/切面触发点不变（最小回归通过；落地：`daff2644`）。
+
 > 补充进展（2026-02-01，保持行为不变，编译闭合前置）：为后续将审计域 `LogInsertionPortImpl` 对 `UserQueryGateway` 的依赖收敛为依赖 IAM contract 端口做前置，已在 `bc-audit/infrastructure/pom.xml` 显式增加对 `bc-iam-contract` 的 Maven 编译期依赖（仅编译边界收敛；最小回归通过；落地：`77bb15b2`）。
 
 > ✅ 进展（2026-02-01，保持行为不变；每次只改 1 个类闭环）：已将审计域 `LogInsertionPortImpl` 从依赖 `UserQueryGateway` 收敛为依赖 `UserBasicQueryPort`（调用链原本就最终委托 `UserBasicQueryPortImpl`，因此缓存命中/回源顺序与历史语义保持不变）；落地：`065183ab`。
