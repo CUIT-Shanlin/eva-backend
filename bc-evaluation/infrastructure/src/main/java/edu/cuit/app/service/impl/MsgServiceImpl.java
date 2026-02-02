@@ -7,6 +7,8 @@ import com.alibaba.cola.exception.SysException;
 import edu.cuit.app.convertor.MsgBizConvertor;
 import edu.cuit.app.convertor.course.CourseBizConvertor;
 import edu.cuit.app.websocket.WebsocketManager;
+import edu.cuit.bc.iam.application.port.UserAllUserIdQueryPort;
+import edu.cuit.bc.iam.application.port.UserBasicQueryPort;
 import edu.cuit.client.api.IMsgService;
 import edu.cuit.client.bo.MessageBO;
 import edu.cuit.client.dto.clientobject.course.SingleCourseCO;
@@ -19,7 +21,6 @@ import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.gateway.MsgGateway;
 import edu.cuit.bc.evaluation.application.port.EvaRecordCountQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaTaskInfoQueryPort;
-import edu.cuit.domain.gateway.user.UserQueryGateway;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -37,7 +38,8 @@ import java.util.concurrent.Executor;
 public class MsgServiceImpl implements IMsgService {
 
     private final MsgGateway msgGateway;
-    private final UserQueryGateway userQueryGateway;
+    private final UserBasicQueryPort userBasicQueryPort;
+    private final UserAllUserIdQueryPort userAllUserIdQueryPort;
     private final EvaTaskInfoQueryPort evaTaskQueryPort;
     private final EvaRecordCountQueryPort evaRecordQueryPort;
 
@@ -141,7 +143,7 @@ public class MsgServiceImpl implements IMsgService {
         String senderName = null;
         if (msg.getIsShowName() == 1) {
             if (msg.getSenderId() != null && msg.getSenderId() >= 0) {
-                senderName = userQueryGateway.findUsernameById(msg.getSenderId())
+                senderName = userBasicQueryPort.findUsernameById(msg.getSenderId())
                         .orElseThrow(() -> {
                             SysException e = new SysException("查找发送者用户信息失败，请联系管理员");
                             log.error("查找发送者用户信息失败，请联系管理员",e);
@@ -160,7 +162,7 @@ public class MsgServiceImpl implements IMsgService {
         if (msg.getRecipientId() == null || msg.getRecipientId() < 0) {
             // 异步处理
             CompletableFuture.runAsync(() -> {
-                for (Integer id : userQueryGateway.findAllUserId()) {
+                for (Integer id : userAllUserIdQueryPort.findAllUserId()) {
                     GenericRequestMsg cloneMsg = ObjectUtil.clone(requestMsg);
                     cloneMsg.setRecipientId(id);
                     msgGateway.insertMessage(cloneMsg);
@@ -171,7 +173,7 @@ public class MsgServiceImpl implements IMsgService {
 
         } else {
             msgGateway.insertMessage(requestMsg);
-            websocketManager.sendMessage(userQueryGateway.findUsernameById(msg.getRecipientId()).orElse(null),responseMsg);
+            websocketManager.sendMessage(userBasicQueryPort.findUsernameById(msg.getRecipientId()).orElse(null),responseMsg);
         }
     }
 
@@ -203,7 +205,7 @@ public class MsgServiceImpl implements IMsgService {
             throw new BizException("用户未登录");
         }
         String loginId = (String) StpUtil.getLoginId();
-        return userQueryGateway.findIdByUsername(loginId)
+        return userBasicQueryPort.findIdByUsername(loginId)
                 .orElseThrow(() -> {
                     SysException sysException = new SysException("因系统原因验证失败，请联系管理员");
                     log.error("因系统原因验证失败，请联系管理员", sysException);
