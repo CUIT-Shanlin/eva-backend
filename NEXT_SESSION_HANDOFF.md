@@ -21,7 +21,7 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
-**2026-02-01（本次会话：S0.2 延伸（IAM：端口下沉以收敛编译期边界）；保持行为不变）**
+**2026-02-02（本次会话：S0.2 延伸（IAM：端口下沉以收敛编译期边界）；保持行为不变）**
 - ✅ **评教（测试过渡，保持行为不变）**：为后续将 `bc-evaluation/infrastructure` 的 `UserEvaServiceImpl` 从依赖 `UserQueryGateway` 收敛为依赖 `UserBasicQueryPort` 做前置，先将 `start/src/test/java/edu/cuit/app/service/impl/eva/UserEvaServiceImplTest.java` 改为同时兼容“旧构造（UserQueryGateway）/新构造（UserBasicQueryPort）”（仅测试代码；最小回归通过）；落地提交：`93ac4799`。
 - ✅ **消息（测试过渡，保持行为不变）**：为后续收敛 `bc-evaluation/infrastructure` 的 `MsgServiceImpl` 对 `UserQueryGateway` 的编译期依赖，先将 `start/src/test/java/edu/cuit/app/service/impl/MsgServiceImplTest.java` 改为兼容“旧构造（UserQueryGateway）/新构造（Port）”（仅测试代码；最小回归通过）；落地提交：`f593b529`。
 - ✅ **IAM 并行（按 10.3：新增用户ID列表查询端口，保持行为不变）**：在 `bc-iam-contract` 新增 `UserAllUserIdQueryPort`（为后续收敛 `bc-evaluation/infrastructure` 的 `MsgServiceImpl` 从依赖 `UserQueryGateway` 到依赖最小 Port 做前置；仅新增接口，不改装配/不改行为；最小回归通过）；落地提交：`f244c9d0`。
@@ -750,7 +750,7 @@
 > 阶段性策略微调（2025-12-29，持续有效）：允许“微调”（仅结构性重构；不改业务语义；缓存/日志/异常文案/副作用顺序完全不变）。在“评教统计导出基础设施归位”与“课程课表解析归位/端口化”闭环后，`bc-messaging` 的“归位 + 依赖收敛”已阶段性闭环（见 0.9）；`bc-course` 的 **S0（旧 gateway 压扁为委托壳）** 已推进到阶段性闭环（见 0.9/0.10）；**S0.2 主目标**（`eva-domain` 去 `bc-course` 编译期依赖）已闭环；当前主线进入 **S0.2 延伸（收敛 `bc-course` 的“协议承载面”，并进一步收敛依赖方对 `bc-course` 的编译期依赖）**，仍按“小步可回滚 + 每步闭环”推进。
 >
 
-### 0.10.1 最新状态 & 下一步建议（滚动更新至 2026-02-01；聚焦：S0.2 延伸（依赖方 pom 收敛）+ IAM 并行（10.3：UserQueryGateway → contract 端口））
+### 0.10.1 最新状态 & 下一步建议（滚动更新至 2026-02-02；聚焦：S0.2 延伸（依赖方 pom 收敛）+ IAM 并行（10.3：UserQueryGateway → contract 端口））
 
 - ✅ **模板锁定能力的“可依赖面”已下沉到 `bc-template-domain`**：`CourseTemplateLockQueryPort`、`CourseTemplateLockService`、`TemplateLockedException` 均可由 `bc-template-domain` 提供（包名不变），从而让依赖方无需编译期绑定 `bc-template` 应用层 jar。
 - ✅ **依赖收敛阶段性验收点**：`eva-infra` / `bc-template-infra` / `bc-course(application)` 均已将对 `bc-template` 的 Maven 依赖收敛为 `bc-template-domain`（保持行为不变；最小回归通过；详见 0.9 与 `docs/DDD_REFACTOR_BACKLOG.md` 4.2）。
@@ -765,14 +765,18 @@
 - ✅ **S0.2 延伸（IAM：依赖收敛，保持行为不变）**：已完成 `EvaRecordCountQueryPort` 下沉至 `bc-evaluation-contract` + `bc-iam-infra` 去 `bc-evaluation` 编译期依赖（落地：`4c30b02c/42a9e96c`；详见 0.9）。
 - 🎯 **下一刀（建议，保持行为不变；每次只改 1 个类或 1 个 pom）**：
   - A（优先：pom，每次只改 1 个 `pom.xml`）：继续做“依赖方 pom 收敛”，优先选择“仅类型引用”的依赖方模块。
-    - 候选 1（较高收益/较低风险）：评估 `bc-ai-report/infrastructure/pom.xml` 是否可将对 `bc-evaluation`（application jar）的依赖收敛为仅依赖 `bc-evaluation-contract`（移除前必须 Serena + `rg` 双证据；保持行为不变）。
+    - 候选 1（更低风险/更可控）：按“单 pom 闭环”清理 **无测试源码模块** 的无用测试依赖（典型：`junit-jupiter(test)`）。建议口径：先 `rg -n "<artifactId>junit-jupiter</artifactId>" --glob "**/pom.xml" .` 盘点，再对单个模块用 `fd -t d src/test <module>` + `rg -n "org\\.junit\\.jupiter" <module>/src` 证伪后移除（保持行为不变）。
     - 候选 2：继续盘点 `eva-domain` / `eva-infra-shared` 等依赖方模块的编译期依赖面（移除前必须 Serena + `rg` 双证据；保持行为不变）。
+    - ⚠️ 纠偏提醒（保持行为不变）：不要直接把 `bc-ai-report/infrastructure` 对 `bc-evaluation` 的依赖替换为 `bc-evaluation-contract` 来“省依赖”；评教导出端口签名当前会触发 Maven 循环依赖（原因见 0.9 / `DDD_REFACTOR_PLAN.md` 10.3）。
   - C（S1：`eva-*` 技术切片整合，短期可落地；保持行为不变）：✅ 已完成：组合根 `start` 已去 `eva-infra(runtime)` 兜底依赖（落地：`1e2ffa89`），`CourseTemplateLockQueryPortImpl` 已归位到 `bc-template-infra`（落地：`9b46d5a7`），且已在 Serena + `rg` 证伪无依赖后从 root reactor 移除 `<module>eva-infra</module>`（落地：`0aab4516`；保持行为不变）。下一刀建议（可选，独立提交，保持行为不变）：评估是否删除 `eva-infra/` 目录与 `eva-infra/pom.xml`（当前仅剩 3 个 `package-info.java`，且已不再参与 reactor/无依赖方）。
   - B（并行：IAM 方向，准备后续“去 eva-domain”，保持行为不变）：
     - ✅ 已完成前置（保持行为不变）：`bc-iam/application/pom.xml` 已显式依赖 `bc-iam-domain`（暂不移除 `eva-domain`），用于为后续“逐个搬运 `edu.cuit.domain.*` 类型到 `bc-iam-domain`（保持 `package` 不变）”做编译闭合前置（落地：`aeaa8471`）。
     - ✅ 已完成前置（保持行为不变）：`bc-iam/domain/pom.xml` 已显式依赖 `bc-iam-contract`，用于为后续搬运“仅依赖 cmd/CO”的 `edu.cuit.domain.gateway.user.*` 接口做编译闭合前置（落地：`2fc02fed`）。
     - ✅ 已完成（保持行为不变）：端口下沉：`UserBasicQueryPort` 已从 `bc-iam/application` 下沉到 `bc-iam-contract`（保持 `package edu.cuit.bc.iam.application.port` 与接口签名不变，仅改变模块归属；落地：`739cb25f`）。
-    - 🎯 推荐下一刀（保持行为不变；每次只改 1 个类闭环）：选择一个“仅需要基础用户查询（username/userId 等）”的依赖方，优先处理 `bc-ai-report/infrastructure/src/main/java/edu/cuit/app/bcaireport/adapter/AiReportUserIdQueryPortImpl.java`，将其对 `edu.cuit.domain.gateway.user.UserQueryGateway` 的依赖收敛为依赖 `edu.cuit.bc.iam.application.port.UserBasicQueryPort`（仅替换该类实际用到的方法；行为不变）。这样依赖方可通过 `bc-iam-contract` 获取同名端口类型，减少对 `eva-domain` 的编译期绑定，同时不提前触碰跨 BC 复用的 `UserQueryGateway/UserEntity` 归属设计。
+    - 🎯 推荐下一刀（保持行为不变；每次只改 1 个类闭环）：继续处理 `bc-evaluation/infrastructure` 中对 `UserQueryGateway` 的编译期依赖收敛（优先复用 `UserBasicQueryPort/UserNameQueryPort/UserAllUserIdQueryPort`；必要时再补“最小新 Port”）。建议候选（先 `rg` 粗定位，再 Serena 符号级确认调用链与副作用点）：
+      - `bc-evaluation/infrastructure/src/main/java/edu/cuit/app/service/impl/eva/EvaTaskServiceImpl.java`
+      - `bc-evaluation/infrastructure/src/main/java/edu/cuit/app/poi/eva/EvaStatisticsExporter.java`（注意：如涉及 `SpringUtil.getBean(...)` 静态初始化，必须保持 getBean 次数/顺序与异常行为不变）
+    - 📌 补充（保持行为不变）：`bc-evaluation/infrastructure/src/main/java/edu/cuit/app/service/impl/eva/UserEvaServiceImpl.java` 当前已切到 `UserBasicQueryPort`，但仍残留未使用的 `import edu.cuit.domain.gateway.user.UserQueryGateway;`，会导致编译期仍绑定 `eva-domain`；可作为一刀“只改 1 个类”顺手清理，彻底去依赖（不改任何业务语义）。
     - 下一步（每次只改 1 个类，保持行为不变）：优先选择一个“仅 IAM 引用且不被 `eva-domain` 内其它类引用”的 `edu.cuit.domain.*` 类型，逐个搬运归位到 `bc-iam-domain`（详见 `DDD_REFACTOR_PLAN.md` 10.3 的 IAM 小节）。
   - 📌 **当前状态快照（截至 2026-01-29，口径=可复现命令；保持行为不变）**：
     - ✅ `eva-adapter` 残留 `*Controller.java` 已清零（口径见 0.10.2；命令：`fd -t f 'Controller\\.java$' eva-adapter/src/main/java | wc -l` → 0）；组合根 `start` 已移除对 `eva-adapter` 的 Maven 依赖（落地：`92a70a9e`；见 `start/pom.xml`；保持行为不变）。
