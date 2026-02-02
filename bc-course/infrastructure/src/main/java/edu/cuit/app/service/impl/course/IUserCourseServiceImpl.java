@@ -14,6 +14,7 @@ import edu.cuit.bc.course.application.usecase.DeleteSelfCourseEntryUseCase;
 import edu.cuit.bc.course.application.usecase.ImportCourseFileEntryUseCase;
 import edu.cuit.bc.course.application.usecase.IsCourseImportedUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateSelfCourseEntryUseCase;
+import edu.cuit.bc.iam.application.port.UserBasicQueryPort;
 import edu.cuit.bc.messaging.application.event.CourseOperationMessageMode;
 import edu.cuit.bc.messaging.application.event.CourseOperationSideEffectsEvent;
 import edu.cuit.client.api.course.IUserCourseService;
@@ -26,7 +27,6 @@ import edu.cuit.client.dto.data.course.CoursePeriod;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
-import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 public class IUserCourseServiceImpl implements IUserCourseService {
     private final CourseQueryGateway courseQueryGateway;
     private final CourseBizConvertor courseConvertor;
-    private final UserQueryGateway userQueryGateway;
+    private final UserBasicQueryPort userBasicQueryPort;
     private final AfterCommitEventPublisher afterCommitEventPublisher;
 
     private final ObjectMapper objectMapper;
@@ -94,7 +94,7 @@ public class IUserCourseServiceImpl implements IUserCourseService {
             throw new BizException("课表类型转换错误");
         }
         Map<String, Map<Integer,Integer>> map = importCourseFileEntryUseCase.importCourseFile(courseExce, semesterCO, type);
-        Integer operatorUserId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId())
+        Integer operatorUserId = userBasicQueryPort.findIdByUsername((String) StpUtil.getLoginId())
                 .orElseThrow(() -> new QueryException("请先登录"));
 
         // 渐进式 DDD 重构：把“导入课表”的跨域副作用（消息通知、撤回评教消息）事件化交给 bc-messaging 处理
@@ -194,7 +194,7 @@ public class IUserCourseServiceImpl implements IUserCourseService {
     public Void deleteSelfCourse(Integer courseId) {
         String userName = String.valueOf(StpUtil.getLoginId());
         Map<String, Map<Integer, Integer>> map = deleteSelfCourseEntryUseCase.deleteSelfCourse(userName, courseId);
-        Integer operatorUserId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId())
+        Integer operatorUserId = userBasicQueryPort.findIdByUsername((String) StpUtil.getLoginId())
                 .orElseThrow(() -> new QueryException("请先登录"));
 
         // 渐进式 DDD 重构：把“教师自助删课”的跨域副作用（消息通知、撤回评教消息）事件化交给 bc-messaging 处理
@@ -206,7 +206,7 @@ public class IUserCourseServiceImpl implements IUserCourseService {
     public Void updateSelfCourse(SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeInfoCO> timeList) {
         String userName = String.valueOf(StpUtil.getLoginId());
         Map<String, Map<Integer, Integer>> mapMsg = updateSelfCourseEntryUseCase.updateSelfCourse(userName, selfTeachCourseCO, timeList);
-        Integer operatorUserId = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId())
+        Integer operatorUserId = userBasicQueryPort.findIdByUsername((String) StpUtil.getLoginId())
                 .orElseThrow(() -> new QueryException("请先登录"));
 
         // 渐进式 DDD 重构：保持历史“携带 taskId 的消息”行为不变，事件化交给 bc-messaging 处理
