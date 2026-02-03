@@ -1,6 +1,7 @@
 package edu.cuit.bc.iam.application.usecase;
 
 import com.alibaba.cola.exception.BizException;
+import edu.cuit.bc.iam.application.port.UserEntityByUsernameQueryPort;
 import edu.cuit.bc.iam.application.contract.dto.cmd.user.UserLoginCmd;
 import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.domain.gateway.user.LdapPersonGateway;
@@ -15,16 +16,25 @@ import edu.cuit.domain.gateway.user.UserQueryGateway;
 public class ValidateUserLoginUseCase {
 
     private final LdapPersonGateway ldapPersonGateway;
-    private final UserQueryGateway userQueryGateway;
+    private final UserEntityByUsernameQueryPort userEntityByUsernameQueryPort;
 
-    public ValidateUserLoginUseCase(LdapPersonGateway ldapPersonGateway, UserQueryGateway userQueryGateway) {
+    public ValidateUserLoginUseCase(LdapPersonGateway ldapPersonGateway,
+                                    UserEntityByUsernameQueryPort userEntityByUsernameQueryPort) {
         this.ldapPersonGateway = ldapPersonGateway;
-        this.userQueryGateway = userQueryGateway;
+        this.userEntityByUsernameQueryPort = userEntityByUsernameQueryPort;
+    }
+
+    /**
+     * 过渡构造：保持历史调用点不变（仍可传入旧 gateway），用于逐步收敛依赖方对旧 gateway 的编译期依赖。
+     */
+    @Deprecated
+    public ValidateUserLoginUseCase(LdapPersonGateway ldapPersonGateway, UserQueryGateway userQueryGateway) {
+        this(ldapPersonGateway, username -> userQueryGateway.findByUsername(username));
     }
 
     public void execute(UserLoginCmd loginCmd) {
         if (ldapPersonGateway.authenticate(loginCmd.getUsername(), loginCmd.getPassword())) {
-            UserEntity user = userQueryGateway.findByUsername(loginCmd.getUsername())
+            UserEntity user = (UserEntity) userEntityByUsernameQueryPort.findByUsername(loginCmd.getUsername())
                     .orElseThrow(() -> new BizException("用户名未找到"));
             if (user.getStatus() == 0) {
                 throw new BizException("该账户已被停用，请联系管理员");
@@ -34,4 +44,3 @@ public class ValidateUserLoginUseCase {
         throw new BizException("用户名或密码错误");
     }
 }
-
