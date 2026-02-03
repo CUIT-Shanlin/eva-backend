@@ -886,8 +886,9 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（保持行为不变）：已在 `bc-iam-infrastructure` 的 `UserEntityByUsernameQueryPortImpl` 补齐实现 `UserPermissionAndRoleQueryPort`（内部仍委托旧 `UserQueryGateway.findByUsername`；权限/角色筛选逻辑与 `StpInterfaceImpl` 现有实现一致；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ 补充进展（保持行为不变，编译闭合前置）：已在 `eva-infra-shared/pom.xml` 显式增加对 `bc-iam-contract` 的 Maven 编译期依赖，用于后续将 `StpInterfaceImpl` 从依赖 `UserQueryGateway` 收敛为依赖 contract 端口（详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ 已完成（保持行为不变）：`eva-infra-shared/src/main/java/edu/cuit/app/security/StpInterfaceImpl.java` 已从编译期依赖 `UserQueryGateway` 收敛为依赖 `bc-iam-contract` 端口（详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
+- ✅ 已完成（保持行为不变）：`eva-infra-shared/src/main/java/edu/cuit/app/convertor/MsgBizConvertor.java` 已从编译期依赖 `UserQueryGateway` 收敛为依赖 `bc-iam-contract` 端口 `UserEntityByIdQueryPort`（端口适配器内部仍委托旧 `UserQueryGateway.findById`；消息 recipient/sender lazy-load 语义不变；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ⏳ 下一刀建议（保持行为不变；每步只改 1 个类，必要时拆成“新增最小 Port → 新增适配器 → 再改依赖方”多刀闭环）：
-  - B：`eva-infra-shared/src/main/java/edu/cuit/app/convertor/MsgBizConvertor.java`（MapStruct：先证据化其使用 gateway 的方法面）
+  - （待定）：继续用 `rg -n \"\\bUserQueryGateway\\b\" eva-infra-shared/src/main/java | head` 证伪 `eva-infra-shared` 是否仍存在旧 gateway 编译期依赖；若无命中则转入下一批依赖方模块继续收敛（保持行为不变）。
 
 #### bc-iam（IAM）S0.2 延伸：收敛 `bc-iam(application)` 对 `eva-domain` 的编译期依赖（保持行为不变）
 
