@@ -15,6 +15,10 @@ import edu.cuit.client.api.course.ICourseDetailService;
 import edu.cuit.client.api.course.ICourseService;
 import edu.cuit.client.api.course.IUserCourseService;
 import edu.cuit.client.api.eva.IEvaTaskService;
+import edu.cuit.bc.iam.application.port.UserBasicQueryPort;
+import edu.cuit.bc.iam.application.port.UserDirectoryPageQueryPort;
+import edu.cuit.bc.iam.application.port.UserEntityByIdQueryPort;
+import edu.cuit.bc.iam.application.port.UserEntityByUsernameQueryPort;
 import edu.cuit.bc.iam.application.contract.api.user.IUserService;
 import edu.cuit.bc.iam.application.usecase.AssignRoleUseCase;
 import edu.cuit.bc.iam.application.usecase.CreateUserUseCase;
@@ -39,7 +43,6 @@ import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.bc.evaluation.application.port.EvaRecordCountQueryPort;
 import edu.cuit.domain.gateway.user.LdapPersonGateway;
-import edu.cuit.domain.gateway.user.UserQueryGateway;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -55,7 +58,10 @@ import java.util.*;
 @Slf4j
 public class UserServiceImpl implements IUserService {
 
-    private final UserQueryGateway userQueryGateway;
+    private final UserEntityByIdQueryPort userEntityByIdQueryPort;
+    private final UserEntityByUsernameQueryPort userEntityByUsernameQueryPort;
+    private final UserBasicQueryPort userBasicQueryPort;
+    private final UserDirectoryPageQueryPort userDirectoryPageQueryPort;
     private final AssignRoleUseCase assignRoleUseCase;
     private final CreateUserUseCase createUserUseCase;
     private final UpdateUserInfoUseCase updateUserInfoUseCase;
@@ -79,7 +85,8 @@ public class UserServiceImpl implements IUserService {
     @Override
     @Transactional
     public UserInfoCO getOneUserInfo(Integer id) {
-        UserEntity user = userQueryGateway.findById(id)
+        UserEntity user = userEntityByIdQueryPort.findById(id)
+                .map(UserEntity.class::cast)
                 .orElseThrow(() -> new BizException("该用户不存在"));
         return getUserInfo(user);
     }
@@ -87,8 +94,9 @@ public class UserServiceImpl implements IUserService {
     @Override
     @Transactional
     public PaginationQueryResultCO<UserInfoCO> pageUserInfo(PagingQuery<GenericConditionalQuery> query) {
-        PaginationResultEntity<UserEntity> userEntityPage = userQueryGateway.page(query);
+        PaginationResultEntity<?> userEntityPage = userDirectoryPageQueryPort.page(query);
         List<UserInfoCO> results = userEntityPage.getRecords().stream()
+                .map(UserEntity.class::cast)
                 .map(this::getUserInfo)
                 .toList();
         return paginationBizConvertor.toPaginationEntity(userEntityPage, results);
@@ -98,7 +106,7 @@ public class UserServiceImpl implements IUserService {
     @Transactional
     @CheckSemId
     public List<UserSingleCourseScoreCO> getOneUserScore(Integer userId, Integer semId) {
-        List<SelfTeachCourseCO> courseInfoList = courseQueryGateway.getSelfCourseInfo(userQueryGateway.findUsernameById(userId)
+        List<SelfTeachCourseCO> courseInfoList = courseQueryGateway.getSelfCourseInfo(userBasicQueryPort.findUsernameById(userId)
                 .orElseThrow(() -> new SysException("找不到用户名")), semId);
 
         List<UserSingleCourseScoreCO> resultList = new ArrayList<>();
@@ -134,14 +142,15 @@ public class UserServiceImpl implements IUserService {
     @Override
     @Transactional
     public List<SimpleResultCO> getAllUserInfo() {
-        return userQueryGateway.allUser();
+        return userDirectoryPageQueryPort.allUser();
     }
 
     @Override
     @Transactional
     public UserInfoCO getSelfUserInfo() {
         String username = (String) StpUtil.getLoginId();
-        return getUserInfo(userQueryGateway.findByUsername(username)
+        return getUserInfo(userEntityByUsernameQueryPort.findByUsername(username)
+                .map(UserEntity.class::cast)
                 .orElseThrow(() -> {
                     SysException e = new SysException("用户数据查找失败，请联系管理员");
                     log.error("系统异常", e);
@@ -152,7 +161,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     @Transactional
     public Integer getIdByUsername(String username) {
-        return userQueryGateway.findIdByUsername(username).orElseThrow(() -> new BizException("用户名未找到"));
+        return userBasicQueryPort.findIdByUsername(username).orElseThrow(() -> new BizException("用户名未找到"));
     }
 
     @Override
@@ -164,7 +173,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     @Transactional
     public Boolean isUsernameExist(String username) {
-        return userQueryGateway.isUsernameExist(username);
+        return userBasicQueryPort.isUsernameExist(username);
     }
 
     @Override
@@ -177,10 +186,10 @@ public class UserServiceImpl implements IUserService {
     @Transactional
     public void updateInfo(Boolean isUpdatePwd, UpdateUserCmd cmd) {
         int id = Math.toIntExact(cmd.getId());
-        String username = userQueryGateway.findUsernameById(Math.toIntExact(cmd.getId()))
+        String username = userBasicQueryPort.findUsernameById(Math.toIntExact(cmd.getId()))
                 .orElseThrow(() -> new BizException("用户ID不存在"));
 
-        if (!userQueryGateway.getUserStatus(id).orElseThrow(() -> {
+        if (!userBasicQueryPort.getUserStatus(id).orElseThrow(() -> {
             SysException e = new SysException("用户状态查找失败");
             log.error("发生系统异常", e);
             return e;
@@ -190,7 +199,7 @@ public class UserServiceImpl implements IUserService {
         if (isUpdatePwd) {
             String password = cmd.getPassword();
             if (StrUtil.isBlank(password)) throw new BizException("密码不能为空");
-            ldapPersonGateway.changePassword(userQueryGateway.findUsernameById(id)
+            ldapPersonGateway.changePassword(userBasicQueryPort.findUsernameById(id)
                     .orElseThrow(() -> {
                         SysException e = new SysException("找不到用户名，请联系管理员");
                         log.error("发生系统异常", e);
@@ -204,7 +213,7 @@ public class UserServiceImpl implements IUserService {
                 throw new BizException(e.getMessage() + " (但是密码已成功修改)");
             }
         } else updateUserInfoUseCase.execute(cmd);
-        if (!userQueryGateway.findUsernameById(id).orElseThrow(() -> {
+        if (!userBasicQueryPort.findUsernameById(id).orElseThrow(() -> {
             SysException e = new SysException("用户名查找失败");
             log.error("发生系统异常", e);
             return e;
@@ -217,7 +226,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     @Transactional
     public void updateOwnInfo(UpdateUserCmd cmd) {
-        Optional<Integer> id = userQueryGateway.findIdByUsername((String) StpUtil.getLoginId());
+        Optional<Integer> id = userBasicQueryPort.findIdByUsername((String) StpUtil.getLoginId());
         cmd.setId(Long.valueOf(id.orElseThrow(() -> {
             SysException e = new SysException("用户id查询失败");
             log.error("发生系统异常", e);
@@ -229,7 +238,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     @Transactional
     public void changePassword(Integer userId, UpdatePasswordCmd cmd) {
-        String username = userQueryGateway.findUsernameById(userId)
+        String username = userBasicQueryPort.findUsernameById(userId)
                 .orElseThrow(() -> new BizException("用户不存在"));
         if (!ldapPersonGateway.authenticate(username, cmd.getOldPassword())) {
             throw new BizException("旧密码输入错误");
@@ -248,7 +257,7 @@ public class UserServiceImpl implements IUserService {
     public void updateStatus(Integer userId, Integer status) {
         updateUserStatusUseCase.execute(userId, status);
         if (status == 0) {
-            StpUtil.logout(userQueryGateway.findUsernameById(Math.toIntExact(userId))
+            StpUtil.logout(userBasicQueryPort.findUsernameById(Math.toIntExact(userId))
                     .orElseThrow(() -> new BizException("用户ID不存在")));
         }
     }
@@ -284,7 +293,7 @@ public class UserServiceImpl implements IUserService {
     public void syncLdap() {
         List<NewUserCmd> cmdList = ldapPersonGateway.findAll().stream()
                 .map(userBizConvertor::toNewUserCmd).toList();
-        Set<String> usernameSet = new HashSet<>(userQueryGateway.findAllUsername());
+        Set<String> usernameSet = new HashSet<>(userDirectoryPageQueryPort.findAllUsername());
         for (NewUserCmd newUserCmd : cmdList) {
             if (usernameSet.contains(newUserCmd.getUsername())) continue;
             try {
