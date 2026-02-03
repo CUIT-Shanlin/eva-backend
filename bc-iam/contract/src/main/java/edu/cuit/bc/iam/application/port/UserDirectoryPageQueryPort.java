@@ -16,7 +16,7 @@ import java.util.List;
  * <p>注意：返回类型使用 {@code PaginationResultEntity<?>}，避免在 contract 中直接暴露旧领域实体类型导致 Maven 循环依赖；
  * 过渡期 records 实际元素为 {@code edu.cuit.domain.entity.user.biz.UserEntity}。</p>
  */
-public interface UserDirectoryQueryPort {
+public interface UserDirectoryPageQueryPort {
 
     /**
      * 分页获取用户信息（沿用旧 gateway 语义）。
@@ -33,4 +33,3 @@ public interface UserDirectoryQueryPort {
      */
     List<String> findAllUsername();
 }
-
