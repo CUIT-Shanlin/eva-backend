@@ -2,6 +2,7 @@ package edu.cuit.app.service.impl.eva;
 import cn.dev33.satoken.stp.StpUtil;
 import com.alibaba.cola.exception.BizException;
 import com.alibaba.cola.exception.SysException;
+import edu.cuit.bc.iam.application.port.UserBasicQueryPort;
 import edu.cuit.bc.evaluation.application.model.PostEvaTaskCommand;
 import edu.cuit.bc.evaluation.application.usecase.EvaTaskQueryUseCase;
 import edu.cuit.bc.evaluation.application.usecase.PostEvaTaskUseCase;
@@ -22,7 +23,6 @@ import edu.cuit.domain.gateway.eva.EvaConfigGateway;
 import edu.cuit.domain.gateway.eva.EvaDeleteGateway;
 import edu.cuit.bc.evaluation.application.port.EvaTaskInfoQueryPort;
 import edu.cuit.domain.gateway.eva.EvaUpdateGateway;
-import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
@@ -40,7 +40,7 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
     private final EvaUpdateGateway evaUpdateGateway;
     private final EvaTaskInfoQueryPort evaTaskInfoQueryPort;
     private final EvaDeleteGateway evaDeleteGateway;
-    private final UserQueryGateway userQueryGateway;
+    private final UserBasicQueryPort userBasicQueryPort;
     private final CourseQueryGateway courseQueryGateway;
     private final EvaConfigGateway evaConfigGateway;
     private final IMsgService msgService;
@@ -54,7 +54,7 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
     @Override
     @CheckSemId
     public List<EvaTaskDetailInfoCO> evaSelfTaskInfo(Integer semId, String keyword) {
-        Integer useId=userQueryGateway.findIdByUsername(String.valueOf(StpUtil.getLoginId())).orElseThrow(()->new SysException("并没有找到该用户id"));
+        Integer useId=userBasicQueryPort.findIdByUsername(String.valueOf(StpUtil.getLoginId())).orElseThrow(()->new SysException("并没有找到该用户id"));
         return evaTaskQueryUseCase.evaSelfTaskInfo(useId, semId, keyword);
     }
 
@@ -86,7 +86,7 @@ public class EvaTaskServiceImpl implements IEvaTaskService {
     }
     @Override
     public Void cancelMyEvaTask(Integer id) {
-        Integer useId=userQueryGateway.findIdByUsername(String.valueOf(StpUtil.getLoginId())).orElseThrow(() -> new SysException("用户未找到"));
+        Integer useId=userBasicQueryPort.findIdByUsername(String.valueOf(StpUtil.getLoginId())).orElseThrow(() -> new SysException("用户未找到"));
         EvaTaskEntity evaTaskEntity=evaTaskInfoQueryPort.oneEvaTaskInfo(id).orElseThrow(() -> new BizException("该任务不存在"));
         if(!Objects.equals(evaTaskEntity.getTeacher().getId(), useId)){
             throw new QueryException("不能删去不是自己评教的任务");
