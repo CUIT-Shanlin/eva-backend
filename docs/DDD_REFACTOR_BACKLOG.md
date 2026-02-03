@@ -109,7 +109,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
-**已完成（更新至 2026-02-02）**
+**已完成（更新至 2026-02-03）**
+- ✅ IAM 并行（按 10.3：EvaTaskServiceImpl 依赖收敛；保持行为不变）：将 `bc-evaluation/infrastructure` 的 `EvaTaskServiceImpl` 从依赖 `UserQueryGateway` 收敛为依赖 `UserBasicQueryPort`（异常文案/副作用顺序不变；最小回归通过）；落地：`72bd00d9`。
 - ✅ S0.2 延伸（IAM：端口下沉：UserBasicQueryPort → bc-iam-contract，保持行为不变）：将 `UserBasicQueryPort` 从 `bc-iam/application` 下沉到 `bc-iam-contract`（保持 `package edu.cuit.bc.iam.application.port` 与接口签名不变，仅改变 Maven 模块归属；最小回归通过）；落地：`739cb25f`。
 - ✅ IAM 并行（按 10.3：新增 UserNameQueryPort，保持行为不变）：在 `bc-iam-contract` 新增 `UserNameQueryPort`（为后续收敛 AI 报告基础设施对 `UserQueryGateway` 的依赖做前置；仅新增接口，不改装配/不改行为；最小回归通过）；落地：`cfccf4ca`。
 - ✅ IAM 并行（按 10.3：新增 UserNameQueryPortImpl，保持行为不变）：在 `bc-iam-infrastructure` 新增 `UserNameQueryPortImpl`，内部委托旧 `UserQueryGateway.findById` 以保持缓存/切面触发点不变（为后续 `AiReportAnalysisPortImpl` 依赖收敛闭合编译；最小回归通过）；落地：`8852b859`。

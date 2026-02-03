@@ -835,9 +835,10 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
       - 可复现现状口径（更新至 2026-02-02，保持行为不变）：
         - root reactor 仍包含：`eva-domain`、`eva-infra-dal`、`eva-infra-shared`、`eva-base`（口径：`rg -n '<module>eva-' pom.xml`）。
         - `eva-domain` 仍被多个 BC 编译期依赖（口径：`rg -n '<artifactId>eva-domain</artifactId>' --glob '**/pom.xml' .`，当前至少包含 `bc-iam/application`、`bc-course/application`、`bc-evaluation/application`、`bc-messaging`、`eva-infra-shared`），且这些模块 `src/main/java` 仍直接 `import edu.cuit.domain.*`，因此短期无法移除 `eva-domain`。
-        - IAM 并行（10.3）侧：仍存在少量“依赖方对 `UserQueryGateway` 的编译期依赖”残留，需要继续收敛为 `bc-iam-contract` 最小 Port（例如 `bc-evaluation/infrastructure` 的 `EvaTaskServiceImpl`、`EvaStatisticsExporter`，以及 `bc-messaging` 的 `MessageQueryPortImpl`；保持行为不变，注意 `SpringUtil.getBean(...)` 次数/顺序不变）。
+        - IAM 并行（10.3）侧：仍存在少量“依赖方对 `UserQueryGateway` 的编译期依赖”残留，需要继续收敛为 `bc-iam-contract` 最小 Port（例如 `bc-evaluation/infrastructure` 的 `EvaStatisticsExporter`，以及 `bc-messaging` 的 `MessageQueryPortImpl`；保持行为不变，注意 `SpringUtil.getBean(...)` 次数/顺序不变）。
         - ✅ 编译闭合前置（2026-02-02，保持行为不变）：为后续收敛 `bc-messaging` 的 `MessageQueryPortImpl` 对 `UserQueryGateway` 的编译期依赖，在 `bc-messaging/pom.xml` 显式增加对 `bc-iam-contract` 的 Maven 编译期依赖（仅显式化依赖边界；最小回归通过；落地：`16a90a5e`）。
         - ✅ 已完成（2026-02-02，保持行为不变）：已在 `bc-iam-contract` 新增最小端口 `UserEntityByIdQueryPort` 并在 `bc-iam-infra` 补齐 `UserEntityByIdQueryPortImpl`（内部委托旧 `UserQueryGateway.findById` 以保持缓存/切面触发点不变），并将 `bc-messaging` 的 `MessageQueryPortImpl` 从依赖 `UserQueryGateway` 收敛为依赖该端口（异常文案不变；最小回归通过；落地：`7875e09e` / `2ea7d39f` / `17509393`）。
+        - ✅ 已完成（2026-02-03，保持行为不变）：已将 `bc-evaluation/infrastructure` 的 `EvaTaskServiceImpl` 从依赖 `UserQueryGateway` 收敛为依赖 `UserBasicQueryPort`（异常文案/副作用顺序不变；最小回归通过；落地：`72bd00d9`）。
         - 量化快照（口径=可复现命令）：`eva-domain` 29 个 Java 文件、`eva-infra-dal` 36 个、`eva-infra-shared` 47 个。
       - ✅ 已完成（保持行为不变；每次只改 1 个 `pom.xml`）：在 Serena + `rg` 证伪 “全仓库已无 `eva-infra` 的 dependency 声明”后，已从 root reactor 移除 `<module>eva-infra</module>`（每步闭环；落地：`0aab4516`）。下一步（可选，独立提交）：评估是否删除 `eva-infra/` 目录与 `eva-infra/pom.xml`（当前已不再参与 reactor/无依赖方）。
 
