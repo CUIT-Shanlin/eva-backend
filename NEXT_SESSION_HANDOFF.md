@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-02-03（本次会话：IAM 并行（10.3）：评教旧入口去 `UserQueryGateway` 编译期依赖；保持行为不变）**
+- ✅ **IAM 并行（按 10.3：UserServiceImpl 依赖收敛，保持行为不变）**：将 `bc-iam/infrastructure` 的 `UserServiceImpl` 从编译期依赖 `UserQueryGateway` 收敛为依赖 `bc-iam-contract` 端口 `UserEntityByIdQueryPort/UserEntityByUsernameQueryPort/UserBasicQueryPort/UserDirectoryPageQueryPort`（端口适配器内部仍委托旧 `UserQueryGateway` 以保持缓存/切面触发点不变；方法调用次数/顺序不变；异常文案不变）；最小回归通过；落地提交：`cc6f6d63`。
 - ✅ **IAM 并行（按 10.3：补齐用户目录/分页端口（前置），保持行为不变）**：在 `bc-iam-contract` 新增 `UserDirectoryPageQueryPort`（原误命名为 `UserDirectoryQueryPort`，与 `bc-iam/application` 同名端口冲突已更名；涵盖 `page/allUser/findAllUsername`；分页返回 `PaginationResultEntity<?>`，避免 contract 暴露旧领域实体触发 Maven 循环依赖风险），用于后续将 `bc-iam/infrastructure` 的 `UserServiceImpl` 去 `UserQueryGateway` 编译期依赖；最小回归通过；落地提交：`d7e7216e`。
 - ✅ **IAM 并行（按 10.3：补齐端口适配器实现，保持行为不变）**：在 `bc-iam-infra` 新增 `UserDirectoryPageQueryPortImpl`，内部委托旧 `UserQueryGateway.page/allUser/findAllUsername` 以保持缓存/切面触发点不变（用于闭合后续 `UserServiceImpl` 依赖收敛后的 Spring 装配）；最小回归通过；落地提交：`524d7ba3`。
 - ✅ **IAM 并行（按 10.3：去无用编译期依赖（DepartmentGatewayImpl），保持行为不变）**：清理 `DepartmentGatewayImpl` 中未使用的 `UserQueryGateway/QueryException` import，使该类不再编译期依赖旧 gateway（仅删 import；行为不变；最小回归通过）；落地提交：`f29572d2`。
