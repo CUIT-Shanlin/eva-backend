@@ -6,8 +6,9 @@ import edu.cuit.client.dto.cmd.SendMessageCmd;
 import edu.cuit.client.dto.data.msg.EvaResponseMsg;
 import edu.cuit.client.dto.data.msg.GenericRequestMsg;
 import edu.cuit.client.dto.data.msg.GenericResponseMsg;
+import edu.cuit.bc.iam.application.port.UserEntityByIdQueryPort;
 import edu.cuit.domain.entity.MsgEntity;
-import edu.cuit.domain.gateway.user.UserQueryGateway;
+import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.infra.convertor.EntityFactory;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -18,11 +19,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * 消息业务对象转换器
  */
-@Mapper(componentModel = "spring",uses = {EntityFactory.class, UserQueryGateway.class},unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", uses = {EntityFactory.class}, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public abstract class MsgBizConvertor {
 
     @Autowired
-    protected UserQueryGateway userQueryGateway;
+    protected UserEntityByIdQueryPort userEntityByIdQueryPort;
 
     @Mappings({
             @Mapping(target = "recipientId", expression = "java(msg.getRecipient().getId())"),
@@ -61,9 +62,13 @@ public abstract class MsgBizConvertor {
     public abstract MessageBO toMessageBO(SendMessageCmd cmd,Integer senderId);
 
     @Mappings({
-            @Mapping(target = "recipient", expression = "java(() -> userQueryGateway.findById(msg.getRecipientId()).orElse(null))"),
-            @Mapping(target = "sender", expression = "java(() -> userQueryGateway.findById(msg.getSenderId()).orElse(null))")
+            @Mapping(target = "recipient", expression = "java(() -> findUserEntityById(msg.getRecipientId()))"),
+            @Mapping(target = "sender", expression = "java(() -> findUserEntityById(msg.getSenderId()))")
     })
     public abstract MsgEntity toMsgEntity(GenericRequestMsg msg);
+
+    protected UserEntity findUserEntityById(Integer userId) {
+        return (UserEntity) userEntityByIdQueryPort.findById(userId).orElse(null);
+    }
 
 }
