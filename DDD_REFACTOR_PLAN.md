@@ -877,6 +877,15 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 已完成（保持行为不变）：`UserUpdateController`（落地：`5ee37fd2`）、`DepartmentController`（落地：`fbc5fb74`）、`AuthenticationController`（落地：`fd9e4d1c`）、`MenuUpdateController`（落地：`44bc649d`）、`RoleUpdateController`（落地：`c81eb2e0`）。
 - 验收口径（每步闭环）：Serena（符号级定位 + 引用分析）→ 最小回归（`mvnd -pl start -am test ...`）→ `git commit` → 同步三文档 → `git commit` → `git push`。
 
+#### IAM 并行（10.3）：继续清理 `UserQueryGateway` 编译期依赖（优先 eva-infra-shared，保持行为不变）
+
+> 背景：目前 `bc-iam/**` 的端口适配器与旧 `UserQueryGatewayImpl` 允许继续引用 `UserQueryGateway`（用于承载缓存/切面触发点），但**依赖方**应逐步只依赖 `bc-iam-contract` 最小 Port。
+
+- ✅ 已完成（保持行为不变）：`bc-iam/infrastructure` 的 `UserServiceImpl` 已从编译期依赖 `UserQueryGateway` 收敛为依赖 `bc-iam-contract` 端口（详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
+- ⏳ 下一刀建议（保持行为不变；每步只改 1 个类，必要时拆成“新增最小 Port → 新增适配器 → 再改依赖方”多刀闭环）：
+  - A：`eva-infra-shared/src/main/java/edu/cuit/app/security/StpInterfaceImpl.java`
+  - B：`eva-infra-shared/src/main/java/edu/cuit/app/convertor/MsgBizConvertor.java`（MapStruct：先证据化其使用 gateway 的方法面）
+
 #### bc-iam（IAM）S0.2 延伸：收敛 `bc-iam(application)` 对 `eva-domain` 的编译期依赖（保持行为不变）
 
 > 背景：当前 `bc-iam/application/src/main/java` 仍直接 `import edu.cuit.domain.*`（例如 `UserEntity/UserQueryGateway/LdapPersonGateway/DepartmentGateway` 等），因此暂不能直接移除 `bc-iam/application/pom.xml` 对 `eva-domain` 的依赖。

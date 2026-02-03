@@ -655,6 +655,12 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - **S1（IAM：Controller 入口壳结构性收敛，保持行为不变）**：
   - ✅ 已完成：`UserUpdateController`（落地：`5ee37fd2`）、`DepartmentController`（落地：`fbc5fb74`）、`AuthenticationController`（落地：`fd9e4d1c`）、`MenuUpdateController`（落地：`44bc649d`）、`RoleUpdateController`（落地：`c81eb2e0`）。
 
+- **IAM 并行（10.3：继续清理 `UserQueryGateway` 编译期依赖，保持行为不变）**：
+  - ✅ 已完成：`bc-iam/infrastructure` 的 `UserServiceImpl` 已从编译期依赖 `UserQueryGateway` 收敛为依赖 `bc-iam-contract` 最小 Port（并已同步测试过渡；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
+  - ⏳ 未完成（建议优先）：`eva-infra-shared/src/main/java` 仍有 `UserQueryGateway` 引用点，需继续收敛为 `bc-iam-contract` 最小 Port（端口适配器内部仍委托旧 gateway 以保持缓存/切面触发点不变）。
+    - 候选 1：`eva-infra-shared/src/main/java/edu/cuit/app/security/StpInterfaceImpl.java`
+    - 候选 2：`eva-infra-shared/src/main/java/edu/cuit/app/convertor/MsgBizConvertor.java`
+
 - **S0.2 延伸（IAM：依赖收敛 + 去 `eva-domain` 前置，保持行为不变）**：
   - ✅ 已完成（端口下沉，保持行为不变）：`EvaRecordCountQueryPort` 已从 `bc-evaluation/application` 下沉到 `bc-evaluation-contract`（保持 `package` 不变；落地：`4c30b02c`）。
   - ✅ 已完成（依赖收敛，保持行为不变）：`bc-iam/infrastructure/pom.xml` 已移除对 `bc-evaluation`（application jar）的编译期依赖，仅保留 `bc-evaluation-contract`（落地：`42a9e96c`）。
