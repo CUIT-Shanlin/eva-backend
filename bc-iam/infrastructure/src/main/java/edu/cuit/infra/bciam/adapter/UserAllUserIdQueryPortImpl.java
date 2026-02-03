@@ -1,11 +1,12 @@
 package edu.cuit.infra.bciam.adapter;
 
-import edu.cuit.bc.iam.application.port.UserAllUserIdQueryPort;
+import edu.cuit.bc.iam.application.port.UserAllUserIdAndEntityByIdQueryPort;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * bc-iam：用户ID列表查询端口适配器（保持历史行为不变）。
@@ -14,7 +15,7 @@ import java.util.List;
  */
 @Component
 @RequiredArgsConstructor
-public class UserAllUserIdQueryPortImpl implements UserAllUserIdQueryPort {
+public class UserAllUserIdQueryPortImpl implements UserAllUserIdAndEntityByIdQueryPort {
 
     private final UserQueryGateway userQueryGateway;
 
@@ -22,5 +23,9 @@ public class UserAllUserIdQueryPortImpl implements UserAllUserIdQueryPort {
     public List<Integer> findAllUserId() {
         return userQueryGateway.findAllUserId();
     }
-}
 
+    @Override
+    public Optional<?> findById(Integer id) {
+        return userQueryGateway.findById(id);
+    }
+}
