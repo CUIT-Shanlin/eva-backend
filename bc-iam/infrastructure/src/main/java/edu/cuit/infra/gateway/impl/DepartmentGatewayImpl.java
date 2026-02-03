@@ -1,11 +1,9 @@
 package edu.cuit.infra.gateway.impl;
 
 import edu.cuit.domain.gateway.DepartmentGateway;
-import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.zhuyimeng.framework.cache.aspect.annotation.local.LocalCached;
-import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
