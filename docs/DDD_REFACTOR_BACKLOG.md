@@ -110,6 +110,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-02-03）**
+- ✅ IAM 并行（按 10.3：UserAuthServiceImpl 依赖收敛（过渡）；保持行为不变）：将 `bc-iam-infrastructure` 的 `UserAuthServiceImpl` 从编译期依赖 `UserQueryGateway` 收敛为依赖 `bc-iam-contract` 最小端口 `UserEntityByUsernameQueryPort`（调用顺序不变：仍先 `ValidateUserLoginUseCase.execute` 再 `StpUtil.login`；内部仍委托旧 `UserQueryGateway.findByUsername` 以保持缓存/切面触发点不变；异常文案不变）；最小回归通过；落地：`48d0eb7e`。
 - ✅ IAM 并行（按 10.3：ValidateUserLoginUseCase 依赖收敛（过渡）；保持行为不变）：将 `bc-iam/application` 的 `ValidateUserLoginUseCase` 从依赖 `UserQueryGateway` 收敛为依赖 `bc-iam-contract` 最小端口 `UserEntityByUsernameQueryPort`（内部仍由端口适配器委托旧 `UserQueryGateway.findByUsername` 以保持缓存/切面触发点不变；异常文案与分支顺序不变）；同时保留一个 `@Deprecated` 旧构造用于过渡/回滚；最小回归通过；落地：`66329367`。
 - ✅ IAM 并行（按 10.3：补齐按用户名查询用户实体端口（前置）；保持行为不变）：在 `bc-iam-contract` 新增最小端口 `UserEntityByUsernameQueryPort`（返回 `Optional<?>`，避免 contract 反向依赖旧领域实体导致 Maven 循环依赖；后续由端口适配器内部委托旧 `UserQueryGateway.findByUsername` 以保持缓存/切面触发点不变）；最小回归通过；落地：`02827d19`。
 - ✅ IAM 并行（按 10.3：补齐按用户名查询用户实体端口适配器（前置）；保持行为不变）：在 `bc-iam-infrastructure` 新增 `UserEntityByUsernameQueryPortImpl`，内部委托旧 `UserQueryGateway.findByUsername` 以保持缓存/切面触发点不变（为后续将 `ValidateUserLoginUseCase` 去 `UserQueryGateway` 编译期依赖闭合装配前置）；最小回归通过；落地：`5c18aa08`。
