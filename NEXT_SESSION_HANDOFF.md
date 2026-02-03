@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-02-03（本次会话：IAM 并行（10.3）：评教旧入口去 `UserQueryGateway` 编译期依赖；保持行为不变）**
+- ✅ **IAM 并行（按 10.3：补齐鉴权权限/角色查询最小端口（前置），保持行为不变）**：在 `bc-iam-contract` 新增 `UserPermissionAndRoleQueryPort`（为后续 `eva-infra-shared` 的 `StpInterfaceImpl` 去 `UserQueryGateway` 编译期依赖做前置；仅新增接口，不改装配/不改行为；最小回归通过）；落地提交：`315c118d`。
 - ✅ **测试过渡（保持行为不变）**：将 `start` 模块中的 `UserServiceImplTest` 从 mock `UserQueryGateway` 调整为 mock `bc-iam-contract` 端口（重点适配 `getOneUserScore` 使用的 `UserBasicQueryPort.findUsernameById`），以匹配 `UserServiceImpl` 构造参数收敛后的新依赖形态；最小回归通过；落地提交：`c30c4e0c`。
 - ✅ **IAM 并行（按 10.3：UserServiceImpl 依赖收敛，保持行为不变）**：将 `bc-iam/infrastructure` 的 `UserServiceImpl` 从编译期依赖 `UserQueryGateway` 收敛为依赖 `bc-iam-contract` 端口 `UserEntityByIdQueryPort/UserEntityByUsernameQueryPort/UserBasicQueryPort/UserDirectoryPageQueryPort`（端口适配器内部仍委托旧 `UserQueryGateway` 以保持缓存/切面触发点不变；方法调用次数/顺序不变；异常文案不变）；最小回归通过；落地提交：`cc6f6d63`。
 - ✅ **IAM 并行（按 10.3：补齐用户目录/分页端口（前置），保持行为不变）**：在 `bc-iam-contract` 新增 `UserDirectoryPageQueryPort`（原误命名为 `UserDirectoryQueryPort`，与 `bc-iam/application` 同名端口冲突已更名；涵盖 `page/allUser/findAllUsername`；分页返回 `PaginationResultEntity<?>`，避免 contract 暴露旧领域实体触发 Maven 循环依赖风险），用于后续将 `bc-iam/infrastructure` 的 `UserServiceImpl` 去 `UserQueryGateway` 编译期依赖；最小回归通过；落地提交：`d7e7216e`。

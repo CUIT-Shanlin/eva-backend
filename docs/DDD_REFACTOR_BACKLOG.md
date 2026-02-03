@@ -110,6 +110,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-02-03）**
+- ✅ IAM 并行（按 10.3：补齐鉴权权限/角色查询最小端口（前置）；保持行为不变）：在 `bc-iam-contract` 新增 `UserPermissionAndRoleQueryPort`，用于后续将 `eva-infra-shared` 的 `StpInterfaceImpl` 去 `UserQueryGateway` 编译期依赖（仅新增接口，不改装配/不改行为；最小回归通过；落地提交以 `git log -n 1 -- bc-iam/contract/src/main/java/edu/cuit/bc/iam/application/port/UserPermissionAndRoleQueryPort.java` 为准）。
 - ✅ 测试过渡（保持行为不变）：将 `start` 模块中的 `UserServiceImplTest` 从 mock `UserQueryGateway` 调整为 mock `bc-iam-contract` 端口（重点适配 `getOneUserScore` 使用的 `UserBasicQueryPort.findUsernameById`），以匹配 `UserServiceImpl` 构造参数收敛后的新依赖形态；最小回归通过；落地：`c30c4e0c`。
 - ✅ IAM 并行（按 10.3：补齐用户目录/分页端口（前置）；保持行为不变）：在 `bc-iam-contract` 新增 `UserDirectoryPageQueryPort`（原误命名为 `UserDirectoryQueryPort`，与 `bc-iam/application` 同名端口冲突已更名；涵盖 `page/allUser/findAllUsername`；分页返回 `PaginationResultEntity<?>`，避免 contract 暴露旧领域实体触发 Maven 循环依赖风险），用于后续将 `bc-iam/infrastructure` 的 `UserServiceImpl` 去 `UserQueryGateway` 编译期依赖；最小回归通过；落地：`d7e7216e`。
 - ✅ IAM 并行（按 10.3：补齐端口适配器实现；保持行为不变）：在 `bc-iam-infra` 新增 `UserDirectoryPageQueryPortImpl`，内部委托旧 `UserQueryGateway.page/allUser/findAllUsername` 以保持缓存/切面触发点不变（用于闭合后续 `UserServiceImpl` 依赖收敛后的 Spring 装配）；最小回归通过；落地：`524d7ba3`。
