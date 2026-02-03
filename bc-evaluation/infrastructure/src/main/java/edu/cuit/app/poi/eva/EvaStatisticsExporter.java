@@ -6,11 +6,12 @@ import edu.cuit.client.api.ISemesterService;
 import edu.cuit.client.api.course.ICourseDetailService;
 import edu.cuit.client.api.course.IUserCourseService;
 import edu.cuit.bc.iam.application.contract.api.user.IUserService;
+import edu.cuit.bc.iam.application.port.UserAllUserIdAndEntityByIdQueryPort;
 import edu.cuit.client.dto.clientobject.SemesterCO;
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.bc.evaluation.application.port.EvaRecordExportQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsCountAbEvaQueryPort;
-import edu.cuit.domain.gateway.user.UserQueryGateway;
+import edu.cuit.domain.entity.user.biz.UserEntity;
 import lombok.Getter;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -20,11 +21,13 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Optional;
 
 public class EvaStatisticsExporter {
 
     protected static final ISemesterService semesterService;
-    protected static final UserQueryGateway userQueryGateway;
+    protected static final UserQueryGatewayFacade userQueryGateway;
     protected static final ICourseDetailService courseDetailService;
     protected static final IUserCourseService userCourseService;
     protected static final IUserService userService;
@@ -33,7 +36,27 @@ public class EvaStatisticsExporter {
 
     static {
         semesterService = SpringUtil.getBean(ISemesterService.class);
-        userQueryGateway = SpringUtil.getBean(UserQueryGateway.class);
+        UserAllUserIdAndEntityByIdQueryPort userAllUserIdAndEntityByIdQueryPort =
+                SpringUtil.getBean(UserAllUserIdAndEntityByIdQueryPort.class);
+        userQueryGateway = new UserQueryGatewayFacade() {
+            @Override
+            public List<Integer> findAllUserId() {
+                return userAllUserIdAndEntityByIdQueryPort.findAllUserId();
+            }
+
+            @Override
+            public Optional<UserEntity> findById(Integer id) {
+                Optional<?> user = userAllUserIdAndEntityByIdQueryPort.findById(id);
+                if (user == null || user.isEmpty()) {
+                    return Optional.empty();
+                }
+                Object value = user.orElse(null);
+                if (value instanceof UserEntity userEntity) {
+                    return Optional.of(userEntity);
+                }
+                return Optional.empty();
+            }
+        };
         courseDetailService = SpringUtil.getBean(ICourseDetailService.class);
         userCourseService = SpringUtil.getBean(IUserCourseService.class);
         userService = SpringUtil.getBean(IUserService.class);
@@ -110,6 +133,13 @@ public class EvaStatisticsExporter {
         Cell cell = row.createCell(firstCol);
         cell.setCellValue(content);
         cell.setCellStyle(getHeaderStyle());
+    }
+
+    protected interface UserQueryGatewayFacade {
+
+        List<Integer> findAllUserId();
+
+        Optional<UserEntity> findById(Integer id);
     }
 
 }
