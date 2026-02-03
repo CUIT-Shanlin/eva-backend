@@ -111,6 +111,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 **已完成（更新至 2026-02-03）**
 - ✅ IAM 并行（按 10.3：补齐用户目录/分页端口（前置）；保持行为不变）：在 `bc-iam-contract` 新增 `UserDirectoryPageQueryPort`（原误命名为 `UserDirectoryQueryPort`，与 `bc-iam/application` 同名端口冲突已更名；涵盖 `page/allUser/findAllUsername`；分页返回 `PaginationResultEntity<?>`，避免 contract 暴露旧领域实体触发 Maven 循环依赖风险），用于后续将 `bc-iam/infrastructure` 的 `UserServiceImpl` 去 `UserQueryGateway` 编译期依赖；最小回归通过；落地：`d7e7216e`。
+- ✅ IAM 并行（按 10.3：补齐端口适配器实现；保持行为不变）：在 `bc-iam-infra` 新增 `UserDirectoryPageQueryPortImpl`，内部委托旧 `UserQueryGateway.page/allUser/findAllUsername` 以保持缓存/切面触发点不变（用于闭合后续 `UserServiceImpl` 依赖收敛后的 Spring 装配）；最小回归通过；落地：`524d7ba3`。
 - ✅ IAM 并行（按 10.3：去无用编译期依赖（DepartmentGatewayImpl）；保持行为不变）：清理 `DepartmentGatewayImpl` 中未使用的 `UserQueryGateway/QueryException` import，使该类不再编译期依赖旧 gateway（仅删 import；最小回归通过）；落地：`f29572d2`。
 - ✅ IAM 并行（按 10.3：ValidateUserLoginUseCase 清理过渡构造；保持行为不变）：Serena 证实调用点仅剩 `UserAuthServiceImpl` 且已改走 Port 构造，因此移除 `ValidateUserLoginUseCase` 中 `@Deprecated` 旧构造与对 `UserQueryGateway` 的编译期依赖（运行时行为不变；异常文案/分支顺序不变）；最小回归通过；落地：`1b90f641`。
 - ✅ IAM 并行（按 10.3：UserAuthServiceImpl 依赖收敛（过渡）；保持行为不变）：将 `bc-iam-infrastructure` 的 `UserAuthServiceImpl` 从编译期依赖 `UserQueryGateway` 收敛为依赖 `bc-iam-contract` 最小端口 `UserEntityByUsernameQueryPort`（调用顺序不变：仍先 `ValidateUserLoginUseCase.execute` 再 `StpUtil.login`；内部仍委托旧 `UserQueryGateway.findByUsername` 以保持缓存/切面触发点不变；异常文案不变）；最小回归通过；落地：`48d0eb7e`。
