@@ -5,7 +5,6 @@ import edu.cuit.bc.iam.application.port.UserEntityByUsernameQueryPort;
 import edu.cuit.bc.iam.application.contract.dto.cmd.user.UserLoginCmd;
 import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.domain.gateway.user.LdapPersonGateway;
-import edu.cuit.domain.gateway.user.UserQueryGateway;
 
 /**
  * 用户登录校验用例（保持行为不变）。
@@ -22,14 +21,6 @@ public class ValidateUserLoginUseCase {
                                     UserEntityByUsernameQueryPort userEntityByUsernameQueryPort) {
         this.ldapPersonGateway = ldapPersonGateway;
         this.userEntityByUsernameQueryPort = userEntityByUsernameQueryPort;
-    }
-
-    /**
-     * 过渡构造：保持历史调用点不变（仍可传入旧 gateway），用于逐步收敛依赖方对旧 gateway 的编译期依赖。
-     */
-    @Deprecated
-    public ValidateUserLoginUseCase(LdapPersonGateway ldapPersonGateway, UserQueryGateway userQueryGateway) {
-        this(ldapPersonGateway, username -> userQueryGateway.findByUsername(username));
     }
 
     public void execute(UserLoginCmd loginCmd) {
