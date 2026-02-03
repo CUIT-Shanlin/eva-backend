@@ -5,6 +5,10 @@ import edu.cuit.app.convertor.PaginationBizConvertor;
 import edu.cuit.app.convertor.user.RoleBizConvertor;
 import edu.cuit.app.convertor.user.UserBizConvertor;
 import edu.cuit.app.service.impl.user.UserServiceImpl;
+import edu.cuit.bc.iam.application.port.UserBasicQueryPort;
+import edu.cuit.bc.iam.application.port.UserDirectoryPageQueryPort;
+import edu.cuit.bc.iam.application.port.UserEntityByIdQueryPort;
+import edu.cuit.bc.iam.application.port.UserEntityByUsernameQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaRecordCountQueryPort;
 import edu.cuit.client.api.ISemesterService;
 import edu.cuit.client.api.course.ICourseDetailService;
@@ -15,7 +19,6 @@ import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
 import edu.cuit.client.dto.clientobject.eva.UserSingleCourseScoreCO;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.domain.gateway.user.LdapPersonGateway;
-import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.domain.gateway.user.UserUpdateGateway;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,7 +37,13 @@ import static org.mockito.Mockito.when;
 class UserServiceImplTest {
 
     @Mock
-    private UserQueryGateway userQueryGateway;
+    private UserEntityByIdQueryPort userEntityByIdQueryPort;
+    @Mock
+    private UserEntityByUsernameQueryPort userEntityByUsernameQueryPort;
+    @Mock
+    private UserBasicQueryPort userBasicQueryPort;
+    @Mock
+    private UserDirectoryPageQueryPort userDirectoryPageQueryPort;
     @Mock
     private UserUpdateGateway userUpdateGateway;
     @Mock
@@ -77,7 +86,7 @@ class UserServiceImplTest {
         CourseScoreCO score2 = new CourseScoreCO();
         score2.setAverScore(90.0);
 
-        when(userQueryGateway.findUsernameById(userId)).thenReturn(Optional.of("u1"));
+        when(userBasicQueryPort.findUsernameById(userId)).thenReturn(Optional.of("u1"));
         when(courseQueryGateway.getSelfCourseInfo("u1", semId)).thenReturn(List.of(course));
         when(courseQueryGateway.findEvaScore(10)).thenReturn(List.of(score1, score2));
         when(evaRecordCountQueryPort.getEvaNumByCourse(10)).thenReturn(Optional.of(5));
@@ -101,7 +110,7 @@ class UserServiceImplTest {
         course.setId(10);
         course.setName("课程A");
 
-        when(userQueryGateway.findUsernameById(userId)).thenReturn(Optional.of("u1"));
+        when(userBasicQueryPort.findUsernameById(userId)).thenReturn(Optional.of("u1"));
         when(courseQueryGateway.getSelfCourseInfo("u1", semId)).thenReturn(List.of(course));
         when(courseQueryGateway.findEvaScore(10)).thenReturn(List.of());
 
@@ -113,4 +122,3 @@ class UserServiceImplTest {
         assertEquals(0, result.get(0).getEvaNum());
     }
 }
-
