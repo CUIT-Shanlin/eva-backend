@@ -66,6 +66,12 @@
 
         <dependency>
             <groupId>edu.cuit</groupId>
+            <artifactId>bc-iam-contract</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>edu.cuit</groupId>
             <artifactId>bc-messaging-contract</artifactId>
             <version>${revision}</version>
         </dependency>
