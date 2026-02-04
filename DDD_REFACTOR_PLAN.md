@@ -856,7 +856,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
         - ✅ 已完成（2026-02-04，保持行为不变）：在 `eva-infra-shared` 的 `UserConverter` 增加桥接方法 `toUserEntityObject(...)` + `userIdOf(Object)`（仅做类型桥接，不改变 roles Supplier 的调用时机与次数）；最小回归通过；落地：`c173c7c2`。
         - ✅ 已完成（2026-02-04，保持行为不变）：在 `eva-infra-shared` 的 `CourseConvertor` 增加桥接方法 `toCourseEntityWithTeacherObject(...)`（仅做类型桥接，不改变 teacher Supplier 的调用时机与次数）；最小回归通过；落地：`858521da`。
         - ✅ 已完成（2026-02-04，保持行为不变）：将 `bc-evaluation/infrastructure` 的 `EvaTaskQueryRepository` 去 `UserEntity` 编译期依赖（不改变 DB 查询/遍历顺序；异常文案不变）；最小回归通过；落地：`7f198610`。
-        - ⏳ 下一步建议（保持行为不变；每次只改 1 个类闭环）：继续将评教读侧仓储去 `UserEntity` 编译期依赖，下一刀改 `EvaRecordQueryRepository`（具体清单见 `NEXT_SESSION_HANDOFF.md` 0.10.1）。
+        - ✅ 已完成（2026-02-04，保持行为不变）：将 `bc-evaluation/infrastructure` 的 `EvaRecordQueryRepository` 去 `UserEntity` 编译期依赖（不改变 DB 查询/遍历顺序；异常文案不变）；最小回归通过；落地：`9cbcb858`。
+        - ⏳ 下一步建议（保持行为不变；每次只改 1 个类或 1 个 pom 闭环）：评教读侧仓储已清零 `UserEntity` import，下一刀按 Serena 证据化重新盘点其它 `bc-*` 依赖方对 `UserEntity` 的编译期依赖点（口径：`rg -n \"import\\\\s+edu\\\\.cuit\\\\.domain\\\\.entity\\\\.user\\\\.biz\\\\.UserEntity;\" bc-*`），择一闭环。
         - 量化快照（口径=可复现命令）：`eva-domain` 29 个 Java 文件、`eva-infra-dal` 36 个、`eva-infra-shared` 47 个。
       - ✅ 已完成（保持行为不变；每次只改 1 个 `pom.xml`）：在 Serena + `rg` 证伪 “全仓库已无 `eva-infra` 的 dependency 声明”后，已从 root reactor 移除 `<module>eva-infra</module>`（每步闭环；落地：`0aab4516`）。下一步（可选，独立提交）：评估是否删除 `eva-infra/` 目录与 `eva-infra/pom.xml`（当前已不再参与 reactor/无依赖方）。
 

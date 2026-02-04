@@ -711,10 +711,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成（前置）：`UserConverter` 已补齐桥接方法 `toUserEntityObject(...)` + `userIdOf(Object)`（仅类型桥接，不改变 roles Supplier 调用时机/次数；落地：`c173c7c2`）。
   - ✅ 已完成（前置）：`CourseConvertor` 已补齐桥接方法 `toCourseEntityWithTeacherObject(...)`（仅类型桥接，不改变 teacher Supplier 调用时机/次数；落地：`858521da`）。
   - ✅ 已完成（主线，保持行为不变）：`EvaTaskQueryRepository` 已去 `UserEntity` 编译期依赖（落地：`7f198610`）。
-  - ⏳ 未完成（证据化，可复现）：评教读侧仓储仍编译期依赖 `UserEntity`：
-    - `bc-evaluation/infrastructure/src/main/java/edu/cuit/infra/bcevaluation/query/EvaRecordQueryRepository.java`
-    - 口径：`rg -n "import\\s+edu\\.cuit\\.domain\\.entity\\.user\\.biz\\.UserEntity;" bc-evaluation/infrastructure/src/main/java`
-  - 下一步计划（每次只改 1 个类闭环；保持行为不变）：改调用侧去 import：`EvaRecordQueryRepository`（细节见 `NEXT_SESSION_HANDOFF.md` 0.10.1）。
+  - ✅ 已完成（主线，保持行为不变）：`EvaRecordQueryRepository` 已去 `UserEntity` 编译期依赖（落地：`9cbcb858`）。
+  - ✅ 证据化（可复现，更新至 2026-02-04，保持行为不变）：`bc-evaluation/infrastructure/src/main/java` 已清零 `UserEntity` import（口径：`rg -n "import\\s+edu\\.cuit\\.domain\\.entity\\.user\\.biz\\.UserEntity;" bc-evaluation/infrastructure/src/main/java` 应命中为 0）。
 
 - **S0.2 延伸（并行主线：依赖方 `pom.xml` 收敛，保持行为不变）**：
   - ✅ 已复核（更新至 2026-02-04，保持行为不变）：当前全仓库 `junit-jupiter(test)` 仅出现在以下模块，且均存在 `src/test/java` 与 `org.junit.jupiter` 引用，因此暂无“无测试源码模块”的单 `pom.xml` 清理目标：
