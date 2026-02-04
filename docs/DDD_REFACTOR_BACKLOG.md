@@ -719,6 +719,12 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成（主线，保持行为不变）：`bc-messaging` 的 `MessageQueryPortImpl` 已去 `UserEntity` 编译期依赖：调用侧改走 `msgConvertor.toMsgEntityWithUserObject(...)` 并移除 `UserEntity` import（异常文案/`findById` 调用次数与顺序不变）；落地：`51301d23`。
     - 证据口径（可复现，更新至 2026-02-04）：`rg -n "import\\s+edu\\.cuit\\.domain\\.entity\\.user\\.biz\\.UserEntity;" bc-messaging/src/main/java` 应命中为 0。
 
+- **S0.2 延伸（Audit：依赖方继续去 `UserEntity` 编译期依赖，保持行为不变）**：
+  - ✅ 已完成（前置，保持行为不变）：在 `eva-infra-shared` 的 `LogConverter` 增加桥接方法 `toLogEntityWithUserObject(...)`，用于后续让 `bc-audit` 的 `LogGatewayImpl` 去 `UserEntity` 编译期依赖（仅类型桥接，不改变 user 获取时机与次数；最小回归通过；落地：`8fa053ed`）。
+  - ⏳ 未完成（证据化，可复现，保持行为不变）：`bc-audit` 的 `LogGatewayImpl` 仍编译期依赖 `UserEntity`：
+    - 口径：`rg -n "import\\s+edu\\.cuit\\.domain\\.entity\\.user\\.biz\\.UserEntity;" bc-audit/infrastructure/src/main/java`。
+  - 下一步计划（每次只改 1 个类闭环；保持行为不变）：将 `LogGatewayImpl` 改走 `userConverter.toUserEntityObject(...)` + `logConverter.toLogEntityWithUserObject(...)` 并移除 `UserEntity` import（异常文案/查询/遍历顺序不变）。
+
 - **S0.2 延伸（并行主线：依赖方 `pom.xml` 收敛，保持行为不变）**：
   - ✅ 已复核（更新至 2026-02-04，保持行为不变）：当前全仓库 `junit-jupiter(test)` 仅出现在以下模块，且均存在 `src/test/java` 与 `org.junit.jupiter` 引用，因此暂无“无测试源码模块”的单 `pom.xml` 清理目标：
     - `bc-messaging/pom.xml`
