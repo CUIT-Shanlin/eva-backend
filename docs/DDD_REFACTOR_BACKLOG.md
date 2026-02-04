@@ -131,6 +131,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（依赖方收敛，保持行为不变）：将 `bc-iam-infra` 的 `UserEntityByUsernameQueryPortImpl` 去 `UserEntity` 编译期依赖：权限/角色列表计算改走 `UserConverter.statusOf/rolesOf` 桥接读取字段（保持仍委托旧 `UserQueryGateway.findByUsername` 以触发历史缓存/切面；异常与分支顺序不变）；最小回归通过；落地：`44d51d3e`。
 - ✅ S0.2 延伸（依赖方收敛前置，保持行为不变）：在 `bc-iam-infra` 的 `UserBizConvertor` 增加桥接方法 `toUserDetailCOObject(Object)` / `toUnqualifiedUserInfoCOObject(Object, Integer)`（内部仍强转 `UserEntity`，仅做类型桥接，尽量保持历史空值/异常表现一致），用于后续让调用方在不编译期引用 `UserEntity` 的情况下复用既有映射逻辑；最小回归通过；落地：`c2454ab4`。
 - ✅ S0.2 延伸（依赖方收敛前置，保持行为不变）：为后续让 `bc-iam-infra` 的 `RouterDetailFactory/UserServiceImpl` 去 `UserEntity` 编译期依赖，在 `eva-infra-shared` 的 `UserConverter` 增加桥接方法 `nameOf(Object, boolean)` / `permsOf(Object, boolean)` / `castUserEntityObject(Object, boolean)`（内部仍强转 `UserEntity` 调 getter；并通过“无业务意义形参”规避 MapStruct 编译期歧义；`castUserEntityObject` 用于尽量保持历史 ClassCastException 触发点一致）；最小回归通过；落地：`95c7bd8b`。
+- ✅ IAM S0.2 延伸（依赖方收敛，保持行为不变）：将 `bc-iam-infra` 的 `RouterDetailFactory` 去 `UserEntity` 编译期依赖：入参从 `UserEntity` 收敛为 `Object`，并通过 `SpringUtil.getBean(UserConverter.class)` 调 `usernameOf/rolesOf/nameOf` 桥接读取字段（过滤逻辑/递归构造与异常表现不变；最小回归通过）；落地：`5d2f7512`。
 - ✅ S0.2 延伸（依赖方收敛前置，保持行为不变）：在 `eva-infra-shared` 的 `UserConverter` 增加“Spring Bean + setName”桥接方法 `springUserEntityWithNameObject(Object)`（内部仍 `SpringUtil.getBean(UserEntity.class)` + 强转后 `setName`，尽量保持异常形态与副作用顺序一致），用于后续让 `bc-course/infrastructure` 的 `CourseQueryRepository` 去 `UserEntity` 编译期依赖；最小回归通过。
 - ✅ S0.2 延伸（依赖方收敛，保持行为不变）：将 `bc-course/infrastructure` 的 `CourseQueryRepository` 去 `UserEntity` 编译期依赖：不再 `import UserEntity`，改走 `UserConverter/CourseConvertor` 的桥接方法承接 teacher 相关类型桥接（不改变 DB 查询/遍历顺序；异常文案不变）；最小回归通过。
 - ✅ S0.2 延伸（依赖方收敛前置，保持行为不变）：在 `eva-infra-shared` 的 `CourseConvertor` 增加桥接方法 `toCourseEntityWithTeacherObject(...)`，用于后续让依赖方在不编译期引用 `UserEntity` 的情况下复用既有 `toCourseEntity(...)` 映射逻辑（仅做类型桥接，不改变 teacher Supplier 的调用时机与次数）；最小回归通过；落地：`858521da`。
@@ -734,11 +735,14 @@ scope: 全仓库（离线扫描 + 规则归纳）
     - 证据口径（可复现，更新至 2026-02-04）：`rg -n "import\\s+edu\\.cuit\\.domain\\.entity\\.user\\.biz\\.UserEntity;" bc-audit/infrastructure/src/main/java` 应命中为 0。
 
 - **S0.2 延伸（Course：依赖方继续去 `UserEntity` 编译期依赖，保持行为不变）**：
-  - ⏳ 未完成（证据化，可复现，保持行为不变）：`bc-course/infrastructure` 的 `CourseQueryRepository` 仍编译期依赖 `UserEntity`（包含 `SpringUtil.getBean(UserEntity.class)` + `setName` 的显式调用点）：
-    - 口径：`rg -n "import\\s+edu\\.cuit\\.domain\\.entity\\.user\\.biz\\.UserEntity;" bc-course/infrastructure/src/main/java`（当前预期仍命中：`CourseQueryRepository`）。
-  - 下一步计划（保持行为不变；按“前置桥接 → 改调用侧”的两刀闭环；每次只改 1 个类）：
-    1) 先在 `eva-infra-shared` 的 `UserConverter` 增加“Spring Bean 桥接 + setName 桥接”方法（入参/返回均用 `Object` 表达；内部仍强转 `UserEntity` 并调用 `SpringUtil.getBean(UserEntity.class)`，尽量保持异常形态与副作用顺序一致）；
-    2) 再将 `CourseQueryRepository` 去 `UserEntity` import：`UserEntity`/`Supplier<UserEntity>` → `Object`/`Supplier<?>`；调用侧改走 `userConverter.toUserEntityObject(...)`、`courseConvertor.toCourseEntityWithTeacherObject(...)` 与上述桥接方法（缓存/查询/遍历顺序与异常文案完全不变）。
+  - ✅ 已完成（更新至 2026-02-04，保持行为不变）：`bc-course/infrastructure` 的 `CourseQueryRepository` 已去 `UserEntity` 编译期依赖：
+    - `SpringUtil.getBean(UserEntity.class)` + `setName` 改走 `UserConverter.springUserEntityWithNameObject(Object)`；
+    - `UserEntity`/`Supplier<UserEntity>` 收敛为 `Object`/`Supplier<?>`，并改走 `UserConverter/CourseConvertor` 的桥接方法；
+    - 证据口径：`rg -n "import\\s+edu\\.cuit\\.domain\\.entity\\.user\\.biz\\.UserEntity;" bc-course/infrastructure/src/main/java` 应命中为 0。
+
+- **S0.2 延伸（IAM：继续去 `UserEntity` 编译期依赖，保持行为不变）**：
+  - ⏳ 未完成（证据化，可复现，保持行为不变）：`bc-iam/infrastructure` 仍存在对旧 `UserEntity` 的编译期依赖：
+    - 口径：`rg -n "import\\s+edu\\.cuit\\.domain\\.entity\\.user\\.biz\\.UserEntity;" bc-iam/infrastructure/src/main/java --glob "*.java"`（当前预期命中：`UserServiceImpl`、`UserQueryGatewayImpl`）。
 
 - **S0.2 延伸（并行主线：依赖方 `pom.xml` 收敛，保持行为不变）**：
   - ✅ 已复核（更新至 2026-02-04，保持行为不变）：当前全仓库 `junit-jupiter(test)` 仅出现在以下模块，且均存在 `src/test/java` 与 `org.junit.jupiter` 引用，因此暂无“无测试源码模块”的单 `pom.xml` 清理目标：

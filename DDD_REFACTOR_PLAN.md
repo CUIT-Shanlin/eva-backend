@@ -868,9 +868,11 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
         - ✅ 已完成（2026-02-04，保持行为不变）：已将 `bc-messaging` 的 `MessageQueryPortImpl` 去 `UserEntity` 编译期依赖：调用侧改走 `msgConvertor.toMsgEntityWithUserObject(...)` 并移除 `UserEntity` import（异常文案不变；`findById` 调用次数/顺序不变）；最小回归通过；落地：`51301d23`。
         - ✅ 已完成（2026-02-04，保持行为不变）：在 `eva-infra-shared` 的 `LogConverter` 增加桥接方法 `toLogEntityWithUserObject(...)`，用于后续让 `bc-audit` 的 `LogGatewayImpl` 去 `UserEntity` 编译期依赖（仅做类型桥接，不改变 user 获取时机与次数）；最小回归通过；落地：`8fa053ed`。
         - ✅ 已完成（2026-02-04，保持行为不变）：将 `bc-audit` 的 `LogGatewayImpl` 去 `UserEntity` 编译期依赖：调用侧改走 `userConverter.toUserEntityObject(...)` + `logConverter.toLogEntityWithUserObject(...)` 并移除 `UserEntity` import（异常文案/查询/遍历顺序不变）；最小回归通过；落地：`a86f6520`。
-        - ⏳ 下一步建议（保持行为不变；每次只改 1 个类或 1 个 pom 闭环）：当前非 IAM 侧仍残留的 `UserEntity` 编译期依赖主要集中在 `bc-course/infrastructure` 的 `CourseQueryRepository`。建议按“前置桥接 → 改调用侧”的两刀闭环推进：
-          1) ✅ 已完成：已在 `UserConverter` 增加“Spring Bean 桥接 + setName 桥接”方法 `springUserEntityWithNameObject(Object)`（内部仍强转 `UserEntity` 并调用 `SpringUtil.getBean(UserEntity.class)`，尽量保持异常形态与副作用顺序一致）；
-          2) ✅ 已完成：已将 `CourseQueryRepository` 去 `UserEntity` import，调用侧改走 `userConverter.toUserEntityObject(...)`、`courseConvertor.toCourseEntityWithTeacherObject(...)` 与 `userConverter.springUserEntityWithNameObject(...)`，保持缓存/查询/遍历顺序与异常文案不变。
+        - ✅ 已完成（2026-02-04，保持行为不变）：将 `bc-iam-infra` 的 `RouterDetailFactory` 入参从 `UserEntity` 收敛为 `Object`，并通过 `SpringUtil.getBean(UserConverter.class)` 调 `usernameOf/rolesOf/nameOf` 桥接读取字段（过滤逻辑/递归构造与异常表现不变）；最小回归通过；落地：`5d2f7512`。
+        - ✅ 已完成（2026-02-04，保持行为不变）：已将非 IAM 侧残留的 `UserEntity` 编译期依赖（`bc-course/infrastructure` 的 `CourseQueryRepository`）按“前置桥接 → 改调用侧”的两刀闭环完成：
+          1) `UserConverter.springUserEntityWithNameObject(Object)`（内部仍强转 `UserEntity` 并调用 `SpringUtil.getBean(UserEntity.class)`，尽量保持异常形态与副作用顺序一致）；
+          2) `CourseQueryRepository` 去 `UserEntity` import，并改走 `userConverter.toUserEntityObject(...)`、`courseConvertor.toCourseEntityWithTeacherObject(...)` 与上述桥接方法，保持缓存/查询/遍历顺序与异常文案不变。
+        - ⏳ 下一步建议（保持行为不变；每次只改 1 个类闭环）：继续收敛 `bc-iam/infrastructure` 对旧 `UserEntity` 的编译期依赖，优先 `UserServiceImpl`（参照 `NEXT_SESSION_HANDOFF.md` 0.10/0.11 的 IAM S0.2 延伸小簇）。
         - 量化快照（口径=可复现命令）：`eva-domain` 29 个 Java 文件、`eva-infra-dal` 36 个、`eva-infra-shared` 47 个。
       - ✅ 已完成（保持行为不变；每次只改 1 个 `pom.xml`）：在 Serena + `rg` 证伪 “全仓库已无 `eva-infra` 的 dependency 声明”后，已从 root reactor 移除 `<module>eva-infra</module>`（每步闭环；落地：`0aab4516`）。下一步（可选，独立提交）：评估是否删除 `eva-infra/` 目录与 `eva-infra/pom.xml`（当前已不再参与 reactor/无依赖方）。
 
