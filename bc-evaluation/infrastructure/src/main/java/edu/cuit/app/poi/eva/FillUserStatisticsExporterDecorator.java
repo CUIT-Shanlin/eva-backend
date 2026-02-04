@@ -2,9 +2,10 @@ package edu.cuit.app.poi.eva;
 
 import cn.hutool.extra.spring.SpringUtil;
 import edu.cuit.app.poi.util.ExcelUtils;
+import edu.cuit.bc.iam.application.contract.dto.clientobject.user.UserDetailCO;
+import edu.cuit.bc.iam.application.port.UserDetailQueryPort;
 import edu.cuit.client.api.eva.IEvaConfigService;
 import edu.cuit.client.dto.data.EvaConfig;
-import edu.cuit.domain.entity.user.biz.UserEntity;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
@@ -49,23 +50,25 @@ public class FillUserStatisticsExporterDecorator extends EvaStatisticsExporter {
     }
 
     private void insertData() {
-        List<UserEntity> teacherList = userQueryGateway.findAllUserId().stream()
-                .map(userId -> userQueryGateway.findById(userId).orElse(null))
+        UserDetailQueryPort userDetailQueryPort = SpringUtil.getBean(UserDetailQueryPort.class);
+        List<UserDetailCO> teacherList = userQueryGateway.findAllUserId().stream()
+                .map(userId -> userDetailQueryPort.findById(userId).orElse(null))
                 .filter(user -> user != null && !"admin".equals(user.getUsername()))
                 .toList();
-        for (UserEntity teacher : teacherList) {
+        for (UserDetailCO teacher : teacherList) {
             insertTeacherData(teacher);
         }
     }
 
     private int rowIndex = 2;
 
-    private void insertTeacherData(UserEntity teacher) {
+    private void insertTeacherData(UserDetailCO teacher) {
         Row teacherRow = createRow(rowIndex);
 
         createCell(teacherRow,0).setCellValue(teacher.getName());
 
-        List<Integer> count = evaStatisticsQueryPort.getCountAbEva(semId, teacher.getId());
+        Integer teacherId = teacher.getId().intValue();
+        List<Integer> count = evaStatisticsQueryPort.getCountAbEva(semId, teacherId);
 
         ExcelUtils.createRegion(rowIndex,rowIndex,0,1,sheet);
 
