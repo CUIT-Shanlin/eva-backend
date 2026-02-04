@@ -878,7 +878,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
         - ✅ 已完成（2026-02-04，保持行为不变，前置铺垫）：在 `bc-iam/infrastructure` 新增内部过渡接口 `UserQueryCacheGateway`（返回 `Optional<?>/PaginationResultEntity<?>`），用于后续逐类将端口适配器从编译期依赖旧 `UserQueryGateway`（eva-domain）收敛为依赖内部接口，同时仍保证调用最终进入旧 `UserQueryGatewayImpl` 以触发 `@LocalCached` 缓存/切面入口（最小回归通过；落地：`dc49f903`）。
         - ✅ 已完成（2026-02-04，保持行为不变，前置铺垫）：已让旧 `UserQueryGatewayImpl` 实现 `UserQueryCacheGateway`，使后续端口适配器可“只改注入类型”而不改变实际委托路径与缓存触发点（最小回归通过；落地：`2970b80d`）。
         - ✅ 已完成（2026-02-04，保持行为不变，推进）：`UserQueryGatewayImpl` 已不再显式实现旧 `UserQueryGateway`，仅保留实现内部接口 `UserQueryCacheGateway`；`@LocalCached` 触发点与方法体保持不变（最小回归通过；落地：`fb3b2e40`）。
-        - ✅ 已完成（2026-02-04，保持行为不变，推进）：`eva-domain` 的旧 `UserQueryGateway` 接口已去 `UserEntity` 泛型暴露：将 `findById/findByUsername/page` 返回类型收敛为 `Optional<?>/PaginationResultEntity<?>`（接口无引用面；最小回归通过；落地：`6ae17638`）。
+        - ✅ 已完成（2026-02-04，保持行为不变，推进）：已删除 `eva-domain` 中无引用的旧 `UserQueryGateway` 接口（此前已完成签名收敛；最小回归通过；落地：`93a7723d`）。
         - ✅ 已完成（2026-02-04，保持行为不变，推进）：已将 `UserEntityByIdQueryPortImpl` 的注入从 `UserQueryGateway` 收敛为 `UserQueryCacheGateway`，方法体仍委托 `findById`，确保调用仍触发 `UserQueryGatewayImpl` 上的 `@LocalCached`（最小回归通过；落地：`e854fcbe`）。
         - ✅ 已完成（2026-02-04，保持行为不变，推进）：已将 `UserEntityByUsernameQueryPortImpl` 的注入从 `UserQueryGateway` 收敛为 `UserQueryCacheGateway`，方法体仍委托 `findByUsername`，确保调用仍触发 `UserQueryGatewayImpl` 上的 `@LocalCached`（最小回归通过；落地：`ec31d96c`）。
         - ✅ 已完成（2026-02-04，保持行为不变，推进）：已将 `UserAllUserIdQueryPortImpl` 的注入从 `UserQueryGateway` 收敛为 `UserQueryCacheGateway`，方法体仍委托 `findAllUserId/findById`，确保调用仍触发 `UserQueryGatewayImpl` 上的 `@LocalCached`（最小回归通过；落地：`c0c05def`）。
@@ -940,7 +940,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 #### bc-iam（IAM）S0.2 延伸：收敛 `bc-iam(application)` 对 `eva-domain` 的编译期依赖（保持行为不变）
 
-> 背景：当前 `bc-iam/application/src/main/java` 仍直接 `import edu.cuit.domain.*`（例如 `UserEntity/UserQueryGateway/LdapPersonGateway/DepartmentGateway` 等），因此暂不能直接移除 `bc-iam/application/pom.xml` 对 `eva-domain` 的依赖。
+> 背景：当前 `bc-iam/application/src/main/java` 仍直接 `import edu.cuit.domain.*`（例如 `LdapPersonGateway/DepartmentGateway/PaginationResultEntity` 等），因此暂不能直接移除 `bc-iam/application/pom.xml` 对 `eva-domain` 的依赖。
 >
 > 目标：把“仅 IAM 使用”的 `edu.cuit.domain.entity.user.*` / `edu.cuit.domain.gateway.user.*` 等类型逐步归位到 `bc-iam-domain`（保持 `package` 不变，仅改变 Maven 模块归属），最终让 `bc-iam(application)` 仅依赖 `bc-iam-domain`（以及必要的 `shared-kernel/contract`），并在证伪引用面后收敛 `pom.xml`（保持行为不变）。
 

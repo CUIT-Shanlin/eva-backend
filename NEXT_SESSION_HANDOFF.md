@@ -32,6 +32,7 @@
 - ✅ 已完成（保持行为不变）：`UserQueryGatewayImpl` 已不再显式实现旧 `UserQueryGateway`，仅保留实现内部接口 `UserQueryCacheGateway`；`@LocalCached` 触发点与方法体保持不变（最小回归通过；落地：`fb3b2e40`）。
 - ✅ 已完成（保持行为不变）：`UserQueryGatewayImpl` 已去 `UserEntity` 编译期依赖：移除 `import UserEntity`，并将 `findById/findByUsername/page` 返回类型收敛为 `Optional<?>/PaginationResultEntity<?>`（方法体与 `@LocalCached` 触发点不变；最小回归通过；落地：`8cba32b8`）。
 - ✅ 已完成（保持行为不变）：`eva-domain` 的旧 `UserQueryGateway` 接口已去 `UserEntity` 泛型暴露：将 `findById/findByUsername/page` 返回类型收敛为 `Optional<?>/PaginationResultEntity<?>`（接口无引用面；最小回归通过；落地：`6ae17638`）。
+- ✅ 已完成（保持行为不变）：已删除 `eva-domain` 中无引用的旧 `UserQueryGateway` 接口文件（最小回归通过；落地：`93a7723d`）。
 
 **2026-02-04（前置：UserQueryGateway 收尾铺垫——旧 gateway 兼容内部过渡接口；保持行为不变）**
 - ✅ 已完成（保持行为不变）：`UserQueryGatewayImpl` 现在同时实现 `UserQueryCacheGateway`，使后续端口适配器可把注入类型从 `UserQueryGateway` 收敛为内部接口而不改变实际委托路径与 `@LocalCached` 缓存触发点（最小回归通过；落地：`2970b80d`）。
