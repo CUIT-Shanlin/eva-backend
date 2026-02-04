@@ -2,8 +2,8 @@ package edu.cuit.bc.iam.application.usecase;
 
 import com.alibaba.cola.exception.BizException;
 import edu.cuit.bc.iam.application.port.UserEntityByUsernameQueryPort;
+import edu.cuit.bc.iam.application.port.UserStatusByUsernameQueryPort;
 import edu.cuit.bc.iam.application.contract.dto.cmd.user.UserLoginCmd;
-import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.domain.gateway.user.LdapPersonGateway;
 
 /**
@@ -25,9 +25,10 @@ public class ValidateUserLoginUseCase {
 
     public void execute(UserLoginCmd loginCmd) {
         if (ldapPersonGateway.authenticate(loginCmd.getUsername(), loginCmd.getPassword())) {
-            UserEntity user = (UserEntity) userEntityByUsernameQueryPort.findByUsername(loginCmd.getUsername())
+            Integer status = ((UserStatusByUsernameQueryPort) userEntityByUsernameQueryPort)
+                    .findStatusByUsername(loginCmd.getUsername())
                     .orElseThrow(() -> new BizException("用户名未找到"));
-            if (user.getStatus() == 0) {
+            if (status == 0) {
                 throw new BizException("该账户已被停用，请联系管理员");
             }
             return;
