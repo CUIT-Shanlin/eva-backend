@@ -712,6 +712,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成（逐类搬运，保持行为不变）：`UserUpdateGateway` 已从 `eva-domain` 搬运归位到 `bc-iam-domain`（保持 `package` 与接口签名/注解不变；落地：`6630277b`）。
   - ✅ 已完成（逐类搬运，保持行为不变）：`MenuEntity` 已从 `eva-domain` 搬运归位到 `bc-iam-domain`（保持 `package` 与类内容不变；落地：`6d700911`）。
   - ✅ 已完成（逐类搬运，保持行为不变）：`RoleEntity` 已从 `eva-domain` 搬运归位到 `bc-iam-domain`（保持 `package` 与类内容不变；最小回归通过；落地：`6f290793`）。
+  - ✅ 已完成（逐类搬运，保持行为不变）：`UserEntity` 已从 `eva-domain` 搬运归位到 `bc-iam-domain`（保持 `package` 与类内容不变；最小回归通过；落地：`68840131`）。
   - ✅ 已完成（逐类搬运，保持行为不变）：`MenuQueryGateway` 已从 `eva-domain` 搬运归位到 `bc-iam-domain`（保持 `package` 与接口签名/注解不变；落地：`9982af0a`）。
   - ✅ 已完成（逐类搬运，保持行为不变）：`LdapPersonEntity` 已从 `eva-domain` 搬运归位到 `bc-iam-domain`（保持 `package` 与类内容不变；落地：`eb36c6ce`）。
   - ✅ 已完成（逐类搬运，保持行为不变）：`RoleQueryGateway` 已从 `eva-domain` 搬运归位到 `bc-iam-domain`（保持 `package` 与接口签名/注解不变；最小回归通过；落地：`4b3efbf7`）。
