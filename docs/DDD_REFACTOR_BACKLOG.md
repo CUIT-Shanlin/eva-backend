@@ -754,6 +754,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
       - 结论（保持行为不变）：若目标是“完全去 `UserEntity` 编译期依赖”，由于 `UserQueryGateway`/`UserQueryGatewayImpl` 的接口签名仍暴露 `UserEntity` 与 `PaginationResultEntity<UserEntity>`，**单类改动大概率无法彻底消除**编译期依赖；需要拆成多步（例如：先收敛/替换接口签名为 contract DTO/通配符、或迁移 `UserEntity` 的 Maven 归属但保持 package 不变等），且必须确保 `@LocalCached` 触发点与缓存命中/回源语义不漂移。
       - 可复现快照（兜底证据）：`rg -n "import\\s+edu\\.cuit\\.domain\\.gateway\\.user\\.UserQueryGateway;" --glob "*.java" .` 当前预期仅命中 `bc-iam/infrastructure/**`。
       - 前置铺垫（更新至 2026-02-04，保持行为不变）：已新增 `bc-iam/infrastructure` 内部过渡接口 `edu.cuit.infra.gateway.user.UserQueryCacheGateway`（返回 `Optional<?>/PaginationResultEntity<?>`），用于后续逐类将端口适配器从编译期依赖旧 `UserQueryGateway`（eva-domain）收敛为依赖内部接口，同时仍保证调用最终进入旧 `UserQueryGatewayImpl` 以触发 `@LocalCached` 缓存/切面入口；落地：`dc49f903`。
+      - 前置铺垫（更新至 2026-02-04，保持行为不变）：已让旧 `UserQueryGatewayImpl` 同时实现 `UserQueryCacheGateway`，使后续端口适配器可把注入类型收敛为内部接口而不改变实际委托路径与缓存触发点（最小回归通过）；落地：`2970b80d`。
 
 - **S0.2 延伸（并行主线：依赖方 `pom.xml` 收敛，保持行为不变）**：
   - ✅ 已复核（更新至 2026-02-04，保持行为不变）：当前全仓库 `junit-jupiter(test)` 仅出现在以下模块，且均存在 `src/test/java` 与 `org.junit.jupiter` 引用，因此暂无“无测试源码模块”的单 `pom.xml` 清理目标：

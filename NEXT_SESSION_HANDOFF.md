@@ -21,6 +21,9 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-04（前置：UserQueryGateway 收尾铺垫——旧 gateway 兼容内部过渡接口；保持行为不变）**
+- ✅ 已完成（保持行为不变）：`UserQueryGatewayImpl` 现在同时实现 `UserQueryCacheGateway`，使后续端口适配器可把注入类型从 `UserQueryGateway` 收敛为内部接口而不改变实际委托路径与 `@LocalCached` 缓存触发点（最小回归通过；落地：`2970b80d`）。
+
 **2026-02-04（前置：UserQueryGateway 收尾铺垫——新增内部过渡缓存接口；保持行为不变）**
 - ✅ 新增（保持行为不变）：在 `bc-iam/infrastructure` 新增内部过渡接口 `edu.cuit.infra.gateway.user.UserQueryCacheGateway`（返回类型使用 `Optional<?>/PaginationResultEntity<?>`），用于后续逐类将端口适配器从编译期依赖旧 `UserQueryGateway`（eva-domain）收敛为依赖内部接口，同时仍保证调用最终进入旧 `UserQueryGatewayImpl` 以触发 `@LocalCached` 缓存/切面入口（最小回归通过；落地：`dc49f903`）。
 
