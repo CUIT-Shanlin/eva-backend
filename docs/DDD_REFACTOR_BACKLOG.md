@@ -123,6 +123,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ IAM S0.2 延伸（保持行为不变）：将 `PageUserUseCaseTest` 去 `UserEntity` 编译期依赖（测试侧端口返回类型同步为通配符；不影响用例委托行为；落地：`934cf935`）。
 - ✅ S0.2 延伸（依赖方收敛，保持行为不变）：将 `bc-evaluation/infrastructure` 的 `EvaStatisticsExporter` 去 `UserEntity` 编译期依赖：不再 `import UserEntity`，改为对 `UserAllUserIdAndEntityByIdQueryPort.findById` 返回的 `Optional<?>` 做运行时类型判定（按类名/父类链）后再 `Optional.of(...)`，以保持历史“仅当返回值为 UserEntity 才参与后续逻辑”的分支语义不变；最小回归通过；落地：`4f4b190b`。
 - ✅ S0.2 延伸（依赖方收敛前置，保持行为不变）：在 `eva-infra-shared` 的 `EvaConvertor` 增加桥接方法 `toEvaTaskEntityWithTeacherObject(...)`，用于后续让依赖方在不编译期引用 `UserEntity` 的情况下复用既有 `ToEvaTaskEntity` 映射逻辑（仅做类型桥接，不改变 teacher/courInf Supplier 的调用时机与次数）；最小回归通过；落地：`a8934ab1`。
+- ✅ S0.2 延伸（依赖方收敛前置，保持行为不变）：在 `eva-infra-shared` 的 `UserConverter` 增加桥接方法 `toUserEntityObject(...)` + `userIdOf(Object)`，用于后续让依赖方在不编译期引用 `UserEntity` 的情况下复用既有 `toUserEntity(...)` 映射逻辑（仅做类型桥接，不改变 roles Supplier 的调用时机与次数）；最小回归通过；落地：`c173c7c2`。
 - ✅ S0.2 延伸（依赖方收敛，保持行为不变）：将 `bc-evaluation/infrastructure` 的 `FillAverageScoreExporterDecorator` 去 `UserEntity` 编译期依赖，改为依赖 `bc-iam-contract` 的 `UserDetailQueryPort` + `UserDetailCO`（内部仍委托旧 `UserQueryGateway.findById`，缓存触发点不变；落地：`7a3ca8ed`）。
 - ✅ S0.2 延伸（依赖方收敛，保持行为不变）：将 `bc-evaluation/infrastructure` 的 `FillEvaRecordExporterDecorator` 去 `UserEntity` 编译期依赖，改为依赖 `bc-iam-contract` 的 `UserDetailQueryPort` + `UserDetailCO`（内部仍委托旧 `UserQueryGateway.findById`，缓存触发点不变；落地：`fba76459`）。
 - ✅ S0.2 延伸（依赖方收敛，保持行为不变）：将 `bc-evaluation/infrastructure` 的 `FillUserStatisticsExporterDecorator` 去 `UserEntity` 编译期依赖，改为依赖 `bc-iam-contract` 的 `UserDetailQueryPort` + `UserDetailCO`（内部仍委托旧 `UserQueryGateway.findById`，缓存触发点不变；落地：`8d59ea72`）。
@@ -706,11 +707,12 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - **S0.2 延伸（Evaluation：依赖方继续去 `UserEntity` 编译期依赖，保持行为不变）**：
   - ✅ 已完成：评教统计导出基类 `EvaStatisticsExporter` 已去 `UserEntity` 编译期依赖（见 `NEXT_SESSION_HANDOFF.md` 0.9；落地：`4f4b190b`）。
   - ✅ 已完成（前置）：`EvaConvertor` 已补齐桥接方法 `toEvaTaskEntityWithTeacherObject(...)`（仅类型桥接，不改 Supplier 调用时机/次数；落地：`a8934ab1`）。
+  - ✅ 已完成（前置）：`UserConverter` 已补齐桥接方法 `toUserEntityObject(...)` + `userIdOf(Object)`（仅类型桥接，不改变 roles Supplier 调用时机/次数；落地：`c173c7c2`）。
   - ⏳ 未完成（证据化，可复现）：评教读侧仓储仍编译期依赖 `UserEntity`：
     - `bc-evaluation/infrastructure/src/main/java/edu/cuit/infra/bcevaluation/query/EvaTaskQueryRepository.java`
     - `bc-evaluation/infrastructure/src/main/java/edu/cuit/infra/bcevaluation/query/EvaRecordQueryRepository.java`
     - 口径：`rg -n "import\\s+edu\\.cuit\\.domain\\.entity\\.user\\.biz\\.UserEntity;" bc-evaluation/infrastructure/src/main/java`
-  - 下一步计划（每次只改 1 个类闭环；保持行为不变）：先在 `UserConverter`/`CourseConvertor` 增加桥接方法（避免调用侧编译期引用 `UserEntity`），再逐个改 `EvaTaskQueryRepository` / `EvaRecordQueryRepository` 去 import（细节见 `NEXT_SESSION_HANDOFF.md` 0.10.1）。
+  - 下一步计划（每次只改 1 个类闭环；保持行为不变）：先在 `CourseConvertor` 增加桥接方法（避免调用侧编译期引用 `UserEntity`），再逐个改 `EvaTaskQueryRepository` / `EvaRecordQueryRepository` 去 import（细节见 `NEXT_SESSION_HANDOFF.md` 0.10.1）。
 
 - **S0.2 延伸（并行主线：依赖方 `pom.xml` 收敛，保持行为不变）**：
   - ✅ 已复核（更新至 2026-02-04，保持行为不变）：当前全仓库 `junit-jupiter(test)` 仅出现在以下模块，且均存在 `src/test/java` 与 `org.junit.jupiter` 引用，因此暂无“无测试源码模块”的单 `pom.xml` 清理目标：
