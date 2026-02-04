@@ -78,6 +78,19 @@ public interface UserConverter {
     }
 
     /**
+     * 过渡期桥接方法：从“用户对象（实际为 UserEntity）”中取 roles。
+     * <p>
+     * 约束：内部仍使用 {@link UserEntity} 强转，以尽量保持历史空值/异常表现一致。
+     * </p>
+     * <p>
+     * 说明：为避免被 MapStruct 误判为通用类型转换方法（导致编译期歧义），刻意保留一个无业务意义的形参。
+     * </p>
+     */
+    default List<RoleEntity> rolesOf(Object user, boolean ignored) {
+        return ((UserEntity) user).getRoles();
+    }
+
+    /**
      * 过渡期桥接方法：Spring Bean 桥接 + setName 桥接。
      * <p>
      * 约束：内部仍使用 {@link UserEntity} 强转与 {@link SpringUtil#getBean(Class)}，以尽量保持历史异常形态与副作用顺序一致。
