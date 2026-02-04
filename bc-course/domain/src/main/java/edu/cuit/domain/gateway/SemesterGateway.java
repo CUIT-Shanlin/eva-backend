@@ -1,11 +1,7 @@
 package edu.cuit.domain.gateway;
 
 import edu.cuit.client.dto.clientobject.SemesterCO;
-import edu.cuit.zhuyimeng.framework.common.result.CommonResult;
 import org.springframework.stereotype.Component;
-/*import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;*/
-
 
 import java.util.List;
 
