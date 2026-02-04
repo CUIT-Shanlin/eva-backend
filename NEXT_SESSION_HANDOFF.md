@@ -21,6 +21,9 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-04（补充：S0.2 延伸——收敛 `eva-infra/pom.xml` 残留依赖声明；保持行为不变）**
+- ✅ 依赖收敛（保持行为不变）：`eva-infra` 已从 root reactor 退场且源码仅 `package-info.java`（无业务逻辑、无外部依赖方）；在 Serena + `rg` 证伪后，清理 `eva-infra/pom.xml` 残留 `<dependencies>` 声明（最小回归通过）；落地：`47654a6a`。
+
 **2026-02-04（本次会话：IAM S0.2 延伸——继续收敛依赖方对 `UserEntity` 的编译期依赖；保持行为不变）**
 - ✅ 本次会话提交链（按发生顺序，便于回溯/回滚）：`51301d23`（消息查询适配器去 `UserEntity` 代码）→ `f3fb4743`（三文档同步）→ `8fa053ed`（`LogConverter` 桥接前置）→ `c52a99fc`（三文档同步）→ `a86f6520`（`LogGatewayImpl` 去 `UserEntity` 代码）→ `902bb3ab`（三文档同步）→ `687aea3e`（`UserConverter` 补齐 SpringBean+setName 桥接）→ `4accbabf`（三文档同步）→ `f0655267`（`CourseQueryRepository` 去 `UserEntity` 编译期依赖）→ `485cc5fb`（`UserConverter` 补齐 username/status 桥接）→ `9e9f00af`（三文档同步）→ `42af63a3`（`UserBasicQueryPortImpl` 去 `UserEntity` 编译期依赖）→ `5d2f7512`（`RouterDetailFactory` 入参收敛为 `Object`）→ `721051b9`（三文档同步）→ `d901223c`（`UserServiceImpl` 去 `UserEntity` 编译期依赖）→ `6d6435c6`（三文档同步；以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` / `git log -n 1 -- DDD_REFACTOR_PLAN.md` / `git log -n 1 -- docs/DDD_REFACTOR_BACKLOG.md` 为准）。
 - ✅ **IAM S0.2 延伸（前置：UserConverter 桥接方法，保持行为不变）**：在 `eva-infra-shared` 的 `UserConverter` 增加桥接方法 `toUserEntityObject(...)`（返回 `Object`）与 `userIdOf(Object)`（返回 `Integer`；内部仍使用 `UserEntity` 做强转，以尽量保持历史空值/异常表现一致），用于后续让评教读侧仓储去 `UserEntity` 编译期依赖（最小回归通过）；落地提交：`c173c7c2`。
