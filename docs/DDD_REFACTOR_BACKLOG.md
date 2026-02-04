@@ -752,6 +752,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
         - 其余非缓存方法：`findIdByUsername(String): Optional<Integer>`、`findUsernameById(Integer): Optional<String>`、`page(PagingQuery<GenericConditionalQuery>): PaginationResultEntity<?>`、`isUsernameExist(String): Boolean`、`getUserStatus(Integer): Optional<Integer>`
       - 当前“调用面/注入点”（保持行为不变）：端口适配器侧对旧 `UserQueryGateway` 的引用（import/字段注入）已清零；`UserQueryGatewayImpl` 已不再显式实现旧接口，但仍承载 `@LocalCached` 缓存/切面触发点（行为不变）。
       - 结论（保持行为不变）：本阶段已通过“收敛方法返回类型泛型为通配符”的方式完成 `bc-iam/infrastructure` 对 `UserEntity` 的编译期清零；后续若目标是“让 `eva-domain` 的 `UserEntity` 退出/迁移归属”，仍需另行拆步推进，且必须确保 `@LocalCached` 触发点与缓存命中/回源语义不漂移（高风险）。
+      - ✅ 同步推进（保持行为不变）：`eva-domain` 的旧 `UserQueryGateway` 接口已去 `UserEntity` 泛型暴露：将 `findById/findByUsername/page` 返回类型收敛为 `Optional<?>/PaginationResultEntity<?>`（接口无引用面；最小回归通过；落地：`6ae17638`）。
       - 可复现快照（兜底证据）：`rg -n "import\\s+edu\\.cuit\\.domain\\.gateway\\.user\\.UserQueryGateway;" bc-iam/infrastructure/src/main/java --glob "*.java"` 应命中为 0（端口适配器与旧 gateway 已不再显式引用旧接口）。
       - 前置铺垫（更新至 2026-02-04，保持行为不变）：已新增 `bc-iam/infrastructure` 内部过渡接口 `edu.cuit.infra.gateway.user.UserQueryCacheGateway`（返回 `Optional<?>/PaginationResultEntity<?>`），用于后续逐类将端口适配器从编译期依赖旧 `UserQueryGateway`（eva-domain）收敛为依赖内部接口，同时仍保证调用最终进入旧 `UserQueryGatewayImpl` 以触发 `@LocalCached` 缓存/切面入口；落地：`dc49f903`。
       - 前置铺垫（更新至 2026-02-04，保持行为不变）：已让旧 `UserQueryGatewayImpl` 同时实现 `UserQueryCacheGateway`，使后续端口适配器可把注入类型收敛为内部接口而不改变实际委托路径与缓存触发点（最小回归通过）；落地：`2970b80d`。
