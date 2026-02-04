@@ -745,6 +745,14 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - **S0.2 延伸（IAM：继续去 `UserEntity` 编译期依赖，保持行为不变）**：
   - ⏳ 未完成（证据化，可复现，保持行为不变）：`bc-iam/infrastructure` 仍存在对旧 `UserEntity` 的编译期依赖：
     - 口径：`rg -n "import\\s+edu\\.cuit\\.domain\\.entity\\.user\\.biz\\.UserEntity;" bc-iam/infrastructure/src/main/java --glob "*.java"`（当前预期命中：`UserQueryGatewayImpl`）。
+    - 证据化盘点（Serena，更新至 2026-02-04，保持行为不变）：该残留点为旧委托壳 `UserQueryGatewayImpl`，其本身承载缓存/切面触发点（风险高，建议最后一簇再动）：
+      - 文件：`bc-iam/infrastructure/src/main/java/edu/cuit/infra/gateway/impl/user/UserQueryGatewayImpl.java`
+      - 对外签名（保持行为不变；实现为委托到 bc-iam 用例）：
+        - ✅ 带 `@LocalCached` 的缓存触发点（切面入口）：`findById(Integer): Optional<UserEntity>`、`findByUsername(String): Optional<UserEntity>`、`findAllUserId(): List<Integer>`、`findAllUsername(): List<String>`、`allUser(): List<SimpleResultCO>`、`getUserRoleIds(Integer): List<Integer>`
+        - 其余非缓存方法：`findIdByUsername(String): Optional<Integer>`、`findUsernameById(Integer): Optional<String>`、`page(PagingQuery<GenericConditionalQuery>): PaginationResultEntity<UserEntity>`、`isUsernameExist(String): Boolean`、`getUserStatus(Integer): Optional<Integer>`
+      - 当前“调用面/注入点”（保持行为不变）：`UserQueryGateway` 的引用（import/字段注入）仅分布在 `bc-iam/infrastructure` 内部的若干端口适配器中（例如 `UserEntityByIdQueryPortImpl`、`UserEntityByUsernameQueryPortImpl`、`UserAllUserIdQueryPortImpl`、`UserNameQueryPortImpl`、`UserDirectoryPageQueryPortImpl`、`UserDetailQueryPortImpl`、`UserEntityQueryPortImpl`），用于确保调用仍进入旧 gateway 从而触发 `@LocalCached`。
+      - 结论（保持行为不变）：若目标是“完全去 `UserEntity` 编译期依赖”，由于 `UserQueryGateway`/`UserQueryGatewayImpl` 的接口签名仍暴露 `UserEntity` 与 `PaginationResultEntity<UserEntity>`，**单类改动大概率无法彻底消除**编译期依赖；需要拆成多步（例如：先收敛/替换接口签名为 contract DTO/通配符、或迁移 `UserEntity` 的 Maven 归属但保持 package 不变等），且必须确保 `@LocalCached` 触发点与缓存命中/回源语义不漂移。
+      - 可复现快照（兜底证据）：`rg -n "import\\s+edu\\.cuit\\.domain\\.gateway\\.user\\.UserQueryGateway;" --glob "*.java" .` 当前预期仅命中 `bc-iam/infrastructure/**`。
 
 - **S0.2 延伸（并行主线：依赖方 `pom.xml` 收敛，保持行为不变）**：
   - ✅ 已复核（更新至 2026-02-04，保持行为不变）：当前全仓库 `junit-jupiter(test)` 仅出现在以下模块，且均存在 `src/test/java` 与 `org.junit.jupiter` 引用，因此暂无“无测试源码模块”的单 `pom.xml` 清理目标：
