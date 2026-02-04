@@ -1,7 +1,7 @@
 package edu.cuit.bc.iam.application.usecase;
 
+import edu.cuit.bc.iam.application.port.UserEntityByIdQueryPort;
 import edu.cuit.bc.iam.application.port.UserEntityQueryPort;
-import edu.cuit.domain.entity.user.biz.UserEntity;
 
 import java.util.Optional;
 
@@ -11,14 +11,21 @@ import java.util.Optional;
  * <p>说明：现阶段仅做 DDD 渐进式重构（收敛入口/抽离端口），不做业务逻辑优化，行为以旧系统为准。</p>
  */
 public class FindUserByIdUseCase {
-    private final UserEntityQueryPort queryPort;
+    private final UserEntityByIdQueryPort queryPort;
 
-    public FindUserByIdUseCase(UserEntityQueryPort queryPort) {
+    public FindUserByIdUseCase(UserEntityByIdQueryPort queryPort) {
         this.queryPort = queryPort;
     }
 
-    public Optional<UserEntity> execute(Integer id) {
-        return queryPort.findById(id);
+    /**
+     * 过渡期保持旧语义：此构造仅用于复用现有 wiring/测试（不在用例内暴露旧领域实体类型）。
+     */
+    public FindUserByIdUseCase(UserEntityQueryPort legacyQueryPort) {
+        this.queryPort = legacyQueryPort::findById;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> Optional<T> execute(Integer id) {
+        return (Optional<T>) queryPort.findById(id);
     }
 }
-
