@@ -959,7 +959,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
      - ✅ 已完成（保持行为不变）：`LdapPersonEntity` → `bc-iam-domain`（落地：`eb36c6ce`）。
      - ✅ 已完成（保持行为不变）：`LdapPersonGateway` → `bc-iam-domain`（落地：`ce85525d`）。
      - ✅ 已完成（保持行为不变）：`RoleEntity` → `bc-iam-domain`（保持 `package` 与类内容不变，仅搬运归位；最小回归通过；落地：`6f290793`）。
-     - 下一刀建议（保持行为不变）：继续按 Serena 证据化盘点，逐类归位“仅 IAM 使用”的 `edu.cuit.domain.*` 子集（优先纯 POJO/纯接口）。注意：`RoleEntity` 当前仍存在跨 BC 引用面（过渡期先保持 `package` 稳定），后续应再评估其最终承载面；`RoleQueryGateway` 是否跨 BC 复用以“Serena + 可复现 `rg` 证据”为准——若证伪其引用面仅在 `bc-iam/**`，可作为下一刀候选按“单类搬运”闭环归位到 `bc-iam-domain`（保持 `package` 不变）。
+     - ✅ 已完成（保持行为不变）：`RoleQueryGateway` → `bc-iam-domain`（保持 `package` 与接口签名/注解不变，仅搬运归位；最小回归通过；落地：`4b3efbf7`）。
+     - 下一刀建议（保持行为不变）：继续按 Serena 证据化盘点，逐类归位“仅 IAM 使用”的 `edu.cuit.domain.*` 子集（优先纯 POJO/纯接口）。注意：`RoleEntity` 当前仍存在跨 BC 引用面（过渡期先保持 `package` 稳定），后续应再评估其最终承载面。
      - ✅ 补充进展（保持行为不变，前置）：为避免登录校验引入额外查询次数/缓存触发点，已在 `bc-iam-contract` 新增按用户名查询用户状态最小端口 `UserStatusByUsernameQueryPort`，用于后续将 `ValidateUserLoginUseCase` 去 `UserEntity` 编译期依赖（详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
      - ✅ 补充进展（保持行为不变，端口适配器实现）：已为 `UserStatusByUsernameQueryPort` 补齐端口适配器实现（内部委托旧 `UserQueryGateway.findByUsername`）；为避免未来注入歧义，当前由 `UserEntityByUsernameQueryPortImpl` 统一承接该端口能力。
      - ✅ 补充进展（保持行为不变，适配器复用）：已在 `UserEntityByUsernameQueryPortImpl` 补齐实现 `UserStatusByUsernameQueryPort`，用于后续让 `ValidateUserLoginUseCase` 在不改调用方的前提下去 `UserEntity` 编译期依赖（详见 `NEXT_SESSION_HANDOFF.md` 0.9）。

@@ -21,6 +21,9 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-04（下一刀：证伪并归位 `RoleQueryGateway` → `bc-iam-domain`；保持行为不变）**
+- ✅ 已完成（保持行为不变）：Serena 证伪 `RoleQueryGateway` 引用面仅在 `bc-iam/**` 后，将其从 `eva-domain` 搬运归位到 `bc-iam-domain`（保持 `package` 与接口签名/注解不变，仅改变 Maven 模块归属；最小回归通过；落地：`4b3efbf7`）。
+
 **2026-02-04（前置：归位 `RoleEntity` → `bc-iam-domain`；保持行为不变）**
 - ✅ 已完成（保持行为不变）：将 `RoleEntity` 从 `eva-domain` 搬运归位到 `bc-iam-domain`（保持 `package` 与类内容不变，仅改变 Maven 模块归属；最小回归通过；落地：`6f290793`）。
 
