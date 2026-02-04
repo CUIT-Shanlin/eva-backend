@@ -13,7 +13,6 @@ import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.log.SysLogEntity;
 import edu.cuit.domain.entity.log.SysLogModuleEntity;
 import edu.cuit.domain.entity.user.biz.RoleEntity;
-import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.domain.gateway.LogGateway;
 import edu.cuit.infra.convertor.LogConverter;
 import edu.cuit.infra.convertor.PaginationConverter;
@@ -124,8 +123,8 @@ public class LogGatewayImpl implements LogGateway {
                 .stream().map(SysUserRoleDO::getRoleId).toList();
         List<SysRoleDO> roleList = roleIds.isEmpty() ? List.of() : roleMapper.selectList(new QueryWrapper<SysRoleDO>().in("id", roleIds));
         List<RoleEntity> roleEntities = roleList.stream().map(roleConverter::toRoleEntity).toList();
-        UserEntity userEntity = userConverter.toUserEntity(sysUserDO, () -> roleEntities);
-        return logConverter.toLogEntity(logDO, moduleEntity, userEntity);
+        Object userEntity = userConverter.toUserEntityObject(sysUserDO, () -> roleEntities);
+        return logConverter.toLogEntityWithUserObject(logDO, moduleEntity, userEntity);
 
     }
 }
