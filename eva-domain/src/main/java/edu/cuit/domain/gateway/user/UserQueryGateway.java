@@ -4,7 +4,6 @@ import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
-import edu.cuit.domain.entity.user.biz.UserEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -19,16 +18,16 @@ public interface UserQueryGateway {
     /**
      * 通过用户ID查询用户
      * @param id 用户ID
-     * @return UserEntity
+     * @return 用户实体（过渡期用通配符承接，避免编译期绑定）
      */
-    Optional<UserEntity> findById(Integer id);
+    Optional<?> findById(Integer id);
 
     /**
      * 通过用户名查询用户
      * @param username 用户名
-     * @return UserEntity
+     * @return 用户实体（过渡期用通配符承接，避免编译期绑定）
      */
-    Optional<UserEntity> findByUsername(String username);
+    Optional<?> findByUsername(String username);
 
     /**
      * 通过用户名查询用户id
@@ -61,7 +60,7 @@ public interface UserQueryGateway {
      * @param query 查询对象
      * @return 数据
      */
-    PaginationResultEntity<UserEntity> page(PagingQuery<GenericConditionalQuery> query);
+    PaginationResultEntity<?> page(PagingQuery<GenericConditionalQuery> query);
 
     /**
      * 获取所有用户
