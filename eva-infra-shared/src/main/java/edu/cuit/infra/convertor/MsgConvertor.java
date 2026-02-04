@@ -23,7 +23,16 @@ public interface MsgConvertor {
     })
     MsgEntity toMsgEntity(MsgTipDO msg, Supplier<UserEntity> sender, Supplier<UserEntity> recipient);
 
+    /**
+     * 过渡期桥接方法：用于让调用方在不编译期引用 {@link UserEntity} 的情况下复用既有映射逻辑。
+     * <p>
+     * 约束：不改变 sender/recipient Supplier 的调用时机与次数，仅做类型桥接。
+     * </p>
+     */
+    default MsgEntity toMsgEntityWithUserObject(MsgTipDO msg, Supplier<?> sender, Supplier<?> recipient) {
+        return toMsgEntity(msg, () -> (UserEntity) sender.get(), () -> (UserEntity) recipient.get());
+    }
+
     MsgTipDO toMsgDO(GenericRequestMsg msg);
 
 }
-
