@@ -873,8 +873,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
           1) `UserConverter.springUserEntityWithNameObject(Object)`（内部仍强转 `UserEntity` 并调用 `SpringUtil.getBean(UserEntity.class)`，尽量保持异常形态与副作用顺序一致）；
           2) `CourseQueryRepository` 去 `UserEntity` import，并改走 `userConverter.toUserEntityObject(...)`、`courseConvertor.toCourseEntityWithTeacherObject(...)` 与上述桥接方法，保持缓存/查询/遍历顺序与异常文案不变。
         - ✅ 已完成（2026-02-04，保持行为不变）：将 `bc-iam-infra` 的 `UserServiceImpl` 去 `UserEntity` 编译期依赖：`Optional<?>.map(UserEntity.class::cast)` 改走 `userConverter.castUserEntityObject(...)`，并将 `getUserInfo` 入参收敛为 `Object` 后通过 `RouterDetailFactory/UserBizConvertor/UserConverter` 桥接读取字段（缓存/日志/异常文案/副作用顺序不变）；最小回归通过；落地：`d901223c`。
-        - ⏳ 后置评估（保持行为不变；风险高）：当前 `bc-iam/infrastructure` 残留 `UserEntity` 编译期依赖仅剩旧 `UserQueryGatewayImpl`（该类承载缓存/切面触发点，建议最后一簇再动）。
-        - ✅ 已完成（2026-02-04，保持行为不变，证据化盘点）：用 Serena 盘点 `UserQueryGatewayImpl` 的对外签名/`@LocalCached` 触发点与调用面，确认其签名仍暴露 `UserEntity` 与 `PaginationResultEntity<UserEntity>`，因此“完全去编译期依赖”需拆为多步推进；详见 `docs/DDD_REFACTOR_BACKLOG.md` 4.3（证据化起点：`c4a32bde`）。
+        - ✅ 已完成（2026-02-04，保持行为不变，推进）：`UserQueryGatewayImpl` 已去 `UserEntity` 编译期依赖：移除 `import UserEntity`，并将 `findById/findByUsername/page` 返回类型收敛为 `Optional<?>/PaginationResultEntity<?>`（方法体与 `@LocalCached` 触发点不变；最小回归通过；落地：`8cba32b8`）。
+        - ✅ 已完成（2026-02-04，保持行为不变，证据化盘点）：用 Serena 盘点 `UserQueryGatewayImpl` 的对外签名/`@LocalCached` 触发点与调用面；详见 `docs/DDD_REFACTOR_BACKLOG.md` 4.3（证据化起点：`c4a32bde`）。
         - ✅ 已完成（2026-02-04，保持行为不变，前置铺垫）：在 `bc-iam/infrastructure` 新增内部过渡接口 `UserQueryCacheGateway`（返回 `Optional<?>/PaginationResultEntity<?>`），用于后续逐类将端口适配器从编译期依赖旧 `UserQueryGateway`（eva-domain）收敛为依赖内部接口，同时仍保证调用最终进入旧 `UserQueryGatewayImpl` 以触发 `@LocalCached` 缓存/切面入口（最小回归通过；落地：`dc49f903`）。
         - ✅ 已完成（2026-02-04，保持行为不变，前置铺垫）：已让旧 `UserQueryGatewayImpl` 实现 `UserQueryCacheGateway`，使后续端口适配器可“只改注入类型”而不改变实际委托路径与缓存触发点（最小回归通过；落地：`2970b80d`）。
         - ✅ 已完成（2026-02-04，保持行为不变，推进）：`UserQueryGatewayImpl` 已不再显式实现旧 `UserQueryGateway`，仅保留实现内部接口 `UserQueryCacheGateway`；`@LocalCached` 触发点与方法体保持不变（最小回归通过；落地：`fb3b2e40`）。
