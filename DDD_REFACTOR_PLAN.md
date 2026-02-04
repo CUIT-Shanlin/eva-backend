@@ -855,6 +855,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
         - ✅ 已完成（2026-02-04，保持行为不变）：在 `eva-infra-shared` 的 `EvaConvertor` 增加桥接方法 `toEvaTaskEntityWithTeacherObject(...)`，用于后续让依赖方在不编译期引用 `UserEntity` 的情况下复用既有 `ToEvaTaskEntity` 映射逻辑（仅做类型桥接，不改变 teacher/courInf Supplier 的调用时机与次数）；最小回归通过；落地：`a8934ab1`。
         - ✅ 已完成（2026-02-04，保持行为不变）：在 `eva-infra-shared` 的 `UserConverter` 增加桥接方法 `toUserEntityObject(...)` + `userIdOf(Object)`（仅做类型桥接，不改变 roles Supplier 的调用时机与次数）；最小回归通过；落地：`c173c7c2`。
         - ✅ 已完成（2026-02-04，保持行为不变）：为后续让 `bc-iam-infra` 的 `UserBasicQueryPortImpl` 去 `UserEntity` 编译期依赖（缓存命中时仍需读取 username/status），在 `eva-infra-shared` 的 `UserConverter` 增加桥接方法 `usernameOf(Object, boolean)` + `statusOf(Object, boolean)`（内部仍强转 `UserEntity` 调 getter；并通过“无业务意义形参”规避 MapStruct 编译期歧义）；最小回归通过；落地：`485cc5fb`。
+        - ✅ 已完成（2026-02-04，保持行为不变）：将 `bc-iam-infra` 的 `UserBasicQueryPortImpl` 去 `UserEntity` 编译期依赖：缓存命中时从 `Optional<?>` 取值并改走 `UserConverter.userIdOf/usernameOf/statusOf` 桥接方法读取字段（缓存命中/回源顺序与异常文案不变）；最小回归通过；落地：`42af63a3`。
         - ✅ 已完成（2026-02-04，保持行为不变）：在 `eva-infra-shared` 的 `CourseConvertor` 增加桥接方法 `toCourseEntityWithTeacherObject(...)`（仅做类型桥接，不改变 teacher Supplier 的调用时机与次数）；最小回归通过；落地：`858521da`。
         - ✅ 已完成（2026-02-04，保持行为不变）：将 `bc-evaluation/infrastructure` 的 `EvaTaskQueryRepository` 去 `UserEntity` 编译期依赖（不改变 DB 查询/遍历顺序；异常文案不变）；最小回归通过；落地：`7f198610`。
         - ✅ 已完成（2026-02-04，保持行为不变）：将 `bc-evaluation/infrastructure` 的 `EvaRecordQueryRepository` 去 `UserEntity` 编译期依赖（不改变 DB 查询/遍历顺序；异常文案不变）；最小回归通过；落地：`9cbcb858`。
