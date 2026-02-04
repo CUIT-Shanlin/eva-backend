@@ -6,7 +6,6 @@ import edu.cuit.bc.iam.application.port.UserEntityQueryPort;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
-import edu.cuit.domain.entity.user.biz.UserEntity;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
@@ -28,21 +27,20 @@ class PageUserUseCaseTest {
         private PagingQuery<GenericConditionalQuery> query;
 
         @Override
-        public Optional<UserEntity> findById(Integer id) {
+        public Optional<?> findById(Integer id) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public Optional<UserEntity> findByUsername(String username) {
+        public Optional<?> findByUsername(String username) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public PaginationResultEntity<UserEntity> page(PagingQuery<GenericConditionalQuery> query) {
+        public PaginationResultEntity<?> page(PagingQuery<GenericConditionalQuery> query) {
             this.pageCalls++;
             this.query = query;
             return null;
         }
     }
 }
-
