@@ -21,6 +21,9 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-04（前置：UserQueryGateway 收尾铺垫——新增内部过渡缓存接口；保持行为不变）**
+- ✅ 新增（保持行为不变）：在 `bc-iam/infrastructure` 新增内部过渡接口 `edu.cuit.infra.gateway.user.UserQueryCacheGateway`（返回类型使用 `Optional<?>/PaginationResultEntity<?>`），用于后续逐类将端口适配器从编译期依赖旧 `UserQueryGateway`（eva-domain）收敛为依赖内部接口，同时仍保证调用最终进入旧 `UserQueryGatewayImpl` 以触发 `@LocalCached` 缓存/切面入口（最小回归通过；落地：`dc49f903`）。
+
 **2026-02-04（证据化盘点：UserQueryGatewayImpl 缓存触发点与调用面；保持行为不变）**
 - ✅ 已证据化（Serena + `rg` 兜底）：`bc-iam/infrastructure/src/main/java/edu/cuit/infra/gateway/impl/user/UserQueryGatewayImpl.java` 仍承载 `@LocalCached` 缓存触发点，且其接口 `UserQueryGateway` 的调用面（import/注入）当前仅分布于 `bc-iam/infrastructure` 内部的端口适配器中；详见 `docs/DDD_REFACTOR_BACKLOG.md` 4.3（落地：`c4a32bde`）。
 - ✅ 结论（保持行为不变）：由于 `UserQueryGateway`/`UserQueryGatewayImpl` 对外签名仍暴露 `UserEntity` 与 `PaginationResultEntity<UserEntity>`，因此“完全去 `UserEntity` 编译期依赖”大概率无法通过“单类改动”闭环完成；建议继续按 0.11/E 的口径先停在“证据化 + 方案拆分”，后置再按多步推进且必须确保缓存命中/回源语义不漂移。
