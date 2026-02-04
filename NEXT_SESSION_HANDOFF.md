@@ -21,6 +21,9 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-04（下一刀：证伪并归位 `ClassroomGateway` → `bc-course-domain`；保持行为不变）**
+- ✅ 已完成（保持行为不变）：Serena 证伪 `ClassroomGateway` 引用面仅在 `bc-course/**` 后，将其从 `eva-domain` 搬运归位到 `bc-course-domain`（保持 `package` 与接口签名/注解不变，仅改变 Maven 模块归属；最小回归通过；落地：`11ac2be6`）。
+
 **2026-02-04（前置：bc-course-domain 编译闭合支撑；保持行为不变）**
 - ✅ 已完成（保持行为不变）：为后续逐类搬运 `edu.cuit.domain.*` 到 `bc-course-domain` 做编译闭合前置，在 `bc-course/domain/pom.xml` 补齐 `spring-context(provided)`（仅编译期依赖，运行期 classpath 不变；最小回归通过；落地：`3ab4b3de`）。
 

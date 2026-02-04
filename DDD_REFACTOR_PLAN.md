@@ -588,6 +588,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-01-12，保持行为不变，ClassroomServiceImpl 收敛准备）：在 `BcCourseConfiguration` 补齐 `ClassroomQueryUseCase` 的 Bean 装配（不改业务语义；最小回归通过；落地：`abdfe122`）。
 - 补充进展（2026-01-12，保持行为不变，入口壳收敛：教室）：将 `eva-app` 的 `ClassroomServiceImpl` 从直接调用 `ClassroomGateway` 改为委托 `ClassroomQueryUseCase`（异常文案与副作用顺序不变；最小回归通过；落地：`20361679`）。
 - ✅ 补充进展（2026-02-04，保持行为不变，编译闭合前置：bc-course-domain）：为后续将 `edu.cuit.domain.gateway.*` 从 `eva-domain` 逐类归位到 `bc-course-domain`，在 `bc-course/domain/pom.xml` 补齐 `spring-context(provided)`（仅编译期依赖；最小回归通过；落地：`3ab4b3de`）。
+- ✅ 补充进展（2026-02-04，保持行为不变，类型归位：教室网关接口）：Serena 证伪 `ClassroomGateway` 引用面仅在 `bc-course/**` 后，已将其从 `eva-domain` 搬运归位到 `bc-course-domain`（保持 `package` 与接口签名/注解不变；最小回归通过；落地：`11ac2be6`）。
 - 补充进展（2026-01-12，保持行为不变，ICourseTypeServiceImpl 收敛准备）：在 `bc-course/application` 新增课程类型用例 `CourseTypeUseCase`（读写合并；手写 `CourseTypeEntity` → `CourseType` 映射与 `PaginationQueryResultCO` 组装，不引入 `eva-infra-shared`；对齐旧入口逻辑与返回语义；最小回归通过；落地：`325f221a`）。
 - 补充进展（2026-01-12，保持行为不变，ICourseTypeServiceImpl 收敛准备）：在 `BcCourseConfiguration` 补齐 `CourseTypeUseCase` 的 Bean 装配（保持行为不变；最小回归通过；落地：`55eb322e`）。
 - 补充进展（2026-01-12，保持行为不变，入口壳收敛：课程类型）：将 `eva-app` 的 `ICourseTypeServiceImpl` 退化为纯委托壳，改为委托 `CourseTypeUseCase`（保持 `id==null` 语义与 `updateCoursesType` 返回 `null`（`Void`）等行为不变；最小回归通过；落地：`1aebda24`）。
