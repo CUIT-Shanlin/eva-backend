@@ -42,6 +42,18 @@ public interface CourseConvertor {
     })
 
     CourseEntity toCourseEntity(CourseDO courseDo, Supplier<SubjectEntity> subject, Supplier<UserEntity> teacher, Supplier<SemesterEntity> semester);
+
+    /**
+     * 过渡期桥接方法：用于让调用方在不编译期引用 {@link UserEntity} 的情况下复用既有映射逻辑。
+     * <p>
+     * 约束：不改变 teacher Supplier 的调用时机与次数，仅做类型桥接。
+     * </p>
+     */
+    default CourseEntity toCourseEntityWithTeacherObject(CourseDO courseDo,
+            Supplier<SubjectEntity> subject, Supplier<?> teacher, Supplier<SemesterEntity> semester) {
+        return toCourseEntity(courseDo, subject, () -> (UserEntity) teacher.get(), semester);
+    }
+
     @Mappings({
             @Mapping(target = "isDefault",source = "courseTypeDO.isDefault")
     })
