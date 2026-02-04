@@ -5,8 +5,8 @@ import edu.cuit.bc.iam.application.contract.dto.clientobject.user.RouterDetailCO
 import edu.cuit.bc.iam.application.contract.dto.clientobject.user.RouterMeta;
 import edu.cuit.domain.entity.user.biz.MenuEntity;
 import edu.cuit.domain.entity.user.biz.RoleEntity;
-import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.domain.gateway.user.MenuQueryGateway;
+import edu.cuit.infra.convertor.user.UserConverter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,10 +16,11 @@ import java.util.List;
  */
 public class RouterDetailFactory {
 
-    public static List<RouterDetailCO> createRouterDetail(UserEntity user) {
+    public static List<RouterDetailCO> createRouterDetail(Object user) {
+        UserConverter userConverter = SpringUtil.getBean(UserConverter.class);
         List<MenuEntity> userMenus;
 
-        if ("admin".equals(user.getUsername())) {
+        if ("admin".equals(userConverter.usernameOf(user, true))) {
             MenuQueryGateway menuQueryGateway = SpringUtil.getBean(MenuQueryGateway.class);
             userMenus = menuQueryGateway.getAllMenu()
                     .stream()
@@ -27,7 +28,7 @@ public class RouterDetailFactory {
                     .toList();
         } else {
             userMenus = new ArrayList<>();
-            for (RoleEntity role : user.getRoles()) {
+            for (RoleEntity role : userConverter.rolesOf(user, true)) {
                 if (role.getStatus() == 0) continue;
                 userMenus.addAll(role.getMenus().stream()
                         .filter(menuEntity -> menuEntity.getParentId() == null || menuEntity.getParentId() == 0)
@@ -39,7 +40,7 @@ public class RouterDetailFactory {
         return userMenus.stream()
                 .map((menu) -> toRouterDetailCO(menu,getUserMenus(user).stream()
                         .map(MenuEntity::getId)
-                        .toList(),user.getName()))
+                        .toList(), userConverter.nameOf(user, true)))
                 .toList();
 
     }
@@ -62,10 +63,11 @@ public class RouterDetailFactory {
         return routerDetailCO;
     }
 
-    private static List<MenuEntity> getUserMenus(UserEntity user) {
+    private static List<MenuEntity> getUserMenus(Object user) {
+        UserConverter userConverter = SpringUtil.getBean(UserConverter.class);
         List<MenuEntity> userMenus = new ArrayList<>();
-        for (RoleEntity role : user.getRoles()) {
-            if (!"admin".equals(user.getName()) && role.getStatus() == 0) continue;
+        for (RoleEntity role : userConverter.rolesOf(user, true)) {
+            if (!"admin".equals(userConverter.nameOf(user, true)) && role.getStatus() == 0) continue;
             userMenus.addAll(role.getMenus().stream()
                     .toList());
         }
