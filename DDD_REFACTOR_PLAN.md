@@ -500,13 +500,13 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 - 微服务演进策略：**先拆服务，暂时共享库**（过渡期）。
 - 时间语义：`cour_inf.day` 中 `day=1` 表示 **周一**（周一是一周开始）。
-- 新对话启动方式：优先复制 `NEXT_SESSION_HANDOFF.md` 的 **0.11 推荐版（Controller 优先）**（不固化 commitId），并按其中顺序阅读与执行。
+- 新对话启动方式：优先复制 `NEXT_SESSION_HANDOFF.md` 的 **0.11 推荐版（主线优先）**（不固化 commitId），并按其中顺序阅读与执行。
 
 ### 10.2 下一步优先顺序（保持“写侧优先 + 行为不变”）
 
 > 滚动口径（更新至 2026-02-04）：✅ `eva-app` 已完成退场闭环（源码清零 + 组合根 `start` 去依赖 + root reactor 移除 + 删除 `eva-app/pom.xml`）；✅ `eva-adapter` 残留 `*Controller` 已清零，且组合根 `start` 已移除对 `eva-adapter` 的 Maven 依赖（保持行为不变）；✅ `eva-adapter` 已从 root reactor 退场（root `pom.xml` 移除 `<module>eva-adapter</module>`；最小回归通过；落地：`86842a1f`）；✅ 已删除 `eva-adapter/pom.xml`（全仓库 `**/pom.xml` 不再出现 `<artifactId>eva-adapter</artifactId>`；最小回归通过；落地：`ed244cad`）；🎯 下一步主线：并行推进“依赖方 `pom.xml` 编译期依赖收敛”，并评估是否需要删除 `eva-adapter/` 空目录（需独立提交；保持行为不变）。
-> 补充（更新至 2026-02-04，保持行为不变）：主线已转向 IAM 并行（10.3）与 IAM S0.2 延伸：继续将依赖方对 `UserQueryGateway` / `UserEntity` 的编译期依赖收敛为 `bc-iam-contract` 最小 Port/基础类型，端口适配器内部仍委托旧 gateway 以保持缓存/切面触发点不变（下一刀建议见 10.3 的 IAM 小节）。
-> 新会话续接方式：优先复制 `NEXT_SESSION_HANDOFF.md` 的 0.11「推荐版（Controller 优先）」并按 0.10 的“下一步拆分与里程碑/提交点”顺序执行，避免遗漏约束与回归命令。
+> 补充（更新至 2026-02-04，保持行为不变）：主线已转向 **bc-course S0.2 延伸：逐类把课程域类型从 `eva-domain` 归位到 `bc-course-domain`（保持 `package` 不变）**，以缩小 `eva-domain` 表面积并为后续“依赖方去 `eva-domain`”创造前置条件（下一刀建议见 10.3 的 bc-course 小节）。IAM 的 “S0.2 延伸（依赖方收敛）” 已阶段性闭环，作为并行任务保留历史记录与回溯口径。
+> 新会话续接方式：优先复制 `NEXT_SESSION_HANDOFF.md` 的 0.11「推荐版（主线优先）」并按 0.10 的“下一步拆分与里程碑/提交点”顺序执行，避免遗漏约束与回归命令。
 
 - 补充进展（2026-01-17，保持行为不变，Controller 归位前置）：为后续将 `AuthenticationController` 从 `eva-adapter` 归位到 `bc-iam-infra`，先在 `bc-iam/infrastructure/pom.xml` 补齐 `spring-boot-starter-web`、`zym-spring-boot-starter-common`、`commons-lang3`（仅编译闭合；最小回归通过；落地：`42d44f0b`）。
 - 补充进展（2026-01-17，保持行为不变，Controller 归位前置）：为后续归位 `UserUpdateController`（依赖 `SysException/LogModule/ValidStatus`）做编译闭合前置，在 `bc-iam/infrastructure/pom.xml` 补齐 `cola-component-exception`、`shared-kernel`、`eva-base-common`（保持行为不变；最小回归通过；落地：`ddd5ff2a`）。
@@ -912,6 +912,14 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   4) 后置再考虑 `eva-domain/eva-infra*`：它们仍被多个 BC 编译期依赖，属于“跨 BC 共享/过渡模块”；需要先完成端口归属与依赖边界收敛，避免硬整合导致循环依赖与装配漂移。
 
 ### 10.3 未完成清单（滚动，供下一会话排期）
+
+#### bc-course（Course）S0.2：课程域类型逐类归位（`eva-domain` → `bc-course-domain`，保持行为不变）
+
+> 背景：`eva-domain` 仍承载部分课程域实体/接口，导致多个 BC 仍需经由 `eva-domain` 承接编译期类型。当前采用“每次只搬运 1 个类 + 必要的单 pom 编译闭合前置”的节奏，逐步把**仅课程域承载**的类型归位到 `bc-course-domain`，并通过过渡期依赖保持全仓库编译闭合（不改业务语义）。
+
+- ✅ 已完成（保持行为不变）：`ClassroomGateway`、`SemesterGateway`、`CourseTypeEntity` 已归位 `bc-course-domain`；为编译闭合已补齐 `bc-course/domain/pom.xml` 的必要依赖，并在过渡期为 `eva-domain`/`eva-infra-shared` 补齐对 `bc-course-domain` 的编译期依赖（详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
+- 🎯 下一刀建议（每次只改 1 个类；保持行为不变）：优先搬运 `SubjectEntity`（依赖最少），其次 `SemesterEntity`。
+- ⚠️ 风险提示（保持行为不变）：暂不动 `CourseEntity/SingleCourseEntity`（其字段当前仍编译期依赖 `UserEntity`，直接搬运可能引入 `bc-course-domain` → `bc-iam-domain` 的强耦合；需另起小步评估承载面与依赖边界后再推进）。
 
 #### bc-iam（IAM）S1：Controller 入口壳结构性收敛（保持行为不变）
 
