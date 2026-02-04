@@ -19,7 +19,6 @@ import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
-import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.infra.gateway.user.UserQueryCacheGateway;
 import edu.cuit.infra.convertor.PaginationConverter;
 import edu.cuit.infra.dal.database.dataobject.user.SysRoleDO;
@@ -55,14 +54,14 @@ public class UserQueryGatewayImpl implements UserQueryCacheGateway {
 
     @Override
     @LocalCached(area = "#{@userCacheConstants.ONE_USER_ID}",key = "#id")
-    public Optional<UserEntity> findById(Integer id) {
+    public Optional<?> findById(Integer id) {
         // 历史路径：收敛到 bc-iam 用例，旧 gateway 逐步退化为委托壳（保持行为不变）
         return findUserByIdUseCase.execute(id);
     }
 
     @Override
     @LocalCached(area = "#{@userCacheConstants.ONE_USER_USERNAME}",key = "#username")
-    public Optional<UserEntity> findByUsername(String username) {
+    public Optional<?> findByUsername(String username) {
         // 历史路径：收敛到 bc-iam 用例，旧 gateway 逐步退化为委托壳（保持行为不变）
         return findUserByUsernameUseCase.execute(username);
     }
@@ -94,7 +93,7 @@ public class UserQueryGatewayImpl implements UserQueryCacheGateway {
     }
 
     @Override
-    public PaginationResultEntity<UserEntity> page(PagingQuery<GenericConditionalQuery> query) {
+    public PaginationResultEntity<?> page(PagingQuery<GenericConditionalQuery> query) {
         // 历史路径：收敛到 bc-iam 用例，旧 gateway 逐步退化为委托壳（保持行为不变）
         return pageUserUseCase.execute(query);
     }
