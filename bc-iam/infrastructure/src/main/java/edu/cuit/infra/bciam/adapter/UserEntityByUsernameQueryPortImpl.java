@@ -5,8 +5,8 @@ import edu.cuit.bc.iam.application.port.UserEntityByUsernameQueryPort;
 import edu.cuit.bc.iam.application.port.UserStatusByUsernameQueryPort;
 import edu.cuit.domain.entity.user.biz.MenuEntity;
 import edu.cuit.domain.entity.user.biz.RoleEntity;
-import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
+import edu.cuit.infra.convertor.user.UserConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +24,7 @@ import java.util.Optional;
 public class UserEntityByUsernameQueryPortImpl implements UserEntityByUsernameQueryPort, UserPermissionAndRoleQueryPort, UserStatusByUsernameQueryPort {
 
     private final UserQueryGateway userQueryGateway;
+    private final UserConverter userConverter;
 
     @Override
     public Optional<?> findByUsername(String username) {
@@ -34,14 +35,14 @@ public class UserEntityByUsernameQueryPortImpl implements UserEntityByUsernameQu
     public Optional<Integer> findStatusByUsername(String username) {
         return userQueryGateway.findByUsername(username)
                 // 用 +0 触发拆箱，保持历史空值/NPE 表现不变
-                .map(userEntity -> ((UserEntity) userEntity).getStatus() + 0);
+                .map(userEntity -> userConverter.statusOf(userEntity, true) + 0);
     }
 
     @Override
     public List<String> findPermissionListByUsername(String username) {
-        Optional<UserEntity> user = userQueryGateway.findByUsername(username);
+        Optional<?> user = userQueryGateway.findByUsername(username);
         return user.map(userEntity -> {
-            List<RoleEntity> roles = userEntity.getRoles();
+            List<RoleEntity> roles = userConverter.rolesOf(userEntity, true);
             List<String> menus = new ArrayList<>();
             for (RoleEntity role : roles) {
                 if (role.getStatus() == 0) continue;
@@ -56,9 +57,9 @@ public class UserEntityByUsernameQueryPortImpl implements UserEntityByUsernameQu
 
     @Override
     public List<String> findRoleListByUsername(String username) {
-        Optional<UserEntity> user = userQueryGateway.findByUsername(username);
+        Optional<?> user = userQueryGateway.findByUsername(username);
         return user.map(userEntity ->
-                        userEntity.getRoles().stream()
+                        userConverter.rolesOf(userEntity, true).stream()
                                 .filter(roleEntity -> roleEntity.getStatus() == 1)
                                 .map(RoleEntity::getRoleName).toList())
                 .orElse(new ArrayList<>());
