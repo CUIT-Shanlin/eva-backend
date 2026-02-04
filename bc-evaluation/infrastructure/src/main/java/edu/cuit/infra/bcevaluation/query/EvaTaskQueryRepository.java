@@ -13,7 +13,6 @@ import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.entity.course.SubjectEntity;
 import edu.cuit.domain.entity.eva.EvaTaskEntity;
 import edu.cuit.domain.entity.user.biz.RoleEntity;
-import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.infra.convertor.PaginationConverter;
 import edu.cuit.infra.convertor.course.CourseConvertor;
 import edu.cuit.infra.convertor.eva.EvaConvertor;
@@ -131,7 +130,7 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
             List list=new ArrayList();
             return paginationConverter.toPaginationEntity(pageTask,list);
         }
-        List<UserEntity> userEntities=sysUserDOS.stream().map(sysUserDO->toUserEntity(sysUserDO.getId())).toList();
+        List<Object> userEntities=sysUserDOS.stream().map(sysUserDO->toUserEntity(sysUserDO.getId())).toList();
 
         List<EvaTaskEntity> evaTaskEntities=getEvaTaskEntities(pageTask.getRecords(),userEntities,courseEntities);
 
@@ -212,7 +211,7 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
         List<SysUserDO> teachers=new ArrayList<>();
         teachers.add(teacher);
 
-        List<UserEntity> userEntities=teachers.stream().map(sysUserDO->toUserEntity(sysUserDO.getId())).toList();
+        List<Object> userEntities=teachers.stream().map(sysUserDO->toUserEntity(sysUserDO.getId())).toList();
 
         return getEvaTaskEntities(evaTaskDOS,userEntities,courseEntities);
     }
@@ -232,7 +231,7 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
                 return Optional.empty();
             }
             //老师
-            Supplier<UserEntity> teacher = () -> toUserEntity(evaTaskDO.getTeacherId());
+            Supplier<?> teacher = () -> toUserEntity(evaTaskDO.getTeacherId());
             //课程信息
             CourInfDO courInfDO = courInfMapper.selectById(evaTaskDO.getCourInfId());
             if (courInfDO == null) {
@@ -242,12 +241,12 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
             Supplier<CourseEntity> course = () -> toCourseEntity(courInfDO.getCourseId(), courseDO.getSemesterId());
             Supplier<SingleCourseEntity> oneCourse = () -> courseConvertor.toSingleCourseEntity(course, courInfDO);
 
-            EvaTaskEntity evaTaskEntity = evaConvertor.ToEvaTaskEntity(evaTaskDO, teacher, oneCourse);
+            EvaTaskEntity evaTaskEntity = evaConvertor.toEvaTaskEntityWithTeacherObject(evaTaskDO, teacher, oneCourse);
             return Optional.of(evaTaskEntity);
         }else {
             //老师
             EvaTaskDO finalGetCached = getCached;
-            Supplier<UserEntity> teacher = () -> toUserEntity(finalGetCached.getTeacherId());
+            Supplier<?> teacher = () -> toUserEntity(finalGetCached.getTeacherId());
             //课程信息
             CourInfDO courInfDO = courInfMapper.selectById(getCached.getCourInfId());
             if (courInfDO == null) {
@@ -257,7 +256,7 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
             Supplier<CourseEntity> course = () -> toCourseEntity(courInfDO.getCourseId(), courseDO.getSemesterId());
             Supplier<SingleCourseEntity> oneCourse = () -> courseConvertor.toSingleCourseEntity(course, courInfDO);
 
-            EvaTaskEntity evaTaskEntity = evaConvertor.ToEvaTaskEntity(getCached, teacher, oneCourse);
+            EvaTaskEntity evaTaskEntity = evaConvertor.toEvaTaskEntityWithTeacherObject(getCached, teacher, oneCourse);
             return Optional.of(evaTaskEntity);
         }
     }
@@ -277,7 +276,7 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
     }
 
     //简便方法
-    private UserEntity toUserEntity(Integer userId){
+    private Object toUserEntity(Integer userId){
         //得到uer对象
         SysUserDO userDO = sysUserMapper.selectById(userId);
         if(userDO==null){
@@ -291,7 +290,7 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
         }
         Supplier<List<RoleEntity>> roleEntities = ()->sysRoleMapper.selectList(new QueryWrapper<SysRoleDO>().in("id", roleIds)).stream().map(roleDO -> roleConverter.toRoleEntity(roleDO)).toList();
         //根据角色id集合找到角色菜单表中的菜单id集合
-        return userConverter.toUserEntity(userDO,roleEntities);
+        return userConverter.toUserEntityObject(userDO,roleEntities);
     }
 
     private CourseEntity toCourseEntity(Integer courseId,Integer semId){
@@ -305,14 +304,14 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
         //构造subject
         Supplier<SubjectEntity> subjectEntity = ()->courseConvertor.toSubjectEntity(subjectMapper.selectById(courseDO.getSubjectId()));
         //构造userEntity
-        Supplier<UserEntity> userEntity =()->toUserEntity(courseMapper.selectById(courseId).getTeacherId());
-        return courseConvertor.toCourseEntity(courseDO,subjectEntity,userEntity,semesterEntity);
+        Supplier<?> userEntity =()->toUserEntity(courseMapper.selectById(courseId).getTeacherId());
+        return courseConvertor.toCourseEntityWithTeacherObject(courseDO,subjectEntity,userEntity,semesterEntity);
     }
 
     //根据evaTaskDOs变成entity数据
-    private List<EvaTaskEntity> getEvaTaskEntities(List<EvaTaskDO> evaTaskDOS,List<UserEntity> userEntities,List<SingleCourseEntity> courseEntities){
-        List<EvaTaskEntity> evaTaskEntityList=evaTaskDOS.stream().map(evaTaskDO ->evaConvertor.ToEvaTaskEntity(evaTaskDO,
-                ()->userEntities.stream().filter(sysUserDO->sysUserDO.getId()
+    private List<EvaTaskEntity> getEvaTaskEntities(List<EvaTaskDO> evaTaskDOS,List<Object> userEntities,List<SingleCourseEntity> courseEntities){
+        List<EvaTaskEntity> evaTaskEntityList=evaTaskDOS.stream().map(evaTaskDO ->evaConvertor.toEvaTaskEntityWithTeacherObject(evaTaskDO,
+                ()->userEntities.stream().filter(sysUserDO->userConverter.userIdOf(sysUserDO)
                         .equals(evaTaskDO.getTeacherId())).findFirst().get(),
                 ()->courseEntities.stream().filter(courInfDO->courInfDO.getId()
                         .equals(evaTaskDO.getCourInfId())).findFirst().get())).toList();
