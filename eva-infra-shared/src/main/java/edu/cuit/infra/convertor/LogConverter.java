@@ -24,6 +24,16 @@ public interface LogConverter {
    })
    SysLogEntity toLogEntity(SysLogDO logDO, SysLogModuleEntity module, UserEntity user);
 
+   /**
+    * 过渡期桥接方法：用于让调用方在不编译期引用 {@link UserEntity} 的情况下复用既有映射逻辑。
+    * <p>
+    * 约束：仅做类型桥接，不改变 user 的获取时机与次数。
+    * </p>
+    */
+   default SysLogEntity toLogEntityWithUserObject(SysLogDO logDO, SysLogModuleEntity module, Object user) {
+      return toLogEntity(logDO, module, (UserEntity) user);
+   }
+
    SysLogModuleEntity toModuleEntity(SysLogModuleDO moduleDO);
 
    @Mapping(target = "userId",source = "userId")
