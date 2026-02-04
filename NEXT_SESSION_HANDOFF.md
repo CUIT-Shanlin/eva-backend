@@ -38,6 +38,7 @@
 - ✅ **S0.2 延伸（依赖方收敛，保持行为不变）**：将 `bc-evaluation/infrastructure` 的 `FillAverageScoreExporterDecorator` 去 `UserEntity` 编译期依赖，改为依赖 `bc-iam-contract` 的 `UserDetailQueryPort` + `UserDetailCO`（内部仍委托旧 `UserQueryGateway.findById`，缓存触发点不变；最小回归通过）；落地提交：`7a3ca8ed`。
 - ✅ **S0.2 延伸（依赖方收敛，保持行为不变）**：将 `bc-evaluation/infrastructure` 的 `FillEvaRecordExporterDecorator` 去 `UserEntity` 编译期依赖，改为依赖 `bc-iam-contract` 的 `UserDetailQueryPort` + `UserDetailCO`（内部仍委托旧 `UserQueryGateway.findById`，缓存触发点不变；最小回归通过）；落地提交：`fba76459`。
 - ✅ **S0.2 延伸（依赖方收敛，保持行为不变）**：将 `bc-evaluation/infrastructure` 的 `FillUserStatisticsExporterDecorator` 去 `UserEntity` 编译期依赖，改为依赖 `bc-iam-contract` 的 `UserDetailQueryPort` + `UserDetailCO`（内部仍委托旧 `UserQueryGateway.findById`，缓存触发点不变；最小回归通过）；落地提交：`8d59ea72`。
+- ✅ **S0.2 延伸（依赖方收敛，保持行为不变）**：将 `bc-evaluation/infrastructure` 的统计导出基类 `EvaStatisticsExporter` 去 `UserEntity` 编译期依赖：不再 `import UserEntity`，改为对 `UserAllUserIdAndEntityByIdQueryPort.findById` 返回的 `Optional<?>` 做运行时类型判定（按类名/父类链）后再 `Optional.of(...)`，以保持历史“仅当返回值为 UserEntity 才参与后续逻辑”的分支语义不变（端口适配器内部仍委托旧 `UserQueryGateway.findById`，缓存/切面触发点不变）；最小回归通过；落地提交：`4f4b190b`。
 
 **2026-02-03（本次会话：IAM 并行（10.3）：评教旧入口去 `UserQueryGateway` 编译期依赖；保持行为不变）**
 - ✅ **IAM 并行（按 10.3：补齐鉴权权限/角色查询最小端口（前置），保持行为不变）**：在 `bc-iam-contract` 新增 `UserPermissionAndRoleQueryPort`（为后续 `eva-infra-shared` 的 `StpInterfaceImpl` 去 `UserQueryGateway` 编译期依赖做前置；仅新增接口，不改装配/不改行为；最小回归通过）；落地提交：`315c118d`。

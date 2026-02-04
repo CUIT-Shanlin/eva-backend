@@ -851,6 +851,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
         - ✅ 已完成（2026-02-02，保持行为不变）：已在 `bc-iam-contract` 新增最小端口 `UserEntityByIdQueryPort` 并在 `bc-iam-infra` 补齐 `UserEntityByIdQueryPortImpl`（内部委托旧 `UserQueryGateway.findById` 以保持缓存/切面触发点不变），并将 `bc-messaging` 的 `MessageQueryPortImpl` 从依赖 `UserQueryGateway` 收敛为依赖该端口（异常文案不变；最小回归通过；落地：`7875e09e` / `2ea7d39f` / `17509393`）。
         - ✅ 已完成（2026-02-03，保持行为不变）：已将 `bc-evaluation/infrastructure` 的 `EvaTaskServiceImpl` 从依赖 `UserQueryGateway` 收敛为依赖 `UserBasicQueryPort`（异常文案/副作用顺序不变；最小回归通过；落地：`72bd00d9`）。
         - ✅ 已完成（2026-02-03，保持行为不变）：已将 `bc-evaluation/infrastructure` 的统计导出基类 `EvaStatisticsExporter` 去 `UserQueryGateway` 编译期依赖，改为依赖 `bc-iam-contract` 组合端口 `UserAllUserIdAndEntityByIdQueryPort`（通过 `UserQueryGatewayFacade` 保持 `userQueryGateway.findAllUserId/findById` 调用形态不变，内部仍委托旧 `UserQueryGateway` 以保持缓存/切面触发点不变；且 `SpringUtil.getBean(...)` 次数/顺序不变）；最小回归通过；落地：`92c6554a`。
+        - ✅ 已完成（2026-02-04，保持行为不变）：将 `bc-evaluation/infrastructure` 的统计导出基类 `EvaStatisticsExporter` 去 `UserEntity` 编译期依赖：不再 `import UserEntity`，改为对 `UserAllUserIdAndEntityByIdQueryPort.findById` 返回的 `Optional<?>` 做运行时类型判定（按类名/父类链）后再 `Optional.of(...)`，以保持历史分支语义与 `SpringUtil.getBean(...)` 次数/顺序不变；最小回归通过；落地：`4f4b190b`。
         - 量化快照（口径=可复现命令）：`eva-domain` 29 个 Java 文件、`eva-infra-dal` 36 个、`eva-infra-shared` 47 个。
       - ✅ 已完成（保持行为不变；每次只改 1 个 `pom.xml`）：在 Serena + `rg` 证伪 “全仓库已无 `eva-infra` 的 dependency 声明”后，已从 root reactor 移除 `<module>eva-infra</module>`（每步闭环；落地：`0aab4516`）。下一步（可选，独立提交）：评估是否删除 `eva-infra/` 目录与 `eva-infra/pom.xml`（当前已不再参与 reactor/无依赖方）。
 
