@@ -12,7 +12,6 @@ import edu.cuit.domain.entity.user.biz.MenuEntity;
 import edu.cuit.domain.entity.user.biz.RoleEntity;
 import edu.cuit.domain.gateway.user.MenuQueryGateway;
 import edu.cuit.domain.gateway.user.RoleQueryGateway;
-import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.infra.convertor.PaginationConverter;
 import edu.cuit.infra.convertor.user.RoleConverter;
 import edu.cuit.infra.convertor.user.UserConverter;
@@ -20,6 +19,7 @@ import edu.cuit.infra.dal.database.dataobject.user.SysRoleDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.user.SysRoleMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
+import edu.cuit.infra.gateway.user.UserQueryCacheGateway;
 import edu.cuit.infra.util.QueryUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +44,7 @@ public class UserEntityQueryPortImpl implements UserEntityQueryPort {
 
     @Autowired
     @Lazy
-    private UserQueryGateway userQueryGateway;
+    private UserQueryCacheGateway userQueryGateway;
 
     private final SysUserMapper userMapper;
     private final SysRoleMapper roleMapper;
