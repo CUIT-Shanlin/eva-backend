@@ -897,6 +897,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 已完成（保持行为不变）：`bc-iam/application` 的 `PageUserUseCaseTest` 已去 `UserEntity` 编译期依赖（测试侧端口返回类型同步为通配符；不影响用例委托行为；落地：`934cf935`）。
 - ✅ 已完成（保持行为不变，依赖方收敛样例）：`bc-evaluation/infrastructure` 的 `FillAverageScoreExporterDecorator` 已去 `UserEntity` 编译期依赖，改为依赖 `bc-iam-contract` 的 `UserDetailQueryPort` + `UserDetailCO`（内部仍委托旧 `UserQueryGateway.findById`，缓存触发点不变；落地：`7a3ca8ed`）。
 - ✅ 已完成（保持行为不变，依赖方收敛样例）：`bc-evaluation/infrastructure` 的 `FillEvaRecordExporterDecorator` 已去 `UserEntity` 编译期依赖，改为依赖 `bc-iam-contract` 的 `UserDetailQueryPort` + `UserDetailCO`（内部仍委托旧 `UserQueryGateway.findById`，缓存触发点不变；落地：`fba76459`）。
+- ✅ 已完成（保持行为不变，依赖方收敛样例）：`bc-evaluation/infrastructure` 的 `FillUserStatisticsExporterDecorator` 已去 `UserEntity` 编译期依赖，改为依赖 `bc-iam-contract` 的 `UserDetailQueryPort` + `UserDetailCO`（内部仍委托旧 `UserQueryGateway.findById`，缓存触发点不变；落地：`8d59ea72`）。
 - ✅ 补充进展（保持行为不变，测试过渡收敛）：`start` 的 `MsgServiceImplTest` 已不再兼容旧构造与反射逻辑，直接使用 Port 版本构造，从而不再编译期依赖 `UserQueryGateway`（详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ 补充进展（保持行为不变，测试过渡收敛）：`start` 的 `UserEvaServiceImplTest` 已不再兼容旧构造与反射逻辑，直接使用 Port 版本构造，从而不再编译期依赖 `UserQueryGateway`（详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ 已证伪（更新至 2026-02-04，保持行为不变）：`eva-infra-shared/src/main/java` 已无 `UserQueryGateway` 引用面；下一刀建议转入 `bc-iam/application` 去 `UserEntity` 编译期依赖（见下一小节）。
