@@ -5,8 +5,8 @@ import edu.cuit.bc.iam.application.port.UserEntityByUsernameQueryPort;
 import edu.cuit.bc.iam.application.port.UserStatusByUsernameQueryPort;
 import edu.cuit.domain.entity.user.biz.MenuEntity;
 import edu.cuit.domain.entity.user.biz.RoleEntity;
-import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.infra.convertor.user.UserConverter;
+import edu.cuit.infra.gateway.user.UserQueryCacheGateway;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -17,30 +17,31 @@ import java.util.Optional;
 /**
  * bc-iam：用户实体按用户名查询端口适配器（保持历史行为不变）。
  *
- * <p>保持缓存/切面触发点不变：内部委托旧 {@link UserQueryGateway#findByUsername(String)}（其仍承载缓存注解）。</p>
+ * <p>保持缓存/切面触发点不变：内部委托 {@link UserQueryCacheGateway#findByUsername(String)}，
+ * 其实现仍为旧 {@code UserQueryGatewayImpl} 承载 {@code @LocalCached}。</p>
  */
 @Component
 @RequiredArgsConstructor
 public class UserEntityByUsernameQueryPortImpl implements UserEntityByUsernameQueryPort, UserPermissionAndRoleQueryPort, UserStatusByUsernameQueryPort {
 
-    private final UserQueryGateway userQueryGateway;
+    private final UserQueryCacheGateway userQueryCacheGateway;
     private final UserConverter userConverter;
 
     @Override
     public Optional<?> findByUsername(String username) {
-        return userQueryGateway.findByUsername(username);
+        return userQueryCacheGateway.findByUsername(username);
     }
 
     @Override
     public Optional<Integer> findStatusByUsername(String username) {
-        return userQueryGateway.findByUsername(username)
+        return userQueryCacheGateway.findByUsername(username)
                 // 用 +0 触发拆箱，保持历史空值/NPE 表现不变
                 .map(userEntity -> userConverter.statusOf(userEntity, true) + 0);
     }
 
     @Override
     public List<String> findPermissionListByUsername(String username) {
-        Optional<?> user = userQueryGateway.findByUsername(username);
+        Optional<?> user = userQueryCacheGateway.findByUsername(username);
         return user.map(userEntity -> {
             List<RoleEntity> roles = userConverter.rolesOf(userEntity, true);
             List<String> menus = new ArrayList<>();
@@ -57,7 +58,7 @@ public class UserEntityByUsernameQueryPortImpl implements UserEntityByUsernameQu
 
     @Override
     public List<String> findRoleListByUsername(String username) {
-        Optional<?> user = userQueryGateway.findByUsername(username);
+        Optional<?> user = userQueryCacheGateway.findByUsername(username);
         return user.map(userEntity ->
                         userConverter.rolesOf(userEntity, true).stream()
                                 .filter(roleEntity -> roleEntity.getStatus() == 1)
