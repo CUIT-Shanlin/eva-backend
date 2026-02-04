@@ -760,6 +760,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
       - 推进（更新至 2026-02-04，保持行为不变）：已将 `UserAllUserIdQueryPortImpl` 的注入从 `UserQueryGateway` 收敛为 `UserQueryCacheGateway`（方法体仍委托 `findAllUserId/findById`），确保调用最终进入 `UserQueryGatewayImpl` 触发 `@LocalCached`（最小回归通过）；落地：`c0c05def`。
       - 推进（更新至 2026-02-04，保持行为不变）：已将 `UserNameQueryPortImpl` 的注入从 `UserQueryGateway` 收敛为 `UserQueryCacheGateway`（方法体仍委托 `findById` 并通过强转读取 `name`），确保调用最终进入 `UserQueryGatewayImpl` 触发 `@LocalCached`（最小回归通过）；落地：`1b91181f`。
       - 推进（更新至 2026-02-04，保持行为不变）：已将 `UserDetailQueryPortImpl` 的注入从 `UserQueryGateway` 收敛为 `UserQueryCacheGateway`（方法体仍委托 `findById` 并通过强转读取 `id/username/name`），确保调用最终进入 `UserQueryGatewayImpl` 触发 `@LocalCached`（最小回归通过）；落地：`5d85516b`。
+      - ⏳ 待推进（保持行为不变；每次只改 1 个类）：将 `UserDirectoryPageQueryPortImpl` 的注入从 `UserQueryGateway` 收敛为 `UserQueryCacheGateway`，方法体仍委托 `page/allUser/findAllUsername`，确保调用最终进入旧 `UserQueryGatewayImpl` 触发 `@LocalCached`。
+      - ⏳ 待推进（保持行为不变；每次只改 1 个类）：将 `UserEntityQueryPortImpl` 的注入从 `UserQueryGateway` 收敛为 `UserQueryCacheGateway`，方法体仍委托 `findById/findByUsername/page` 等同名方法，确保调用最终进入旧 `UserQueryGatewayImpl` 触发 `@LocalCached`。
 
 - **S0.2 延伸（并行主线：依赖方 `pom.xml` 收敛，保持行为不变）**：
   - ✅ 已复核（更新至 2026-02-04，保持行为不变）：当前全仓库 `junit-jupiter(test)` 仅出现在以下模块，且均存在 `src/test/java` 与 `org.junit.jupiter` 引用，因此暂无“无测试源码模块”的单 `pom.xml` 清理目标：
