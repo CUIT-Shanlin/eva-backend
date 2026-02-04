@@ -858,7 +858,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
         - ✅ 已完成（2026-02-04，保持行为不变）：将 `bc-evaluation/infrastructure` 的 `EvaTaskQueryRepository` 去 `UserEntity` 编译期依赖（不改变 DB 查询/遍历顺序；异常文案不变）；最小回归通过；落地：`7f198610`。
         - ✅ 已完成（2026-02-04，保持行为不变）：将 `bc-evaluation/infrastructure` 的 `EvaRecordQueryRepository` 去 `UserEntity` 编译期依赖（不改变 DB 查询/遍历顺序；异常文案不变）；最小回归通过；落地：`9cbcb858`。
         - ✅ 已完成（2026-02-04，保持行为不变）：在 `eva-infra-shared` 的 `MsgConvertor` 增加桥接方法 `toMsgEntityWithUserObject(...)`，用于后续让 `bc-messaging` 的 `MessageQueryPortImpl` 去 `UserEntity` 编译期依赖（仅做类型桥接，不改变 sender/recipient Supplier 的调用时机与次数）；最小回归通过；落地：`8254a430`。
-        - ⏳ 下一刀建议（保持行为不变；每次只改 1 个类闭环）：`bc-messaging/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageQueryPortImpl.java` 改走 `msgConvertor.toMsgEntityWithUserObject(...)` 并移除 `UserEntity` import（异常文案不变；`findById` 调用次数/顺序不变）。
+        - ✅ 已完成（2026-02-04，保持行为不变）：已将 `bc-messaging` 的 `MessageQueryPortImpl` 去 `UserEntity` 编译期依赖：调用侧改走 `msgConvertor.toMsgEntityWithUserObject(...)` 并移除 `UserEntity` import（异常文案不变；`findById` 调用次数/顺序不变）；最小回归通过；落地：`51301d23`。
         - ⏳ 下一步建议（保持行为不变；每次只改 1 个类或 1 个 pom 闭环）：评教读侧仓储已清零 `UserEntity` import，下一刀按 Serena 证据化重新盘点其它 `bc-*` 依赖方对 `UserEntity` 的编译期依赖点（口径：`rg -n \"import\\\\s+edu\\\\.cuit\\\\.domain\\\\.entity\\\\.user\\\\.biz\\\\.UserEntity;\" bc-*`），择一闭环。
         - 量化快照（口径=可复现命令）：`eva-domain` 29 个 Java 文件、`eva-infra-dal` 36 个、`eva-infra-shared` 47 个。
       - ✅ 已完成（保持行为不变；每次只改 1 个 `pom.xml`）：在 Serena + `rg` 证伪 “全仓库已无 `eva-infra` 的 dependency 声明”后，已从 root reactor 移除 `<module>eva-infra</module>`（每步闭环；落地：`0aab4516`）。下一步（可选，独立提交）：评估是否删除 `eva-infra/` 目录与 `eva-infra/pom.xml`（当前已不再参与 reactor/无依赖方）。
