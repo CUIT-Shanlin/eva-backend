@@ -3,7 +3,7 @@ package edu.cuit.infra.bciam.adapter;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import edu.cuit.bc.iam.application.port.UserBasicQueryPort;
-import edu.cuit.domain.entity.user.biz.UserEntity;
+import edu.cuit.infra.convertor.user.UserConverter;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.infra.enums.cache.UserCacheConstants;
@@ -25,13 +25,14 @@ public class UserBasicQueryPortImpl implements UserBasicQueryPort {
     private final SysUserMapper userMapper;
     private final LocalCacheManager cacheManager;
     private final UserCacheConstants userCacheConstants;
+    private final UserConverter userConverter;
 
     @Override
     public Optional<Integer> findIdByUsername(String username) {
-        Optional<UserEntity> cachedUser = cacheManager.getCache(userCacheConstants.ONE_USER_USERNAME, username);
+        Optional<?> cachedUser = cacheManager.getCache(userCacheConstants.ONE_USER_USERNAME, username);
 
         if (cachedUser != null && cachedUser.isPresent()) {
-            return Optional.ofNullable(cachedUser.get().getId());
+            return Optional.ofNullable(userConverter.userIdOf(cachedUser.get()));
         }
 
         LambdaQueryWrapper<SysUserDO> userQuery = Wrappers.lambdaQuery();
@@ -41,10 +42,10 @@ public class UserBasicQueryPortImpl implements UserBasicQueryPort {
 
     @Override
     public Optional<String> findUsernameById(Integer id) {
-        Optional<UserEntity> cachedUser = cacheManager.getCache(userCacheConstants.ONE_USER_ID, String.valueOf(id));
+        Optional<?> cachedUser = cacheManager.getCache(userCacheConstants.ONE_USER_ID, String.valueOf(id));
 
         if (cachedUser != null && cachedUser.isPresent()) {
-            return Optional.ofNullable(cachedUser.get().getUsername());
+            return Optional.ofNullable(userConverter.usernameOf(cachedUser.get(), true));
         }
 
         LambdaQueryWrapper<SysUserDO> userQuery = Wrappers.lambdaQuery();
@@ -54,9 +55,9 @@ public class UserBasicQueryPortImpl implements UserBasicQueryPort {
 
     @Override
     public Optional<Integer> getUserStatus(Integer id) {
-        Optional<UserEntity> cachedUser = cacheManager.getCache(userCacheConstants.ONE_USER_ID, String.valueOf(id));
+        Optional<?> cachedUser = cacheManager.getCache(userCacheConstants.ONE_USER_ID, String.valueOf(id));
         if (cachedUser != null && cachedUser.isPresent()) {
-            return Optional.ofNullable(cachedUser.get().getStatus());
+            return Optional.ofNullable(userConverter.statusOf(cachedUser.get(), true));
         }
 
         LambdaQueryWrapper<SysUserDO> userQuery = Wrappers.lambdaQuery();
@@ -66,7 +67,7 @@ public class UserBasicQueryPortImpl implements UserBasicQueryPort {
 
     @Override
     public Boolean isUsernameExist(String username) {
-        Optional<UserEntity> cachedUser = cacheManager.getCache(userCacheConstants.ONE_USER_USERNAME, username);
+        Optional<?> cachedUser = cacheManager.getCache(userCacheConstants.ONE_USER_USERNAME, username);
         if (cachedUser != null && cachedUser.isPresent()) {
             return true;
         }
@@ -75,4 +76,3 @@ public class UserBasicQueryPortImpl implements UserBasicQueryPort {
                 Wrappers.lambdaQuery(SysUserDO.class).select(SysUserDO::getUsername).eq(SysUserDO::getUsername, username));
     }
 }
-
