@@ -1,7 +1,5 @@
 package edu.cuit.infra.bccourse.query;
 
-
-import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -36,7 +34,6 @@ import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.course.*;
 
 import edu.cuit.domain.entity.user.biz.RoleEntity;
-import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.infra.convertor.PaginationConverter;
 import edu.cuit.infra.convertor.course.CourseConvertor;
 import edu.cuit.infra.convertor.user.MenuConvertor;
@@ -460,7 +457,7 @@ public class CourseQueryRepository implements CourseQueryRepo {
                 .eq("semester_id", semId));
         if(courseDOS.isEmpty())return new ArrayList<>(new ArrayList<>());
         //构造userEntity
-        UserEntity userEntity =toUserEntity(id);
+        Object userEntity = toUserEntity(id);
         //根据courseDo中的subjectid找出courInfoDo集合
         Map<CourseDO, List<CourInfDO>> map=new HashMap<>();
         for (CourseDO courseDO : courseDOS) {
@@ -471,7 +468,8 @@ public class CourseQueryRepository implements CourseQueryRepo {
         for (Map.Entry<CourseDO, List<CourInfDO>> courseDOListEntry : map.entrySet()) {
             List<SingleCourseEntity> temp = new ArrayList<>();
             SubjectEntity subjectEntity = courseConvertor.toSubjectEntity(subjectMapper.selectById(courseDOListEntry.getKey().getSubjectId()));
-            CourseEntity courseEntity = courseConvertor.toCourseEntity(courseDOListEntry.getKey(), () -> subjectEntity, () -> userEntity, () -> semesterEntity);
+            CourseEntity courseEntity = courseConvertor.toCourseEntityWithTeacherObject(courseDOListEntry.getKey(),
+                    () -> subjectEntity, () -> userEntity, () -> semesterEntity);
             for (CourInfDO courInfDO : courseDOListEntry.getValue()) {
                 SingleCourseEntity singleCourseEntity = courseConvertor.toSingleCourseEntity(() -> courseEntity, courInfDO);
                 temp.add(singleCourseEntity);
@@ -591,10 +589,10 @@ public class CourseQueryRepository implements CourseQueryRepo {
         CourInfDO courInfDO=courInfMapper.selectById(courInfId);
         CourseDO courseDO=courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id",courInfId));
 
-        Supplier<UserEntity> userEntity=()->toUserEntity(courseDO.getTeacherId());
+        Supplier<?> userEntity = () -> toUserEntity(courseDO.getTeacherId());
         Supplier<SemesterEntity> semesterEntity=()->courseConvertor.toSemesterEntity(semesterMapper.selectById(courseDO.getSemesterId()));
         Supplier<SubjectEntity> subjectEntity=()->courseConvertor.toSubjectEntity(subjectMapper.selectById(courseDO.getSubjectId()));
-        CourseEntity courseEntity=courseConvertor.toCourseEntity(courseDO,subjectEntity,userEntity,semesterEntity);
+        CourseEntity courseEntity = courseConvertor.toCourseEntityWithTeacherObject(courseDO, subjectEntity, userEntity, semesterEntity);
 
         return Optional.of(courseEntity);
     }
@@ -681,10 +679,10 @@ public class CourseQueryRepository implements CourseQueryRepo {
         if (subjectDO==null) throw new QueryException("并未找到对应科目");
         SubjectEntity subjectEntity = courseConvertor.toSubjectEntity(subjectDO);
         //构造userEntity
-        UserEntity userEntity =toUserEntity(courseDO.getTeacherId());
-        return courseConvertor.toCourseEntity(courseDO,()->subjectEntity,()->userEntity,()->semesterEntity);
+        Object userEntity = toUserEntity(courseDO.getTeacherId());
+        return courseConvertor.toCourseEntityWithTeacherObject(courseDO,()->subjectEntity,()->userEntity,()->semesterEntity);
     }
-    private UserEntity toUserEntity(Integer userId){
+    private Object toUserEntity(Integer userId){
         //得到uer对象
         SysUserDO userDO = userMapper.selectById(userId);
         if(userDO==null)throw new QueryException("并未找到相关用户");
@@ -701,7 +699,7 @@ public class CourseQueryRepository implements CourseQueryRepo {
 //        List<MenuEntity> menuEntities = menuMapper.selectList(new QueryWrapper<SysMenuDO>().in("id", menuIds)).stream().map(menuDO -> menuConvertor.toMenuEntity(menuDO)).toList();
 
 
-        return userConverter.toUserEntity(userDO,roleEntities);
+        return userConverter.toUserEntityObject(userDO, roleEntities);
     }
     private LocalDateTime toLocalDateTime(String s){
 
@@ -877,9 +875,8 @@ public class CourseQueryRepository implements CourseQueryRepo {
                 entity.setSubject(() -> subject);
                 SysUserDO sysUserDO = userMapper.selectById(courseDO.getTeacherId());
 
-                UserEntity user = SpringUtil.getBean(UserEntity.class);
-                user.setName(sysUserDO.getName());
-                entity.setTeacher(()-> user);
+                Object user = userConverter.springUserEntityWithNameObject(sysUserDO.getName());
+                entity.setTeacher((Supplier) (() -> user));
                 list.add(entity);
 
             }
