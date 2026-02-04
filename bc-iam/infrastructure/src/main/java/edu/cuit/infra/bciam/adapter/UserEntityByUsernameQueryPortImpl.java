@@ -2,6 +2,7 @@ package edu.cuit.infra.bciam.adapter;
 
 import edu.cuit.bc.iam.application.port.UserPermissionAndRoleQueryPort;
 import edu.cuit.bc.iam.application.port.UserEntityByUsernameQueryPort;
+import edu.cuit.bc.iam.application.port.UserStatusByUsernameQueryPort;
 import edu.cuit.domain.entity.user.biz.MenuEntity;
 import edu.cuit.domain.entity.user.biz.RoleEntity;
 import edu.cuit.domain.entity.user.biz.UserEntity;
@@ -20,13 +21,20 @@ import java.util.Optional;
  */
 @Component
 @RequiredArgsConstructor
-public class UserEntityByUsernameQueryPortImpl implements UserEntityByUsernameQueryPort, UserPermissionAndRoleQueryPort {
+public class UserEntityByUsernameQueryPortImpl implements UserEntityByUsernameQueryPort, UserPermissionAndRoleQueryPort, UserStatusByUsernameQueryPort {
 
     private final UserQueryGateway userQueryGateway;
 
     @Override
     public Optional<?> findByUsername(String username) {
         return userQueryGateway.findByUsername(username);
+    }
+
+    @Override
+    public Optional<Integer> findStatusByUsername(String username) {
+        return userQueryGateway.findByUsername(username)
+                // 用 +0 触发拆箱，保持历史空值/NPE 表现不变
+                .map(userEntity -> ((UserEntity) userEntity).getStatus() + 0);
     }
 
     @Override
