@@ -21,6 +21,9 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-04（前置：归位 `RoleEntity` → `bc-iam-domain`；保持行为不变）**
+- ✅ 已完成（保持行为不变）：将 `RoleEntity` 从 `eva-domain` 搬运归位到 `bc-iam-domain`（保持 `package` 与类内容不变，仅改变 Maven 模块归属；最小回归通过；落地：`6f290793`）。
+
 **2026-02-04（推进：端口适配器依赖收敛为内部缓存接口；保持行为不变）**
 - ✅ 已完成（保持行为不变）：将 `bc-iam/infrastructure` 的 `UserEntityByIdQueryPortImpl` 的注入从 `UserQueryGateway` 收敛为 `UserQueryCacheGateway`，方法体仍委托 `findById`，确保调用最终进入 `UserQueryGatewayImpl` 触发 `@LocalCached`（最小回归通过；落地：`e854fcbe`）。
 - ✅ 已完成（保持行为不变）：将 `bc-iam/infrastructure` 的 `UserEntityByUsernameQueryPortImpl` 的注入从 `UserQueryGateway` 收敛为 `UserQueryCacheGateway`，方法体仍委托 `findByUsername`，确保调用最终进入 `UserQueryGatewayImpl` 触发 `@LocalCached`（最小回归通过；落地：`ec31d96c`）。
