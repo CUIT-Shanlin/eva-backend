@@ -872,7 +872,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
         - ✅ 已完成（2026-02-04，保持行为不变）：已将非 IAM 侧残留的 `UserEntity` 编译期依赖（`bc-course/infrastructure` 的 `CourseQueryRepository`）按“前置桥接 → 改调用侧”的两刀闭环完成：
           1) `UserConverter.springUserEntityWithNameObject(Object)`（内部仍强转 `UserEntity` 并调用 `SpringUtil.getBean(UserEntity.class)`，尽量保持异常形态与副作用顺序一致）；
           2) `CourseQueryRepository` 去 `UserEntity` import，并改走 `userConverter.toUserEntityObject(...)`、`courseConvertor.toCourseEntityWithTeacherObject(...)` 与上述桥接方法，保持缓存/查询/遍历顺序与异常文案不变。
-        - ⏳ 下一步建议（保持行为不变；每次只改 1 个类闭环）：继续收敛 `bc-iam/infrastructure` 对旧 `UserEntity` 的编译期依赖，优先 `UserServiceImpl`（参照 `NEXT_SESSION_HANDOFF.md` 0.10/0.11 的 IAM S0.2 延伸小簇）。
+        - ✅ 已完成（2026-02-04，保持行为不变）：将 `bc-iam-infra` 的 `UserServiceImpl` 去 `UserEntity` 编译期依赖：`Optional<?>.map(UserEntity.class::cast)` 改走 `userConverter.castUserEntityObject(...)`，并将 `getUserInfo` 入参收敛为 `Object` 后通过 `RouterDetailFactory/UserBizConvertor/UserConverter` 桥接读取字段（缓存/日志/异常文案/副作用顺序不变）；最小回归通过；落地：`d901223c`。
+        - ⏳ 后置评估（保持行为不变；风险高）：当前 `bc-iam/infrastructure` 残留 `UserEntity` 编译期依赖仅剩旧 `UserQueryGatewayImpl`（该类承载缓存/切面触发点，建议最后一簇再动）。
         - 量化快照（口径=可复现命令）：`eva-domain` 29 个 Java 文件、`eva-infra-dal` 36 个、`eva-infra-shared` 47 个。
       - ✅ 已完成（保持行为不变；每次只改 1 个 `pom.xml`）：在 Serena + `rg` 证伪 “全仓库已无 `eva-infra` 的 dependency 声明”后，已从 root reactor 移除 `<module>eva-infra</module>`（每步闭环；落地：`0aab4516`）。下一步（可选，独立提交）：评估是否删除 `eva-infra/` 目录与 `eva-infra/pom.xml`（当前已不再参与 reactor/无依赖方）。
 

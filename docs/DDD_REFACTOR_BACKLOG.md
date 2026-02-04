@@ -132,6 +132,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（依赖方收敛前置，保持行为不变）：在 `bc-iam-infra` 的 `UserBizConvertor` 增加桥接方法 `toUserDetailCOObject(Object)` / `toUnqualifiedUserInfoCOObject(Object, Integer)`（内部仍强转 `UserEntity`，仅做类型桥接，尽量保持历史空值/异常表现一致），用于后续让调用方在不编译期引用 `UserEntity` 的情况下复用既有映射逻辑；最小回归通过；落地：`c2454ab4`。
 - ✅ S0.2 延伸（依赖方收敛前置，保持行为不变）：为后续让 `bc-iam-infra` 的 `RouterDetailFactory/UserServiceImpl` 去 `UserEntity` 编译期依赖，在 `eva-infra-shared` 的 `UserConverter` 增加桥接方法 `nameOf(Object, boolean)` / `permsOf(Object, boolean)` / `castUserEntityObject(Object, boolean)`（内部仍强转 `UserEntity` 调 getter；并通过“无业务意义形参”规避 MapStruct 编译期歧义；`castUserEntityObject` 用于尽量保持历史 ClassCastException 触发点一致）；最小回归通过；落地：`95c7bd8b`。
 - ✅ IAM S0.2 延伸（依赖方收敛，保持行为不变）：将 `bc-iam-infra` 的 `RouterDetailFactory` 去 `UserEntity` 编译期依赖：入参从 `UserEntity` 收敛为 `Object`，并通过 `SpringUtil.getBean(UserConverter.class)` 调 `usernameOf/rolesOf/nameOf` 桥接读取字段（过滤逻辑/递归构造与异常表现不变；最小回归通过）；落地：`5d2f7512`。
+- ✅ IAM S0.2 延伸（依赖方收敛，保持行为不变）：将 `bc-iam-infra` 的 `UserServiceImpl` 去 `UserEntity` 编译期依赖：`Optional<?>.map(UserEntity.class::cast)` 改走 `userConverter.castUserEntityObject(...)`，并将 `getUserInfo` 入参收敛为 `Object` 后通过 `RouterDetailFactory/UserBizConvertor/UserConverter` 桥接读取字段（缓存/日志/异常文案/副作用顺序不变；最小回归通过）；落地：`d901223c`。
 - ✅ S0.2 延伸（依赖方收敛前置，保持行为不变）：在 `eva-infra-shared` 的 `UserConverter` 增加“Spring Bean + setName”桥接方法 `springUserEntityWithNameObject(Object)`（内部仍 `SpringUtil.getBean(UserEntity.class)` + 强转后 `setName`，尽量保持异常形态与副作用顺序一致），用于后续让 `bc-course/infrastructure` 的 `CourseQueryRepository` 去 `UserEntity` 编译期依赖；最小回归通过。
 - ✅ S0.2 延伸（依赖方收敛，保持行为不变）：将 `bc-course/infrastructure` 的 `CourseQueryRepository` 去 `UserEntity` 编译期依赖：不再 `import UserEntity`，改走 `UserConverter/CourseConvertor` 的桥接方法承接 teacher 相关类型桥接（不改变 DB 查询/遍历顺序；异常文案不变）；最小回归通过。
 - ✅ S0.2 延伸（依赖方收敛前置，保持行为不变）：在 `eva-infra-shared` 的 `CourseConvertor` 增加桥接方法 `toCourseEntityWithTeacherObject(...)`，用于后续让依赖方在不编译期引用 `UserEntity` 的情况下复用既有 `toCourseEntity(...)` 映射逻辑（仅做类型桥接，不改变 teacher Supplier 的调用时机与次数）；最小回归通过；落地：`858521da`。
@@ -742,7 +743,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 - **S0.2 延伸（IAM：继续去 `UserEntity` 编译期依赖，保持行为不变）**：
   - ⏳ 未完成（证据化，可复现，保持行为不变）：`bc-iam/infrastructure` 仍存在对旧 `UserEntity` 的编译期依赖：
-    - 口径：`rg -n "import\\s+edu\\.cuit\\.domain\\.entity\\.user\\.biz\\.UserEntity;" bc-iam/infrastructure/src/main/java --glob "*.java"`（当前预期命中：`UserServiceImpl`、`UserQueryGatewayImpl`）。
+    - 口径：`rg -n "import\\s+edu\\.cuit\\.domain\\.entity\\.user\\.biz\\.UserEntity;" bc-iam/infrastructure/src/main/java --glob "*.java"`（当前预期命中：`UserQueryGatewayImpl`）。
 
 - **S0.2 延伸（并行主线：依赖方 `pom.xml` 收敛，保持行为不变）**：
   - ✅ 已复核（更新至 2026-02-04，保持行为不变）：当前全仓库 `junit-jupiter(test)` 仅出现在以下模块，且均存在 `src/test/java` 与 `org.junit.jupiter` 引用，因此暂无“无测试源码模块”的单 `pom.xml` 清理目标：
