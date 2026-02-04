@@ -29,6 +29,7 @@
 - ✅ **IAM S0.2 延伸（前置：复用按用户名查询适配器补齐状态查询能力，保持行为不变）**：在 `bc-iam-infrastructure` 的 `UserEntityByUsernameQueryPortImpl` 补齐实现 `UserStatusByUsernameQueryPort`（内部仍委托旧 `UserQueryGateway.findByUsername`；通过拆箱保持历史空值/NPE 表现不变；最小回归通过）；落地提交：`2b152f5f`。
 - ✅ **IAM S0.2 延伸（保持行为不变）**：将 `bc-iam/application` 的 `ValidateUserLoginUseCase` 从编译期依赖 `UserEntity` 收敛为依赖 `UserStatusByUsernameQueryPort`（仍通过 `UserEntityByUsernameQueryPortImpl -> UserQueryGateway.findByUsername` 保持调用次数/缓存触发点不变；异常文案/分支顺序不变；最小回归通过）；落地提交：`61821514`。
 - ✅ **IAM S0.2 延伸（保持行为不变）**：将 `bc-iam/application` 的 `FindUserByIdUseCase` 去 `UserEntity` 编译期依赖，收敛为优先依赖 `bc-iam-contract` 端口 `UserEntityByIdQueryPort`（`execute` 使用泛型承接 `Optional<?>`；wiring/旧 gateway 委托链路不变；最小回归通过）；落地提交：`e13e1dc6`。
+- ✅ **IAM S0.2 延伸（保持行为不变）**：将 `bc-iam/application` 的 `FindUserByUsernameUseCase` 去 `UserEntity` 编译期依赖，收敛为优先依赖 `bc-iam-contract` 端口 `UserEntityByUsernameQueryPort`（`execute` 使用泛型承接 `Optional<?>`；wiring/旧 gateway 委托链路不变；最小回归通过）；落地提交：`e8f16843`。
 
 **2026-02-03（本次会话：IAM 并行（10.3）：评教旧入口去 `UserQueryGateway` 编译期依赖；保持行为不变）**
 - ✅ **IAM 并行（按 10.3：补齐鉴权权限/角色查询最小端口（前置），保持行为不变）**：在 `bc-iam-contract` 新增 `UserPermissionAndRoleQueryPort`（为后续 `eva-infra-shared` 的 `StpInterfaceImpl` 去 `UserQueryGateway` 编译期依赖做前置；仅新增接口，不改装配/不改行为；最小回归通过）；落地提交：`315c118d`。

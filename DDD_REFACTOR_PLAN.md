@@ -889,6 +889,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 已完成（保持行为不变）：`eva-infra-shared/src/main/java/edu/cuit/app/security/StpInterfaceImpl.java` 已从编译期依赖 `UserQueryGateway` 收敛为依赖 `bc-iam-contract` 端口（详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ 已完成（保持行为不变）：`eva-infra-shared/src/main/java/edu/cuit/app/convertor/MsgBizConvertor.java` 已从编译期依赖 `UserQueryGateway` 收敛为依赖 `bc-iam-contract` 端口 `UserEntityByIdQueryPort`（端口适配器内部仍委托旧 `UserQueryGateway.findById`；消息 recipient/sender lazy-load 语义不变；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ 已完成（保持行为不变）：`bc-iam/application` 的 `FindUserByIdUseCase` 已去 `UserEntity` 编译期依赖，并收敛为优先依赖 `bc-iam-contract` 端口 `UserEntityByIdQueryPort`（`execute` 使用泛型承接 `Optional<?>`；不改变旧 gateway 委托链路/缓存触发点；落地：`e13e1dc6`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
+- ✅ 已完成（保持行为不变）：`bc-iam/application` 的 `FindUserByUsernameUseCase` 已去 `UserEntity` 编译期依赖，并收敛为优先依赖 `bc-iam-contract` 端口 `UserEntityByUsernameQueryPort`（`execute` 使用泛型承接 `Optional<?>`；不改变旧 gateway 委托链路/缓存触发点；落地：`e8f16843`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ 补充进展（保持行为不变，测试过渡收敛）：`start` 的 `MsgServiceImplTest` 已不再兼容旧构造与反射逻辑，直接使用 Port 版本构造，从而不再编译期依赖 `UserQueryGateway`（详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ 补充进展（保持行为不变，测试过渡收敛）：`start` 的 `UserEvaServiceImplTest` 已不再兼容旧构造与反射逻辑，直接使用 Port 版本构造，从而不再编译期依赖 `UserQueryGateway`（详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ 已证伪（更新至 2026-02-04，保持行为不变）：`eva-infra-shared/src/main/java` 已无 `UserQueryGateway` 引用面；下一刀建议转入 `bc-iam/application` 去 `UserEntity` 编译期依赖（见下一小节）。
