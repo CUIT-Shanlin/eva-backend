@@ -3,7 +3,7 @@ title: DDD 渐进式重构目标清单与行为框架
 repo: eva-backend
 branch: ddd
 generated_at: 2025-12-18
-updated_at: 2026-01-29
+updated_at: 2026-02-04
 scope: 全仓库（离线扫描 + 规则归纳）
 ---
 
@@ -661,16 +661,14 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：以下是仍在旧 gateway/技术切片中的能力，优先级按“写侧优先 + 影响范围”排序。
 
-（新增，更新至 2026-01-15，保持行为不变）
+（新增，更新至 2026-02-04，保持行为不变）
 
 - **S1（IAM：Controller 入口壳结构性收敛，保持行为不变）**：
   - ✅ 已完成：`UserUpdateController`（落地：`5ee37fd2`）、`DepartmentController`（落地：`fbc5fb74`）、`AuthenticationController`（落地：`fd9e4d1c`）、`MenuUpdateController`（落地：`44bc649d`）、`RoleUpdateController`（落地：`c81eb2e0`）。
 
 - **IAM 并行（10.3：继续清理 `UserQueryGateway` 编译期依赖，保持行为不变）**：
   - ✅ 已完成：`bc-iam/infrastructure` 的 `UserServiceImpl` 已从编译期依赖 `UserQueryGateway` 收敛为依赖 `bc-iam-contract` 最小 Port（并已同步测试过渡；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
-  - ⏳ 未完成（建议优先）：`eva-infra-shared/src/main/java` 仍有 `UserQueryGateway` 引用点，需继续收敛为 `bc-iam-contract` 最小 Port（端口适配器内部仍委托旧 gateway 以保持缓存/切面触发点不变）。
-    - 候选 1：`eva-infra-shared/src/main/java/edu/cuit/app/security/StpInterfaceImpl.java`
-    - 候选 2：`eva-infra-shared/src/main/java/edu/cuit/app/convertor/MsgBizConvertor.java`
+  - ✅ 已完成（更新至 2026-02-04，保持行为不变）：`eva-infra-shared` 的 `StpInterfaceImpl` / `MsgBizConvertor` 已去 `UserQueryGateway` 编译期依赖并收敛为依赖 `bc-iam-contract` 最小 Port；端口适配器内部仍委托旧 `UserQueryGateway` 以保持缓存/切面触发点不变。可复现证伪口径：`rg -n "\\bUserQueryGateway\\b" eva-infra-shared/src/main/java` 应无命中（详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 
 - **S0.2 延伸（IAM：依赖收敛 + 去 `eva-domain` 前置，保持行为不变）**：
   - ✅ 已完成（端口下沉，保持行为不变）：`EvaRecordCountQueryPort` 已从 `bc-evaluation/application` 下沉到 `bc-evaluation-contract`（保持 `package` 不变；落地：`4c30b02c`）。
@@ -690,10 +688,14 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - 🎯 下一刀建议（保持行为不变；每次只改 1 个类闭环）：优先选择一个“仅需要基础用户查询（username/userId 等）”的依赖方（例如 `bc-ai-report/infrastructure/src/main/java/edu/cuit/app/bcaireport/adapter/AiReportUserIdQueryPortImpl.java`），将其对 `edu.cuit.domain.gateway.user.UserQueryGateway` 的依赖收敛为依赖 `edu.cuit.bc.iam.application.port.UserBasicQueryPort`（只替换该类实际用到的方法；行为不变）。这样依赖方可通过 `bc-iam-contract` 获取同名端口类型，减少对 `eva-domain` 的编译期绑定，同时不提前触碰跨 BC 复用的 `UserQueryGateway/UserEntity` 归属设计。
 
 - **S0.2 延伸（并行主线：依赖方 `pom.xml` 收敛，保持行为不变）**：
-  - ⏳ 未完成（建议优先做，风险低）：清理“无测试源码模块”的无用测试依赖（典型：模块无 `src/test/java` 且源码无 `org.junit.jupiter.*` 引用，但仍声明 `junit-jupiter(test)`）。
-    - 盘点口径：`rg -n "<artifactId>junit-jupiter</artifactId>" --glob "**/pom.xml" .`
-    - 单模块证伪口径：`fd -t d src/test <module>`（应为空） + `rg -n "org\\.junit\\.jupiter" <module>/src`（应为空）
-    - 注意：每次只改 1 个 `pom.xml`，移除前必须 Serena + `rg` 双证据，并跑最小回归闭环。
+  - ✅ 已复核（更新至 2026-02-04，保持行为不变）：当前全仓库 `junit-jupiter(test)` 仅出现在以下模块，且均存在 `src/test/java` 与 `org.junit.jupiter` 引用，因此暂无“无测试源码模块”的单 `pom.xml` 清理目标：
+    - `bc-messaging/pom.xml`
+    - `bc-evaluation/application/pom.xml`
+    - `bc-course/application/pom.xml`
+    - `bc-template/application/pom.xml`
+    - `bc-iam/application/pom.xml`
+    - 可复现证据：`rg -n "<artifactId>junit-jupiter</artifactId>" --glob "**/pom.xml" .`
+  - 后续若出现新候选（保持行为不变；每次只改 1 个 `pom.xml`）：移除前必须 Serena + `rg` 双证据，并跑最小回归闭环。推荐单模块证伪口径：`test -d <module>/src/test/java`（应为 false） + `rg -n "org\\.junit\\.jupiter" <module>/src`（应为空）。
   - ✅ 已完成（编译闭合前置，保持行为不变）：`bc-course/infrastructure/pom.xml` 已显式依赖 `bc-iam-contract`，用于为后续将 `bc-course-infrastructure` 的 `ICourseServiceImpl` 等从依赖 `UserQueryGateway` 收敛为依赖 `UserBasicQueryPort` 做前置（落地：`7b10d159`）。
 
 - **S0.2 延伸（AI 报告 infra：依赖方 pom 收敛评估，保持行为不变）**：

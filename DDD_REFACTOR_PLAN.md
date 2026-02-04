@@ -504,7 +504,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 ### 10.2 下一步优先顺序（保持“写侧优先 + 行为不变”）
 
-> 滚动口径（更新至 2026-01-28）：✅ `eva-app` 已完成退场闭环（源码清零 + 组合根 `start` 去依赖 + root reactor 移除 + 删除 `eva-app/pom.xml`）；✅ `eva-adapter` 残留 `*Controller` 已清零，且组合根 `start` 已移除对 `eva-adapter` 的 Maven 依赖（保持行为不变）；✅ `eva-adapter` 已从 root reactor 退场（root `pom.xml` 移除 `<module>eva-adapter</module>`；最小回归通过；落地：`86842a1f`）；✅ 已删除 `eva-adapter/pom.xml`（全仓库 `**/pom.xml` 不再出现 `<artifactId>eva-adapter</artifactId>`；最小回归通过；落地：`ed244cad`）；🎯 下一步主线：并行推进“依赖方 `pom.xml` 编译期依赖收敛”，并评估是否需要删除 `eva-adapter/` 空目录（需独立提交；保持行为不变）。
+> 滚动口径（更新至 2026-02-04）：✅ `eva-app` 已完成退场闭环（源码清零 + 组合根 `start` 去依赖 + root reactor 移除 + 删除 `eva-app/pom.xml`）；✅ `eva-adapter` 残留 `*Controller` 已清零，且组合根 `start` 已移除对 `eva-adapter` 的 Maven 依赖（保持行为不变）；✅ `eva-adapter` 已从 root reactor 退场（root `pom.xml` 移除 `<module>eva-adapter</module>`；最小回归通过；落地：`86842a1f`）；✅ 已删除 `eva-adapter/pom.xml`（全仓库 `**/pom.xml` 不再出现 `<artifactId>eva-adapter</artifactId>`；最小回归通过；落地：`ed244cad`）；🎯 下一步主线：并行推进“依赖方 `pom.xml` 编译期依赖收敛”，并评估是否需要删除 `eva-adapter/` 空目录（需独立提交；保持行为不变）。
+> 补充（更新至 2026-02-04，保持行为不变）：主线已转向 IAM 并行（10.3）与 IAM S0.2 延伸：继续将依赖方对 `UserQueryGateway` / `UserEntity` 的编译期依赖收敛为 `bc-iam-contract` 最小 Port/基础类型，端口适配器内部仍委托旧 gateway 以保持缓存/切面触发点不变（下一刀建议见 10.3 的 IAM 小节）。
 > 新会话续接方式：优先复制 `NEXT_SESSION_HANDOFF.md` 的 0.11「推荐版（Controller 优先）」并按 0.10 的“下一步拆分与里程碑/提交点”顺序执行，避免遗漏约束与回归命令。
 
 - 补充进展（2026-01-17，保持行为不变，Controller 归位前置）：为后续将 `AuthenticationController` 从 `eva-adapter` 归位到 `bc-iam-infra`，先在 `bc-iam/infrastructure/pom.xml` 补齐 `spring-boot-starter-web`、`zym-spring-boot-starter-common`、`commons-lang3`（仅编译闭合；最小回归通过；落地：`42d44f0b`）。
@@ -889,8 +890,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 已完成（保持行为不变）：`eva-infra-shared/src/main/java/edu/cuit/app/convertor/MsgBizConvertor.java` 已从编译期依赖 `UserQueryGateway` 收敛为依赖 `bc-iam-contract` 端口 `UserEntityByIdQueryPort`（端口适配器内部仍委托旧 `UserQueryGateway.findById`；消息 recipient/sender lazy-load 语义不变；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ 补充进展（保持行为不变，测试过渡收敛）：`start` 的 `MsgServiceImplTest` 已不再兼容旧构造与反射逻辑，直接使用 Port 版本构造，从而不再编译期依赖 `UserQueryGateway`（详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ 补充进展（保持行为不变，测试过渡收敛）：`start` 的 `UserEvaServiceImplTest` 已不再兼容旧构造与反射逻辑，直接使用 Port 版本构造，从而不再编译期依赖 `UserQueryGateway`（详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
- - ⏳ 下一刀建议（保持行为不变；每步只改 1 个类，必要时拆成“新增最小 Port → 新增适配器 → 再改依赖方”多刀闭环）：
-   - （待定）：继续用 `rg -n \"\\bUserQueryGateway\\b\" eva-infra-shared/src/main/java | head` 证伪 `eva-infra-shared` 是否仍存在旧 gateway 编译期依赖；若无命中则转入下一批依赖方模块继续收敛（保持行为不变）。
+- ✅ 已证伪（更新至 2026-02-04，保持行为不变）：`eva-infra-shared/src/main/java` 已无 `UserQueryGateway` 引用面；下一刀建议转入 `bc-iam/application` 去 `UserEntity` 编译期依赖（见下一小节）。
 
 #### bc-iam（IAM）S0.2 延伸：收敛 `bc-iam(application)` 对 `eva-domain` 的编译期依赖（保持行为不变）
 
