@@ -11,7 +11,6 @@ import edu.cuit.client.dto.clientobject.SemesterCO;
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.bc.evaluation.application.port.EvaRecordExportQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaStatisticsCountAbEvaQueryPort;
-import edu.cuit.domain.entity.user.biz.UserEntity;
 import lombok.Getter;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -25,6 +24,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class EvaStatisticsExporter {
+
+    private static final String USER_ENTITY_FQCN = "edu.cuit.domain.entity.user.biz.UserEntity";
 
     protected static final ISemesterService semesterService;
     protected static final UserQueryGatewayFacade userQueryGateway;
@@ -45,14 +46,14 @@ public class EvaStatisticsExporter {
             }
 
             @Override
-            public Optional<UserEntity> findById(Integer id) {
+            public Optional findById(Integer id) {
                 Optional<?> user = userAllUserIdAndEntityByIdQueryPort.findById(id);
                 if (user == null || user.isEmpty()) {
                     return Optional.empty();
                 }
                 Object value = user.orElse(null);
-                if (value instanceof UserEntity userEntity) {
-                    return Optional.of(userEntity);
+                if (isUserEntityLike(value)) {
+                    return Optional.of(value);
                 }
                 return Optional.empty();
             }
@@ -135,11 +136,25 @@ public class EvaStatisticsExporter {
         cell.setCellStyle(getHeaderStyle());
     }
 
+    private static boolean isUserEntityLike(Object value) {
+        if (value == null) {
+            return false;
+        }
+        Class<?> clazz = value.getClass();
+        while (clazz != null) {
+            if (USER_ENTITY_FQCN.equals(clazz.getName())) {
+                return true;
+            }
+            clazz = clazz.getSuperclass();
+        }
+        return false;
+    }
+
     protected interface UserQueryGatewayFacade {
 
         List<Integer> findAllUserId();
 
-        Optional<UserEntity> findById(Integer id);
+        Optional findById(Integer id);
     }
 
 }
