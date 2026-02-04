@@ -39,10 +39,10 @@ import edu.cuit.bc.iam.application.contract.dto.cmd.user.UpdateUserCmd;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
-import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.bc.evaluation.application.port.EvaRecordCountQueryPort;
 import edu.cuit.domain.gateway.user.LdapPersonGateway;
+import edu.cuit.infra.convertor.user.UserConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -81,12 +81,13 @@ public class UserServiceImpl implements IUserService {
     private final UserBizConvertor userBizConvertor;
     private final RoleBizConvertor roleBizConvertor;
     private final PaginationBizConvertor paginationBizConvertor;
+    private final UserConverter userConverter;
 
     @Override
     @Transactional
     public UserInfoCO getOneUserInfo(Integer id) {
-        UserEntity user = userEntityByIdQueryPort.findById(id)
-                .map(UserEntity.class::cast)
+        Object user = userEntityByIdQueryPort.findById(id)
+                .map(u -> userConverter.castUserEntityObject(u, true))
                 .orElseThrow(() -> new BizException("该用户不存在"));
         return getUserInfo(user);
     }
@@ -96,7 +97,7 @@ public class UserServiceImpl implements IUserService {
     public PaginationQueryResultCO<UserInfoCO> pageUserInfo(PagingQuery<GenericConditionalQuery> query) {
         PaginationResultEntity<?> userEntityPage = userDirectoryPageQueryPort.page(query);
         List<UserInfoCO> results = userEntityPage.getRecords().stream()
-                .map(UserEntity.class::cast)
+                .map(u -> userConverter.castUserEntityObject(u, true))
                 .map(this::getUserInfo)
                 .toList();
         return paginationBizConvertor.toPaginationEntity(userEntityPage, results);
@@ -150,7 +151,7 @@ public class UserServiceImpl implements IUserService {
     public UserInfoCO getSelfUserInfo() {
         String username = (String) StpUtil.getLoginId();
         return getUserInfo(userEntityByUsernameQueryPort.findByUsername(username)
-                .map(UserEntity.class::cast)
+                .map(u -> userConverter.castUserEntityObject(u, true))
                 .orElseThrow(() -> {
                     SysException e = new SysException("用户数据查找失败，请联系管理员");
                     log.error("系统异常", e);
@@ -303,16 +304,16 @@ public class UserServiceImpl implements IUserService {
         }
     }
 
-    private UserInfoCO getUserInfo(UserEntity user) {
+    private UserInfoCO getUserInfo(Object user) {
         List<RouterDetailCO> routerDetailList = RouterDetailFactory.createRouterDetail(user);
-        UserDetailCO userDetail = userBizConvertor.toUserDetailCO(user);
-        List<RoleInfoCO> roleInfoList = user.getRoles().stream()
+        UserDetailCO userDetail = userBizConvertor.toUserDetailCOObject(user);
+        List<RoleInfoCO> roleInfoList = userConverter.rolesOf(user, true).stream()
                 .map(roleBizConvertor::roleEntityToRoleInfoCO)
                 .toList();
         return new UserInfoCO()
                 .setInfo(userDetail)
                 .setRoleList(roleInfoList)
                 .setRouterList(routerDetailList)
-                .setButtonList(user.getPerms());
+                .setButtonList(userConverter.permsOf(user, true));
     }
 }
