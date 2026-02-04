@@ -877,6 +877,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
         - ✅ 已完成（2026-02-04，保持行为不变，证据化盘点）：用 Serena 盘点 `UserQueryGatewayImpl` 的对外签名/`@LocalCached` 触发点与调用面，确认 `UserQueryGateway` 的引用当前仅分布于 `bc-iam/infrastructure` 端口适配器内，且接口签名仍暴露 `UserEntity` 与 `PaginationResultEntity<UserEntity>`，因此“完全去编译期依赖”需拆为多步推进；详见 `docs/DDD_REFACTOR_BACKLOG.md` 4.3（落地：`c4a32bde`）。
         - ✅ 已完成（2026-02-04，保持行为不变，前置铺垫）：在 `bc-iam/infrastructure` 新增内部过渡接口 `UserQueryCacheGateway`（返回 `Optional<?>/PaginationResultEntity<?>`），用于后续逐类将端口适配器从编译期依赖旧 `UserQueryGateway`（eva-domain）收敛为依赖内部接口，同时仍保证调用最终进入旧 `UserQueryGatewayImpl` 以触发 `@LocalCached` 缓存/切面入口（最小回归通过；落地：`dc49f903`）。
         - ✅ 已完成（2026-02-04，保持行为不变，前置铺垫）：已让旧 `UserQueryGatewayImpl` 同时实现 `UserQueryCacheGateway`，使后续端口适配器可“只改注入类型”而不改变实际委托路径与缓存触发点（最小回归通过；落地：`2970b80d`）。
+        - ✅ 已完成（2026-02-04，保持行为不变，推进）：已将 `UserEntityByIdQueryPortImpl` 的注入从 `UserQueryGateway` 收敛为 `UserQueryCacheGateway`，方法体仍委托 `findById`，确保调用仍触发 `UserQueryGatewayImpl` 上的 `@LocalCached`（最小回归通过；落地：`e854fcbe`）。
         - 量化快照（口径=可复现命令）：`eva-domain` 29 个 Java 文件、`eva-infra-dal` 36 个、`eva-infra-shared` 47 个。
       - ✅ 已完成（2026-02-04，保持行为不变，依赖收敛：eva-infra）：在 Serena + `rg` 证伪 `eva-infra` 已从 root reactor 退场且源码仅 `package-info.java`（无业务逻辑、无外部依赖方）后，收敛 `eva-infra/pom.xml`：移除残留 `<dependencies>` 依赖声明（最小回归通过；落地：`47654a6a`）。
       - ✅ 已完成（保持行为不变；每次只改 1 个 `pom.xml`）：在 Serena + `rg` 证伪 “全仓库已无 `eva-infra` 的 dependency 声明”后，已从 root reactor 移除 `<module>eva-infra</module>`（每步闭环；落地：`0aab4516`）。下一步（可选，独立提交）：评估是否删除 `eva-infra/` 目录与 `eva-infra/pom.xml`（当前已不再参与 reactor/无依赖方）。
