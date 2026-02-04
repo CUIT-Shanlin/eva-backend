@@ -23,6 +23,7 @@
 
 **2026-02-04（推进：端口适配器依赖收敛为内部缓存接口；保持行为不变）**
 - ✅ 已完成（保持行为不变）：将 `bc-iam/infrastructure` 的 `UserEntityByIdQueryPortImpl` 的注入从 `UserQueryGateway` 收敛为 `UserQueryCacheGateway`，方法体仍委托 `findById`，确保调用最终进入 `UserQueryGatewayImpl` 触发 `@LocalCached`（最小回归通过；落地：`e854fcbe`）。
+- ✅ 已完成（保持行为不变）：将 `bc-iam/infrastructure` 的 `UserEntityByUsernameQueryPortImpl` 的注入从 `UserQueryGateway` 收敛为 `UserQueryCacheGateway`，方法体仍委托 `findByUsername`，确保调用最终进入 `UserQueryGatewayImpl` 触发 `@LocalCached`（最小回归通过；落地：`ec31d96c`）。
 
 **2026-02-04（前置：UserQueryGateway 收尾铺垫——旧 gateway 兼容内部过渡接口；保持行为不变）**
 - ✅ 已完成（保持行为不变）：`UserQueryGatewayImpl` 现在同时实现 `UserQueryCacheGateway`，使后续端口适配器可把注入类型从 `UserQueryGateway` 收敛为内部接口而不改变实际委托路径与 `@LocalCached` 缓存触发点（最小回归通过；落地：`2970b80d`）。
