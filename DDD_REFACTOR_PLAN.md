@@ -874,9 +874,10 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
           2) `CourseQueryRepository` 去 `UserEntity` import，并改走 `userConverter.toUserEntityObject(...)`、`courseConvertor.toCourseEntityWithTeacherObject(...)` 与上述桥接方法，保持缓存/查询/遍历顺序与异常文案不变。
         - ✅ 已完成（2026-02-04，保持行为不变）：将 `bc-iam-infra` 的 `UserServiceImpl` 去 `UserEntity` 编译期依赖：`Optional<?>.map(UserEntity.class::cast)` 改走 `userConverter.castUserEntityObject(...)`，并将 `getUserInfo` 入参收敛为 `Object` 后通过 `RouterDetailFactory/UserBizConvertor/UserConverter` 桥接读取字段（缓存/日志/异常文案/副作用顺序不变）；最小回归通过；落地：`d901223c`。
         - ⏳ 后置评估（保持行为不变；风险高）：当前 `bc-iam/infrastructure` 残留 `UserEntity` 编译期依赖仅剩旧 `UserQueryGatewayImpl`（该类承载缓存/切面触发点，建议最后一簇再动）。
-        - ✅ 已完成（2026-02-04，保持行为不变，证据化盘点）：用 Serena 盘点 `UserQueryGatewayImpl` 的对外签名/`@LocalCached` 触发点与调用面，确认 `UserQueryGateway` 的引用当前仅分布于 `bc-iam/infrastructure` 端口适配器内，且接口签名仍暴露 `UserEntity` 与 `PaginationResultEntity<UserEntity>`，因此“完全去编译期依赖”需拆为多步推进；详见 `docs/DDD_REFACTOR_BACKLOG.md` 4.3（落地：`c4a32bde`）。
+        - ✅ 已完成（2026-02-04，保持行为不变，证据化盘点）：用 Serena 盘点 `UserQueryGatewayImpl` 的对外签名/`@LocalCached` 触发点与调用面，确认其签名仍暴露 `UserEntity` 与 `PaginationResultEntity<UserEntity>`，因此“完全去编译期依赖”需拆为多步推进；详见 `docs/DDD_REFACTOR_BACKLOG.md` 4.3（证据化起点：`c4a32bde`）。
         - ✅ 已完成（2026-02-04，保持行为不变，前置铺垫）：在 `bc-iam/infrastructure` 新增内部过渡接口 `UserQueryCacheGateway`（返回 `Optional<?>/PaginationResultEntity<?>`），用于后续逐类将端口适配器从编译期依赖旧 `UserQueryGateway`（eva-domain）收敛为依赖内部接口，同时仍保证调用最终进入旧 `UserQueryGatewayImpl` 以触发 `@LocalCached` 缓存/切面入口（最小回归通过；落地：`dc49f903`）。
-        - ✅ 已完成（2026-02-04，保持行为不变，前置铺垫）：已让旧 `UserQueryGatewayImpl` 同时实现 `UserQueryCacheGateway`，使后续端口适配器可“只改注入类型”而不改变实际委托路径与缓存触发点（最小回归通过；落地：`2970b80d`）。
+        - ✅ 已完成（2026-02-04，保持行为不变，前置铺垫）：已让旧 `UserQueryGatewayImpl` 实现 `UserQueryCacheGateway`，使后续端口适配器可“只改注入类型”而不改变实际委托路径与缓存触发点（最小回归通过；落地：`2970b80d`）。
+        - ✅ 已完成（2026-02-04，保持行为不变，推进）：`UserQueryGatewayImpl` 已不再显式实现旧 `UserQueryGateway`，仅保留实现内部接口 `UserQueryCacheGateway`；`@LocalCached` 触发点与方法体保持不变（最小回归通过；落地：`fb3b2e40`）。
         - ✅ 已完成（2026-02-04，保持行为不变，推进）：已将 `UserEntityByIdQueryPortImpl` 的注入从 `UserQueryGateway` 收敛为 `UserQueryCacheGateway`，方法体仍委托 `findById`，确保调用仍触发 `UserQueryGatewayImpl` 上的 `@LocalCached`（最小回归通过；落地：`e854fcbe`）。
         - ✅ 已完成（2026-02-04，保持行为不变，推进）：已将 `UserEntityByUsernameQueryPortImpl` 的注入从 `UserQueryGateway` 收敛为 `UserQueryCacheGateway`，方法体仍委托 `findByUsername`，确保调用仍触发 `UserQueryGatewayImpl` 上的 `@LocalCached`（最小回归通过；落地：`ec31d96c`）。
         - ✅ 已完成（2026-02-04，保持行为不变，推进）：已将 `UserAllUserIdQueryPortImpl` 的注入从 `UserQueryGateway` 收敛为 `UserQueryCacheGateway`，方法体仍委托 `findAllUserId/findById`，确保调用仍触发 `UserQueryGatewayImpl` 上的 `@LocalCached`（最小回归通过；落地：`c0c05def`）。
@@ -914,7 +915,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 #### IAM 并行（10.3）：继续清理 `UserQueryGateway` 编译期依赖（优先 eva-infra-shared，保持行为不变）
 
-> 背景：目前 `bc-iam/**` 的端口适配器与旧 `UserQueryGatewayImpl` 允许继续引用 `UserQueryGateway`（用于承载缓存/切面触发点），但**依赖方**应逐步只依赖 `bc-iam-contract` 最小 Port。
+> 背景：目前 `bc-iam/**` 端口适配器已完成“注入类型收敛”（统一改注入 `UserQueryCacheGateway`），且旧 `UserQueryGatewayImpl` 已不再显式实现旧 `UserQueryGateway`；缓存/切面触发点仍由 `UserQueryGatewayImpl` 承载（行为不变）。但**依赖方**仍应逐步只依赖 `bc-iam-contract` 最小 Port。
 
 - ✅ 已完成（保持行为不变）：`bc-iam/infrastructure` 的 `UserServiceImpl` 已从编译期依赖 `UserQueryGateway` 收敛为依赖 `bc-iam-contract` 端口（详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ 补充进展（保持行为不变）：已在 `bc-iam-contract` 新增鉴权侧最小端口 `UserPermissionAndRoleQueryPort`，用于后续将 `eva-infra-shared` 的 `StpInterfaceImpl` 去 `UserQueryGateway` 编译期依赖（端口适配器内部仍将委托旧 `UserQueryGateway.findByUsername`，以保持缓存/切面触发点不变；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
