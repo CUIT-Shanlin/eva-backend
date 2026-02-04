@@ -111,7 +111,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 **已完成（更新至 2026-02-04）**
 - ✅ IAM S0.2 延伸（前置，保持行为不变）：在 `bc-iam-contract` 新增 `UserStatusByUsernameQueryPort`，用于后续将 `ValidateUserLoginUseCase` 去 `UserEntity` 编译期依赖且保持对旧 `UserQueryGateway.findByUsername` 的调用次数/缓存触发点不变（最小回归通过；落地提交以 `git log -n 1 -- bc-iam/contract/src/main/java/edu/cuit/bc/iam/application/port/UserStatusByUsernameQueryPort.java` 为准）。
-- ✅ IAM S0.2 延伸（前置，保持行为不变）：在 `bc-iam-infrastructure` 新增 `UserStatusByUsernameQueryPortImpl`，内部委托旧 `UserQueryGateway.findByUsername` 以保持缓存/切面触发点不变（最小回归通过；落地提交以 `git log -n 1 -- bc-iam/infrastructure/src/main/java/edu/cuit/infra/bciam/adapter/UserStatusByUsernameQueryPortImpl.java` 为准）。
+- ✅ IAM S0.2 延伸（前置，保持行为不变）：已补齐 `UserStatusByUsernameQueryPort` 的端口适配器实现；后续为避免注入歧义，该独立适配器已被删除并由 `UserEntityByUsernameQueryPortImpl` 统一承接（最小回归通过）。
 - ✅ IAM S0.2 延伸（前置，保持行为不变）：在 `bc-iam-infrastructure` 的 `UserEntityByUsernameQueryPortImpl` 补齐实现 `UserStatusByUsernameQueryPort`（内部仍委托旧 `UserQueryGateway.findByUsername`；通过拆箱保持历史空值/NPE 表现不变；最小回归通过；落地提交以 `git log -n 1 -- bc-iam/infrastructure/src/main/java/edu/cuit/infra/bciam/adapter/UserEntityByUsernameQueryPortImpl.java` 为准）。
 - ✅ IAM S0.2 延伸（保持行为不变）：将 `ValidateUserLoginUseCase` 从编译期依赖 `UserEntity` 收敛为依赖 `UserStatusByUsernameQueryPort`（仍保持对旧 `UserQueryGateway.findByUsername` 的调用次数/缓存触发点不变；最小回归通过；落地提交以 `git log -n 1 -- bc-iam/application/src/main/java/edu/cuit/bc/iam/application/usecase/ValidateUserLoginUseCase.java` 为准）。
 - ✅ IAM 并行（按 10.3：补齐鉴权权限/角色查询最小端口（前置）；保持行为不变）：在 `bc-iam-contract` 新增 `UserPermissionAndRoleQueryPort`，用于后续将 `eva-infra-shared` 的 `StpInterfaceImpl` 去 `UserQueryGateway` 编译期依赖（仅新增接口，不改装配/不改行为；最小回归通过；落地提交以 `git log -n 1 -- bc-iam/contract/src/main/java/edu/cuit/bc/iam/application/port/UserPermissionAndRoleQueryPort.java` 为准）。

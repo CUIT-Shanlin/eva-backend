@@ -25,7 +25,7 @@
 - ✅ **测试过渡收敛（保持行为不变）**：将 `start` 模块的 `MsgServiceImplTest` 从兼容“旧构造（UserQueryGateway）/新构造（Port）”的反射方式，收敛为直接使用 Port 版本构造（测试不再编译期依赖 `UserQueryGateway`；最小回归通过）；落地提交：`de9d24a6`。
 - ✅ **测试过渡收敛（保持行为不变）**：将 `start` 模块的 `UserEvaServiceImplTest` 收敛为直接使用 Port 版本构造（测试不再编译期依赖 `UserQueryGateway`；最小回归通过）；落地提交：`75fbb71f`。
 - ✅ **IAM S0.2 延伸（前置：按用户名查询用户状态最小端口，保持行为不变）**：在 `bc-iam-contract` 新增 `UserStatusByUsernameQueryPort`（用于后续将 `ValidateUserLoginUseCase` 去 `UserEntity` 编译期依赖且保持对旧 `UserQueryGateway.findByUsername` 的调用次数/缓存触发点不变；最小回归通过）；落地提交：`21cbf908`。
-- ✅ **IAM S0.2 延伸（前置：补齐端口适配器实现，保持行为不变）**：在 `bc-iam-infrastructure` 新增 `UserStatusByUsernameQueryPortImpl`，内部委托旧 `UserQueryGateway.findByUsername` 以保持缓存/切面触发点不变（用于闭合后续 `ValidateUserLoginUseCase` 依赖收敛后的 Spring 装配；最小回归通过）；落地提交：`2df24374`。
+- ✅ **IAM S0.2 延伸（前置：补齐端口适配器实现，保持行为不变）**：已在 `bc-iam-infrastructure` 落地 `UserStatusByUsernameQueryPort` 的端口适配器实现；后续为避免注入歧义，该独立适配器已被删除并由 `UserEntityByUsernameQueryPortImpl` 统一承接（最小回归通过；详见本节后续条目）。
 - ✅ **IAM S0.2 延伸（前置：复用按用户名查询适配器补齐状态查询能力，保持行为不变）**：在 `bc-iam-infrastructure` 的 `UserEntityByUsernameQueryPortImpl` 补齐实现 `UserStatusByUsernameQueryPort`（内部仍委托旧 `UserQueryGateway.findByUsername`；通过拆箱保持历史空值/NPE 表现不变；最小回归通过）；落地提交：`2b152f5f`。
 - ✅ **IAM S0.2 延伸（保持行为不变）**：将 `bc-iam/application` 的 `ValidateUserLoginUseCase` 从编译期依赖 `UserEntity` 收敛为依赖 `UserStatusByUsernameQueryPort`（仍通过 `UserEntityByUsernameQueryPortImpl -> UserQueryGateway.findByUsername` 保持调用次数/缓存触发点不变；异常文案/分支顺序不变；最小回归通过）；落地提交：`61821514`。
 
