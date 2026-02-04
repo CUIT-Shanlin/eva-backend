@@ -724,6 +724,13 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成（主线，保持行为不变）：`bc-audit` 的 `LogGatewayImpl` 已去 `UserEntity` 编译期依赖：调用侧改走 `userConverter.toUserEntityObject(...)` + `logConverter.toLogEntityWithUserObject(...)` 并移除 `UserEntity` import（异常文案/查询/遍历顺序不变）；落地：`a86f6520`。
     - 证据口径（可复现，更新至 2026-02-04）：`rg -n "import\\s+edu\\.cuit\\.domain\\.entity\\.user\\.biz\\.UserEntity;" bc-audit/infrastructure/src/main/java` 应命中为 0。
 
+- **S0.2 延伸（Course：依赖方继续去 `UserEntity` 编译期依赖，保持行为不变）**：
+  - ⏳ 未完成（证据化，可复现，保持行为不变）：`bc-course/infrastructure` 的 `CourseQueryRepository` 仍编译期依赖 `UserEntity`（包含 `SpringUtil.getBean(UserEntity.class)` + `setName` 的显式调用点）：
+    - 口径：`rg -n "import\\s+edu\\.cuit\\.domain\\.entity\\.user\\.biz\\.UserEntity;" bc-course/infrastructure/src/main/java`（当前预期仍命中：`CourseQueryRepository`）。
+  - 下一步计划（保持行为不变；按“前置桥接 → 改调用侧”的两刀闭环；每次只改 1 个类）：
+    1) 先在 `eva-infra-shared` 的 `UserConverter` 增加“Spring Bean 桥接 + setName 桥接”方法（入参/返回均用 `Object` 表达；内部仍强转 `UserEntity` 并调用 `SpringUtil.getBean(UserEntity.class)`，尽量保持异常形态与副作用顺序一致）；
+    2) 再将 `CourseQueryRepository` 去 `UserEntity` import：`UserEntity`/`Supplier<UserEntity>` → `Object`/`Supplier<?>`；调用侧改走 `userConverter.toUserEntityObject(...)`、`courseConvertor.toCourseEntityWithTeacherObject(...)` 与上述桥接方法（缓存/查询/遍历顺序与异常文案完全不变）。
+
 - **S0.2 延伸（并行主线：依赖方 `pom.xml` 收敛，保持行为不变）**：
   - ✅ 已复核（更新至 2026-02-04，保持行为不变）：当前全仓库 `junit-jupiter(test)` 仅出现在以下模块，且均存在 `src/test/java` 与 `org.junit.jupiter` 引用，因此暂无“无测试源码模块”的单 `pom.xml` 清理目标：
     - `bc-messaging/pom.xml`
