@@ -714,6 +714,12 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成（主线，保持行为不变）：`EvaRecordQueryRepository` 已去 `UserEntity` 编译期依赖（落地：`9cbcb858`）。
   - ✅ 证据化（可复现，更新至 2026-02-04，保持行为不变）：`bc-evaluation/infrastructure/src/main/java` 已清零 `UserEntity` import（口径：`rg -n "import\\s+edu\\.cuit\\.domain\\.entity\\.user\\.biz\\.UserEntity;" bc-evaluation/infrastructure/src/main/java` 应命中为 0）。
 
+- **S0.2 延伸（Messaging：依赖方继续去 `UserEntity` 编译期依赖，保持行为不变）**：
+  - ✅ 已完成（前置，保持行为不变）：在 `eva-infra-shared` 的 `MsgConvertor` 增加桥接方法 `toMsgEntityWithUserObject(...)`（仅类型桥接，不改变 sender/recipient Supplier 调用时机与次数；落地：`8254a430`）。
+  - ⏳ 未完成（证据化，可复现，保持行为不变）：`bc-messaging` 的 `MessageQueryPortImpl` 仍编译期依赖 `UserEntity`：
+    - 口径：`rg -n "import\\s+edu\\.cuit\\.domain\\.entity\\.user\\.biz\\.UserEntity;" bc-messaging/src/main/java`。
+  - 下一步计划（每次只改 1 个类闭环；保持行为不变）：将 `MessageQueryPortImpl` 改走 `msgConvertor.toMsgEntityWithUserObject(...)` 并移除 `UserEntity` import（异常文案/`findById` 调用次数与顺序不变）。
+
 - **S0.2 延伸（并行主线：依赖方 `pom.xml` 收敛，保持行为不变）**：
   - ✅ 已复核（更新至 2026-02-04，保持行为不变）：当前全仓库 `junit-jupiter(test)` 仅出现在以下模块，且均存在 `src/test/java` 与 `org.junit.jupiter` 引用，因此暂无“无测试源码模块”的单 `pom.xml` 清理目标：
     - `bc-messaging/pom.xml`

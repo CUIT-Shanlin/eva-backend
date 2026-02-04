@@ -26,6 +26,7 @@
 - ✅ **IAM S0.2 延伸（前置：CourseConvertor 桥接方法，保持行为不变）**：在 `eva-infra-shared` 的 `CourseConvertor` 增加桥接方法 `toCourseEntityWithTeacherObject(...)`（teacher Supplier 改为 `Supplier<?>`，内部仍桥接到既有 `toCourseEntity(...)` 并对 teacher 做 `UserEntity` 强转；仅做类型桥接，不改变 Supplier 调用时机/次数），用于后续让评教读侧仓储去 `UserEntity` 编译期依赖（最小回归通过）；落地提交：`858521da`。
 - ✅ **IAM S0.2 延伸（评教读侧仓储去 UserEntity：任务主题，保持行为不变）**：将 `bc-evaluation/infrastructure` 的 `EvaTaskQueryRepository` 去 `UserEntity` 编译期依赖：不再 `import UserEntity`，改为通过 `UserConverter.userIdOf(Object)` 与 `EvaConvertor/CourseConvertor` 桥接方法承接 teacher 相关类型桥接（不改变 DB 查询/遍历顺序；异常文案不变；最小回归通过）；落地提交：`7f198610`。
 - ✅ **IAM S0.2 延伸（评教读侧仓储去 UserEntity：记录主题，保持行为不变）**：将 `bc-evaluation/infrastructure` 的 `EvaRecordQueryRepository` 去 `UserEntity` 编译期依赖：不再 `import UserEntity`，改为通过 `UserConverter.userIdOf(Object)` 与 `EvaConvertor/CourseConvertor` 桥接方法承接 teacher 相关类型桥接（不改变 DB 查询/遍历顺序；异常文案不变；最小回归通过）；落地提交：`9cbcb858`。
+- ✅ **IAM S0.2 延伸（前置：MsgConvertor 桥接方法，保持行为不变）**：在 `eva-infra-shared` 的 `MsgConvertor` 增加桥接方法 `toMsgEntityWithUserObject(...)`，用于后续让 `bc-messaging` 的 `MessageQueryPortImpl` 去 `UserEntity` 编译期依赖（仅做类型桥接，不改变 sender/recipient Supplier 的调用时机与次数；最小回归通过）；落地提交：`8254a430`。
 - ✅ **测试过渡收敛（保持行为不变）**：将 `start` 模块的 `MsgServiceImplTest` 从兼容“旧构造（UserQueryGateway）/新构造（Port）”的反射方式，收敛为直接使用 Port 版本构造（测试不再编译期依赖 `UserQueryGateway`；最小回归通过）；落地提交：`de9d24a6`。
 - ✅ **测试过渡收敛（保持行为不变）**：将 `start` 模块的 `UserEvaServiceImplTest` 收敛为直接使用 Port 版本构造（测试不再编译期依赖 `UserQueryGateway`；最小回归通过）；落地提交：`75fbb71f`。
 - ✅ **IAM S0.2 延伸（前置：按用户名查询用户状态最小端口，保持行为不变）**：在 `bc-iam-contract` 新增 `UserStatusByUsernameQueryPort`（用于后续将 `ValidateUserLoginUseCase` 去 `UserEntity` 编译期依赖且保持对旧 `UserQueryGateway.findByUsername` 的调用次数/缓存触发点不变；最小回归通过）；落地提交：`21cbf908`。
@@ -808,12 +809,15 @@
   - ✅ 为后续继续在评教读侧仓储去 `UserEntity` 编译期依赖做前置，在 `UserConverter` 增加桥接方法 `toUserEntityObject(...)` + `userIdOf(Object)`（仅做类型桥接，不改变 roles Supplier 的调用时机与次数；详见 0.9；落地：`c173c7c2`）。
   - ✅ 为后续继续在评教读侧仓储去 `UserEntity` 编译期依赖做前置，在 `CourseConvertor` 增加桥接方法 `toCourseEntityWithTeacherObject(...)`（仅做类型桥接，不改变 teacher Supplier 的调用时机与次数；详见 0.9；落地：`858521da`）。
   - ✅ 已清零：`bc-evaluation/infrastructure/src/main/java` 不再出现 `UserEntity` import（口径：`rg -n "import\\s+edu\\.cuit\\.domain\\.entity\\.user\\.biz\\.UserEntity;" bc-evaluation/infrastructure/src/main/java` 应命中为 0；落地：`9cbcb858`）。
+  - ✅ 为后续继续在消息查询适配器去 `UserEntity` 编译期依赖做前置，在 `MsgConvertor` 增加桥接方法 `toMsgEntityWithUserObject(...)`（仅做类型桥接，不改变 sender/recipient Supplier 的调用时机与次数；详见 0.9；落地：`8254a430`）。
 
 - 🎯 **下一刀建议（保持行为不变；每次只改 1 个类闭环）**：
   1) ✅ A（类，前置）：`eva-infra-shared/src/main/java/edu/cuit/infra/convertor/user/UserConverter.java` 增加桥接方法 `toUserEntityObject(...)`（返回 `Object`）与 `userIdOf(Object)`（返回 `Integer`；内部仍使用 `UserEntity` 做强转，以保持历史空值/异常表现尽量一致）。已完成（落地：`c173c7c2`）。
   2) ✅ B（类，前置）：`eva-infra-shared/src/main/java/edu/cuit/infra/convertor/course/CourseConvertor.java` 增加桥接方法 `toCourseEntityWithTeacherObject(...)`（teacher Supplier 改为 `Supplier<?>`，内部桥接到既有 `toCourseEntity`）。已完成（落地：`858521da`）。
   3) ✅ C（类，主线）：`bc-evaluation/infrastructure/src/main/java/edu/cuit/infra/bcevaluation/query/EvaTaskQueryRepository.java` 去 `UserEntity` import：调用侧改走上述桥接方法与 `userIdOf(Object)`，并尽量保持 DB 查询/遍历顺序不变。已完成（落地：`7f198610`）。
   4) ✅ D（类，主线）：`bc-evaluation/infrastructure/src/main/java/edu/cuit/infra/bcevaluation/query/EvaRecordQueryRepository.java` 同上。已完成（落地：`9cbcb858`）。
+  5) ✅ E（类，前置）：`eva-infra-shared/src/main/java/edu/cuit/infra/convertor/MsgConvertor.java` 增加桥接方法 `toMsgEntityWithUserObject(...)`（内部仍强转为 `UserEntity`，以尽量保持历史空值/异常表现一致）。已完成（落地：`8254a430`）。
+  6) ⏳ F（类，主线）：`bc-messaging/src/main/java/edu/cuit/infra/bcmessaging/adapter/MessageQueryPortImpl.java` 去 `UserEntity` import：调用侧改走 `msgConvertor.toMsgEntityWithUserObject(...)`，并保持 `userEntityByIdQueryPort.findById(...)` 的调用次数/顺序与异常文案不变（可复现口径：`rg -n "import\\s+edu\\.cuit\\.domain\\.entity\\.user\\.biz\\.UserEntity;" bc-messaging/src/main/java`）。
 
 - ✅ **模板锁定能力的“可依赖面”已下沉到 `bc-template-domain`**：`CourseTemplateLockQueryPort`、`CourseTemplateLockService`、`TemplateLockedException` 均可由 `bc-template-domain` 提供（包名不变），从而让依赖方无需编译期绑定 `bc-template` 应用层 jar。
 - ✅ **依赖收敛阶段性验收点**：`eva-infra` / `bc-template-infra` / `bc-course(application)` 均已将对 `bc-template` 的 Maven 依赖收敛为 `bc-template-domain`（保持行为不变；最小回归通过；详见 0.9 与 `docs/DDD_REFACTOR_BACKLOG.md` 4.2）。
