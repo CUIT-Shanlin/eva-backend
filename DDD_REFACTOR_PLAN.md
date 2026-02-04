@@ -863,7 +863,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
         - ✅ 已完成（2026-02-04，保持行为不变）：将 `bc-audit` 的 `LogGatewayImpl` 去 `UserEntity` 编译期依赖：调用侧改走 `userConverter.toUserEntityObject(...)` + `logConverter.toLogEntityWithUserObject(...)` 并移除 `UserEntity` import（异常文案/查询/遍历顺序不变）；最小回归通过；落地：`a86f6520`。
         - ⏳ 下一步建议（保持行为不变；每次只改 1 个类或 1 个 pom 闭环）：当前非 IAM 侧仍残留的 `UserEntity` 编译期依赖主要集中在 `bc-course/infrastructure` 的 `CourseQueryRepository`。建议按“前置桥接 → 改调用侧”的两刀闭环推进：
           1) ✅ 已完成：已在 `UserConverter` 增加“Spring Bean 桥接 + setName 桥接”方法 `springUserEntityWithNameObject(Object)`（内部仍强转 `UserEntity` 并调用 `SpringUtil.getBean(UserEntity.class)`，尽量保持异常形态与副作用顺序一致）；
-          2) ⏳ 下一刀：将 `CourseQueryRepository` 去 `UserEntity` import，调用侧改走 `userConverter.toUserEntityObject(...)`、`courseConvertor.toCourseEntityWithTeacherObject(...)` 与 `userConverter.springUserEntityWithNameObject(...)`，保持缓存/查询/遍历顺序与异常文案完全不变。
+          2) ✅ 已完成：已将 `CourseQueryRepository` 去 `UserEntity` import，调用侧改走 `userConverter.toUserEntityObject(...)`、`courseConvertor.toCourseEntityWithTeacherObject(...)` 与 `userConverter.springUserEntityWithNameObject(...)`，保持缓存/查询/遍历顺序与异常文案不变。
         - 量化快照（口径=可复现命令）：`eva-domain` 29 个 Java 文件、`eva-infra-dal` 36 个、`eva-infra-shared` 47 个。
       - ✅ 已完成（保持行为不变；每次只改 1 个 `pom.xml`）：在 Serena + `rg` 证伪 “全仓库已无 `eva-infra` 的 dependency 声明”后，已从 root reactor 移除 `<module>eva-infra</module>`（每步闭环；落地：`0aab4516`）。下一步（可选，独立提交）：评估是否删除 `eva-infra/` 目录与 `eva-infra/pom.xml`（当前已不再参与 reactor/无依赖方）。
 
