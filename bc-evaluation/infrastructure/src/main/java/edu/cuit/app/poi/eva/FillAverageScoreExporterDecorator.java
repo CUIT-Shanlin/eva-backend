@@ -1,10 +1,12 @@
 package edu.cuit.app.poi.eva;
 
 import edu.cuit.app.poi.util.ExcelUtils;
+import cn.hutool.extra.spring.SpringUtil;
+import edu.cuit.bc.iam.application.contract.dto.clientobject.user.UserDetailCO;
+import edu.cuit.bc.iam.application.port.UserDetailQueryPort;
 import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
 import edu.cuit.client.dto.clientobject.eva.UserSingleCourseScoreCO;
-import edu.cuit.domain.entity.user.biz.UserEntity;
 import org.apache.poi.ss.usermodel.Row;
 
 import java.util.HashMap;
@@ -34,24 +36,26 @@ public class FillAverageScoreExporterDecorator extends EvaStatisticsExporter {
     }
 
     private void insertData() {
-        List<UserEntity> teacherList = userQueryGateway.findAllUserId().stream()
-                .map(userId -> userQueryGateway.findById(userId).orElse(null))
+        UserDetailQueryPort userDetailQueryPort = SpringUtil.getBean(UserDetailQueryPort.class);
+        List<UserDetailCO> teacherList = userQueryGateway.findAllUserId().stream()
+                .map(userId -> userDetailQueryPort.findById(userId).orElse(null))
                 .filter(user -> user != null && !"admin".equals(user.getUsername()))
                 .toList();
-        for (UserEntity teacher : teacherList) {
+        for (UserDetailCO teacher : teacherList) {
             insertTeacherData(teacher);
         }
     }
 
-    private void insertTeacherData(UserEntity teacher) {
-        List<CourseDetailCO> courseList = userCourseService.getUserCourses(semId, teacher.getId()).stream()
+    private void insertTeacherData(UserDetailCO teacher) {
+        Integer teacherId = teacher.getId() == null ? null : teacher.getId().intValue();
+        List<CourseDetailCO> courseList = userCourseService.getUserCourses(semId, teacherId).stream()
                 .map(courseId -> courseDetailService.courseInfo(courseId, semId))
                 .toList();
 
         if (courseList.isEmpty()) return;
 
         Map<Integer,UserSingleCourseScoreCO> userScoreMap = new HashMap<>();
-        userService.getOneUserScore(teacher.getId(),semId).forEach(scoreInfo -> {
+        userService.getOneUserScore(teacherId,semId).forEach(scoreInfo -> {
             userScoreMap.put(scoreInfo.getCourseId(),scoreInfo);
         });
 
