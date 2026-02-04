@@ -56,4 +56,16 @@ public interface EvaConvertor {
     EvaTemplateEntity ToEvaTemplateEntity(FormTemplateDO formTemplateDO);
 
 
+    /**
+     * 过渡期桥接方法：用于让调用方在不编译期引用 {@link UserEntity} 的情况下复用既有映射逻辑。
+     * <p>
+     * 约束：不改变 teacher/courInf Supplier 的调用时机与次数，仅做类型桥接。
+     * </p>
+     */
+    default EvaTaskEntity toEvaTaskEntityWithTeacherObject(
+            EvaTaskDO evaTaskDO, Supplier<?> teacher, Supplier<SingleCourseEntity> courInf) {
+        return ToEvaTaskEntity(evaTaskDO, () -> (UserEntity) teacher.get(), courInf);
+    }
+
+
 }
