@@ -24,6 +24,9 @@
 **2026-02-04（前置：eva-domain 编译闭合支撑（bc-course），保持行为不变）**
 - ✅ 已完成（保持行为不变）：为后续逐类把课程域类型从 `eva-domain` 归位到 `bc-course-domain`（且避免 `eva-domain` 内残留接口签名引用导致编译失败），在 `eva-domain/pom.xml` 显式增加对 `bc-course-domain` 的 Maven 编译期依赖（过渡期；最小回归通过；落地：`c425f384`）。
 
+**2026-02-04（前置：bc-course-domain 编译闭合支撑（课程实体），保持行为不变）**
+- ✅ 已完成（保持行为不变）：为后续归位 `CourseTypeEntity` 等带 `@Entity`/Lombok 的课程域实体做编译闭合前置，在 `bc-course/domain/pom.xml` 补齐 `cola-component-domain-starter` 与 `lombok(provided)`（最小回归通过；落地：`2c0626e8`）。
+
 **2026-02-04（下一刀：证伪并归位 `SemesterGateway` → `bc-course-domain`；保持行为不变）**
 - ✅ 已完成（保持行为不变）：Serena 证伪 `SemesterGateway` 引用面覆盖 `bc-course/**` 与 `eva-infra-shared`（AOP 依赖）后，将其从 `eva-domain` 搬运归位到 `bc-course-domain`（保持 `package` 与接口签名/注解不变；最小回归通过；落地：`30d1c98a`）。
 
