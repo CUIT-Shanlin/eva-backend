@@ -10,7 +10,6 @@ import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.user.biz.MenuEntity;
 import edu.cuit.domain.entity.user.biz.RoleEntity;
-import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.domain.gateway.user.MenuQueryGateway;
 import edu.cuit.domain.gateway.user.RoleQueryGateway;
 import edu.cuit.domain.gateway.user.UserQueryGateway;
@@ -58,13 +57,13 @@ public class UserEntityQueryPortImpl implements UserEntityQueryPort {
     private final PaginationConverter paginationConverter;
 
     @Override
-    public Optional<UserEntity> findById(Integer id) {
+    public Optional<?> findById(Integer id) {
         SysUserDO userDO = userMapper.selectById(id);
         return Optional.ofNullable(fileUserEntity(userDO));
     }
 
     @Override
-    public Optional<UserEntity> findByUsername(String username) {
+    public Optional<?> findByUsername(String username) {
         //查询用户
         LambdaQueryWrapper<SysUserDO> userQuery = Wrappers.lambdaQuery();
         userQuery.eq(SysUserDO::getUsername, username);
@@ -73,7 +72,7 @@ public class UserEntityQueryPortImpl implements UserEntityQueryPort {
     }
 
     @Override
-    public PaginationResultEntity<UserEntity> page(PagingQuery<GenericConditionalQuery> query) {
+    public PaginationResultEntity<?> page(PagingQuery<GenericConditionalQuery> query) {
         Page<SysUserDO> userPage = Page.of(query.getPage(), query.getSize());
         GenericConditionalQuery queryObj = query.getQueryObj();
 
@@ -89,7 +88,7 @@ public class UserEntityQueryPortImpl implements UserEntityQueryPort {
         Page<SysUserDO> usersPage = userMapper.selectPage(userPage, userQuery);
 
         //映射
-        List<UserEntity> userEntityList = usersPage.getRecords().stream().map(this::fileUserEntity).toList();
+        List<Object> userEntityList = usersPage.getRecords().stream().map(this::fileUserEntity).toList();
 
         return paginationConverter.toPaginationEntity(usersPage, userEntityList);
     }
@@ -99,7 +98,7 @@ public class UserEntityQueryPortImpl implements UserEntityQueryPort {
      *
      * @param userDO SysUserDO
      */
-    private UserEntity fileUserEntity(SysUserDO userDO) {
+    private Object fileUserEntity(SysUserDO userDO) {
         //查询角色
         LambdaQueryWrapper<SysRoleDO> roleQuery = new LambdaQueryWrapper<>();
         List<Integer> userRoleIds = userQueryGateway.getUserRoleIds(userDO.getId());
@@ -125,7 +124,6 @@ public class UserEntityQueryPortImpl implements UserEntityQueryPort {
 
                     return roleConverter.toRoleEntity(roleDo, menus);
                 }).toList();
-        return userConverter.toUserEntity(userDO, userRoles);
+        return userConverter.toUserEntityObject(userDO, userRoles);
     }
 }
-
