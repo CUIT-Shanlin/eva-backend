@@ -117,6 +117,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ IAM S0.2 延伸（保持行为不变）：将 `FindUserByIdUseCase` 去 `UserEntity` 编译期依赖，收敛为优先依赖 `bc-iam-contract` 端口 `UserEntityByIdQueryPort`（`execute` 使用泛型承接 `Optional<?>`；不改变旧 gateway 委托链路/缓存触发点；落地：`e13e1dc6`）。
 - ✅ IAM S0.2 延伸（保持行为不变）：将 `FindUserByUsernameUseCase` 去 `UserEntity` 编译期依赖，收敛为优先依赖 `bc-iam-contract` 端口 `UserEntityByUsernameQueryPort`（`execute` 使用泛型承接 `Optional<?>`；不改变旧 gateway 委托链路/缓存触发点；落地：`e8f16843`）。
 - ✅ IAM S0.2 延伸（保持行为不变）：将 `PageUserUseCase` 去 `UserEntity` 编译期依赖，收敛为优先依赖 `bc-iam-contract` 端口 `UserDirectoryPageQueryPort`（分页出参使用泛型承接 `PaginationResultEntity<?>`；不改变旧 gateway 委托链路/缓存触发点；落地：`4de644a7`）。
+- ✅ IAM S0.2 延伸（保持行为不变）：将旧端口 `UserEntityQueryPort` 去 `UserEntity` 编译期依赖（返回类型收敛为 `Optional<?>/PaginationResultEntity<?>`，过渡期实际返回仍为 `UserEntity`；端口适配器逻辑不变；落地：`72d029e0`）。
 - ✅ IAM 并行（按 10.3：补齐鉴权权限/角色查询最小端口（前置）；保持行为不变）：在 `bc-iam-contract` 新增 `UserPermissionAndRoleQueryPort`，用于后续将 `eva-infra-shared` 的 `StpInterfaceImpl` 去 `UserQueryGateway` 编译期依赖（仅新增接口，不改装配/不改行为；最小回归通过；落地提交以 `git log -n 1 -- bc-iam/contract/src/main/java/edu/cuit/bc/iam/application/port/UserPermissionAndRoleQueryPort.java` 为准）。
 - ✅ IAM 并行（按 10.3：补齐端口适配器实现（鉴权权限/角色查询）；保持行为不变）：在 `bc-iam-infrastructure` 的 `UserEntityByUsernameQueryPortImpl` 补齐实现 `UserPermissionAndRoleQueryPort`，内部委托旧 `UserQueryGateway.findByUsername` 以保持缓存/切面触发点不变（最小回归通过；落地提交以 `git log -n 1 -- bc-iam/infrastructure/src/main/java/edu/cuit/infra/bciam/adapter/UserEntityByUsernameQueryPortImpl.java` 为准）。
 - ✅ 编译闭合前置（保持行为不变）：在 `eva-infra-shared/pom.xml` 显式增加对 `bc-iam-contract` 的 Maven 编译期依赖，用于后续将 `StpInterfaceImpl` 从依赖 `UserQueryGateway` 收敛为依赖 contract 端口（最小回归通过；落地提交以 `git log -n 1 -- eva-infra-shared/pom.xml` 为准）。
@@ -675,6 +676,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成（保持行为不变）：`bc-iam/application` 的 `FindUserByIdUseCase` 已去 `UserEntity` 编译期依赖并收敛为依赖 `bc-iam-contract` 端口 `UserEntityByIdQueryPort`（`execute` 使用泛型承接 `Optional<?>`；落地：`e13e1dc6`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
   - ✅ 已完成（保持行为不变）：`bc-iam/application` 的 `FindUserByUsernameUseCase` 已去 `UserEntity` 编译期依赖并收敛为依赖 `bc-iam-contract` 端口 `UserEntityByUsernameQueryPort`（`execute` 使用泛型承接 `Optional<?>`；落地：`e8f16843`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
   - ✅ 已完成（保持行为不变）：`bc-iam/application` 的 `PageUserUseCase` 已去 `UserEntity` 编译期依赖并收敛为依赖 `bc-iam-contract` 端口 `UserDirectoryPageQueryPort`（分页出参使用泛型承接 `PaginationResultEntity<?>`；落地：`4de644a7`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
+  - ✅ 已完成（保持行为不变）：`bc-iam/application` 的旧端口 `UserEntityQueryPort` 已去 `UserEntity` 编译期依赖（返回类型收敛为 `Optional<?>/PaginationResultEntity<?>`；过渡期实际返回仍为 `UserEntity`；端口适配器逻辑不变；落地：`72d029e0`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 
 - **S0.2 延伸（IAM：依赖收敛 + 去 `eva-domain` 前置，保持行为不变）**：
   - ✅ 已完成（端口下沉，保持行为不变）：`EvaRecordCountQueryPort` 已从 `bc-evaluation/application` 下沉到 `bc-evaluation-contract`（保持 `package` 不变；落地：`4c30b02c`）。
