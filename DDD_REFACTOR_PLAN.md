@@ -966,6 +966,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
      - ✅ 补充进展（保持行为不变，适配器复用）：已在 `UserEntityByUsernameQueryPortImpl` 补齐实现 `UserStatusByUsernameQueryPort`，用于后续让 `ValidateUserLoginUseCase` 在不改调用方的前提下去 `UserEntity` 编译期依赖（详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
   2) （类）重复上一步：每次只搬运 1 个类，逐步清空“bc-iam 所需且仅 bc-iam 使用”的 `edu.cuit.domain.*` 子集。
   3) （pom）当 Serena + `rg` 证伪 `bc-iam/application` 不再需要 `eva-domain` 提供的任何类型后，再改 `bc-iam/application/pom.xml`：移除 `eva-domain`，改为显式依赖 `bc-iam-domain`（保持行为不变）。
+     - ✅ 已完成（保持行为不变）：`bc-iam/application/pom.xml` 已移除对 `eva-domain` 的 Maven 编译期依赖，并补齐缺失的 `cola-component-exception` 编译期依赖以保持编译闭合（最小回归通过；落地：`04e8b671`）。
 
   - 关键风险控制（必须写进流程，避免“把共享类型误归位到单一 BC”）：
   - 若某个 `edu.cuit.domain.*` 类型被多个 BC 复用，则**不得**直接归位到 `bc-iam-domain`；应重新评估其真实归属：跨 BC 协议 → `shared-kernel`；跨 BC 业务语义 → 明确归属后再迁（或保持在 `eva-domain` 过渡）。
