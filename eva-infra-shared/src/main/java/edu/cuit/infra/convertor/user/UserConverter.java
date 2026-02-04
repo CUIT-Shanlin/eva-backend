@@ -1,5 +1,6 @@
 package edu.cuit.infra.convertor.user;
 
+import cn.hutool.extra.spring.SpringUtil;
 import edu.cuit.client.dto.clientobject.SimpleResultCO;
 import edu.cuit.client.dto.clientobject.user.UnqualifiedUserInfoCO;
 import edu.cuit.bc.iam.application.contract.dto.cmd.user.NewUserCmd;
@@ -48,6 +49,18 @@ public interface UserConverter {
      */
     default Integer userIdOf(Object user) {
         return ((UserEntity) user).getId();
+    }
+
+    /**
+     * 过渡期桥接方法：Spring Bean 桥接 + setName 桥接。
+     * <p>
+     * 约束：内部仍使用 {@link UserEntity} 强转与 {@link SpringUtil#getBean(Class)}，以尽量保持历史异常形态与副作用顺序一致。
+     * </p>
+     */
+    default Object springUserEntityWithNameObject(Object name) {
+        UserEntity user = SpringUtil.getBean(UserEntity.class);
+        user.setName((String) name);
+        return user;
     }
 
     @Mapping(target = "extValues", ignore = true)
