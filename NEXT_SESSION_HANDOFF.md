@@ -21,6 +21,10 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-04（证据化盘点：UserQueryGatewayImpl 缓存触发点与调用面；保持行为不变）**
+- ✅ 已证据化（Serena + `rg` 兜底）：`bc-iam/infrastructure/src/main/java/edu/cuit/infra/gateway/impl/user/UserQueryGatewayImpl.java` 仍承载 `@LocalCached` 缓存触发点，且其接口 `UserQueryGateway` 的调用面（import/注入）当前仅分布于 `bc-iam/infrastructure` 内部的端口适配器中；详见 `docs/DDD_REFACTOR_BACKLOG.md` 4.3（落地：`c4a32bde`）。
+- ✅ 结论（保持行为不变）：由于 `UserQueryGateway`/`UserQueryGatewayImpl` 对外签名仍暴露 `UserEntity` 与 `PaginationResultEntity<UserEntity>`，因此“完全去 `UserEntity` 编译期依赖”大概率无法通过“单类改动”闭环完成；建议继续按 0.11/E 的口径先停在“证据化 + 方案拆分”，后置再按多步推进且必须确保缓存命中/回源语义不漂移。
+
 **2026-02-04（补充：S0.2 延伸——收敛 `eva-infra/pom.xml` 残留依赖声明；保持行为不变）**
 - ✅ 依赖收敛（保持行为不变）：`eva-infra` 已从 root reactor 退场且源码仅 `package-info.java`（无业务逻辑、无外部依赖方）；在 Serena + `rg` 证伪后，清理 `eva-infra/pom.xml` 残留 `<dependencies>` 声明（最小回归通过）；落地：`47654a6a`。
 
