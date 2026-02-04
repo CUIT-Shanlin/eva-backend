@@ -27,6 +27,9 @@
 **2026-02-04（前置：bc-course-domain 编译闭合支撑（课程实体），保持行为不变）**
 - ✅ 已完成（保持行为不变）：为后续归位 `CourseTypeEntity` 等带 `@Entity`/Lombok 的课程域实体做编译闭合前置，在 `bc-course/domain/pom.xml` 补齐 `cola-component-domain-starter` 与 `lombok(provided)`（最小回归通过；落地：`2c0626e8`）。
 
+**2026-02-04（下一刀：证伪并归位 `CourseTypeEntity` → `bc-course-domain`；保持行为不变）**
+- ✅ 已完成（保持行为不变）：Serena 证伪 `CourseTypeEntity` 引用面集中在课程域（含 `CourseQueryGateway` 签名）后，将其从 `eva-domain` 搬运归位到 `bc-course-domain`（保持 `package` 与类内容不变；最小回归通过；落地：`97a8e3f3`）。
+
 **2026-02-04（下一刀：证伪并归位 `SemesterGateway` → `bc-course-domain`；保持行为不变）**
 - ✅ 已完成（保持行为不变）：Serena 证伪 `SemesterGateway` 引用面覆盖 `bc-course/**` 与 `eva-infra-shared`（AOP 依赖）后，将其从 `eva-domain` 搬运归位到 `bc-course-domain`（保持 `package` 与接口签名/注解不变；最小回归通过；落地：`30d1c98a`）。
 
