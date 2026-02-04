@@ -122,6 +122,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ IAM S0.2 延伸（保持行为不变）：将 `FindUserByUsernameUseCaseTest` 去 `UserEntity` 编译期依赖（测试侧端口返回类型同步为通配符；不影响用例委托行为；落地：`0ebfb75c`）。
 - ✅ IAM S0.2 延伸（保持行为不变）：将 `PageUserUseCaseTest` 去 `UserEntity` 编译期依赖（测试侧端口返回类型同步为通配符；不影响用例委托行为；落地：`934cf935`）。
 - ✅ S0.2 延伸（依赖方收敛，保持行为不变）：将 `bc-evaluation/infrastructure` 的 `EvaStatisticsExporter` 去 `UserEntity` 编译期依赖：不再 `import UserEntity`，改为对 `UserAllUserIdAndEntityByIdQueryPort.findById` 返回的 `Optional<?>` 做运行时类型判定（按类名/父类链）后再 `Optional.of(...)`，以保持历史“仅当返回值为 UserEntity 才参与后续逻辑”的分支语义不变；最小回归通过；落地：`4f4b190b`。
+- ✅ S0.2 延伸（依赖方收敛前置，保持行为不变）：在 `eva-infra-shared` 的 `EvaConvertor` 增加桥接方法 `toEvaTaskEntityWithTeacherObject(...)`，用于后续让依赖方在不编译期引用 `UserEntity` 的情况下复用既有 `ToEvaTaskEntity` 映射逻辑（仅做类型桥接，不改变 teacher/courInf Supplier 的调用时机与次数）；最小回归通过；落地：`a8934ab1`。
 - ✅ S0.2 延伸（依赖方收敛，保持行为不变）：将 `bc-evaluation/infrastructure` 的 `FillAverageScoreExporterDecorator` 去 `UserEntity` 编译期依赖，改为依赖 `bc-iam-contract` 的 `UserDetailQueryPort` + `UserDetailCO`（内部仍委托旧 `UserQueryGateway.findById`，缓存触发点不变；落地：`7a3ca8ed`）。
 - ✅ S0.2 延伸（依赖方收敛，保持行为不变）：将 `bc-evaluation/infrastructure` 的 `FillEvaRecordExporterDecorator` 去 `UserEntity` 编译期依赖，改为依赖 `bc-iam-contract` 的 `UserDetailQueryPort` + `UserDetailCO`（内部仍委托旧 `UserQueryGateway.findById`，缓存触发点不变；落地：`fba76459`）。
 - ✅ S0.2 延伸（依赖方收敛，保持行为不变）：将 `bc-evaluation/infrastructure` 的 `FillUserStatisticsExporterDecorator` 去 `UserEntity` 编译期依赖，改为依赖 `bc-iam-contract` 的 `UserDetailQueryPort` + `UserDetailCO`（内部仍委托旧 `UserQueryGateway.findById`，缓存触发点不变；落地：`8d59ea72`）。
