@@ -21,6 +21,13 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-04（下一刀：证伪并归位 `SemesterGateway` → `bc-course-domain`；保持行为不变）**
+- ✅ 已完成（保持行为不变）：Serena 证伪 `SemesterGateway` 引用面覆盖 `bc-course/**` 与 `eva-infra-shared`（AOP 依赖）后，将其从 `eva-domain` 搬运归位到 `bc-course-domain`（保持 `package` 与接口签名/注解不变；最小回归通过；落地：`30d1c98a`）。
+
+**2026-02-04（前置：bc-course-domain / eva-infra-shared 编译闭合支撑；保持行为不变）**
+- ✅ 已完成（保持行为不变）：为后续归位 `SemesterGateway` 做编译闭合前置，在 `bc-course/domain/pom.xml` 补齐 `shared-kernel` 编译期依赖（承接 `SemesterCO`；最小回归通过；落地：`6353d17e`）。
+- ✅ 已完成（保持行为不变）：为避免归位后 `eva-infra-shared` 编译失败，在 `eva-infra-shared/pom.xml` 显式依赖 `bc-course-domain`（过渡期；最小回归通过；落地：`46bf4c15`）。
+
 **2026-02-04（下一刀：证伪并归位 `ClassroomGateway` → `bc-course-domain`；保持行为不变）**
 - ✅ 已完成（保持行为不变）：Serena 证伪 `ClassroomGateway` 引用面仅在 `bc-course/**` 后，将其从 `eva-domain` 搬运归位到 `bc-course-domain`（保持 `package` 与接口签名/注解不变，仅改变 Maven 模块归属；最小回归通过；落地：`11ac2be6`）。
 
