@@ -30,6 +30,26 @@ public interface UserConverter {
     })
     UserEntity toUserEntity(SysUserDO userDO, Supplier<List<RoleEntity>> roles);
 
+    /**
+     * 过渡期桥接方法：用于让调用方在不编译期引用 {@link UserEntity} 的情况下复用既有映射逻辑。
+     * <p>
+     * 约束：不改变 roles Supplier 的调用时机与次数，仅做类型桥接。
+     * </p>
+     */
+    default Object toUserEntityObject(SysUserDO userDO, Supplier<List<RoleEntity>> roles) {
+        return toUserEntity(userDO, roles);
+    }
+
+    /**
+     * 过渡期桥接方法：从“用户对象（实际为 UserEntity）”中取 userId。
+     * <p>
+     * 约束：内部仍使用 {@link UserEntity} 强转，以尽量保持历史空值/异常表现一致。
+     * </p>
+     */
+    default Integer userIdOf(Object user) {
+        return ((UserEntity) user).getId();
+    }
+
     @Mapping(target = "extValues", ignore = true)
     SimpleResultCO toUserSimpleResult(SysUserDO userDO);
 
