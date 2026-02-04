@@ -20,7 +20,6 @@ import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.user.biz.UserEntity;
-import edu.cuit.domain.gateway.user.UserQueryGateway;
 import edu.cuit.infra.gateway.user.UserQueryCacheGateway;
 import edu.cuit.infra.convertor.PaginationConverter;
 import edu.cuit.infra.dal.database.dataobject.user.SysRoleDO;
@@ -38,7 +37,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class UserQueryGatewayImpl implements UserQueryGateway, UserQueryCacheGateway {
+public class UserQueryGatewayImpl implements UserQueryCacheGateway {
 
     private final FindAllUserIdUseCase findAllUserIdUseCase;
     private final FindAllUsernameUseCase findAllUsernameUseCase;
