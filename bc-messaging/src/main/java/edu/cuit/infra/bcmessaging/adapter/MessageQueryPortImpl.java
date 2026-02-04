@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import edu.cuit.bc.iam.application.port.UserEntityByIdQueryPort;
 import edu.cuit.bc.messaging.application.port.MessageQueryPort;
 import edu.cuit.domain.entity.MsgEntity;
-import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.infra.convertor.MsgConvertor;
 import edu.cuit.infra.dal.database.dataobject.MsgTipDO;
 import edu.cuit.infra.dal.database.mapper.MsgTipMapper;
@@ -50,15 +49,15 @@ public class MessageQueryPortImpl implements MessageQueryPort {
     }
 
     private MsgEntity getMsgEntity(MsgTipDO msgTipDO) {
-        return msgConvertor.toMsgEntity(msgTipDO,
+        return msgConvertor.toMsgEntityWithUserObject(msgTipDO,
                 () -> {
                     if (msgTipDO.getSenderId() == null || msgTipDO.getSenderId() < 0) {
                         return null;
                     }
-                    return (UserEntity) userEntityByIdQueryPort.findById(msgTipDO.getSenderId())
+                    return userEntityByIdQueryPort.findById(msgTipDO.getSenderId())
                             .orElseThrow(() -> new BizException("发送者id不存在"));
                 },
-                () -> (UserEntity) userEntityByIdQueryPort.findById(msgTipDO.getRecipientId())
+                () -> userEntityByIdQueryPort.findById(msgTipDO.getRecipientId())
                         .orElseThrow(() -> new BizException("接受者id不存在")));
     }
 }
