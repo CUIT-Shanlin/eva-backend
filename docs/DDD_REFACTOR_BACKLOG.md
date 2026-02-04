@@ -114,6 +114,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ IAM S0.2 延伸（前置，保持行为不变）：已补齐 `UserStatusByUsernameQueryPort` 的端口适配器实现；后续为避免注入歧义，该独立适配器已被删除并由 `UserEntityByUsernameQueryPortImpl` 统一承接（最小回归通过）。
 - ✅ IAM S0.2 延伸（前置，保持行为不变）：在 `bc-iam-infrastructure` 的 `UserEntityByUsernameQueryPortImpl` 补齐实现 `UserStatusByUsernameQueryPort`（内部仍委托旧 `UserQueryGateway.findByUsername`；通过拆箱保持历史空值/NPE 表现不变；最小回归通过；落地提交以 `git log -n 1 -- bc-iam/infrastructure/src/main/java/edu/cuit/infra/bciam/adapter/UserEntityByUsernameQueryPortImpl.java` 为准）。
 - ✅ IAM S0.2 延伸（保持行为不变）：将 `ValidateUserLoginUseCase` 从编译期依赖 `UserEntity` 收敛为依赖 `UserStatusByUsernameQueryPort`（仍保持对旧 `UserQueryGateway.findByUsername` 的调用次数/缓存触发点不变；最小回归通过；落地提交以 `git log -n 1 -- bc-iam/application/src/main/java/edu/cuit/bc/iam/application/usecase/ValidateUserLoginUseCase.java` 为准）。
+- ✅ IAM S0.2 延伸（保持行为不变）：将 `FindUserByIdUseCase` 去 `UserEntity` 编译期依赖，收敛为优先依赖 `bc-iam-contract` 端口 `UserEntityByIdQueryPort`（`execute` 使用泛型承接 `Optional<?>`；不改变旧 gateway 委托链路/缓存触发点；落地：`e13e1dc6`）。
 - ✅ IAM 并行（按 10.3：补齐鉴权权限/角色查询最小端口（前置）；保持行为不变）：在 `bc-iam-contract` 新增 `UserPermissionAndRoleQueryPort`，用于后续将 `eva-infra-shared` 的 `StpInterfaceImpl` 去 `UserQueryGateway` 编译期依赖（仅新增接口，不改装配/不改行为；最小回归通过；落地提交以 `git log -n 1 -- bc-iam/contract/src/main/java/edu/cuit/bc/iam/application/port/UserPermissionAndRoleQueryPort.java` 为准）。
 - ✅ IAM 并行（按 10.3：补齐端口适配器实现（鉴权权限/角色查询）；保持行为不变）：在 `bc-iam-infrastructure` 的 `UserEntityByUsernameQueryPortImpl` 补齐实现 `UserPermissionAndRoleQueryPort`，内部委托旧 `UserQueryGateway.findByUsername` 以保持缓存/切面触发点不变（最小回归通过；落地提交以 `git log -n 1 -- bc-iam/infrastructure/src/main/java/edu/cuit/infra/bciam/adapter/UserEntityByUsernameQueryPortImpl.java` 为准）。
 - ✅ 编译闭合前置（保持行为不变）：在 `eva-infra-shared/pom.xml` 显式增加对 `bc-iam-contract` 的 Maven 编译期依赖，用于后续将 `StpInterfaceImpl` 从依赖 `UserQueryGateway` 收敛为依赖 contract 端口（最小回归通过；落地提交以 `git log -n 1 -- eva-infra-shared/pom.xml` 为准）。
@@ -669,6 +670,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - **IAM 并行（10.3：继续清理 `UserQueryGateway` 编译期依赖，保持行为不变）**：
   - ✅ 已完成：`bc-iam/infrastructure` 的 `UserServiceImpl` 已从编译期依赖 `UserQueryGateway` 收敛为依赖 `bc-iam-contract` 最小 Port（并已同步测试过渡；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
   - ✅ 已完成（更新至 2026-02-04，保持行为不变）：`eva-infra-shared` 的 `StpInterfaceImpl` / `MsgBizConvertor` 已去 `UserQueryGateway` 编译期依赖并收敛为依赖 `bc-iam-contract` 最小 Port；端口适配器内部仍委托旧 `UserQueryGateway` 以保持缓存/切面触发点不变。可复现证伪口径：`rg -n "\\bUserQueryGateway\\b" eva-infra-shared/src/main/java` 应无命中（详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
+  - ✅ 已完成（保持行为不变）：`bc-iam/application` 的 `FindUserByIdUseCase` 已去 `UserEntity` 编译期依赖并收敛为依赖 `bc-iam-contract` 端口 `UserEntityByIdQueryPort`（`execute` 使用泛型承接 `Optional<?>`；落地：`e13e1dc6`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 
 - **S0.2 延伸（IAM：依赖收敛 + 去 `eva-domain` 前置，保持行为不变）**：
   - ✅ 已完成（端口下沉，保持行为不变）：`EvaRecordCountQueryPort` 已从 `bc-evaluation/application` 下沉到 `bc-evaluation-contract`（保持 `package` 不变；落地：`4c30b02c`）。
