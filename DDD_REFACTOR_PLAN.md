@@ -940,7 +940,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 #### bc-iam（IAM）S0.2 延伸：收敛 `bc-iam(application)` 对 `eva-domain` 的编译期依赖（保持行为不变）
 
-> 背景：当前 `bc-iam/application/src/main/java` 仍直接 `import edu.cuit.domain.*`（例如 `LdapPersonGateway/DepartmentGateway/PaginationResultEntity` 等），因此暂不能直接移除 `bc-iam/application/pom.xml` 对 `eva-domain` 的依赖。
+> 背景：历史上 `bc-iam/application/src/main/java` 直接 `import edu.cuit.domain.*`（例如 `LdapPersonGateway/DepartmentGateway/PaginationResultEntity` 等），因此曾依赖 `eva-domain`。截至 2026-02-04，相关类型已逐步归位到 `bc-iam-domain/shared-kernel`，且 `bc-iam/application/pom.xml` 已完成移除 `eva-domain` 编译期依赖（保持行为不变；见下方落地记录）。
 >
 > 目标：把“仅 IAM 使用”的 `edu.cuit.domain.entity.user.*` / `edu.cuit.domain.gateway.user.*` 等类型逐步归位到 `bc-iam-domain`（保持 `package` 不变，仅改变 Maven 模块归属），最终让 `bc-iam(application)` 仅依赖 `bc-iam-domain`（以及必要的 `shared-kernel/contract`），并在证伪引用面后收敛 `pom.xml`（保持行为不变）。
 
