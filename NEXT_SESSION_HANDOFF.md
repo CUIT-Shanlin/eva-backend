@@ -900,7 +900,17 @@
 > 阶段性策略微调（2025-12-29，持续有效）：允许“微调”（仅结构性重构；不改业务语义；缓存/日志/异常文案/副作用顺序完全不变）。在“评教统计导出基础设施归位”与“课程课表解析归位/端口化”闭环后，`bc-messaging` 的“归位 + 依赖收敛”已阶段性闭环（见 0.9）；`bc-course` 的 **S0（旧 gateway 压扁为委托壳）** 已推进到阶段性闭环（见 0.9/0.10）；**S0.2 主目标**（`eva-domain` 去 `bc-course` 编译期依赖）已闭环；当前主线进入 **S0.2 延伸（收敛 `bc-course` 的“协议承载面”，并进一步收敛依赖方对 `bc-course` 的编译期依赖）**，仍按“小步可回滚 + 每步闭环”推进。
 >
 
-### 0.10.1 最新状态 & 下一步建议（滚动更新至 2026-02-04；聚焦：S0.2 延伸（依赖方收敛）+ IAM 并行（10.3：UserQueryGateway/UserEntity → contract 最小 Port））
+### 0.10.1 最新状态 & 下一步建议（滚动更新至 2026-02-05；聚焦：bc-course S0.2 延伸（`eva-domain` → `bc-course-domain` 逐类归位）+ 依赖收敛（单 pom）+ IAM 并行（10.3：UserQueryGateway/UserEntity → contract 最小 Port））
+
+- 🎯 **本次会话最新增量（2026-02-05，保持行为不变）**：
+  - ✅ `bc-course`：已将 `edu.cuit.domain.gateway.course.CourseQueryGateway` 从 `eva-domain` 搬运归位到 `bc-course-domain`（保持 `package`/接口签名/注解不变；确保全仓库该 FQCN 仅存在一份；最小回归通过；代码落地：`e5d56d1b`）。
+  - ✅ 三文档已同步本次归位进度（文档落地：`83e18509`）。
+  - ✅ 当前工作区应仅残留未跟踪 `.mvnd/`（本地 mvnd daemon/registry 目录；禁止提交）。
+
+- 🎯 **下一刀建议（保持行为不变；每次只改 1 个 `pom.xml` 闭环）**：
+  1) 先用 Serena 证伪 `eva-domain/src/main/java` 内是否仍存在对课程域类型的引用（`edu.cuit.domain.entity.course.*` / `edu.cuit.domain.gateway.course.*`）。  
+     - 若无引用面：进入下一步；若仍有引用：先按“每次只改 1 个类”原则逐类归位或收敛引用后再继续。
+  2) 若成立：在 `eva-domain/pom.xml` 移除对 `bc-course-domain` 的 Maven 编译期依赖（每次只改 1 个 pom；最小回归通过后落地）。
 
 - 🎯 **本次会话最新增量（2026-02-04，保持行为不变）**：
   - ✅ `EvaStatisticsExporter` 已去 `UserEntity` 编译期依赖（仍保持旧链路“仅当返回值为 UserEntity 才参与后续逻辑”的分支语义不变；详见 0.9；落地：`4f4b190b`）。
