@@ -918,7 +918,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 > 背景：`eva-domain` 仍承载部分课程域实体/接口，导致多个 BC 仍需经由 `eva-domain` 承接编译期类型。当前采用“每次只搬运 1 个类 + 必要的单 pom 编译闭合前置”的节奏，逐步把**仅课程域承载**的类型归位到 `bc-course-domain`，并通过过渡期依赖保持全仓库编译闭合（不改业务语义）。
 
 - ✅ 已完成（保持行为不变）：`ClassroomGateway`、`SemesterGateway`、`CourseTypeEntity` 已归位 `bc-course-domain`；为编译闭合已补齐 `bc-course/domain/pom.xml` 的必要依赖，并在过渡期为 `eva-domain`/`eva-infra-shared` 补齐对 `bc-course-domain` 的编译期依赖（详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
-- 🎯 下一刀建议（每次只改 1 个类；保持行为不变）：优先搬运 `SubjectEntity`（依赖最少），其次 `SemesterEntity`。
+- ✅ 已完成（保持行为不变）：`SubjectEntity` 已归位 `bc-course-domain`（保持 `package` 与类内容不变；最小回归通过；落地：`449e08d1`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
+- 🎯 下一刀建议（每次只改 1 个类；保持行为不变）：优先搬运 `SemesterEntity`。
 - ⚠️ 风险提示（保持行为不变）：暂不动 `CourseEntity/SingleCourseEntity`（其字段当前仍编译期依赖 `UserEntity`，直接搬运可能引入 `bc-course-domain` → `bc-iam-domain` 的强耦合；需另起小步评估承载面与依赖边界后再推进）。
 
 #### bc-iam（IAM）S1：Controller 入口壳结构性收敛（保持行为不变）
