@@ -923,6 +923,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 已完成（保持行为不变）：`CourseDeleteGateway` 已归位 `bc-course-domain`（保持 `package` 与接口签名/注解不变；最小回归通过；落地：`2ec12495`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ 已完成（保持行为不变）：`CourseUpdateGateway` 已归位 `bc-course-domain`（保持 `package` 与接口签名/注解不变；最小回归通过；落地：`73ccfff8`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ 已完成（保持行为不变，编译闭合前置）：为后续归位 `CourseEntity/SingleCourseEntity` 提供编译闭合支撑，已在 `bc-course/domain/pom.xml` 显式增加对 `bc-iam-domain` 的 Maven 编译期依赖（承接 `CourseEntity` 对 `UserEntity` 的类型引用；最小回归通过；落地：`fa7e2270`）。
+- ✅ 已完成（保持行为不变）：`CourseEntity` 已归位 `bc-course-domain`（保持 `package` 与类内容不变；最小回归通过；落地：`c94151f7`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - 🎯 下一刀建议（每次只改 1 个类；保持行为不变）：评估并尝试搬运 `CourseQueryGateway`；但需先处理其签名对 `CourseEntity/SingleCourseEntity` 的编译期依赖导致的 Maven 循环依赖风险（见下方“暂缓”说明）。
 - ⚠️ 风险提示（保持行为不变）：暂不动 `CourseEntity/SingleCourseEntity`（其字段当前仍编译期依赖 `UserEntity`，直接搬运可能引入 `bc-course-domain` → `bc-iam-domain` 的强耦合；需另起小步评估承载面与依赖边界后再推进）。
 - ⚠️ 暂缓（保持行为不变）：`CourseQueryGateway` 的签名仍编译期依赖 `CourseEntity/SingleCourseEntity`（当前在 `eva-domain`），且 `eva-domain` 已过渡期显式依赖 `bc-course-domain`；直接搬运可能引入 `bc-course-domain` ↔ `eva-domain` Maven 循环依赖风险。建议顺序：先归位 `CourseEntity` → `SingleCourseEntity`（必要时仅补齐编译期依赖，不引入新业务语义）→ 再评估归位 `CourseQueryGateway`。
