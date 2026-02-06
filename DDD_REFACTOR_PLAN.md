@@ -963,7 +963,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 进展（2026-02-06，保持行为不变；每次只改 1 个 `pom.xml`）：在 Serena 证伪 `bc-messaging/src/main/java` 无 `eva-domain` 残留引用面后，已收敛 `bc-messaging/pom.xml`：移除对 `eva-domain` 的 Maven 编译期依赖（仅收敛编译边界；最小回归通过；落地：`acecb5af`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ 已完成（2026-02-06，保持行为不变；每次只改 1 个 `pom.xml`）：在 Serena 证伪 `eva-infra-shared/src/main/java` 无 `eva-domain` 残留引用面后，收敛 `eva-infra-shared/pom.xml`：移除对 `eva-domain` 的 Maven 编译期依赖，并补齐对 `bc-course-domain` / `bc-evaluation-domain` / `bc-audit-domain` / `bc-iam-domain` 的显式依赖以保持编译闭合（最小回归通过；落地：`0585d6fb`）。
 - ✅ 已完成（2026-02-06，保持行为不变；每次只改 1 个 `pom.xml`）：在确认除 `eva-domain/pom.xml` 自身外，全仓库 `**/pom.xml` 不再出现 `<artifactId>eva-domain</artifactId>` 后，从根 `pom.xml` 的 reactor 中移除 `<module>eva-domain</module>`（仅改变聚合构建边界；最小回归通过；落地：`6b907bc1`）。
-- 🎯 下一刀建议（保持行为不变；每次只改 1 个 `pom.xml`）：删除 `eva-domain/pom.xml`（前置：reactor 已无 `<module>eva-domain</module>`；且无依赖方；删除后仍需最小回归闭环）。
+- ✅ 已完成（2026-02-06，保持行为不变；每次只改 1 个 `pom.xml`）：删除 `eva-domain/pom.xml`（前置：reactor 已无 `<module>eva-domain</module>`；最小回归通过；落地：`c0035b03`）。
+- 🎯 下一刀建议（保持行为不变）：若 `eva-domain/` 目录仍存在，则评估是否删除空目录（建议独立提交，避免与其它变更混在同一提交里）。
   - ⚠️ 现状说明（保持行为不变）：`CourseEntity/SingleCourseEntity` 字段仍编译期依赖 `UserEntity`（`bc-iam-domain`），因此 `bc-course-domain` 当前保留对 `bc-iam-domain` 的编译期依赖作为过渡。后续若需去耦合，建议以“下沉最小 User 协议到 `*-contract`/`shared-kernel`”为方向另起小步证伪与落地，避免牵连行为漂移。
 
 #### bc-iam（IAM）S1：Controller 入口壳结构性收敛（保持行为不变）
