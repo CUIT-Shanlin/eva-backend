@@ -114,6 +114,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-evaluation/infrastructure/pom.xml`：移除对 `eva-infra-dal` 的冗余 Maven 直依赖（前置：`eva-infra-shared/pom.xml` 已显式依赖 `eva-infra-dal`；因此编译/运行期 classpath 与行为不变；最小回归通过；落地：`a0b5a359`）。
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-iam/infrastructure/pom.xml`：移除对 `eva-infra-dal` 的冗余 Maven 直依赖（前置：`eva-infra-shared/pom.xml` 已显式依赖 `eva-infra-dal`；因此编译/运行期 classpath 与行为不变；最小回归通过；落地：`d7caa268`）。
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-messaging/pom.xml`：移除对 `eva-infra-dal` 的冗余 Maven 直依赖（前置：`eva-infra-shared/pom.xml` 已显式依赖 `eva-infra-dal`；因此编译/运行期 classpath 与行为不变；最小回归通过；落地：`ab25db93`）。
+- ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-template/infrastructure/pom.xml`：将对 `eva-infra-dal` 的 Maven 编译期直依赖替换为依赖 `eva-infra-shared`（其显式依赖 `eva-infra-dal`，因此编译/运行期 classpath 与行为不变；最小回归通过；落地：`204aef24`）。
 - ✅ S0.2 延伸（支撑类归位，保持行为不变）：将 `CourInfTimeOverlapQuery` 从 `eva-infra-shared` 搬运归位到 `bc-course/infrastructure`（保持 `package` 与类内容不变；Serena：引用面仅命中 `bc-course/infrastructure` 的 3 个适配器；最小回归通过；落地：`ea6c99e9`；文档闭环：`2466ead3`）。
 - ✅ S0.2 延伸（reactor 退场，单 pom，保持行为不变）：收敛根 `pom.xml`：从 reactor 中移除 `<module>eva-domain</module>`（仅改变聚合构建边界；最小回归通过；落地：`6b907bc1`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `eva-infra-shared/pom.xml`：移除对 `eva-domain` 的 Maven 编译期依赖，并补齐对 `bc-course-domain` / `bc-evaluation-domain` / `bc-audit-domain` / `bc-iam-domain` 的显式依赖以保持编译闭合（最小回归通过；落地：`0585d6fb`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
@@ -368,7 +369,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（装配责任上推：start 显式依赖 bc-iam-infra，保持行为不变）：为后续收敛 `eva-app` 的运行期装配依赖边界，在 `start/pom.xml` 增加对 `bc-iam-infra` 的 `runtime` 依赖（与原 transitive 结果等价，仅显式化；最小回归通过）；落地：`8a5df2d0`。
 - ✅ S0.2 延伸（依赖方收敛：eva-app 去 bc-iam-infra 依赖，保持行为不变）：在 Serena 证据化确认 `eva-app/src/main/java` 不再引用 `edu.cuit.app.*` 的 IAM 实现类后，收敛 `eva-app/pom.xml`：移除对 `bc-iam-infra` 的依赖；运行期装配由组合根 `start` 显式兜底（最小回归通过）；落地：`e7b46f36`。
 - ✅ S0.2 延伸（依赖方收敛：bc-template-infra 去 bc-template 编译期依赖，保持行为不变）：在 Serena 证据化确认 `bc-template-infra` 当前无源码（仅 `pom.xml`）后，收敛 `bc-template/infrastructure/pom.xml`：将对 `bc-template` 的 Maven 依赖替换为 `bc-template-domain`（版本不变；最小回归通过）；落地：`aee98f9b`。
-- ✅ S1（模板：编译闭合前置，保持行为不变）：为后续将 `CourseTemplateLockQueryPortImpl` 从 `eva-infra` 归位到 `bc-template-infra` 做前置，已在 `bc-template/infrastructure/pom.xml` 显式增加对 `eva-infra-dal` 的 Maven 编译期依赖（仅用于闭合 `Mapper/DO/QueryWrapper` 依赖）；最小回归通过；落地：`4f819e13`。
+- ✅ S1（模板：编译闭合前置，保持行为不变）：为后续将 `CourseTemplateLockQueryPortImpl` 从 `eva-infra` 归位到 `bc-template-infra` 做前置，已在 `bc-template/infrastructure/pom.xml` 显式增加对 `eva-infra-dal` 的 Maven 编译期依赖（仅用于闭合 `Mapper/DO/QueryWrapper` 依赖）；最小回归通过；落地：`4f819e13`。补充更新（2026-02-06，保持行为不变）：`bc-template-infra` 已改为依赖 `eva-infra-shared` 显式传递承接 `eva-infra-dal`，不再直依赖 `eva-infra-dal`（最小回归通过；落地：`204aef24`）。
 - ✅ S1（模板：装配责任上推，保持行为不变）：为后续 `CourseTemplateLockQueryPortImpl` 归位后仍可在运行期被组合根装配，已在 `start/pom.xml` 显式增加对 `bc-template-infra` 的 `runtime` 依赖（保持行为不变，仅上推依赖边界）；最小回归通过；落地：`d51975fb`。
 - ✅ S1（模板：基础设施端口实现归位，保持行为不变）：将 `CourseTemplateLockQueryPortImpl` 从 `eva-infra` 搬运归位到 `bc-template-infra`（保持 `package` 与类内容不变，仅改变 Maven 模块归属）；最小回归通过；落地：`9b46d5a7`。
 - ✅ S1（装配责任收敛：组合根去 `eva-infra(runtime)`，保持行为不变）：在 `start/pom.xml` 移除对 `eva-infra` 的 `runtime` 依赖（保持行为不变，仅收敛依赖边界）；最小回归通过；落地：`1e2ffa89`。
