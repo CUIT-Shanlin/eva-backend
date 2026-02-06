@@ -926,6 +926,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 已完成（保持行为不变）：`CourseEntity` 已归位 `bc-course-domain`（保持 `package` 与类内容不变；最小回归通过；落地：`c94151f7`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ 已完成（保持行为不变）：`SingleCourseEntity` 已归位 `bc-course-domain`（保持 `package` 与类内容不变；最小回归通过；落地：`16db55ff`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ 已完成（保持行为不变）：`CourseQueryGateway` 已归位 `bc-course-domain`（保持 `package` 与接口签名/注解不变；最小回归通过；落地：`e5d56d1b`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
+- ✅ 补充进展（2026-02-06，保持行为不变，编译闭合前置）：为后续将 `eva-domain` 内残留的评教实体（`CourOneEvaTemplateEntity/EvaTaskEntity/EvaRecordEntity`）逐类归位到 `bc-evaluation-domain` 做准备，已先在 `bc-evaluation/domain/pom.xml` 补齐最小编译期依赖（避免逐类搬运时反复补依赖；落地：`c5117a1a`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - 🎯 下一刀建议（每次只改 1 个 `pom.xml`；保持行为不变）：评估并尝试移除 `eva-domain/pom.xml` 对 `bc-course-domain` 的 Maven 编译期依赖（前置：Serena 证伪 `eva-domain/src/main/java` 无课程域引用面；最小回归通过后落地）。
 - ⚠️ 现状说明（保持行为不变）：`CourseEntity/SingleCourseEntity` 字段仍编译期依赖 `UserEntity`（`bc-iam-domain`），因此 `bc-course-domain` 当前保留对 `bc-iam-domain` 的编译期依赖作为过渡。后续若需去耦合，建议以“下沉最小 User 协议到 `*-contract`/`shared-kernel`”为方向另起小步证伪与落地，避免牵连行为漂移。
 

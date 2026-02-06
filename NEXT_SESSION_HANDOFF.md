@@ -21,6 +21,9 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-06（前置：bc-evaluation-domain 编译闭合支撑（为逐类搬运评教实体做准备），保持行为不变）**
+- ✅ 已完成（保持行为不变）：在 `bc-evaluation/domain/pom.xml` 补齐最小编译期依赖（`bc-course-domain`、`bc-iam-domain`、`cola-component-domain-starter`、`lombok(provided)`），用于承接后续从 `eva-domain` 逐类归位的 `edu.cuit.domain.entity.eva.*` 实体（保持 `package` 不变；最小回归通过；落地：`c5117a1a`）。
+
 **2026-02-05（下一刀：证伪并归位 `CourseQueryGateway` → `bc-course-domain`；保持行为不变）**
 - ✅ 已完成（保持行为不变）：Serena 证伪 `CourseQueryGateway` 引用面覆盖 `bc-course/**`（端口适配器/旧 `CourseQueryGatewayImpl`）、`bc-evaluation/**`、`bc-iam/**`、`eva-infra-shared`（Convertor）与 `start` 单测后，将其从 `eva-domain` 搬运归位到 `bc-course-domain`（保持 `package` 与接口签名/注解不变，仅改变 Maven 模块归属；确保全仓库该 FQCN 仅存在一份；最小回归通过；落地：`e5d56d1b`）。
 

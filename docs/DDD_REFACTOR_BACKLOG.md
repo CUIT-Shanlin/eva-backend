@@ -3,7 +3,7 @@ title: DDD 渐进式重构目标清单与行为框架
 repo: eva-backend
 branch: ddd
 generated_at: 2025-12-18
-updated_at: 2026-02-04
+updated_at: 2026-02-06
 scope: 全仓库（离线扫描 + 规则归纳）
 ---
 
@@ -110,6 +110,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-02-04）**
+- ✅ S0.2 延伸（依赖收敛前置，保持行为不变）：为后续逐类将 `eva-domain` 内残留的评教实体（`CourOneEvaTemplateEntity/EvaTaskEntity/EvaRecordEntity`）归位到 `bc-evaluation-domain` 并最终收敛 `eva-domain` 对 `bc-course-domain` 的编译期依赖做准备，先在 `bc-evaluation/domain/pom.xml` 补齐最小编译期依赖（最小回归通过；落地：`c5117a1a`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ S0.2 延伸（依赖收敛：eva-infra，保持行为不变）：在 Serena + `rg` 证伪 `eva-infra` 已从 root reactor 退场且源码仅 `package-info.java`（无业务逻辑、无外部依赖方）后，收敛 `eva-infra/pom.xml`：移除残留 `<dependencies>` 依赖声明（最小回归通过；落地：`47654a6a`）。
 - ✅ IAM S0.2 延伸（前置，保持行为不变）：在 `bc-iam-contract` 新增 `UserStatusByUsernameQueryPort`，用于后续将 `ValidateUserLoginUseCase` 去 `UserEntity` 编译期依赖且保持对旧 `UserQueryGateway.findByUsername` 的调用次数/缓存触发点不变（最小回归通过；落地提交以 `git log -n 1 -- bc-iam/contract/src/main/java/edu/cuit/bc/iam/application/port/UserStatusByUsernameQueryPort.java` 为准）。
 - ✅ IAM S0.2 延伸（前置，保持行为不变）：已补齐 `UserStatusByUsernameQueryPort` 的端口适配器实现；后续为避免注入歧义，该独立适配器已被删除并由 `UserEntityByUsernameQueryPortImpl` 统一承接（最小回归通过）。
