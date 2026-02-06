@@ -26,10 +26,10 @@
             <version>${revision}</version>
         </dependency>
 
-        <!-- 编译闭合前置：CourseTemplateLockQueryPortImpl 归位到 bc-template-infra（保持行为不变） -->
+        <!-- 依赖收敛：bc-template-infra 不再直依赖 eva-infra-dal；由 eva-infra-shared 显式传递承接（保持行为不变） -->
         <dependency>
             <groupId>edu.cuit</groupId>
-            <artifactId>eva-infra-dal</artifactId>
+            <artifactId>eva-infra-shared</artifactId>
             <version>${revision}</version>
         </dependency>
 
