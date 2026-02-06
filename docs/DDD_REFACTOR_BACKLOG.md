@@ -110,6 +110,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-02-06）**
+- ✅ S0.2 延伸（reactor 退场，单 pom，保持行为不变）：收敛根 `pom.xml`：从 reactor 中移除 `<module>eva-domain</module>`（仅改变聚合构建边界；最小回归通过；落地：`6b907bc1`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `eva-infra-shared/pom.xml`：移除对 `eva-domain` 的 Maven 编译期依赖，并补齐对 `bc-course-domain` / `bc-evaluation-domain` / `bc-audit-domain` / `bc-iam-domain` 的显式依赖以保持编译闭合（最小回归通过；落地：`0585d6fb`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ S0.2 延伸（依赖收敛前置，保持行为不变）：为后续逐类将 `eva-domain` 内残留的评教实体（`CourOneEvaTemplateEntity/EvaTaskEntity/EvaRecordEntity`）归位到 `bc-evaluation-domain` 并最终收敛 `eva-domain` 对 `bc-course-domain` 的编译期依赖做准备，先在 `bc-evaluation/domain/pom.xml` 补齐最小编译期依赖（最小回归通过；落地：`c5117a1a`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ S0.2 延伸（依赖收敛前置，保持行为不变）：为确保逐类搬运过程中 `eva-domain` 仍可编译闭合，已在 `eva-domain/pom.xml` 增加对 `bc-evaluation-domain` 的 Maven 编译期依赖（最小回归通过；落地：`0bfbf450`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
@@ -725,7 +726,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成（逐类归位）：已将 `CourOneEvaTemplateEntity/EvaTaskEntity/EvaRecordEntity` 从 `eva-domain` 归位到 `bc-evaluation-domain`（保持 `package` 不变；最小回归通过；落地：`616f925c`/`c6cb11c4`/`f4ceb140`）。
   - ✅ 已完成（编译闭合补强）：已在 `bc-evaluation/domain/pom.xml` 增加 `spring-context(provided)`，用于承接 `edu.cuit.domain.gateway.eva.*` 接口上的 `@Component` 注解（最小回归通过；落地：`132f6fc0`）。
   - ✅ 状态核验（保持行为不变）：`eva-domain/src/main/java` 已清零（口径：`fd -t f -e java . eva-domain/src/main/java | wc -l` 当前为 0），且除 `eva-domain/pom.xml` 自身外，全仓库 `**/pom.xml` 不再出现 `<artifactId>eva-domain</artifactId>`（口径：`rg -n '<artifactId>eva-domain</artifactId>' --glob '**/pom.xml' .`）。
-  - ⏳ 未完成（下一刀，单 pom，保持行为不变）：从根 `pom.xml` 的 reactor 中移除 `<module>eva-domain</module>`；最小回归闭环后，再评估是否需要删除 `eva-domain/pom.xml` 与目录（建议独立提交）。
+  - ✅ 已完成（单 pom，保持行为不变）：从根 `pom.xml` 的 reactor 中移除 `<module>eva-domain</module>`（仅改变聚合构建边界；最小回归通过；落地：`6b907bc1`）。
+  - ⏳ 未完成（下一刀，单 pom，保持行为不变）：删除 `eva-domain/pom.xml`；后置再评估是否删除 `eva-domain/` 目录（建议独立提交）。
   - ✅ 已完成（逐类归位）：已将 `EvaDeleteGateway` 从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package`/接口签名/注解不变；最小回归通过；落地：`b5f8f5fe`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
   - ✅ 已完成（逐类归位）：已将 `EvaUpdateGateway` 从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package`/接口签名/注解不变；最小回归通过；落地：`ba43d0a4`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
   - ✅ 已完成（逐类归位）：已将 `EvaConfigEntity` 从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package` 与类内容不变；最小回归通过；落地：`0c7f6aae`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
