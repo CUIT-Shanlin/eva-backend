@@ -945,7 +945,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-06，保持行为不变，编译闭合前置）：为后续归位 `EvaConfigEntity`（其 `clone()` 依赖 `SpringUtil`）做准备，已在 `bc-evaluation/domain/pom.xml` 增加 `hutool-all` 编译期依赖（仅编译闭合；最小回归通过；落地：`5c4d3efe`）。
 - ✅ 进展（2026-02-06，保持行为不变；每次只改 1 个类）：`EvaConfigEntity` 已从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package` 与类内容不变；最小回归通过；落地：`0c7f6aae`）。
 - ✅ 进展（2026-02-06，保持行为不变；每次只改 1 个类）：`EvaConfigGateway` 已从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package`/签名/注解不变；最小回归通过；落地：`1aaff7d5`）。
-- 🎯 下一刀建议（保持行为不变；每次只改 1 个 `pom.xml`）：在 Serena 证伪 `bc-evaluation/application` 无 `eva-domain` 残留引用面后，收敛 `bc-evaluation/application/pom.xml`：移除对 `eva-domain` 的 Maven 编译期依赖，改为显式依赖 `bc-evaluation-domain`（保持行为不变）。
+- ✅ 补充进展（2026-02-06，保持行为不变，编译闭合前置）：为后续归位 `EvaTemplateEntity` 并最终收敛 `bc-evaluation/application` 去 `eva-domain` 编译期依赖做准备，已在 `bc-evaluation/application/pom.xml` 增加对 `bc-evaluation-domain` 的 Maven 编译期依赖（仅编译闭合；最小回归通过；落地：`9637eca1`）。
+- 🎯 下一刀建议（保持行为不变；每次只改 1 个类）：继续逐类将 `EvaTemplateEntity` 等评教域残留类型从 `eva-domain` 归位到 `bc-evaluation-domain`（保持 `package` 与类内容不变），以缩小 `eva-domain` 表面积并为后续进一步收敛依赖创造前置。
 - ⚠️ 现状说明（保持行为不变）：`CourseEntity/SingleCourseEntity` 字段仍编译期依赖 `UserEntity`（`bc-iam-domain`），因此 `bc-course-domain` 当前保留对 `bc-iam-domain` 的编译期依赖作为过渡。后续若需去耦合，建议以“下沉最小 User 协议到 `*-contract`/`shared-kernel`”为方向另起小步证伪与落地，避免牵连行为漂移。
 
 #### bc-iam（IAM）S1：Controller 入口壳结构性收敛（保持行为不变）
