@@ -953,8 +953,9 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-06，保持行为不变，编译闭合前置）：为确保逐类归位审计实体期间 `eva-domain` 仍可编译闭合，已在 `eva-domain/pom.xml` 增加对 `bc-audit-domain` 的 Maven 编译期依赖（过渡期；保持 `package` 不变；最小回归通过；落地：`90054971`）。
 - ✅ 进展（2026-02-06，保持行为不变；每次只改 1 个类）：已将 `SysLogModuleEntity` 从 `eva-domain` 搬运归位到 `bc-audit-domain`（保持 `package` 与类内容不变，仅改变 Maven 模块归属；确保全仓库该 FQCN 仅存在一份；最小回归通过；落地：`1f8675f1`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ 进展（2026-02-06，保持行为不变；每次只改 1 个类）：已将 `SysLogEntity` 从 `eva-domain` 搬运归位到 `bc-audit-domain`（保持 `package` 与类内容不变，仅改变 Maven 模块归属；确保全仓库该 FQCN 仅存在一份；最小回归通过；落地：`9efe8f6e`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
+- ✅ 进展（2026-02-06，保持行为不变；每次只改 1 个类）：已将 `LogGateway` 从 `eva-domain` 搬运归位到 `bc-audit-domain`（保持 `package`/接口签名/注解不变，仅改变 Maven 模块归属；确保全仓库该 FQCN 仅存在一份；最小回归通过；落地：`44417e03`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ 会话收尾（2026-02-06，保持行为不变）：已补齐 `SysLogModuleEntity` 归位的“三文档同步 + push”闭环（落地：`31e4d11c`）；并复核确认 `EvaUpdateGateway` 当前已归位 `bc-evaluation-domain`、无需重复搬运（Serena：引用面命中 `EvaTaskServiceImpl` + `EvaUpdateGatewayImpl`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
-- 🎯 下一刀建议（保持行为不变；每次只改 1 个类）：继续证伪并归位 `LogGateway` → `bc-audit-domain`（保持 `package`/接口签名/注解不变）。
+- 🎯 下一刀建议（保持行为不变；每次只改 1 个类）：继续证伪并归位 `DynamicConfigGateway` → `bc-evaluation-domain`（保持 `package`/接口签名/注解不变）。
 - ⚠️ 现状说明（保持行为不变）：`CourseEntity/SingleCourseEntity` 字段仍编译期依赖 `UserEntity`（`bc-iam-domain`），因此 `bc-course-domain` 当前保留对 `bc-iam-domain` 的编译期依赖作为过渡。后续若需去耦合，建议以“下沉最小 User 协议到 `*-contract`/`shared-kernel`”为方向另起小步证伪与落地，避免牵连行为漂移。
 
 #### bc-iam（IAM）S1：Controller 入口壳结构性收敛（保持行为不变）
