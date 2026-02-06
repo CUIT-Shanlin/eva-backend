@@ -24,3 +24,4 @@ public final class CourInfTimeOverlapQuery {
                 .ge("end_time", startTime);
     }
 }
+
