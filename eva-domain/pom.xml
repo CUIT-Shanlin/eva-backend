@@ -42,6 +42,13 @@
             <artifactId>bc-evaluation-domain</artifactId>
             <version>${revision}</version>
         </dependency>
+
+        <!-- 过渡期：用于承接从 eva-domain 逐类归位到 bc-audit-domain 的审计实体（保持 package 不变） -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>bc-audit-domain</artifactId>
+            <version>${revision}</version>
+        </dependency>
         <dependency>
             <groupId>edu.cuit</groupId>
             <artifactId>shared-kernel</artifactId>
