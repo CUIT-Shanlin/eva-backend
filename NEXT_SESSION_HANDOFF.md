@@ -24,6 +24,9 @@
 **2026-02-06（前置：bc-audit-domain 编译闭合补强（承接 SysLog* 实体），保持行为不变）**
 - ✅ 已完成（保持行为不变）：为后续逐类将 `SysLogEntity/SysLogModuleEntity` 从 `eva-domain` 搬运归位到 `bc-audit-domain` 做编译闭合前置，在 `bc-audit/domain/pom.xml` 补齐最小编译期依赖（`bc-iam-domain`、`cola-component-domain-starter`、`lombok(provided)`；仅编译闭合；最小回归通过；落地：`63c8c5ca`）。
 
+**2026-02-06（前置：eva-domain 编译闭合过渡依赖（支撑逐类归位审计实体），保持行为不变）**
+- ✅ 已完成（保持行为不变）：为确保在逐类将 `SysLogEntity/SysLogModuleEntity` 从 `eva-domain` 搬运归位到 `bc-audit-domain` 的过程中，全仓库仍可编译闭合，已在 `eva-domain/pom.xml` 增加对 `bc-audit-domain` 的 Maven 编译期依赖（过渡期；保持 `package` 不变；最小回归通过；落地：`90054971`）。
+
 **2026-02-06（依赖收敛（单 pom）：`bc-course/application` 去 `eva-domain` 编译期依赖；保持行为不变）**
 - ✅ 已完成（保持行为不变）：Serena 证伪 `bc-course/application/src/main/java` 仅依赖 `bc-course-domain` 内的 `SemesterGateway/ClassroomGateway/Course*Gateway` 与 `shared-kernel` 的 `PaginationResultEntity`，且无 `eva-domain` 残留类型引用面后，收敛 `bc-course/application/pom.xml`：移除对 `eva-domain` 的 Maven 编译期依赖（最小回归通过；落地：`464a4d73`）。
 
