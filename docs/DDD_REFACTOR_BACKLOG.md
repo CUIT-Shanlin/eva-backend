@@ -112,6 +112,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 **已完成（更新至 2026-02-06）**
 - ✅ S0.2 延伸（reactor 退场，单 pom，保持行为不变）：收敛根 `pom.xml`：从 reactor 中移除 `<module>eva-domain</module>`（仅改变聚合构建边界；最小回归通过；落地：`6b907bc1`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `eva-infra-shared/pom.xml`：移除对 `eva-domain` 的 Maven 编译期依赖，并补齐对 `bc-course-domain` / `bc-evaluation-domain` / `bc-audit-domain` / `bc-iam-domain` 的显式依赖以保持编译闭合（最小回归通过；落地：`0585d6fb`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
+- ✅ S0.2 延伸（编译闭合补强，单 pom，保持行为不变）：为修复 `eva-infra-shared/src/main/java` 中 `SysException/BizException` 的编译闭合，已在 `eva-infra-shared/pom.xml` 补齐 `cola-component-exception` 编译期依赖（最小回归通过；落地：`776ab171`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ S0.2 延伸（依赖收敛前置，保持行为不变）：为后续逐类将 `eva-domain` 内残留的评教实体（`CourOneEvaTemplateEntity/EvaTaskEntity/EvaRecordEntity`）归位到 `bc-evaluation-domain` 并最终收敛 `eva-domain` 对 `bc-course-domain` 的编译期依赖做准备，先在 `bc-evaluation/domain/pom.xml` 补齐最小编译期依赖（最小回归通过；落地：`c5117a1a`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ S0.2 延伸（依赖收敛前置，保持行为不变）：为确保逐类搬运过程中 `eva-domain` 仍可编译闭合，已在 `eva-domain/pom.xml` 增加对 `bc-evaluation-domain` 的 Maven 编译期依赖（最小回归通过；落地：`0bfbf450`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ S0.2 延伸（逐类搬运，保持行为不变）：已将 `CourOneEvaTemplateEntity` 从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package` 与类内容不变，仅改变 Maven 模块归属；最小回归通过；落地：`616f925c`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
