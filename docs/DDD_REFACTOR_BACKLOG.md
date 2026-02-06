@@ -737,7 +737,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 进展（逐类归位，保持行为不变）：已将 `DynamicConfigGateway` 从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package`/接口签名/注解不变，仅改变 Maven 模块归属；最小回归通过；落地：`9e2096fc`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
   - ✅ 进展（保持行为不变；每次只改 1 个 `pom.xml` 闭环）：为后续归位 `MsgEntity` 做编译闭合前置，已收敛 `bc-messaging-contract/pom.xml` 并补齐承接 `MsgEntity` 所需的最小编译期依赖（`bc-iam-domain`、`cola-component-domain-starter`；仅用于编译闭合；最小回归通过；落地：`51d5a042`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
   - ✅ 进展（保持行为不变；每次只改 1 个类闭环）：已将 `MsgEntity` 从 `eva-domain` 搬运归位到 `bc-messaging-contract`（保持 `package` 与类内容不变，仅改变 Maven 模块归属；最小回归通过；落地：`79d68fc3`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
-  - 🎯 下一刀建议（保持行为不变；每次只改 1 个类闭环）：继续证伪并归位 `MsgGateway` → `bc-messaging-contract`（保持 `package`/接口签名/注解不变）。
+  - ✅ 进展（保持行为不变；每次只改 1 个类闭环）：已将 `MsgGateway` 从 `eva-domain` 搬运归位到 `bc-messaging-contract`（保持 `package`/接口签名/注解不变，仅改变 Maven 模块归属；最小回归通过；落地：`eaf62606`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
+  - 🎯 下一刀建议（保持行为不变；每次只改 1 个类闭环）：继续证伪并归位 `MessageUseCaseFacade` → `bc-messaging-contract`（保持 `package`/接口签名不变）。
   - ✅ 补充进展（编译闭合前置，保持行为不变）：为后续归位 `SysLogEntity/SysLogModuleEntity` 做准备，已在 `bc-audit/domain/pom.xml` 补齐最小编译期依赖（`bc-iam-domain`、`cola-component-domain-starter`、`lombok(provided)`；仅编译闭合；最小回归通过；落地：`63c8c5ca`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
   - ✅ 补充进展（编译闭合前置，保持行为不变）：为确保逐类归位审计实体期间 `eva-domain` 仍可编译闭合，已在 `eva-domain/pom.xml` 增加对 `bc-audit-domain` 的 Maven 编译期依赖（过渡期；保持 `package` 不变；最小回归通过；落地：`90054971`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 
