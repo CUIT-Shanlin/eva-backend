@@ -21,6 +21,9 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-06（逐类归位：`CourOneEvaTemplateEntity` → `bc-evaluation-domain`；保持行为不变）**
+- ✅ 已完成（保持行为不变）：在已补齐编译闭合依赖且 `eva-domain` 已增加 `bc-evaluation-domain` 过渡依赖的前提下，将 `CourOneEvaTemplateEntity` 从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package` 与类内容不变，仅改变 Maven 模块归属；确保全仓库该 FQCN 仅存在一份；最小回归通过；落地：`616f925c`）。
+
 **2026-02-06（前置：eva-domain 编译闭合过渡依赖（支撑逐类搬运评教实体），保持行为不变）**
 - ✅ 已完成（保持行为不变）：在 `eva-domain/pom.xml` 增加对 `bc-evaluation-domain` 的 Maven 编译期依赖，用于在逐类将 `CourOneEvaTemplateEntity/EvaTaskEntity/EvaRecordEntity` 从 `eva-domain` 搬运归位到 `bc-evaluation-domain` 的过程中维持全仓库编译闭合（保持 `package` 不变；最小回归通过；落地：`0bfbf450`）。
 
