@@ -846,7 +846,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
     - `eva-domain/eva-infra-dal/eva-infra-shared/eva-base`：仍是“全量整合”的核心阻塞（多个 `bc-*` 模块仍编译期依赖 `eva-domain` 与 `eva-infra-(shared|dal)`；证据口径见上方 3)）。因此“把所有 `eva-*` 模块全部整合进各业务 BC 并从 reactor 移除”仍不具备一次性落地条件，需要按“小步迁移类型/适配器 → 再收敛单个 pom → 再评估移除模块”的节奏推进。
       - 可复现现状口径（更新至 2026-02-06，保持行为不变）：
         - root reactor 仍包含：`eva-domain`、`eva-infra-dal`、`eva-infra-shared`、`eva-base`（口径：`rg -n '<module>eva-' pom.xml`）。
-        - `eva-domain` 仍被多个模块编译期依赖（口径：`rg -n '<artifactId>eva-domain</artifactId>' --glob '**/pom.xml' .`，当前至少包含 `bc-course/application`、`bc-evaluation/application`、`bc-messaging`、`eva-infra-shared`），因此短期仍无法直接从 reactor 移除 `eva-domain`。
+        - `eva-domain` 仍被多个模块编译期依赖（口径：`rg -n '<artifactId>eva-domain</artifactId>' --glob '**/pom.xml' .`，当前至少包含 `bc-messaging`、`eva-infra-shared`），因此短期仍无法直接从 reactor 移除 `eva-domain`。
         - ✅ 依赖收敛（单 pom，保持行为不变）：已在 Serena 证伪 `eva-domain/src/main/java` 无课程域引用面后，移除 `eva-domain/pom.xml` 对 `bc-course-domain` 的编译期依赖（落地：`ec4107e4`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
         - ✅ 逐类归位（保持行为不变）：已将 `CourOneEvaTemplateEntity/EvaTaskEntity/EvaRecordEntity` 从 `eva-domain` 归位到 `bc-evaluation-domain`（保持 `package` 不变；详见 `NEXT_SESSION_HANDOFF.md` 0.9），使 `eva-domain` 的“课程域引用面”彻底归零并为后续继续搬运 `edu.cuit.domain.gateway.eva.*` 打通编译闭合前置。
         - ✅ 编译闭合补强（2026-02-06，保持行为不变）：已在 `bc-evaluation/domain/pom.xml` 增加 `spring-context(provided)`，用于承接 `edu.cuit.domain.gateway.eva.*` 上的 `@Component` 注解（落地：`132f6fc0`）。
@@ -948,7 +948,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-06，保持行为不变，编译闭合前置）：为后续归位 `EvaTemplateEntity` 并最终收敛 `bc-evaluation/application` 去 `eva-domain` 编译期依赖做准备，已在 `bc-evaluation/application/pom.xml` 增加对 `bc-evaluation-domain` 的 Maven 编译期依赖（仅编译闭合；最小回归通过；落地：`9637eca1`）。
 - ✅ 进展（2026-02-06，保持行为不变；每次只改 1 个类）：`EvaTemplateEntity` 已从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package` 与类内容不变；最小回归通过；落地：`ee79ffac`）。
 - ✅ 已完成（2026-02-06，保持行为不变；每次只改 1 个 `pom.xml`）：在 Serena 证伪 `bc-evaluation/application` 无 `eva-domain` 残留引用面后，收敛 `bc-evaluation/application/pom.xml`：移除对 `eva-domain` 的 Maven 编译期依赖，并补齐 `cola-component-exception` 以保持 `com.alibaba.cola.exception.*` 编译闭合（最小回归通过；落地：`9f4eaa06`）。
-- 🎯 下一刀建议（保持行为不变；每次只改 1 个 `pom.xml`）：在 Serena 证伪 `bc-course/application` 无 `eva-domain` 残留引用面后，收敛 `bc-course/application/pom.xml`：移除对 `eva-domain` 的 Maven 编译期依赖（保持行为不变）。
+- ✅ 已完成（2026-02-06，保持行为不变；每次只改 1 个 `pom.xml`）：在 Serena 证伪 `bc-course/application` 无 `eva-domain` 残留引用面后，收敛 `bc-course/application/pom.xml`：移除对 `eva-domain` 的 Maven 编译期依赖（最小回归通过；落地：`464a4d73`）。
+- 🎯 下一刀建议（保持行为不变；每次只改 1 个类）：优先从 `eva-domain` 残留的审计日志实体中挑 1 个（`SysLogEntity` 或 `SysLogModuleEntity`），用 Serena 证据化盘点引用面后逐类归位到 `bc-audit-domain`（保持 `package` 与类内容不变）。
 - ⚠️ 现状说明（保持行为不变）：`CourseEntity/SingleCourseEntity` 字段仍编译期依赖 `UserEntity`（`bc-iam-domain`），因此 `bc-course-domain` 当前保留对 `bc-iam-domain` 的编译期依赖作为过渡。后续若需去耦合，建议以“下沉最小 User 协议到 `*-contract`/`shared-kernel`”为方向另起小步证伪与落地，避免牵连行为漂移。
 
 #### bc-iam（IAM）S1：Controller 入口壳结构性收敛（保持行为不变）

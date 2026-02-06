@@ -723,14 +723,15 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成（依赖收敛，单 pom）：已移除 `eva-domain/pom.xml` 对 `bc-course-domain` 的 Maven 编译期依赖（Serena 证伪无课程域引用面后落地；最小回归通过；落地：`ec4107e4`）。
   - ✅ 已完成（逐类归位）：已将 `CourOneEvaTemplateEntity/EvaTaskEntity/EvaRecordEntity` 从 `eva-domain` 归位到 `bc-evaluation-domain`（保持 `package` 不变；最小回归通过；落地：`616f925c`/`c6cb11c4`/`f4ceb140`）。
   - ✅ 已完成（编译闭合补强）：已在 `bc-evaluation/domain/pom.xml` 增加 `spring-context(provided)`，用于承接 `edu.cuit.domain.gateway.eva.*` 接口上的 `@Component` 注解（最小回归通过；落地：`132f6fc0`）。
-  - ⏳ 未完成（阻塞点）：`eva-domain` 仍残留少量评教/消息/日志的 `edu.cuit.domain.*` 类型（口径：`fd -t f -e java . eva-domain/src/main/java | wc -l` 当前为 10），因此仍被部分模块编译期依赖（口径：`rg -n '<artifactId>eva-domain</artifactId>' --glob '**/pom.xml' .`）。
+  - ⏳ 未完成（阻塞点）：`eva-domain` 仍残留少量评教/消息/日志的 `edu.cuit.domain.*` 类型（口径：`fd -t f -e java . eva-domain/src/main/java | wc -l` 当前为 7），因此仍被部分模块编译期依赖（口径：`rg -n '<artifactId>eva-domain</artifactId>' --glob '**/pom.xml' .`）。
   - ✅ 已完成（逐类归位）：已将 `EvaDeleteGateway` 从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package`/接口签名/注解不变；最小回归通过；落地：`b5f8f5fe`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
   - ✅ 已完成（逐类归位）：已将 `EvaUpdateGateway` 从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package`/接口签名/注解不变；最小回归通过；落地：`ba43d0a4`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
   - ✅ 已完成（逐类归位）：已将 `EvaConfigEntity` 从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package` 与类内容不变；最小回归通过；落地：`0c7f6aae`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
   - ✅ 已完成（逐类归位）：已将 `EvaConfigGateway` 从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package`/接口签名/注解不变；最小回归通过；落地：`1aaff7d5`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
   - ✅ 已完成（逐类归位）：已将 `EvaTemplateEntity` 从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package` 与类内容不变；最小回归通过；落地：`ee79ffac`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
   - ✅ 已完成（依赖收敛，单 pom）：`bc-evaluation/application/pom.xml` 已去 `eva-domain` 编译期依赖（最小回归通过；落地：`9f4eaa06`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
-  - 🎯 下一刀建议（保持行为不变；每次只改 1 个 `pom.xml` 闭环）：用 Serena 证伪 `bc-course/application` 无 `eva-domain` 残留引用面后，收敛 `bc-course/application/pom.xml`：移除对 `eva-domain` 的 Maven 编译期依赖（保持行为不变）。
+  - ✅ 已完成（依赖收敛，单 pom）：`bc-course/application/pom.xml` 已去 `eva-domain` 编译期依赖（最小回归通过；落地：`464a4d73`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
+  - 🎯 下一刀建议（保持行为不变；每次只改 1 个类闭环）：优先从 `eva-domain` 残留的审计日志实体中挑 1 个（`SysLogEntity` 或 `SysLogModuleEntity`），用 Serena 证据化盘点引用面后逐类归位到 `bc-audit-domain`（保持 `package` 与类内容不变）。
 
 - **IAM 并行（10.3：继续清理 `UserQueryGateway` 编译期依赖，保持行为不变）**：
   - ✅ 已完成：`bc-iam/infrastructure` 的 `UserServiceImpl` 已从编译期依赖 `UserQueryGateway` 收敛为依赖 `bc-iam-contract` 最小 Port（并已同步测试过渡；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
