@@ -54,14 +54,25 @@
 
         <dependency>
             <groupId>edu.cuit</groupId>
-            <artifactId>eva-domain</artifactId>
+            <artifactId>bc-course-domain</artifactId>
             <version>${revision}</version>
         </dependency>
 
-        <!-- 过渡期：用于承接逐类归位到 bc-course-domain 的 edu.cuit.domain.gateway.*（保持 package 不变） -->
         <dependency>
             <groupId>edu.cuit</groupId>
-            <artifactId>bc-course-domain</artifactId>
+            <artifactId>bc-evaluation-domain</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>bc-audit-domain</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>bc-iam-domain</artifactId>
             <version>${revision}</version>
         </dependency>
 
