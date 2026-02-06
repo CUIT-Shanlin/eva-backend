@@ -52,6 +52,12 @@
             <artifactId>zym-spring-boot-starter-security</artifactId>
         </dependency>
 
+        <!-- 编译闭合：承接 SysException/BizException（不改变业务语义） -->
+        <dependency>
+            <groupId>com.alibaba.cola</groupId>
+            <artifactId>cola-component-exception</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>edu.cuit</groupId>
             <artifactId>bc-course-domain</artifactId>
