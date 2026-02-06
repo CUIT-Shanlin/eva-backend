@@ -900,9 +900,11 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
         - ✅ 已完成（2026-02-04，保持行为不变，推进）：已将 `UserDetailQueryPortImpl` 的注入从 `UserQueryGateway` 收敛为 `UserQueryCacheGateway`，方法体仍委托 `findById` 并通过强转读取 `id/username/name`，确保调用仍触发 `UserQueryGatewayImpl` 上的 `@LocalCached`（最小回归通过；落地：`5d85516b`）。
         - ✅ 已完成（2026-02-04，保持行为不变，推进）：已将 `UserDirectoryPageQueryPortImpl` 的注入从 `UserQueryGateway` 收敛为 `UserQueryCacheGateway`，方法体仍委托 `page/allUser/findAllUsername`，确保调用仍进入旧 `UserQueryGatewayImpl` 触发 `@LocalCached`（最小回归通过；落地：`d5335f4a`）。
         - ✅ 已完成（2026-02-04，保持行为不变，推进）：已将 `UserEntityQueryPortImpl` 的注入从 `UserQueryGateway` 收敛为 `UserQueryCacheGateway`，方法体仍委托 `getUserRoleIds`，确保调用仍进入旧 `UserQueryGatewayImpl` 触发 `@LocalCached`（最小回归通过；落地：`b7373cbb`）。
-        - 量化快照（口径=可复现命令）：`eva-domain` 12 个 Java 文件、`eva-infra-dal` 36 个、`eva-infra-shared` 47 个。
+        - 量化快照（口径=可复现命令）：`eva-domain` 0 个（已退场）、`eva-infra-dal` 36 个、`eva-infra-shared` 47 个。
       - ✅ 已完成（2026-02-04，保持行为不变，依赖收敛：eva-infra）：在 Serena + `rg` 证伪 `eva-infra` 已从 root reactor 退场且源码仅 `package-info.java`（无业务逻辑、无外部依赖方）后，收敛 `eva-infra/pom.xml`：移除残留 `<dependencies>` 依赖声明（最小回归通过；落地：`47654a6a`）。
-      - ✅ 已完成（保持行为不变；每次只改 1 个 `pom.xml`）：在 Serena + `rg` 证伪 “全仓库已无 `eva-infra` 的 dependency 声明”后，已从 root reactor 移除 `<module>eva-infra</module>`（每步闭环；落地：`0aab4516`）。下一步（可选，独立提交）：评估是否删除 `eva-infra/` 目录与 `eva-infra/pom.xml`（当前已不再参与 reactor/无依赖方）。
+      - ✅ 已完成（保持行为不变；每次只改 1 个 `pom.xml`）：在 Serena + `rg` 证伪 “全仓库已无 `eva-infra` 的 dependency 声明”后，已从 root reactor 移除 `<module>eva-infra</module>`（每步闭环；落地：`0aab4516`）。
+      - ✅ 已完成（保持行为不变；单 pom）：已删除 `eva-infra/pom.xml`（前置：reactor 已退场且无依赖方；最小回归通过；落地：`6c9b6224`）。
+      - 下一步（可选，保持行为不变）：若仍希望清理 `eva-infra/` 目录（当前仅剩 3 个 `package-info.java`），建议按“每次只改 1 个文件”逐步删除并回归，避免与其它变更混在同一提交里。
 
 3) **可以移除 `eva-infra` 的判定标准（建议的 DoD）**
    - `eva-infra` 中旧 `*GatewayImpl` 已全部退化为委托壳或迁入对应 `bc-*/infrastructure`（或其过渡落点），不再承担“业务编排”。
