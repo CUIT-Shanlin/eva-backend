@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-02-06（本会话收尾：文档闭环 + 状态核验；保持行为不变）**
+- ✅ 已完成（保持行为不变，逐类归位）：将 `CourInfTimeOverlapQuery` 从 `eva-infra-shared` 搬运归位到 `bc-course/infrastructure`（保持 `package edu.cuit.infra.bccourse.support` 与类内容不变；Serena：引用面仅命中 `bc-course/infrastructure` 的 3 个适配器（`AssignEvaTeachersRepositoryImpl/UpdateSelfCourseRepositoryImpl/UpdateSingleCourseRepositoryImpl`）；最小回归通过；落地：`ea6c99e9`）。
 - ✅ 已完成（保持行为不变，逐类归位）：将 `ClassroomOccupancyChecker` 从 `eva-infra-shared` 搬运归位到 `bc-course/infrastructure`（保持 `package edu.cuit.infra.bccourse.support` 与类内容不变；Serena：引用面仅命中 `bc-course/infrastructure` 的 3 个适配器；最小回归通过；落地：`b1db3422`）。
 - ✅ 已完成（保持行为不变，编译闭合补强，单 pom）：`eva-infra-shared/pom.xml` 补齐 `cola-component-exception` 编译期依赖（承接 `SysException/BizException`；最小回归通过；落地：`776ab171`）。
 - ✅ 已完成（保持行为不变，收尾清理，单 pom）：删除 `eva-infra/pom.xml`（前置：root reactor 已移除 `<module>eva-infra</module>` 且无依赖方；最小回归通过；落地：`6c9b6224`）。
