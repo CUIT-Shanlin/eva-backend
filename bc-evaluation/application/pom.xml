@@ -19,17 +19,23 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-	    <dependencies>
-	        <dependency>
-	            <groupId>edu.cuit</groupId>
-	            <artifactId>bc-evaluation-contract</artifactId>
-	            <version>${revision}</version>
-	        </dependency>
-	        <dependency>
-	            <groupId>edu.cuit</groupId>
-	            <artifactId>eva-domain</artifactId>
-	            <version>${revision}</version>
-	        </dependency>
+		    <dependencies>
+		        <dependency>
+		            <groupId>edu.cuit</groupId>
+		            <artifactId>bc-evaluation-contract</artifactId>
+		            <version>${revision}</version>
+		        </dependency>
+		        <!-- 前置：承接逐类归位到 bc-evaluation-domain 的评教领域类型（保持行为不变，仅补齐编译闭合） -->
+		        <dependency>
+		            <groupId>edu.cuit</groupId>
+		            <artifactId>bc-evaluation-domain</artifactId>
+		            <version>${revision}</version>
+		        </dependency>
+		        <dependency>
+		            <groupId>edu.cuit</groupId>
+		            <artifactId>eva-domain</artifactId>
+		            <version>${revision}</version>
+		        </dependency>
         <!-- 领域模型尽量保持纯净；如需 Lombok 简化代码，可用 dependencyManagement 的版本 -->
         <dependency>
             <groupId>org.projectlombok</groupId>
