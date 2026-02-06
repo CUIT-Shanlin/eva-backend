@@ -957,8 +957,9 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 会话收尾（2026-02-06，保持行为不变）：已补齐 `SysLogModuleEntity` 归位的“三文档同步 + push”闭环（落地：`31e4d11c`）；并复核确认 `EvaUpdateGateway` 当前已归位 `bc-evaluation-domain`、无需重复搬运（Serena：引用面命中 `EvaTaskServiceImpl` + `EvaUpdateGatewayImpl`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ 进展（2026-02-06，保持行为不变；每次只改 1 个类）：已将 `DynamicConfigGateway` 从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package`/接口签名/注解不变，仅改变 Maven 模块归属；确保全仓库该 FQCN 仅存在一份；最小回归通过；落地：`9e2096fc`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ 进展（2026-02-06，保持行为不变；每次只改 1 个 `pom.xml`）：为后续归位 `MsgEntity` 做编译闭合前置，已收敛 `bc-messaging-contract/pom.xml` 并补齐承接 `MsgEntity` 所需的最小编译期依赖（`bc-iam-domain`、`cola-component-domain-starter`；仅用于编译闭合；最小回归通过；落地：`51d5a042`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
-- 🎯 下一刀建议（保持行为不变；每次只改 1 个类）：继续证伪并归位 `MsgEntity` → `bc-messaging-contract`（保持 `package`/类内容不变）。
-- ⚠️ 现状说明（保持行为不变）：`CourseEntity/SingleCourseEntity` 字段仍编译期依赖 `UserEntity`（`bc-iam-domain`），因此 `bc-course-domain` 当前保留对 `bc-iam-domain` 的编译期依赖作为过渡。后续若需去耦合，建议以“下沉最小 User 协议到 `*-contract`/`shared-kernel`”为方向另起小步证伪与落地，避免牵连行为漂移。
+- ✅ 进展（2026-02-06，保持行为不变；每次只改 1 个类）：已将 `MsgEntity` 从 `eva-domain` 搬运归位到 `bc-messaging-contract`（保持 `package` 与类内容不变，仅改变 Maven 模块归属；确保全仓库该 FQCN 仅存在一份；最小回归通过；落地：`79d68fc3`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
+- 🎯 下一刀建议（保持行为不变；每次只改 1 个类）：继续证伪并归位 `MsgGateway` → `bc-messaging-contract`（保持 `package`/接口签名/注解不变）。
+ - ⚠️ 现状说明（保持行为不变）：`CourseEntity/SingleCourseEntity` 字段仍编译期依赖 `UserEntity`（`bc-iam-domain`），因此 `bc-course-domain` 当前保留对 `bc-iam-domain` 的编译期依赖作为过渡。后续若需去耦合，建议以“下沉最小 User 协议到 `*-contract`/`shared-kernel`”为方向另起小步证伪与落地，避免牵连行为漂移。
 
 #### bc-iam（IAM）S1：Controller 入口壳结构性收敛（保持行为不变）
 
