@@ -516,6 +516,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-02-06，保持行为不变，依赖收敛，单 pom）：收敛 `bc-messaging/pom.xml`：移除冗余 `spring-context` Maven 直依赖（前置：已依赖 `spring-boot-starter-web`，其传递承接 `spring-context`；最小回归通过；落地：`5da009c9`）。
 - 补充进展（2026-02-06，保持行为不变，依赖收敛，单 pom）：收敛 `bc-template/infrastructure/pom.xml`：将对 `eva-infra-dal` 的 Maven 编译期直依赖替换为依赖 `eva-infra-shared`（其显式依赖 `eva-infra-dal`，因此编译/运行期 classpath 与行为不变；最小回归通过；落地：`204aef24`）。
 - 补充进展（2026-02-06，保持行为不变，依赖收敛，单 pom）：收敛 `bc-template/application/pom.xml`：在 Serena 证伪 `bc-template/application/src/main/java` 无 Lombok 引用后，移除冗余 `lombok(provided)` 依赖（最小回归通过；落地：`e91844c2`）。
+- 下一步建议（2026-02-06，保持行为不变，单 pom 主线）：继续推进“依赖方 `pom.xml` 编译期依赖收敛”，优先从 `bc-*/application` 或 `bc-*/contract` 入手，尝试移除冗余 `lombok(provided)` / 无用 `junit-jupiter(test)`；移除前必须 Serena 证伪源码无引用面，并跑最小回归后闭环（提交 + 三文档同步 + push）。
 - 下一步建议（保持行为不变，单 pom 主线）：继续推进“依赖方 `pom.xml` 编译期依赖收敛”，优先围绕 `eva-infra-shared` / `eva-infra-dal` 做“Serena 证伪无引用面 → 再移除/降 scope”的闭环（每步只改 1 个 `pom.xml`，避免装配与依赖边界一次性大改导致回滚困难）。
 - 补充进展（2026-01-17，保持行为不变，Controller 归位前置）：为后续将 `AuthenticationController` 从 `eva-adapter` 归位到 `bc-iam-infra`，先在 `bc-iam/infrastructure/pom.xml` 补齐 `spring-boot-starter-web`、`zym-spring-boot-starter-common`、`commons-lang3`（仅编译闭合；最小回归通过；落地：`42d44f0b`）。
 - 补充进展（2026-01-17，保持行为不变，Controller 归位前置）：为后续归位 `UserUpdateController`（依赖 `SysException/LogModule/ValidStatus`）做编译闭合前置，在 `bc-iam/infrastructure/pom.xml` 补齐 `cola-component-exception`、`shared-kernel`、`eva-base-common`（保持行为不变；最小回归通过；落地：`ddd5ff2a`）。
