@@ -118,6 +118,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（编译闭合前置，保持行为不变）：为后续归位 `EvaConfigEntity`（其 `clone()` 依赖 `SpringUtil`）做准备，已在 `bc-evaluation/domain/pom.xml` 增加 `hutool-all` 编译期依赖（仅编译闭合；最小回归通过；落地：`5c4d3efe`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ S0.2 延伸（逐类搬运，保持行为不变）：已将 `EvaUpdateGateway` 从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package`/接口签名/注解不变，仅改变 Maven 模块归属；最小回归通过；落地：`ba43d0a4`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ S0.2 延伸（逐类搬运，保持行为不变）：已将 `EvaConfigEntity` 从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package` 与类内容不变，仅改变 Maven 模块归属；最小回归通过；落地：`0c7f6aae`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
+- ✅ S0.2 延伸（逐类搬运，保持行为不变）：已将 `EvaConfigGateway` 从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package`/接口签名/注解不变，仅改变 Maven 模块归属；最小回归通过；落地：`1aaff7d5`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ S0.2 延伸（依赖收敛（单 pom），保持行为不变）：在 Serena 证伪 `eva-domain/src/main/java` 无课程域引用面后，已收敛 `eva-domain/pom.xml`：移除对 `bc-course-domain` 的 Maven 编译期依赖（最小回归通过；落地：`ec4107e4`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ S0.2 延伸（依赖收敛：eva-infra，保持行为不变）：在 Serena + `rg` 证伪 `eva-infra` 已从 root reactor 退场且源码仅 `package-info.java`（无业务逻辑、无外部依赖方）后，收敛 `eva-infra/pom.xml`：移除残留 `<dependencies>` 依赖声明（最小回归通过；落地：`47654a6a`）。
 - ✅ IAM S0.2 延伸（前置，保持行为不变）：在 `bc-iam-contract` 新增 `UserStatusByUsernameQueryPort`，用于后续将 `ValidateUserLoginUseCase` 去 `UserEntity` 编译期依赖且保持对旧 `UserQueryGateway.findByUsername` 的调用次数/缓存触发点不变（最小回归通过；落地提交以 `git log -n 1 -- bc-iam/contract/src/main/java/edu/cuit/bc/iam/application/port/UserStatusByUsernameQueryPort.java` 为准）。
@@ -723,7 +724,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成（逐类归位）：已将 `EvaDeleteGateway` 从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package`/接口签名/注解不变；最小回归通过；落地：`b5f8f5fe`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
   - ✅ 已完成（逐类归位）：已将 `EvaUpdateGateway` 从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package`/接口签名/注解不变；最小回归通过；落地：`ba43d0a4`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
   - ✅ 已完成（逐类归位）：已将 `EvaConfigEntity` 从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package` 与类内容不变；最小回归通过；落地：`0c7f6aae`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
-  - 🎯 下一刀建议（保持行为不变；每次只改 1 个类闭环）：继续归位 `EvaConfigGateway` → `bc-evaluation-domain`（同上：先 Serena 证据化盘点引用面，再搬运；最小回归通过后落地）。
+  - ✅ 已完成（逐类归位）：已将 `EvaConfigGateway` 从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package`/接口签名/注解不变；最小回归通过；落地：`1aaff7d5`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
+  - 🎯 下一刀建议（保持行为不变；每次只改 1 个 `pom.xml` 闭环）：用 Serena 证伪 `bc-evaluation/application` 无 `eva-domain` 残留引用面后，收敛 `bc-evaluation/application/pom.xml`：移除对 `eva-domain` 的 Maven 编译期依赖，改为显式依赖 `bc-evaluation-domain`（保持行为不变）。
 
 - **IAM 并行（10.3：继续清理 `UserQueryGateway` 编译期依赖，保持行为不变）**：
   - ✅ 已完成：`bc-iam/infrastructure` 的 `UserServiceImpl` 已从编译期依赖 `UserQueryGateway` 收敛为依赖 `bc-iam-contract` 最小 Port（并已同步测试过渡；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
