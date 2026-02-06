@@ -11,7 +11,6 @@
   <modules>
     <module>start</module>
     <module>shared-kernel</module>
-	    <module>eva-domain</module>
 	    <module>eva-infra-dal</module>
 	    <module>eva-infra-shared</module>
 	    <module>eva-base</module>
