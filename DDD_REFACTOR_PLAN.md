@@ -510,6 +510,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 - 补充进展（2026-02-06，保持行为不变，支撑类归位）：将 `CourInfTimeOverlapQuery` 从 `eva-infra-shared` 进一步归位到 `bc-course/infrastructure`（保持 `package` 不变；Serena：引用面仅命中 `bc-course/infrastructure` 的 3 个适配器；最小回归通过；落地：`ea6c99e9`）。
 - 补充进展（2026-02-06，保持行为不变，依赖收敛，单 pom）：收敛 `bc-audit/infrastructure/pom.xml`：移除对 `eva-infra-dal` 的冗余 Maven 直依赖（前置：`eva-infra-shared/pom.xml` 已显式依赖 `eva-infra-dal`；最小回归通过；落地：`91fd39a9`）。
+- 补充进展（2026-02-06，保持行为不变，依赖收敛，单 pom）：收敛 `bc-evaluation/infrastructure/pom.xml`：移除对 `eva-infra-dal` 的冗余 Maven 直依赖（前置：`eva-infra-shared/pom.xml` 已显式依赖 `eva-infra-dal`；最小回归通过；落地：`a0b5a359`）。
 - 下一步建议（保持行为不变，单 pom 主线）：继续推进“依赖方 `pom.xml` 编译期依赖收敛”，优先围绕 `eva-infra-shared` / `eva-infra-dal` 做“Serena 证伪无引用面 → 再移除/降 scope”的闭环（每步只改 1 个 `pom.xml`，避免装配与依赖边界一次性大改导致回滚困难）。
 - 补充进展（2026-01-17，保持行为不变，Controller 归位前置）：为后续将 `AuthenticationController` 从 `eva-adapter` 归位到 `bc-iam-infra`，先在 `bc-iam/infrastructure/pom.xml` 补齐 `spring-boot-starter-web`、`zym-spring-boot-starter-common`、`commons-lang3`（仅编译闭合；最小回归通过；落地：`42d44f0b`）。
 - 补充进展（2026-01-17，保持行为不变，Controller 归位前置）：为后续归位 `UserUpdateController`（依赖 `SysException/LogModule/ValidStatus`）做编译闭合前置，在 `bc-iam/infrastructure/pom.xml` 补齐 `cola-component-exception`、`shared-kernel`、`eva-base-common`（保持行为不变；最小回归通过；落地：`ddd5ff2a`）。

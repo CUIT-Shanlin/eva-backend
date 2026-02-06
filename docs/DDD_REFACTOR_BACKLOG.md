@@ -111,6 +111,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 **已完成（更新至 2026-02-06）**
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-audit/infrastructure/pom.xml`：移除对 `eva-infra-dal` 的冗余 Maven 直依赖（前置：`eva-infra-shared/pom.xml` 已显式依赖 `eva-infra-dal`；因此编译/运行期 classpath 与行为不变；最小回归通过；落地：`91fd39a9`）。
+- ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-evaluation/infrastructure/pom.xml`：移除对 `eva-infra-dal` 的冗余 Maven 直依赖（前置：`eva-infra-shared/pom.xml` 已显式依赖 `eva-infra-dal`；因此编译/运行期 classpath 与行为不变；最小回归通过；落地：`a0b5a359`）。
 - ✅ S0.2 延伸（支撑类归位，保持行为不变）：将 `CourInfTimeOverlapQuery` 从 `eva-infra-shared` 搬运归位到 `bc-course/infrastructure`（保持 `package` 与类内容不变；Serena：引用面仅命中 `bc-course/infrastructure` 的 3 个适配器；最小回归通过；落地：`ea6c99e9`；文档闭环：`2466ead3`）。
 - ✅ S0.2 延伸（reactor 退场，单 pom，保持行为不变）：收敛根 `pom.xml`：从 reactor 中移除 `<module>eva-domain</module>`（仅改变聚合构建边界；最小回归通过；落地：`6b907bc1`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `eva-infra-shared/pom.xml`：移除对 `eva-domain` 的 Maven 编译期依赖，并补齐对 `bc-course-domain` / `bc-evaluation-domain` / `bc-audit-domain` / `bc-iam-domain` 的显式依赖以保持编译闭合（最小回归通过；落地：`0585d6fb`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
