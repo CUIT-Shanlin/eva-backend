@@ -930,11 +930,15 @@
   - ✅ 依赖收敛（单 pom）：在 Serena 证伪 `eva-domain/src/main/java` 无课程域引用面后，已移除 `eva-domain/pom.xml` 对 `bc-course-domain` 的 Maven 编译期依赖（最小回归通过；落地：`ec4107e4`）。
   - ✅ 评教实体逐类归位：已将 `CourOneEvaTemplateEntity/EvaTaskEntity/EvaRecordEntity` 从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package` 与类内容不变，仅改变 Maven 模块归属；最小回归通过；落地：`616f925c`/`c6cb11c4`/`f4ceb140`）。
   - ✅ 编译闭合前置：已在 `bc-evaluation/domain/pom.xml` 补齐最小依赖以承接上述实体；并在 `eva-domain/pom.xml` 增加对 `bc-evaluation-domain` 的过渡依赖以保证逐类搬运过程中编译闭合（最小回归通过；落地：`c5117a1a`/`0bfbf450`）。
+  - ✅ 编译闭合补强：已在 `bc-evaluation/domain/pom.xml` 增加 `spring-context(provided)`，用于承接后续逐类归位到 `bc-evaluation-domain` 的 `edu.cuit.domain.gateway.eva.*` 接口上的 `@Component` 注解（仅编译闭合；最小回归通过；落地：`132f6fc0`）。
+  - ✅ 评教 gateway 逐类归位：`EvaDeleteGateway` 已从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package`/签名/注解不变；最小回归通过；落地：`b5f8f5fe`）。
+  - ✅ 可复现快照：`eva-domain` 残留 Java 文件数口径：`fd -t f -e java . eva-domain/src/main/java | wc -l`（当前为 11）。
+  - ✅ 可复现快照：当前仍显式依赖 `eva-domain` 的模块口径：`rg -n "<artifactId>eva-domain</artifactId>" --glob "**/pom.xml" .`（当前至少包含 `bc-course/application`、`bc-evaluation/application`、`bc-messaging`、`eva-infra-shared`）。
   - ✅ 当前工作区应仅残留未跟踪 `.mvnd/`（本地 mvnd daemon/registry 目录；禁止提交）。
 
 - 🎯 **下一刀建议（保持行为不变；每次只改 1 个类闭环）**：
-  1) 用 Serena 证据化盘点 `EvaDeleteGateway` 的引用面（重点：`bc-evaluation/infrastructure` 旧入口壳与旧 gateway 实现）。
-  2) 将 `EvaDeleteGateway` 从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package edu.cuit.domain.gateway.eva` 与接口签名/注解不变，仅改变 Maven 模块归属；确保全仓库该 FQCN 仅存在一份）。
+  1) 用 Serena 证据化盘点 `EvaUpdateGateway` 的引用面（重点：`bc-evaluation-infra` 旧入口壳与旧 gateway 实现）。
+  2) 将 `EvaUpdateGateway` 从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package edu.cuit.domain.gateway.eva` 与接口签名/注解不变，仅改变 Maven 模块归属；确保全仓库该 FQCN 仅存在一份）。
   3) 最小回归命令（Java17 + mvnd）通过后落地提交；再同步三文档并 push。
 
 - 🎯 **本次会话最新增量（2026-02-04，保持行为不变）**：
