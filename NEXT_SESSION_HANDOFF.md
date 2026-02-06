@@ -26,6 +26,7 @@
 - ✅ 已完成（保持行为不变，依赖收敛，单 pom）：收敛 `bc-evaluation/infrastructure/pom.xml`：移除对 `eva-infra-dal` 的冗余 Maven 直依赖（前置：`eva-infra-shared/pom.xml` 已显式依赖 `eva-infra-dal`；因此编译/运行期 classpath 与行为不变；最小回归通过；代码落地：`a0b5a359`）。
 - ✅ 已完成（保持行为不变，依赖收敛，单 pom）：收敛 `bc-iam/infrastructure/pom.xml`：移除对 `eva-infra-dal` 的冗余 Maven 直依赖（前置：`eva-infra-shared/pom.xml` 已显式依赖 `eva-infra-dal`；因此编译/运行期 classpath 与行为不变；最小回归通过；代码落地：`d7caa268`）。
 - ✅ 已完成（保持行为不变，依赖收敛，单 pom）：收敛 `bc-messaging/pom.xml`：移除对 `eva-infra-dal` 的冗余 Maven 直依赖（前置：`eva-infra-shared/pom.xml` 已显式依赖 `eva-infra-dal`；因此编译/运行期 classpath 与行为不变；最小回归通过；代码落地：`ab25db93`）。
+- ✅ 已完成（保持行为不变，依赖收敛，单 pom）：收敛 `bc-messaging/pom.xml`：移除冗余 `spring-context` Maven 直依赖（前置：已依赖 `spring-boot-starter-web`，其传递承接 `spring-context`；最小回归通过；代码落地：`5da009c9`）。
 - ✅ 已完成（保持行为不变，依赖收敛，单 pom）：收敛 `bc-template/infrastructure/pom.xml`：将对 `eva-infra-dal` 的 Maven 编译期直依赖替换为依赖 `eva-infra-shared`（其显式依赖 `eva-infra-dal`，因此编译/运行期 classpath 与行为不变；最小回归通过；代码落地：`204aef24`）。
 - ✅ 已完成（保持行为不变，逐类归位）：将 `CourInfTimeOverlapQuery` 从 `eva-infra-shared` 搬运归位到 `bc-course/infrastructure`（保持 `package edu.cuit.infra.bccourse.support` 与类内容不变；Serena：引用面仅命中 `bc-course/infrastructure` 的 3 个适配器（`AssignEvaTeachersRepositoryImpl/UpdateSelfCourseRepositoryImpl/UpdateSingleCourseRepositoryImpl`）；最小回归通过；代码落地：`ea6c99e9`；文档闭环：`2466ead3`）。
 - ✅ 已完成（保持行为不变，逐类归位）：将 `ClassroomOccupancyChecker` 从 `eva-infra-shared` 搬运归位到 `bc-course/infrastructure`（保持 `package edu.cuit.infra.bccourse.support` 与类内容不变；Serena：引用面仅命中 `bc-course/infrastructure` 的 3 个适配器；最小回归通过；落地：`b1db3422`）。
