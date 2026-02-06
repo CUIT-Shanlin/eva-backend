@@ -732,6 +732,10 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 （新增，更新至 2026-02-06，保持行为不变）
 
+- **S0.2 延伸（审计：DAL 按 BC 拆散试点，`sys_log`，保持行为不变）**：
+  - ✅ 已完成：`SysLogModuleMapper`、`SysLogMapper` → `bc-audit/infrastructure`；`LogConverter` → `bc-audit/infrastructure`（保持 `package` 不变；保持行为不变；详见 4.2）。
+  - ⏳ 未完成（下一刀建议顺序；每次只改 1 个类/1 个资源文件）：`SysLogDO`、`SysLogModuleDO`、`SysLogMapper.xml`、`SysLogModuleMapper.xml` 仍在 `eva-infra-dal`，需逐文件归位到 `bc-audit/infrastructure`（保持 Java `package`、MyBatis XML `namespace`/`resultMap type` 指向的 FQCN、资源路径 `mapper/**` 不变）。
+
 - **S1（IAM：Controller 入口壳结构性收敛，保持行为不变）**：
   - ✅ 已完成：`UserUpdateController`（落地：`5ee37fd2`）、`DepartmentController`（落地：`fbc5fb74`）、`AuthenticationController`（落地：`fd9e4d1c`）、`MenuUpdateController`（落地：`44bc649d`）、`RoleUpdateController`（落地：`c81eb2e0`）。
 

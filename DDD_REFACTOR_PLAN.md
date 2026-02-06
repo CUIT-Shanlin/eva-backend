@@ -937,6 +937,14 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 ### 10.3 未完成清单（滚动，供下一会话排期）
 
+#### bc-audit（Audit）S0.2 延伸：`eva-infra-dal` 按 BC 拆散试点（`sys_log`，保持行为不变）
+
+> 目标：将“仅审计域使用”的 DAL（Mapper/DO/XML）逐文件归位到 `bc-audit/infrastructure`，把 `eva-infra-dal` 的表面积逐步收敛为“跨 BC 共享的最小集合”。每次只改 1 个类/1 个资源文件，并严格闭环（Serena → 最小回归 → 提交 → 三文档同步 → push）。
+
+- ✅ 已完成：`SysLogModuleMapper`、`SysLogMapper` 已归位到 `bc-audit/infrastructure`（详见 10.2 / `NEXT_SESSION_HANDOFF.md` 0.9）。
+- ⏳ 未完成（下一刀建议顺序；每次只改 1 个文件）：`SysLogDO` → `SysLogModuleDO` → `SysLogMapper.xml` → `SysLogModuleMapper.xml`（四刀；均需保持行为不变）。
+- 约束（保持行为不变）：Java `package`、MyBatis XML `namespace`、`resultMap type` 指向的 FQCN、资源路径 `mapper/**` 均保持不变。
+
 #### bc-course（Course）S0.2：课程域类型逐类归位（`eva-domain` → `bc-course-domain`，保持行为不变）
 
 > 背景：`eva-domain` 仍承载部分课程域实体/接口，导致多个 BC 仍需经由 `eva-domain` 承接编译期类型。当前采用“每次只搬运 1 个类 + 必要的单 pom 编译闭合前置”的节奏，逐步把**仅课程域承载**的类型归位到 `bc-course-domain`，并通过过渡期依赖保持全仓库编译闭合（不改业务语义）。
