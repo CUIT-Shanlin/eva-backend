@@ -717,7 +717,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成（逐类归位）：已将 `CourOneEvaTemplateEntity/EvaTaskEntity/EvaRecordEntity` 从 `eva-domain` 归位到 `bc-evaluation-domain`（保持 `package` 不变；最小回归通过；落地：`616f925c`/`c6cb11c4`/`f4ceb140`）。
   - ✅ 已完成（编译闭合补强）：已在 `bc-evaluation/domain/pom.xml` 增加 `spring-context(provided)`，用于承接 `edu.cuit.domain.gateway.eva.*` 接口上的 `@Component` 注解（最小回归通过；落地：`132f6fc0`）。
   - ⏳ 未完成（阻塞点）：`eva-domain` 仍残留少量评教/消息/日志的 `edu.cuit.domain.*` 类型（口径：`fd -t f -e java . eva-domain/src/main/java | wc -l` 当前为 12），因此仍被部分模块编译期依赖（口径：`rg -n '<artifactId>eva-domain</artifactId>' --glob '**/pom.xml' .`）。
-  - 🎯 下一刀建议（保持行为不变；每次只改 1 个类闭环）：优先归位 `EvaDeleteGateway` → `bc-evaluation-domain`（先 Serena 证据化盘点引用面，再搬运；最小回归通过后落地）。
+  - ✅ 已完成（逐类归位）：已将 `EvaDeleteGateway` 从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package`/接口签名/注解不变；最小回归通过；落地：`b5f8f5fe`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
+  - 🎯 下一刀建议（保持行为不变；每次只改 1 个类闭环）：继续归位 `EvaUpdateGateway` → `bc-evaluation-domain`（同上：先 Serena 证据化盘点引用面，再搬运；最小回归通过后落地）。
 
 - **IAM 并行（10.3：继续清理 `UserQueryGateway` 编译期依赖，保持行为不变）**：
   - ✅ 已完成：`bc-iam/infrastructure` 的 `UserServiceImpl` 已从编译期依赖 `UserQueryGateway` 收敛为依赖 `bc-iam-contract` 最小 Port（并已同步测试过渡；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
