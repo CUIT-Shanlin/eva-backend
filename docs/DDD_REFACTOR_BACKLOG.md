@@ -732,6 +732,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成（依赖收敛，单 pom）：`bc-evaluation/application/pom.xml` 已去 `eva-domain` 编译期依赖（最小回归通过；落地：`9f4eaa06`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
   - ✅ 已完成（依赖收敛，单 pom）：`bc-course/application/pom.xml` 已去 `eva-domain` 编译期依赖（最小回归通过；落地：`464a4d73`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
   - 🎯 下一刀建议（保持行为不变；每次只改 1 个类闭环）：优先从 `eva-domain` 残留的审计日志实体中挑 1 个（`SysLogEntity` 或 `SysLogModuleEntity`），用 Serena 证据化盘点引用面后逐类归位到 `bc-audit-domain`（保持 `package` 与类内容不变）。
+  - ✅ 补充进展（编译闭合前置，保持行为不变）：为后续归位 `SysLogEntity/SysLogModuleEntity` 做准备，已在 `bc-audit/domain/pom.xml` 补齐最小编译期依赖（`bc-iam-domain`、`cola-component-domain-starter`、`lombok(provided)`；仅编译闭合；最小回归通过；落地：`63c8c5ca`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 
 - **IAM 并行（10.3：继续清理 `UserQueryGateway` 编译期依赖，保持行为不变）**：
   - ✅ 已完成：`bc-iam/infrastructure` 的 `UserServiceImpl` 已从编译期依赖 `UserQueryGateway` 收敛为依赖 `bc-iam-contract` 最小 Port（并已同步测试过渡；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
