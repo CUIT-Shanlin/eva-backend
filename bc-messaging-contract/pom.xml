@@ -28,6 +28,16 @@
             <artifactId>shared-kernel</artifactId>
             <version>${revision}</version>
         </dependency>
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>bc-iam-domain</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.cola</groupId>
+            <artifactId>cola-component-domain-starter</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>com.alibaba.cola</groupId>
