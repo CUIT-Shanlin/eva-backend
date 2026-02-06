@@ -36,13 +36,6 @@
             <version>${revision}</version>
         </dependency>
 
-        <!-- 过渡期：用于承接逐类归位到 bc-course-domain 的 edu.cuit.domain.entity/course 相关类型（保持 package 不变） -->
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>bc-course-domain</artifactId>
-            <version>${revision}</version>
-        </dependency>
-
         <!-- 过渡期：用于承接从 eva-domain 逐类归位到 bc-evaluation-domain 的评教实体（保持 package 不变） -->
         <dependency>
             <groupId>edu.cuit</groupId>
