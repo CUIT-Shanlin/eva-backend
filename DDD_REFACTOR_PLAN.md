@@ -941,7 +941,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 进展（2026-02-06，保持行为不变；每次只改 1 个类闭环）：已将 `EvaRecordEntity` 从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package` 与类内容不变，仅改变 Maven 模块归属；最小回归通过；落地：`f4ceb140`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ 已完成（2026-02-06，保持行为不变；每次只改 1 个 `pom.xml` 闭环）：已在 Serena 证伪 `eva-domain/src/main/java` 无课程域引用面后，收敛 `eva-domain/pom.xml`：移除对 `bc-course-domain` 的 Maven 编译期依赖（最小回归通过；落地：`ec4107e4`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ 进展（2026-02-06，保持行为不变；每次只改 1 个类闭环）：已将 `EvaDeleteGateway` 从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package`/签名/注解不变；最小回归通过；落地：`b5f8f5fe`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
-- 🎯 下一刀建议（保持行为不变；每次只改 1 个类）：继续逐类将 `EvaUpdateGateway` 等 `edu.cuit.domain.gateway.eva.*` 从 `eva-domain` 归位到 `bc-evaluation-domain`（保持 `package`/签名/注解不变），以缩小 `eva-domain` 表面积并为后续进一步收敛依赖创造前置。
+- ✅ 进展（2026-02-06，保持行为不变；每次只改 1 个类）：`EvaUpdateGateway` 已从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package`/签名/注解不变；最小回归通过；落地：`ba43d0a4`）。
+- 🎯 下一刀建议（保持行为不变；每次只改 1 个类）：继续逐类将 `EvaConfigGateway` 等 `edu.cuit.domain.gateway.eva.*` 从 `eva-domain` 归位到 `bc-evaluation-domain`（保持 `package`/签名/注解不变），以缩小 `eva-domain` 表面积并为后续进一步收敛依赖创造前置。
 - ⚠️ 现状说明（保持行为不变）：`CourseEntity/SingleCourseEntity` 字段仍编译期依赖 `UserEntity`（`bc-iam-domain`），因此 `bc-course-domain` 当前保留对 `bc-iam-domain` 的编译期依赖作为过渡。后续若需去耦合，建议以“下沉最小 User 协议到 `*-contract`/`shared-kernel`”为方向另起小步证伪与落地，避免牵连行为漂移。
 
 #### bc-iam（IAM）S1：Controller 入口壳结构性收敛（保持行为不变）
