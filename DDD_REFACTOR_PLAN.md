@@ -854,10 +854,10 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - 现状评估（更新至 2026-02-06，保持行为不变）：
     - `eva-app`：已完成退场闭环（源码清零 + 组合根 `start` 去依赖 + root reactor 移除 + 删除 `eva-app/pom.xml`）；无需再围绕 `eva-app` 做依赖收敛或入口迁移。
     - `eva-adapter`：已完成退场闭环（残留 Controller 清零 + 组合根去依赖 + root reactor 移除 + 删除模块 pom）；证据口径：`fd -t f 'Controller\\.java$' eva-adapter/src/main/java | wc -l` 为 0，且 `rg -n '<module>eva-adapter</module>' pom.xml` 命中为 0，且 `rg -n '<artifactId>eva-adapter</artifactId>' --glob '**/pom.xml' .` 命中为 0（保持行为不变）。
-    - `eva-domain/eva-infra-dal/eva-infra-shared/eva-base`：仍是“全量整合”的核心阻塞（多个 `bc-*` 模块仍编译期依赖 `eva-domain` 与 `eva-infra-(shared|dal)`；证据口径见上方 3)）。因此“把所有 `eva-*` 模块全部整合进各业务 BC 并从 reactor 移除”仍不具备一次性落地条件，需要按“小步迁移类型/适配器 → 再收敛单个 pom → 再评估移除模块”的节奏推进。
+    - `eva-infra-dal/eva-infra-shared/eva-base`：仍是“全量整合”的核心阻塞（多个 `bc-*` 模块仍编译期依赖 `eva-infra-shared`；且 `eva-infra-shared` 依赖 `eva-infra-dal`；证据口径见上方 3)）。因此“把所有 `eva-*` 模块全部整合进各业务 BC 并从 reactor 移除”仍不具备一次性落地条件，需要按“小步迁移类型/适配器 → 再收敛单个 pom → 再评估移除模块”的节奏推进。
       - 可复现现状口径（更新至 2026-02-06，保持行为不变）：
-        - root reactor 仍包含：`eva-domain`、`eva-infra-dal`、`eva-infra-shared`、`eva-base`（口径：`rg -n '<module>eva-' pom.xml`）。
-        - `eva-domain` 仍被多个模块编译期依赖（口径：`rg -n '<artifactId>eva-domain</artifactId>' --glob '**/pom.xml' .`，当前至少包含 `bc-messaging`、`eva-infra-shared`），因此短期仍无法直接从 reactor 移除 `eva-domain`。
+        - root reactor 仍包含：`eva-infra-dal`、`eva-infra-shared`、`eva-base`（口径：`rg -n '<module>eva-' pom.xml`）。
+        - `eva-domain`：已从 root reactor 退场且编译期依赖方已清零（口径：`rg -n '<artifactId>eva-domain</artifactId>' --glob '**/pom.xml' .` 预期无命中）。
         - ✅ 依赖收敛（单 pom，保持行为不变）：已在 Serena 证伪 `eva-domain/src/main/java` 无课程域引用面后，移除 `eva-domain/pom.xml` 对 `bc-course-domain` 的编译期依赖（落地：`ec4107e4`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
         - ✅ 逐类归位（保持行为不变）：已将 `CourOneEvaTemplateEntity/EvaTaskEntity/EvaRecordEntity` 从 `eva-domain` 归位到 `bc-evaluation-domain`（保持 `package` 不变；详见 `NEXT_SESSION_HANDOFF.md` 0.9），使 `eva-domain` 的“课程域引用面”彻底归零并为后续继续搬运 `edu.cuit.domain.gateway.eva.*` 打通编译闭合前置。
         - ✅ 编译闭合补强（2026-02-06，保持行为不变）：已在 `bc-evaluation/domain/pom.xml` 增加 `spring-context(provided)`，用于承接 `edu.cuit.domain.gateway.eva.*` 上的 `@Component` 注解（落地：`132f6fc0`）。
@@ -911,7 +911,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
         - ✅ 已完成（2026-02-04，保持行为不变，推进）：已将 `UserDetailQueryPortImpl` 的注入从 `UserQueryGateway` 收敛为 `UserQueryCacheGateway`，方法体仍委托 `findById` 并通过强转读取 `id/username/name`，确保调用仍触发 `UserQueryGatewayImpl` 上的 `@LocalCached`（最小回归通过；落地：`5d85516b`）。
         - ✅ 已完成（2026-02-04，保持行为不变，推进）：已将 `UserDirectoryPageQueryPortImpl` 的注入从 `UserQueryGateway` 收敛为 `UserQueryCacheGateway`，方法体仍委托 `page/allUser/findAllUsername`，确保调用仍进入旧 `UserQueryGatewayImpl` 触发 `@LocalCached`（最小回归通过；落地：`d5335f4a`）。
         - ✅ 已完成（2026-02-04，保持行为不变，推进）：已将 `UserEntityQueryPortImpl` 的注入从 `UserQueryGateway` 收敛为 `UserQueryCacheGateway`，方法体仍委托 `getUserRoleIds`，确保调用仍进入旧 `UserQueryGatewayImpl` 触发 `@LocalCached`（最小回归通过；落地：`b7373cbb`）。
-        - 量化快照（口径=可复现命令）：`eva-domain` 0 个（已退场）、`eva-infra-dal` 36 个、`eva-infra-shared` 47 个。
+        - 量化快照（口径=可复现命令）：`eva-domain` 0 个（已退场）、`eva-infra-dal` 36 个、`eva-infra-shared` 45 个、`eva-base-common` 2 个（`eva-base-config` 当前无 Java 源码）。
       - ✅ 已完成（2026-02-04，保持行为不变，依赖收敛：eva-infra）：在 Serena + `rg` 证伪 `eva-infra` 已从 root reactor 退场且源码仅 `package-info.java`（无业务逻辑、无外部依赖方）后，收敛 `eva-infra/pom.xml`：移除残留 `<dependencies>` 依赖声明（最小回归通过；落地：`47654a6a`）。
       - ✅ 已完成（保持行为不变；每次只改 1 个 `pom.xml`）：在 Serena + `rg` 证伪 “全仓库已无 `eva-infra` 的 dependency 声明”后，已从 root reactor 移除 `<module>eva-infra</module>`（每步闭环；落地：`0aab4516`）。
       - ✅ 已完成（保持行为不变；单 pom）：已删除 `eva-infra/pom.xml`（前置：reactor 已退场且无依赖方；最小回归通过；落地：`6c9b6224`）。
