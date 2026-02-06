@@ -715,6 +715,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - **S0.2 延伸（`eva-domain` 退场前置：依赖收敛 + 评教域类型逐类归位，保持行为不变）**：
   - ✅ 已完成（依赖收敛，单 pom）：已移除 `eva-domain/pom.xml` 对 `bc-course-domain` 的 Maven 编译期依赖（Serena 证伪无课程域引用面后落地；最小回归通过；落地：`ec4107e4`）。
   - ✅ 已完成（逐类归位）：已将 `CourOneEvaTemplateEntity/EvaTaskEntity/EvaRecordEntity` 从 `eva-domain` 归位到 `bc-evaluation-domain`（保持 `package` 不变；最小回归通过；落地：`616f925c`/`c6cb11c4`/`f4ceb140`）。
+  - ✅ 已完成（编译闭合补强）：已在 `bc-evaluation/domain/pom.xml` 增加 `spring-context(provided)`，用于承接 `edu.cuit.domain.gateway.eva.*` 接口上的 `@Component` 注解（最小回归通过；落地：`132f6fc0`）。
   - ⏳ 未完成（阻塞点）：`eva-domain` 仍残留少量评教/消息/日志的 `edu.cuit.domain.*` 类型（口径：`fd -t f -e java . eva-domain/src/main/java | wc -l` 当前为 12），因此仍被部分模块编译期依赖（口径：`rg -n '<artifactId>eva-domain</artifactId>' --glob '**/pom.xml' .`）。
   - 🎯 下一刀建议（保持行为不变；每次只改 1 个类闭环）：优先归位 `EvaDeleteGateway` → `bc-evaluation-domain`（先 Serena 证据化盘点引用面，再搬运；最小回归通过后落地）。
 

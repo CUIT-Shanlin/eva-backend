@@ -21,6 +21,9 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-06（前置：bc-evaluation-domain 编译闭合补强（承接 @Component），保持行为不变）**
+- ✅ 已完成（保持行为不变）：在 `bc-evaluation/domain/pom.xml` 增加 `spring-context(provided)` 编译期依赖，用于承接后续逐类归位到 `bc-evaluation-domain` 的 `edu.cuit.domain.gateway.eva.*` 接口上的 `@Component` 注解（仅编译闭合；最小回归通过；落地：`132f6fc0`）。
+
 **2026-02-06（依赖收敛（单 pom）：`eva-domain` 去 `bc-course-domain` 编译期依赖；保持行为不变）**
 - ✅ 已完成（保持行为不变）：Serena 证伪 `eva-domain/src/main/java` 已无 `edu.cuit.domain.(entity|gateway).course.*` 引用面后，收敛 `eva-domain/pom.xml`：移除对 `bc-course-domain` 的 Maven 编译期依赖（最小回归通过；落地：`ec4107e4`）。
 
