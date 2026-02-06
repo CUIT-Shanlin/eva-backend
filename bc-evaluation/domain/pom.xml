@@ -38,6 +38,12 @@
             <artifactId>cola-component-domain-starter</artifactId>
         </dependency>
 
+        <!-- 承接逐类归位的 EvaConfigEntity：其 clone() 依赖 SpringUtil（行为保持不变，仅补齐编译闭合） -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
