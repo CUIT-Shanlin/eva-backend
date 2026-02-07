@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-02-07（本会话：保持行为不变，继续瘦身共享基础设施）**
+- ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `LdapUserConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.convertor.user` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-iam/infrastructure`；最小回归通过；代码落地：`4d09f8da`）。
 - ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `LdapPersonRepo` 从 `eva-infra-shared` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.dal.ldap.repo` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-iam/infrastructure`；最小回归通过；代码落地：`ed120804`）。
 - ✅ 已完成（保持行为不变，DAL 拆散试点，单资源闭环，逐文件归位）：将 `SysMenuMapper.xml` 从 `eva-infra-dal` 搬运归位到 `bc-iam/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；代码落地：`920c17d1`）。
 - ✅ 已完成（保持行为不变，DAL 拆散试点，逐类归位）：将 `SysMenuMapper` 从 `eva-infra-dal` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.dal.database.mapper.user` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-iam/infrastructure`；最小回归通过；代码落地：`b53615e5`）。
@@ -1024,7 +1025,7 @@
 
 - 📊 **整体未完成清单（更新至 2026-02-07；保持行为不变）**：
   - `eva-infra-dal`：仍剩 `24` 个 Java + `11` 个 XML 未归位（可复现口径：`fd -t f -e java . eva-infra-dal/src/main/java | wc -l` + `fd -t f -e xml . eva-infra-dal/src/main/resources | wc -l`）。
-  - `eva-infra-shared`：仍剩 `42` 个 Java，且多 BC 仍直依赖该模块（可复现口径：`rg -n "<artifactId>eva-infra-shared</artifactId>" --glob "**/pom.xml" bc-* | head`）。
+  - `eva-infra-shared`：仍剩 `41` 个 Java，且多 BC 仍直依赖该模块（可复现口径：`rg -n "<artifactId>eva-infra-shared</artifactId>" --glob "**/pom.xml" bc-* | head`）。
   - 关键阻塞例（`course_type`，保持行为不变）：Serena 证据化显示 `CourseConvertor` 的引用面跨 `bc-course/**` 与 `bc-evaluation/**`，因此 `CourseTypeDO` 暂不满足“仅 `bc-course/**` 引用”约束（见 `docs/DDD_REFACTOR_BACKLOG.md` 6 的说明），不建议直接归位 DO 以避免依赖/装配边界漂移。
 
 - 🔍 **“什么时候可以把 eva-* 模块全部整合进 bc-*？”统一口径**：不是某个固定日期，而是一组可验证前置条件；统一判定标准与证据口径见 `DDD_REFACTOR_PLAN.md` 10.5（保持行为不变）。
