@@ -1030,7 +1030,7 @@
 
 - 📊 **整体未完成清单（更新至 2026-02-07；保持行为不变）**：
   - `eva-infra-dal`：仍剩 `24` 个 Java + `11` 个 XML 未归位（可复现口径：`fd -t f -e java . eva-infra-dal/src/main/java | wc -l` + `fd -t f -e xml . eva-infra-dal/src/main/resources | wc -l`）。
-  - `eva-infra-shared`：仍剩 `41` 个 Java，且多 BC 仍直依赖该模块（可复现口径：`rg -n "<artifactId>eva-infra-shared</artifactId>" --glob "**/pom.xml" bc-* | head`）。
+  - `eva-infra-shared`：仍剩 `37` 个 Java，且多 BC 仍直依赖该模块（可复现口径：`fd -t f -e java . eva-infra-shared/src/main/java | wc -l` + `rg -n "<artifactId>eva-infra-shared</artifactId>" --glob "**/pom.xml" bc-* | head`）。
   - 关键阻塞例（`course_type`，保持行为不变）：Serena 证据化显示 `CourseConvertor` 的引用面跨 `bc-course/**` 与 `bc-evaluation/**`，因此 `CourseTypeDO` 暂不满足“仅 `bc-course/**` 引用”约束（见 `docs/DDD_REFACTOR_BACKLOG.md` 6 的说明），不建议直接归位 DO 以避免依赖/装配边界漂移。
 
 - 🔍 **“什么时候可以把 eva-* 模块全部整合进 bc-*？”统一口径**：不是某个固定日期，而是一组可验证前置条件；统一判定标准与证据口径见 `DDD_REFACTOR_PLAN.md` 10.5（保持行为不变）。
