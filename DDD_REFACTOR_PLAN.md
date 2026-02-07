@@ -869,9 +869,12 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 >
 > 1) **业务整合（推荐优先）**：把“业务域类型/接口”从 `eva-domain` 逐类归位到对应 `bc-*/domain`（保持 `package` 不变），并在证伪无引用后移除 `eva-domain`；这一步完成后，业务层面的 “eva-* 退场” 已达成大半。
 > 2) **命名整合（可选，后置）**：`eva-infra-dal/eva-infra-shared/eva-base` 多为跨 BC 的共享技术能力（DAL/Convertor/通用工具/配置），不建议强行归入某个单一 BC；若目标是“仓库里不再出现 eva- 前缀模块”，更稳妥的做法是 **先把业务相关实现搬走/瘦身**，再评估“保留为共享平台模块并改名（artifactId 变更）”或“进一步下沉到 shared-kernel/各 BC infrastructure”。
-  - 现状评估（更新至 2026-02-06，保持行为不变）：
+  - 现状评估（更新至 2026-02-07，保持行为不变）：
     - `eva-app`：已完成退场闭环（源码清零 + 组合根 `start` 去依赖 + root reactor 移除 + 删除 `eva-app/pom.xml`）；无需再围绕 `eva-app` 做依赖收敛或入口迁移。
     - `eva-adapter`：已完成退场闭环（残留 Controller 清零 + 组合根去依赖 + root reactor 移除 + 删除模块 pom）；证据口径：`fd -t f 'Controller\\.java$' eva-adapter/src/main/java | wc -l` 为 0，且 `rg -n '<module>eva-adapter</module>' pom.xml` 命中为 0，且 `rg -n '<artifactId>eva-adapter</artifactId>' --glob '**/pom.xml' .` 命中为 0（保持行为不变）。
+    - `eva-infra-dal`：仍在 reactor（root `pom.xml` 仍含 `<module>eva-infra-dal</module>`）；当前剩余 `25` 个 Java + `13` 个 XML 未归位（可复现口径：`fd -t f -e java . eva-infra-dal/src/main/java | wc -l` + `fd -t f -e xml . eva-infra-dal/src/main/resources | wc -l`）。`course_type` 候选已完成第一刀：`CourseTypeMapper` 已归位到 `bc-course/infrastructure`（落地：`241b75de`；保持 `package` 不变）。
+    - `eva-infra-shared`：仍被多个 BC 基础设施模块直依赖（如 `bc-course/bc-evaluation/bc-iam/bc-audit/bc-template/bc-messaging`），且存在跨 BC 的 Convertor（例如 Serena 证据化：`CourseConvertor` 引用面跨 `bc-course/**` 与 `bc-evaluation/**`），因此部分 DAL DO（如 `CourseTypeDO`）暂不满足“仅单 BC 引用才归位”的约束，需谨慎推进以避免依赖/装配边界漂移。
+    - `eva-base*`：作为共享底座仍存在（当前代码量已很小），但仍有 BC 直依赖（如 `bc-iam/contract` 依赖 `eva-base-common`）；后置再评估“下沉到 shared-kernel/改名”为宜，避免同一阶段引入大范围 `pom.xml` 变更。
     - `eva-infra-dal/eva-infra-shared/eva-base`：仍是“全量整合”的核心阻塞（多个 `bc-*` 模块仍编译期依赖 `eva-infra-shared`；且 `eva-infra-shared` 依赖 `eva-infra-dal`；证据口径见上方 3)）。因此“把所有 `eva-*` 模块全部整合进各业务 BC 并从 reactor 移除”仍不具备一次性落地条件，需要按“小步迁移类型/适配器 → 再收敛单个 pom → 再评估移除模块”的节奏推进。
       - 可复现现状口径（更新至 2026-02-06，保持行为不变）：
         - root reactor 仍包含：`eva-infra-dal`、`eva-infra-shared`、`eva-base`（口径：`rg -n '<module>eva-' pom.xml`）。
