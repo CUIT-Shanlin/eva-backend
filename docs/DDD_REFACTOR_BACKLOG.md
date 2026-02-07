@@ -541,6 +541,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - bc-messaging（消息域）：依赖收敛（应用侧编译期依赖面收窄）：`eva-app` 已将对 `bc-messaging` 的编译期依赖收敛为仅依赖 `bc-messaging-contract`（仅用于事件载荷类型；保持行为不变；最小回归通过；落地提交：`d3aeb3ab`）。
 - bc-messaging（消息域）：基础设施端口适配器归位前置（DAL 归位）：将消息表数据对象 `MsgTipDO` 从 `eva-infra` 归位到 `eva-infra-dal`（保持 `package` 不变；仅类归位不改语义；最小回归通过；落地提交：`47ea52da`）。
 - bc-messaging（消息域）：基础设施端口适配器归位前置（DAL 归位）：将消息表 Mapper `MsgTipMapper`（含 `MsgTipMapper.xml`）从 `eva-infra` 归位到 `eva-infra-dal`（保持 `package/namespace` 不变；仅类与资源归位不改语义；最小回归通过；落地提交：`5225ed43`）。
+- （后续收敛，保持行为不变）：`MsgTipMapper` 已进一步从 `eva-infra-dal` 归位到 `bc-messaging`（保持 `package edu.cuit.infra.dal.database.mapper` 不变，仅改变 Maven 模块归属；最小回归通过；落地：`4af9f9fc`）。
 - bc-messaging（消息域）：基础设施端口适配器归位（消息删除）：将 `MessageDeletionPortImpl` 从 `eva-infra` 迁移到 `bc-messaging`（保持 `package` 不变；并在 `bc-messaging` 补齐对 `eva-infra-dal` 的依赖以闭合编译；最小回归通过；落地提交：`631779b9`）。
 - bc-messaging（消息域）：基础设施端口适配器归位（消息已读）：将 `MessageReadPortImpl` 从 `eva-infra` 迁移到 `bc-messaging`（保持 `package` 不变；异常文案/更新条件/校验顺序不变；最小回归通过；落地提交：`9b911048`）。
 - bc-messaging（消息域）：基础设施端口适配器归位（消息显示状态）：将 `MessageDisplayPortImpl` 从 `eva-infra` 迁移到 `bc-messaging`（保持 `package` 不变；异常文案/更新条件/校验顺序不变；最小回归通过；落地提交：`6e10866e`）。
@@ -1135,7 +1136,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 	- ✅ 下一步小簇建议（bc-messaging，保持行为不变）：按 `DDD_REFACTOR_PLAN.md` 10.3 路线推进（先组合根 → 再监听器/应用侧适配器 → 最后基础设施端口适配器与依赖收敛）。
 	  - ✅ 已完成：组合根 `BcMessagingConfiguration`（`4e3e2cf2`）；✅ 已完成：监听器 `CourseOperationSideEffectsListener`（`22ee30e7`）；✅ 已完成：监听器 `CourseTeacherTaskMessagesListener`（`0987f96f`）
 	  - ✅ 已完成：支撑类 `MsgResult`（`31878b61`，当前位于 `bc-messaging-contract`）；✅ 已完成：应用侧端口适配器 `CourseBroadcastPortAdapter`（`84ee070a`）；✅ 已完成：应用侧端口适配器 `TeacherTaskMessagePortAdapter`（`9ea14cff`）；✅ 已完成：应用侧端口适配器 `EvaMessageCleanupPortAdapter`（`73ab3f3c`）。
-  - ✅ 已完成（前置，DAL/Convertor 归位）：`MsgTipDO/MsgTipMapper(+xml)` → `eva-infra-dal`；`MsgConvertor` → `eva-infra-shared`（保持 `package/namespace` 不变；后续已进一步将 `MsgConvertor` 归位到 `bc-messaging`，仅改变 Maven 模块归属：`312756c7`）。
+  - ✅ 已完成（前置，DAL/Convertor 归位）：`MsgTipDO/MsgTipMapper(+xml)` → `eva-infra-dal`；`MsgConvertor` → `eva-infra-shared`（保持 `package/namespace` 不变；后续已进一步将 `MsgConvertor` 归位到 `bc-messaging`：`312756c7`；并将 `MsgTipMapper` 从 `eva-infra-dal` 归位到 `bc-messaging`：`4af9f9fc`；均仅改变 Maven 模块归属，保持行为不变）。
   - ✅ 已完成（基础设施端口适配器归位）：`MessageDeletionPortImpl/MessageReadPortImpl/MessageDisplayPortImpl/MessageInsertionPortImpl/MessageQueryPortImpl` → `bc-messaging`（保持 `package` 不变；保持行为不变）。
   - ✅ 依赖收敛准备（事件枚举下沉到 contract）：`CourseOperationMessageMode` → `bc-messaging-contract`（保持 `package` 不变；保持行为不变；`b2247e7f`）。
   - ✅ 依赖收敛准备（事件载荷下沉到 contract）：`CourseOperationSideEffectsEvent` → `bc-messaging-contract`（保持 `package` 不变；保持行为不变；`ea2c0d9b`）。
