@@ -524,6 +524,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-02-07，保持行为不变，DAL 拆散试点，逐类归位）：将 `SysLogModuleDO` 从 `eva-infra-dal` 搬运归位到 `bc-audit/infrastructure`（保持 `package` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-audit/infrastructure`；最小回归通过；落地：`960d2bbb`）。
 - 补充进展（2026-02-07，保持行为不变，DAL 拆散试点，逐类归位）：将 `SysRoleMenuMapper` 从 `eva-infra-dal` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.dal.database.mapper.user` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-iam/infrastructure` 的 `MenuWritePortImpl/RoleWritePortImpl/UserMenuCacheInvalidationPortImpl`；最小回归通过；落地：`f98ee5c2`）。
 - 补充进展（2026-02-07，保持行为不变，DAL 拆散试点，逐类归位）：将 `SysRoleMenuDO` 从 `eva-infra-dal` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.dal.database.dataobject.user` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-iam/infrastructure` 的 `MenuWritePortImpl/RoleWritePortImpl/UserMenuCacheInvalidationPortImpl/RoleQueryGatewayImpl`；最小回归通过；落地：`49fcbda7`）。
+- 补充进展（2026-02-07，保持行为不变，DAL 拆散试点，单资源闭环，逐文件归位）：将 `SysRoleMenuMapper.xml` 从 `eva-infra-dal` 搬运归位到 `bc-iam/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`db81d674`）。
 - 补充进展（2026-02-07，保持行为不变，DAL 拆散试点，逐类归位）：将 `SysLogMapper.xml` 从 `eva-infra-dal` 搬运归位到 `bc-audit/infrastructure`（保持 MyBatis `namespace/resultMap type` 与 SQL 不变，且资源路径仍为 `mapper/**`；最小回归通过；落地：`b6f05784`）。
 - 补充进展（2026-02-07，保持行为不变，DAL 拆散试点，逐类归位）：将 `SysLogModuleMapper.xml` 从 `eva-infra-dal` 搬运归位到 `bc-audit/infrastructure`（保持 MyBatis `namespace/resultMap type` 与 SQL 不变，且资源路径仍为 `mapper/**`；最小回归通过；落地：`f6c7897c`）。
 - 补充进展（2026-02-07，保持行为不变，支撑类归位，逐类归位）：将 `MsgConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-messaging`（保持 `package edu.cuit.infra.convertor` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-messaging`；最小回归通过；落地：`312756c7`）。
@@ -1356,7 +1357,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - 阶段 2.1（已完成）：已用 Serena 盘点 `bc-iam-infra` 适配器对 IAM DAL 的直接依赖清单（后续迁移以此清单为准，避免漏搬/多搬）：
     - Mapper：`SysUserMapper`、`SysUserRoleMapper`、`SysRoleMapper`、`SysRoleMenuMapper`、`SysMenuMapper`
     - DO：`SysUserDO`、`SysUserRoleDO`、`SysRoleDO`、`SysRoleMenuDO`、`SysMenuDO`
-    - XML：`eva-infra-dal/src/main/resources/mapper/user/SysUserMapper.xml`、`SysUserRoleMapper.xml`、`SysRoleMapper.xml`、`SysRoleMenuMapper.xml`、`SysMenuMapper.xml`
+    - XML：`eva-infra-dal/src/main/resources/mapper/user/SysUserMapper.xml`、`SysUserRoleMapper.xml`、`SysRoleMapper.xml`、`bc-iam/infrastructure/src/main/resources/mapper/user/SysRoleMenuMapper.xml`、`SysMenuMapper.xml`
   - 阶段 2.2（已完成）：已在 `bc-iam-infra` 创建 DAL 包路径与资源目录骨架（不迁代码，仅提供后续迁移落点；保持行为不变）：
     - Java：`bc-iam-infra/src/main/java/edu/cuit/infra/dal/database/dataobject/user/package-info.java`、`bc-iam-infra/src/main/java/edu/cuit/infra/dal/database/mapper/user/package-info.java`
     - Resources：`bc-iam-infra/src/main/resources/mapper/user/.gitkeep`
@@ -1367,7 +1368,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
     - XML：`eva-infra-dal/src/main/resources/mapper/user/SysUserMapper.xml`、`SysUserRoleMapper.xml`
   - 阶段 2.4（已完成）：继续迁移 `SysRole*`/`SysRoleMenu*`（DO/Mapper/XML）到共享模块 `eva-infra-dal`（保持包名/namespace/SQL 不变；保持行为不变）。
     - Java：`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/dataobject/user/SysRoleDO.java`、`bc-iam/infrastructure/src/main/java/edu/cuit/infra/dal/database/dataobject/user/SysRoleMenuDO.java`；`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/mapper/user/SysRoleMapper.java`、`bc-iam/infrastructure/src/main/java/edu/cuit/infra/dal/database/mapper/user/SysRoleMenuMapper.java`
-    - XML：`eva-infra-dal/src/main/resources/mapper/user/SysRoleMapper.xml`、`SysRoleMenuMapper.xml`
+    - XML：`eva-infra-dal/src/main/resources/mapper/user/SysRoleMapper.xml`、`bc-iam/infrastructure/src/main/resources/mapper/user/SysRoleMenuMapper.xml`
   - 阶段 2.5（已完成）：继续迁移 `SysMenu*`（DO/Mapper/XML）到共享模块 `eva-infra-dal`（保持包名/namespace/SQL 不变；保持行为不变）。
     - Java：`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/dataobject/user/SysMenuDO.java`；`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/mapper/user/SysMenuMapper.java`
     - XML：`eva-infra-dal/src/main/resources/mapper/user/SysMenuMapper.xml`
