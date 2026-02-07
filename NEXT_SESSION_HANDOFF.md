@@ -23,6 +23,7 @@
 
 **2026-02-07（本会话：保持行为不变，继续瘦身共享基础设施）**
 - 🧾 快照证据复核（保持行为不变，仅证据与文档同步）：root reactor 仍包含 `eva-infra-dal` / `eva-infra-shared` / `eva-base`（口径：`rg -n "<module>eva-" pom.xml`）；已闭环项计数复核：`msg_tip`（`MsgTipMapper/MsgTipDO/MsgTipMapper.xml` 各命中 1，且 `eva-infra-dal` 下 0 命中）、`sys_role_menu`（`SysRoleMenuMapper/SysRoleMenuDO/SysRoleMenuMapper.xml` 各命中 1，且 `eva-infra-dal` 下 0 命中）、`course_type_course`（`CourseTypeCourseMapper/CourseTypeCourseDO/CourseTypeCourseMapper.xml` 各命中 1，且 `eva-infra-dal` 下 0 命中）（口径：`fd -t f ... | wc -l`）。
+- ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `SaTokenConfig` 从 `eva-infra-shared` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.app.config` 不变，仅改变 Maven 模块归属；Serena：未发现显式 import 引用面（`@Configuration` 由 Spring 扫描加载）；最小回归通过；代码落地：`fb3fe49d`）。
 - ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `AfterCommitEventPublisher` 从 `eva-infra-shared` 搬运归位到 `bc-course/infrastructure`（保持 `package edu.cuit.app.event` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-course/infrastructure`；最小回归通过；代码落地：`352b1680`）。
 - ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `SemesterConverter` 从 `eva-infra-shared` 搬运归位到 `bc-course/infrastructure`（保持 `package edu.cuit.infra.convertor` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-course/infrastructure` 的 `SemesterGatewayImpl`；最小回归通过；代码落地：`99f78d40`）。
 - ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `ClassroomCacheConstants` 从 `eva-infra-shared` 搬运归位到 `bc-course/infrastructure`（保持 `package edu.cuit.infra.enums.cache` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-course/infrastructure`；最小回归通过；代码落地：`eb41025e`）。
@@ -1032,7 +1033,7 @@
 
 - 📊 **整体未完成清单（更新至 2026-02-07；保持行为不变）**：
   - `eva-infra-dal`：仍剩 `24` 个 Java + `11` 个 XML 未归位（可复现口径：`fd -t f -e java . eva-infra-dal/src/main/java | wc -l` + `fd -t f -e xml . eva-infra-dal/src/main/resources | wc -l`）。
-  - `eva-infra-shared`：仍剩 `35` 个 Java，且多 BC 仍直依赖该模块（可复现口径：`fd -t f -e java . eva-infra-shared/src/main/java | wc -l` + `rg -n "<artifactId>eva-infra-shared</artifactId>" --glob "**/pom.xml" bc-* | head`）。
+  - `eva-infra-shared`：仍剩 `34` 个 Java，且多 BC 仍直依赖该模块（可复现口径：`fd -t f -e java . eva-infra-shared/src/main/java | wc -l` + `rg -n "<artifactId>eva-infra-shared</artifactId>" --glob "**/pom.xml" bc-* | head`）。
   - 关键阻塞例（`course_type`，保持行为不变）：Serena 证据化显示 `CourseConvertor` 的引用面跨 `bc-course/**` 与 `bc-evaluation/**`，因此 `CourseTypeDO` 暂不满足“仅 `bc-course/**` 引用”约束（见 `docs/DDD_REFACTOR_BACKLOG.md` 6 的说明），不建议直接归位 DO 以避免依赖/装配边界漂移。
 
 - 🔍 **“什么时候可以把 eva-* 模块全部整合进 bc-*？”统一口径**：不是某个固定日期，而是一组可验证前置条件；统一判定标准与证据口径见 `DDD_REFACTOR_PLAN.md` 10.5（保持行为不变）。
