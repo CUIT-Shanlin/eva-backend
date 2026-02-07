@@ -741,7 +741,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成：`SysLogDO`、`SysLogModuleDO` → `bc-audit/infrastructure`（保持 `package` 不变；保持行为不变；详见 4.2）。
   - ✅ 已完成：`SysLogMapper.xml` → `bc-audit/infrastructure`（保持 MyBatis XML `namespace`/`resultMap type`、资源路径 `mapper/**` 不变；保持行为不变；详见 4.2）。
   - ✅ 已完成：`SysLogModuleMapper.xml` → `bc-audit/infrastructure`（保持 MyBatis XML `namespace`/`resultMap type`、资源路径 `mapper/**` 不变；保持行为不变；详见 4.2）。
-  - 🎯 下一步建议（保持行为不变；单 pom）：评估是否可收敛 `bc-audit/infrastructure/pom.xml` 对 `eva-infra-shared` 的依赖（需 Serena 证伪无引用面，最小回归后闭环）。
+  - ✅ 依赖收敛证伪（保持行为不变；单 pom）：Serena 证据化确认 `bc-audit/infrastructure` 仍直接使用 `eva-infra-shared` 内类型（`QueryUtils/PaginationConverter/UserConverter/RoleConverter/EntityFactory`），因此暂不可移除该依赖（结论已记录于 `bc-audit/infrastructure/pom.xml`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 
 - **S1（IAM：Controller 入口壳结构性收敛，保持行为不变）**：
   - ✅ 已完成：`UserUpdateController`（落地：`5ee37fd2`）、`DepartmentController`（落地：`fbc5fb74`）、`AuthenticationController`（落地：`fd9e4d1c`）、`MenuUpdateController`（落地：`44bc649d`）、`RoleUpdateController`（落地：`c81eb2e0`）。
