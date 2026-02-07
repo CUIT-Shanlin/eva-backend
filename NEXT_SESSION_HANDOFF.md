@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-02-07（本会话：保持行为不变，继续瘦身共享基础设施）**
+- 🧾 快照证据复核（保持行为不变，仅证据与文档同步）：root reactor 仍包含 `eva-infra-dal` / `eva-infra-shared` / `eva-base`（口径：`rg -n "<module>eva-" pom.xml`）；已闭环项计数复核：`msg_tip`（`MsgTipMapper/MsgTipDO/MsgTipMapper.xml` 各命中 1，且 `eva-infra-dal` 下 0 命中）、`sys_role_menu`（`SysRoleMenuMapper/SysRoleMenuDO/SysRoleMenuMapper.xml` 各命中 1，且 `eva-infra-dal` 下 0 命中）、`course_type_course`（`CourseTypeCourseMapper/CourseTypeCourseDO/CourseTypeCourseMapper.xml` 各命中 1，且 `eva-infra-dal` 下 0 命中）（口径：`fd -t f ... | wc -l`）。
 - ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `LdapUserConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.convertor.user` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-iam/infrastructure`；最小回归通过；代码落地：`4d09f8da`）。
 - ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `LdapPersonRepo` 从 `eva-infra-shared` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.dal.ldap.repo` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-iam/infrastructure`；最小回归通过；代码落地：`ed120804`）。
 - ✅ 已完成（保持行为不变，DAL 拆散试点，单资源闭环，逐文件归位）：将 `SysMenuMapper.xml` 从 `eva-infra-dal` 搬运归位到 `bc-iam/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；代码落地：`920c17d1`）。

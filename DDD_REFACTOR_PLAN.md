@@ -876,10 +876,11 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
     - `eva-infra-shared`：仍被多个 BC 基础设施模块直依赖（如 `bc-course/bc-evaluation/bc-iam/bc-audit/bc-template/bc-messaging`），且存在跨 BC 的 Convertor（例如 Serena 证据化：`CourseConvertor` 引用面跨 `bc-course/**` 与 `bc-evaluation/**`）；但已开始逐类归位“仅单 BC 引用”的支撑类（例如 `LdapPersonRepo`：`ed120804`、`LdapUserConvertor`：`4d09f8da` 已归位到 `bc-iam/infrastructure`），以逐步缩小 `eva-infra-shared` 表面积。部分 DAL DO（如 `CourseTypeDO`）仍因共享 Convertor 引用暂不满足“仅单 BC 引用才归位”的约束，需谨慎推进以避免依赖/装配边界漂移。
     - `eva-base*`：作为共享底座仍存在（当前代码量已很小），但仍有 BC 直依赖（如 `bc-iam/contract` 依赖 `eva-base-common`）；后置再评估“下沉到 shared-kernel/改名”为宜，避免同一阶段引入大范围 `pom.xml` 变更。
     - `eva-infra-dal/eva-infra-shared/eva-base`：仍是“全量整合”的核心阻塞（多个 `bc-*` 模块仍编译期依赖 `eva-infra-shared`；且 `eva-infra-shared` 依赖 `eva-infra-dal`；证据口径见上方 3)）。因此“把所有 `eva-*` 模块全部整合进各业务 BC 并从 reactor 移除”仍不具备一次性落地条件，需要按“小步迁移类型/适配器 → 再收敛单个 pom → 再评估移除模块”的节奏推进。
-      - 可复现现状口径（更新至 2026-02-06，保持行为不变）：
-        - root reactor 仍包含：`eva-infra-dal`、`eva-infra-shared`、`eva-base`（口径：`rg -n '<module>eva-' pom.xml`）。
-        - `eva-domain`：已从 root reactor 退场且编译期依赖方已清零（口径：`rg -n '<artifactId>eva-domain</artifactId>' --glob '**/pom.xml' .` 预期无命中）。
-        - ✅ 依赖收敛（单 pom，保持行为不变）：已在 Serena 证伪 `eva-domain/src/main/java` 无课程域引用面后，移除 `eva-domain/pom.xml` 对 `bc-course-domain` 的编译期依赖（落地：`ec4107e4`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
+	      - 可复现现状口径（更新至 2026-02-07，保持行为不变）：
+	        - root reactor 仍包含：`eva-infra-dal`、`eva-infra-shared`、`eva-base`（口径：`rg -n '<module>eva-' pom.xml`）。
+	        - 已闭环快照复核（保持行为不变）：`msg_tip`/`sys_role_menu`/`course_type_course` 相关 `Mapper/DO/XML` 均已在目标 BC 内各命中 1，且 `eva-infra-dal` 下 0 命中（口径：`fd -t f ... | wc -l`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
+	        - `eva-domain`：已从 root reactor 退场且编译期依赖方已清零（口径：`rg -n '<artifactId>eva-domain</artifactId>' --glob '**/pom.xml' .` 预期无命中）。
+	        - ✅ 依赖收敛（单 pom，保持行为不变）：已在 Serena 证伪 `eva-domain/src/main/java` 无课程域引用面后，移除 `eva-domain/pom.xml` 对 `bc-course-domain` 的编译期依赖（落地：`ec4107e4`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
         - ✅ 逐类归位（保持行为不变）：已将 `CourOneEvaTemplateEntity/EvaTaskEntity/EvaRecordEntity` 从 `eva-domain` 归位到 `bc-evaluation-domain`（保持 `package` 不变；详见 `NEXT_SESSION_HANDOFF.md` 0.9），使 `eva-domain` 的“课程域引用面”彻底归零并为后续继续搬运 `edu.cuit.domain.gateway.eva.*` 打通编译闭合前置。
         - ✅ 编译闭合补强（2026-02-06，保持行为不变）：已在 `bc-evaluation/domain/pom.xml` 增加 `spring-context(provided)`，用于承接 `edu.cuit.domain.gateway.eva.*` 上的 `@Component` 注解（落地：`132f6fc0`）。
         - IAM 并行（10.3）侧：依赖方对 `UserQueryGateway` 的编译期依赖已阶段性收敛为 `bc-iam-contract` 最小 Port；当前在 `bc-*` 范围内应不再出现 `UserQueryGateway` 引用（可复现口径：`rg -n \"\\bUserQueryGateway\\b\" --glob \"*.java\" bc-* | head` 应命中为 0）。

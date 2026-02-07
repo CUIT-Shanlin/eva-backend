@@ -110,6 +110,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-02-07）**
+- 🧾 快照证据复核（2026-02-07，保持行为不变，仅证据与文档同步）：root reactor 仍包含 `eva-infra-dal` / `eva-infra-shared` / `eva-base`（口径：`rg -n "<module>eva-" pom.xml`）；已闭环项计数复核：`msg_tip`（`MsgTipMapper/MsgTipDO/MsgTipMapper.xml` 各命中 1，且 `eva-infra-dal` 下 0 命中）、`sys_role_menu`（`SysRoleMenuMapper/SysRoleMenuDO/SysRoleMenuMapper.xml` 各命中 1，且 `eva-infra-dal` 下 0 命中）、`course_type_course`（`CourseTypeCourseMapper/CourseTypeCourseDO/CourseTypeCourseMapper.xml` 各命中 1，且 `eva-infra-dal` 下 0 命中）（口径：`fd -t f ... | wc -l`）。
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-audit/infrastructure/pom.xml`：移除对 `eva-infra-dal` 的冗余 Maven 直依赖（前置：`eva-infra-shared/pom.xml` 已显式依赖 `eva-infra-dal`；因此编译/运行期 classpath 与行为不变；最小回归通过；落地：`91fd39a9`）。
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-evaluation/infrastructure/pom.xml`：移除对 `eva-infra-dal` 的冗余 Maven 直依赖（前置：`eva-infra-shared/pom.xml` 已显式依赖 `eva-infra-dal`；因此编译/运行期 classpath 与行为不变；最小回归通过；落地：`a0b5a359`）。
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-iam/infrastructure/pom.xml`：移除对 `eva-infra-dal` 的冗余 Maven 直依赖（前置：`eva-infra-shared/pom.xml` 已显式依赖 `eva-infra-dal`；因此编译/运行期 classpath 与行为不变；最小回归通过；落地：`d7caa268`）。
