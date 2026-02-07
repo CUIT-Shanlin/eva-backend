@@ -51,6 +51,7 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
+        <!-- 依赖收敛证伪：当前模块仍直接使用 eva-infra-shared 内类型（如 QueryUtils/PaginationConverter/UserConverter/RoleConverter/EntityFactory），暂不可移除；仅做记录，保持行为不变 -->
         <dependency>
             <groupId>edu.cuit</groupId>
             <artifactId>eva-infra-shared</artifactId>
