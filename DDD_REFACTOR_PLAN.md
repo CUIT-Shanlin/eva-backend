@@ -522,6 +522,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-02-07，保持行为不变，DAL 拆散试点，逐类归位）：将 `SysLogDO` 从 `eva-infra-dal` 搬运归位到 `bc-audit/infrastructure`（保持 `package` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-audit/infrastructure`；最小回归通过；落地：`7de33487`）。
 - 补充进展（2026-02-06，保持行为不变，支撑类归位，逐类归位）：将 `LogConverter` 从 `eva-infra-shared` 搬运归位到 `bc-audit/infrastructure`（保持 `package` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-audit/infrastructure`；最小回归通过；落地：`02c85909`）。
 - 补充进展（2026-02-07，保持行为不变，DAL 拆散试点，逐类归位）：将 `SysLogModuleDO` 从 `eva-infra-dal` 搬运归位到 `bc-audit/infrastructure`（保持 `package` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-audit/infrastructure`；最小回归通过；落地：`960d2bbb`）。
+- 补充进展（2026-02-07，保持行为不变，DAL 拆散试点，逐类归位）：将 `SysLogMapper.xml` 从 `eva-infra-dal` 搬运归位到 `bc-audit/infrastructure`（保持 MyBatis `namespace/resultMap type` 与 SQL 不变，且资源路径仍为 `mapper/**`；最小回归通过；落地：`b6f05784`）。
 - 下一步建议（2026-02-06，保持行为不变，单 pom 主线）：继续推进“依赖方 `pom.xml` 编译期依赖收敛”，优先从 `bc-*/application` 或 `bc-*/contract` 入手，尝试移除冗余 `lombok(provided)` / 无用 `junit-jupiter(test)`；移除前必须 Serena 证伪源码无引用面，并跑最小回归后闭环（提交 + 三文档同步 + push）。
 - 下一步建议（保持行为不变，单 pom 主线）：继续推进“依赖方 `pom.xml` 编译期依赖收敛”，优先围绕 `eva-infra-shared` / `eva-infra-dal` 做“Serena 证伪无引用面 → 再移除/降 scope”的闭环（每步只改 1 个 `pom.xml`，避免装配与依赖边界一次性大改导致回滚困难）。
 - 补充进展（2026-01-17，保持行为不变，Controller 归位前置）：为后续将 `AuthenticationController` 从 `eva-adapter` 归位到 `bc-iam-infra`，先在 `bc-iam/infrastructure/pom.xml` 补齐 `spring-boot-starter-web`、`zym-spring-boot-starter-common`、`commons-lang3`（仅编译闭合；最小回归通过；落地：`42d44f0b`）。
@@ -944,7 +945,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 > 目标：将“仅审计域使用”的 DAL（Mapper/DO/XML）逐文件归位到 `bc-audit/infrastructure`，把 `eva-infra-dal` 的表面积逐步收敛为“跨 BC 共享的最小集合”。每次只改 1 个类/1 个资源文件，并严格闭环（Serena → 最小回归 → 提交 → 三文档同步 → push）。
 
 - ✅ 已完成：`SysLogModuleMapper`、`SysLogMapper` 已归位到 `bc-audit/infrastructure`（详见 10.2 / `NEXT_SESSION_HANDOFF.md` 0.9）。
-- ⏳ 未完成（下一刀建议顺序；每次只改 1 个文件）：`SysLogMapper.xml` → `SysLogModuleMapper.xml`（两刀；均需保持行为不变）。
+- ⏳ 未完成（下一刀建议顺序；每次只改 1 个文件）：`SysLogModuleMapper.xml`（一刀；保持行为不变）。
 - 约束（保持行为不变）：Java `package`、MyBatis XML `namespace`、`resultMap type` 指向的 FQCN、资源路径 `mapper/**` 均保持不变。
 
 #### bc-course（Course）S0.2：课程域类型逐类归位（`eva-domain` → `bc-course-domain`，保持行为不变）
