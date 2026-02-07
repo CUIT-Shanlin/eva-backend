@@ -3,7 +3,7 @@ title: DDD 渐进式重构目标清单与行为框架
 repo: eva-backend
 branch: ddd
 generated_at: 2025-12-18
-updated_at: 2026-02-06
+updated_at: 2026-02-07
 scope: 全仓库（离线扫描 + 规则归纳）
 ---
 
@@ -1127,6 +1127,10 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - 🎯 下一批主线建议（更新至 2026-02-06，保持行为不变）：✅ 已闭环：**S1：`eva-adapter` 退场**（root reactor 移除 + `start` 去依赖 + 删除模块 pom；口径见 `NEXT_SESSION_HANDOFF.md` 0.9/0.10）；✅ 已闭环：**依赖收敛纠偏**（`bc-iam-contract` 已恢复对 `bc-evaluation-contract` 的显式依赖，避免误判导致编译漂移；见 `NEXT_SESSION_HANDOFF.md` 0.9）；✅ 已补充：**依赖收敛（单 pom）**：`eva-domain` 已移除未使用的 `spring-statemachine-core`（保持行为不变；口径见 `NEXT_SESSION_HANDOFF.md` 0.9）；✅ 已补充：**IAM 去 `eva-domain` 前置拆解**：已逐类归位 `MenuQueryGateway`、`LdapPersonEntity`、`LdapPersonGateway`，并已进一步归位 `RoleEntity/UserEntity/RoleQueryGateway` 到 `bc-iam-domain`（均保持 `package`/签名不变；见 `NEXT_SESSION_HANDOFF.md` 0.9）。✅ 已闭环：**依赖收敛（单 pom）**——在 Serena 证伪 `eva-domain/src/main/java` 无课程域引用面后，已移除 `eva-domain/pom.xml` 对 `bc-course-domain` 的编译期依赖（保持行为不变；最小回归通过；落地：`ec4107e4`）。下一刀建议：转入评教域，继续逐类归位 `eva-domain/src/main/java/edu/cuit/domain/gateway/eva/*` → `bc-evaluation-domain`（保持行为不变）。
   - ✅ 补充（2026-02-06，保持行为不变，支撑类归位）：课程域支撑类 `CourInfTimeOverlapQuery` 已从 `eva-infra-shared` 归位到 `bc-course/infrastructure`（保持 `package` 不变；最小回归通过；落地：`ea6c99e9`），后续同类“仅单 BC 引用”的支撑类可按此模式逐类归位（每次只搬 1 个类，Serena 证据化后闭环）。
   - ✅ 补充（2026-02-07，保持行为不变，单资源闭环）：`MsgTipMapper.xml` 已归位：`eva-infra-dal/src/main/resources/mapper/MsgTipMapper.xml` → `bc-messaging/src/main/resources/mapper/MsgTipMapper.xml`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`5c5ab5e0`）。
+  - ✅ 补充（2026-02-07，保持行为不变，DAL 拆散试点，`sys_role_menu`）：`SysRoleMenuMapper` / `SysRoleMenuDO` / `SysRoleMenuMapper.xml` 已归位到 `bc-iam/infrastructure`（保持 `package/namespace/resultMap type` 与资源路径 `mapper/**` 不变；最小回归通过；落地：`f98ee5c2` / `49fcbda7` / `db81d674`）。
+  - ✅ 补充（2026-02-07，保持行为不变，DAL 拆散试点，`course_type_course`）：`CourseTypeCourseMapper` / `CourseTypeCourseDO` / `CourseTypeCourseMapper.xml` 已归位到 `bc-course/infrastructure`（保持 `package/namespace/resultMap type` 与资源路径 `mapper/**` 不变；最小回归通过；落地：`2e1cd36e` / `8f410b14` / `45bc05d6`）。
+  - 🧾 证据化结论（2026-02-07，保持行为不变）：`SysRoleMapper` 当前跨 BC 引用（命中 `bc-audit/bc-course/bc-evaluation/bc-iam`），不满足“仅单 BC 引用”的归位前提，暂留 `eva-infra-dal`，避免误搬导致依赖/装配边界漂移。
+  - 🎯 下一刀建议（保持行为不变；每次只改 1 个文件闭环）：优先从 `bc-course` 继续推进 `eva-infra-dal` 按 BC 拆散——以 `course_type`（非 `course_type_course`）为候选，先用 Serena 证据化盘点 `CourseTypeMapper` / `CourseTypeDO` / `CourseTypeMapper.xml` 引用面；若仅命中 `bc-course/**`，再按“每次只改 1 个文件”逐步归位（保持 `package/namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变）。
   - 🎯 补充建议（更新至 2026-02-06，保持行为不变）：当前“`eva-*` 全量整合（从 root reactor 移除）”仍被 `eva-infra-dal/eva-infra-shared/eva-base` 阻塞（多个 `bc-*` 仍编译期依赖它们）。补充：`eva-domain` 已从 root reactor 退场且其编译期依赖方已清零（口径：`rg -n "<artifactId>eva-domain</artifactId>" --glob "**/pom.xml" .` 预期无命中）。建议先按最小成本把阻塞面收敛到“仅技术共享”：
     1) **`eva-base` 退场（优先，保持行为不变）**：`eva-base-common` 仅承载 `edu.cuit.common.enums.GenericPattern/LogModule` 两个接口，但被多个 BC 引用。建议先将这两个类型下沉到 `shared-kernel`（保持 `package` 不变），再按“单 pom 闭环”收敛依赖方（例如 `bc-iam/contract`、`bc-iam/infrastructure`）去 `eva-base-common`，最后从 root reactor 移除 `eva-base`（每步只改 1 个类或 1 个 `pom.xml`）。
     2) **`eva-infra-shared` 瘦身（主线，保持行为不变）**：优先挑“引用面集中于单 BC”的支撑类/Convertor 逐类归位到目标 `bc-*/infrastructure`（保持 `package`/类内容不变；确保同 FQCN 仅一份），随后再按“单 pom 闭环”逐个模块收敛对 `eva-infra-shared` 的编译期依赖。
