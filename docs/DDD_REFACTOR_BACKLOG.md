@@ -746,6 +746,10 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成：`SysLogModuleMapper.xml` → `bc-audit/infrastructure`（保持 MyBatis XML `namespace`/`resultMap type`、资源路径 `mapper/**` 不变；保持行为不变；详见 4.2）。
   - ✅ 依赖收敛证伪（保持行为不变；单 pom）：Serena 证据化确认 `bc-audit/infrastructure` 仍直接使用 `eva-infra-shared` 内类型（`QueryUtils/PaginationConverter/UserConverter/RoleConverter/EntityFactory`），因此暂不可移除该依赖（结论已记录于 `bc-audit/infrastructure/pom.xml`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 
+- **S0.2 延伸（消息：DAL 按 BC 拆散试点，`msg_tip`，保持行为不变）**：
+  - ✅ 已完成：`MsgTipMapper`、`MsgTipDO` → `bc-messaging`（保持 `package` 不变，仅改变 Maven 模块归属；详见 4.2 与 `NEXT_SESSION_HANDOFF.md` 0.9）。
+  - ⏳ 未完成（下一刀，保持行为不变；单资源闭环）：`MsgTipMapper.xml` 仍在 `eva-infra-dal/src/main/resources/mapper/MsgTipMapper.xml`，需归位到 `bc-messaging/src/main/resources/mapper/MsgTipMapper.xml`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变）。
+
 - **S1（IAM：Controller 入口壳结构性收敛，保持行为不变）**：
   - ✅ 已完成：`UserUpdateController`（落地：`5ee37fd2`）、`DepartmentController`（落地：`fbc5fb74`）、`AuthenticationController`（落地：`fd9e4d1c`）、`MenuUpdateController`（落地：`44bc649d`）、`RoleUpdateController`（落地：`c81eb2e0`）。
 
@@ -1115,6 +1119,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ 允许“微调”：仅限结构性重构（收窄依赖/拆接口/移动默认值兜底），**不改业务语义**；缓存/日志/异常文案/副作用顺序完全不变。
   - 🎯 下一批主线建议（更新至 2026-02-06，保持行为不变）：✅ 已闭环：**S1：`eva-adapter` 退场**（root reactor 移除 + `start` 去依赖 + 删除模块 pom；口径见 `NEXT_SESSION_HANDOFF.md` 0.9/0.10）；✅ 已闭环：**依赖收敛纠偏**（`bc-iam-contract` 已恢复对 `bc-evaluation-contract` 的显式依赖，避免误判导致编译漂移；见 `NEXT_SESSION_HANDOFF.md` 0.9）；✅ 已补充：**依赖收敛（单 pom）**：`eva-domain` 已移除未使用的 `spring-statemachine-core`（保持行为不变；口径见 `NEXT_SESSION_HANDOFF.md` 0.9）；✅ 已补充：**IAM 去 `eva-domain` 前置拆解**：已逐类归位 `MenuQueryGateway`、`LdapPersonEntity`、`LdapPersonGateway`，并已进一步归位 `RoleEntity/UserEntity/RoleQueryGateway` 到 `bc-iam-domain`（均保持 `package`/签名不变；见 `NEXT_SESSION_HANDOFF.md` 0.9）。✅ 已闭环：**依赖收敛（单 pom）**——在 Serena 证伪 `eva-domain/src/main/java` 无课程域引用面后，已移除 `eva-domain/pom.xml` 对 `bc-course-domain` 的编译期依赖（保持行为不变；最小回归通过；落地：`ec4107e4`）。下一刀建议：转入评教域，继续逐类归位 `eva-domain/src/main/java/edu/cuit/domain/gateway/eva/*` → `bc-evaluation-domain`（保持行为不变）。
   - ✅ 补充（2026-02-06，保持行为不变，支撑类归位）：课程域支撑类 `CourInfTimeOverlapQuery` 已从 `eva-infra-shared` 归位到 `bc-course/infrastructure`（保持 `package` 不变；最小回归通过；落地：`ea6c99e9`），后续同类“仅单 BC 引用”的支撑类可按此模式逐类归位（每次只搬 1 个类，Serena 证据化后闭环）。
+  - 🎯 补充（2026-02-07，保持行为不变，单资源闭环）：继续推进 `eva-infra-dal` 按 BC 拆散（消息 `msg_tip` 试点），下一刀只搬 `MsgTipMapper.xml`：`eva-infra-dal/src/main/resources/mapper/MsgTipMapper.xml` → `bc-messaging/src/main/resources/mapper/MsgTipMapper.xml`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；每步闭环：Serena → 最小回归 → commit → 三文档同步 → commit → push）。
   - 🎯 补充建议（更新至 2026-02-06，保持行为不变）：当前“`eva-*` 全量整合（从 root reactor 移除）”仍被 `eva-infra-dal/eva-infra-shared/eva-base` 阻塞（多个 `bc-*` 仍编译期依赖它们）。补充：`eva-domain` 已从 root reactor 退场且其编译期依赖方已清零（口径：`rg -n "<artifactId>eva-domain</artifactId>" --glob "**/pom.xml" .` 预期无命中）。建议先按最小成本把阻塞面收敛到“仅技术共享”：
     1) **`eva-base` 退场（优先，保持行为不变）**：`eva-base-common` 仅承载 `edu.cuit.common.enums.GenericPattern/LogModule` 两个接口，但被多个 BC 引用。建议先将这两个类型下沉到 `shared-kernel`（保持 `package` 不变），再按“单 pom 闭环”收敛依赖方（例如 `bc-iam/contract`、`bc-iam/infrastructure`）去 `eva-base-common`，最后从 root reactor 移除 `eva-base`（每步只改 1 个类或 1 个 `pom.xml`）。
     2) **`eva-infra-shared` 瘦身（主线，保持行为不变）**：优先挑“引用面集中于单 BC”的支撑类/Convertor 逐类归位到目标 `bc-*/infrastructure`（保持 `package`/类内容不变；确保同 FQCN 仅一份），随后再按“单 pom 闭环”逐个模块收敛对 `eva-infra-shared` 的编译期依赖。
@@ -1138,7 +1143,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 	- ✅ 下一步小簇建议（bc-messaging，保持行为不变）：按 `DDD_REFACTOR_PLAN.md` 10.3 路线推进（先组合根 → 再监听器/应用侧适配器 → 最后基础设施端口适配器与依赖收敛）。
 	  - ✅ 已完成：组合根 `BcMessagingConfiguration`（`4e3e2cf2`）；✅ 已完成：监听器 `CourseOperationSideEffectsListener`（`22ee30e7`）；✅ 已完成：监听器 `CourseTeacherTaskMessagesListener`（`0987f96f`）
 	  - ✅ 已完成：支撑类 `MsgResult`（`31878b61`，当前位于 `bc-messaging-contract`）；✅ 已完成：应用侧端口适配器 `CourseBroadcastPortAdapter`（`84ee070a`）；✅ 已完成：应用侧端口适配器 `TeacherTaskMessagePortAdapter`（`9ea14cff`）；✅ 已完成：应用侧端口适配器 `EvaMessageCleanupPortAdapter`（`73ab3f3c`）。
-  - ✅ 已完成（前置，DAL/Convertor 归位）：`MsgTipDO/MsgTipMapper(+xml)` → `eva-infra-dal`；`MsgConvertor` → `eva-infra-shared`（保持 `package/namespace` 不变；后续已进一步将 `MsgConvertor` 归位到 `bc-messaging`：`312756c7`；并将 `MsgTipMapper` 从 `eva-infra-dal` 归位到 `bc-messaging`：`4af9f9fc`；均仅改变 Maven 模块归属，保持行为不变）。
+  - ✅ 已完成（前置，DAL/Convertor 归位）：`MsgTipDO/MsgTipMapper(+xml)` → `eva-infra-dal`；`MsgConvertor` → `eva-infra-shared`（保持 `package/namespace` 不变；后续已进一步将 `MsgConvertor` 归位到 `bc-messaging`：`312756c7`；并将 `MsgTipMapper` 从 `eva-infra-dal` 归位到 `bc-messaging`：`4af9f9fc`；并将 `MsgTipDO` 从 `eva-infra-dal` 归位到 `bc-messaging`：`87b38a55`；均仅改变 Maven 模块归属，保持行为不变）。
   - ✅ 已完成（基础设施端口适配器归位）：`MessageDeletionPortImpl/MessageReadPortImpl/MessageDisplayPortImpl/MessageInsertionPortImpl/MessageQueryPortImpl` → `bc-messaging`（保持 `package` 不变；保持行为不变）。
   - ✅ 依赖收敛准备（事件枚举下沉到 contract）：`CourseOperationMessageMode` → `bc-messaging-contract`（保持 `package` 不变；保持行为不变；`b2247e7f`）。
   - ✅ 依赖收敛准备（事件载荷下沉到 contract）：`CourseOperationSideEffectsEvent` → `bc-messaging-contract`（保持 `package` 不变；保持行为不变；`ea2c0d9b`）。

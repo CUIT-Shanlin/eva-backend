@@ -1210,6 +1210,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - 对应应用层端口（用于建立“端口→适配器”映射）：`bc-messaging/src/main/java/edu/cuit/bc/messaging/application/port/*Port.java`
   - 迁移前置：为避免应用侧端口适配器对 `eva-app` 的编译期耦合导致 Maven 循环依赖，已先将消息发送组装类 `MsgResult` 从 `eva-app` 归位到 `bc-messaging-contract`（保持包名不变；落地：`31878b61`）。
   - 迁移前置（DAL/Convertor 归位，保持行为不变）：消息表数据对象 `MsgTipDO` 与 Mapper `MsgTipMapper`（含 `MsgTipMapper.xml`）已从 `eva-infra` 归位到 `eva-infra-dal`（保持 `package/namespace` 不变；后续已进一步将 `MsgTipMapper` 归位到 `bc-messaging`：`4af9f9fc`，将 `MsgTipDO` 归位到 `bc-messaging`：`87b38a55`；均仅改变 Maven 模块归属）；消息转换器 `MsgConvertor` 已从 `eva-infra` 归位到 `eva-infra-shared`（保持 `package` 不变；后续已进一步归位到 `bc-messaging`，仅改变 Maven 模块归属：`312756c7`）。本阶段基础设施端口适配器已全部归位完成，后续可转入“依赖收敛/结构折叠”等更高收益里程碑（仍保持行为不变）。
+  - 🎯 S0.2 延伸（DAL 拆散试点：消息 `msg_tip` 收尾，保持行为不变）：`MsgTipMapper.xml` 当前仍位于 `eva-infra-dal/src/main/resources/mapper/MsgTipMapper.xml`，下一刀只搬该资源到 `bc-messaging/src/main/resources/mapper/MsgTipMapper.xml`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；每次只改 1 个资源文件闭环）。
   - 依赖收敛准备（事件枚举下沉到 contract，保持行为不变）：将 `CourseOperationMessageMode` 从 `bc-messaging` 迁移到 `bc-messaging-contract`（保持 `package edu.cuit.bc.messaging.application.event` 不变；落地：`b2247e7f`）。
   - 依赖收敛准备（事件载荷下沉到 contract，保持行为不变）：将 `CourseOperationSideEffectsEvent` 从 `bc-messaging` 迁移到 `bc-messaging-contract`（保持 `package edu.cuit.bc.messaging.application.event` 不变；落地：`ea2c0d9b`）。
   - 依赖收敛准备（事件载荷下沉到 contract，保持行为不变）：将 `CourseTeacherTaskMessagesEvent` 从 `bc-messaging` 迁移到 `bc-messaging-contract`（保持 `package edu.cuit.bc.messaging.application.event` 不变；落地：`12f43323`）。
