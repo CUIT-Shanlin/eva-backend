@@ -123,6 +123,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（DAL 拆散试点，逐类归位，保持行为不变）：将 `SysLogDO` 从 `eva-infra-dal` 搬运归位到 `bc-audit/infrastructure`（保持 `package` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-audit/infrastructure`；最小回归通过；落地：`7de33487`）。
 - ✅ S0.2 延伸（DAL 拆散试点，逐类归位，保持行为不变）：将 `SysLogModuleDO` 从 `eva-infra-dal` 搬运归位到 `bc-audit/infrastructure`（保持 `package` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-audit/infrastructure`；最小回归通过；落地：`960d2bbb`）。
 - ✅ S0.2 延伸（DAL 拆散试点，逐类归位，保持行为不变）：将 `SysLogMapper.xml` 从 `eva-infra-dal` 搬运归位到 `bc-audit/infrastructure`（保持 MyBatis XML `namespace`/`resultMap type` 指向的 FQCN、资源路径 `mapper/**` 不变；最小回归通过；落地：`b6f05784`）。
+- ✅ S0.2 延伸（DAL 拆散试点，逐类归位，保持行为不变）：将 `SysLogModuleMapper.xml` 从 `eva-infra-dal` 搬运归位到 `bc-audit/infrastructure`（保持 MyBatis XML `namespace`/`resultMap type` 指向的 FQCN、资源路径 `mapper/**` 不变；最小回归通过；落地：`f6c7897c`）。
 - ✅ S0.2 延伸（支撑类归位，逐类归位，保持行为不变）：将 `LogConverter` 从 `eva-infra-shared` 搬运归位到 `bc-audit/infrastructure`（保持 `package` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-audit/infrastructure`；最小回归通过；落地：`02c85909`）。
 - 📌 下一步建议（保持行为不变；每次只改 1 个 `pom.xml`）：继续推进“依赖方编译期依赖收敛”，优先从 `bc-*/application` / `bc-*/contract` 入手，尝试移除冗余 `lombok(provided)` / 无用 `junit-jupiter(test)`；移除前必须 Serena 证伪源码无引用面，并跑最小回归后闭环（提交 + 三文档同步 + push）。
 - ✅ S0.2 延伸（支撑类归位，保持行为不变）：将 `CourInfTimeOverlapQuery` 从 `eva-infra-shared` 搬运归位到 `bc-course/infrastructure`（保持 `package` 与类内容不变；Serena：引用面仅命中 `bc-course/infrastructure` 的 3 个适配器；最小回归通过；落地：`ea6c99e9`；文档闭环：`2466ead3`）。
@@ -739,7 +740,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成：`SysLogModuleMapper`、`SysLogMapper` → `bc-audit/infrastructure`；`LogConverter` → `bc-audit/infrastructure`（保持 `package` 不变；保持行为不变；详见 4.2）。
   - ✅ 已完成：`SysLogDO`、`SysLogModuleDO` → `bc-audit/infrastructure`（保持 `package` 不变；保持行为不变；详见 4.2）。
   - ✅ 已完成：`SysLogMapper.xml` → `bc-audit/infrastructure`（保持 MyBatis XML `namespace`/`resultMap type`、资源路径 `mapper/**` 不变；保持行为不变；详见 4.2）。
-  - ⏳ 未完成（下一刀建议顺序；每次只改 1 个资源文件）：`SysLogModuleMapper.xml` 仍在 `eva-infra-dal/src/main/resources/mapper/log/`，需归位到 `bc-audit/infrastructure`（保持 MyBatis XML `namespace`/`resultMap type` 指向的 FQCN、资源路径 `mapper/**` 不变）。
+  - ✅ 已完成：`SysLogModuleMapper.xml` → `bc-audit/infrastructure`（保持 MyBatis XML `namespace`/`resultMap type`、资源路径 `mapper/**` 不变；保持行为不变；详见 4.2）。
+  - 🎯 下一步建议（保持行为不变；单 pom）：评估是否可收敛 `bc-audit/infrastructure/pom.xml` 对 `eva-infra-shared` 的依赖（需 Serena 证伪无引用面，最小回归后闭环）。
 
 - **S1（IAM：Controller 入口壳结构性收敛，保持行为不变）**：
   - ✅ 已完成：`UserUpdateController`（落地：`5ee37fd2`）、`DepartmentController`（落地：`fbc5fb74`）、`AuthenticationController`（落地：`fd9e4d1c`）、`MenuUpdateController`（落地：`44bc649d`）、`RoleUpdateController`（落地：`c81eb2e0`）。
