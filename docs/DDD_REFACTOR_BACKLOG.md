@@ -115,6 +115,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-iam/infrastructure/pom.xml`：移除对 `eva-infra-dal` 的冗余 Maven 直依赖（前置：`eva-infra-shared/pom.xml` 已显式依赖 `eva-infra-dal`；因此编译/运行期 classpath 与行为不变；最小回归通过；落地：`d7caa268`）。
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-messaging/pom.xml`：移除对 `eva-infra-dal` 的冗余 Maven 直依赖（前置：`eva-infra-shared/pom.xml` 已显式依赖 `eva-infra-dal`；因此编译/运行期 classpath 与行为不变；最小回归通过；落地：`ab25db93`）。
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-messaging/pom.xml`：移除冗余 `spring-context` Maven 直依赖（前置：已依赖 `spring-boot-starter-web`，其传递承接 `spring-context`；最小回归通过；落地：`5da009c9`）。
+- ✅ S0.2 延伸（DAL 拆散试点，逐类归位，保持行为不变）：将 `MsgTipDO` 从 `eva-infra-dal` 搬运归位到 `bc-messaging`（保持 `package edu.cuit.infra.dal.database.dataobject` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-messaging`；最小回归通过；落地：`87b38a55`）。
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-template/infrastructure/pom.xml`：将对 `eva-infra-dal` 的 Maven 编译期直依赖替换为依赖 `eva-infra-shared`（其显式依赖 `eva-infra-dal`，因此编译/运行期 classpath 与行为不变；最小回归通过；落地：`204aef24`）。
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-template/application/pom.xml`：在 Serena 证伪 `bc-template/application/src/main/java` 无 Lombok 引用后，移除冗余 `lombok(provided)` 依赖（编译/运行期 classpath 与行为不变；最小回归通过；落地：`e91844c2`）。
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-course/application/pom.xml`：在 Serena 证伪 `bc-course/application/src` 无 Lombok 引用后，移除冗余 `lombok(provided)` 依赖（编译/运行期 classpath 与行为不变；最小回归通过；落地：`c38e30f0`）。
@@ -542,6 +543,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - bc-messaging（消息域）：基础设施端口适配器归位前置（DAL 归位）：将消息表数据对象 `MsgTipDO` 从 `eva-infra` 归位到 `eva-infra-dal`（保持 `package` 不变；仅类归位不改语义；最小回归通过；落地提交：`47ea52da`）。
 - bc-messaging（消息域）：基础设施端口适配器归位前置（DAL 归位）：将消息表 Mapper `MsgTipMapper`（含 `MsgTipMapper.xml`）从 `eva-infra` 归位到 `eva-infra-dal`（保持 `package/namespace` 不变；仅类与资源归位不改语义；最小回归通过；落地提交：`5225ed43`）。
 - （后续收敛，保持行为不变）：`MsgTipMapper` 已进一步从 `eva-infra-dal` 归位到 `bc-messaging`（保持 `package edu.cuit.infra.dal.database.mapper` 不变，仅改变 Maven 模块归属；最小回归通过；落地：`4af9f9fc`）。
+- （后续收敛，保持行为不变）：`MsgTipDO` 已进一步从 `eva-infra-dal` 归位到 `bc-messaging`（保持 `package edu.cuit.infra.dal.database.dataobject` 不变，仅改变 Maven 模块归属；最小回归通过；落地：`87b38a55`）。
 - bc-messaging（消息域）：基础设施端口适配器归位（消息删除）：将 `MessageDeletionPortImpl` 从 `eva-infra` 迁移到 `bc-messaging`（保持 `package` 不变；并在 `bc-messaging` 补齐对 `eva-infra-dal` 的依赖以闭合编译；最小回归通过；落地提交：`631779b9`）。
 - bc-messaging（消息域）：基础设施端口适配器归位（消息已读）：将 `MessageReadPortImpl` 从 `eva-infra` 迁移到 `bc-messaging`（保持 `package` 不变；异常文案/更新条件/校验顺序不变；最小回归通过；落地提交：`9b911048`）。
 - bc-messaging（消息域）：基础设施端口适配器归位（消息显示状态）：将 `MessageDisplayPortImpl` 从 `eva-infra` 迁移到 `bc-messaging`（保持 `package` 不变；异常文案/更新条件/校验顺序不变；最小回归通过；落地提交：`6e10866e`）。
