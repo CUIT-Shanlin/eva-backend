@@ -109,7 +109,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
-**已完成（更新至 2026-02-06）**
+**已完成（更新至 2026-02-07）**
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-audit/infrastructure/pom.xml`：移除对 `eva-infra-dal` 的冗余 Maven 直依赖（前置：`eva-infra-shared/pom.xml` 已显式依赖 `eva-infra-dal`；因此编译/运行期 classpath 与行为不变；最小回归通过；落地：`91fd39a9`）。
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-evaluation/infrastructure/pom.xml`：移除对 `eva-infra-dal` 的冗余 Maven 直依赖（前置：`eva-infra-shared/pom.xml` 已显式依赖 `eva-infra-dal`；因此编译/运行期 classpath 与行为不变；最小回归通过；落地：`a0b5a359`）。
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-iam/infrastructure/pom.xml`：移除对 `eva-infra-dal` 的冗余 Maven 直依赖（前置：`eva-infra-shared/pom.xml` 已显式依赖 `eva-infra-dal`；因此编译/运行期 classpath 与行为不变；最小回归通过；落地：`d7caa268`）。
@@ -120,6 +120,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-course/application/pom.xml`：在 Serena 证伪 `bc-course/application/src` 无 Lombok 引用后，移除冗余 `lombok(provided)` 依赖（编译/运行期 classpath 与行为不变；最小回归通过；落地：`c38e30f0`）。
 - ✅ S0.2 延伸（DAL 拆散试点，逐类归位，保持行为不变）：将 `SysLogModuleMapper` 从 `eva-infra-dal` 搬运归位到 `bc-audit/infrastructure`（保持 `package` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-audit/infrastructure`；最小回归通过；落地：`c901e3a6`）。
 - ✅ S0.2 延伸（DAL 拆散试点，逐类归位，保持行为不变）：将 `SysLogMapper` 从 `eva-infra-dal` 搬运归位到 `bc-audit/infrastructure`（保持 `package` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-audit/infrastructure`；最小回归通过；落地：`5de32a6c`）。
+- ✅ S0.2 延伸（DAL 拆散试点，逐类归位，保持行为不变）：将 `SysLogDO` 从 `eva-infra-dal` 搬运归位到 `bc-audit/infrastructure`（保持 `package` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-audit/infrastructure`；最小回归通过；落地：`7de33487`）。
 - ✅ S0.2 延伸（支撑类归位，逐类归位，保持行为不变）：将 `LogConverter` 从 `eva-infra-shared` 搬运归位到 `bc-audit/infrastructure`（保持 `package` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-audit/infrastructure`；最小回归通过；落地：`02c85909`）。
 - 📌 下一步建议（保持行为不变；每次只改 1 个 `pom.xml`）：继续推进“依赖方编译期依赖收敛”，优先从 `bc-*/application` / `bc-*/contract` 入手，尝试移除冗余 `lombok(provided)` / 无用 `junit-jupiter(test)`；移除前必须 Serena 证伪源码无引用面，并跑最小回归后闭环（提交 + 三文档同步 + push）。
 - ✅ S0.2 延伸（支撑类归位，保持行为不变）：将 `CourInfTimeOverlapQuery` 从 `eva-infra-shared` 搬运归位到 `bc-course/infrastructure`（保持 `package` 与类内容不变；Serena：引用面仅命中 `bc-course/infrastructure` 的 3 个适配器；最小回归通过；落地：`ea6c99e9`；文档闭环：`2466ead3`）。
@@ -730,11 +731,11 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：以下是仍在旧 gateway/技术切片中的能力，优先级按“写侧优先 + 影响范围”排序。
 
-（新增，更新至 2026-02-06，保持行为不变）
+（新增，更新至 2026-02-07，保持行为不变）
 
 - **S0.2 延伸（审计：DAL 按 BC 拆散试点，`sys_log`，保持行为不变）**：
   - ✅ 已完成：`SysLogModuleMapper`、`SysLogMapper` → `bc-audit/infrastructure`；`LogConverter` → `bc-audit/infrastructure`（保持 `package` 不变；保持行为不变；详见 4.2）。
-  - ⏳ 未完成（下一刀建议顺序；每次只改 1 个类/1 个资源文件）：`SysLogDO`、`SysLogModuleDO`、`SysLogMapper.xml`、`SysLogModuleMapper.xml` 仍在 `eva-infra-dal`，需逐文件归位到 `bc-audit/infrastructure`（保持 Java `package`、MyBatis XML `namespace`/`resultMap type` 指向的 FQCN、资源路径 `mapper/**` 不变）。
+  - ⏳ 未完成（下一刀建议顺序；每次只改 1 个类/1 个资源文件）：`SysLogModuleDO`、`SysLogMapper.xml`、`SysLogModuleMapper.xml` 仍在 `eva-infra-dal`，需逐文件归位到 `bc-audit/infrastructure`（保持 Java `package`、MyBatis XML `namespace`/`resultMap type` 指向的 FQCN、资源路径 `mapper/**` 不变）。
 
 - **S1（IAM：Controller 入口壳结构性收敛，保持行为不变）**：
   - ✅ 已完成：`UserUpdateController`（落地：`5ee37fd2`）、`DepartmentController`（落地：`fbc5fb74`）、`AuthenticationController`（落地：`fd9e4d1c`）、`MenuUpdateController`（落地：`44bc649d`）、`RoleUpdateController`（落地：`c81eb2e0`）。
