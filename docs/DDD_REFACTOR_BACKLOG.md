@@ -544,7 +544,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - bc-messaging（消息域）：基础设施端口适配器归位（消息删除）：将 `MessageDeletionPortImpl` 从 `eva-infra` 迁移到 `bc-messaging`（保持 `package` 不变；并在 `bc-messaging` 补齐对 `eva-infra-dal` 的依赖以闭合编译；最小回归通过；落地提交：`631779b9`）。
 - bc-messaging（消息域）：基础设施端口适配器归位（消息已读）：将 `MessageReadPortImpl` 从 `eva-infra` 迁移到 `bc-messaging`（保持 `package` 不变；异常文案/更新条件/校验顺序不变；最小回归通过；落地提交：`9b911048`）。
 - bc-messaging（消息域）：基础设施端口适配器归位（消息显示状态）：将 `MessageDisplayPortImpl` 从 `eva-infra` 迁移到 `bc-messaging`（保持 `package` 不变；异常文案/更新条件/校验顺序不变；最小回归通过；落地提交：`6e10866e`）。
-- bc-messaging（消息域）：基础设施端口适配器归位前置（Convertor 归位）：将 `MsgConvertor` 从 `eva-infra` 归位到 `eva-infra-shared`，并补齐 `eva-infra-shared` 对 `bc-messaging-contract` 的依赖以闭合 `GenericRequestMsg` 类型引用（保持 `package` 不变；最小回归通过；落地提交：`740bdabb`）。
+- bc-messaging（消息域）：基础设施端口适配器归位前置（Convertor 归位）：将 `MsgConvertor` 从 `eva-infra` 归位到 `eva-infra-shared`，并补齐 `eva-infra-shared` 对 `bc-messaging-contract` 的依赖以闭合 `GenericRequestMsg` 类型引用（保持 `package` 不变；最小回归通过；落地提交：`740bdabb`；后续已进一步将 `MsgConvertor` 归位到 `bc-messaging`，仅改变 Maven 模块归属：`312756c7`）。
 - bc-messaging（消息域）：基础设施端口适配器归位（消息新增）：将 `MessageInsertionPortImpl` 从 `eva-infra` 迁移到 `bc-messaging`（保持 `package` 不变；插入后回填 `id/createTime` 的顺序不变；并在 `bc-messaging` 补齐对 `eva-infra-shared` 的依赖以闭合 `MsgConvertor` 类型引用；最小回归通过；落地提交：`4725a00e`）。
 - bc-messaging（消息域）：基础设施端口适配器归位（消息查询）：将 `MessageQueryPortImpl` 从 `eva-infra` 迁移到 `bc-messaging`（保持 `package` 不变；查询条件/排序/异常文案不变；最小回归通过；落地提交：`b93f43de`）。
 - bc-course（课程）：课表 Excel/POI 解析端口化：新增 `CourseExcelResolvePort`（`bc-course/application`），由 `bc-course-infra` 提供适配器 `CourseExcelResolvePortImpl`（内部仍复用 `CourseExcelResolver`，确保异常文案与日志行为不变）；`eva-app` 调用侧改为依赖端口，移除对解析实现的直接依赖（保持行为不变；最小回归通过；落地提交：`5a7cd0a0`）。
@@ -813,7 +813,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 证据化（可复现，更新至 2026-02-04，保持行为不变）：`bc-evaluation/infrastructure/src/main/java` 已清零 `UserEntity` import（口径：`rg -n "import\\s+edu\\.cuit\\.domain\\.entity\\.user\\.biz\\.UserEntity;" bc-evaluation/infrastructure/src/main/java` 应命中为 0）。
 
 - **S0.2 延伸（Messaging：依赖方继续去 `UserEntity` 编译期依赖，保持行为不变）**：
-  - ✅ 已完成（前置，保持行为不变）：在 `eva-infra-shared` 的 `MsgConvertor` 增加桥接方法 `toMsgEntityWithUserObject(...)`（仅类型桥接，不改变 sender/recipient Supplier 调用时机与次数；落地：`8254a430`）。
+  - ✅ 已完成（前置，保持行为不变）：在 `MsgConvertor` 增加桥接方法 `toMsgEntityWithUserObject(...)`（仅类型桥接，不改变 sender/recipient Supplier 调用时机与次数；落地：`8254a430`；注：`MsgConvertor` 当前已归位到 `bc-messaging`，保持 `package` 不变）。
   - ✅ 已完成（主线，保持行为不变）：`bc-messaging` 的 `MessageQueryPortImpl` 已去 `UserEntity` 编译期依赖：调用侧改走 `msgConvertor.toMsgEntityWithUserObject(...)` 并移除 `UserEntity` import（异常文案/`findById` 调用次数与顺序不变）；落地：`51301d23`。
     - 证据口径（可复现，更新至 2026-02-04）：`rg -n "import\\s+edu\\.cuit\\.domain\\.entity\\.user\\.biz\\.UserEntity;" bc-messaging/src/main/java` 应命中为 0。
 
@@ -1135,7 +1135,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 	- ✅ 下一步小簇建议（bc-messaging，保持行为不变）：按 `DDD_REFACTOR_PLAN.md` 10.3 路线推进（先组合根 → 再监听器/应用侧适配器 → 最后基础设施端口适配器与依赖收敛）。
 	  - ✅ 已完成：组合根 `BcMessagingConfiguration`（`4e3e2cf2`）；✅ 已完成：监听器 `CourseOperationSideEffectsListener`（`22ee30e7`）；✅ 已完成：监听器 `CourseTeacherTaskMessagesListener`（`0987f96f`）
 	  - ✅ 已完成：支撑类 `MsgResult`（`31878b61`，当前位于 `bc-messaging-contract`）；✅ 已完成：应用侧端口适配器 `CourseBroadcastPortAdapter`（`84ee070a`）；✅ 已完成：应用侧端口适配器 `TeacherTaskMessagePortAdapter`（`9ea14cff`）；✅ 已完成：应用侧端口适配器 `EvaMessageCleanupPortAdapter`（`73ab3f3c`）。
-  - ✅ 已完成（前置，DAL/Convertor 归位）：`MsgTipDO/MsgTipMapper(+xml)` → `eva-infra-dal`；`MsgConvertor` → `eva-infra-shared`（保持 `package/namespace` 不变）。
+  - ✅ 已完成（前置，DAL/Convertor 归位）：`MsgTipDO/MsgTipMapper(+xml)` → `eva-infra-dal`；`MsgConvertor` → `eva-infra-shared`（保持 `package/namespace` 不变；后续已进一步将 `MsgConvertor` 归位到 `bc-messaging`，仅改变 Maven 模块归属：`312756c7`）。
   - ✅ 已完成（基础设施端口适配器归位）：`MessageDeletionPortImpl/MessageReadPortImpl/MessageDisplayPortImpl/MessageInsertionPortImpl/MessageQueryPortImpl` → `bc-messaging`（保持 `package` 不变；保持行为不变）。
   - ✅ 依赖收敛准备（事件枚举下沉到 contract）：`CourseOperationMessageMode` → `bc-messaging-contract`（保持 `package` 不变；保持行为不变；`b2247e7f`）。
   - ✅ 依赖收敛准备（事件载荷下沉到 contract）：`CourseOperationSideEffectsEvent` → `bc-messaging-contract`（保持 `package` 不变；保持行为不变；`ea2c0d9b`）。
