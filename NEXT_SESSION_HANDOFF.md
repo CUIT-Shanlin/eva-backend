@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-02-07（本会话：保持行为不变，继续瘦身共享基础设施）**
+- ✅ 已完成（保持行为不变，DAL 拆散试点，逐类归位）：将 `SysRoleMenuMapper` 从 `eva-infra-dal` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.dal.database.mapper.user` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-iam/infrastructure` 的 `MenuWritePortImpl/RoleWritePortImpl/UserMenuCacheInvalidationPortImpl`；最小回归通过；代码落地：`f98ee5c2`）。
 - ✅ 已完成（保持行为不变，DAL 拆散试点，单资源闭环，逐文件归位）：将 `MsgTipMapper.xml` 从 `eva-infra-dal` 搬运归位到 `bc-messaging`（保持 MyBatis `namespace/resultMap type` 指向的 FQCN、SQL 与资源路径 `mapper/**` 不变；Serena：`MsgTipMapper` 引用面仅命中 `bc-messaging` 的 `Message*PortImpl`；最小回归通过；代码落地：`5c5ab5e0`）。
 - ✅ 已完成（保持行为不变，DAL 拆散试点，逐类归位）：将 `MsgTipDO` 从 `eva-infra-dal` 搬运归位到 `bc-messaging`（保持 `package edu.cuit.infra.dal.database.dataobject` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-messaging`；最小回归通过；代码落地：`87b38a55`；三文档同步：`29823ba6`）。
 - ✅ 已完成（保持行为不变，逐类归位）：将 `MsgConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-messaging`（保持 `package edu.cuit.infra.convertor` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-messaging` 的 `MessageInsertionPortImpl/MessageQueryPortImpl`；最小回归通过；代码落地：`312756c7`）。

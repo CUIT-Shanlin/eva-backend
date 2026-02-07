@@ -522,6 +522,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-02-07，保持行为不变，DAL 拆散试点，逐类归位）：将 `SysLogDO` 从 `eva-infra-dal` 搬运归位到 `bc-audit/infrastructure`（保持 `package` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-audit/infrastructure`；最小回归通过；落地：`7de33487`）。
 - 补充进展（2026-02-06，保持行为不变，支撑类归位，逐类归位）：将 `LogConverter` 从 `eva-infra-shared` 搬运归位到 `bc-audit/infrastructure`（保持 `package` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-audit/infrastructure`；最小回归通过；落地：`02c85909`）。
 - 补充进展（2026-02-07，保持行为不变，DAL 拆散试点，逐类归位）：将 `SysLogModuleDO` 从 `eva-infra-dal` 搬运归位到 `bc-audit/infrastructure`（保持 `package` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-audit/infrastructure`；最小回归通过；落地：`960d2bbb`）。
+- 补充进展（2026-02-07，保持行为不变，DAL 拆散试点，逐类归位）：将 `SysRoleMenuMapper` 从 `eva-infra-dal` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.dal.database.mapper.user` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-iam/infrastructure` 的 `MenuWritePortImpl/RoleWritePortImpl/UserMenuCacheInvalidationPortImpl`；最小回归通过；落地：`f98ee5c2`）。
 - 补充进展（2026-02-07，保持行为不变，DAL 拆散试点，逐类归位）：将 `SysLogMapper.xml` 从 `eva-infra-dal` 搬运归位到 `bc-audit/infrastructure`（保持 MyBatis `namespace/resultMap type` 与 SQL 不变，且资源路径仍为 `mapper/**`；最小回归通过；落地：`b6f05784`）。
 - 补充进展（2026-02-07，保持行为不变，DAL 拆散试点，逐类归位）：将 `SysLogModuleMapper.xml` 从 `eva-infra-dal` 搬运归位到 `bc-audit/infrastructure`（保持 MyBatis `namespace/resultMap type` 与 SQL 不变，且资源路径仍为 `mapper/**`；最小回归通过；落地：`f6c7897c`）。
 - 补充进展（2026-02-07，保持行为不变，支撑类归位，逐类归位）：将 `MsgConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-messaging`（保持 `package edu.cuit.infra.convertor` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-messaging`；最小回归通过；落地：`312756c7`）。
