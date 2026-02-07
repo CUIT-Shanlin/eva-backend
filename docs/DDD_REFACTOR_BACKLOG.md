@@ -122,6 +122,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（DAL 拆散试点，单资源闭环，保持行为不变）：将 `SysRoleMenuMapper.xml` 从 `eva-infra-dal` 搬运归位到 `bc-iam/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`db81d674`）。
 - ✅ S0.2 延伸（DAL 拆散试点，逐类归位，保持行为不变）：将 `CourseTypeCourseMapper` 从 `eva-infra-dal` 搬运归位到 `bc-course/infrastructure`（保持 `package edu.cuit.infra.dal.database.mapper.course` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-course/infrastructure`；最小回归通过；落地：`2e1cd36e`）。
 - ✅ S0.2 延伸（DAL 拆散试点，单资源闭环，保持行为不变）：将 `CourseTypeCourseMapper.xml` 从 `eva-infra-dal` 搬运归位到 `bc-course/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`45bc05d6`）。
+- ✅ S0.2 延伸（DAL 拆散试点，逐类归位，保持行为不变）：将 `CourseTypeCourseDO` 从 `eva-infra-dal` 搬运归位到 `bc-course/infrastructure`（保持 `package edu.cuit.infra.dal.database.dataobject.course` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-course/infrastructure`；最小回归通过；落地：`8f410b14`）。
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-template/infrastructure/pom.xml`：将对 `eva-infra-dal` 的 Maven 编译期直依赖替换为依赖 `eva-infra-shared`（其显式依赖 `eva-infra-dal`，因此编译/运行期 classpath 与行为不变；最小回归通过；落地：`204aef24`）。
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-template/application/pom.xml`：在 Serena 证伪 `bc-template/application/src/main/java` 无 Lombok 引用后，移除冗余 `lombok(provided)` 依赖（编译/运行期 classpath 与行为不变；最小回归通过；落地：`e91844c2`）。
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-course/application/pom.xml`：在 Serena 证伪 `bc-course/application/src` 无 Lombok 引用后，移除冗余 `lombok(provided)` 依赖（编译/运行期 classpath 与行为不变；最小回归通过；落地：`c38e30f0`）。
