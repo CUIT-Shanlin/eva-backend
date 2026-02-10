@@ -27,6 +27,7 @@
 - ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `SaTokenInterceptorConfig` 从 `eva-infra-shared` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.app.config` 不变，仅改变 Maven 模块归属；Serena：未发现显式引用面（`@Configuration` 由 Spring 扫描加载）；最小回归通过；代码落地：`78b831d9`）。
 - ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `StpInterfaceImpl` 从 `eva-infra-shared` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.app.security` 不变，仅改变 Maven 模块归属；Serena：无显式引用面（`@Component` 由 Spring 扫描装配）；最小回归通过；代码落地：`192e790c`）。
 - ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `MsgBizConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-evaluation/infrastructure`（保持 `package edu.cuit.app.convertor` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-evaluation/infrastructure` 的 `MsgServiceImpl`（另有 `start` 单测 mock）；最小回归通过；代码落地：`7077924e`）。
+- ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `EvaConfigBizConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-evaluation/infrastructure`（保持 `package edu.cuit.app.convertor.eva` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-evaluation/infrastructure` 的 `EvaConfigService`；最小回归通过；代码落地：`3d374b20`）。
 - ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `AfterCommitEventPublisher` 从 `eva-infra-shared` 搬运归位到 `bc-course/infrastructure`（保持 `package edu.cuit.app.event` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-course/infrastructure`；最小回归通过；代码落地：`352b1680`）。
 - ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `SemesterConverter` 从 `eva-infra-shared` 搬运归位到 `bc-course/infrastructure`（保持 `package edu.cuit.infra.convertor` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-course/infrastructure` 的 `SemesterGatewayImpl`；最小回归通过；代码落地：`99f78d40`）。
 - ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `ClassroomCacheConstants` 从 `eva-infra-shared` 搬运归位到 `bc-course/infrastructure`（保持 `package edu.cuit.infra.enums.cache` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-course/infrastructure`；最小回归通过；代码落地：`eb41025e`）。
@@ -1036,7 +1037,7 @@
 
 - 📊 **整体未完成清单（更新至 2026-02-07；保持行为不变）**：
   - `eva-infra-dal`：仍剩 `24` 个 Java + `11` 个 XML 未归位（可复现口径：`fd -t f -e java . eva-infra-dal/src/main/java | wc -l` + `fd -t f -e xml . eva-infra-dal/src/main/resources | wc -l`）。
-  - `eva-infra-shared`：仍剩 `31` 个 Java，且多 BC 仍直依赖该模块（可复现口径：`fd -t f -e java . eva-infra-shared/src/main/java | wc -l` + `rg -n "<artifactId>eva-infra-shared</artifactId>" --glob "**/pom.xml" bc-* | head`）。
+  - `eva-infra-shared`：仍剩 `30` 个 Java，且多 BC 仍直依赖该模块（可复现口径：`fd -t f -e java . eva-infra-shared/src/main/java | wc -l` + `rg -n "<artifactId>eva-infra-shared</artifactId>" --glob "**/pom.xml" bc-* | head`）。
   - 关键阻塞例（`course_type`，保持行为不变）：Serena 证据化显示 `CourseConvertor` 的引用面跨 `bc-course/**` 与 `bc-evaluation/**`，因此 `CourseTypeDO` 暂不满足“仅 `bc-course/**` 引用”约束（见 `docs/DDD_REFACTOR_BACKLOG.md` 6 的说明），不建议直接归位 DO 以避免依赖/装配边界漂移。
 
 - 🔍 **“什么时候可以把 eva-* 模块全部整合进 bc-*？”统一口径**：不是某个固定日期，而是一组可验证前置条件；统一判定标准与证据口径见 `DDD_REFACTOR_PLAN.md` 10.5（保持行为不变）。
@@ -1059,6 +1060,7 @@
   - ✅ 支撑类归位（IAM，保持行为不变）：`SaTokenInterceptorConfig` → `bc-iam/infrastructure`（保持 `package` 不变，仅改变 Maven 模块归属；Serena：无显式引用面（由 Spring 扫描装配）；最小回归通过；落地：`78b831d9`；三文档同步以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` / `DDD_REFACTOR_PLAN.md` / `docs/DDD_REFACTOR_BACKLOG.md` 为准）。
   - ✅ 支撑类归位（IAM，保持行为不变）：`StpInterfaceImpl` → `bc-iam/infrastructure`（保持 `package` 不变，仅改变 Maven 模块归属；Serena：无显式引用面（由 Spring 扫描装配）；最小回归通过；落地：`192e790c`；三文档同步以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` / `DDD_REFACTOR_PLAN.md` / `docs/DDD_REFACTOR_BACKLOG.md` 为准）。
   - ✅ 支撑类归位（评教，保持行为不变）：`MsgBizConvertor` → `bc-evaluation/infrastructure`（保持 `package` 不变，仅改变 Maven 模块归属；Serena：引用面集中在评教旧入口壳 `MsgServiceImpl`（另有 `start` 单测 mock）；最小回归通过；落地：`7077924e`；三文档同步以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` / `DDD_REFACTOR_PLAN.md` / `docs/DDD_REFACTOR_BACKLOG.md` 为准）。
+  - ✅ 支撑类归位（评教，保持行为不变）：`EvaConfigBizConvertor` → `bc-evaluation/infrastructure`（保持 `package` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `EvaConfigService`；最小回归通过；落地：`3d374b20`；三文档同步以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` / `DDD_REFACTOR_PLAN.md` / `docs/DDD_REFACTOR_BACKLOG.md` 为准）。
   - 🧾 证据化结论（保持行为不变）：`SysRoleMapper` 当前跨 BC 引用（命中 `bc-audit/bc-course/bc-evaluation/bc-iam`），不满足“仅单 BC 引用”的归位前提，**暂留** `eva-infra-dal`，避免误搬导致依赖/装配边界漂移。
   - ✅ 逐类归位：`CourInfTimeOverlapQuery` → `bc-course/infrastructure`（最小回归通过；代码落地：`ea6c99e9`；文档闭环：`2466ead3`）。
   - ✅ 逐类归位：`ClassroomOccupancyChecker` → `bc-course/infrastructure`（最小回归通过；代码落地：`b1db3422`）。
