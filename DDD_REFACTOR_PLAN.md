@@ -975,6 +975,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 已完成：`bc-course` 的 `CourseQueryRepository.toUserEntity` 已改走 `UserEntityObjectByIdDirectQueryPort`（落地：`c22bc75d`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ 已完成：`bc-evaluation` 的 `EvaTaskQueryRepository.toUserEntity` 已改走 `UserEntityObjectByIdDirectQueryPort`（落地：`6c5d6bce`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ 已完成（保持行为不变；每次只改 1 个类闭环）：`bc-evaluation/infrastructure/src/main/java/edu/cuit/infra/bcevaluation/query/EvaRecordQueryRepository.java` 已不再直连 `SysUserRoleMapper/SysRoleMapper`，改走 `UserEntityObjectByIdDirectQueryPort`（异常文案保持不变；最小回归通过；落地：`78787eee`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
+- ✅ 阶段性关闭（保持行为不变）：Serena 证伪 `bc-*`（排除 `bc-iam/**`）范围内无 `SysUserRoleMapper`/`SysRoleMapper` 引用点；后续若新增引用点，继续按“每次只改 1 个类”闭环收敛为调用 `UserEntityObjectByIdDirectQueryPort`。
 
 #### bc-audit（Audit）S0.2 延伸：`eva-infra-dal` 按 BC 拆散试点（`sys_log`，保持行为不变）
 
