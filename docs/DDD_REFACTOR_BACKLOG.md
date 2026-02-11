@@ -109,7 +109,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
-**已完成（更新至 2026-02-07）**
+**已完成（更新至 2026-02-11）**
+- ✅ S0.2 延伸（评教：支撑类归位，评教模板 Convertor，保持行为不变）：将 `EvaTemplateBizConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-evaluation/infrastructure`（保持 `package edu.cuit.app.convertor.eva` 不变；类内容不变；Serena：引用面为空；最小回归通过；落地：`ecac6910`）。
 - 🧾 快照证据复核（2026-02-07，保持行为不变，仅证据与文档同步）：root reactor 仍包含 `eva-infra-dal` / `eva-infra-shared` / `eva-base`（口径：`rg -n "<module>eva-" pom.xml`）；已闭环项计数复核：`msg_tip`（`MsgTipMapper/MsgTipDO/MsgTipMapper.xml` 各命中 1，且 `eva-infra-dal` 下 0 命中）、`sys_role_menu`（`SysRoleMenuMapper/SysRoleMenuDO/SysRoleMenuMapper.xml` 各命中 1，且 `eva-infra-dal` 下 0 命中）、`course_type_course`（`CourseTypeCourseMapper/CourseTypeCourseDO/CourseTypeCourseMapper.xml` 各命中 1，且 `eva-infra-dal` 下 0 命中）（口径：`fd -t f ... | wc -l`）。
 - ✅ S0.2 延伸（IAM：支撑类归位，SaToken 配置，保持行为不变）：将 `SaTokenConfig` 从 `eva-infra-shared` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.app.config` 不变，仅改变 Maven 模块归属；`@Configuration` 由 Spring 扫描加载；最小回归通过；落地：`fb3fe49d`）。
 - ✅ S0.2 延伸（IAM：支撑类归位，SaToken 拦截器配置，保持行为不变）：将 `SaTokenInterceptorConfig` 从 `eva-infra-shared` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.app.config` 不变，仅改变 Maven 模块归属；`@Configuration` 由 Spring 扫描加载；最小回归通过；落地：`78b831d9`）。

@@ -21,6 +21,9 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-11（本会话：保持行为不变，继续瘦身共享基础设施）**
+- ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `EvaTemplateBizConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-evaluation/infrastructure`（保持 `package edu.cuit.app.convertor.eva` 不变；类内容不变；Serena：引用面为空，且 `rg -n "EvaTemplateBizConvertor" .` 仅命中其自身与文档；`@Mapper(componentModel = "spring")` 由 Spring 扫描装配；最小回归通过；代码落地：`ecac6910`）。
+
 **2026-02-10（本会话：保持行为不变，继续瘦身共享基础设施）**
 - ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `EvaTaskBizConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-evaluation/infrastructure`（保持 `package edu.cuit.app.convertor.eva` 不变；类内容不变；Serena：引用面为空，且 `rg -n "EvaTaskBizConvertor" .` 仅命中其自身与文档；`@Mapper(componentModel = "spring")` 由 Spring 扫描装配；最小回归通过；代码落地：`f3a2cf7f`）。
 
