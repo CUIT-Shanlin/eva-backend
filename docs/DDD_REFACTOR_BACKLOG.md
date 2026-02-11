@@ -119,6 +119,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（websocket：支撑类归位，保持行为不变）：将 `WebsocketManager` 从 `eva-infra-shared` 搬运归位到 `bc-messaging`（保持 `package edu.cuit.app.websocket` 不变；类内容不变；最小回归通过；落地：`bf78d276`）。
 - ✅ S0.2 延伸（DAL 拆散试点：评教 `eva_task`，保持行为不变，单资源闭环）：将 `EvaTaskMapper.xml` 从 `eva-infra-dal` 搬运归位到 `bc-evaluation/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`ad2e7d25`）。
 - ✅ S0.2 延伸（DAL 拆散试点：IAM `sys_role`，保持行为不变，逐类归位）：将 `SysRoleMapper` 从 `eva-infra-dal` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.dal.database.mapper.user` 不变；Serena：引用面仅命中 `bc-iam/infrastructure`；最小回归通过；落地：`60b87404`）。
+- ✅ S0.2 延伸（DAL 拆散试点：IAM `sys_user_role`，保持行为不变，逐类归位）：将 `SysUserRoleMapper` 从 `eva-infra-dal` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.dal.database.mapper.user` 不变；Serena：引用面仅命中 `bc-iam/infrastructure`；最小回归通过；落地：`1f93141c`）。
 - ✅ S0.2 延伸（IAM：依赖收敛前置，保持行为不变）：在 `bc-iam-contract` 新增端口 `UserEntityObjectByIdDirectQueryPort`，用于后续把其它 BC 的“跨 BC 直连 IAM 表（sys_user/sys_user_role/sys_role）”改造为通过 IAM 对外端口调用（约束：实现方不得引入新的缓存/切面副作用；最小回归通过；落地：`51be7465`）。
 - ✅ S0.2 延伸（IAM：依赖收敛前置，保持行为不变）：在 `bc-iam-infra` 新增端口适配器 `UserEntityObjectByIdDirectQueryPortImpl`，内部原样复刻“直连 sys_user/sys_user_role/sys_role”的查询与装配逻辑（约束：不引入新的缓存/切面副作用；最小回归通过；落地：`2c9fb7e7`）。
 - ✅ S0.2 延伸（IAM → Audit：依赖收敛，保持行为不变）：将 `bc-audit` 的 `LogGatewayImpl` 从“跨 BC 直连 IAM 表（sys_user/sys_user_role/sys_role）”收敛为依赖 `bc-iam-contract` 端口 `UserEntityObjectByIdDirectQueryPort`（内部仍保持原 SQL 与装配逻辑，不引入新的缓存/切面副作用；最小回归通过；落地：`fdd7078e`）。
@@ -793,7 +794,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 - **S0.2 延伸（IAM → 其它 BC：依赖收敛，去跨 BC 直连 IAM role 表，保持行为不变）**：
   - ✅ 已完成：`bc-audit` 的 `LogGatewayImpl`、`bc-course` 的 `CourseQueryRepository.toUserEntity`、`bc-evaluation` 的 `EvaTaskQueryRepository.toUserEntity` 已改走 `bc-iam-contract` 端口 `UserEntityObjectByIdDirectQueryPort`（保持异常文案/副作用顺序不变；详见 4.2 与 `NEXT_SESSION_HANDOFF.md` 0.9；评教任务读侧最新落地：`6c5d6bce`）。
-  - ⏳ 未完成（下一刀建议，保持行为不变；每次只改 1 个类闭环）：`bc-evaluation/infrastructure/src/main/java/edu/cuit/infra/bcevaluation/query/EvaRecordQueryRepository.java` 仍直连 `SysUserRoleMapper/SysRoleMapper`；建议按同口径改走 `UserEntityObjectByIdDirectQueryPort`，以继续收敛 `SysRoleMapper/SysUserRoleMapper` 的跨 BC 引用面。
+  - ✅ 已完成（保持行为不变；每次只改 1 个类闭环）：`bc-evaluation/infrastructure/src/main/java/edu/cuit/infra/bcevaluation/query/EvaRecordQueryRepository.java` 已不再直连 `SysUserRoleMapper/SysRoleMapper`，改走 `UserEntityObjectByIdDirectQueryPort`（异常文案保持不变；最小回归通过；落地：`78787eee`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 
 - **S1（IAM：Controller 入口壳结构性收敛，保持行为不变）**：
   - ✅ 已完成：`UserUpdateController`（落地：`5ee37fd2`）、`DepartmentController`（落地：`fbc5fb74`）、`AuthenticationController`（落地：`fd9e4d1c`）、`MenuUpdateController`（落地：`44bc649d`）、`RoleUpdateController`（落地：`c81eb2e0`）。
@@ -1174,7 +1175,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 补充（2026-02-07，保持行为不变，单资源闭环）：`MsgTipMapper.xml` 已归位：`eva-infra-dal/src/main/resources/mapper/MsgTipMapper.xml` → `bc-messaging/src/main/resources/mapper/MsgTipMapper.xml`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`5c5ab5e0`）。
   - ✅ 补充（2026-02-07，保持行为不变，DAL 拆散试点，`sys_role_menu`）：`SysRoleMenuMapper` / `SysRoleMenuDO` / `SysRoleMenuMapper.xml` 已归位到 `bc-iam/infrastructure`（保持 `package/namespace/resultMap type` 与资源路径 `mapper/**` 不变；最小回归通过；落地：`f98ee5c2` / `49fcbda7` / `db81d674`）。
   - ✅ 补充（2026-02-07，保持行为不变，DAL 拆散试点，`course_type_course`）：`CourseTypeCourseMapper` / `CourseTypeCourseDO` / `CourseTypeCourseMapper.xml` 已归位到 `bc-course/infrastructure`（保持 `package/namespace/resultMap type` 与资源路径 `mapper/**` 不变；最小回归通过；落地：`2e1cd36e` / `8f410b14` / `45bc05d6`）。
-  - 🧾 证据化结论（2026-02-07，保持行为不变）：`SysRoleMapper` 当前跨 BC 引用（命中 `bc-audit/bc-course/bc-evaluation/bc-iam`），不满足“仅单 BC 引用”的归位前提，暂留 `eva-infra-dal`，避免误搬导致依赖/装配边界漂移。
+  - ✅ 证据化结论（2026-02-11，保持行为不变）：`SysRoleMapper/SysUserRoleMapper` 引用面已收敛为仅 `bc-iam/infrastructure`（Serena 证伪），已满足“仅单 BC 引用”的归位前提；因此分别将其从 `eva-infra-dal` 搬运归位到 `bc-iam/infrastructure`（最小回归通过；落地：`60b87404`/`1f93141c`）。
   - 🎯 下一刀建议（保持行为不变；每次只改 1 个文件闭环）：继续从 `bc-course` 推进 `eva-infra-dal` 按 BC 拆散——`course_type` 候选已完成两刀：`CourseTypeMapper`（`241b75de`）+ `CourseTypeMapper.xml`（`158f0bd2`）已归位到 `bc-course/infrastructure`（保持 `package/namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变）。注意：`CourseTypeDO` 当前引用面包含 `eva-infra-shared/src/main/java/edu/cuit/infra/convertor/course/CourseConvertor.java`，不满足“仅 bc-course 引用”约束，暂不建议直接归位 DO（避免依赖/装配边界漂移）。下一刀建议：转而挑选 `eva-infra-dal/src/main/resources/mapper/course` 下其它 **单资源 XML** 作为候选，先 Serena 证据化确认对应 Mapper 引用面仅命中 `bc-course/**` 后再归位。
   - 🎯 补充建议（更新至 2026-02-06，保持行为不变）：当前“`eva-*` 全量整合（从 root reactor 移除）”仍被 `eva-infra-dal/eva-infra-shared/eva-base` 阻塞（多个 `bc-*` 仍编译期依赖它们）。补充：`eva-domain` 已从 root reactor 退场且其编译期依赖方已清零（口径：`rg -n "<artifactId>eva-domain</artifactId>" --glob "**/pom.xml" .` 预期无命中）。建议先按最小成本把阻塞面收敛到“仅技术共享”：
     1) **`eva-base` 退场（优先，保持行为不变）**：`eva-base-common` 仅承载 `edu.cuit.common.enums.GenericPattern/LogModule` 两个接口，但被多个 BC 引用。建议先将这两个类型下沉到 `shared-kernel`（保持 `package` 不变），再按“单 pom 闭环”收敛依赖方（例如 `bc-iam/contract`、`bc-iam/infrastructure`）去 `eva-base-common`，最后从 root reactor 移除 `eva-base`（每步只改 1 个类或 1 个 `pom.xml`）。
