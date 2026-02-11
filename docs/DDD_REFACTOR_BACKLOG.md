@@ -118,6 +118,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（评教：编译闭合前置，单 pom，保持行为不变）：在 `bc-evaluation/infrastructure/pom.xml` 补齐对 `bc-messaging` 的 Maven 编译期依赖，用于承接后续将 `WebsocketManager` 从 `eva-infra-shared` 归位到 `bc-messaging`（最小回归通过；落地：`4dd1b34f`）。
 - ✅ S0.2 延伸（websocket：支撑类归位，保持行为不变）：将 `WebsocketManager` 从 `eva-infra-shared` 搬运归位到 `bc-messaging`（保持 `package edu.cuit.app.websocket` 不变；类内容不变；最小回归通过；落地：`bf78d276`）。
 - ✅ S0.2 延伸（DAL 拆散试点：评教 `eva_task`，保持行为不变，单资源闭环）：将 `EvaTaskMapper.xml` 从 `eva-infra-dal` 搬运归位到 `bc-evaluation/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`ad2e7d25`）。
+- ✅ S0.2 延伸（DAL 拆散试点：IAM `sys_role`，保持行为不变，逐类归位）：将 `SysRoleMapper` 从 `eva-infra-dal` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.dal.database.mapper.user` 不变；Serena：引用面仅命中 `bc-iam/infrastructure`；最小回归通过；落地：`60b87404`）。
 - ✅ S0.2 延伸（IAM：依赖收敛前置，保持行为不变）：在 `bc-iam-contract` 新增端口 `UserEntityObjectByIdDirectQueryPort`，用于后续把其它 BC 的“跨 BC 直连 IAM 表（sys_user/sys_user_role/sys_role）”改造为通过 IAM 对外端口调用（约束：实现方不得引入新的缓存/切面副作用；最小回归通过；落地：`51be7465`）。
 - ✅ S0.2 延伸（IAM：依赖收敛前置，保持行为不变）：在 `bc-iam-infra` 新增端口适配器 `UserEntityObjectByIdDirectQueryPortImpl`，内部原样复刻“直连 sys_user/sys_user_role/sys_role”的查询与装配逻辑（约束：不引入新的缓存/切面副作用；最小回归通过；落地：`2c9fb7e7`）。
 - ✅ S0.2 延伸（IAM → Audit：依赖收敛，保持行为不变）：将 `bc-audit` 的 `LogGatewayImpl` 从“跨 BC 直连 IAM 表（sys_user/sys_user_role/sys_role）”收敛为依赖 `bc-iam-contract` 端口 `UserEntityObjectByIdDirectQueryPort`（内部仍保持原 SQL 与装配逻辑，不引入新的缓存/切面副作用；最小回归通过；落地：`fdd7078e`）。

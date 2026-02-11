@@ -33,6 +33,7 @@
 - ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `WebsocketManager` 从 `eva-infra-shared` 搬运归位到 `bc-messaging`（保持 `package edu.cuit.app.websocket` 不变；类内容不变；Serena：引用面命中 `bc-messaging/MessageChannel`、`bc-evaluation/infrastructure/MsgServiceImpl` 与 `start` 测试；最小回归通过；代码落地：`bf78d276`）。
 - ✅ 已完成（保持行为不变，依赖收敛，逐类推进，先 IAM）：将 `bc-evaluation` 的 `EvaTaskQueryRepository.toUserEntity` 从“跨 BC 直连 IAM role 表（sys_user_role/sys_role）”收敛为依赖 `bc-iam-contract` 端口 `UserEntityObjectByIdDirectQueryPort`（异常文案保持不变；不引入新的缓存/切面副作用；最小回归通过；代码落地：`6c5d6bce`；三文档同步：`5dc70832`）。
 - ✅ 已完成（保持行为不变，依赖收敛，逐类推进，先 IAM）：将 `bc-evaluation/infrastructure` 的 `EvaRecordQueryRepository.toUserEntity` 从“跨 BC 直连 IAM role 表（sys_user_role/sys_role）”收敛为依赖 `bc-iam-contract` 端口 `UserEntityObjectByIdDirectQueryPort`（Serena：类内 `SysUserRoleMapper/SysRoleMapper` 引用点清零；异常文案保持不变；不引入新的缓存/切面副作用；最小回归通过；代码落地：`78787eee`）。
+- ✅ 已完成（保持行为不变，DAL 拆散试点，逐类归位）：将 `SysRoleMapper` 从 `eva-infra-dal` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.dal.database.mapper.user` 不变；Serena：引用面仅命中 `bc-iam/infrastructure`；最小回归通过；代码落地：`60b87404`）。
 - ⚠️ 环境提示（不影响业务语义，仅影响协作效率）：当前环境下直连 GitHub SSH `22` 端口可能被阻断，`git push` 可能长时间无输出卡住；若出现该问题，建议使用 `ssh.github.com:443` 推送（示例：`GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o Hostname=ssh.github.com -p 443' git push origin ddd`）。
 - 🧾 补充（保持行为不变，仅协作提效）：若 `git push` 在 `ssh.github.com:443` 下仍无输出卡住，建议加 `BatchMode=yes` 并禁止交互提示以便尽快失败/重试：`GIT_TERMINAL_PROMPT=0 GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o Hostname=ssh.github.com -p 443' git push origin ddd`。
 
@@ -1061,7 +1062,7 @@
 ### 0.10.1 最新状态 & 下一步建议（滚动更新至 2026-02-11；聚焦：S0.2 延伸（`eva-infra-dal` 按 BC 拆散 + `eva-infra-shared` 瘦身），保持行为不变）
 
 - 📊 **整体未完成清单（更新至 2026-02-11；保持行为不变）**：
-  - `eva-infra-dal`：仍剩 `24` 个 Java + `11` 个 XML 未归位（可复现口径：`fd -t f -e java . eva-infra-dal/src/main/java | wc -l` + `fd -t f -e xml . eva-infra-dal/src/main/resources | wc -l`）。
+  - `eva-infra-dal`：仍剩 `23` 个 Java + `10` 个 XML 未归位（可复现口径：`fd -t f -e java . eva-infra-dal/src/main/java | wc -l` + `fd -t f -e xml . eva-infra-dal/src/main/resources | wc -l`）。
   - `eva-infra-shared`：仍剩 `20` 个 Java，且多 BC 仍直依赖该模块（可复现口径：`fd -t f -e java . eva-infra-shared/src/main/java | wc -l` + `rg -n "<artifactId>eva-infra-shared</artifactId>" --glob "**/pom.xml" bc-* | head`）。
   - 关键阻塞例（`course_type`，保持行为不变）：Serena 证据化显示 `CourseConvertor` 的引用面跨 `bc-course/**` 与 `bc-evaluation/**`，因此 `CourseTypeDO` 暂不满足“仅 `bc-course/**` 引用”约束（见 `docs/DDD_REFACTOR_BACKLOG.md` 6 的说明），不建议直接归位 DO 以避免依赖/装配边界漂移。
 
@@ -1095,7 +1096,7 @@
   - ✅ 支撑类归位（评教，保持行为不变）：`MsgBizConvertor` → `bc-evaluation/infrastructure`（保持 `package` 不变，仅改变 Maven 模块归属；Serena：引用面集中在评教旧入口壳 `MsgServiceImpl`（另有 `start` 单测 mock）；最小回归通过；落地：`7077924e`；三文档同步以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` / `DDD_REFACTOR_PLAN.md` / `docs/DDD_REFACTOR_BACKLOG.md` 为准）。
   - ✅ 支撑类归位（评教，保持行为不变）：`EvaConfigBizConvertor` → `bc-evaluation/infrastructure`（保持 `package` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `EvaConfigService`；最小回归通过；落地：`3d374b20`；三文档同步以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` / `DDD_REFACTOR_PLAN.md` / `docs/DDD_REFACTOR_BACKLOG.md` 为准）。
   - ✅ 支撑类归位（评教，保持行为不变）：`EvaRecordBizConvertor` → `bc-evaluation/infrastructure`（保持 `package` 不变，仅改变 Maven 模块归属；Serena：未发现显式引用面；最小回归通过；落地：`6a5430cb`；三文档同步以 `git log -n 1 -- NEXT_SESSION_HANDOFF.md` / `DDD_REFACTOR_PLAN.md` / `docs/DDD_REFACTOR_BACKLOG.md` 为准）。
-  - 🧾 证据化结论（保持行为不变）：`SysRoleMapper` 当前跨 BC 引用（命中 `bc-audit/bc-course/bc-evaluation/bc-iam`），不满足“仅单 BC 引用”的归位前提，**暂留** `eva-infra-dal`，避免误搬导致依赖/装配边界漂移。
+  - ✅ 证据化结论（保持行为不变）：`SysRoleMapper` 当前引用面仅命中 `bc-iam/infrastructure`（Serena 证伪），已满足“仅单 BC 引用”约束；因此将其从 `eva-infra-dal` 搬运归位到 `bc-iam/infrastructure`（最小回归通过；落地：`60b87404`）。
   - ✅ 逐类归位：`CourInfTimeOverlapQuery` → `bc-course/infrastructure`（最小回归通过；代码落地：`ea6c99e9`；文档闭环：`2466ead3`）。
   - ✅ 逐类归位：`ClassroomOccupancyChecker` → `bc-course/infrastructure`（最小回归通过；代码落地：`b1db3422`）。
   - ✅ 依赖收敛（单 pom）：收敛 `bc-template/application/pom.xml`：在 Serena 证伪 `bc-template/application/src/main/java` 无 Lombok 引用后，移除冗余 `lombok(provided)` 依赖（编译/运行期 classpath 与行为不变；最小回归通过；代码落地：`e91844c2`；文档闭环：`57b2815a`）。
