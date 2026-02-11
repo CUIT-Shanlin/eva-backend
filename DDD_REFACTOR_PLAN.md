@@ -967,6 +967,13 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 依赖收敛证伪（保持行为不变；单 pom）：Serena 证据化确认 `bc-audit/infrastructure` 仍直接使用 `eva-infra-shared` 内类型（`QueryUtils/PaginationConverter/UserConverter/RoleConverter/EntityFactory`），因此暂不可移除该依赖（结论已记录于 `bc-audit/infrastructure/pom.xml`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - 约束（保持行为不变）：Java `package`、MyBatis XML `namespace`、`resultMap type` 指向的 FQCN、资源路径 `mapper/**` 均保持不变。
 
+#### bc-messaging（消息）S0.2 延伸：websocket 支撑类逐类归位（保持行为不变）
+
+> 目标：把 `eva-infra-shared` 中“仅消息域/评教消息入口使用”的 websocket 支撑类逐类归位到 `bc-messaging`，不改业务语义、不改装配行为；每次只改 1 个类或 1 个 `pom.xml`，严格闭环（Serena → 最小回归 → 提交 → 三文档同步 → push）。
+
+- ✅ 已完成（单 pom）：在 `bc-evaluation/infrastructure/pom.xml` 补齐对 `bc-messaging` 的 Maven 编译期依赖，用于承接后续 `WebsocketManager` 归位（最小回归通过；落地：`4dd1b34f`）。
+- ✅ 已完成（逐类归位）：将 `WebsocketManager` 从 `eva-infra-shared` 搬运归位到 `bc-messaging`（保持 `package` 与类内容不变；最小回归通过；落地：`bf78d276`）。
+
 #### bc-course（Course）S0.2：课程域类型逐类归位（`eva-domain` → `bc-course-domain`，保持行为不变）
 
 > 背景：`eva-domain` 仍承载部分课程域实体/接口，导致多个 BC 仍需经由 `eva-domain` 承接编译期类型。当前采用“每次只搬运 1 个类 + 必要的单 pom 编译闭合前置”的节奏，逐步把**仅课程域承载**的类型归位到 `bc-course-domain`，并通过过渡期依赖保持全仓库编译闭合（不改业务语义）。
