@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import edu.cuit.bc.iam.application.port.UserEntityObjectByIdDirectQueryPort;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.EvaTaskConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
@@ -12,27 +13,21 @@ import edu.cuit.domain.entity.course.SemesterEntity;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.entity.course.SubjectEntity;
 import edu.cuit.domain.entity.eva.EvaTaskEntity;
-import edu.cuit.domain.entity.user.biz.RoleEntity;
 import edu.cuit.infra.convertor.PaginationConverter;
 import edu.cuit.infra.convertor.course.CourseConvertor;
 import edu.cuit.infra.convertor.eva.EvaConvertor;
-import edu.cuit.infra.convertor.user.RoleConverter;
 import edu.cuit.infra.convertor.user.UserConverter;
 import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.course.SubjectDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
-import edu.cuit.infra.dal.database.dataobject.user.SysRoleDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
-import edu.cuit.infra.dal.database.dataobject.user.SysUserRoleDO;
 import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.SemesterMapper;
 import edu.cuit.infra.dal.database.mapper.course.SubjectMapper;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
-import edu.cuit.infra.dal.database.mapper.user.SysRoleMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
-import edu.cuit.infra.dal.database.mapper.user.SysUserRoleMapper;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
 import edu.cuit.infra.util.QueryUtils;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
@@ -58,14 +53,12 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
     private final CourseMapper courseMapper;
     private final EvaTaskMapper evaTaskMapper;
     private final EvaConvertor evaConvertor;
-    private final RoleConverter roleConverter;
     private final PaginationConverter paginationConverter;
     private final UserConverter userConverter;
+    private final UserEntityObjectByIdDirectQueryPort userEntityObjectByIdDirectQueryPort;
     private final CourseConvertor courseConvertor;
     private final SysUserMapper sysUserMapper;
     private final SemesterMapper semesterMapper;
-    private final SysRoleMapper sysRoleMapper;
-    private final SysUserRoleMapper sysUserRoleMapper;
     private final SubjectMapper subjectMapper;
     private final CourInfMapper courInfMapper;
     private final EvaCacheConstants evaCacheConstants;
@@ -277,20 +270,11 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
 
     //简便方法
     private Object toUserEntity(Integer userId){
-        //得到uer对象
-        SysUserDO userDO = sysUserMapper.selectById(userId);
-        if(userDO==null){
+        Object userEntity = userEntityObjectByIdDirectQueryPort.findById(userId);
+        if (userEntity == null) {
             throw new QueryException("并未找到相关用户");
         }
-        //根据userId找到角色id集合
-        List<Integer> roleIds = sysUserRoleMapper.selectList(new QueryWrapper<SysUserRoleDO>().eq("user_id", userId)).stream().map(SysUserRoleDO::getRoleId).toList();
-        //根据角色id集合找到角色对象集合
-        if(roleIds==null){
-            throw new QueryException("并没有找到职能");
-        }
-        Supplier<List<RoleEntity>> roleEntities = ()->sysRoleMapper.selectList(new QueryWrapper<SysRoleDO>().in("id", roleIds)).stream().map(roleDO -> roleConverter.toRoleEntity(roleDO)).toList();
-        //根据角色id集合找到角色菜单表中的菜单id集合
-        return userConverter.toUserEntityObject(userDO,roleEntities);
+        return userEntity;
     }
 
     private CourseEntity toCourseEntity(Integer courseId,Integer semId){
