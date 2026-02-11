@@ -31,7 +31,9 @@
 - ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `MessageChannel` 从 `eva-infra-shared` 搬运归位到 `bc-messaging`（保持 `package edu.cuit.app.websocket` 不变；类内容不变；Serena：引用面仅命中 `bc-messaging` 的 `WebSocketConfig`；最小回归通过；代码落地：`10248c53`）。
 - ✅ 已完成（保持行为不变，编译闭合前置，单 pom）：在 `bc-evaluation/infrastructure/pom.xml` 补齐对 `bc-messaging` 的 Maven 编译期依赖，用于承接后续将 `WebsocketManager` 从 `eva-infra-shared` 归位到 `bc-messaging`（最小回归通过；代码落地：`4dd1b34f`）。
 - ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `WebsocketManager` 从 `eva-infra-shared` 搬运归位到 `bc-messaging`（保持 `package edu.cuit.app.websocket` 不变；类内容不变；Serena：引用面命中 `bc-messaging/MessageChannel`、`bc-evaluation/infrastructure/MsgServiceImpl` 与 `start` 测试；最小回归通过；代码落地：`bf78d276`）。
+- ✅ 已完成（保持行为不变，依赖收敛，逐类推进，先 IAM）：将 `bc-evaluation` 的 `EvaTaskQueryRepository.toUserEntity` 从“跨 BC 直连 IAM role 表（sys_user_role/sys_role）”收敛为依赖 `bc-iam-contract` 端口 `UserEntityObjectByIdDirectQueryPort`（异常文案保持不变；不引入新的缓存/切面副作用；最小回归通过；代码落地：`6c5d6bce`；三文档同步：`5dc70832`）。
 - ⚠️ 环境提示（不影响业务语义，仅影响协作效率）：当前环境下直连 GitHub SSH `22` 端口可能被阻断，`git push` 可能长时间无输出卡住；若出现该问题，建议使用 `ssh.github.com:443` 推送（示例：`GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o Hostname=ssh.github.com -p 443' git push origin ddd`）。
+- 🧾 补充（保持行为不变，仅协作提效）：若 `git push` 在 `ssh.github.com:443` 下仍无输出卡住，建议加 `BatchMode=yes` 并禁止交互提示以便尽快失败/重试：`GIT_TERMINAL_PROMPT=0 GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o Hostname=ssh.github.com -p 443' git push origin ddd`。
 
 **2026-02-10（本会话：保持行为不变，继续瘦身共享基础设施）**
 - ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `EvaTaskBizConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-evaluation/infrastructure`（保持 `package edu.cuit.app.convertor.eva` 不变；类内容不变；Serena：引用面为空，且 `rg -n "EvaTaskBizConvertor" .` 仅命中其自身与文档；`@Mapper(componentModel = "spring")` 由 Spring 扫描装配；最小回归通过；代码落地：`f3a2cf7f`）。
@@ -1063,6 +1065,7 @@
   - 关键阻塞例（`course_type`，保持行为不变）：Serena 证据化显示 `CourseConvertor` 的引用面跨 `bc-course/**` 与 `bc-evaluation/**`，因此 `CourseTypeDO` 暂不满足“仅 `bc-course/**` 引用”约束（见 `docs/DDD_REFACTOR_BACKLOG.md` 6 的说明），不建议直接归位 DO 以避免依赖/装配边界漂移。
 
 - 🎯 **下一步重构计划（建议，保持行为不变；每次只改 1 个类/1 个 XML/1 个 pom 闭环）**：
+  0) 先 IAM（依赖方继续收敛，保持行为不变）：继续清理其它 BC 对 IAM 表（尤其 `sys_user_role/sys_role`）的跨 BC 直连。优先从评教域读侧仓储入手：`bc-evaluation/infrastructure/src/main/java/edu/cuit/infra/bcevaluation/query/EvaRecordQueryRepository.java`（其 `SysUserRoleMapper/SysRoleMapper` 直连仍在）→ 改为依赖 `bc-iam-contract` 的 `UserEntityObjectByIdDirectQueryPort`（保持异常文案/副作用顺序不变；每次只改 1 个类闭环）。
   1) 主线优先：继续推进 `eva-infra-dal` 按 BC 拆散（Mapper/DO/XML）。做法：先用 Serena 对候选文件做“引用面证伪”，只挑“引用面仅命中单一 BC（例如 `bc-iam/**` 或 `bc-course/**`）”的文件搬运归位；每刀严格闭环（Serena → mvnd → commit → 三文档 → commit → push）。
   2) 次线并行：继续瘦身 `eva-infra-shared`，优先挑“引用面为空/仅单 BC”的支撑类逐类归位。
   3) 风险簇（暂不建议直接动，避免破坏‘单类一刀’节奏）：LDAP 相关 `EvaLdapUtils`/`LdapConstants`/`EvaLdapProperties`/`LdapGroupRepo`/`LdapGroupDO` 当前存在跨模块互相依赖与静态初始化耦合（Serena 证据化：`LdapConstants` 依赖 `EvaLdapUtils`，而 `EvaLdapUtils` 又依赖 `LdapConstants` 与 `LdapGroupRepo/DO`），若要归位到 `bc-iam/infrastructure` 需要设计“多刀编排顺序/过渡壳”，否则会导致 `eva-infra-shared` 编译断裂。

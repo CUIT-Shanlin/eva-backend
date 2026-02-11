@@ -789,6 +789,10 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成：`MsgTipMapper`、`MsgTipDO` → `bc-messaging`（保持 `package` 不变，仅改变 Maven 模块归属；详见 4.2 与 `NEXT_SESSION_HANDOFF.md` 0.9）。
   - ✅ 已完成（保持行为不变；单资源闭环）：`MsgTipMapper.xml` → `bc-messaging/src/main/resources/mapper/MsgTipMapper.xml`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`5c5ab5e0`）。
 
+- **S0.2 延伸（IAM → 其它 BC：依赖收敛，去跨 BC 直连 IAM role 表，保持行为不变）**：
+  - ✅ 已完成：`bc-audit` 的 `LogGatewayImpl`、`bc-course` 的 `CourseQueryRepository.toUserEntity`、`bc-evaluation` 的 `EvaTaskQueryRepository.toUserEntity` 已改走 `bc-iam-contract` 端口 `UserEntityObjectByIdDirectQueryPort`（保持异常文案/副作用顺序不变；详见 4.2 与 `NEXT_SESSION_HANDOFF.md` 0.9；评教任务读侧最新落地：`6c5d6bce`）。
+  - ⏳ 未完成（下一刀建议，保持行为不变；每次只改 1 个类闭环）：`bc-evaluation/infrastructure/src/main/java/edu/cuit/infra/bcevaluation/query/EvaRecordQueryRepository.java` 仍直连 `SysUserRoleMapper/SysRoleMapper`；建议按同口径改走 `UserEntityObjectByIdDirectQueryPort`，以继续收敛 `SysRoleMapper/SysUserRoleMapper` 的跨 BC 引用面。
+
 - **S1（IAM：Controller 入口壳结构性收敛，保持行为不变）**：
   - ✅ 已完成：`UserUpdateController`（落地：`5ee37fd2`）、`DepartmentController`（落地：`fbc5fb74`）、`AuthenticationController`（落地：`fd9e4d1c`）、`MenuUpdateController`（落地：`44bc649d`）、`RoleUpdateController`（落地：`c81eb2e0`）。
 

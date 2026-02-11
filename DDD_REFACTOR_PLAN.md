@@ -964,6 +964,15 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 ### 10.3 未完成清单（滚动，供下一会话排期）
 
+#### IAM 并行（10.3）：清理其它 BC 直连 IAM 表（`sys_user_role/sys_role`）（保持行为不变）
+
+> 目标：让“其它 BC 的基础设施层”不再跨 BC 直连 IAM role 表，改为统一依赖 `bc-iam-contract` 的最小 Port，并由 `bc-iam/infrastructure` 端口适配器承接原 SQL/装配逻辑（不引入新的缓存/切面副作用）。
+
+- ✅ 已完成：`bc-audit` 的 `LogGatewayImpl` 已改走 `UserEntityObjectByIdDirectQueryPort`（落地：`fdd7078e`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
+- ✅ 已完成：`bc-course` 的 `CourseQueryRepository.toUserEntity` 已改走 `UserEntityObjectByIdDirectQueryPort`（落地：`c22bc75d`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
+- ✅ 已完成：`bc-evaluation` 的 `EvaTaskQueryRepository.toUserEntity` 已改走 `UserEntityObjectByIdDirectQueryPort`（落地：`6c5d6bce`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
+- ⏳ 未完成（下一刀，保持行为不变；每次只改 1 个类闭环）：`bc-evaluation/infrastructure/src/main/java/edu/cuit/infra/bcevaluation/query/EvaRecordQueryRepository.java` 仍直连 `SysUserRoleMapper/SysRoleMapper`；建议按同口径改走 `UserEntityObjectByIdDirectQueryPort`，并保持异常文案/副作用顺序不变。
+
 #### bc-audit（Audit）S0.2 延伸：`eva-infra-dal` 按 BC 拆散试点（`sys_log`，保持行为不变）
 
 > 目标：将“仅审计域使用”的 DAL（Mapper/DO/XML）逐文件归位到 `bc-audit/infrastructure`，把 `eva-infra-dal` 的表面积逐步收敛为“跨 BC 共享的最小集合”。每次只改 1 个类/1 个资源文件，并严格闭环（Serena → 最小回归 → 提交 → 三文档同步 → push）。
