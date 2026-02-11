@@ -523,6 +523,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-02-11，保持行为不变，依赖收敛前置，逐类推进）：在 `bc-iam-contract` 新增端口 `UserEntityObjectByIdDirectQueryPort`，用于后续把其它 BC 的“跨 BC 直连 IAM 表（sys_user/sys_user_role/sys_role）”改造为通过 IAM 对外端口调用（约束：实现方不得引入新的缓存/切面副作用；最小回归通过；落地：`51be7465`）。
 - 补充进展（2026-02-11，保持行为不变，依赖收敛前置，逐类推进）：在 `bc-iam-infra` 新增端口适配器 `UserEntityObjectByIdDirectQueryPortImpl`，内部原样复刻“直连 sys_user/sys_user_role/sys_role”的查询与装配逻辑（约束：不引入新的缓存/切面副作用；最小回归通过；落地：`2c9fb7e7`）。
 - 补充进展（2026-02-11，保持行为不变，依赖收敛，逐类推进）：将 `bc-audit` 的 `LogGatewayImpl` 从“跨 BC 直连 IAM 表（sys_user/sys_user_role/sys_role）”收敛为依赖 `bc-iam-contract` 端口 `UserEntityObjectByIdDirectQueryPort`（内部仍保持原 SQL 与装配逻辑，不引入新的缓存/切面副作用；最小回归通过；落地：`fdd7078e`）。
+- 补充进展（2026-02-11，保持行为不变，依赖收敛，逐类推进）：将 `bc-course` 的 `CourseQueryRepository.toUserEntity` 从“跨 BC 直连 IAM role 表（sys_user_role/sys_role）”收敛为依赖 `bc-iam-contract` 端口 `UserEntityObjectByIdDirectQueryPort`（仍保留对 `sys_user` 的直接查询；异常文案保持不变；不引入新的缓存/切面副作用；最小回归通过；落地：`c22bc75d`）。
 - 补充进展（2026-02-06，保持行为不变，DAL 拆散试点，逐类归位）：将 `SysLogModuleMapper` 从 `eva-infra-dal` 搬运归位到 `bc-audit/infrastructure`（保持 `package` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-audit/infrastructure`；最小回归通过；落地：`c901e3a6`）。
 - 补充进展（2026-02-06，保持行为不变，DAL 拆散试点，逐类归位）：将 `SysLogMapper` 从 `eva-infra-dal` 搬运归位到 `bc-audit/infrastructure`（保持 `package` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-audit/infrastructure`；最小回归通过；落地：`5de32a6c`）。
 - 补充进展（2026-02-07，保持行为不变，DAL 拆散试点，逐类归位）：将 `SysLogDO` 从 `eva-infra-dal` 搬运归位到 `bc-audit/infrastructure`（保持 `package` 不变，仅改变 Maven 模块归属；Serena：引用面仅命中 `bc-audit/infrastructure`；最小回归通过；落地：`7de33487`）。
