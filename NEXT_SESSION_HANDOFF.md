@@ -23,6 +23,7 @@
 
 **2026-02-11（本会话：保持行为不变，继续瘦身共享基础设施）**
 - ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `EvaTemplateBizConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-evaluation/infrastructure`（保持 `package edu.cuit.app.convertor.eva` 不变；类内容不变；Serena：引用面为空，且 `rg -n "EvaTemplateBizConvertor" .` 仅命中其自身与文档；`@Mapper(componentModel = "spring")` 由 Spring 扫描装配；最小回归通过；代码落地：`ecac6910`）。
+- ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `WebSocketConfig` 从 `eva-infra-shared` 搬运归位到 `bc-messaging`（保持 `package edu.cuit.app.config` 不变；类内容不变；Serena：引用面为空，且 `rg -n "WebSocketConfig" .` 仅命中其自身与文档；`@Configuration` 由 Spring 扫描装配；最小回归通过；代码落地：`eb110825`）。
 
 **2026-02-10（本会话：保持行为不变，继续瘦身共享基础设施）**
 - ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `EvaTaskBizConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-evaluation/infrastructure`（保持 `package edu.cuit.app.convertor.eva` 不变；类内容不变；Serena：引用面为空，且 `rg -n "EvaTaskBizConvertor" .` 仅命中其自身与文档；`@Mapper(componentModel = "spring")` 由 Spring 扫描装配；最小回归通过；代码落地：`f3a2cf7f`）。
@@ -1149,7 +1150,7 @@
 - ✅ **评教（S0.2 延伸）已闭环（保持行为不变）**：`eva-app/src/main/java` 对 `edu.cuit.bc.evaluation.*` 的直接引用面已清零，且 `eva-app/pom.xml` 已移除对 `bc-evaluation`（application jar）的编译期依赖（详见 0.9）。
 - ✅ **审计（S0.2 延伸）已闭环（保持行为不变）**：`BcAuditConfiguration/LogBizConvertor/LogServiceImpl` 已归位 `bc-audit-infra`，且 `eva-app/pom.xml` 已移除对 `bc-audit` 与 `bc-audit-infra` 的编译期依赖；运行期装配由组合根 `start` 显式依赖 `bc-audit-infra(runtime)` 兜底（详见 0.9）。
 - ✅ **AI 报告（S0.2 延伸）已闭环（保持行为不变）**：`eva-app/pom.xml` 已移除对 `bc-ai-report` 与 `bc-ai-report-infra` 的编译期依赖；运行期装配由组合根 `start` 显式依赖 `bc-ai-report-infra(runtime)` 兜底（详见 0.9）。
-- ✅ **websocket（S0.2 延伸）已闭环（保持行为不变）**：`WebSocketConfig/WebSocketInterceptor/MessageChannel/UriUtils` 已归位 `eva-infra-shared`，且 `eva-app/src/main/java` 不再 `import org.springframework.web.socket.*`，并已移除 `eva-app/pom.xml` 对 `spring-boot-starter-websocket` 的编译期依赖（运行期由组合根 `start` 显式兜底；详见 0.9）。
+- ✅ **websocket（S0.2 延伸）已闭环（保持行为不变）**：已完成 `eva-app` →（共享/BC）归位：`WebSocketInterceptor/MessageChannel/UriUtils` 归位 `eva-infra-shared`，且 `WebSocketConfig` 已进一步从 `eva-infra-shared` 归位到 `bc-messaging`（均保持 `package` 不变）；同时 `eva-app/src/main/java` 不再 `import org.springframework.web.socket.*`，并已移除 `eva-app/pom.xml` 对 `spring-boot-starter-websocket` 的编译期依赖（运行期由组合根 `start` 显式兜底；详见 0.9）。
 - ✅ **已闭环（2026-01-16，保持行为不变，依赖收敛：消息契约）**：`eva-app/pom.xml` 已移除对 `bc-messaging-contract` 的 Maven 编译期依赖（详见 0.9，最小回归通过）。
 - ✅ **S1（IAM Controller：DepartmentController 结构性收敛，保持行为不变）**：已抽取 `success(...)` 统一封装 `CommonResult.success(...)` 的返回表达（仍保持“先调用 service → 再返回包装”的执行顺序不变；不改 URL/注解/异常/副作用顺序；最小回归通过）；落地：`fbc5fb74`（三文档同步：`798c62b8`）。
 - ✅ **S0.2 延伸（IAM：依赖收敛，保持行为不变）**：已完成 `EvaRecordCountQueryPort` 下沉至 `bc-evaluation-contract` + `bc-iam-infra` 去 `bc-evaluation` 编译期依赖（落地：`4c30b02c/42a9e96c`；详见 0.9）。
