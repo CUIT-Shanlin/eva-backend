@@ -334,7 +334,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（支撑类归位：评教任务 Convertor，保持行为不变）：将 `EvaTaskBizConvertor` 从 `eva-infra-shared` 归位到 `bc-evaluation/infrastructure`（保持 `package edu.cuit.app.convertor.eva` 不变；类内容不变；Serena：引用面为空；最小回归通过；落地：`f3a2cf7f`）。
 - ✅ S1 前置（支撑类归位：评教记录 Convertor，保持行为不变）：将 `EvaRecordBizConvertor` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package edu.cuit.app.convertor.eva` 不变；类内容不变；最小回归通过；落地：`b3a3dab2`）。
 - ✅ S1 前置（支撑类归位：评教配置 Convertor，保持行为不变）：将 `EvaConfigBizConvertor` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package edu.cuit.app.convertor.eva` 不变；类内容不变；最小回归通过；落地：`5514463d`）。
-- ✅ S1 前置（支撑类归位：评教切面配置，保持行为不变）：将 `AspectConfig` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package edu.cuit.app.aop` 不变；类内容不变；最小回归通过；落地：`18901dab`）。
+- ✅ S1 前置（支撑类归位：评教切面配置，保持行为不变）：将 `AspectConfig` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package edu.cuit.app.aop` 不变；类内容不变；最小回归通过；落地：`18901dab`）。（后续进一步瘦身：`AspectConfig` 已从 `eva-infra-shared` 归位到 `bc-course/infrastructure`，保持行为不变；落地：`33dbaf6f`）
 - ✅ S1 前置（支撑类归位：Sa-Token 权限加载，保持行为不变）：将 `StpInterfaceImpl` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package edu.cuit.app.security` 不变；类内容不变；最小回归通过；落地：`bcce5582`）。
 - ✅ S1 前置（支撑类归位：Sa-Token 拦截器配置，保持行为不变）：将 `SaTokenInterceptorConfig` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package edu.cuit.app.config` 不变；类内容不变；最小回归通过；落地：`a14a4c68`）。
 - ✅ S1 前置（支撑类归位：Sa-Token 配置，保持行为不变）：将 `SaTokenConfig` 从 `eva-app` 归位到 `eva-infra-shared`（保持 `package edu.cuit.app.config` 不变；类内容不变；最小回归通过；落地：`c767663f`）。

@@ -23,6 +23,7 @@
 
 **2026-02-11（本会话：保持行为不变，继续瘦身共享基础设施）**
 - ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `EvaTemplateBizConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-evaluation/infrastructure`（保持 `package edu.cuit.app.convertor.eva` 不变；类内容不变；Serena：引用面为空，且 `rg -n "EvaTemplateBizConvertor" .` 仅命中其自身与文档；`@Mapper(componentModel = "spring")` 由 Spring 扫描装配；最小回归通过；代码落地：`ecac6910`）。
+- ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `AspectConfig` 从 `eva-infra-shared` 搬运归位到 `bc-course/infrastructure`（保持 `package edu.cuit.app.aop` 不变；类内容不变；Serena：引用面为空，且 `rg -n "AspectConfig" .` 仅命中其自身与文档；`@Aspect/@Component` 由 Spring 扫描装配；最小回归通过；代码落地：`33dbaf6f`）。
 - ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `WebSocketConfig` 从 `eva-infra-shared` 搬运归位到 `bc-messaging`（保持 `package edu.cuit.app.config` 不变；类内容不变；Serena：引用面为空，且 `rg -n "WebSocketConfig" .` 仅命中其自身与文档；`@Configuration` 由 Spring 扫描装配；最小回归通过；代码落地：`eb110825`）。
 - ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `WebSocketInterceptor` 从 `eva-infra-shared` 搬运归位到 `bc-messaging`（保持 `package edu.cuit.app.config` 不变；类内容不变；Serena：引用面仅命中 `bc-messaging` 的 `WebSocketConfig`；最小回归通过；代码落地：`3015ba57`）。
 - ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `UriUtils` 从 `eva-infra-shared` 搬运归位到 `bc-messaging`（保持 `package edu.cuit.app.util` 不变；类内容不变；Serena：引用面仅命中 `bc-messaging` 的 `WebSocketInterceptor`；最小回归通过；代码落地：`3febc475`）。
@@ -475,7 +476,7 @@
 - ✅ **S1 前置（支撑类归位：Sa-Token 配置，保持行为不变）**：将 `SaTokenConfig` 从 `eva-app` 搬运归位到 `eva-infra-shared`（保持 `package edu.cuit.app.config` 不变；类内容不变；最小回归通过）；落地提交：`c767663f`。
 - ✅ **S1 前置（支撑类归位：Sa-Token 拦截器配置，保持行为不变）**：将 `SaTokenInterceptorConfig` 从 `eva-app` 搬运归位到 `eva-infra-shared`（保持 `package edu.cuit.app.config` 不变；类内容不变；最小回归通过）；落地提交：`a14a4c68`。
 - ✅ **S1 前置（支撑类归位：Sa-Token 权限加载，保持行为不变）**：将 `StpInterfaceImpl` 从 `eva-app` 搬运归位到 `eva-infra-shared`（保持 `package edu.cuit.app.security` 不变；类内容不变；最小回归通过）；落地提交：`bcce5582`。
-- ✅ **S1 前置（支撑类归位：评教切面配置，保持行为不变）**：将 `AspectConfig` 从 `eva-app` 搬运归位到 `eva-infra-shared`（保持 `package edu.cuit.app.aop` 不变；类内容不变；最小回归通过）；落地提交：`18901dab`。
+- ✅ **S1 前置（支撑类归位：评教切面配置，保持行为不变）**：将 `AspectConfig` 从 `eva-app` 搬运归位到 `eva-infra-shared`（保持 `package edu.cuit.app.aop` 不变；类内容不变；最小回归通过；落地提交：`18901dab`）。（后续进一步瘦身：`AspectConfig` 已从 `eva-infra-shared` 归位到 `bc-course/infrastructure`，保持行为不变；落地：`33dbaf6f`）
 - ✅ **S0.2 延伸（依赖收敛：eva-domain 去 spring-statemachine-core 编译期依赖，保持行为不变）**：在 Serena + `rg` 证伪 `eva-domain/src/main/java` 无 `statemachine` 相关引用后，收敛 `eva-domain/pom.xml`：移除 `spring-statemachine-core` Maven 依赖（最小回归通过）；落地提交：`12c8d4bb`。
 - 🔁 **S0.2 延伸（依赖收敛纠偏：bc-audit(application) 恢复 eva-domain 编译期依赖，保持行为不变）**：此前仅按 `edu.cuit.domain.*` 引用面误判可去 `eva-domain`（落地：`bf90c040`）；后续在最小回归触发重新编译时暴露：`bc-audit/application` 仍引用 `edu.cuit.client.bo.SysLogBO`（定义于 `eva-domain/src/main/java/edu/cuit/client/bo/SysLogBO.java`，包名保持不变）。因此恢复 `bc-audit/application/pom.xml` 对 `eva-domain` 的 Maven 编译期依赖以闭合编译（最小回归通过）；纠偏提交：`b47d71ab`。
 - ✅ **S0.2 延伸（类型下沉：PaginationResultEntity 归位 shared-kernel，保持行为不变）**：为逐步减少各 BC（含 IAM）对 `eva-domain` 的编译期耦合，将通用分页实体 `edu.cuit.domain.entity.PaginationResultEntity` 从 `eva-domain` 下沉到 `shared-kernel`（保持 `package` 与类内容不变，仅改变 Maven 模块归属；最小回归通过）；落地提交：`d31bb204`。
