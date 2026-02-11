@@ -62,6 +62,13 @@
 	            <version>${revision}</version>
 	        </dependency>
 
+        <!-- 评教消息入口依赖消息域实现（下一刀：WebsocketManager 从 eva-infra-shared 归位到 bc-messaging；保持行为不变） -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>bc-messaging</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
         <!-- shared：从 eva-infra 渐进式抽离的可复用基础设施能力（Converter/缓存常量/工具等） -->
         <dependency>
             <groupId>edu.cuit</groupId>
