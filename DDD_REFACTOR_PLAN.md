@@ -504,6 +504,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 ### 10.2 下一步优先顺序（保持“写侧优先 + 行为不变”）
 
+> 路线选择（更新至 2026-02-12）：采用 **方案 1（业务整合优先）** —— 优先把“跨 BC 直连/编译期耦合”收敛到 `*-contract` + `shared-kernel` 的对外接口调用；`eva-infra-dal/eva-infra-shared/eva-base` 作为“平台共享模块”可暂留，但必须持续瘦身与控边界（详见 10.5 的里程碑与 DoD）。
+
 > 滚动口径（更新至 2026-02-04）：✅ `eva-app` 已完成退场闭环（源码清零 + 组合根 `start` 去依赖 + root reactor 移除 + 删除 `eva-app/pom.xml`）；✅ `eva-adapter` 残留 `*Controller` 已清零，且组合根 `start` 已移除对 `eva-adapter` 的 Maven 依赖（保持行为不变）；✅ `eva-adapter` 已从 root reactor 退场（root `pom.xml` 移除 `<module>eva-adapter</module>`；最小回归通过；落地：`86842a1f`）；✅ 已删除 `eva-adapter/pom.xml`（全仓库 `**/pom.xml` 不再出现 `<artifactId>eva-adapter</artifactId>`；最小回归通过；落地：`ed244cad`）；🎯 下一步主线：并行推进“依赖方 `pom.xml` 编译期依赖收敛”，并评估是否需要删除 `eva-adapter/` 空目录（需独立提交；保持行为不变）。
 > 补充（更新至 2026-02-04，保持行为不变）：主线已转向 **bc-course S0.2 延伸：逐类把课程域类型从 `eva-domain` 归位到 `bc-course-domain`（保持 `package` 不变）**，以缩小 `eva-domain` 表面积并为后续“依赖方去 `eva-domain`”创造前置条件（下一刀建议见 10.3 的 bc-course 小节）。IAM 的 “S0.2 延伸（依赖方收敛）” 已阶段性闭环，作为并行任务保留历史记录与回溯口径。
 > 新会话续接方式：优先复制 `NEXT_SESSION_HANDOFF.md` 的 0.11「推荐版（主线优先）」并按 0.10 的“下一步拆分与里程碑/提交点”顺序执行，避免遗漏约束与回归命令。
@@ -888,14 +890,42 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 >
 > 1) **业务整合（推荐优先）**：把“业务域类型/接口”从 `eva-domain` 逐类归位到对应 `bc-*/domain`（保持 `package` 不变），并在证伪无引用后移除 `eva-domain`；这一步完成后，业务层面的 “eva-* 退场” 已达成大半。
 > 2) **命名整合（可选，后置）**：`eva-infra-dal/eva-infra-shared/eva-base` 多为跨 BC 的共享技术能力（DAL/Convertor/通用工具/配置），不建议强行归入某个单一 BC；若目标是“仓库里不再出现 eva- 前缀模块”，更稳妥的做法是 **先把业务相关实现搬走/瘦身**，再评估“保留为共享平台模块并改名（artifactId 变更）”或“进一步下沉到 shared-kernel/各 BC infrastructure”。
-  - 现状评估（更新至 2026-02-11，保持行为不变）：
+
+**方案 1（业务整合优先）的可执行规划（2026-02-12 起采用，保持行为不变）**
+
+> 目标定义：先达成“BC 相互独立（业务维度）”—— **跨 BC 交互只允许通过 `*-contract` 的端口/DTO（或共享协议 `shared-kernel`）**，不允许通过“直连对方表/直依赖对方基础设施实现类”完成业务；平台共享能力（DAL/Convertor/通用工具/配置）可以暂留，但其表面积必须持续收敛并保持“无业务语义”。
+
+1) **里程碑 M0：统一验收口径（度量先行）**
+   - DoD（可复现证据）：
+     - reactor 模块快照：`rg -n '<module>eva-' pom.xml`
+     - 依赖方快照：`rg -n '<artifactId>eva-(infra-dal|infra-shared|base-common|base-config)</artifactId>' --glob '**/pom.xml' bc-* | head`
+     - 存量快照：`fd -t f -e java . eva-infra-dal/src/main/java | wc -l`、`fd -t f -e xml . eva-infra-dal/src/main/resources | wc -l`、`fd -t f -e java . eva-infra-shared/src/main/java | wc -l`
+
+2) **里程碑 M1：跨 BC 直连清零（持续滚动，写侧优先）**
+   - 做法：对每一个“跨 BC 直连表/Mapper/DO”的点，按“每次只改 1 个类”收敛为调用目标 BC 的 `*-contract` 端口（端口适配器落在目标 BC `infrastructure`，内部原样复刻 SQL/装配逻辑；缓存/日志/异常文案/副作用顺序不变）。
+   - 验收：Serena 证伪指定范围无目标 Mapper/DO 引用点（例如已完成的 IAM `sys_user_role/sys_role` 清零口径）。
+
+3) **里程碑 M2：依赖边界收敛到 contract（逐 pom，避免环依赖）**
+   - 做法：依赖方 `pom.xml` 只保留“闭合编译/装配所需”的依赖；跨 BC 依赖一律优先收敛为 `*-contract` 或 `shared-kernel`，禁止依赖对方 `infrastructure` 模块。
+   - 验收：对每个被收敛的依赖，保留 Serena 证据化“引用面为 0”的结论，并以最小回归闭环。
+
+4) **里程碑 M3：平台模块治理（不强行塞进单一 BC，先瘦身再改名）**
+   - `eva-infra-dal`：继续按“仅单 BC 引用才允许归位”的规则拆散 Mapper/DO/XML（每次只改 1 个类或 1 个 XML）；无法证伪为“单 BC 引用”的，暂留为共享 DAL 能力。
+   - `eva-infra-shared`：持续把“仅单 BC 引用”的支撑类/Convertor 归位到目标 BC（或下沉到 `eva-infra-dal/shared-kernel`），并记录阻塞点（典型：跨 BC Convertor、LDAP 风险簇）。
+   - `eva-base-common`：作为跨 BC 协议/枚举的承载，优先下沉到 `shared-kernel`（保持 `package` 不变），再逐个依赖方 `pom.xml` 收敛；避免在“业务整合尚未稳定”阶段引入大范围依赖变更。
+
+5) **可选里程碑 M4：命名整合（仓库不出现 eva- 前缀）**
+   - 前置：先完成 M1/M2/M3（平台模块已“无业务语义 + 低表面积 + 依赖边界清晰”）。
+   - 做法：评估将平台模块统一改名为 `platform-*`/`shared-*`（artifactId 变更）或进一步下沉；此项不作为“BC 业务独立”的阻塞条件。
+
+  - 现状评估（更新至 2026-02-12，保持行为不变）：
     - `eva-app`：已完成退场闭环（源码清零 + 组合根 `start` 去依赖 + root reactor 移除 + 删除 `eva-app/pom.xml`）；无需再围绕 `eva-app` 做依赖收敛或入口迁移。
     - `eva-adapter`：已完成退场闭环（残留 Controller 清零 + 组合根去依赖 + root reactor 移除 + 删除模块 pom）；证据口径：`fd -t f 'Controller\\.java$' eva-adapter/src/main/java | wc -l` 为 0，且 `rg -n '<module>eva-adapter</module>' pom.xml` 命中为 0，且 `rg -n '<artifactId>eva-adapter</artifactId>' --glob '**/pom.xml' .` 命中为 0（保持行为不变）。
-    - `eva-infra-dal`：仍在 reactor（root `pom.xml` 仍含 `<module>eva-infra-dal</module>`）；当前剩余 `22` 个 Java + `8` 个 XML 未归位（可复现口径：`fd -t f -e java . eva-infra-dal/src/main/java | wc -l` + `fd -t f -e xml . eva-infra-dal/src/main/resources | wc -l`）。`course_type` 候选已完成两刀：`CourseTypeMapper`（落地：`241b75de`）+ `CourseTypeMapper.xml`（落地：`158f0bd2`）已归位到 `bc-course/infrastructure`（保持 `package/namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变）。`sys_menu` 候选已完成两刀：`SysMenuMapper.xml`（落地：`920c17d1`）+ `SysMenuMapper`（落地：`b53615e5`）已归位到 `bc-iam/infrastructure`（保持 `package/namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变）。评教 `eva_task` 候选已补齐 1 刀：`EvaTaskMapper.xml`（落地：`ad2e7d25`）已归位到 `bc-evaluation/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变）。`sys_role` 候选已补齐 2 刀：`SysRoleMapper`（落地：`60b87404`）+ `SysRoleMapper.xml`（落地：`aa1d7c6b`）已归位到 `bc-iam/infrastructure`（保持 `package/namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变）。`sys_user_role` 候选已补齐 2 刀：`SysUserRoleMapper`（落地：`1f93141c`）+ `SysUserRoleMapper.xml`（落地：`0cd5da04`）已归位到 `bc-iam/infrastructure`（保持 `package/namespace/resultMap type` 与资源路径 `mapper/**` 不变）。
-	    - `eva-infra-shared`：仍被多个 BC 基础设施模块直依赖（如 `bc-course/bc-evaluation/bc-iam/bc-audit/bc-template/bc-messaging`），当前仍剩 `21` 个 Java（口径：`fd -t f -e java . eva-infra-shared/src/main/java | wc -l`），且存在跨 BC 的 Convertor（例如 Serena 证据化：`CourseConvertor` 引用面跨 `bc-course/**` 与 `bc-evaluation/**`）；但已开始逐类归位“仅单 BC 引用”的支撑类（例如 `LdapPersonRepo`：`ed120804`、`LdapUserConvertor`：`4d09f8da` 已归位到 `bc-iam/infrastructure`；`LdapPersonDO`：`2120b80d` 已归位到 `bc-iam/infrastructure`；`AvatarProperties`：`e3e9a1e4` 已归位到 `bc-iam/infrastructure`；`SaTokenConfig`：`fb3fe49d` 已归位到 `bc-iam/infrastructure`；`SaTokenInterceptorConfig`：`78b831d9` 已归位到 `bc-iam/infrastructure`；`StpInterfaceImpl`：`192e790c` 已归位到 `bc-iam/infrastructure`；`MsgBizConvertor`：`7077924e` 已归位到 `bc-evaluation/infrastructure`；`EvaConfigBizConvertor`：`3d374b20` 已归位到 `bc-evaluation/infrastructure`；`EvaRecordBizConvertor`：`6a5430cb` 已归位到 `bc-evaluation/infrastructure`；`EvaTaskBizConvertor`：`f3a2cf7f` 已归位到 `bc-evaluation/infrastructure`；`EvaTemplateBizConvertor`：`ecac6910` 已归位到 `bc-evaluation/infrastructure`；`WebSocketConfig`：`eb110825` 已归位到 `bc-messaging`；`WebSocketInterceptor`：`3015ba57` 已归位到 `bc-messaging`；`UriUtils`：`3febc475` 已归位到 `bc-messaging`；`MessageChannel`：`10248c53` 已归位到 `bc-messaging`；`AspectConfig`：`33dbaf6f` 已归位到 `bc-course/infrastructure`；`AfterCommitEventPublisher`：`352b1680` 已归位到 `bc-course/infrastructure`；`SemesterConverter`：`99f78d40` 已归位到 `bc-course/infrastructure`；`ClassroomCacheConstants`：`eb41025e` 已归位到 `bc-course/infrastructure`；`CalculateClassTime`：`01b13b20` 已归位到 `bc-evaluation/infrastructure`；`StaticConfigProperties`：`3004217d` 已归位到 `bc-evaluation/infrastructure`），以逐步缩小 `eva-infra-shared` 表面积。部分 DAL DO（如 `CourseTypeDO`）仍因共享 Convertor 引用暂不满足“仅单 BC 引用才归位”的约束，需谨慎推进以避免依赖/装配边界漂移。
-    - `eva-base*`：作为共享底座仍存在（当前代码量已很小），但仍有 BC 直依赖（如 `bc-iam/contract` 依赖 `eva-base-common`）；后置再评估“下沉到 shared-kernel/改名”为宜，避免同一阶段引入大范围 `pom.xml` 变更。
+    - `eva-infra-dal`：仍在 reactor（root `pom.xml` 仍含 `<module>eva-infra-dal</module>`）；当前剩余 `25` 个 Java + `8` 个 XML 未归位（可复现口径：`fd -t f -e java . eva-infra-dal/src/main/java | wc -l` + `fd -t f -e xml . eva-infra-dal/src/main/resources | wc -l`）。`course_type` 候选已完成两刀：`CourseTypeMapper`（落地：`241b75de`）+ `CourseTypeMapper.xml`（落地：`158f0bd2`）已归位到 `bc-course/infrastructure`（保持 `package/namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变）。`sys_menu` 候选已完成两刀：`SysMenuMapper.xml`（落地：`920c17d1`）+ `SysMenuMapper`（落地：`b53615e5`）已归位到 `bc-iam/infrastructure`（保持 `package/namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变）。评教 `eva_task` 候选已补齐 1 刀：`EvaTaskMapper.xml`（落地：`ad2e7d25`）已归位到 `bc-evaluation/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变）。`sys_role` 候选已补齐 2 刀：`SysRoleMapper`（落地：`60b87404`）+ `SysRoleMapper.xml`（落地：`aa1d7c6b`）已归位到 `bc-iam/infrastructure`（保持 `package/namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变）。`sys_user_role` 候选已补齐 2 刀：`SysUserRoleMapper`（落地：`1f93141c`）+ `SysUserRoleMapper.xml`（落地：`0cd5da04`）已归位到 `bc-iam/infrastructure`（保持 `package/namespace/resultMap type` 与资源路径 `mapper/**` 不变）。
+	    - `eva-infra-shared`：仍被多个 BC 基础设施模块直依赖（如 `bc-course/bc-evaluation/bc-iam/bc-audit/bc-template/bc-messaging`），当前仍剩 `14` 个 Java（口径：`fd -t f -e java . eva-infra-shared/src/main/java | wc -l`），且存在跨 BC 的 Convertor（例如 Serena 证据化：`CourseConvertor` 引用面跨 `bc-course/**` 与 `bc-evaluation/**`）；但已开始逐类归位“仅单 BC 引用”的支撑类（例如 `LdapPersonRepo`：`ed120804`、`LdapUserConvertor`：`4d09f8da` 已归位到 `bc-iam/infrastructure`；`LdapPersonDO`：`2120b80d` 已归位到 `bc-iam/infrastructure`；`AvatarProperties`：`e3e9a1e4` 已归位到 `bc-iam/infrastructure`；`SaTokenConfig`：`fb3fe49d` 已归位到 `bc-iam/infrastructure`；`SaTokenInterceptorConfig`：`78b831d9` 已归位到 `bc-iam/infrastructure`；`StpInterfaceImpl`：`192e790c` 已归位到 `bc-iam/infrastructure`；`MsgBizConvertor`：`7077924e` 已归位到 `bc-evaluation/infrastructure`；`EvaConfigBizConvertor`：`3d374b20` 已归位到 `bc-evaluation/infrastructure`；`EvaRecordBizConvertor`：`6a5430cb` 已归位到 `bc-evaluation/infrastructure`；`EvaTaskBizConvertor`：`f3a2cf7f` 已归位到 `bc-evaluation/infrastructure`；`EvaTemplateBizConvertor`：`ecac6910` 已归位到 `bc-evaluation/infrastructure`；`WebSocketConfig`：`eb110825` 已归位到 `bc-messaging`；`WebSocketInterceptor`：`3015ba57` 已归位到 `bc-messaging`；`UriUtils`：`3febc475` 已归位到 `bc-messaging`；`MessageChannel`：`10248c53` 已归位到 `bc-messaging`；`AspectConfig`：`33dbaf6f` 已归位到 `bc-course/infrastructure`；`AfterCommitEventPublisher`：`352b1680` 已归位到 `bc-course/infrastructure`；`SemesterConverter`：`99f78d40` 已归位到 `bc-course/infrastructure`；`ClassroomCacheConstants`：`eb41025e` 已归位到 `bc-course/infrastructure`；`CalculateClassTime`：`01b13b20` 已归位到 `bc-evaluation/infrastructure`；`StaticConfigProperties`：`3004217d` 已归位到 `bc-evaluation/infrastructure`），以逐步缩小 `eva-infra-shared` 表面积。部分 DAL DO（如 `CourseTypeDO`）仍因共享 Convertor 引用暂不满足“仅单 BC 引用才归位”的约束，需谨慎推进以避免依赖/装配边界漂移。
+    - `eva-base*`：作为共享底座仍存在（当前代码量已很小，`eva-base-common` 当前仅 2 个 Java），但仍有 BC 直依赖（如 `bc-iam/contract` 依赖 `eva-base-common`）；后置再评估“下沉到 shared-kernel/改名”为宜，避免同一阶段引入大范围 `pom.xml` 变更。
     - `eva-infra-dal/eva-infra-shared/eva-base`：仍是“全量整合”的核心阻塞（多个 `bc-*` 模块仍编译期依赖 `eva-infra-shared`；且 `eva-infra-shared` 依赖 `eva-infra-dal`；证据口径见上方 3)）。因此“把所有 `eva-*` 模块全部整合进各业务 BC 并从 reactor 移除”仍不具备一次性落地条件，需要按“小步迁移类型/适配器 → 再收敛单个 pom → 再评估移除模块”的节奏推进。
-	      - 可复现现状口径（更新至 2026-02-10，保持行为不变）：
+	      - 可复现现状口径（更新至 2026-02-12，保持行为不变）：
 	        - root reactor 仍包含：`eva-infra-dal`、`eva-infra-shared`、`eva-base`（口径：`rg -n '<module>eva-' pom.xml`）。
 	        - 已闭环快照复核（保持行为不变）：`msg_tip`/`sys_role_menu`/`course_type_course` 相关 `Mapper/DO/XML` 均已在目标 BC 内各命中 1，且 `eva-infra-dal` 下 0 命中（口径：`fd -t f ... | wc -l`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 	        - `eva-domain`：已从 root reactor 退场且编译期依赖方已清零（口径：`rg -n '<artifactId>eva-domain</artifactId>' --glob '**/pom.xml' .` 预期无命中）。
