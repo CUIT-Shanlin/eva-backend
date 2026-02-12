@@ -9,6 +9,7 @@ import com.alibaba.cola.exception.SysException;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import edu.cuit.bc.course.application.port.CourInfObjectDirectQueryPort;
 import edu.cuit.bc.iam.application.port.UserEntityObjectByIdDirectQueryPort;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.EvaLogConditionalQuery;
@@ -29,7 +30,6 @@ import edu.cuit.infra.dal.database.dataobject.course.SubjectDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
-import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.SemesterMapper;
 import edu.cuit.infra.dal.database.mapper.course.SubjectMapper;
@@ -68,7 +68,7 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
     private final SysUserMapper sysUserMapper;
     private final SemesterMapper semesterMapper;
     private final SubjectMapper subjectMapper;
-    private final CourInfMapper courInfMapper;
+    private final CourInfObjectDirectQueryPort courInfObjectDirectQueryPort;
     private final FormRecordMapper formRecordMapper;
 
     @Override
@@ -102,8 +102,9 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
                 List list=new ArrayList();
                 return paginationConverter.toPaginationEntity(pageLog,list);
             }
-            List<CourInfDO> courInfDOS=courInfMapper.selectList(new QueryWrapper<CourInfDO>()
-                    .in("id",evaTaskDOS.stream().map(EvaTaskDO::getCourInfId).toList()));
+            List<CourInfDO> courInfDOS = courInfObjectDirectQueryPort.findByIds(evaTaskDOS.stream().map(EvaTaskDO::getCourInfId).toList()).stream()
+                    .map(CourInfDO.class::cast)
+                    .collect(Collectors.toList());
             if(CollectionUtil.isEmpty(courInfDOS)){
                 List list=new ArrayList();
                 return paginationConverter.toPaginationEntity(pageLog,list);
@@ -128,7 +129,9 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
                 List list=new ArrayList();
                 return paginationConverter.toPaginationEntity(pageLog,list);
             }
-            List<CourInfDO> courInfDOS1=courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("id",courInfIds));
+            List<CourInfDO> courInfDOS1 = courInfObjectDirectQueryPort.findByIds(courInfIds).stream()
+                    .map(CourInfDO.class::cast)
+                    .collect(Collectors.toList());
             List<Integer> courseIds1=courInfDOS1.stream().map(CourInfDO::getCourseId).toList();
             if(CollectionUtil.isEmpty(courseIds1)){
                 List list=new ArrayList();
@@ -165,7 +168,9 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
         //任务
 
         QueryWrapper<EvaTaskDO> evaTaskWrapper=new QueryWrapper<EvaTaskDO>();
-        List<CourInfDO> courInfDOS=courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id",courseIds));
+        List<CourInfDO> courInfDOS = courInfObjectDirectQueryPort.findByCourseIds(courseIds).stream()
+                .map(CourInfDO.class::cast)
+                .collect(Collectors.toList());
         List<Integer> courseInfoIds=courInfDOS.stream().map(CourInfDO::getId).toList();
         if(CollectionUtil.isEmpty(courseInfoIds)){
             List list=new ArrayList();
@@ -270,7 +275,9 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
             List list=new ArrayList();
             return list;
         }else {
-            courInfDOS = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", courseIds));
+            courInfDOS = courInfObjectDirectQueryPort.findByCourseIds(courseIds).stream()
+                    .map(CourInfDO.class::cast)
+                    .collect(Collectors.toList());
         }
         List<Integer> courInfIds=courInfDOS.stream().map(CourInfDO::getId).toList();
         List<EvaTaskDO> evaTaskDOS;
@@ -313,7 +320,9 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
         //课程id ->课程->courInfo->evaTask->record
         List<CourInfDO> courInfDOs=new ArrayList<>();
         if(courseId!=null&&courseId>0){
-            courInfDOs=courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id",courseId));
+            courInfDOs = courInfObjectDirectQueryPort.findByCourseIds(List.of(courseId)).stream()
+                    .map(CourInfDO.class::cast)
+                    .collect(Collectors.toList());
         }else{
             QueryWrapper<CourseDO> courseDOQueryWrapper=new QueryWrapper<CourseDO>();
             if(semId!=null){
@@ -327,7 +336,9 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
                 List list=new ArrayList();
                 return list;
             }else {
-                courInfDOs=courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id",couIds));
+                courInfDOs = courInfObjectDirectQueryPort.findByCourseIds(couIds).stream()
+                        .map(CourInfDO.class::cast)
+                        .collect(Collectors.toList());
             }
         }
         List<Integer> courInfoIds=courInfDOs.stream().map(CourInfDO::getId).toList();
@@ -376,7 +387,11 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
 
     @Override
     public List<EvaRecordEntity> getRecordByCourse(Integer courseId) {
-        List<CourInfDO> courInfDOS=courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id",courseId));
+        List<Integer> courseIds=new ArrayList<>();
+        courseIds.add(courseId);
+        List<CourInfDO> courInfDOS = courInfObjectDirectQueryPort.findByCourseIds(courseIds).stream()
+                .map(CourInfDO.class::cast)
+                .collect(Collectors.toList());
         if(CollectionUtil.isEmpty(courInfDOS)){
             return List.of();
         }
@@ -488,7 +503,9 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
     @Override
     public Optional<Integer> getEvaNumByCourse(Integer courseId) {
         CourseDO courseDO=courseMapper.selectById(courseId);
-        List<CourInfDO> courInfDOS=courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id",courseDO.getId()));
+        List<CourInfDO> courInfDOS = courInfObjectDirectQueryPort.findByCourseIds(List.of(courseDO.getId())).stream()
+                .map(CourInfDO.class::cast)
+                .collect(Collectors.toList());
         List<Integer> courInfoIds=courInfDOS.stream().map(CourInfDO::getId).toList();
         if(CollectionUtil.isEmpty(courInfoIds)){
             return Optional.of(0);
