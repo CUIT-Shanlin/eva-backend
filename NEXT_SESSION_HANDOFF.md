@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-02-12（本会话：保持行为不变，继续瘦身共享基础设施）**
+- ✅ 已完成（保持行为不变，方案 1：继续清零评教侧对课程域 cour_inf 的跨 BC 直连，单类前置）：在 `bc-course/application` 新增查询端口 `CourInfObjectDirectQueryPort`，用于以端口方式直查 cour_inf 对象（返回 `Object`，避免端口暴露 DAL DataObject；后续用于替换评教读侧对 `CourInfMapper` 的直连；最小回归通过；代码落地：`22fba0be`）。
 - ✅ 已完成（保持行为不变，方案 1：继续清零评教侧对课程域 cour_inf 的跨 BC 直连，单类）：收敛评教写侧删除评教记录对课程域 `CourInfMapper.selectById/selectList` 的跨 BC 直连：`DeleteEvaRecordRepositoryImpl.delete(...)` 改为调用课程域查询端口 `CourInfTimeSlotQueryPort.findByCourInfId(...)` + `CourInfIdsByCourseIdsQueryPort.findCourInfIdsByCourseIds(...)`（异常文案/分支/查询次数与顺序不变；最小回归通过；代码落地：`d2472370`）。
 - ✅ 已完成（保持行为不变，方案 1：继续清零评教侧对课程域 cour_inf 的跨 BC 直连，单类）：收敛评教侧撤回任务对课程域 `CourInfMapper.selectById` 的跨 BC 直连：`EvaUpdateGatewayImpl.cancelEvaTaskById(...)` 改为调用课程域查询端口 `CourseIdByCourInfIdQueryPort.findCourseIdByCourInfId(...)`（缓存失效 key 与副作用顺序不变；最小回归通过；代码落地：`6592d4ba`）。
 - ✅ 已完成（保持行为不变，方案 1：继续清零评教侧对课程域 cour_inf 的跨 BC 直连，单类）：收敛评教写侧 `PostEvaTaskRepositoryImpl.create(...)` 对课程域 `CourInfMapper.selectById/selectList` 的跨 BC 直连：改为调用课程域查询端口 `CourInfTimeSlotQueryPort.findByCourInfId/findByCourseIds/findByCourInfIds`（时间冲突判定逻辑/异常文案/查询次数与顺序不变；最小回归通过；代码落地：`50943f8c`）。
