@@ -25,6 +25,13 @@
             <artifactId>zym-spring-boot-starter-jdbc</artifactId>
         </dependency>
 
+        <!-- 编译闭合前置（保持行为不变）：承接 QueryUtils 等对 PagingQuery/GenericConditionalQuery 的类型引用 -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>shared-kernel</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -33,4 +40,3 @@
     </dependencies>
 
 </project>
-
