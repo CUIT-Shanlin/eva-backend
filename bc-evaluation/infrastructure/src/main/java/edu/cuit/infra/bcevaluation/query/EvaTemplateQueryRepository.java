@@ -5,6 +5,7 @@ import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import edu.cuit.bc.course.application.port.CourInfIdsByCourseIdsQueryPort;
 import edu.cuit.bc.course.application.port.CourseIdByCourInfIdQueryPort;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
@@ -12,12 +13,10 @@ import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.eva.EvaTemplateEntity;
 import edu.cuit.infra.convertor.PaginationConverter;
 import edu.cuit.infra.convertor.eva.EvaConvertor;
-import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.eva.CourOneEvaTemplateDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.dataobject.eva.FormTemplateDO;
-import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.eva.CourOneEvaTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
@@ -48,7 +47,7 @@ public class EvaTemplateQueryRepository implements EvaTemplateQueryRepo {
     private final EvaTaskMapper evaTaskMapper;
     private final EvaConvertor evaConvertor;
     private final PaginationConverter paginationConverter;
-    private final CourInfMapper courInfMapper;
+    private final CourInfIdsByCourseIdsQueryPort courInfIdsByCourseIdsQueryPort;
     private final CourseIdByCourInfIdQueryPort courseIdByCourInfIdQueryPort;
     private final FormTemplateMapper formTemplateMapper;
     private final CourOneEvaTemplateMapper courOneEvaTemplateMapper;
@@ -159,8 +158,7 @@ public class EvaTemplateQueryRepository implements EvaTemplateQueryRepo {
                     return List.of();
                 }
 
-                List<CourInfDO> courInfDOS = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", courseIdS));
-                List<Integer> courInfoIdS = courInfDOS.stream().map(CourInfDO::getId).toList();
+                List<Integer> courInfoIdS = courInfIdsByCourseIdsQueryPort.findCourInfIdsByCourseIds(courseIdS);
                 if (CollectionUtil.isEmpty(courInfoIdS)) {
                     return List.of();
                 }
