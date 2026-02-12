@@ -511,7 +511,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-02-06，保持行为不变，支撑类归位）：将 `CourInfTimeOverlapQuery` 从 `eva-infra-shared` 进一步归位到 `bc-course/infrastructure`（保持 `package` 不变；Serena：引用面仅命中 `bc-course/infrastructure` 的 3 个适配器；最小回归通过；落地：`ea6c99e9`）。
 - 补充进展（2026-02-12，保持行为不变，编译闭合前置，单 pom）：为后续将 `QueryUtils` 从 `eva-infra-shared` 归位到 `eva-infra-dal`，在 `eva-infra-dal/pom.xml` 显式增加对 `shared-kernel` 的 Maven 编译期依赖（最小回归通过；落地：`996b6990`）。
 - 补充进展（2026-02-12，保持行为不变，编译闭合前置，单 pom）：为后续将 `EntityFactory` 从 `eva-infra-shared` 归位到 `eva-infra-dal` 做准备，在 `eva-infra-dal/pom.xml` 显式补齐 `hutool-all`、`cola-component-exception`、`mapstruct` 依赖（不改变业务语义/副作用顺序；最小回归通过；落地：`6546c548`）。
-- 🎯 下一刀建议（2026-02-12，保持行为不变；单类闭环）：在上述编译闭合前置完成后，将 `EntityFactory` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.convertor` 不变；类内容不变；不引入新缓存/切面副作用），以继续缩小 `eva-infra-shared` 表面积并为后续依赖收敛创造前置条件。
+- ✅ 补充进展（2026-02-12，保持行为不变；单类闭环）：已将 `EntityFactory` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.convertor` 与类内容不变；不引入新缓存/切面副作用；最小回归通过；落地：`eba15e92`）。
+- 🎯 下一刀建议（2026-02-12，保持行为不变；单资源闭环）：继续推进 `eva-infra-dal` → `bc-course/infrastructure` 的课程域 XML 归位：从 `eva-infra-dal/src/main/resources/mapper/course` 选择 **1 个 XML**（如 `SubjectMapper.xml`），在 Serena 证伪对应 Mapper 引用面仅命中 `bc-course/**` 后再归位（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变）。
 - 补充进展（2026-02-12，保持行为不变，支撑类归位）：将 `QueryUtils` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.util` 不变；类内容不变；最小回归通过；落地：`e653338f`）。
 - 补充进展（2026-02-12，保持行为不变，支撑类归位）：将 `PaginationConverter` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.convertor` 不变；类内容不变；最小回归通过；落地：`d2ca2d80`）。
 - 补充进展（2026-02-12，保持行为不变，支撑类归位）：将 `PaginationBizConvertor` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.app.convertor` 不变；类内容不变；Serena：引用面命中 `bc-audit/bc-course/bc-iam/start`；最小回归通过；落地：`2b950a06`）。
@@ -1431,6 +1432,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
     - 依赖：`eva-infra-shared/pom.xml` 增加对 `eva-client` 与 `zym-spring-boot-starter-jdbc` 的依赖（历史）；进展（2025-12-27）：已移除 `eva-infra-shared` → `eva-client` 直依赖（保持行为不变；最小回归通过；`9437bb12`）。
   - 阶段 2.10（已完成）：迁移 `EntityFactory` 到 `eva-infra-shared`（保持包名不变；保持行为不变）。
     - Java：`eva-infra-shared/src/main/java/edu/cuit/infra/convertor/EntityFactory.java`
+    - 后续（2026-02-12，保持行为不变）：已从 `eva-infra-shared` 下沉到 `eva-infra-dal`（Java：`eva-infra-dal/src/main/java/edu/cuit/infra/convertor/EntityFactory.java`；落地：`eba15e92`）。
     - 依赖：`eva-infra-shared/pom.xml` 增加 `mapstruct-plus-spring-boot-starter`；并增加对 `eva-domain` 的依赖以保留 `hutool SpringUtil` 与 `cola SysException` 的依赖来源
   - 阶段 2.11（已完成）：迁移 `PaginationConverter` 到 `eva-infra-shared`（保持包名不变；保持行为不变；落地提交：`54d5fecd`）。
     - Java：`eva-infra-shared/src/main/java/edu/cuit/infra/convertor/PaginationConverter.java`
