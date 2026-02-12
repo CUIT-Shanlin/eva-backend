@@ -9,6 +9,7 @@ import com.alibaba.cola.exception.SysException;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import edu.cuit.bc.course.application.port.CourInfIdsByCourseIdsQueryPort;
 import edu.cuit.client.dto.clientobject.DateEvaNumCO;
 import edu.cuit.client.dto.clientobject.MoreDateEvaNumCO;
 import edu.cuit.client.dto.clientobject.SimplePercentCO;
@@ -24,12 +25,10 @@ import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.UnqualifiedUserConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.infra.convertor.PaginationConverter;
-import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
-import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
@@ -64,7 +63,7 @@ import java.util.Optional;
 public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
     private final CourseMapper courseMapper;
     private final EvaTaskMapper evaTaskMapper;
-    private final CourInfMapper courInfMapper;
+    private final CourInfIdsByCourseIdsQueryPort courInfIdsByCourseIdsQueryPort;
     private final FormRecordMapper formRecordMapper;
     private final SysUserMapper sysUserMapper;
     private final PaginationConverter paginationConverter;
@@ -671,8 +670,7 @@ public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
                     return List.of();
                 }
 
-                List<CourInfDO> courInfDOS = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", courseIdS));
-                List<Integer> courInfoIdS = courInfDOS.stream().map(CourInfDO::getId).toList();
+                List<Integer> courInfoIdS = courInfIdsByCourseIdsQueryPort.findCourInfIdsByCourseIds(courseIdS);
                 if (CollectionUtil.isEmpty(courInfoIdS)) {
                     return List.of();
                 }
@@ -819,8 +817,7 @@ public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
         if(CollectionUtil.isEmpty(courIdS)){
             return 0;
         }
-        List<CourInfDO> courInfDOS=courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id",courIdS));
-        List<Integer> courInfoIdS=courInfDOS.stream().map(CourInfDO::getId).toList();
+        List<Integer> courInfoIdS=courInfIdsByCourseIdsQueryPort.findCourInfIdsByCourseIds(courIdS);
         if(CollectionUtil.isEmpty(courIdS)){
             return 0;
         }
@@ -885,8 +882,7 @@ public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
         if(CollectionUtil.isEmpty(courIdS)){
             return 0;
         }else {
-            List<CourInfDO> courInfDOS = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", courIdS));
-            List<Integer> courInfoIdS = courInfDOS.stream().map(CourInfDO::getId).toList();
+            List<Integer> courInfoIdS = courInfIdsByCourseIdsQueryPort.findCourInfIdsByCourseIds(courIdS);
             if(CollectionUtil.isEmpty(courInfoIdS)){
                 return 0;
             }
