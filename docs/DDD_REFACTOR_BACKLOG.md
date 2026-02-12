@@ -1207,6 +1207,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
        - ✅ 进展（2026-02-12，保持行为不变；单类）：`ExcelUtils` 已从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package` 与类内容不变；最小回归通过；落地：`31615f43`）。下一刀建议：再按“单 pom”将 `bc-course-infra` 对 `eva-infra-shared` 的依赖替换为依赖 `shared-kernel`（并用 Serena + `rg` 证伪无其它类型引用面）。
        - ✅ 进展（2026-02-12，保持行为不变；单 pom）：为后续下沉 `*CacheConstants` 等含 Spring 注解的共享常量类做准备，已在 `shared-kernel/pom.xml` 预置 `spring-context(optional)` 编译期依赖（最小回归通过；落地：`21a7176b`）。
        - ✅ 进展（2026-02-12，保持行为不变；单类）：`CourseCacheConstants` 已从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package` 与 bean 名称 `courseCacheConstants` 不变；最小回归通过；落地：`16a07a6b`）。下一刀建议：继续下沉 `EvaCacheConstants` / `UserCacheConstants`，以进一步缩小 `eva-infra-shared` 表面积并为依赖方 pom 收敛创造条件。
+       - ✅ 进展（2026-02-12，保持行为不变；单类）：`EvaCacheConstants` 已从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package` 与 bean 名称 `evaCacheConstants` 不变；最小回归通过；落地：`f1fac0f6`）。下一刀建议：继续下沉 `UserCacheConstants`，让 `eva-infra-shared` 的共享常量类清零。
     2) P0（BC 专属归位）：把 `eva-infra-shared` 中“明显归属某个 BC 的基础设施能力”（例如 LDAP 相关）逐类归位到对应 `bc-*/infrastructure`，并后置清理依赖方 pom。
     3) P1（DAL 拆散收尾）：继续按“仅单 BC 引用才允许归位”推进 `eva-infra-dal` → `bc-*/infrastructure`（Mapper/DO/XML 逐文件搬运），最终让 `eva-infra-dal` 为空并从 reactor 退场。
     4) P2（eva-base-common 退场）：识别 `eva-base-common` 的被依赖点，按归属（shared-kernel / 对应 BC）逐类搬运后，清理所有依赖方 pom 并从 reactor 退场。
