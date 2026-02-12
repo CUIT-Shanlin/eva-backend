@@ -30,3 +30,4 @@ public class EvaCacheConstants {
     public final String TEMPLATE_LIST = "template.list";
 
 }
+
