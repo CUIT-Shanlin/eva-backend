@@ -509,6 +509,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 > 新会话续接方式：优先复制 `NEXT_SESSION_HANDOFF.md` 的 0.11「推荐版（主线优先）」并按 0.10 的“下一步拆分与里程碑/提交点”顺序执行，避免遗漏约束与回归命令。
 
 - 补充进展（2026-02-06，保持行为不变，支撑类归位）：将 `CourInfTimeOverlapQuery` 从 `eva-infra-shared` 进一步归位到 `bc-course/infrastructure`（保持 `package` 不变；Serena：引用面仅命中 `bc-course/infrastructure` 的 3 个适配器；最小回归通过；落地：`ea6c99e9`）。
+- 补充进展（2026-02-12，保持行为不变，编译闭合前置，单 pom）：为后续将 `QueryUtils` 从 `eva-infra-shared` 归位到 `eva-infra-dal`，在 `eva-infra-dal/pom.xml` 显式增加对 `shared-kernel` 的 Maven 编译期依赖（最小回归通过；落地：`996b6990`）。
 - 补充进展（2026-02-06，保持行为不变，依赖收敛，单 pom）：收敛 `bc-audit/infrastructure/pom.xml`：移除对 `eva-infra-dal` 的冗余 Maven 直依赖（前置：`eva-infra-shared/pom.xml` 已显式依赖 `eva-infra-dal`；最小回归通过；落地：`91fd39a9`）。
 - 补充进展（2026-02-06，保持行为不变，依赖收敛，单 pom）：收敛 `bc-evaluation/infrastructure/pom.xml`：移除对 `eva-infra-dal` 的冗余 Maven 直依赖（前置：`eva-infra-shared/pom.xml` 已显式依赖 `eva-infra-dal`；最小回归通过；落地：`a0b5a359`）。
 - 补充进展（2026-02-06，保持行为不变，依赖收敛，单 pom）：收敛 `bc-iam/infrastructure/pom.xml`：移除对 `eva-infra-dal` 的冗余 Maven 直依赖（前置：`eva-infra-shared/pom.xml` 已显式依赖 `eva-infra-dal`；最小回归通过；落地：`d7caa268`）。
