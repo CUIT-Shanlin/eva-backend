@@ -1102,6 +1102,14 @@
   - `eva-infra-shared`：当前仍有 `14` 个 Java，且多 BC 仍直依赖该模块（可复现口径：`fd -t f -e java . eva-infra-shared/src/main/java | wc -l` + `rg -n "<artifactId>eva-infra-shared</artifactId>" --glob "**/pom.xml" bc-* | head`）。
   - 关键阻塞例（`course_type`，保持行为不变）：Serena 证据化显示 `CourseConvertor` 的引用面跨 `bc-course/**` 与 `bc-evaluation/**`，因此 `CourseTypeDO` 暂不满足“仅 `bc-course/**` 引用”约束（见 `docs/DDD_REFACTOR_BACKLOG.md` 6 的说明），不建议直接归位 DO 以避免依赖/装配边界漂移。
 
+- 🧭 **策略选择（更新至 2026-02-12）：执行方案 B（严格）—— 彻底退场 `eva-*` 技术切片（保持行为不变）**：
+  - 目标：最终仓库内仅保留 `bc-*` + `shared-kernel` + 组合根 `start`（以及必要的聚合父 pom）；跨 BC 只通过 `*-contract` + `shared-kernel` 对外接口调用；不再存在任何 `eva-*` 模块与 Maven 依赖。
+  - DoD（可复现口径，任一不满足则视为未完成）：
+    1) root reactor 清零：`rg -n '<module>eva-' pom.xml` 无命中
+    2) Maven 依赖清零：`rg -n '<artifactId>eva-' --glob '**/pom.xml' .` 无命中
+    3) 目录退场：`fd -t d '^eva-' . -d 2` 无命中（目录按“每次只改 1 个文件”逐步删干净）
+  - 路线（仍遵守“每次只改 1 个类 / 1 个 XML / 1 个 pom”）：先收敛依赖方 pom（让目标类可被新模块承接）→ 再逐类/逐资源搬运归位 → 再移除旧依赖 → 最后 reactor 退场与目录清理。
+
 - 🎯 **下一步重构计划（建议，保持行为不变；每次只改 1 个类/1 个 XML/1 个 pom 闭环）**：
   0) ✅ IAM（阶段性关闭，保持行为不变）：Serena 证伪 `bc-*`（排除 `bc-iam/**`）范围内无 `SysUserRoleMapper`/`SysRoleMapper` 引用点；若后续新增/回归引用点，仍按“每次只改 1 个类”将直连装配/查询收敛为调用 `bc-iam-contract` 端口 `UserEntityObjectByIdDirectQueryPort`（异常文案/副作用顺序完全不变；不引入新缓存/切面副作用）。
   1) ✅ 主线优先（shared 瘦身，单类闭环，保持行为不变）：已将 `EntityFactory` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package/类内容` 不变；最小回归通过；落地：`eba15e92`）。
