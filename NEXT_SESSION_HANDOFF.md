@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-02-12（本会话：保持行为不变，继续瘦身共享基础设施）**
+- ✅ 已完成（保持行为不变，方案 1：继续清零评教侧对课程域 cour_inf 的跨 BC 直连，单类前置）：在 `bc-course/infrastructure` 新增端口适配器 `CourInfTimeSlotQueryPortImpl`，用于承接 `CourInfTimeSlotQueryPort`（内部仅 `CourInfMapper.selectById/selectList`；最小回归通过；代码落地：`343e3ecf`）。
 - ✅ 已完成（保持行为不变，方案 1：继续清零评教侧对课程域 cour_inf 的跨 BC 直连，单类前置）：在 `bc-course/application` 新增查询端口 `CourInfTimeSlotQueryPort`，用于以端口方式查询 cour_inf 时间片（id/courseId/week/day/start/end）（后续用于替换评教写侧 `CourInfMapper.selectById/selectList` 的时间冲突判定；最小回归通过；代码落地：`ef2ab821`）。
 - ✅ 已完成（保持行为不变，方案 1：继续清零评教侧对课程域 cour_inf 的跨 BC 直连，单类）：收敛评教写侧对课程域 `CourInfMapper.selectById` 的跨 BC 直连：`SubmitEvaluationRepositoryImpl.loadContext/saveEvaluation` 改为调用课程域查询端口 `CourseIdByCourInfIdQueryPort.findCourseIdByCourInfId(...)`（异常文案与查询顺序不变；最小回归通过；代码落地：`176ed9d4`）。
 - ✅ 已完成（保持行为不变，方案 1：继续清零评教侧对课程域 cour_inf 的跨 BC 直连，单类）：收敛评教侧对课程域 `CourInfMapper.selectList(in course_id)` 的跨 BC 直连：`EvaStatisticsQueryRepository.getEvaTaskIdS(...)`/统计相关查询改为调用课程域查询端口 `CourInfIdsByCourseIdsQueryPort.findCourInfIdsByCourseIds(...)`（查询次数与顺序不变；最小回归通过；代码落地：`28dd1e6b`）。
