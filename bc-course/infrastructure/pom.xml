@@ -26,6 +26,13 @@
             <version>${revision}</version>
         </dependency>
 
+        <!-- 方案 B（严格）：为后续“共享工具下沉 shared-kernel、去 eva-infra-shared”做编译闭合前置（保持行为不变） -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>shared-kernel</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
         <!-- 依赖收敛：仅按最小 Port 依赖 IAM contract，避免编译期绑定旧 UserQueryGateway。 -->
         <dependency>
             <groupId>edu.cuit</groupId>
