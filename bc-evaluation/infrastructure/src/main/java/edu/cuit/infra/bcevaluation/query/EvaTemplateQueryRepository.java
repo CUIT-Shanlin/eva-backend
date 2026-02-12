@@ -5,6 +5,7 @@ import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import edu.cuit.bc.course.application.port.CourseIdByCourInfIdQueryPort;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
@@ -48,6 +49,7 @@ public class EvaTemplateQueryRepository implements EvaTemplateQueryRepo {
     private final EvaConvertor evaConvertor;
     private final PaginationConverter paginationConverter;
     private final CourInfMapper courInfMapper;
+    private final CourseIdByCourInfIdQueryPort courseIdByCourInfIdQueryPort;
     private final FormTemplateMapper formTemplateMapper;
     private final CourOneEvaTemplateMapper courOneEvaTemplateMapper;
     private final EvaCacheConstants evaCacheConstants;
@@ -104,14 +106,12 @@ public class EvaTemplateQueryRepository implements EvaTemplateQueryRepo {
         if(evaTaskDO==null){
             throw new QueryException("无法找到该任务");
         }
-        CourInfDO courInfDO=courInfMapper.selectById(evaTaskDO.getCourInfId());
-        if(courInfDO==null){
-            throw new QueryException("并没有找到相关课程详情");
-        }
+        Integer courseId = courseIdByCourInfIdQueryPort.findCourseIdByCourInfId(evaTaskDO.getCourInfId())
+                .orElseThrow(() -> new QueryException("并没有找到相关课程详情"));
         //1.直接去快照那边拿到
-        CourOneEvaTemplateDO courOneEvaTemplateDO=courOneEvaTemplateMapper.selectOne(new QueryWrapper<CourOneEvaTemplateDO>().eq("course_id",courInfDO.getCourseId()));
+        CourOneEvaTemplateDO courOneEvaTemplateDO=courOneEvaTemplateMapper.selectOne(new QueryWrapper<CourOneEvaTemplateDO>().eq("course_id",courseId));
         //2.去课程那边拿到
-        CourseDO courseDO=courseMapper.selectById(courInfDO.getCourseId());
+        CourseDO courseDO=courseMapper.selectById(courseId);
         FormTemplateDO formTemplateDO=formTemplateMapper.selectOne(new QueryWrapper<FormTemplateDO>().eq("id",courseDO.getTemplateId()));
 
         if(courOneEvaTemplateDO==null&&formTemplateDO==null){
