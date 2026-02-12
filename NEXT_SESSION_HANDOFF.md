@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-02-12（本会话：保持行为不变，继续瘦身共享基础设施）**
+- ✅ 已完成（保持行为不变，方案 B：依赖前置，单 pom）：为后续将共享 Excel/POI 工具从 `eva-infra-shared` 下沉到 `shared-kernel` 做准备，在 `bc-course/infrastructure/pom.xml` 显式增加对 `shared-kernel` 的 Maven 编译期依赖（最小回归通过；代码落地：`80a1aec7`）。
 - ✅ 已完成（保持行为不变，方案 1：继续清零评教侧对课程域 cour_inf 的跨 BC 直连，单类）：收敛评教读侧记录查询对课程域 `CourInfMapper.selectList(...)` 的跨 BC 直连：`EvaRecordQueryRepository` 改为调用课程域查询端口 `CourInfObjectDirectQueryPort.findByIds/findByCourseIds(...)`（异常文案/分支/查询次数与顺序不变；最小回归通过；代码落地：`13889255`）。
 - ✅ 已完成（保持行为不变，方案 1：cour_inf 跨 BC 直连清零收尾，单类）：收敛 `bc-template/infrastructure` 的课程模板锁定查询对课程域 `CourInfMapper.selectList(eq course_id)` 的跨 BC 直连：`CourseTemplateLockQueryPortImpl` 改为调用课程域查询端口 `CourInfIdsByCourseIdsQueryPort.findCourInfIdsByCourseIds(...)`（查询次数与顺序不变；最小回归通过；代码落地：`f81b4661`）。
 - ✅ 已闭环（保持行为不变，协作口径补强）：本会话上述变更均已按“Serena → 最小回归 → 代码提交 → 三文档同步 → 文档提交 → push”完成；最小回归命令以 0.10/0.11 为准；注意不要提交工作区未跟踪的 `.mvnd/`、`.ssh_known_hosts`。
