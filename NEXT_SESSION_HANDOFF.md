@@ -22,6 +22,9 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-02-12（本会话：保持行为不变，继续瘦身共享基础设施）**
+- ✅ 已完成（保持行为不变，方案 1：继续清零评教侧对课程域 cour_inf 的跨 BC 直连，单类）：在 `bc-course/application` 新增查询端口 `CourInfIdsByCourseIdsQueryPort`，用于以端口方式查询 `course_id -> cour_inf.idS`（替换评教侧 `CourInfMapper.selectList(in course_id)`；最小回归通过；代码落地：`fef8b5aa`）。
+- ✅ 已完成（保持行为不变，方案 1：继续清零评教侧对课程域 cour_inf 的跨 BC 直连，单类）：在 `bc-course/infrastructure` 新增端口适配器 `CourInfIdsByCourseIdsQueryPortImpl`，用于承接 `CourInfIdsByCourseIdsQueryPort`（内部仅 `CourInfMapper.selectList(in course_id)`；最小回归通过；代码落地：`8df151b6`）。
+- ✅ 已完成（保持行为不变，方案 1：继续清零评教侧对课程域 cour_inf 的跨 BC 直连，单类）：收敛评教侧对课程域 `CourInfMapper.selectList(in course_id)` 的跨 BC 直连：`EvaTemplateQueryRepository.getEvaTaskIdS(...)` 改为调用课程域查询端口 `CourInfIdsByCourseIdsQueryPort.findCourInfIdsByCourseIds(...)`（查询次数与顺序不变；最小回归通过；代码落地：`1bac7ffc`）。
 - ✅ 已完成（保持行为不变，跨 BC 直连清零前置，单类）：在 `bc-course/infrastructure` 新增端口适配器 `CourseIdByCourInfIdQueryPortImpl`，用于承接 `CourseIdByCourInfIdQueryPort`（内部仅 `CourInfMapper.selectById` 查询 `cour_inf.id -> course_id`；不改变业务语义/副作用顺序；最小回归通过；代码落地：`f0c0f020`）。
 - ✅ 已完成（保持行为不变，跨 BC 直连清零前置，单类）：在 `bc-course/application` 新增最小查询端口 `CourseIdByCourInfIdQueryPort`，用于后续让其它 BC 以端口方式查询 `cour_inf.id -> course_id`（避免跨 BC 直连 `CourInfMapper`；不改变任何业务语义/副作用顺序；最小回归通过；代码落地：`777ec8a9`）。
 - ✅ 已完成（保持行为不变，跨 BC 直连清零前置，单 pom）：在 `bc-evaluation/infrastructure/pom.xml` 显式增加对 `bc-course` 的 Maven 编译期依赖，用于让评教侧编译期引用课程域查询端口 `CourseIdByCourInfIdQueryPort`（运行期仍由组合根装配 `bc-course-infra` 的实现；最小回归通过；代码落地：`f2188237`）。

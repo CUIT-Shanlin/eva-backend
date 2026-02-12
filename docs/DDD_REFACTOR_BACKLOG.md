@@ -116,6 +116,9 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ 方案 1（业务整合优先，跨 BC 直连清零前置，单类，保持行为不变）：在 `bc-course/infrastructure` 新增 `CourseIdByCourInfIdQueryPortImpl`（内部仅 `CourInfMapper.selectById`，不改变业务语义/副作用顺序；最小回归通过；落地：`f0c0f020`）。
 - ✅ 方案 1（业务整合优先，跨 BC 直连清零前置，单 pom，保持行为不变）：在 `bc-evaluation/infrastructure/pom.xml` 显式增加对 `bc-course` 的 Maven 编译期依赖，用于让评教侧编译期引用课程域查询端口 `CourseIdByCourInfIdQueryPort`（运行期仍由组合根装配 `bc-course-infra` 的实现；最小回归通过；落地：`f2188237`）。
 - ✅ 方案 1（业务整合优先，跨 BC 直连清零，单类，保持行为不变）：收敛评教侧对课程域 `CourInfMapper.selectById` 的跨 BC 直连：`EvaTemplateQueryRepository.getTaskTemplate(...)` 改为调用课程域查询端口 `CourseIdByCourInfIdQueryPort.findCourseIdByCourInfId(...)`（异常文案与分支顺序不变；最小回归通过；落地：`67755034`）。
+- ✅ 方案 1（业务整合优先，跨 BC 直连清零前置，单类，保持行为不变）：在 `bc-course/application` 新增 `CourInfIdsByCourseIdsQueryPort`，用于以端口方式查询 `course_id -> cour_inf.idS`（替换评教侧 `CourInfMapper.selectList(in course_id)`；最小回归通过；落地：`fef8b5aa`）。
+- ✅ 方案 1（业务整合优先，跨 BC 直连清零前置，单类，保持行为不变）：在 `bc-course/infrastructure` 新增 `CourInfIdsByCourseIdsQueryPortImpl`，用于承接 `CourInfIdsByCourseIdsQueryPort`（内部仅 `CourInfMapper.selectList(in course_id)`；最小回归通过；落地：`8df151b6`）。
+- ✅ 方案 1（业务整合优先，跨 BC 直连清零，单类，保持行为不变）：收敛评教侧对课程域 `CourInfMapper.selectList(in course_id)` 的跨 BC 直连：`EvaTemplateQueryRepository.getEvaTaskIdS(...)` 改为调用课程域查询端口 `CourInfIdsByCourseIdsQueryPort.findCourInfIdsByCourseIds(...)`（查询次数与顺序不变；最小回归通过；落地：`1bac7ffc`）。
 - ✅ S0.2 延伸（shared 瘦身：EntityFactory 下沉到 DAL，单类，保持行为不变）：将 `EntityFactory` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.convertor` 与类内容不变；不引入新缓存/切面副作用；最小回归通过；落地：`eba15e92`）。
 - ✅ S0.2 延伸（支撑类归位：分页业务转换器，保持行为不变）：将 `PaginationBizConvertor` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.app.convertor` 不变；类内容不变；Serena：引用面命中 `bc-audit/bc-course/bc-iam/start`；最小回归通过；落地：`2b950a06`）。
 - ✅ S0.2 延伸（编译闭合前置：通用查询工具，单 pom，保持行为不变）：在 `eva-infra-dal/pom.xml` 显式增加对 `shared-kernel` 的 Maven 编译期依赖，用于承接后续将 `QueryUtils` 从 `eva-infra-shared` 归位到 `eva-infra-dal`（最小回归通过；落地：`996b6990`）。

@@ -519,6 +519,9 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-12，保持行为不变，方案 1：跨 BC 直连清零，单类）：收敛评教侧对课程域 `CourInfMapper.selectById` 的跨 BC 直连：`EvaTemplateQueryRepository.getTaskTemplate(...)` 改为调用课程域查询端口 `CourseIdByCourInfIdQueryPort.findCourseIdByCourInfId(...)`（异常文案与分支顺序不变；最小回归通过；落地：`67755034`）。
 - ✅ 补充进展（2026-02-12，保持行为不变；跨 BC 直连清零前置，单类）：在 `bc-course/application` 新增最小查询端口 `CourseIdByCourInfIdQueryPort`（用于后续收敛其它 BC 对 `CourInfMapper` 的直连为通过端口查询 `cour_inf.id -> course_id`；最小回归通过；落地：`777ec8a9`）。
 - ✅ 补充进展（2026-02-12，保持行为不变；跨 BC 直连清零前置，单类）：在 `bc-course/infrastructure` 新增端口适配器 `CourseIdByCourInfIdQueryPortImpl`（内部仅 `CourInfMapper.selectById`，不改变业务语义/副作用顺序；最小回归通过；落地：`f0c0f020`）。
+- ✅ 补充进展（2026-02-12，保持行为不变；方案 1：跨 BC 直连清零前置，单类）：在 `bc-course/application` 新增查询端口 `CourInfIdsByCourseIdsQueryPort`，用于以端口方式查询 `course_id -> cour_inf.idS`（替换评教侧 `CourInfMapper.selectList(in course_id)`；最小回归通过；落地：`fef8b5aa`）。
+- ✅ 补充进展（2026-02-12，保持行为不变；方案 1：跨 BC 直连清零前置，单类）：在 `bc-course/infrastructure` 新增端口适配器 `CourInfIdsByCourseIdsQueryPortImpl`，用于承接 `CourInfIdsByCourseIdsQueryPort`（内部仅 `CourInfMapper.selectList(in course_id)`；最小回归通过；落地：`8df151b6`）。
+- ✅ 补充进展（2026-02-12，保持行为不变；方案 1：跨 BC 直连清零，单类）：收敛评教侧对课程域 `CourInfMapper.selectList(in course_id)` 的跨 BC 直连：`EvaTemplateQueryRepository.getEvaTaskIdS(...)` 改为调用课程域查询端口 `CourInfIdsByCourseIdsQueryPort.findCourInfIdsByCourseIds(...)`（查询次数与顺序不变；最小回归通过；落地：`1bac7ffc`）。
 - 🎯 下一刀建议（2026-02-12，保持行为不变；单资源闭环）：继续推进 `eva-infra-dal` 按 BC 拆散（Mapper/DO/XML）：从 `eva-infra-dal/src/main/resources/mapper/**` 选择 **1 个 XML**，先用 Serena 证伪其对应 Mapper 引用面仅命中单一 BC 后再归位到目标 `bc-*/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变）。
 - 补充进展（2026-02-12，保持行为不变，支撑类归位）：将 `QueryUtils` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.util` 不变；类内容不变；最小回归通过；落地：`e653338f`）。
 - 补充进展（2026-02-12，保持行为不变，支撑类归位）：将 `PaginationConverter` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.convertor` 不变；类内容不变；最小回归通过；落地：`d2ca2d80`）。
