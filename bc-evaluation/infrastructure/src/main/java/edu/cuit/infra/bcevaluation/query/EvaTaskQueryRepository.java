@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import edu.cuit.bc.course.application.port.CourInfObjectDirectQueryPort;
 import edu.cuit.bc.iam.application.port.UserEntityObjectByIdDirectQueryPort;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.EvaTaskConditionalQuery;
@@ -22,7 +23,6 @@ import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.course.SubjectDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
-import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.SemesterMapper;
 import edu.cuit.infra.dal.database.mapper.course.SubjectMapper;
@@ -39,6 +39,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.function.Supplier;
 
 /**
@@ -60,7 +61,7 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
     private final SysUserMapper sysUserMapper;
     private final SemesterMapper semesterMapper;
     private final SubjectMapper subjectMapper;
-    private final CourInfMapper courInfMapper;
+    private final CourInfObjectDirectQueryPort courInfObjectDirectQueryPort;
     private final EvaCacheConstants evaCacheConstants;
     private final LocalCacheManager localCacheManager;
 
@@ -96,7 +97,9 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
 
         QueryWrapper<EvaTaskDO> evaTaskWrapper=new QueryWrapper<EvaTaskDO>();
 
-        List<CourInfDO> courInfDOS=courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id",courseIds));
+        List<CourInfDO> courInfDOS = courInfObjectDirectQueryPort.findByCourseIds(courseIds).stream()
+                .map(CourInfDO.class::cast)
+                .collect(Collectors.toList());
         if(CollectionUtil.isEmpty(courInfDOS)){
             List list=new ArrayList();
             return paginationConverter.toPaginationEntity(pageTask,list);
@@ -179,7 +182,9 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
             List list=new ArrayList();
             return list;
         }else {
-            courInfDOS=courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id",courseIds));
+            courInfDOS = courInfObjectDirectQueryPort.findByCourseIds(courseIds).stream()
+                    .map(CourInfDO.class::cast)
+                    .collect(Collectors.toList());
         }
         List<Integer> courInfIds=courInfDOS.stream().map(CourInfDO::getId).toList();
         if(CollectionUtil.isEmpty(courInfIds)){
@@ -226,7 +231,7 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
             //老师
             Supplier<?> teacher = () -> toUserEntity(evaTaskDO.getTeacherId());
             //课程信息
-            CourInfDO courInfDO = courInfMapper.selectById(evaTaskDO.getCourInfId());
+            CourInfDO courInfDO = (CourInfDO) courInfObjectDirectQueryPort.findById(evaTaskDO.getCourInfId());
             if (courInfDO == null) {
                 throw new QueryException("并没有找到相关课程信息");
             }
@@ -241,7 +246,7 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
             EvaTaskDO finalGetCached = getCached;
             Supplier<?> teacher = () -> toUserEntity(finalGetCached.getTeacherId());
             //课程信息
-            CourInfDO courInfDO = courInfMapper.selectById(getCached.getCourInfId());
+            CourInfDO courInfDO = (CourInfDO) courInfObjectDirectQueryPort.findById(getCached.getCourInfId());
             if (courInfDO == null) {
                 throw new QueryException("并没有找到相关课程信息");
             }
