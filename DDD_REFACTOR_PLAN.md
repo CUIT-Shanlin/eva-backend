@@ -519,6 +519,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-02-06，保持行为不变，依赖收敛，单 pom）：收敛 `bc-course/application/pom.xml`：在 Serena 证伪 `bc-course/application/src` 无 Lombok 引用后，移除冗余 `lombok(provided)` 依赖（最小回归通过；落地：`c38e30f0`）。
 - 补充进展（2026-02-11，保持行为不变，编译闭合前置，单 pom）：在 `bc-evaluation/infrastructure/pom.xml` 补齐对 `bc-messaging` 的 Maven 编译期依赖，用于承接后续将 `WebsocketManager` 从 `eva-infra-shared` 归位到 `bc-messaging`（最小回归通过；落地：`4dd1b34f`）。
 - 补充进展（2026-02-11，保持行为不变，支撑类归位，逐类归位）：将 `WebsocketManager` 从 `eva-infra-shared` 搬运归位到 `bc-messaging`（保持 `package` 不变；最小回归通过；落地：`bf78d276`）。
+- 补充进展（2026-02-12，保持行为不变，支撑类归位，逐类归位）：将 `EvaConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-evaluation/infrastructure`（保持 `package` 不变；Serena：引用面仅命中 `bc-evaluation/infrastructure`；最小回归通过；落地：`4df4e9b8`）。
 - 补充进展（2026-02-11，保持行为不变，DAL 拆散试点，单资源闭环，逐文件归位）：将 `EvaTaskMapper.xml` 从 `eva-infra-dal` 搬运归位到 `bc-evaluation/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`ad2e7d25`）。
 - 补充进展（2026-02-11，保持行为不变，DAL 拆散试点，逐类归位）：将 `SysRoleMapper` 从 `eva-infra-dal` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.dal.database.mapper.user` 不变；Serena：引用面仅命中 `bc-iam/infrastructure`；最小回归通过；落地：`60b87404`）。
 - 补充进展（2026-02-11，保持行为不变，DAL 拆散试点，逐类归位）：将 `SysUserRoleMapper` 从 `eva-infra-dal` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.dal.database.mapper.user` 不变；Serena：引用面仅命中 `bc-iam/infrastructure`；最小回归通过；落地：`1f93141c`）。

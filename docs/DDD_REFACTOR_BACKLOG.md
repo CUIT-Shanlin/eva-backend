@@ -109,7 +109,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
-**已完成（更新至 2026-02-11）**
+**已完成（更新至 2026-02-12）**
+- ✅ S0.2 延伸（评教：支撑类归位，保持行为不变）：将 `EvaConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-evaluation/infrastructure`（保持 `package edu.cuit.infra.convertor.eva` 不变；类内容不变；Serena：引用面仅命中 `bc-evaluation/infrastructure`；最小回归通过；落地：`4df4e9b8`）。
 - ✅ S0.2 延伸（评教：支撑类归位，评教模板 Convertor，保持行为不变）：将 `EvaTemplateBizConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-evaluation/infrastructure`（保持 `package edu.cuit.app.convertor.eva` 不变；类内容不变；Serena：引用面为空；最小回归通过；落地：`ecac6910`）。
 - ✅ S0.2 延伸（websocket：配置归位，保持行为不变）：将 `WebSocketConfig` 从 `eva-infra-shared` 搬运归位到 `bc-messaging`（保持 `package edu.cuit.app.config` 不变；类内容不变；Serena：引用面为空；最小回归通过；落地：`eb110825`）。
 - ✅ S0.2 延伸（websocket：拦截器归位，保持行为不变）：将 `WebSocketInterceptor` 从 `eva-infra-shared` 搬运归位到 `bc-messaging`（保持 `package edu.cuit.app.config` 不变；类内容不变；Serena：引用面仅命中 `bc-messaging` 的 `WebSocketConfig`；最小回归通过；落地：`3015ba57`）。
