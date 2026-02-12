@@ -535,6 +535,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-12，保持行为不变；方案 1：跨 BC 直连清零，单类）：收敛评教侧对课程域 `CourInfMapper.selectList(in course_id)` 的跨 BC 直连：`EvaStatisticsQueryRepository.getEvaTaskIdS(...)`/统计相关查询改为调用课程域查询端口 `CourInfIdsByCourseIdsQueryPort.findCourInfIdsByCourseIds(...)`（查询次数与顺序不变；最小回归通过；落地：`28dd1e6b`）。
 - ✅ 补充进展（2026-02-12，保持行为不变；方案 1：跨 BC 直连清零收尾，单类）：收敛 `bc-template/**` 对课程域 `CourInfMapper.selectList(eq course_id)` 的跨 BC 直连：`CourseTemplateLockQueryPortImpl` 改为调用课程域查询端口 `CourInfIdsByCourseIdsQueryPort.findCourInfIdsByCourseIds(...)`（查询次数与顺序不变；最小回归通过；落地：`f81b4661`）。
 - ✅ 补充进展（2026-02-12，保持行为不变；方案 B：依赖前置，单 pom）：为后续把共享 Excel/POI 工具从 `eva-infra-shared` 下沉到 `shared-kernel` 做准备，在 `bc-course/infrastructure/pom.xml` 显式增加对 `shared-kernel` 的 Maven 编译期依赖（最小回归通过；落地：`80a1aec7`）。
+- ✅ 补充进展（2026-02-12，保持行为不变；方案 B：依赖前置，单 pom）：为后续把 `ExcelUtils` 下沉到 `shared-kernel` 做编译闭合前置，在 `shared-kernel/pom.xml` 补齐 `cola-component-exception`、`hutool-all`、`poi/poi-ooxml` 依赖（最小回归通过；落地：`b4641433`）。
 - 🎯 下一刀建议（2026-02-12，保持行为不变；单资源闭环）：继续推进 `eva-infra-dal` 按 BC 拆散（Mapper/DO/XML）：从 `eva-infra-dal/src/main/resources/mapper/**` 选择 **1 个 XML**，先用 Serena 证伪其对应 Mapper 引用面仅命中单一 BC 后再归位到目标 `bc-*/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变）。
 - 补充进展（2026-02-12，保持行为不变，支撑类归位）：将 `QueryUtils` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.util` 不变；类内容不变；最小回归通过；落地：`e653338f`）。
 - 补充进展（2026-02-12，保持行为不变，支撑类归位）：将 `PaginationConverter` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.convertor` 不变；类内容不变；最小回归通过；落地：`d2ca2d80`）。
