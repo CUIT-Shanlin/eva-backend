@@ -23,6 +23,7 @@
 
 **2026-02-12（本会话：保持行为不变，继续瘦身共享基础设施）**
 - ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `RoleConverter` 从 `eva-infra-shared` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.convertor.user` 不变；类内容不变；Serena：引用面仅命中 `bc-iam/infrastructure`；最小回归通过；代码落地：`340c5ba8`）。
+- ✅ 已完成（保持行为不变，DAL 拆散试点，逐类归位）：将 `SysUserRoleDO` 从 `eva-infra-dal` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.dal.database.dataobject.user` 不变；类内容不变；Serena：引用面仅命中 `bc-iam/infrastructure`；最小回归通过；代码落地：`539cd792`）。
 - ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `EvaConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-evaluation/infrastructure`（保持 `package edu.cuit.infra.convertor.eva` 不变；类内容不变；Serena：引用面仅命中 `bc-evaluation/infrastructure` 的读侧查询仓储；最小回归通过；代码落地：`4df4e9b8`）。
 
 **2026-02-11（本会话：保持行为不变，继续瘦身共享基础设施）**
@@ -1907,7 +1908,7 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
 
 - ✅ 条目 26（`bc-iam-infra` 阶段 2：IAM DAL 抽离）已完成：已用 Serena 盘点 IAM DAL 依赖清单并完成迁移闭环，最终移除 `bc-iam-infra` → `eva-infra` 依赖（保持行为不变）。
   - **Mapper（当前仍在 `eva-infra-dal`）**：`SysUserMapper`
-  - **DO（当前仍在 `eva-infra-dal`）**：`SysUserDO`、`SysUserRoleDO`、`SysRoleDO`、`SysMenuDO`
+  - **DO（当前仍在 `eva-infra-dal`）**：`SysUserDO`、`SysRoleDO`、`SysMenuDO`
   - **XML（当前仍在 `eva-infra-dal`）**：`eva-infra-dal/src/main/resources/mapper/user/SysUserMapper.xml`
   - 依赖来源（便于后续搬迁对照）：Mapper/DO 均在 `eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/(mapper|dataobject)/user/`（部分已进一步归位到 `bc-iam/infrastructure`）；XML 均在 `eva-infra-dal/src/main/resources/mapper/user/`
   - ✅ 已完成（条目 26-2）：在 `bc-iam-infra` 创建 DAL 包骨架与资源目录（不迁代码；仅作为后续迁移落点；保持行为不变）。
@@ -1916,7 +1917,7 @@ export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\
   - ✅ 已完成（条目 26-3）：新增独立 DAL 子模块 `eva-infra-dal`，并先迁移 `SysUser*`（DO/Mapper/XML）到该模块（保持包名/namespace/SQL 不变；保持行为不变）。
     - 说明：Serena 引用分析确认 `SysUserMapper` 被 `eva-infra` 内多个模块（course/eva/log/department…）直接使用；若直接迁入 `bc-iam-infra` 并从 `eva-infra` 删除会引入 Maven 循环依赖风险，因此先抽离为共享 DAL 模块以最小可回滚方式推进。
     - 新模块：`eva-infra-dal/pom.xml`
-    - Java：`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/dataobject/user/SysUserDO.java`、`SysUserRoleDO.java`；`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/mapper/user/SysUserMapper.java`、`bc-iam/infrastructure/src/main/java/edu/cuit/infra/dal/database/mapper/user/SysUserRoleMapper.java`
+    - Java：`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/dataobject/user/SysUserDO.java`、`bc-iam/infrastructure/src/main/java/edu/cuit/infra/dal/database/dataobject/user/SysUserRoleDO.java`；`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/mapper/user/SysUserMapper.java`、`bc-iam/infrastructure/src/main/java/edu/cuit/infra/dal/database/mapper/user/SysUserRoleMapper.java`
     - XML：`eva-infra-dal/src/main/resources/mapper/user/SysUserMapper.xml`、`bc-iam/infrastructure/src/main/resources/mapper/user/SysUserRoleMapper.xml`
   - ✅ 已完成（条目 26-4）：继续迁移 `SysRole*`/`SysRoleMenu*`（DO/Mapper/XML）到 `eva-infra-dal`（保持包名/namespace/SQL 不变；保持行为不变）。
     - Java：`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/dataobject/user/SysRoleDO.java`、`bc-iam/infrastructure/src/main/java/edu/cuit/infra/dal/database/dataobject/user/SysRoleMenuDO.java`；`bc-iam/infrastructure/src/main/java/edu/cuit/infra/dal/database/mapper/user/SysRoleMapper.java`、`bc-iam/infrastructure/src/main/java/edu/cuit/infra/dal/database/mapper/user/SysRoleMenuMapper.java`

@@ -1402,7 +1402,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - 阶段 2.3（已完成）：新增共享 DAL 子模块 `eva-infra-dal`，并先迁移 `SysUser*`（DO/Mapper/XML）到该模块（保持包名/namespace/SQL 不变；保持行为不变）。
     - 说明：Serena 引用分析确认 `SysUserMapper` 被 `eva-infra` 内多个模块直接使用；若直接迁入 `bc-iam-infra` 并从 `eva-infra` 删除会引入 Maven 循环依赖风险，因此先抽离为共享 DAL 模块，以最小可回滚方式推进。
     - 新模块：`eva-infra-dal/pom.xml`
-    - Java：`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/dataobject/user/SysUserDO.java`、`SysUserRoleDO.java`；`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/mapper/user/SysUserMapper.java`、`bc-iam/infrastructure/src/main/java/edu/cuit/infra/dal/database/mapper/user/SysUserRoleMapper.java`
+    - Java：`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/dataobject/user/SysUserDO.java`、`bc-iam/infrastructure/src/main/java/edu/cuit/infra/dal/database/dataobject/user/SysUserRoleDO.java`；`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/mapper/user/SysUserMapper.java`、`bc-iam/infrastructure/src/main/java/edu/cuit/infra/dal/database/mapper/user/SysUserRoleMapper.java`
     - XML：`eva-infra-dal/src/main/resources/mapper/user/SysUserMapper.xml`、`bc-iam/infrastructure/src/main/resources/mapper/user/SysUserRoleMapper.xml`
   - 阶段 2.4（已完成）：继续迁移 `SysRole*`/`SysRoleMenu*`（DO/Mapper/XML）到共享模块 `eva-infra-dal`（保持包名/namespace/SQL 不变；保持行为不变）。
     - Java：`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/dataobject/user/SysRoleDO.java`、`bc-iam/infrastructure/src/main/java/edu/cuit/infra/dal/database/dataobject/user/SysRoleMenuDO.java`；`bc-iam/infrastructure/src/main/java/edu/cuit/infra/dal/database/mapper/user/SysRoleMapper.java`、`bc-iam/infrastructure/src/main/java/edu/cuit/infra/dal/database/mapper/user/SysRoleMenuMapper.java`

@@ -112,6 +112,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 **已完成（更新至 2026-02-12）**
 - ✅ S0.2 延伸（评教：支撑类归位，保持行为不变）：将 `EvaConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-evaluation/infrastructure`（保持 `package edu.cuit.infra.convertor.eva` 不变；类内容不变；Serena：引用面仅命中 `bc-evaluation/infrastructure`；最小回归通过；落地：`4df4e9b8`）。
 - ✅ S0.2 延伸（IAM：支撑类归位，保持行为不变）：将 `RoleConverter` 从 `eva-infra-shared` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.convertor.user` 不变；类内容不变；Serena：引用面仅命中 `bc-iam/infrastructure`；最小回归通过；落地：`340c5ba8`）。
+- ✅ S0.2 延伸（DAL 拆散试点：IAM `sys_user_role`，保持行为不变，逐类归位）：将 `SysUserRoleDO` 从 `eva-infra-dal` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.dal.database.dataobject.user` 不变；类内容不变；Serena：引用面仅命中 `bc-iam/infrastructure`；最小回归通过；落地：`539cd792`）。
 - ✅ S0.2 延伸（评教：支撑类归位，评教模板 Convertor，保持行为不变）：将 `EvaTemplateBizConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-evaluation/infrastructure`（保持 `package edu.cuit.app.convertor.eva` 不变；类内容不变；Serena：引用面为空；最小回归通过；落地：`ecac6910`）。
 - ✅ S0.2 延伸（websocket：配置归位，保持行为不变）：将 `WebSocketConfig` 从 `eva-infra-shared` 搬运归位到 `bc-messaging`（保持 `package edu.cuit.app.config` 不变；类内容不变；Serena：引用面为空；最小回归通过；落地：`eb110825`）。
 - ✅ S0.2 延伸（websocket：拦截器归位，保持行为不变）：将 `WebSocketInterceptor` 从 `eva-infra-shared` 搬运归位到 `bc-messaging`（保持 `package edu.cuit.app.config` 不变；类内容不变；Serena：引用面仅命中 `bc-messaging` 的 `WebSocketConfig`；最小回归通过；落地：`3015ba57`）。
