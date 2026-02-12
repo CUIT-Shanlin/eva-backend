@@ -57,3 +57,4 @@ public class UserCacheConstants {
     public final String ALL_DEPARTMENT = "department.all";
 
 }
+
