@@ -25,6 +25,7 @@
 - ✅ 已完成（保持行为不变，跨 BC 直连清零前置，单类）：在 `bc-course/infrastructure` 新增端口适配器 `CourseIdByCourInfIdQueryPortImpl`，用于承接 `CourseIdByCourInfIdQueryPort`（内部仅 `CourInfMapper.selectById` 查询 `cour_inf.id -> course_id`；不改变业务语义/副作用顺序；最小回归通过；代码落地：`f0c0f020`）。
 - ✅ 已完成（保持行为不变，跨 BC 直连清零前置，单类）：在 `bc-course/application` 新增最小查询端口 `CourseIdByCourInfIdQueryPort`，用于后续让其它 BC 以端口方式查询 `cour_inf.id -> course_id`（避免跨 BC 直连 `CourInfMapper`；不改变任何业务语义/副作用顺序；最小回归通过；代码落地：`777ec8a9`）。
 - ✅ 已完成（保持行为不变，跨 BC 直连清零前置，单 pom）：在 `bc-evaluation/infrastructure/pom.xml` 显式增加对 `bc-course` 的 Maven 编译期依赖，用于让评教侧编译期引用课程域查询端口 `CourseIdByCourInfIdQueryPort`（运行期仍由组合根装配 `bc-course-infra` 的实现；最小回归通过；代码落地：`f2188237`）。
+- ✅ 已完成（保持行为不变，跨 BC 直连清零，单类）：收敛评教侧对课程域 `CourInfMapper.selectById` 的跨 BC 直连：`EvaTemplateQueryRepository.getTaskTemplate(...)` 改为调用课程域查询端口 `CourseIdByCourInfIdQueryPort.findCourseIdByCourInfId(...)`（异常文案“并没有找到相关课程详情”与分支顺序不变；最小回归通过；代码落地：`67755034`）。
 - ✅ 已完成（保持行为不变，DAL 拆散试点：IAM `sys_user`，单资源闭环）：将 `SysUserMapper.xml` 从 `eva-infra-dal` 搬运归位到 `bc-iam/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；代码落地：`3dad6ef7`）。
 - ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `EntityFactory` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.convertor` 不变；类内容不变；最小回归通过；代码落地：`eba15e92`）。
 - ✅ 已完成（保持行为不变，编译闭合前置，单 pom）：为后续将 `EntityFactory` 从 `eva-infra-shared` 归位到 `eva-infra-dal` 做准备，在 `eva-infra-dal/pom.xml` 显式补齐 `hutool-all`、`cola-component-exception`、`mapstruct` 依赖（不改变任何业务语义/副作用顺序；最小回归通过；代码落地：`6546c548`）。
@@ -1091,7 +1092,7 @@
      - 文件：`eva-infra-shared/src/main/java/edu/cuit/infra/convertor/EntityFactory.java` → `eva-infra-dal/src/main/java/edu/cuit/infra/convertor/EntityFactory.java`
   2) ✅ 主线优先（dal 拆散，IAM，单资源闭环，保持行为不变）：已将 `SysUserMapper.xml` 从 `eva-infra-dal` 搬运归位到 `bc-iam/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`3dad6ef7`）。
      - `eva-infra-dal/src/main/resources/mapper/user/SysUserMapper.xml` → `bc-iam/infrastructure/src/main/resources/mapper/user/SysUserMapper.xml`
-  3) 🎯 主线优先（方案 1：跨 BC 直连清零，课程域，保持行为不变）：已完成 `bc-course/application` 的 `CourseIdByCourInfIdQueryPort` + `bc-course/infrastructure` 的 `CourseIdByCourInfIdQueryPortImpl`；且已完成评教侧编译闭合前置：`bc-evaluation/infrastructure/pom.xml` 补齐对 `bc-course` 的 Maven 编译期依赖（落地：`f2188237`）。下一刀建议优先改 `bc-evaluation/infrastructure` 的 `EvaTemplateQueryRepository`：将 `courInfMapper.selectById(...)` 收敛为调用 `CourseIdByCourInfIdQueryPort.findCourseIdByCourInfId(...)`（保持异常文案与分支顺序不变；每次只改 1 个类闭环）。
+  3) 🎯 主线优先（方案 1：跨 BC 直连清零，课程域，保持行为不变）：已完成 `CourseIdByCourInfIdQueryPort` + `CourseIdByCourInfIdQueryPortImpl`，并已完成评教侧编译闭合前置（`bc-evaluation/infrastructure/pom.xml` 补齐对 `bc-course` 的 Maven 编译期依赖；落地：`f2188237`），且已将 `EvaTemplateQueryRepository.getTaskTemplate(...)` 的 `CourInfMapper.selectById` 直连收敛为端口调用（落地：`67755034`；异常文案/分支顺序不变）。下一刀建议：继续按“先补端口（单类）→ 再补适配器（单类）→ 再改调用侧（单类）”的顺序，逐步清理评教侧剩余的 `CourInfMapper.selectList(...)` 等跨 BC 直连（保持行为不变）。
   4) 并行推进（dal 拆散）：继续推进 `eva-infra-dal` 按 BC 拆散（Mapper/DO/XML）。做法：先用 Serena 对候选文件做“引用面证伪”，只挑“引用面仅命中单一 BC（例如 `bc-iam/**` 或 `bc-course/**`）”的文件搬运归位；每刀严格闭环（Serena → mvnd → commit → 三文档 → commit → push）。
   5) 风险簇（暂不建议直接动，避免破坏‘单类一刀’节奏）：LDAP 相关 `EvaLdapUtils`/`LdapConstants`/`EvaLdapProperties`/`LdapGroupRepo`/`LdapGroupDO` 当前存在跨模块互相依赖与静态初始化耦合（Serena 证据化：`LdapConstants` 依赖 `EvaLdapUtils`，而 `EvaLdapUtils` 又依赖 `LdapConstants` 与 `LdapGroupRepo/DO`），若要归位到 `bc-iam/infrastructure` 需要设计“多刀编排顺序/过渡壳”，否则会导致 `eva-infra-shared` 编译断裂。
 
@@ -1100,6 +1101,7 @@
 - 🎯 **本次会话最新增量（2026-02-12，保持行为不变）**：
   - ✅ shared 瘦身（单类闭环，保持行为不变）：`EntityFactory` → `eva-infra-dal`（保持 `package/类内容` 不变；最小回归通过；落地：`eba15e92`；三文档同步：本提交）。
   - ✅ 跨 BC 直连清零前置（单 pom，保持行为不变）：`bc-evaluation/infrastructure/pom.xml` 补齐对 `bc-course` 的 Maven 编译期依赖（最小回归通过；落地：`f2188237`）。
+  - ✅ 跨 BC 直连清零（单类，保持行为不变）：`EvaTemplateQueryRepository.getTaskTemplate(...)` 去 `CourInfMapper.selectById` 直连，改走 `CourseIdByCourInfIdQueryPort`（异常文案/分支顺序不变；最小回归通过；落地：`67755034`）。
   - ✅ websocket 归位前置（单 pom）：`bc-evaluation/infrastructure/pom.xml` 补齐对 `bc-messaging` 的 Maven 编译期依赖（最小回归通过；落地：`4dd1b34f`）。
   - ✅ websocket 支撑类归位（逐类归位）：`WebsocketManager` 从 `eva-infra-shared` 归位到 `bc-messaging`（保持 `package`/类内容不变；最小回归通过；落地：`bf78d276`）。
   - ✅ DAL 拆散试点（审计）：`SysLogModuleMapper` → `bc-audit/infrastructure`（保持 `package` 不变；最小回归通过；落地：`c901e3a6`；三文档同步：`7534337b`）。
