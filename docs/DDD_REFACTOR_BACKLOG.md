@@ -110,6 +110,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-02-12）**
+- ✅ S0.2 延伸（支撑类归位：分页业务转换器，保持行为不变）：将 `PaginationBizConvertor` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.app.convertor` 不变；类内容不变；Serena：引用面命中 `bc-audit/bc-course/bc-iam/start`；最小回归通过；落地：`2b950a06`）。
 - ✅ S0.2 延伸（编译闭合前置：通用查询工具，单 pom，保持行为不变）：在 `eva-infra-dal/pom.xml` 显式增加对 `shared-kernel` 的 Maven 编译期依赖，用于承接后续将 `QueryUtils` 从 `eva-infra-shared` 归位到 `eva-infra-dal`（最小回归通过；落地：`996b6990`）。
 - ✅ S0.2 延伸（支撑类归位：通用查询工具，保持行为不变）：将 `QueryUtils` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.util` 不变；类内容不变；最小回归通过；落地：`e653338f`）。
 - ✅ S0.2 延伸（支撑类归位：分页转换器，保持行为不变）：将 `PaginationConverter` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.convertor` 不变；类内容不变；最小回归通过；落地：`d2ca2d80`）。

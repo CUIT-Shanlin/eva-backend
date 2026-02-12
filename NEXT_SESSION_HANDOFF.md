@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-02-12（本会话：保持行为不变，继续瘦身共享基础设施）**
+- ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `PaginationBizConvertor` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.app.convertor` 不变；类内容不变；Serena：引用面命中 `bc-audit/bc-course/bc-iam/start`；最小回归通过；代码落地：`2b950a06`）。
 - ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `PaginationConverter` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.convertor` 不变；类内容不变；Serena：引用面命中 `bc-audit/bc-course/bc-evaluation/bc-iam`；最小回归通过；代码落地：`d2ca2d80`）。
 - ✅ 已完成（保持行为不变，支撑类归位，逐类归位）：将 `QueryUtils` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.util` 不变；类内容不变；Serena：引用面命中 `bc-audit/bc-course/bc-evaluation/bc-iam/start`；最小回归通过；代码落地：`e653338f`）。
 - ✅ 已完成（保持行为不变，编译闭合前置，单 pom）：在 `eva-infra-dal/pom.xml` 显式增加对 `shared-kernel` 的 Maven 编译期依赖，用于承接后续将 `QueryUtils` 从 `eva-infra-shared` 归位到 `eva-infra-dal`（最小回归通过；代码落地：`996b6990`）。
