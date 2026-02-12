@@ -1204,6 +1204,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
     1) P0（共享工具下沉）：把 `eva-infra-shared` 中“跨 BC 共享的纯工具类/常量”（例如 `ExcelUtils`）逐类下沉到 `shared-kernel`，并逐个将依赖方 `*-infra` 的依赖从 `eva-infra-shared` 迁移为 `shared-kernel`。
        - ✅ 进展（2026-02-12，保持行为不变；单 pom）：`bc-course/infrastructure/pom.xml` 已显式增加对 `shared-kernel` 的 Maven 编译期依赖，用于为后续下沉 `ExcelUtils` 做依赖前置（最小回归通过；落地：`80a1aec7`）。
        - ✅ 进展（2026-02-12，保持行为不变；单 pom）：`shared-kernel/pom.xml` 已补齐 `ExcelUtils` 编译所需的最小依赖（`cola-component-exception`、`hutool-all`、`poi/poi-ooxml`），用于为下一刀“单类搬运 `ExcelUtils`”做编译闭合前置（最小回归通过；落地：`b4641433`）。
+       - ✅ 进展（2026-02-12，保持行为不变；单类）：`ExcelUtils` 已从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package` 与类内容不变；最小回归通过；落地：`31615f43`）。下一刀建议：再按“单 pom”将 `bc-course-infra` 对 `eva-infra-shared` 的依赖替换为依赖 `shared-kernel`（并用 Serena + `rg` 证伪无其它类型引用面）。
     2) P0（BC 专属归位）：把 `eva-infra-shared` 中“明显归属某个 BC 的基础设施能力”（例如 LDAP 相关）逐类归位到对应 `bc-*/infrastructure`，并后置清理依赖方 pom。
     3) P1（DAL 拆散收尾）：继续按“仅单 BC 引用才允许归位”推进 `eva-infra-dal` → `bc-*/infrastructure`（Mapper/DO/XML 逐文件搬运），最终让 `eva-infra-dal` 为空并从 reactor 退场。
     4) P2（eva-base-common 退场）：识别 `eva-base-common` 的被依赖点，按归属（shared-kernel / 对应 BC）逐类搬运后，清理所有依赖方 pom 并从 reactor 退场。

@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-02-12（本会话：保持行为不变，继续瘦身共享基础设施）**
+- ✅ 已完成（保持行为不变，方案 B：共享工具下沉，单类）：将共享 Excel/POI 工具 `ExcelUtils` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package` 与类内容不变；最小回归通过；代码落地：`31615f43`）。
 - ✅ 已完成（保持行为不变，方案 B：依赖前置，单 pom）：为后续把共享 Excel/POI 工具（如 `ExcelUtils`）下沉到 `shared-kernel` 做准备，在 `shared-kernel/pom.xml` 补齐 `cola-component-exception`、`hutool-all`、`poi/poi-ooxml` 依赖（最小回归通过；代码落地：`b4641433`）。
 - ✅ 已完成（保持行为不变，方案 B：依赖前置，单 pom）：为后续将共享 Excel/POI 工具从 `eva-infra-shared` 下沉到 `shared-kernel` 做准备，在 `bc-course/infrastructure/pom.xml` 显式增加对 `shared-kernel` 的 Maven 编译期依赖（最小回归通过；代码落地：`80a1aec7`）。
 - ✅ 已完成（保持行为不变，方案 1：继续清零评教侧对课程域 cour_inf 的跨 BC 直连，单类）：收敛评教读侧记录查询对课程域 `CourInfMapper.selectList(...)` 的跨 BC 直连：`EvaRecordQueryRepository` 改为调用课程域查询端口 `CourInfObjectDirectQueryPort.findByIds/findByCourseIds(...)`（异常文案/分支/查询次数与顺序不变；最小回归通过；代码落地：`13889255`）。
