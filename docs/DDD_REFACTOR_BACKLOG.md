@@ -111,6 +111,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 **已完成（更新至 2026-02-12）**
 - ✅ S0.2 延伸（评教：支撑类归位，保持行为不变）：将 `EvaConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-evaluation/infrastructure`（保持 `package edu.cuit.infra.convertor.eva` 不变；类内容不变；Serena：引用面仅命中 `bc-evaluation/infrastructure`；最小回归通过；落地：`4df4e9b8`）。
+- ✅ S0.2 延伸（IAM：支撑类归位，保持行为不变）：将 `RoleConverter` 从 `eva-infra-shared` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.convertor.user` 不变；类内容不变；Serena：引用面仅命中 `bc-iam/infrastructure`；最小回归通过；落地：`340c5ba8`）。
 - ✅ S0.2 延伸（评教：支撑类归位，评教模板 Convertor，保持行为不变）：将 `EvaTemplateBizConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-evaluation/infrastructure`（保持 `package edu.cuit.app.convertor.eva` 不变；类内容不变；Serena：引用面为空；最小回归通过；落地：`ecac6910`）。
 - ✅ S0.2 延伸（websocket：配置归位，保持行为不变）：将 `WebSocketConfig` 从 `eva-infra-shared` 搬运归位到 `bc-messaging`（保持 `package edu.cuit.app.config` 不变；类内容不变；Serena：引用面为空；最小回归通过；落地：`eb110825`）。
 - ✅ S0.2 延伸（websocket：拦截器归位，保持行为不变）：将 `WebSocketInterceptor` 从 `eva-infra-shared` 搬运归位到 `bc-messaging`（保持 `package edu.cuit.app.config` 不变；类内容不变；Serena：引用面仅命中 `bc-messaging` 的 `WebSocketConfig`；最小回归通过；落地：`3015ba57`）。
@@ -790,7 +791,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成：`SysLogDO`、`SysLogModuleDO` → `bc-audit/infrastructure`（保持 `package` 不变；保持行为不变；详见 4.2）。
   - ✅ 已完成：`SysLogMapper.xml` → `bc-audit/infrastructure`（保持 MyBatis XML `namespace`/`resultMap type`、资源路径 `mapper/**` 不变；保持行为不变；详见 4.2）。
   - ✅ 已完成：`SysLogModuleMapper.xml` → `bc-audit/infrastructure`（保持 MyBatis XML `namespace`/`resultMap type`、资源路径 `mapper/**` 不变；保持行为不变；详见 4.2）。
-  - ✅ 依赖收敛证伪（保持行为不变；单 pom）：Serena 证据化确认 `bc-audit/infrastructure` 仍直接使用 `eva-infra-shared` 内类型（`QueryUtils/PaginationConverter/UserConverter/RoleConverter/EntityFactory`），因此暂不可移除该依赖（结论已记录于 `bc-audit/infrastructure/pom.xml`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
+  - ✅ 依赖收敛证伪（保持行为不变；单 pom）：Serena 证据化确认 `bc-audit/infrastructure` 仍直接使用 `eva-infra-shared` 内类型（`QueryUtils/PaginationConverter/UserConverter/EntityFactory`），因此暂不可移除该依赖（结论已记录于 `bc-audit/infrastructure/pom.xml`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 
 - **S0.2 延伸（消息：DAL 按 BC 拆散试点，`msg_tip`，保持行为不变）**：
   - ✅ 已完成：`MsgTipMapper`、`MsgTipDO` → `bc-messaging`（保持 `package` 不变，仅改变 Maven 模块归属；详见 4.2 与 `NEXT_SESSION_HANDOFF.md` 0.9）。

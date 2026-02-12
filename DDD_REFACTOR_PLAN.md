@@ -984,7 +984,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 - ✅ 已完成：`SysLogModuleMapper`、`SysLogMapper` 已归位到 `bc-audit/infrastructure`（详见 10.2 / `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ 已完成：`SysLogDO/SysLogModuleDO` 与 `SysLogMapper.xml/SysLogModuleMapper.xml` 已全部归位到 `bc-audit/infrastructure`（保持 `package/namespace/resultMap type/SQL` 与资源路径 `mapper/**` 不变）。
-- ✅ 依赖收敛证伪（保持行为不变；单 pom）：Serena 证据化确认 `bc-audit/infrastructure` 仍直接使用 `eva-infra-shared` 内类型（`QueryUtils/PaginationConverter/UserConverter/RoleConverter/EntityFactory`），因此暂不可移除该依赖（结论已记录于 `bc-audit/infrastructure/pom.xml`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
+- ✅ 依赖收敛证伪（保持行为不变；单 pom）：Serena 证据化确认 `bc-audit/infrastructure` 仍直接使用 `eva-infra-shared` 内类型（`QueryUtils/PaginationConverter/UserConverter/EntityFactory`），因此暂不可移除该依赖（结论已记录于 `bc-audit/infrastructure/pom.xml`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - 约束（保持行为不变）：Java `package`、MyBatis XML `namespace`、`resultMap type` 指向的 FQCN、资源路径 `mapper/**` 均保持不变。
 
 #### bc-messaging（消息）S0.2 延伸：websocket 支撑类逐类归位（保持行为不变）
