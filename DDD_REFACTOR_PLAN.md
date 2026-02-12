@@ -515,6 +515,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-02-12，保持行为不变，编译闭合前置，单 pom）：为后续将 `EntityFactory` 从 `eva-infra-shared` 归位到 `eva-infra-dal` 做准备，在 `eva-infra-dal/pom.xml` 显式补齐 `hutool-all`、`cola-component-exception`、`mapstruct` 依赖（不改变业务语义/副作用顺序；最小回归通过；落地：`6546c548`）。
 - ✅ 补充进展（2026-02-12，保持行为不变；单类闭环）：已将 `EntityFactory` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.convertor` 与类内容不变；不引入新缓存/切面副作用；最小回归通过；落地：`eba15e92`）。
 - ✅ 补充进展（2026-02-12，保持行为不变；单资源闭环）：已将 `SysUserMapper.xml` 从 `eva-infra-dal` 搬运归位到 `bc-iam/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`3dad6ef7`）。
+- ✅ 补充进展（2026-02-12，保持行为不变，跨 BC 直连清零前置，单 pom）：在 `bc-evaluation/infrastructure/pom.xml` 显式增加对 `bc-course` 的 Maven 编译期依赖，用于让评教侧编译期引用课程域查询端口 `CourseIdByCourInfIdQueryPort`（运行期仍由组合根装配 `bc-course-infra` 的实现；最小回归通过；落地：`f2188237`）。
 - ✅ 补充进展（2026-02-12，保持行为不变；跨 BC 直连清零前置，单类）：在 `bc-course/application` 新增最小查询端口 `CourseIdByCourInfIdQueryPort`（用于后续收敛其它 BC 对 `CourInfMapper` 的直连为通过端口查询 `cour_inf.id -> course_id`；最小回归通过；落地：`777ec8a9`）。
 - ✅ 补充进展（2026-02-12，保持行为不变；跨 BC 直连清零前置，单类）：在 `bc-course/infrastructure` 新增端口适配器 `CourseIdByCourInfIdQueryPortImpl`（内部仅 `CourInfMapper.selectById`，不改变业务语义/副作用顺序；最小回归通过；落地：`f0c0f020`）。
 - 🎯 下一刀建议（2026-02-12，保持行为不变；单资源闭环）：继续推进 `eva-infra-dal` 按 BC 拆散（Mapper/DO/XML）：从 `eva-infra-dal/src/main/resources/mapper/**` 选择 **1 个 XML**，先用 Serena 证伪其对应 Mapper 引用面仅命中单一 BC 后再归位到目标 `bc-*/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变）。
