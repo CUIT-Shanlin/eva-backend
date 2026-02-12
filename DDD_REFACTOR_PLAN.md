@@ -504,7 +504,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 ### 10.2 下一步优先顺序（保持“写侧优先 + 行为不变”）
 
-> 路线选择（更新至 2026-02-12）：采用 **方案 1（业务整合优先）** —— 优先把“跨 BC 直连/编译期耦合”收敛到 `*-contract` + `shared-kernel` 的对外接口调用；`eva-infra-dal/eva-infra-shared/eva-base` 作为“平台共享模块”可暂留，但必须持续瘦身与控边界（详见 10.5 的里程碑与 DoD）。
+> 路线选择（更新至 2026-02-12）：采用 **方案 B（严格）** —— 以“DoD 可验证”的方式彻底退场 `eva-*` 技术切片（详见 10.5.B）。跨 BC 只允许通过 `*-contract` + `shared-kernel` 对外接口调用；`eva-infra-dal/eva-infra-shared/eva-base` 仅作为过渡残留，下一阶段主线是“先补依赖前置（pom）→ 再逐文件搬运归位 → 再移除旧依赖（pom）→ 最后 reactor 退场与目录清理”，直至全仓库不再出现任何 `eva-*` 模块/依赖/目录。
 
 > 滚动口径（更新至 2026-02-04）：✅ `eva-app` 已完成退场闭环（源码清零 + 组合根 `start` 去依赖 + root reactor 移除 + 删除 `eva-app/pom.xml`）；✅ `eva-adapter` 残留 `*Controller` 已清零，且组合根 `start` 已移除对 `eva-adapter` 的 Maven 依赖（保持行为不变）；✅ `eva-adapter` 已从 root reactor 退场（root `pom.xml` 移除 `<module>eva-adapter</module>`；最小回归通过；落地：`86842a1f`）；✅ 已删除 `eva-adapter/pom.xml`（全仓库 `**/pom.xml` 不再出现 `<artifactId>eva-adapter</artifactId>`；最小回归通过；落地：`ed244cad`）；🎯 下一步主线：并行推进“依赖方 `pom.xml` 编译期依赖收敛”，并评估是否需要删除 `eva-adapter/` 空目录（需独立提交；保持行为不变）。
 > 补充（更新至 2026-02-04，保持行为不变）：主线已转向 **bc-course S0.2 延伸：逐类把课程域类型从 `eva-domain` 归位到 `bc-course-domain`（保持 `package` 不变）**，以缩小 `eva-domain` 表面积并为后续“依赖方去 `eva-domain`”创造前置条件（下一刀建议见 10.3 的 bc-course 小节）。IAM 的 “S0.2 延伸（依赖方收敛）” 已阶段性闭环，作为并行任务保留历史记录与回溯口径。
@@ -1031,7 +1031,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 3) **可以移除 `eva-infra` 的判定标准（建议的 DoD）**
    - `eva-infra` 中旧 `*GatewayImpl` 已全部退化为委托壳或迁入对应 `bc-*/infrastructure`（或其过渡落点），不再承担“业务编排”。
-   - `eva-infra-dal` / `eva-infra-shared` 作为跨 BC 的共享技术模块：可保留（推荐），或后续再按里程碑评估是否更名/进一步收敛到 shared-kernel；**不建议**把这类跨域共享硬塞进某个单一 BC。
+   - `eva-infra-dal` / `eva-infra-shared`：在 **方案 B（严格）** 下不允许长期保留，必须逐步按 BC 归位或下沉到 `shared-kernel`（或拆成 `*-contract`）后删除；避免把“技术切片”永久化为新的共享大包。
 
 **节奏建议（避免一次性大迁移）：**
 

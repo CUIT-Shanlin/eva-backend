@@ -110,6 +110,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-02-12）**
+- ✅ 主线口径更新（更新至 2026-02-12，保持行为不变）：已在三文档明确切换为 **方案 B（严格）** —— 彻底退场 `eva-*` 技术切片；验收以 `DDD_REFACTOR_PLAN.md` 10.5.B 的 DoD 为准。
+- ✅ 方案 B（严格，保持行为不变，共享能力下沉 + 依赖前置）：已将 `ExcelUtils`、`CourseCacheConstants`、`EvaCacheConstants`、`UserCacheConstants` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package`/Bean 名称/类内容不变），并补齐 `shared-kernel/pom.xml` 编译期依赖；同时在 `bc-course/infrastructure/pom.xml` 增加对 `shared-kernel` 的显式依赖，为后续逐步清空 `eva-infra-shared` 做前置。
 - ✅ S0.2 延伸（编译闭合前置：EntityFactory，单 pom，保持行为不变）：为后续将 `EntityFactory` 从 `eva-infra-shared` 归位到 `eva-infra-dal` 做准备，在 `eva-infra-dal/pom.xml` 显式补齐 `hutool-all`、`cola-component-exception`、`mapstruct` 依赖（不改变业务语义/副作用顺序；最小回归通过；落地：`6546c548`）。
 - ✅ S0.2 延伸（DAL 拆散试点：IAM `sys_user`，保持行为不变，单资源闭环）：将 `SysUserMapper.xml` 从 `eva-infra-dal` 搬运归位到 `bc-iam/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`3dad6ef7`）。
 - ✅ 方案 1（业务整合优先，跨 BC 直连清零前置，单类，保持行为不变）：在 `bc-course/application` 新增 `CourseIdByCourInfIdQueryPort`（用于后续收敛其它 BC 对 `CourInfMapper` 的直连为通过端口查询 `cour_inf.id -> course_id`；最小回归通过；落地：`777ec8a9`）。
@@ -1209,6 +1211,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
        - ✅ 进展（2026-02-12，保持行为不变；单类）：`CourseCacheConstants` 已从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package` 与 bean 名称 `courseCacheConstants` 不变；最小回归通过；落地：`16a07a6b`）。下一刀建议：继续下沉 `EvaCacheConstants` / `UserCacheConstants`，以进一步缩小 `eva-infra-shared` 表面积并为依赖方 pom 收敛创造条件。
        - ✅ 进展（2026-02-12，保持行为不变；单类）：`EvaCacheConstants` 已从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package` 与 bean 名称 `evaCacheConstants` 不变；最小回归通过；落地：`f1fac0f6`）。
        - ✅ 进展（2026-02-12，保持行为不变；单类）：`UserCacheConstants` 已从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package` 与 bean 名称 `userCacheConstants` 不变；最小回归通过；落地：`5f1447e5`）。下一刀建议：证伪后收敛依赖方 `pom.xml`，逐步移除对 `eva-infra-shared` 的编译期依赖。
+       - 🎯 下一刀建议（保持行为不变；严格单文件一刀）：优先挑“`eva-infra-shared` 内部无依赖”的叶子类继续下沉（避免搬 1 个类牵连一串依赖）。推荐候选：`CourseFormat`（Serena 证据化：引用面跨 `bc-course/**` 与 `bc-evaluation/**`，适合下沉到 `shared-kernel` 作为跨 BC 工具类；若 `shared-kernel` 缺编译依赖则先做单 pom 依赖前置）。
     2) P0（BC 专属归位）：把 `eva-infra-shared` 中“明显归属某个 BC 的基础设施能力”（例如 LDAP 相关）逐类归位到对应 `bc-*/infrastructure`，并后置清理依赖方 pom。
     3) P1（DAL 拆散收尾）：继续按“仅单 BC 引用才允许归位”推进 `eva-infra-dal` → `bc-*/infrastructure`（Mapper/DO/XML 逐文件搬运），最终让 `eva-infra-dal` 为空并从 reactor 退场。
     4) P2（eva-base-common 退场）：识别 `eva-base-common` 的被依赖点，按归属（shared-kernel / 对应 BC）逐类搬运后，清理所有依赖方 pom 并从 reactor 退场。
@@ -1304,4 +1307,4 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 - “已完成闭环与踩坑记录”以 `NEXT_SESSION_HANDOFF.md` 为准（每次会话结束必须更新）。
 - 本文件用于“长期 Backlog 与统一执行模板”，避免每个新会话重复盘点。
-- 新对话开启提示词：优先复制 `NEXT_SESSION_HANDOFF.md` 的 **0.11 推荐版（Controller 优先）**（不固化 commitId），避免提示词随会话滚动产生遗漏。
+- 新对话开启提示词：优先复制 `NEXT_SESSION_HANDOFF.md` 的 **0.11 推荐版（方案 B 主线）**（不固化 commitId），避免提示词随会话滚动产生遗漏。
