@@ -60,6 +60,13 @@
             <artifactId>hibernate-validator</artifactId>
         </dependency>
 
+        <!-- 方案 B（严格）：为后续下沉含 Spring 注解的共享常量类（如 *CacheConstants）做编译闭合前置（保持行为不变） -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <optional>true</optional>
+        </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
