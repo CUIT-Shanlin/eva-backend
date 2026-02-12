@@ -1,9 +1,9 @@
 package edu.cuit.infra.gateway.impl.eva;
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import edu.cuit.bc.course.application.port.CourseIdByCourInfIdQueryPort;
 import edu.cuit.domain.gateway.eva.EvaUpdateGateway;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
-import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
     private final EvaTaskMapper evaTaskMapper;
-    private final CourInfMapper courInfMapper;
+    private final CourseIdByCourInfIdQueryPort courseIdByCourInfIdQueryPort;
     private final CourseMapper courseMapper;
     private final SysUserMapper sysUserMapper;
     private final EvaCacheConstants evaCacheConstants;
@@ -35,7 +35,11 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         EvaTaskDO evaTaskDO=evaTaskMapper.selectById(id);
         evaTaskDO.setStatus(2);
         evaTaskMapper.update(evaTaskDO,evaTaskWrapper);
-        localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(courseMapper.selectById(courInfMapper.selectById(evaTaskDO.getCourInfId()).getCourseId()).getSemesterId()));
+        Integer courseId = courseIdByCourInfIdQueryPort.findCourseIdByCourInfId(evaTaskDO.getCourInfId()).orElse(null);
+        localCacheManager.invalidateCache(
+                evaCacheConstants.TASK_LIST_BY_SEM,
+                String.valueOf(courseMapper.selectById(courseId).getSemesterId())
+        );
         localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_TEACH,sysUserMapper.selectById(evaTaskDO.getTeacherId()).getName());
         return null;
     }
