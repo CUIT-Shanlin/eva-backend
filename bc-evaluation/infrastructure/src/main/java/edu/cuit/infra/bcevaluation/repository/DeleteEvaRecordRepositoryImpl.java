@@ -2,15 +2,15 @@ package edu.cuit.infra.bcevaluation.repository;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import edu.cuit.bc.course.application.port.CourInfIdsByCourseIdsQueryPort;
+import edu.cuit.bc.course.application.port.CourInfTimeSlotQueryPort;
 import edu.cuit.bc.evaluation.application.port.DeleteEvaRecordRepository;
 import edu.cuit.bc.evaluation.domain.DeleteEvaRecordQueryException;
 import edu.cuit.bc.evaluation.domain.DeleteEvaRecordUpdateException;
-import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.eva.CourOneEvaTemplateDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO;
-import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.eva.CourOneEvaTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
@@ -35,7 +35,8 @@ public class DeleteEvaRecordRepositoryImpl implements DeleteEvaRecordRepository 
     private final EvaTaskMapper evaTaskMapper;
     private final CourOneEvaTemplateMapper courOneEvaTemplateMapper;
     private final CourseMapper courseMapper;
-    private final CourInfMapper courInfMapper;
+    private final CourInfTimeSlotQueryPort courInfTimeSlotQueryPort;
+    private final CourInfIdsByCourseIdsQueryPort courInfIdsByCourseIdsQueryPort;
     private final SysUserMapper sysUserMapper;
     private final EvaCacheConstants evaCacheConstants;
     private final LocalCacheManager localCacheManager;
@@ -53,10 +54,14 @@ public class DeleteEvaRecordRepositoryImpl implements DeleteEvaRecordRepository 
                 if (evaTaskMapper.selectById(formRecordMapper.selectById(id).getTaskId()) == null) {
                     throw new DeleteEvaRecordQueryException("并未找到找到相应评教任务");
                 }
-                if (courInfMapper.selectById(evaTaskMapper.selectById(formRecordMapper.selectById(id).getTaskId()).getCourInfId()).getCourseId() == null) {
+                if (courInfTimeSlotQueryPort.findByCourInfId(
+                        evaTaskMapper.selectById(formRecordMapper.selectById(id).getTaskId()).getCourInfId()
+                ).orElse(null).courseId() == null) {
                     throw new DeleteEvaRecordQueryException("并未找到找到相应课程信息");
                 }
-                CourseDO courseDO = courseMapper.selectById(courInfMapper.selectById(evaTaskMapper.selectById(formRecordMapper.selectById(id).getTaskId()).getCourInfId()).getCourseId());
+                CourseDO courseDO = courseMapper.selectById(courInfTimeSlotQueryPort.findByCourInfId(
+                        evaTaskMapper.selectById(formRecordMapper.selectById(id).getTaskId()).getCourInfId()
+                ).orElse(null).courseId());
                 if (courseDO == null) {
                     throw new DeleteEvaRecordQueryException("没有找到相关课程");
                 }
@@ -66,8 +71,7 @@ public class DeleteEvaRecordRepositoryImpl implements DeleteEvaRecordRepository 
 
                 //看看相关课程有没有泡脚记录
                 Integer f = 0;//0是没有，1是有
-                List<CourInfDO> courInfDOS = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseDO.getId()));
-                List<Integer> courInfIds = courInfDOS.stream().map(CourInfDO::getId).toList();
+                List<Integer> courInfIds = courInfIdsByCourseIdsQueryPort.findCourInfIdsByCourseIds(List.of(courseDO.getId()));
                 if (CollectionUtil.isEmpty(courInfIds)) {
                     throw new DeleteEvaRecordUpdateException("该课程下未找到任何课程详情信息");
                 }
@@ -95,4 +99,3 @@ public class DeleteEvaRecordRepositoryImpl implements DeleteEvaRecordRepository 
         }
     }
 }
-
