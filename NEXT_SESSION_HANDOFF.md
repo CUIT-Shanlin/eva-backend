@@ -23,6 +23,7 @@
 
 **2026-02-12（本会话：保持行为不变，继续瘦身共享基础设施）**
 - ✅ 已完成（保持行为不变，方案 1：继续清零评教侧对课程域 cour_inf 的跨 BC 直连，单类）：收敛评教读侧记录查询对课程域 `CourInfMapper.selectList(...)` 的跨 BC 直连：`EvaRecordQueryRepository` 改为调用课程域查询端口 `CourInfObjectDirectQueryPort.findByIds/findByCourseIds(...)`（异常文案/分支/查询次数与顺序不变；最小回归通过；代码落地：`13889255`）。
+- ✅ 已完成（保持行为不变，方案 1：cour_inf 跨 BC 直连清零收尾，单类）：收敛 `bc-template/infrastructure` 的课程模板锁定查询对课程域 `CourInfMapper.selectList(eq course_id)` 的跨 BC 直连：`CourseTemplateLockQueryPortImpl` 改为调用课程域查询端口 `CourInfIdsByCourseIdsQueryPort.findCourInfIdsByCourseIds(...)`（查询次数与顺序不变；最小回归通过；代码落地：`f81b4661`）。
 - ✅ 已闭环（保持行为不变，协作口径补强）：本会话上述变更均已按“Serena → 最小回归 → 代码提交 → 三文档同步 → 文档提交 → push”完成；最小回归命令以 0.10/0.11 为准；注意不要提交工作区未跟踪的 `.mvnd/`、`.ssh_known_hosts`。
 - ✅ 已完成（保持行为不变，方案 1：继续清零评教侧对课程域 cour_inf 的跨 BC 直连，单类）：收敛评教读侧任务查询对课程域 `CourInfMapper.selectById/selectList(in course_id)` 的跨 BC 直连：`EvaTaskQueryRepository` 改为调用课程域查询端口 `CourInfObjectDirectQueryPort.findById/findByCourseIds(...)`（异常文案/分支/查询次数与顺序不变；最小回归通过；代码落地：`aec56fc9`）。
 - ✅ 已完成（保持行为不变，方案 1：继续清零评教侧对课程域 cour_inf 的跨 BC 直连，单类前置）：在 `bc-course/infrastructure` 新增端口适配器 `CourInfObjectDirectQueryPortImpl`，用于承接 `CourInfObjectDirectQueryPort`（内部仅 `CourInfMapper.selectById/selectList`；最小回归通过；代码落地：`74cda7d2`）。
