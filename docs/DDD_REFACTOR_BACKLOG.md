@@ -827,6 +827,11 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成：`bc-audit` 的 `LogGatewayImpl`、`bc-course` 的 `CourseQueryRepository.toUserEntity`、`bc-evaluation` 的 `EvaTaskQueryRepository.toUserEntity` 已改走 `bc-iam-contract` 端口 `UserEntityObjectByIdDirectQueryPort`（保持异常文案/副作用顺序不变；详见 4.2 与 `NEXT_SESSION_HANDOFF.md` 0.9；评教任务读侧最新落地：`6c5d6bce`）。
   - ✅ 已完成（保持行为不变；每次只改 1 个类闭环）：`bc-evaluation/infrastructure/src/main/java/edu/cuit/infra/bcevaluation/query/EvaRecordQueryRepository.java` 已不再直连 `SysUserRoleMapper/SysRoleMapper`，改走 `UserEntityObjectByIdDirectQueryPort`（异常文案保持不变；最小回归通过；落地：`78787eee`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 
+- **方案 1（课程域 cour_inf：跨 BC 直连清零收尾，保持行为不变）**：
+  - 现状：评教侧（`bc-evaluation/**`）对课程域 `CourInfMapper` 的跨 BC 直连已阶段性清零（详见 4.2 与 `NEXT_SESSION_HANDOFF.md` 0.9）。
+  - 🎯 下一刀建议（单类，保持行为不变）：优先清理 `bc-template/**` 中对 `CourInfMapper` 的跨 BC 直连，收敛为调用 `bc-course` 的 cour_inf 查询端口（优先复用 `CourInfObjectDirectQueryPort` / `CourInfTimeSlotQueryPort`；端口不足则按“先补端口（单类）→ 再补适配器（单类）→ 再改调用侧（单类）”推进）。
+  - 证据口径（可复现）：`rg -n "infra\\.dal\\.database\\.mapper\\.course\\.CourInfMapper" --glob "*.java" bc-template | head`
+
 - **S1（IAM：Controller 入口壳结构性收敛，保持行为不变）**：
   - ✅ 已完成：`UserUpdateController`（落地：`5ee37fd2`）、`DepartmentController`（落地：`fbc5fb74`）、`AuthenticationController`（落地：`fd9e4d1c`）、`MenuUpdateController`（落地：`44bc649d`）、`RoleUpdateController`（落地：`c81eb2e0`）。
 
@@ -1194,6 +1199,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 阶段性策略微调（2025-12-29）：
 - ✅ 复核口径（2026-01-26，不改业务语义）：`spring-boot-starter-websocket` 仅由组合根 `start` 显式承接；并已将 `EvaConfigBizConvertor`、`EvaRecordBizConvertor`、`EvaTemplateBizConvertor` 从 `eva-app` 归位到 `eva-infra-shared`（保持行为不变）；`EvaTaskBizConvertor` 后续已从 `eva-infra-shared` 进一步归位到 `bc-evaluation/infrastructure`（保持行为不变；落地：`f3a2cf7f`）。并将 `EvaConfigService` 从 `eva-app` 归位到 `bc-evaluation-infra`（保持行为不变），并将 `UserCourseDetailQueryExec`、`FileImportExec`、`package-info.java` 从 `eva-app` 归位到 `bc-course-infra`（保持行为不变）。当前 `eva-app` 已退场（组合根去依赖：`0a9ff564`；reactor 移除：`b5f15a4b`；删除 `eva-app/pom.xml`：`4bfa9d40`）；`eva-adapter` 残留 Controller 口径以 `NEXT_SESSION_HANDOFF.md` 0.10.2 为准（当前 0 个，已清零）；组合根 `start` 已移除对 `eva-adapter` 的 Maven 依赖（落地：`92a70a9e`；保持行为不变）。补充：✅ 已完成消息入口归位前置（保持行为不变）：为后续将 `MessageController` 从 `eva-adapter` 归位到 `bc-messaging` 做编译闭合前置，在 `bc-messaging/pom.xml` 补齐 `spring-boot-starter-web`、`zym-spring-boot-starter-common`、`zym-spring-boot-starter-security`、`shared-kernel`（落地：`aa7d57bb`）。补充：✅ 已完成审计日志入口归位（保持行为不变）：`LogController` 已从 `eva-adapter` 归位到 `bc-audit/infrastructure`（编译闭合前置：`2464d2b9`；入口归位：`b592cc0f`）。
 - ✅ 允许“微调”：仅限结构性重构（收窄依赖/拆接口/移动默认值兜底），**不改业务语义**；缓存/日志/异常文案/副作用顺序完全不变。
+- 🎯 补充（2026-02-12，保持行为不变，方案 1）：课程域 `cour_inf` 的跨 BC 直连清零已推进到“评教侧阶段性清零”；下一刀建议清理 `bc-template/**` 对 `CourInfMapper` 的跨 BC 直连并收敛为调用 `bc-course` 端口（详见 4.3）。
   - 📌 `eva-*` 整合路线（更新至 2026-02-11；保持行为不变；每刀只改 1 个文件闭环）：
     1) P0（优先，DAL 拆散试点扩展）：继续按“仅单 BC 引用才允许归位”推进 `eva-infra-dal` → `bc-*/infrastructure`。✅ 已补齐 IAM `sys_role` 候选的 XML：`eva-infra-dal/src/main/resources/mapper/user/SysRoleMapper.xml` → `bc-iam/infrastructure/src/main/resources/mapper/user/SysRoleMapper.xml`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；落地：`aa1d7c6b`）。下一刀建议回到课程域：`course_type` 候选已完成 XML 单资源闭环：`CourseTypeMapper.xml` 已归位（落地：`158f0bd2`）。下一刀可从 `eva-infra-dal/src/main/resources/mapper/course` 继续挑选 **1 个 XML**（如 `SubjectMapper.xml/SemesterMapper.xml/CourseMapper.xml/CourInfMapper.xml`）作为候选，先 Serena 证据化确认对应 Mapper 引用面仅命中 `bc-course/**` 后再归位。
        - ✅ 补充进展（2026-02-11，保持行为不变，shared 瘦身）：已完成 websocket 支撑类归位：`bc-evaluation-infra` 补齐对 `bc-messaging` 的依赖（落地：`4dd1b34f`），并将 `WebsocketManager` 从 `eva-infra-shared` 归位到 `bc-messaging`（落地：`bf78d276`），用于继续缩小 `eva-infra-shared` 表面积并为后续依赖收敛创造前置条件。
