@@ -48,6 +48,13 @@
             <version>${revision}</version>
         </dependency>
 
+        <!-- 跨 BC 查询端口：课程域（用于 cour_inf.id -> course_id；保持行为不变） -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>bc-course</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
 	        <!-- 导出链路依赖用户 API（保持包名不变） -->
 	        <dependency>
 	            <groupId>edu.cuit</groupId>
