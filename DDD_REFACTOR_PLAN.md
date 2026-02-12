@@ -538,6 +538,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-12，保持行为不变；方案 B：依赖前置，单 pom）：为后续把 `ExcelUtils` 下沉到 `shared-kernel` 做编译闭合前置，在 `shared-kernel/pom.xml` 补齐 `cola-component-exception`、`hutool-all`、`poi/poi-ooxml` 依赖（最小回归通过；落地：`b4641433`）。
 - ✅ 补充进展（2026-02-12，保持行为不变；方案 B：共享工具下沉，单类）：将共享 Excel/POI 工具 `ExcelUtils` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package` 与类内容不变；最小回归通过；落地：`31615f43`）。
 - ✅ 补充进展（2026-02-12，保持行为不变；方案 B：依赖前置，单 pom）：为后续将 `*CacheConstants` 等含 Spring 注解的共享常量类下沉到 `shared-kernel` 做准备，在 `shared-kernel/pom.xml` 预置 `spring-context(optional)` 编译期依赖（最小回归通过；落地：`21a7176b`）。
+- ✅ 补充进展（2026-02-12，保持行为不变；方案 B：共享常量下沉，单类）：将课程缓存键常量 `CourseCacheConstants` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package` 与 bean 名称 `courseCacheConstants` 不变；最小回归通过；落地：`16a07a6b`）。
 - 🎯 下一刀建议（2026-02-12，保持行为不变；单资源闭环）：继续推进 `eva-infra-dal` 按 BC 拆散（Mapper/DO/XML）：从 `eva-infra-dal/src/main/resources/mapper/**` 选择 **1 个 XML**，先用 Serena 证伪其对应 Mapper 引用面仅命中单一 BC 后再归位到目标 `bc-*/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变）。
 - 补充进展（2026-02-12，保持行为不变，支撑类归位）：将 `QueryUtils` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.util` 不变；类内容不变；最小回归通过；落地：`e653338f`）。
 - 补充进展（2026-02-12，保持行为不变，支撑类归位）：将 `PaginationConverter` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.convertor` 不变；类内容不变；最小回归通过；落地：`d2ca2d80`）。

@@ -22,6 +22,7 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-02-12（本会话：保持行为不变，继续瘦身共享基础设施）**
+- ✅ 已完成（保持行为不变，方案 B：共享常量下沉，单类）：将课程缓存键常量 `CourseCacheConstants` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package` 与 bean 名称 `courseCacheConstants` 不变；最小回归通过；代码落地：`16a07a6b`）。
 - ✅ 已完成（保持行为不变，方案 B：依赖前置，单 pom）：为后续将 `*CacheConstants` 等含 Spring 注解的共享常量类下沉到 `shared-kernel` 做准备，在 `shared-kernel/pom.xml` 预置 `spring-context(optional)` 编译期依赖（最小回归通过；代码落地：`21a7176b`）。
 - ✅ 已完成（保持行为不变，方案 B：共享工具下沉，单类）：将共享 Excel/POI 工具 `ExcelUtils` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package` 与类内容不变；最小回归通过；代码落地：`31615f43`）。
 - ✅ 已完成（保持行为不变，方案 B：依赖前置，单 pom）：为后续把共享 Excel/POI 工具（如 `ExcelUtils`）下沉到 `shared-kernel` 做准备，在 `shared-kernel/pom.xml` 补齐 `cola-component-exception`、`hutool-all`、`poi/poi-ooxml` 依赖（最小回归通过；代码落地：`b4641433`）。
