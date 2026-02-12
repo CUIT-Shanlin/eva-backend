@@ -2,16 +2,15 @@ package edu.cuit.infra.bcevaluation.repository;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import edu.cuit.bc.course.application.port.CourInfTimeSlotQueryPort;
 import edu.cuit.bc.evaluation.application.model.PostEvaTaskCommand;
 import edu.cuit.bc.evaluation.application.port.PostEvaTaskRepository;
 import edu.cuit.bc.evaluation.domain.PostEvaTaskQueryException;
 import edu.cuit.bc.evaluation.domain.PostEvaTaskUpdateException;
-import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.course.SemesterDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
-import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.SemesterMapper;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
@@ -35,7 +34,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PostEvaTaskRepositoryImpl implements PostEvaTaskRepository {
     private final EvaTaskMapper evaTaskMapper;
-    private final CourInfMapper courInfMapper;
+    private final CourInfTimeSlotQueryPort courInfTimeSlotQueryPort;
     private final CourseMapper courseMapper;
     private final SemesterMapper semesterMapper;
     private final SysUserMapper sysUserMapper;
@@ -46,14 +45,14 @@ public class PostEvaTaskRepositoryImpl implements PostEvaTaskRepository {
     @Transactional
     public Integer create(PostEvaTaskCommand command, Integer maxBeEvaNum) {
         // 同时发送该任务的评教待办消息（已迁移为：提交后事件触发；此处仅负责写侧主流程）
-        CourInfDO courInfDO = courInfMapper.selectById(command.courInfId());
+        CourInfTimeSlotQueryPort.CourInfTimeSlot courInfDO = courInfTimeSlotQueryPort.findByCourInfId(command.courInfId()).orElse(null);
         if (courInfDO == null) {
             throw new PostEvaTaskUpdateException("并没有找到相关课程");
         }
-        CourseDO courseDO = courseMapper.selectById(courInfDO.getCourseId());
+        CourseDO courseDO = courseMapper.selectById(courInfDO.courseId());
         // 选中的课程是否已经上完
         SemesterDO semesterDO = semesterMapper.selectById(courseDO.getSemesterId());
-        LocalDate localDate = semesterDO.getStartDate().plusDays((courInfDO.getWeek() - 1) * 7L + courInfDO.getDay() - 1);
+        LocalDate localDate = semesterDO.getStartDate().plusDays((courInfDO.week() - 1) * 7L + courInfDO.day() - 1);
 
         Integer f = 2;// 判断是不是课程快已经结束 1冲0无
         if (localDate.getYear() >= LocalDate.now().getYear()) {
@@ -70,7 +69,7 @@ public class PostEvaTaskRepositoryImpl implements PostEvaTaskRepository {
                             String dateTime = localDate + " 00:00";// 因为少了一个空格而不能满足格式而报错
                             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
                             LocalDateTime localDateTime = LocalDateTime.parse(dateTime, formatter);
-                            if (CalculateClassTime.calculateClassTime(localDateTime, courInfDO.getStartTime()).isBefore(LocalDateTime.now())) {
+                            if (CalculateClassTime.calculateClassTime(localDateTime, courInfDO.startTime()).isBefore(LocalDateTime.now())) {
                                 f = 1;
                             } else {
                                 f = 0;
@@ -94,12 +93,12 @@ public class PostEvaTaskRepositoryImpl implements PostEvaTaskRepository {
         List<CourseDO> courseDOList = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", command.evaluatorId()));
         List<Integer> courseIds = courseDOList.stream().map(CourseDO::getId).toList();
         if (CollectionUtil.isNotEmpty(courseIds)) {
-            List<CourInfDO> courInfDOList = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", courseIds));
+            List<CourInfTimeSlotQueryPort.CourInfTimeSlot> courInfDOList = courInfTimeSlotQueryPort.findByCourseIds(courseIds);
             for (int i = 0; i < courInfDOList.size(); i++) {
-                if (courInfDO.getWeek().equals(courInfDOList.get(i).getWeek())) {
-                    if (courInfDO.getDay().equals(courInfDOList.get(i).getDay())) {
-                        if (((courInfDO.getStartTime() <= courInfDOList.get(i).getEndTime()) && (courInfDO.getEndTime() >= courInfDOList.get(i).getStartTime()))
-                                || ((courInfDOList.get(i).getStartTime() <= courInfDO.getEndTime()) && (courInfDOList.get(i).getEndTime() >= courInfDO.getStartTime()))) {
+                if (courInfDO.week().equals(courInfDOList.get(i).week())) {
+                    if (courInfDO.day().equals(courInfDOList.get(i).day())) {
+                        if (((courInfDO.startTime() <= courInfDOList.get(i).endTime()) && (courInfDO.endTime() >= courInfDOList.get(i).startTime()))
+                                || ((courInfDOList.get(i).startTime() <= courInfDO.endTime()) && (courInfDOList.get(i).endTime() >= courInfDO.startTime()))) {
                             throw new PostEvaTaskUpdateException("与你其他课程冲突");
                         }
                     }
@@ -111,9 +110,9 @@ public class PostEvaTaskRepositoryImpl implements PostEvaTaskRepository {
         List<CourseDO> evaCourseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", teacher.getId()));
         List<Integer> evaCourseIds = evaCourseDOS.stream().map(CourseDO::getId).toList();
         if (CollectionUtil.isNotEmpty(evaCourseIds)) {
-            List<CourInfDO> evaCourInfoDOs = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", evaCourseIds));
+            List<CourInfTimeSlotQueryPort.CourInfTimeSlot> evaCourInfoDOs = courInfTimeSlotQueryPort.findByCourseIds(evaCourseIds);
             if (CollectionUtil.isNotEmpty(evaCourInfoDOs)) {
-                List<Integer> evaCourInfoIds = evaCourInfoDOs.stream().map(CourInfDO::getId).toList();
+                List<Integer> evaCourInfoIds = evaCourInfoDOs.stream().map(CourInfTimeSlotQueryPort.CourInfTimeSlot::id).toList();
                 List<EvaTaskDO> evaTaskDOList1 = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>()
                         .in("cour_inf_id", evaCourInfoIds)
                         .eq("status", 0)
@@ -130,12 +129,12 @@ public class PostEvaTaskRepositoryImpl implements PostEvaTaskRepository {
         List<EvaTaskDO> evaTaskDOList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id", command.evaluatorId()).eq("status", 0));
         List<Integer> courInfoIds = evaTaskDOList.stream().map(EvaTaskDO::getCourInfId).toList();
         if (CollectionUtil.isNotEmpty(courInfoIds)) {
-            List<CourInfDO> evaCourInfDOList = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("id", courInfoIds));
+            List<CourInfTimeSlotQueryPort.CourInfTimeSlot> evaCourInfDOList = courInfTimeSlotQueryPort.findByCourInfIds(courInfoIds);
             for (int i = 0; i < evaCourInfDOList.size(); i++) {
-                if (courInfDO.getWeek().equals(evaCourInfDOList.get(i).getWeek())) {
-                    if (courInfDO.getDay().equals(evaCourInfDOList.get(i).getDay())) {
-                        if ((courInfDO.getStartTime() <= evaCourInfDOList.get(i).getEndTime() && courInfDO.getEndTime() >= evaCourInfDOList.get(i).getStartTime())
-                                || (evaCourInfDOList.get(i).getStartTime() <= courInfDO.getEndTime() && evaCourInfDOList.get(i).getEndTime() >= courInfDO.getStartTime())) {
+                if (courInfDO.week().equals(evaCourInfDOList.get(i).week())) {
+                    if (courInfDO.day().equals(evaCourInfDOList.get(i).day())) {
+                        if ((courInfDO.startTime() <= evaCourInfDOList.get(i).endTime() && courInfDO.endTime() >= evaCourInfDOList.get(i).startTime())
+                                || (evaCourInfDOList.get(i).startTime() <= courInfDO.endTime() && evaCourInfDOList.get(i).endTime() >= courInfDO.startTime())) {
                             throw new PostEvaTaskUpdateException("与你其他任务所上课程冲突");
                         }
                     }
@@ -165,4 +164,3 @@ public class PostEvaTaskRepositoryImpl implements PostEvaTaskRepository {
         return taskId;
     }
 }
-
