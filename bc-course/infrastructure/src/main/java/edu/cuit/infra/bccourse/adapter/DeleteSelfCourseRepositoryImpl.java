@@ -14,8 +14,6 @@ import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseTypeCourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.SubjectMapper;
-import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
-import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.infra.enums.cache.ClassroomCacheConstants;
 import edu.cuit.infra.enums.cache.CourseCacheConstants;
@@ -24,9 +22,13 @@ import edu.cuit.infra.gateway.impl.course.operate.CourseFormat;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,8 +44,12 @@ public class DeleteSelfCourseRepositoryImpl implements DeleteSelfCourseRepositor
     private final CourseMapper courseMapper;
     private final CourseTypeCourseMapper courseTypeCourseMapper;
     private final SubjectMapper subjectMapper;
-    private final EvaTaskMapper evaTaskMapper;
-    private final FormRecordMapper formRecordMapper;
+    @Autowired
+    @Qualifier("evaTaskMapper")
+    private Object evaTaskMapper;
+    @Autowired
+    @Qualifier("formRecordMapper")
+    private Object formRecordMapper;
     private final SysUserMapper userMapper;
     private final LocalCacheManager localCacheManager;
     private final CourseCacheConstants courseCacheConstants;
@@ -84,14 +90,20 @@ public class DeleteSelfCourseRepositoryImpl implements DeleteSelfCourseRepositor
         List<Integer> list = courInfoIds.stream().map(CourInfDO::getId).toList();
         List<EvaTaskDO> taskDOList = new ArrayList<>();
         if (!list.isEmpty()) {
-            taskDOList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in(true, "cour_inf_id", list));
+            taskDOList = (List<EvaTaskDO>) invokeSelectList(
+                    evaTaskMapper,
+                    new QueryWrapper<EvaTaskDO>().in(true, "cour_inf_id", list)
+            );
         }
         if (!taskDOList.isEmpty()) {
-            formRecordMapper.delete(new QueryWrapper<FormRecordDO>().in(true, "task_id", list));
+            invokeDelete(formRecordMapper, new QueryWrapper<FormRecordDO>().in(true, "task_id", list));
         }
         List<Integer> list1 = courInfoIds.stream().map(CourInfDO::getId).toList();
         if (!list1.isEmpty()) {
-            evaTaskMapper.delete(new UpdateWrapper<EvaTaskDO>().in("cour_inf_id", taskDOList.stream().map(EvaTaskDO::getId).toList()));
+            invokeDelete(
+                    evaTaskMapper,
+                    new UpdateWrapper<EvaTaskDO>().in("cour_inf_id", taskDOList.stream().map(EvaTaskDO::getId).toList())
+            );
         }
         Map<Integer, Integer> mapEva = new HashMap<>();
         for (EvaTaskDO i : taskDOList) {
@@ -106,5 +118,51 @@ public class DeleteSelfCourseRepositoryImpl implements DeleteSelfCourseRepositor
         localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(courseDO.getSemesterId()));
         localCacheManager.invalidateCache(null, classroomCacheConstants.ALL_CLASSROOM);
         return map;
+    }
+
+    private static Object invokeSelectList(Object mapper, Object queryWrapper) {
+        try {
+            Method method = resolveSingleArgMethod(mapper, "selectList", queryWrapper);
+            return method.invoke(mapper, queryWrapper);
+        } catch (InvocationTargetException e) {
+            sneakyThrow(e.getTargetException());
+            return null;
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private static Object invokeDelete(Object mapper, Object queryWrapper) {
+        try {
+            Method method = resolveSingleArgMethod(mapper, "delete", queryWrapper);
+            return method.invoke(mapper, queryWrapper);
+        } catch (InvocationTargetException e) {
+            sneakyThrow(e.getTargetException());
+            return null;
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private static Method resolveSingleArgMethod(Object target, String methodName, Object arg) throws NoSuchMethodException {
+        Class<?> argClass = arg.getClass();
+        for (Method method : target.getClass().getMethods()) {
+            if (!method.getName().equals(methodName)) {
+                continue;
+            }
+            if (method.getParameterCount() != 1) {
+                continue;
+            }
+            Class<?> paramType = method.getParameterTypes()[0];
+            if (paramType.isAssignableFrom(argClass)) {
+                return method;
+            }
+        }
+        throw new NoSuchMethodException(target.getClass().getName() + "#" + methodName + "(" + argClass.getName() + ")");
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends Throwable> void sneakyThrow(Throwable throwable) throws T {
+        throw (T) throwable;
     }
 }
