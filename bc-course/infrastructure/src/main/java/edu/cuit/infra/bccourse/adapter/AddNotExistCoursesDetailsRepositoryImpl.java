@@ -17,14 +17,17 @@ import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseTypeCourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseTypeMapper;
 import edu.cuit.infra.dal.database.mapper.course.SubjectMapper;
-import edu.cuit.infra.dal.database.mapper.eva.FormTemplateMapper;
 import edu.cuit.infra.enums.cache.ClassroomCacheConstants;
 import edu.cuit.infra.enums.cache.CourseCacheConstants;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 
 /**
@@ -41,7 +44,9 @@ public class AddNotExistCoursesDetailsRepositoryImpl implements AddNotExistCours
     private final SubjectMapper subjectMapper;
     private final LocalCacheManager localCacheManager;
     private final CourseCacheConstants courseCacheConstants;
-    private final FormTemplateMapper formTemplateMapper;
+    @Autowired
+    @Qualifier("formTemplateMapper")
+    private Object formTemplateMapper;
     private final ClassroomCacheConstants classroomCacheConstants;
     private final ClassroomOccupancyChecker classroomOccupancyChecker;
 
@@ -65,7 +70,11 @@ public class AddNotExistCoursesDetailsRepositoryImpl implements AddNotExistCours
         CourseDO courseDO = courseConvertor.toCourseDO(courseInfo, subjectId, teacherId, semId);
         Integer type = null;
         if (courseDO.getTemplateId() == null && (courseInfo.getSubjectMsg().getNature() == 1 || courseInfo.getSubjectMsg().getNature() == 0)) {
-            Integer id = formTemplateMapper.selectOne(new QueryWrapper<FormTemplateDO>().eq("is_default", courseInfo.getSubjectMsg().getNature())).getId();
+            FormTemplateDO templateDO = (FormTemplateDO) invokeSelectOne(
+                    formTemplateMapper,
+                    new QueryWrapper<FormTemplateDO>().eq("is_default", courseInfo.getSubjectMsg().getNature())
+            );
+            Integer id = templateDO.getId();
             courseDO.setTemplateId(id);
             type = courseTypeMapper.selectOne(new QueryWrapper<CourseTypeDO>().eq("is_default", courseInfo.getSubjectMsg().getNature())).getId();
         }
@@ -116,5 +125,39 @@ public class AddNotExistCoursesDetailsRepositoryImpl implements AddNotExistCours
         }
         localCacheManager.invalidateCache(null, classroomCacheConstants.ALL_CLASSROOM);
 
+    }
+
+    private static Object invokeSelectOne(Object mapper, Object queryWrapper) {
+        try {
+            Method method = resolveSingleArgMethod(mapper, "selectOne", queryWrapper);
+            return method.invoke(mapper, queryWrapper);
+        } catch (InvocationTargetException e) {
+            sneakyThrow(e.getTargetException());
+            return null;
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private static Method resolveSingleArgMethod(Object target, String methodName, Object arg) throws NoSuchMethodException {
+        Class<?> argClass = arg.getClass();
+        for (Method method : target.getClass().getMethods()) {
+            if (!method.getName().equals(methodName)) {
+                continue;
+            }
+            if (method.getParameterCount() != 1) {
+                continue;
+            }
+            Class<?> paramType = method.getParameterTypes()[0];
+            if (paramType.isAssignableFrom(argClass)) {
+                return method;
+            }
+        }
+        throw new NoSuchMethodException(target.getClass().getName() + "#" + methodName + "(" + argClass.getName() + ")");
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends Throwable> void sneakyThrow(Throwable throwable) throws T {
+        throw (T) throwable;
     }
 }
