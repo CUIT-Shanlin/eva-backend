@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-13（本会话收口总览：跨 BC Mapper 直连清零收尾，保持行为不变）**
+- ✅ 本会话新增闭环（保持行为不变，均已跑最小回归并 push）：`AddNotExistCoursesDetailsRepositoryImpl`（`e7e444a1`）→ `DeleteSelfCourseRepositoryImpl`（`bbc32ae1`）→ `UpdateSelfCourseRepositoryImpl`（`db6d6165`）。
+- 📊 证据口径快照（保持行为不变；以 `git rev-parse --short HEAD` 为准）：`bc-course/**` 对评教侧 `infra.dal.database.mapper.eva.*` 编译期 import 当前为 `8` 处（`2` 个文件）；残留文件见下方“下一刀候选”与 0.11。
+- 🧭 下一步计划（严格单文件一刀，保持行为不变）：优先清零 `CourseImportExce`（4 个 eva mapper import）→ 再清零 `CourseQueryRepository`（4 个 eva mapper import），两刀做完即可将 `bc-course/**` 评教 mapper import 清零。
+- ⚠️ 工作区状态（重要，避免误操作）：当前仍处于“已暂存新增文件 + 未暂存代码改动”的混合状态（口径：`git status -sb` + `git diff --cached --name-status` + `git diff --name-status`）。请不要 `reset/checkout`；后续提交务必使用 `git commit -- <path>` 进行范围隔离。
+
 **2026-02-13（本会话：单类闭环补一刀，保持行为不变）**
 - ✅ 课程侧：`UpdateSelfCourseRepositoryImpl` 清零对评教侧 `EvaTaskMapper` 的编译期直连（`Object` + `@Qualifier` + 反射 `selectList/delete`，保持 MyBatis 语义不变）；最小回归通过；代码落地：`db6d6165`。
 - 📊 口径更新（保持行为不变）：`bc-course/**` 对评教 Mapper import 由 `9` 处（3 个文件）降至 `8` 处（2 个文件）（口径命令见 0.11）。
