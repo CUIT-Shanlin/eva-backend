@@ -21,7 +21,6 @@ import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseTypeCourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseTypeMapper;
 import edu.cuit.infra.dal.database.mapper.course.SubjectMapper;
-import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.infra.enums.cache.ClassroomCacheConstants;
 import edu.cuit.infra.enums.cache.CourseCacheConstants;
@@ -29,9 +28,13 @@ import edu.cuit.infra.enums.cache.EvaCacheConstants;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,7 +55,9 @@ public class UpdateSelfCourseRepositoryImpl implements UpdateSelfCourseRepositor
     private final CourseTypeCourseMapper courseTypeCourseMapper;
     private final CourseTypeMapper courseTypeMapper;
     private final CourInfMapper courInfMapper;
-    private final EvaTaskMapper evaTaskMapper;
+    @Autowired
+    @Qualifier("evaTaskMapper")
+    private Object evaTaskMapper;
     private final LocalCacheManager localCacheManager;
     private final ClassroomCacheConstants classroomCacheConstants;
     private final CourseCacheConstants courseCacheConstants;
@@ -104,9 +109,11 @@ public class UpdateSelfCourseRepositoryImpl implements UpdateSelfCourseRepositor
             Map<Integer, Integer> taskMap
     ) {
         String msg = "";
-        List<Integer> courInfoIds = evaTaskMapper.selectList(
-                        new QueryWrapper<EvaTaskDO>().eq("teacher_id", courseDO.getTeacherId()).eq("status", 0)
-                ).stream()
+        List<EvaTaskDO> courInfoTaskList = (List<EvaTaskDO>) invokeSelectList(
+                evaTaskMapper,
+                new QueryWrapper<EvaTaskDO>().eq("teacher_id", courseDO.getTeacherId()).eq("status", 0)
+        );
+        List<Integer> courInfoIds = courInfoTaskList.stream()
                 .map(EvaTaskDO::getCourInfId)
                 .toList();
         List<CourInfDO> courInfoList = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseDO.getId()));
@@ -136,11 +143,11 @@ public class UpdateSelfCourseRepositoryImpl implements UpdateSelfCourseRepositor
                         .eq("week", courInfDO.getWeek()).eq("day", courInfDO.getDay())
                         .eq("start_time", courInfDO.getStartTime()).eq("end_time", courInfDO.getEndTime())
                         .eq("location", courInfDO.getLocation()));
-                evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId()))
+                ((List<EvaTaskDO>) invokeSelectList(evaTaskMapper, new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId())))
                         .forEach(evaTaskDO -> taskMap.put(evaTaskDO.getId(), evaTaskDO.getTeacherId()));
                /* EvaTaskDO evaTaskDO=new EvaTaskDO();
                 evaTaskDO.setStatus(2);*/
-                evaTaskMapper.delete(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId()));
+                invokeDelete(evaTaskMapper, new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId()));
             }
             localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(courseDO.getSemesterId()));
             if (taskMap.isEmpty()) {
@@ -155,11 +162,11 @@ public class UpdateSelfCourseRepositoryImpl implements UpdateSelfCourseRepositor
                         .eq("week", courInfDO.getWeek()).eq("day", courInfDO.getDay())
                         .eq("start_time", courInfDO.getStartTime()).eq("end_time", courInfDO.getEndTime())
                         .eq("location", courInfDO.getLocation()));
-                evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId()))
+                ((List<EvaTaskDO>) invokeSelectList(evaTaskMapper, new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId())))
                         .forEach(evaTaskDO -> taskMap.put(evaTaskDO.getId(), evaTaskDO.getTeacherId()));
            /*     EvaTaskDO evaTaskDO=new EvaTaskDO();
                 evaTaskDO.setStatus(2);*/
-                evaTaskMapper.delete(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId()));
+                invokeDelete(evaTaskMapper, new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId()));
             }
             localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(courseDO.getSemesterId()));
             for (CourInfDO courInfDO : difference) {
@@ -203,6 +210,52 @@ public class UpdateSelfCourseRepositoryImpl implements UpdateSelfCourseRepositor
             }
             return msg + userDO.getName() + "老师的" + selfTeachCourseCO.getName() + "课程的上课时间（教室）被修改了," + "因而取消您对该课程的评教任务";
         }
+    }
+
+    private static Object invokeSelectList(Object mapper, Object queryWrapper) {
+        try {
+            Method method = resolveSingleArgMethod(mapper, "selectList", queryWrapper);
+            return method.invoke(mapper, queryWrapper);
+        } catch (InvocationTargetException e) {
+            sneakyThrow(e.getTargetException());
+            return null;
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private static Object invokeDelete(Object mapper, Object queryWrapper) {
+        try {
+            Method method = resolveSingleArgMethod(mapper, "delete", queryWrapper);
+            return method.invoke(mapper, queryWrapper);
+        } catch (InvocationTargetException e) {
+            sneakyThrow(e.getTargetException());
+            return null;
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private static Method resolveSingleArgMethod(Object target, String methodName, Object arg) throws NoSuchMethodException {
+        Class<?> argClass = arg.getClass();
+        for (Method method : target.getClass().getMethods()) {
+            if (!method.getName().equals(methodName)) {
+                continue;
+            }
+            if (method.getParameterCount() != 1) {
+                continue;
+            }
+            Class<?> paramType = method.getParameterTypes()[0];
+            if (paramType.isAssignableFrom(argClass)) {
+                return method;
+            }
+        }
+        throw new NoSuchMethodException(target.getClass().getName() + "#" + methodName + "(" + argClass.getName() + ")");
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends Throwable> void sneakyThrow(Throwable throwable) throws T {
+        throw (T) throwable;
     }
 
     public List<CourInfDO> getDifference(List<CourInfDO> courseChangeList, List<CourInfDO> courInfoList) {
