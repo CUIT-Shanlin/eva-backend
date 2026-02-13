@@ -21,6 +21,18 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-13（交接补充：本会话仅核验口径 + 落盘，未新增闭环提交）**
+- 📌 本会话起手核验（必须）：`git branch --show-current` 输出 `ddd`；`git merge-base --is-ancestor 2e4c4923 HEAD` 退出码为 `0`。
+- 📊 证据口径快照（避免口径漂移；命令见新对话提示词 A）：
+  - root reactor：`pom.xml` 仍含 `eva-infra-dal/eva-infra-shared/eva-base`
+  - `eva-infra-dal/src/main/resources` XML 数：`0`
+  - `bc-template` 对 `infra.dal.database.mapper.eva.*`：`0`
+  - `bc-course` 对 `infra.dal.database.mapper.eva.*`：`0`（`0` 个文件）
+- ⚠️ 工作区（未闭环，严禁 `reset/checkout`）：当前存在“已暂存新增文件 + 未暂存改动（含资源删除）”混合状态；后续必须用 `git commit -- <path>` 做范围隔离，逐步恢复到“单文件一刀闭环”。
+  - 已暂存新增（index）：`bc-course/application/**/port/*QueryPort.java`（9 个）+ `bc-course/infrastructure/**/*QueryPortImpl.java`（9 个）+ `bc-course/infrastructure/**/mapper/course/*Mapper.xml`（2 个）+ `bc-evaluation/infrastructure/**/mapper/eva/*Mapper.xml`（3 个）
+  - 未暂存改动（working tree）：`.gitignore`、`bc-course/infrastructure`（`AssignEvaTeachersRepositoryImpl/DeleteCourseRepositoryImpl/DeleteCoursesRepositoryImpl/UpdateSingleCourseRepositoryImpl/CourseRecommendExce`）、`bc-evaluation/infrastructure`（`Eva*QueryRepository`、`DeleteEva*RepositoryImpl`、`PostEvaTaskRepositoryImpl`、`SubmitEvaluationRepositoryImpl`、`EvaUpdateGatewayImpl`）、`bc-template/infrastructure`（`CourseTemplateLockQueryPortImpl`），以及 `eva-infra-dal/src/main/resources/mapper/**` 删除（5 个 XML）。
+  - 下一步建议（保持行为不变）：优先把“资源 XML 归位”做成可编译闭合的单资源闭环（先同时 stage 对应 delete + add，再最小回归），再继续拆端口/适配器。
+
 **2026-02-13（本会话收口总览：跨 BC Mapper 直连清零收尾，保持行为不变）**
 - ✅ 本会话新增闭环（保持行为不变，均已跑最小回归并 push）：`AddNotExistCoursesDetailsRepositoryImpl`（`e7e444a1`）→ `DeleteSelfCourseRepositoryImpl`（`bbc32ae1`）→ `UpdateSelfCourseRepositoryImpl`（`db6d6165`）。
 - ✅ 本会话新增闭环（保持行为不变）：`CourseImportExce` 清零对评教侧 `EvaTaskMapper/FormRecordMapper/CourOneEvaTemplateMapper/FormTemplateMapper` 的编译期直连（`Object` + `@Qualifier` + 反射 `selectList/delete/deleteBatchIds/selectOne/selectById`，保持 MyBatis 语义不变）；最小回归通过；代码落地：`0dfe5cd6`。
@@ -1233,7 +1245,7 @@
   - ✅ 评教实体逐类归位：`EvaTemplateEntity` 已从 `eva-domain` 搬运归位到 `bc-evaluation-domain`（保持 `package` 与类内容不变；最小回归通过；落地：`ee79ffac`）。
   - ✅ 可复现快照：`eva-domain` 残留 Java 文件数口径：`fd -t f -e java . eva-domain/src/main/java | wc -l`（当前为 0；清单口径：`fd -t f -e java . eva-domain/src/main/java`）。
   - ✅ 可复现快照：当前已无模块显式依赖 `eva-domain`（口径：`rg -n "<artifactId>eva-domain</artifactId>" --glob "**/pom.xml" .` 预期无命中）。
-  - ✅ 当前工作区应仅残留未跟踪 `.mvnd/`（本地 mvnd daemon/registry 目录；禁止提交）。
+  - ⚠️ 工作区提醒（保持行为不变）：理想状态下闭环后应仅残留未跟踪 `.mvnd/`（本地 mvnd daemon/registry 目录；禁止提交）。若出现“已暂存新增 + 未暂存改动”的混合状态，禁止 `reset/checkout`，按 0.9 最新条目与本节“范围隔离提交法”处理。
 
 - 🎯 **下一刀建议（保持行为不变；主线：审计 `sys_log` 的 DAL 按 BC 拆散试点；每次只改 1 个类/1 个资源文件闭环）**：
   1) 先跑快照证据（作为防回归；口径同 0.11）：

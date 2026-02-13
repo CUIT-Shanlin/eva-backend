@@ -842,6 +842,10 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成：`MsgTipMapper`、`MsgTipDO` → `bc-messaging`（保持 `package` 不变，仅改变 Maven 模块归属；详见 4.2 与 `NEXT_SESSION_HANDOFF.md` 0.9）。
   - ✅ 已完成（保持行为不变；单资源闭环）：`MsgTipMapper.xml` → `bc-messaging/src/main/resources/mapper/MsgTipMapper.xml`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`5c5ab5e0`）。
 
+- **S0.2 延伸（课程/评教：DAL XML 按 BC 归位，保持行为不变）**：
+  - ⏳ 进行中（未闭环）：计划将 `CourseMapper.xml/SemesterMapper.xml` 归位到 `bc-course/infrastructure`，将 `CourOneEvaTemplateMapper.xml/EvaTemplateMapper.xml/FormRecordMapper.xml` 归位到 `bc-evaluation/infrastructure`；要求保持 MyBatis XML `namespace`/`resultMap type`/SQL 与资源路径 `mapper/**` 不变，并在提交时同步删除 `eva-infra-dal/src/main/resources/mapper/**` 中对应 XML，避免 classpath 重复导致 MyBatis 启动失败。
+  - ⚠️ 注意：当前工作区存在“已暂存新增 + 未暂存删除/改动”的混合状态（尚未提交）；后续闭环前请先读 `NEXT_SESSION_HANDOFF.md` 0.9 顶部交接补充。
+
 - **S0.2 延伸（IAM → 其它 BC：依赖收敛，去跨 BC 直连 IAM role 表，保持行为不变）**：
   - ✅ 已完成：`bc-audit` 的 `LogGatewayImpl`、`bc-course` 的 `CourseQueryRepository.toUserEntity`、`bc-evaluation` 的 `EvaTaskQueryRepository.toUserEntity` 已改走 `bc-iam-contract` 端口 `UserEntityObjectByIdDirectQueryPort`（保持异常文案/副作用顺序不变；详见 4.2 与 `NEXT_SESSION_HANDOFF.md` 0.9；评教任务读侧最新落地：`6c5d6bce`）。
   - ✅ 已完成（保持行为不变；每次只改 1 个类闭环）：`bc-evaluation/infrastructure/src/main/java/edu/cuit/infra/bcevaluation/query/EvaRecordQueryRepository.java` 已不再直连 `SysUserRoleMapper/SysRoleMapper`，改走 `UserEntityObjectByIdDirectQueryPort`（异常文案保持不变；最小回归通过；落地：`78787eee`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
