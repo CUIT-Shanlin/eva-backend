@@ -3,6 +3,7 @@ package edu.cuit.infra.bccourse.query;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -45,10 +46,6 @@ import edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO;
 import edu.cuit.infra.dal.database.dataobject.eva.FormTemplateDO;
 import edu.cuit.infra.dal.database.dataobject.user.*;
 import edu.cuit.infra.dal.database.mapper.course.*;
-import edu.cuit.infra.dal.database.mapper.eva.CourOneEvaTemplateMapper;
-import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
-import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
-import edu.cuit.infra.dal.database.mapper.eva.FormTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.user.*;
 import edu.cuit.infra.enums.cache.CourseCacheConstants;
 import edu.cuit.infra.gateway.impl.course.operate.CourseFormat;
@@ -58,10 +55,12 @@ import edu.cuit.infra.util.QueryUtils;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.cache.aspect.annotation.local.LocalCached;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
-import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 
 import java.time.LocalDate;
@@ -75,7 +74,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
-@RequiredArgsConstructor
 public class CourseQueryRepository implements CourseQueryRepo {
     private final CourseConvertor courseConvertor;
     private final UserConverter userConverter;
@@ -87,16 +85,60 @@ public class CourseQueryRepository implements CourseQueryRepo {
     private final SubjectMapper subjectMapper;
     private final SysUserMapper userMapper;
     private final UserEntityObjectByIdDirectQueryPort userEntityObjectByIdDirectQueryPort;
-    private final CourOneEvaTemplateMapper courOneEvaTemplateMapper;
-    private final EvaTaskMapper evaTaskMapper;
-    private final FormRecordMapper formRecordMapper;
+    private final Object courOneEvaTemplateMapper;
+    private final Object evaTaskMapper;
+    private final Object formRecordMapper;
     private final CourseRecommendExce courseRecommendExce;
     private final PaginationConverter paginationConverter;
     private final ObjectMapper objectMapper;
-    private final FormTemplateMapper formTemplateMapper;
+    private final Object formTemplateMapper;
     private final LocalCacheManager cacheManager;
     private final CourseCacheConstants courseCacheConstants;
     private final CourseImportExce courseImportExce;
+
+    public CourseQueryRepository(
+            CourseConvertor courseConvertor,
+            UserConverter userConverter,
+            CourInfMapper courInfMapper,
+            CourseMapper courseMapper,
+            CourseTypeCourseMapper courseTypeCourseMapper,
+            CourseTypeMapper courseTypeMapper,
+            SemesterMapper semesterMapper,
+            SubjectMapper subjectMapper,
+            SysUserMapper userMapper,
+            UserEntityObjectByIdDirectQueryPort userEntityObjectByIdDirectQueryPort,
+            @Qualifier("courOneEvaTemplateMapper") Object courOneEvaTemplateMapper,
+            @Qualifier("evaTaskMapper") Object evaTaskMapper,
+            @Qualifier("formRecordMapper") Object formRecordMapper,
+            CourseRecommendExce courseRecommendExce,
+            PaginationConverter paginationConverter,
+            ObjectMapper objectMapper,
+            @Qualifier("formTemplateMapper") Object formTemplateMapper,
+            LocalCacheManager cacheManager,
+            CourseCacheConstants courseCacheConstants,
+            CourseImportExce courseImportExce
+    ) {
+        this.courseConvertor = courseConvertor;
+        this.userConverter = userConverter;
+        this.courInfMapper = courInfMapper;
+        this.courseMapper = courseMapper;
+        this.courseTypeCourseMapper = courseTypeCourseMapper;
+        this.courseTypeMapper = courseTypeMapper;
+        this.semesterMapper = semesterMapper;
+        this.subjectMapper = subjectMapper;
+        this.userMapper = userMapper;
+        this.userEntityObjectByIdDirectQueryPort = userEntityObjectByIdDirectQueryPort;
+        this.courOneEvaTemplateMapper = courOneEvaTemplateMapper;
+        this.evaTaskMapper = evaTaskMapper;
+        this.formRecordMapper = formRecordMapper;
+        this.courseRecommendExce = courseRecommendExce;
+        this.paginationConverter = paginationConverter;
+        this.objectMapper = objectMapper;
+        this.formTemplateMapper = formTemplateMapper;
+        this.cacheManager = cacheManager;
+        this.courseCacheConstants = courseCacheConstants;
+        this.courseImportExce = courseImportExce;
+    }
 
     @Override
     public PaginationResultEntity<CourseEntity> page(PagingQuery<CourseConditionalQuery> courseQuery, Integer semId) {
@@ -155,7 +197,12 @@ public class CourseQueryRepository implements CourseQueryRepo {
             throw new QueryException("该课程不存在");
         }
         //根据id和semId来查询评教快照信息
-        CourOneEvaTemplateDO courOneEvaTemplateDO = courOneEvaTemplateMapper.selectOne(new QueryWrapper<CourOneEvaTemplateDO>().eq("course_id", id).eq("semester_id", semId));
+        CourOneEvaTemplateDO courOneEvaTemplateDO = invoke(
+                courOneEvaTemplateMapper,
+                "selectOne",
+                new Class<?>[]{Wrapper.class},
+                new Object[]{new QueryWrapper<CourOneEvaTemplateDO>().eq("course_id", id).eq("semester_id", semId)}
+        );
         //将courOneEvaTemplateDO中的formtemplate(json)字符串，转换为EvaTemplateCO
         EvaTemplateCO evaTemplateCO=null;
         if(courOneEvaTemplateDO!=null&&courOneEvaTemplateDO.getFormTemplate()!=null){
@@ -169,7 +216,12 @@ public class CourseQueryRepository implements CourseQueryRepo {
         }
         else{
             evaTemplateCO=new EvaTemplateCO();
-            FormTemplateDO form = formTemplateMapper.selectOne(new QueryWrapper<FormTemplateDO>().eq("id", courseDO.getTemplateId()));
+            FormTemplateDO form = invoke(
+                    formTemplateMapper,
+                    "selectOne",
+                    new Class<?>[]{Wrapper.class},
+                    new Object[]{new QueryWrapper<FormTemplateDO>().eq("id", courseDO.getTemplateId())}
+            );
             evaTemplateCO.setId(form.getId());
             evaTemplateCO.setName(form.getName());
             evaTemplateCO.setDescription(form.getDescription());
@@ -209,11 +261,22 @@ public class CourseQueryRepository implements CourseQueryRepo {
         QueryWrapper<EvaTaskDO> evaTaskWrapper = new QueryWrapper<>();
         evaTaskWrapper.in(true,"cour_inf_id", courInfos);
         evaTaskWrapper.eq("status",1);
-        List<Integer> evaTaskDOIds = evaTaskMapper.selectList(evaTaskWrapper).stream().map(EvaTaskDO::getId).toList();
+        List<EvaTaskDO> evaTaskDOList = invoke(
+                evaTaskMapper,
+                "selectList",
+                new Class<?>[]{Wrapper.class},
+                new Object[]{evaTaskWrapper}
+        );
+        List<Integer> evaTaskDOIds = evaTaskDOList.stream().map(EvaTaskDO::getId).toList();
         if(evaTaskDOIds.isEmpty())return courseImportExce.getCourseScore(courseDO.getTemplateId());
         //根据评教任务id来找到评教表单记录数据中的form_props_values
-        List<String> taskProps = formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id", evaTaskDOIds))
-                .stream().map(FormRecordDO::getFormPropsValues).toList();
+        List<FormRecordDO> formRecordDOList = invoke(
+                formRecordMapper,
+                "selectList",
+                new Class<?>[]{Wrapper.class},
+                new Object[]{new QueryWrapper<FormRecordDO>().in("task_id", evaTaskDOIds)}
+        );
+        List<String> taskProps = formRecordDOList.stream().map(FormRecordDO::getFormPropsValues).toList();
         if(taskProps.isEmpty())return courseImportExce.getCourseScore(courseDO.getTemplateId());
         //将json形式的字符串转化成EvaProp对象
         List<EvaProp> evaPropList = new ArrayList<>();
@@ -322,12 +385,16 @@ public class CourseQueryRepository implements CourseQueryRepo {
             singleCourseCO.setTeacherName(userMapper.selectById(courseDO.getTeacherId()).getName());
             singleCourseCO.setName(subjectMapper.selectById(courseDO.getSubjectId()).getName());
             //根据课程id到评教任务表中统计数量
-            singleCourseCO.setEvaNum(Math.toIntExact(evaTaskMapper.selectCount(new QueryWrapper<EvaTaskDO>()
-                    .eq("cour_inf_id", courInfDO.getId())
-                    .eq("status",0)
-                    .or()
-                    .eq("status",1)
-                    .eq("cour_inf_id",courInfDO.getId())
+            singleCourseCO.setEvaNum(Math.toIntExact(invoke(
+                    evaTaskMapper,
+                    "selectCount",
+                    new Class<?>[]{Wrapper.class},
+                    new Object[]{new QueryWrapper<EvaTaskDO>()
+                            .eq("cour_inf_id", courInfDO.getId())
+                            .eq("status",0)
+                            .or()
+                            .eq("status",1)
+                            .eq("cour_inf_id",courInfDO.getId())}
             )));
             singleCourseCOList.add(singleCourseCO);
         }
@@ -506,7 +573,12 @@ public class CourseQueryRepository implements CourseQueryRepo {
             //统计评教数
             Long courInfId;
             if(courINfos.isEmpty())courInfId=0L;
-            else courInfId = evaTaskMapper.selectCount(new QueryWrapper<EvaTaskDO>().in("cour_inf_id",courINfos).and(wrapper->wrapper.eq("status",0).or().eq("status",1)));
+            else courInfId = invoke(
+                    evaTaskMapper,
+                    "selectCount",
+                    new Class<?>[]{Wrapper.class},
+                    new Object[]{new QueryWrapper<EvaTaskDO>().in("cour_inf_id",courINfos).and(wrapper->wrapper.eq("status",0).or().eq("status",1))}
+            );
             //添加到selfteachCourseCO中
             SelfTeachCourseCO selfTeachCourseCO = new SelfTeachCourseCO();
             selfTeachCourseCO.setId(courseDO.getId())
@@ -568,7 +640,12 @@ public class CourseQueryRepository implements CourseQueryRepo {
 
     @Override
     public List<EvaTeacherInfoCO> getEvaUsers(Integer courseId) {
-        List<EvaTaskDO> taskDOList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courseId));
+        List<EvaTaskDO> taskDOList = invoke(
+                evaTaskMapper,
+                "selectList",
+                new Class<?>[]{Wrapper.class},
+                new Object[]{new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courseId)}
+        );
         if (taskDOList.isEmpty())return new ArrayList<>();
         List<Integer> userList = taskDOList.stream().map(EvaTaskDO::getTeacherId).toList();
         return userMapper.selectList(new QueryWrapper<SysUserDO>().in(!userList.isEmpty(),"id", userList)).stream().map(courseConvertor::toEvaTeacherInfoCO).toList();
@@ -828,7 +905,12 @@ public class CourseQueryRepository implements CourseQueryRepo {
     private Integer  getEvaNum(Integer teacherId,Integer semId){
         List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", teacherId).eq("semester_id", semId));
         List<Integer> courseId = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in(!courseDOS.isEmpty(),"course_id", courseDOS)).stream().map(CourInfDO::getId).toList();
-        Long courInfId = evaTaskMapper.selectCount(new QueryWrapper<EvaTaskDO>().in(!courseId.isEmpty(),"cour_inf_id", courseId));
+        Long courInfId = invoke(
+                evaTaskMapper,
+                "selectCount",
+                new Class<?>[]{Wrapper.class},
+                new Object[]{new QueryWrapper<EvaTaskDO>().in(!courseId.isEmpty(),"cour_inf_id", courseId)}
+        );
 
         return courInfId.intValue();
     }
@@ -868,6 +950,25 @@ public class CourseQueryRepository implements CourseQueryRepo {
         result.setRecords(list);
         return result;
 
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T invoke(Object target, String methodName, Class<?>[] paramTypes, Object[] args) {
+        try {
+            Method method = target.getClass().getMethod(methodName, paramTypes);
+            return (T) method.invoke(target, args);
+        } catch (InvocationTargetException e) {
+            Throwable targetException = e.getTargetException();
+            if (targetException instanceof RuntimeException) {
+                throw (RuntimeException) targetException;
+            }
+            if (targetException instanceof Error) {
+                throw (Error) targetException;
+            }
+            throw new IllegalStateException(targetException);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
 }
