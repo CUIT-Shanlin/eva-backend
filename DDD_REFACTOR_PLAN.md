@@ -543,7 +543,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-12，保持行为不变；方案 B：共享常量下沉，单类）：将用户/权限缓存键常量 `UserCacheConstants` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package` 与 bean 名称 `userCacheConstants` 不变；最小回归通过；落地：`5f1447e5`）。
 - ✅ 补充进展（2026-02-13，保持行为不变；方案 B：`CourseFormat` 下沉前置，单 pom）：`shared-kernel/pom.xml` 已补齐 `zym-spring-boot-starter-jdbc` 与 `jackson-databind`，用于承接 `CourseFormat` 的 `QueryWrapper/ObjectMapper` 编译期依赖（最小回归通过；落地：`322bb315`）。
 - ✅ 证据化结论（2026-02-13，保持行为不变）：Serena 显示 `CourseFormat.selectCourOneEvaTemplateDO(...)` 仍被 `ICourseDetailServiceImpl` 调用；且 `CourseFormat` 已完成“依赖解耦前置”（`@Qualifier("courOneEvaTemplateMapper") Object` + 反射 `selectOne/getFormTemplate`，移除对 `CourOneEvaTemplateMapper/DO` 的编译期强依赖；落地：`8b4f69e2`）。
-- 🎯 下一刀建议（2026-02-13，保持行为不变；单类闭环）：在 Serena 复核引用面后，执行 `CourseFormat` 单类搬运到 `shared-kernel`（保持 `package`、异常文案、查询条件与副作用顺序不变）。
+- ✅ 补充进展（2026-02-13，保持行为不变；方案 B：单类搬运）：已将 `CourseFormat` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.gateway.impl.course.operate` 与类内容不变；最小回归通过；落地：`dff4e751`）。
+- 🎯 下一刀建议（2026-02-13，保持行为不变；单文件闭环）：继续推进 `eva-infra-dal` 按 BC 拆散（Mapper/DO/XML）或 `eva-infra-shared` 叶子类归位；优先选择 Serena 证伪“仅单 BC 引用 + 无内部依赖”的候选，单刀闭环推进。
 - 补充进展（2026-02-12，保持行为不变，支撑类归位）：将 `QueryUtils` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.util` 不变；类内容不变；最小回归通过；落地：`e653338f`）。
 - 补充进展（2026-02-12，保持行为不变，支撑类归位）：将 `PaginationConverter` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.convertor` 不变；类内容不变；最小回归通过；落地：`d2ca2d80`）。
 - 补充进展（2026-02-12，保持行为不变，支撑类归位）：将 `PaginationBizConvertor` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.app.convertor` 不变；类内容不变；Serena：引用面命中 `bc-audit/bc-course/bc-iam/start`；最小回归通过；落地：`2b950a06`）。
