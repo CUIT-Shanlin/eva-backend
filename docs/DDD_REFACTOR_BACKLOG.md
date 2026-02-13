@@ -115,6 +115,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ Serena 证据化（保持行为不变）：`CourseFormat` 引用面仍跨 `bc-course/**` 与 `bc-evaluation/**`，且 `selectCourOneEvaTemplateDO(...)` 仍被 `ICourseDetailServiceImpl` 调用；本次未做类搬运，仅做依赖前置。
 - ✅ 方案 B（严格，保持行为不变，单类解耦前置）：`CourseFormat` 已将对 `CourOneEvaTemplateMapper/CourOneEvaTemplateDO` 的编译期强依赖收敛为反射调用（`@Qualifier("courOneEvaTemplateMapper") Object` + 反射 `selectOne/getFormTemplate`），异常文案“类型转换异常”、查询条件与副作用顺序不变（最小回归通过；落地：`8b4f69e2`）。
 - ✅ 方案 B（严格，保持行为不变，单类搬运）：`CourseFormat` 已从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.gateway.impl.course.operate` 与类内容不变；最小回归通过；落地：`dff4e751`）。
+- ✅ 证据化补充（2026-02-13，保持行为不变）：`eva-infra-shared` 当前剩余 `9` 类；其中 `CourseBizConvertor/CourseConvertor/MenuConvertor/UserConverter` 在 shared 内仅自引用，LDAP 子簇（`LdapGroupDO/LdapGroupRepo/LdapConstants/EvaLdapProperties/EvaLdapUtils`）存在互相依赖，后续需按“先证据化再搬运”推进。
 - ✅ 方案 B（严格，保持行为不变，共享能力下沉 + 依赖前置）：已将 `ExcelUtils`、`CourseCacheConstants`、`EvaCacheConstants`、`UserCacheConstants` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package`/Bean 名称/类内容不变），并补齐 `shared-kernel/pom.xml` 编译期依赖；同时在 `bc-course/infrastructure/pom.xml` 增加对 `shared-kernel` 的显式依赖，为后续逐步清空 `eva-infra-shared` 做前置。
 - ✅ S0.2 延伸（编译闭合前置：EntityFactory，单 pom，保持行为不变）：为后续将 `EntityFactory` 从 `eva-infra-shared` 归位到 `eva-infra-dal` 做准备，在 `eva-infra-dal/pom.xml` 显式补齐 `hutool-all`、`cola-component-exception`、`mapstruct` 依赖（不改变业务语义/副作用顺序；最小回归通过；落地：`6546c548`）。
 - ✅ S0.2 延伸（DAL 拆散试点：IAM `sys_user`，保持行为不变，单资源闭环）：将 `SysUserMapper.xml` 从 `eva-infra-dal` 搬运归位到 `bc-iam/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`3dad6ef7`）。
@@ -1223,7 +1224,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
        - ✅ 进展（2026-02-13，保持行为不变；单 pom）：`CourseFormat` 下沉前置已执行：`shared-kernel/pom.xml` 补齐 `zym-spring-boot-starter-jdbc` + `jackson-databind`（落地：`322bb315`）。
        - ✅ 进展（2026-02-13，保持行为不变；单类解耦前置）：`CourseFormat` 已完成去 `CourOneEvaTemplateMapper/DO` 编译期强依赖（改为反射调用，落地：`8b4f69e2`），为下沉到 `shared-kernel` 清除环依赖障碍。
        - ✅ 进展（2026-02-13，保持行为不变；单类搬运）：`CourseFormat` 已单类下沉到 `shared-kernel`（保持 `package`、异常文案与副作用顺序不变；落地：`dff4e751`）。
-       - 🎯 下一刀建议（保持行为不变；严格单文件一刀）：继续从 `eva-infra-shared` 剩余类中选择“单 BC 叶子类”推进，若本轮无叶子类可搬运，则切回 `eva-infra-dal` 做“单资源 XML 归位”。
+       - 🎯 下一刀建议（保持行为不变；严格单文件一刀）：优先尝试 `CourseConvertor`（Serena：引用面跨 `bc-course/**` 与 `bc-evaluation/**`，且在 shared 内仅自引用）；先做依赖闭合核对（必要时单 pom 前置）再做单类搬运。若评估风险超阈值，则切回 `eva-infra-dal` 做“单资源 XML 归位”。
     2) P0（BC 专属归位）：把 `eva-infra-shared` 中“明显归属某个 BC 的基础设施能力”（例如 LDAP 相关）逐类归位到对应 `bc-*/infrastructure`，并后置清理依赖方 pom。
     3) P1（DAL 拆散收尾）：继续按“仅单 BC 引用才允许归位”推进 `eva-infra-dal` → `bc-*/infrastructure`（Mapper/DO/XML 逐文件搬运），最终让 `eva-infra-dal` 为空并从 reactor 退场。
     4) P2（eva-base-common 退场）：识别 `eva-base-common` 的被依赖点，按归属（shared-kernel / 对应 BC）逐类搬运后，清理所有依赖方 pom 并从 reactor 退场。
