@@ -22,6 +22,8 @@
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
 **2026-02-13（本会话：保持行为不变，方案 B 主线继续）**
+- ✅ 已完成（保持行为不变，Serena 证据化 + 风险评估）：已复核 `CourseConvertor` 的引用面与 import 依赖：引用面跨 `bc-course/**` 与 `bc-evaluation/**`；同时其 import 仍依赖 `EntityFactory` 与多项 `DO/Mapper`（当前位于 `eva-infra-dal`）。`shared-kernel/pom.xml` 当前不具备完整编译闭合，且若直接补 `shared-kernel -> eva-infra-dal` 将与现有 `eva-infra-dal -> shared-kernel` 形成循环依赖，因此本刀判定“风险超阈值”（保持行为不变）。
+- ✅ 已完成（保持行为不变，降级执行，单资源闭环）：将 `CourInfMapper.xml` 从 `eva-infra-dal` 归位到 `bc-course/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；Serena：`CourInfMapper` 引用面集中在 `bc-course/**`（另含 `start` 单测 mock）；最小回归通过；代码落地：`4eb6681c`）。
 - ✅ 已完成（保持行为不变，方案 B：依赖前置，单 pom）：为后续将 `CourseFormat` 从 `eva-infra-shared` 下沉到 `shared-kernel` 做编译闭合前置，在 `shared-kernel/pom.xml` 补齐 `zym-spring-boot-starter-jdbc` 与 `jackson-databind` 依赖（最小回归通过；代码落地：`322bb315`）。
 - ✅ 已完成（保持行为不变，Serena 证据化）：`CourseFormat` 引用面确认跨 `bc-course/**` 与 `bc-evaluation/**`；并确认实例方法 `selectCourOneEvaTemplateDO(...)` 仍被 `ICourseDetailServiceImpl.pageCoursesInfo(...)` 调用，当前不可按“纯静态工具类”裁剪。
 - ✅ 已完成（保持行为不变，方案 B：单类解耦前置）：`CourseFormat` 已将对 `CourOneEvaTemplateMapper/CourOneEvaTemplateDO` 的编译期强依赖收敛为反射调用（`@Qualifier("courOneEvaTemplateMapper") Object` + 反射 `selectOne/getFormTemplate`）；异常文案“类型转换异常”、查询条件与副作用顺序不变（最小回归通过；代码落地：`8b4f69e2`）。
@@ -1112,7 +1114,7 @@
 ### 0.10.1 最新状态 & 下一步建议（滚动更新至 2026-02-13；聚焦：S0.2 延伸（`eva-infra-dal` 按 BC 拆散 + `eva-infra-shared` 瘦身），保持行为不变）
 
 - 📊 **整体未完成清单（更新至 2026-02-13；保持行为不变）**：
-  - `eva-infra-dal`：当前仍有 `25` 个 Java + `7` 个 XML 处于共享模块内（可复现口径：`fd -t f -e java . eva-infra-dal/src/main/java | wc -l` + `fd -t f -e xml . eva-infra-dal/src/main/resources | wc -l`）。
+  - `eva-infra-dal`：当前仍有 `25` 个 Java + `6` 个 XML 处于共享模块内（可复现口径：`fd -t f -e java . eva-infra-dal/src/main/java | wc -l` + `fd -t f -e xml . eva-infra-dal/src/main/resources | wc -l`）。
   - `eva-infra-shared`：当前仍有 `9` 个 Java，且多 BC 仍直依赖该模块（可复现口径：`fd -t f -e java . eva-infra-shared/src/main/java | wc -l` + `rg -n "<artifactId>eva-infra-shared</artifactId>" --glob "**/pom.xml" bc-* | head`）。
   - `eva-infra-shared` 残留结构（Serena + `rg` 证据化，保持行为不变）：`CourseBizConvertor/CourseConvertor/MenuConvertor/UserConverter` 在 `eva-infra-shared/src/main/java` 内均仅自引用（无内部依赖）；LDAP 子簇 `LdapGroupDO/LdapGroupRepo/LdapConstants/EvaLdapProperties/EvaLdapUtils` 仍互相依赖（`EvaLdapUtils` ↔ `LdapConstants` + `LdapGroupRepo/DO`），暂不适合无前置直接单类搬运。
   - 关键阻塞例（`course_type`，保持行为不变）：Serena 证据化显示 `CourseConvertor` 的引用面跨 `bc-course/**` 与 `bc-evaluation/**`，因此 `CourseTypeDO` 暂不满足“仅 `bc-course/**` 引用”约束（见 `docs/DDD_REFACTOR_BACKLOG.md` 6 的说明），不建议直接归位 DO 以避免依赖/装配边界漂移。
@@ -1138,6 +1140,8 @@
 - 🔍 **“什么时候可以把 eva-* 模块全部整合进 bc-*？”统一口径**：不是某个固定日期，而是一组可验证前置条件；统一判定标准与证据口径见 `DDD_REFACTOR_PLAN.md` 10.5（保持行为不变）。
 
 - 🎯 **本次会话最新增量（2026-02-13，保持行为不变）**：
+  - ✅ 证据化评估（保持行为不变）：`CourseConvertor` 迁移到 `shared-kernel` 当前仍受编译闭合阻塞（跨模块依赖含 `eva-infra-dal`，且存在 `shared-kernel ↔ eva-infra-dal` 循环依赖风险），本次按约束降级到“单资源 XML 归位”。
+  - ✅ DAL 拆散试点（课程域，保持行为不变，单资源闭环）：`CourInfMapper.xml` → `bc-course/infrastructure/src/main/resources/mapper/course/CourInfMapper.xml`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`4eb6681c`）。
   - ✅ shared 瘦身前置（单 pom，保持行为不变）：`shared-kernel/pom.xml` 补齐 `zym-spring-boot-starter-jdbc` 与 `jackson-databind`，用于承接 `CourseFormat` 的 `QueryWrapper/ObjectMapper` 编译依赖（最小回归通过；落地：`322bb315`）。
   - ✅ Serena 证据化（保持行为不变）：`CourseFormat` 仍存在实例方法调用链（`ICourseDetailServiceImpl.pageCoursesInfo -> CourseFormat.selectCourOneEvaTemplateDO`）；并已完成“单类解耦前置”（落地：`8b4f69e2`）与“单类搬运到 `shared-kernel`”（落地：`dff4e751`）。
   - ✅ shared 瘦身（单类闭环，保持行为不变）：`CourseFormat` → `shared-kernel`（保持 `package/类内容` 不变；最小回归通过；落地：`dff4e751`）。

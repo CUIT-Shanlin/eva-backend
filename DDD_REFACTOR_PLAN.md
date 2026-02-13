@@ -545,7 +545,9 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 证据化结论（2026-02-13，保持行为不变）：Serena 显示 `CourseFormat.selectCourOneEvaTemplateDO(...)` 仍被 `ICourseDetailServiceImpl` 调用；且 `CourseFormat` 已完成“依赖解耦前置”（`@Qualifier("courOneEvaTemplateMapper") Object` + 反射 `selectOne/getFormTemplate`，移除对 `CourOneEvaTemplateMapper/DO` 的编译期强依赖；落地：`8b4f69e2`）。
 - ✅ 补充进展（2026-02-13，保持行为不变；方案 B：单类搬运）：已将 `CourseFormat` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.gateway.impl.course.operate` 与类内容不变；最小回归通过；落地：`dff4e751`）。
 - ✅ 证据化补充（2026-02-13，保持行为不变）：`eva-infra-shared` 剩余 `9` 类中，`CourseBizConvertor/CourseConvertor/MenuConvertor/UserConverter` 在 shared 内仅自引用；LDAP 子簇（`LdapGroupDO/LdapGroupRepo/LdapConstants/EvaLdapProperties/EvaLdapUtils`）仍互相依赖。
-- 🎯 下一刀建议（2026-02-13，保持行为不变；单文件闭环）：优先以 `CourseConvertor` 作为下一刀（先 Serena 复核 import 依赖并检查 `shared-kernel/pom.xml` 编译闭合；缺依赖则先单 pom 前置，否则直接单类搬运）。若该刀风险超阈值，则降级到 `eva-infra-dal` 的单资源 XML 归位。
+- ✅ 补充进展（2026-02-13，保持行为不变；Serena 证据化 + 风险评估）：`CourseConvertor` 引用面虽跨 `bc-course/**` 与 `bc-evaluation/**`，但 import 仍依赖 `eva-infra-dal` 内 `EntityFactory/DO/Mapper`；`shared-kernel` 当前不具备完整编译闭合，且若直接补 `shared-kernel -> eva-infra-dal` 将与现有 `eva-infra-dal -> shared-kernel` 形成循环依赖，因此本刀判定风险超阈值。
+- ✅ 补充进展（2026-02-13，保持行为不变；降级执行，单资源闭环）：已将 `CourInfMapper.xml` 从 `eva-infra-dal` 归位到 `bc-course/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`4eb6681c`）。
+- 🎯 下一刀建议（2026-02-13，保持行为不变；单文件闭环）：继续从 `eva-infra-dal/src/main/resources/mapper/course` 选择 1 个 XML（优先 `SubjectMapper.xml` / `SemesterMapper.xml` / `CourseMapper.xml`），先 Serena 证据化确认引用面与风险，再按“单资源归位”闭环推进。
 - 补充进展（2026-02-12，保持行为不变，支撑类归位）：将 `QueryUtils` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.util` 不变；类内容不变；最小回归通过；落地：`e653338f`）。
 - 补充进展（2026-02-12，保持行为不变，支撑类归位）：将 `PaginationConverter` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.convertor` 不变；类内容不变；最小回归通过；落地：`d2ca2d80`）。
 - 补充进展（2026-02-12，保持行为不变，支撑类归位）：将 `PaginationBizConvertor` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.app.convertor` 不变；类内容不变；Serena：引用面命中 `bc-audit/bc-course/bc-iam/start`；最小回归通过；落地：`2b950a06`）。
