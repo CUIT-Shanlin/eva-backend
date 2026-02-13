@@ -109,8 +109,10 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
-**已完成（更新至 2026-02-12）**
+**已完成（更新至 2026-02-13）**
 - ✅ 主线口径更新（更新至 2026-02-12，保持行为不变）：已在三文档明确切换为 **方案 B（严格）** —— 彻底退场 `eva-*` 技术切片；验收以 `DDD_REFACTOR_PLAN.md` 10.5.B 的 DoD 为准。
+- ✅ 方案 B（严格，保持行为不变，单 pom）：已在 `shared-kernel/pom.xml` 增加 `zym-spring-boot-starter-jdbc` 与 `jackson-databind`，作为 `CourseFormat` 下沉前置（承接 `QueryWrapper/ObjectMapper` 编译依赖；最小回归通过；落地：`322bb315`）。
+- ✅ Serena 证据化（保持行为不变）：`CourseFormat` 引用面仍跨 `bc-course/**` 与 `bc-evaluation/**`，且 `selectCourOneEvaTemplateDO(...)` 仍被 `ICourseDetailServiceImpl` 调用；本次未做类搬运，仅做依赖前置。
 - ✅ 方案 B（严格，保持行为不变，共享能力下沉 + 依赖前置）：已将 `ExcelUtils`、`CourseCacheConstants`、`EvaCacheConstants`、`UserCacheConstants` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package`/Bean 名称/类内容不变），并补齐 `shared-kernel/pom.xml` 编译期依赖；同时在 `bc-course/infrastructure/pom.xml` 增加对 `shared-kernel` 的显式依赖，为后续逐步清空 `eva-infra-shared` 做前置。
 - ✅ S0.2 延伸（编译闭合前置：EntityFactory，单 pom，保持行为不变）：为后续将 `EntityFactory` 从 `eva-infra-shared` 归位到 `eva-infra-dal` 做准备，在 `eva-infra-dal/pom.xml` 显式补齐 `hutool-all`、`cola-component-exception`、`mapstruct` 依赖（不改变业务语义/副作用顺序；最小回归通过；落地：`6546c548`）。
 - ✅ S0.2 延伸（DAL 拆散试点：IAM `sys_user`，保持行为不变，单资源闭环）：将 `SysUserMapper.xml` 从 `eva-infra-dal` 搬运归位到 `bc-iam/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`3dad6ef7`）。
@@ -814,6 +816,10 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 （新增，更新至 2026-02-07，保持行为不变）
 
+- **方案 B（`CourseFormat` 下沉，保持行为不变）**：
+  - ✅ 已完成前置：`shared-kernel/pom.xml` 已补齐 `zym-spring-boot-starter-jdbc` 与 `jackson-databind`（落地：`322bb315`）。
+  - ⚠️ 未完成主刀：`CourseFormat` 仍依赖 `CourOneEvaTemplateMapper/DO`（`eva-infra-dal`），而 `eva-infra-dal` 当前已依赖 `shared-kernel`；直接新增 `shared-kernel -> eva-infra-dal` 会形成环依赖。下一刀需先做依赖解耦前置，再执行单类搬运。
+
 - **S0.2 延伸（审计：DAL 按 BC 拆散试点，`sys_log`，保持行为不变）**：
   - ✅ 已完成：`SysLogModuleMapper`、`SysLogMapper` → `bc-audit/infrastructure`；`LogConverter` → `bc-audit/infrastructure`（保持 `package` 不变；保持行为不变；详见 4.2）。
   - ✅ 已完成：`SysLogDO`、`SysLogModuleDO` → `bc-audit/infrastructure`（保持 `package` 不变；保持行为不变；详见 4.2）。
@@ -1211,7 +1217,9 @@ scope: 全仓库（离线扫描 + 规则归纳）
        - ✅ 进展（2026-02-12，保持行为不变；单类）：`CourseCacheConstants` 已从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package` 与 bean 名称 `courseCacheConstants` 不变；最小回归通过；落地：`16a07a6b`）。下一刀建议：继续下沉 `EvaCacheConstants` / `UserCacheConstants`，以进一步缩小 `eva-infra-shared` 表面积并为依赖方 pom 收敛创造条件。
        - ✅ 进展（2026-02-12，保持行为不变；单类）：`EvaCacheConstants` 已从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package` 与 bean 名称 `evaCacheConstants` 不变；最小回归通过；落地：`f1fac0f6`）。
        - ✅ 进展（2026-02-12，保持行为不变；单类）：`UserCacheConstants` 已从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package` 与 bean 名称 `userCacheConstants` 不变；最小回归通过；落地：`5f1447e5`）。下一刀建议：证伪后收敛依赖方 `pom.xml`，逐步移除对 `eva-infra-shared` 的编译期依赖。
-       - 🎯 下一刀建议（保持行为不变；严格单文件一刀）：优先挑“`eva-infra-shared` 内部无依赖”的叶子类继续下沉（避免搬 1 个类牵连一串依赖）。推荐候选：`CourseFormat`（Serena 证据化：引用面跨 `bc-course/**` 与 `bc-evaluation/**`，适合下沉到 `shared-kernel` 作为跨 BC 工具类；若 `shared-kernel` 缺编译依赖则先做单 pom 依赖前置）。
+       - ✅ 进展（2026-02-13，保持行为不变；单 pom）：`CourseFormat` 下沉前置已执行：`shared-kernel/pom.xml` 补齐 `zym-spring-boot-starter-jdbc` + `jackson-databind`（落地：`322bb315`）。
+       - ⚠️ 证据化结论（2026-02-13，保持行为不变）：`CourseFormat` 当前仍依赖 `CourOneEvaTemplateMapper/DO`（`eva-infra-dal`）；且 `eva-infra-dal` 已依赖 `shared-kernel`，直接搬运会引入环依赖。
+       - 🎯 下一刀建议（保持行为不变；严格单文件一刀）：先做“单类解耦前置”（在不改异常文案/副作用顺序前提下，将 `CourseFormat` 对 `CourOneEvaTemplateMapper/DO` 的依赖从 `shared-kernel` 路径剥离），再执行 `CourseFormat` 单类下沉。
     2) P0（BC 专属归位）：把 `eva-infra-shared` 中“明显归属某个 BC 的基础设施能力”（例如 LDAP 相关）逐类归位到对应 `bc-*/infrastructure`，并后置清理依赖方 pom。
     3) P1（DAL 拆散收尾）：继续按“仅单 BC 引用才允许归位”推进 `eva-infra-dal` → `bc-*/infrastructure`（Mapper/DO/XML 逐文件搬运），最终让 `eva-infra-dal` 为空并从 reactor 退场。
     4) P2（eva-base-common 退场）：识别 `eva-base-common` 的被依赖点，按归属（shared-kernel / 对应 BC）逐类搬运后，清理所有依赖方 pom 并从 reactor 退场。

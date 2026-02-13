@@ -21,6 +21,11 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-13（本会话：保持行为不变，方案 B 主线继续）**
+- ✅ 已完成（保持行为不变，方案 B：依赖前置，单 pom）：为后续将 `CourseFormat` 从 `eva-infra-shared` 下沉到 `shared-kernel` 做编译闭合前置，在 `shared-kernel/pom.xml` 补齐 `zym-spring-boot-starter-jdbc` 与 `jackson-databind` 依赖（最小回归通过；代码落地：`322bb315`）。
+- ✅ 已完成（保持行为不变，Serena 证据化）：`CourseFormat` 引用面确认跨 `bc-course/**` 与 `bc-evaluation/**`；并确认实例方法 `selectCourOneEvaTemplateDO(...)` 仍被 `ICourseDetailServiceImpl.pageCoursesInfo(...)` 调用，当前不可按“纯静态工具类”裁剪。
+- ⚠️ 风险提示（保持行为不变，供下一刀）：`CourseFormat` 仍直接依赖 `CourOneEvaTemplateMapper/CourOneEvaTemplateDO`（位于 `eva-infra-dal`）；而 `eva-infra-dal` 当前已依赖 `shared-kernel`，若直接新增 `shared-kernel -> eva-infra-dal` 依赖会触发 Maven 环依赖。下一刀需先做“依赖解耦前置”再执行单类搬运。
+
 **2026-02-12（本会话：保持行为不变，继续瘦身共享基础设施）**
 - ✅ 已完成（保持行为不变，方案 B：共享常量下沉，单类）：将用户/权限缓存键常量 `UserCacheConstants` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package` 与 bean 名称 `userCacheConstants` 不变；最小回归通过；代码落地：`5f1447e5`）。
 - ✅ 已完成（保持行为不变，方案 B：共享常量下沉，单类）：将评教缓存键常量 `EvaCacheConstants` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package` 与 bean 名称 `evaCacheConstants` 不变；最小回归通过；代码落地：`f1fac0f6`）。
@@ -1102,7 +1107,7 @@
 > 阶段性策略微调（2025-12-29，持续有效）：允许“微调”（仅结构性重构；不改业务语义；缓存/日志/异常文案/副作用顺序完全不变）。在“评教统计导出基础设施归位”与“课程课表解析归位/端口化”闭环后，`bc-messaging` 的“归位 + 依赖收敛”已阶段性闭环（见 0.9）；`bc-course` 的 **S0（旧 gateway 压扁为委托壳）** 已推进到阶段性闭环（见 0.9/0.10）；`eva-domain` 已完成退场闭环（reactor 退场 + 依赖方清零）。当前主线切换为：**S0.2 延伸（按 BC 拆散 `eva-infra-dal` + 瘦身 `eva-infra-shared`）**，以审计域 `sys_log`（`SysLog*Mapper/DO/XML` + `LogConverter`）为低风险试点，每次只改 1 个类/1 个资源文件并严格闭环。
 >
 
-### 0.10.1 最新状态 & 下一步建议（滚动更新至 2026-02-12；聚焦：S0.2 延伸（`eva-infra-dal` 按 BC 拆散 + `eva-infra-shared` 瘦身），保持行为不变）
+### 0.10.1 最新状态 & 下一步建议（滚动更新至 2026-02-13；聚焦：S0.2 延伸（`eva-infra-dal` 按 BC 拆散 + `eva-infra-shared` 瘦身），保持行为不变）
 
 - 📊 **整体未完成清单（更新至 2026-02-12；保持行为不变）**：
   - `eva-infra-dal`：当前仍有 `25` 个 Java + `7` 个 XML 处于共享模块内（可复现口径：`fd -t f -e java . eva-infra-dal/src/main/java | wc -l` + `fd -t f -e xml . eva-infra-dal/src/main/resources | wc -l`）。
@@ -1129,7 +1134,9 @@
 
 - 🔍 **“什么时候可以把 eva-* 模块全部整合进 bc-*？”统一口径**：不是某个固定日期，而是一组可验证前置条件；统一判定标准与证据口径见 `DDD_REFACTOR_PLAN.md` 10.5（保持行为不变）。
 
-- 🎯 **本次会话最新增量（2026-02-12，保持行为不变）**：
+- 🎯 **本次会话最新增量（2026-02-13，保持行为不变）**：
+  - ✅ shared 瘦身前置（单 pom，保持行为不变）：`shared-kernel/pom.xml` 补齐 `zym-spring-boot-starter-jdbc` 与 `jackson-databind`，用于承接 `CourseFormat` 的 `QueryWrapper/ObjectMapper` 编译依赖（最小回归通过；落地：`322bb315`）。
+  - ✅ Serena 证据化（保持行为不变）：`CourseFormat` 仍存在实例方法调用链（`ICourseDetailServiceImpl.pageCoursesInfo -> CourseFormat.selectCourOneEvaTemplateDO`）且仍依赖 `CourOneEvaTemplateMapper/DO`（`eva-infra-dal`）；本次仅完成“单 pom 依赖前置”，未做类搬运。
   - ✅ shared 瘦身（单类闭环，保持行为不变）：`EntityFactory` → `eva-infra-dal`（保持 `package/类内容` 不变；最小回归通过；落地：`eba15e92`；三文档同步：本提交）。
   - ✅ 跨 BC 直连清零前置（单 pom，保持行为不变）：`bc-evaluation/infrastructure/pom.xml` 补齐对 `bc-course` 的 Maven 编译期依赖（最小回归通过；落地：`f2188237`）。
   - ✅ 跨 BC 直连清零（单类，保持行为不变）：`EvaTemplateQueryRepository.getTaskTemplate(...)` 去 `CourInfMapper.selectById` 直连，改走 `CourseIdByCourInfIdQueryPort`（异常文案/分支顺序不变；最小回归通过；落地：`67755034`）。
