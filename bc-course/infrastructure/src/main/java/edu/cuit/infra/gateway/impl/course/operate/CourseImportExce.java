@@ -2,6 +2,7 @@ package edu.cuit.infra.gateway.impl.course.operate;
 
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.cuit.client.bo.CourseExcelBO;
 import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
@@ -13,26 +14,25 @@ import edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO;
 import edu.cuit.infra.dal.database.dataobject.eva.FormTemplateDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.course.*;
-import edu.cuit.infra.dal.database.mapper.eva.CourOneEvaTemplateMapper;
-import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
-import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
-import edu.cuit.infra.dal.database.mapper.eva.FormTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.infra.enums.cache.CourseCacheConstants;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Component
-@RequiredArgsConstructor
 public class CourseImportExce {
     private final CourseConvertor courseConvertor;
     private final CourInfMapper courInfMapper;
@@ -40,14 +40,46 @@ public class CourseImportExce {
     private final CourseTypeCourseMapper courseTypeCourseMapper;
     private final CourseTypeMapper courseTypeMapper;
     private final SubjectMapper subjectMapper;
-    private final EvaTaskMapper evaTaskMapper;
-    private final FormRecordMapper recordMapper;
-    private final CourOneEvaTemplateMapper courOneEvaTemplateMapper;
+    private final Object evaTaskMapper;
+    private final Object recordMapper;
+    private final Object courOneEvaTemplateMapper;
     private final SysUserMapper userMapper;
-    private final FormTemplateMapper formTemplateMapper;
+    private final Object formTemplateMapper;
     private final LocalCacheManager cacheManager;
     private final CourseCacheConstants courseCacheConstants;
     private final EvaCacheConstants evaCacheConstants;
+
+    public CourseImportExce(
+            CourseConvertor courseConvertor,
+            CourInfMapper courInfMapper,
+            CourseMapper courseMapper,
+            CourseTypeCourseMapper courseTypeCourseMapper,
+            CourseTypeMapper courseTypeMapper,
+            SubjectMapper subjectMapper,
+            @Qualifier("evaTaskMapper") Object evaTaskMapper,
+            @Qualifier("formRecordMapper") Object recordMapper,
+            @Qualifier("courOneEvaTemplateMapper") Object courOneEvaTemplateMapper,
+            SysUserMapper userMapper,
+            @Qualifier("formTemplateMapper") Object formTemplateMapper,
+            LocalCacheManager cacheManager,
+            CourseCacheConstants courseCacheConstants,
+            EvaCacheConstants evaCacheConstants
+    ) {
+        this.courseConvertor = courseConvertor;
+        this.courInfMapper = courInfMapper;
+        this.courseMapper = courseMapper;
+        this.courseTypeCourseMapper = courseTypeCourseMapper;
+        this.courseTypeMapper = courseTypeMapper;
+        this.subjectMapper = subjectMapper;
+        this.evaTaskMapper = evaTaskMapper;
+        this.recordMapper = recordMapper;
+        this.courOneEvaTemplateMapper = courOneEvaTemplateMapper;
+        this.userMapper = userMapper;
+        this.formTemplateMapper = formTemplateMapper;
+        this.cacheManager = cacheManager;
+        this.courseCacheConstants = courseCacheConstants;
+        this.evaCacheConstants = evaCacheConstants;
+    }
     //删除这学期所有的课程
     public Map<Integer,Integer> deleteCourse(Integer semId, Integer type) {
         Map<Integer,Integer> evaTaskIds=new HashMap<>();
@@ -72,16 +104,36 @@ public class CourseImportExce {
                 courseTypeCourseMapper.delete(new QueryWrapper<CourseTypeCourseDO>().in(true,"course_id", courseIds));
             }
             //删除评教任务
-            List<EvaTaskDO> taskDOList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in(!courInfoIds.isEmpty(),"cour_inf_id", courInfoIds));
+            List<EvaTaskDO> taskDOList = invoke(
+                    evaTaskMapper,
+                    "selectList",
+                    new Class<?>[]{Wrapper.class},
+                    new Object[]{new QueryWrapper<EvaTaskDO>().in(!courInfoIds.isEmpty(),"cour_inf_id", courInfoIds)}
+            );
 //            evaTaskIds=taskDOList.stream().map(EvaTaskDO::getId).toList();
             taskDOList.forEach(taskDO -> evaTaskIds.put(taskDO.getId(),taskDO.getTeacherId()));
             if(!taskDOList.isEmpty()) {
                 List<Integer> taskIds = taskDOList.stream().map(EvaTaskDO::getId).toList();
-                evaTaskMapper.deleteBatchIds(taskIds);
+                invoke(
+                        evaTaskMapper,
+                        "deleteBatchIds",
+                        new Class<?>[]{Collection.class},
+                        new Object[]{taskIds}
+                );
                 //删除评教表单记录
-                recordMapper.delete(new QueryWrapper<FormRecordDO>().in(!taskIds.isEmpty(),"task_id", taskIds));
+                invoke(
+                        recordMapper,
+                        "delete",
+                        new Class<?>[]{Wrapper.class},
+                        new Object[]{new QueryWrapper<FormRecordDO>().in(!taskIds.isEmpty(),"task_id", taskIds)}
+                );
                 //删除评教快照
-                courOneEvaTemplateMapper.delete(new QueryWrapper<CourOneEvaTemplateDO>().in(!courseIds.isEmpty(),"course_id", courseIds));
+                invoke(
+                        courOneEvaTemplateMapper,
+                        "delete",
+                        new Class<?>[]{Wrapper.class},
+                        new Object[]{new QueryWrapper<CourOneEvaTemplateDO>().in(!courseIds.isEmpty(),"course_id", courseIds)}
+                );
             }
         }
         cacheManager.invalidateCache(null,evaCacheConstants.LOG_LIST);
@@ -152,7 +204,12 @@ public class CourseImportExce {
       return courseDO;
     }
     private Integer getEvaTemplateId(Integer type){
-        FormTemplateDO isDefault = formTemplateMapper.selectOne(new QueryWrapper<FormTemplateDO>().eq("is_default", type));
+        FormTemplateDO isDefault = invoke(
+                formTemplateMapper,
+                "selectOne",
+                new Class<?>[]{Wrapper.class},
+                new Object[]{new QueryWrapper<FormTemplateDO>().eq("is_default", type)}
+        );
         if(isDefault==null)throw new UpdateException("还没有对应评教模版");
         return isDefault .getId();//is_default
     }
@@ -169,7 +226,12 @@ public class CourseImportExce {
     }
     public List<CourseScoreCO> getCourseScore(Integer templateId){
          List<CourseScoreCO> result =new ArrayList<>();
-        FormTemplateDO formTemplateDO = formTemplateMapper.selectById(templateId);
+        FormTemplateDO formTemplateDO = invoke(
+                formTemplateMapper,
+                "selectById",
+                new Class<?>[]{Serializable.class},
+                new Object[]{templateId}
+        );
         if(formTemplateDO==null)return result;
         else{
             JSONArray jsonArray = JSONUtil.parseArray(formTemplateDO.getProps());
@@ -185,5 +247,24 @@ public class CourseImportExce {
             return result;
         }
         
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T invoke(Object target, String methodName, Class<?>[] paramTypes, Object[] args) {
+        try {
+            Method method = target.getClass().getMethod(methodName, paramTypes);
+            return (T) method.invoke(target, args);
+        } catch (InvocationTargetException e) {
+            Throwable targetException = e.getTargetException();
+            if (targetException instanceof RuntimeException) {
+                throw (RuntimeException) targetException;
+            }
+            if (targetException instanceof Error) {
+                throw (Error) targetException;
+            }
+            throw new IllegalStateException(targetException);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
     }
 }
