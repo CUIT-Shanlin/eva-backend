@@ -550,9 +550,10 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-13，保持行为不变；单资源闭环）：已将 `SubjectMapper.xml` 从 `eva-infra-dal` 归位到 `bc-course/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`92374d53`）。
 - ✅ 补充进展（2026-02-13，保持行为不变；跨 BC 直连清零，单类闭环）：`AddNotExistCoursesDetailsRepositoryImpl` 已清零对评教侧 `FormTemplateMapper` 的编译期直连（`Object` + `@Qualifier` + 反射 `selectOne`，保持 MyBatis 语义不变）；最小回归通过；落地：`e7e444a1`。
 - ✅ 补充进展（2026-02-13，保持行为不变；跨 BC 直连清零，单类闭环）：`DeleteSelfCourseRepositoryImpl` 已清零对评教侧 `EvaTaskMapper/FormRecordMapper` 的编译期直连（`Object` + `@Qualifier` + 反射 `selectList/delete`，保持 MyBatis 语义不变）；最小回归通过；落地：`bbc32ae1`。
+- ✅ 补充进展（2026-02-13，保持行为不变；跨 BC 直连清零，单类闭环）：`UpdateSelfCourseRepositoryImpl` 已清零对评教侧 `EvaTaskMapper` 的编译期直连（`Object` + `@Qualifier` + 反射 `selectList/delete`，保持 MyBatis 语义不变）；最小回归通过；落地：`db6d6165`。
 - ✅ 会话收口快照（2026-02-13，保持行为不变）：当前仍保留 `eva-infra-dal/eva-infra-shared/eva-base` 三个 reactor 模块；余量为 `eva-infra-dal`=`25` Java + `0` XML、`eva-infra-shared`=`9` Java、`eva-base-common`=`2` Java。
-- ✅ 会话收口结论（2026-02-13，保持行为不变）：要达成“BC 相互独立、仅通过 contract/port 调用”，当前关键阻塞是跨 BC DAL 直连与共享依赖边界：`bc-evaluation/**` 对课程 mapper import 尚有 0 处（已按端口替换完成）；`bc-template/**` 对评教 mapper import 尚有 0 处（已清零编译期 import）；`bc-course/**` 对评教 mapper import 尚有 9 处（3 个文件，尚未清零）；多 BC 仍显式依赖 `eva-infra-shared`。
-- 🎯 下一刀建议（2026-02-13，保持行为不变；单文件闭环）：继续清零 `bc-course/**` 对评教侧 `infra.dal.database.mapper.eva.*` 的编译期直连（优先从 `UpdateSelfCourseRepositoryImpl` / `CourseImportExce` / `CourseQueryRepository` 入手），每次只改 1 个类，并跑最小回归闭环。
+- ✅ 会话收口结论（2026-02-13，保持行为不变）：要达成“BC 相互独立、仅通过 contract/port 调用”，当前关键阻塞是跨 BC DAL 直连与共享依赖边界：`bc-evaluation/**` 对课程 mapper import 尚有 0 处（已按端口替换完成）；`bc-template/**` 对评教 mapper import 尚有 0 处（已清零编译期 import）；`bc-course/**` 对评教 mapper import 尚有 8 处（2 个文件，尚未清零）；多 BC 仍显式依赖 `eva-infra-shared`。
+- 🎯 下一刀建议（2026-02-13，保持行为不变；单文件闭环）：继续清零 `bc-course/**` 对评教侧 `infra.dal.database.mapper.eva.*` 的编译期直连（优先从 `CourseImportExce` / `CourseQueryRepository` 入手），每次只改 1 个类，并跑最小回归闭环。
 - 补充进展（2026-02-12，保持行为不变，支撑类归位）：将 `QueryUtils` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.util` 不变；类内容不变；最小回归通过；落地：`e653338f`）。
 - 补充进展（2026-02-12，保持行为不变，支撑类归位）：将 `PaginationConverter` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.convertor` 不变；类内容不变；最小回归通过；落地：`d2ca2d80`）。
 - 补充进展（2026-02-12，保持行为不变，支撑类归位）：将 `PaginationBizConvertor` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.app.convertor` 不变；类内容不变；Serena：引用面命中 `bc-audit/bc-course/bc-iam/start`；最小回归通过；落地：`2b950a06`）。
