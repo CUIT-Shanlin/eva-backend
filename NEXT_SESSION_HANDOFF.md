@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-14（单资源闭环：`CourseMapper.xml` 归位到 `bc-course-infra`，保持 MyBatis 行为不变）**
+- ✅ 资源搬运：`CourseMapper.xml` 已从 `eva-infra-dal` 搬运归位到 `bc-course/infrastructure`，保持 MyBatis XML `namespace/resultMap type/SQL` 与资源路径 `mapper/**` 不变，并同步删除旧位置同名文件以避免 classpath 重复导致启动失败。
+- 🧪 最小回归通过（Java17 + mvnd）：`mvnd -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`。
+- 📌 代码落地：`cccf39ec`。
+- ⏭️ 下一刀建议（同口径，单资源闭环）：继续按 `SemesterMapper.xml` → `CourOneEvaTemplateMapper.xml` → `EvaTemplateMapper.xml` → `FormRecordMapper.xml` 逐个搬运；剩余 WIP 仍在 stash（仅建议按“指定文件路径”精确 restore，避免整包 apply 造成冲突）。
+
 **2026-02-14（恢复可编译回归基线：跨 BC 评教 Mapper 编译期直连清零，保持行为不变）**
 - ✅ 课程侧（`bc-course-infra`）：`AssignEvaTeachersRepositoryImpl/DeleteCourseRepositoryImpl/DeleteCoursesRepositoryImpl/UpdateSingleCourseRepositoryImpl/CourseRecommendExce` 不再编译期依赖评教侧 `Mapper` 类型（`edu.cuit.infra.dal.database.mapper.eva.*`），改为按 `beanName` 注入 `Object` + 反射调用对应 MyBatis 方法（保持 SQL/异常文案/缓存/日志与副作用顺序不变）。
 - ✅ 模板侧（`bc-template-infra`）：`CourseTemplateLockQueryPortImpl` 同步去除对评教侧 `Mapper` 类型的编译期依赖，改为按 `beanName` 注入 `Object` + 反射调用（保持行为不变）。

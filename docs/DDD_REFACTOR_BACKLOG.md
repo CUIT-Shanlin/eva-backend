@@ -843,8 +843,9 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成（保持行为不变；单资源闭环）：`MsgTipMapper.xml` → `bc-messaging/src/main/resources/mapper/MsgTipMapper.xml`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`5c5ab5e0`）。
 
 - **S0.2 延伸（课程/评教：DAL XML 按 BC 归位，保持行为不变）**：
-  - ⏳ 进行中（未闭环）：计划将 `CourseMapper.xml/SemesterMapper.xml` 归位到 `bc-course/infrastructure`，将 `CourOneEvaTemplateMapper.xml/EvaTemplateMapper.xml/FormRecordMapper.xml` 归位到 `bc-evaluation/infrastructure`；要求保持 MyBatis XML `namespace`/`resultMap type`/SQL 与资源路径 `mapper/**` 不变，并在提交时同步删除 `eva-infra-dal/src/main/resources/mapper/**` 中对应 XML，避免 classpath 重复导致 MyBatis 启动失败。
-  - ⚠️ 注意：当前工作区存在“已暂存新增 + 未暂存删除/改动”的混合状态（尚未提交）；后续闭环前请先读 `NEXT_SESSION_HANDOFF.md` 0.9 顶部交接补充。
+  - ✅ 已闭环（保持行为不变；单资源）：`CourseMapper.xml` 已归位到 `bc-course/infrastructure`，并同步删除 `eva-infra-dal/src/main/resources/mapper/**` 旧位置同名文件以避免 classpath 重复导致 MyBatis 启动失败（落地：`cccf39ec`）。
+  - ⏳ 进行中：计划将 `SemesterMapper.xml` 归位到 `bc-course/infrastructure`，将 `CourOneEvaTemplateMapper.xml/EvaTemplateMapper.xml/FormRecordMapper.xml` 归位到 `bc-evaluation/infrastructure`；要求保持 MyBatis XML `namespace`/`resultMap type`/SQL 与资源路径 `mapper/**` 不变，并在提交时同步删除 `eva-infra-dal/src/main/resources/mapper/**` 中对应 XML，避免 classpath 重复导致 MyBatis 启动失败。
+  - ⚠️ 注意：剩余未闭环变更当前以 stash 形式封存，后续逐刀 restore 时务必“单资源 add + delete 同步 stage → 最小回归 → 提交/推送”，避免口径漂移（详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 
 - **S0.2 延伸（IAM → 其它 BC：依赖收敛，去跨 BC 直连 IAM role 表，保持行为不变）**：
   - ✅ 已完成：`bc-audit` 的 `LogGatewayImpl`、`bc-course` 的 `CourseQueryRepository.toUserEntity`、`bc-evaluation` 的 `EvaTaskQueryRepository.toUserEntity` 已改走 `bc-iam-contract` 端口 `UserEntityObjectByIdDirectQueryPort`（保持异常文案/副作用顺序不变；详见 4.2 与 `NEXT_SESSION_HANDOFF.md` 0.9；评教任务读侧最新落地：`6c5d6bce`）。

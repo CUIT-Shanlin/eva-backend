@@ -549,6 +549,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-13，保持行为不变；Serena 证据化 + 风险评估）：`CourseConvertor` 引用面虽跨 `bc-course/**` 与 `bc-evaluation/**`，但 import 仍依赖 `eva-infra-dal` 内 `EntityFactory/DO/Mapper`；`shared-kernel` 当前不具备完整编译闭合，且若直接补 `shared-kernel -> eva-infra-dal` 将与现有 `eva-infra-dal -> shared-kernel` 形成循环依赖，因此本刀判定风险超阈值。
 - ✅ 补充进展（2026-02-13，保持行为不变；降级执行，单资源闭环）：已将 `CourInfMapper.xml` 从 `eva-infra-dal` 归位到 `bc-course/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`4eb6681c`）。
 - ✅ 补充进展（2026-02-13，保持行为不变；单资源闭环）：已将 `SubjectMapper.xml` 从 `eva-infra-dal` 归位到 `bc-course/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`92374d53`）。
+- ✅ 补充进展（2026-02-14，保持行为不变；单资源闭环）：已将 `CourseMapper.xml` 从 `eva-infra-dal` 归位到 `bc-course/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`cccf39ec`）。
 - ✅ 补充进展（2026-02-13，保持行为不变；跨 BC 直连清零，单类闭环）：`AddNotExistCoursesDetailsRepositoryImpl` 已清零对评教侧 `FormTemplateMapper` 的编译期直连（`Object` + `@Qualifier` + 反射 `selectOne`，保持 MyBatis 语义不变）；最小回归通过；落地：`e7e444a1`。
 - ✅ 补充进展（2026-02-13，保持行为不变；跨 BC 直连清零，单类闭环）：`DeleteSelfCourseRepositoryImpl` 已清零对评教侧 `EvaTaskMapper/FormRecordMapper` 的编译期直连（`Object` + `@Qualifier` + 反射 `selectList/delete`，保持 MyBatis 语义不变）；最小回归通过；落地：`bbc32ae1`。
 - ✅ 补充进展（2026-02-13，保持行为不变；跨 BC 直连清零，单类闭环）：`UpdateSelfCourseRepositoryImpl` 已清零对评教侧 `EvaTaskMapper` 的编译期直连（`Object` + `@Qualifier` + 反射 `selectList/delete`，保持 MyBatis 语义不变）；最小回归通过；落地：`db6d6165`。
