@@ -21,6 +21,13 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-14（恢复可编译回归基线：跨 BC 评教 Mapper 编译期直连清零，保持行为不变）**
+- ✅ 课程侧（`bc-course-infra`）：`AssignEvaTeachersRepositoryImpl/DeleteCourseRepositoryImpl/DeleteCoursesRepositoryImpl/UpdateSingleCourseRepositoryImpl/CourseRecommendExce` 不再编译期依赖评教侧 `Mapper` 类型（`edu.cuit.infra.dal.database.mapper.eva.*`），改为按 `beanName` 注入 `Object` + 反射调用对应 MyBatis 方法（保持 SQL/异常文案/缓存/日志与副作用顺序不变）。
+- ✅ 模板侧（`bc-template-infra`）：`CourseTemplateLockQueryPortImpl` 同步去除对评教侧 `Mapper` 类型的编译期依赖，改为按 `beanName` 注入 `Object` + 反射调用（保持行为不变）。
+- 🧪 最小回归通过（Java17 + mvnd）：`mvnd -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`。
+- 📌 代码落地：`8bf5c164`。
+- 🧷 剩余未闭环 WIP 已整体封存到 stash：`wip: remaining after mapper-decouple`（后续按“单资源 XML/单类”逐刀恢复、回归、提交、推送）。
+
 **2026-02-13（交接补充：本会话仅核验口径 + 落盘，未新增闭环提交）**
 - 📌 本会话起手核验（必须）：`git branch --show-current` 输出 `ddd`；`git merge-base --is-ancestor 2e4c4923 HEAD` 退出码为 `0`。
 - 📊 证据口径快照（避免口径漂移；命令见新对话提示词 A）：

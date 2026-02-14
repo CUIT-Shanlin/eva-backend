@@ -556,6 +556,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-13，保持行为不变；跨 BC 直连清零，单类闭环）：`CourseQueryRepository` 已清零对评教侧 `CourOneEvaTemplateMapper/EvaTaskMapper/FormRecordMapper/FormTemplateMapper` 的编译期直连（`Object` + `@Qualifier` + 反射 `selectOne/selectList/selectCount`，保持 MyBatis 语义不变）；最小回归通过；落地：`be3389a2`。
 - ✅ 本会话收口结论（2026-02-13，保持行为不变）：`bc-course/**` 对评教侧 `infra.dal.database.mapper.eva.*` 编译期 import 已清零。
 - ✅ 补充进展（2026-02-13，保持行为不变，DAL 拆散试点，逐类归位）：将评教侧 `EvaTaskMapper` 从 `eva-infra-dal` 搬运归位到 `bc-evaluation/infrastructure`（保持 `package edu.cuit.infra.dal.database.mapper.eva` 不变；最小回归通过；落地：`b7049e4c`）。
+- ✅ 补充进展（2026-02-14，保持行为不变；多类小簇闭环）：为承接 `EvaTaskMapper/FormRecordMapper` 已归位到 `bc-evaluation/infrastructure` 的事实，课程侧与模板侧对评教 Mapper 的编译期直连改为按 `beanName` 注入 `Object` + 反射调用（保持 MyBatis 调用语义/异常文案/副作用顺序不变）；最小回归通过；落地：`8bf5c164`。
 - ✅ 会话收口快照（2026-02-13，保持行为不变）：当前仍保留 `eva-infra-dal/eva-infra-shared/eva-base` 三个 reactor 模块；余量为 `eva-infra-dal`=`23` Java + `0` XML、`eva-infra-shared`=`9` Java、`eva-base-common`=`2` Java。
 - ✅ 会话收口结论（2026-02-13，保持行为不变）：要达成“BC 相互独立、仅通过 contract/port 调用”，当前关键阻塞是跨 BC DAL 直连与共享依赖边界：`bc-evaluation/**` 对课程 mapper import 尚有 0 处（已按端口替换完成）；`bc-template/**` 对评教 mapper import 尚有 0 处（已清零编译期 import）；`bc-course/**` 对评教 mapper import 尚有 0 处（已清零编译期 import）；多 BC 仍显式依赖 `eva-infra-shared`。
 - 补充进展（2026-02-12，保持行为不变，支撑类归位）：将 `QueryUtils` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.util` 不变；类内容不变；最小回归通过；落地：`e653338f`）。
