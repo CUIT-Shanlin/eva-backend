@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-14（单资源闭环：`EvaTemplateMapper.xml` 归位到 `bc-evaluation-infra`，保持 MyBatis 行为不变）**
+- ✅ 资源搬运：`EvaTemplateMapper.xml` 已从 `eva-infra-dal` 搬运归位到 `bc-evaluation/infrastructure`，保持 MyBatis XML `namespace/resultMap type/SQL` 与资源路径 `mapper/**` 不变，并同步删除旧位置同名文件以避免 classpath 重复导致启动失败。
+- 🧪 最小回归通过（Java17 + mvnd）：`mvnd -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`。
+- 📌 代码落地：`fa3d9181`。
+- ⏭️ 下一刀建议（同口径，单资源闭环）：继续搬运最后 1 个 `FormRecordMapper.xml`（并同步删除 `eva-infra-dal` 旧位置同名文件，避免 classpath 重复）。
+
 **2026-02-14（单资源闭环：`CourOneEvaTemplateMapper.xml` 归位到 `bc-evaluation-infra`，保持 MyBatis 行为不变）**
 - ✅ 资源搬运：`CourOneEvaTemplateMapper.xml` 已从 `eva-infra-dal` 搬运归位到 `bc-evaluation/infrastructure`，保持 MyBatis XML `namespace/resultMap type/SQL` 与资源路径 `mapper/**` 不变，并同步删除旧位置同名文件以避免 classpath 重复导致启动失败。
 - 🧪 最小回归通过（Java17 + mvnd）：`mvnd -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest -Dsurefire.failIfNoSpecifiedTests=false -Dmaven.repo.local=.m2/repository`。
