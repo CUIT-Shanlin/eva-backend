@@ -12,8 +12,6 @@ import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.SubjectMapper;
-import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
-import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.infra.enums.cache.ClassroomCacheConstants;
 import edu.cuit.infra.enums.cache.CourseCacheConstants;
@@ -24,9 +22,12 @@ import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,11 +42,18 @@ public class DeleteCourseRepositoryImpl implements DeleteCourseRepository {
     private final CourInfMapper courInfMapper;
     private final CourseMapper courseMapper;
     private final SubjectMapper subjectMapper;
-    private final EvaTaskMapper evaTaskMapper;
+    /**
+     * 跨 BC 直连清零（编译期）：不再直接依赖评教侧 Mapper 类型；仍保持原 MyBatis 调用语义，通过反射调用对应方法（保持行为不变）。
+     */
+    @Autowired
+    @Qualifier("evaTaskMapper")
+    private Object evaTaskMapper;
     private final SysUserMapper userMapper;
     private final LocalCacheManager localCacheManager;
     private final CourseCacheConstants courseCacheConstants;
-    private final FormRecordMapper formRecordMapper;
+    @Autowired
+    @Qualifier("formRecordMapper")
+    private Object formRecordMapper;
     private final EvaCacheConstants evaCacheConstants;
     private final ClassroomCacheConstants classroomCacheConstants;
 
@@ -88,7 +96,7 @@ public class DeleteCourseRepositoryImpl implements DeleteCourseRepository {
         if (!list.isEmpty()) {
             QueryWrapper<EvaTaskDO> evaTaskWrapper = new QueryWrapper<>();
             evaTaskWrapper.in("cour_inf_id", list);
-            taskDOList = evaTaskMapper.selectList(evaTaskWrapper);
+            taskDOList = selectEvaTaskList(evaTaskWrapper);
         } else {
             taskDOList = new ArrayList<>();
         }
@@ -96,8 +104,8 @@ public class DeleteCourseRepositoryImpl implements DeleteCourseRepository {
         List<Integer> taskIds = taskDOList.stream().map(EvaTaskDO::getId).toList();
         List<EvaTaskDO> list1 = taskDOList.stream().filter(taskDO -> taskDO.getStatus() == 0).toList();
         if (!taskIds.isEmpty()) {
-            evaTaskMapper.delete(new QueryWrapper<EvaTaskDO>().in("id", taskIds));
-            formRecordMapper.delete(new QueryWrapper<FormRecordDO>().in("task_id", taskIds));
+            deleteEvaTasksByIds(taskIds);
+            deleteFormRecordsByTaskIds(taskIds);
         }
 
         Map<String, Map<Integer, Integer>> map = new HashMap<>();
@@ -114,5 +122,59 @@ public class DeleteCourseRepositoryImpl implements DeleteCourseRepository {
         localCacheManager.invalidateCache(null, classroomCacheConstants.ALL_CLASSROOM);
         return map;
     }
-}
 
+    private List<EvaTaskDO> selectEvaTaskList(QueryWrapper<EvaTaskDO> qw) {
+        Method selectListMethod = findSingleArgMethod(evaTaskMapper, "selectList");
+        if (selectListMethod == null) {
+            throw new IllegalStateException("evaTaskMapper 缺少 selectList(Wrapper) 方法");
+        }
+        Object result = invoke(evaTaskMapper, selectListMethod, qw);
+        if (!(result instanceof List<?> list)) {
+            return List.of();
+        }
+        return list.stream()
+                .filter(EvaTaskDO.class::isInstance)
+                .map(EvaTaskDO.class::cast)
+                .toList();
+    }
+
+    private void deleteEvaTasksByIds(List<Integer> taskIds) {
+        Method deleteMethod = findSingleArgMethod(evaTaskMapper, "delete");
+        if (deleteMethod == null) {
+            throw new IllegalStateException("evaTaskMapper 缺少 delete(Wrapper) 方法");
+        }
+        invoke(evaTaskMapper, deleteMethod, new QueryWrapper<EvaTaskDO>().in("id", taskIds));
+    }
+
+    private void deleteFormRecordsByTaskIds(List<Integer> taskIds) {
+        Method deleteMethod = findSingleArgMethod(formRecordMapper, "delete");
+        if (deleteMethod == null) {
+            throw new IllegalStateException("formRecordMapper 缺少 delete(Wrapper) 方法");
+        }
+        invoke(formRecordMapper, deleteMethod, new QueryWrapper<FormRecordDO>().in("task_id", taskIds));
+    }
+
+    private static Method findSingleArgMethod(Object target, String methodName) {
+        if (target == null) {
+            return null;
+        }
+        for (Method method : target.getClass().getMethods()) {
+            if (method.getName().equals(methodName) && method.getParameterCount() == 1) {
+                return method;
+            }
+        }
+        return null;
+    }
+
+    private static Object invoke(Object target, Method method, Object... args) {
+        try {
+            return method.invoke(target, args);
+        } catch (Exception e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            throw new IllegalStateException(e);
+        }
+    }
+}

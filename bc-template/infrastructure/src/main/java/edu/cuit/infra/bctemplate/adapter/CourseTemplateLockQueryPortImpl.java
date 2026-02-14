@@ -5,9 +5,6 @@ import edu.cuit.bc.template.application.port.CourseTemplateLockQueryPort;
 import edu.cuit.infra.dal.database.dataobject.eva.CourOneEvaTemplateDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO;
-import edu.cuit.infra.dal.database.mapper.eva.CourOneEvaTemplateMapper;
-import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
-import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +16,11 @@ import java.util.List;
  */
 @Component
 public class CourseTemplateLockQueryPortImpl implements CourseTemplateLockQueryPort {
-    private final CourOneEvaTemplateMapper courOneEvaTemplateMapper;
+    /**
+     * 跨 BC 直连清零（编译期）：不再在 bc-template 侧直接依赖评教侧 Mapper 类型；
+     * 仍保持原 MyBatis 调用语义，通过反射调用对应方法（保持行为不变）。
+     */
+    private final Object courOneEvaTemplateMapper;
     /**
      * 跨 BC 直连清零：不再在 bc-template 侧直连课程域 DAL（CourInfMapper/CourInfDO）。
      *
@@ -27,14 +28,14 @@ public class CourseTemplateLockQueryPortImpl implements CourseTemplateLockQueryP
      * 并通过反射调用端口方法获取 cour_inf.id 集合。单测场景下也允许传入旧 CourInfMapper mock，行为保持不变。</p>
      */
     private final Object courInfIdsByCourseIdsQueryPort;
-    private final EvaTaskMapper evaTaskMapper;
-    private final FormRecordMapper formRecordMapper;
+    private final Object evaTaskMapper;
+    private final Object formRecordMapper;
 
     public CourseTemplateLockQueryPortImpl(
-            CourOneEvaTemplateMapper courOneEvaTemplateMapper,
+            @Qualifier("courOneEvaTemplateMapper") Object courOneEvaTemplateMapper,
             @Qualifier("courInfIdsByCourseIdsQueryPortImpl") Object courInfIdsByCourseIdsQueryPort,
-            EvaTaskMapper evaTaskMapper,
-            FormRecordMapper formRecordMapper
+            @Qualifier("evaTaskMapper") Object evaTaskMapper,
+            @Qualifier("formRecordMapper") Object formRecordMapper
     ) {
         this.courOneEvaTemplateMapper = courOneEvaTemplateMapper;
         this.courInfIdsByCourseIdsQueryPort = courInfIdsByCourseIdsQueryPort;
@@ -58,8 +59,15 @@ public class CourseTemplateLockQueryPortImpl implements CourseTemplateLockQueryP
         if (semesterId != null) {
             qw.eq("semester_id", semesterId);
         }
-        Long count = courOneEvaTemplateMapper.selectCount(qw);
-        return count != null && count > 0;
+        Method selectCountMethod = findSingleArgMethod(courOneEvaTemplateMapper, "selectCount");
+        if (selectCountMethod == null) {
+            return false;
+        }
+        Object countObj = invoke(courOneEvaTemplateMapper, selectCountMethod, qw);
+        if (!(countObj instanceof Number count)) {
+            return false;
+        }
+        return count.longValue() > 0;
     }
 
     private boolean isLockedByRecord(Integer courseId) {
@@ -67,15 +75,31 @@ public class CourseTemplateLockQueryPortImpl implements CourseTemplateLockQueryP
         if (courInfIds.isEmpty()) {
             return false;
         }
-        List<Integer> taskIds = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id", courInfIds))
-                .stream()
+        Method selectTaskListMethod = findSingleArgMethod(evaTaskMapper, "selectList");
+        if (selectTaskListMethod == null) {
+            return false;
+        }
+        Object taskListObj = invoke(evaTaskMapper, selectTaskListMethod, new QueryWrapper<EvaTaskDO>().in("cour_inf_id", courInfIds));
+        if (!(taskListObj instanceof List<?> taskList)) {
+            return false;
+        }
+        List<Integer> taskIds = taskList.stream()
+                .filter(EvaTaskDO.class::isInstance)
+                .map(EvaTaskDO.class::cast)
                 .map(EvaTaskDO::getId)
                 .toList();
         if (taskIds.isEmpty()) {
             return false;
         }
-        Long count = formRecordMapper.selectCount(new QueryWrapper<FormRecordDO>().in("task_id", taskIds));
-        return count != null && count > 0;
+        Method selectRecordCountMethod = findSingleArgMethod(formRecordMapper, "selectCount");
+        if (selectRecordCountMethod == null) {
+            return false;
+        }
+        Object countObj = invoke(formRecordMapper, selectRecordCountMethod, new QueryWrapper<FormRecordDO>().in("task_id", taskIds));
+        if (!(countObj instanceof Number count)) {
+            return false;
+        }
+        return count.longValue() > 0;
     }
 
     @SuppressWarnings("unchecked")

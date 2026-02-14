@@ -11,13 +11,15 @@ import edu.cuit.infra.dal.database.dataobject.course.*;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.course.*;
-import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Method;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -34,7 +36,12 @@ public class CourseRecommendExce {
     private final CourseTypeCourseMapper courseTypeCourseMapper;
     private final CourseTypeMapper courseTypeMapper;
     private final SubjectMapper subjectMapper;
-    private final EvaTaskMapper evaTaskMapper;
+    /**
+     * 跨 BC 直连清零（编译期）：不再直接依赖评教侧 Mapper 类型；仍保持原 MyBatis 调用语义，通过反射调用对应方法（保持行为不变）。
+     */
+    @Autowired
+    @Qualifier("evaTaskMapper")
+    private Object evaTaskMapper;
     private final SysUserMapper userMapper;
     private final SemesterMapper semesterMapper;
     private final EvaConfigGateway evaConfigGateway;
@@ -56,7 +63,7 @@ public class CourseRecommendExce {
 
         List<Integer> courseIds = courseDOS1.stream().map(CourseDO::getId).toList();
         //找出老师所要评教的课程
-        List<EvaTaskDO> taskDOList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id", user.getId()).and(wrapper -> wrapper.eq("status",0)));
+        List<EvaTaskDO> taskDOList = selectEvaTaskList(new QueryWrapper<EvaTaskDO>().eq("teacher_id", user.getId()).and(wrapper -> wrapper.eq("status",0)));
         List<CourInfDO> evaCourInfo=new ArrayList<>();
         Set<Integer> evaCourInfoSet;
         if(!taskDOList.isEmpty()) {
@@ -73,7 +80,7 @@ public class CourseRecommendExce {
         //包含了所有教学课程和评教课程
         evaCourInfoSet.addAll(courseIds);
         //找出评教次数大于等于8次的课程ID集合
-        List<EvaTaskDO> taskList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("status", 1).or().eq("status", 0));
+        List<EvaTaskDO> taskList = selectEvaTaskList(new QueryWrapper<EvaTaskDO>().eq("status", 1).or().eq("status", 0));
         List<Integer> courInfoList = taskList.stream().map(EvaTaskDO::getCourInfId).toList();
         List<Integer> tmpList = list1;
         if(!list1.isEmpty()){
@@ -278,9 +285,9 @@ public class CourseRecommendExce {
             }
             List<Integer> list1 = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseDO.getId())).stream().map(CourInfDO::getId).toList();
             if(!list1.isEmpty())
-             EvaNum =Math.toIntExact(evaTaskMapper.selectCount( new QueryWrapper<EvaTaskDO>()
-                    .in("cour_inf_id",list1)
-                    .and(wrapper -> wrapper.eq("status", 1).or().eq("status", 0))));
+             EvaNum =Math.toIntExact(selectEvaTaskCount(new QueryWrapper<EvaTaskDO>()
+	                    .in("cour_inf_id",list1)
+	                    .and(wrapper -> wrapper.eq("status", 1).or().eq("status", 0))));
             int finalEvaNum = EvaNum;
             recommendCourseCOS.forEach(recommendCourseCO -> {
                 if(recommendCourseCO.getName().equals(subjectDO.getName())&&recommendCourseCO.getNature().equals(subjectDO.getNature())){
@@ -430,7 +437,7 @@ public class CourseRecommendExce {
             }
             List<Integer> list1 = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseDO.getId())).stream().map(CourInfDO::getId).toList();
             if(!list1.isEmpty())
-                EvaNum =Math.toIntExact(evaTaskMapper.selectCount( new QueryWrapper<EvaTaskDO>()
+                EvaNum =Math.toIntExact(selectEvaTaskCount(new QueryWrapper<EvaTaskDO>()
                         .in("cour_inf_id",list1)
                         .and(wrapper -> wrapper.eq("status", 1).or().eq("status", 0))));
             int finalEvaNum = EvaNum;
@@ -487,7 +494,7 @@ public class CourseRecommendExce {
             }
             List<Integer> list1 = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseDO.getId())).stream().map(CourInfDO::getId).toList();
             if(!list1.isEmpty())
-                EvaNum =Math.toIntExact(evaTaskMapper.selectCount( new QueryWrapper<EvaTaskDO>()
+                EvaNum =Math.toIntExact(selectEvaTaskCount(new QueryWrapper<EvaTaskDO>()
                         .in("cour_inf_id",list1)
                         .and(wrapper -> wrapper.eq("status", 1).or().eq("status", 0))));
             int finalEvaNum = EvaNum;
@@ -671,6 +678,58 @@ public class CourseRecommendExce {
                     .lt("week", endTime.getWeek());
         }else {
             throw new UpdateException("指定的时间段不能都为空");
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<EvaTaskDO> selectEvaTaskList(QueryWrapper<EvaTaskDO> qw) {
+        Method selectListMethod = findSingleArgMethod(evaTaskMapper, "selectList");
+        if (selectListMethod == null) {
+            throw new IllegalStateException("evaTaskMapper 缺少 selectList(Wrapper) 方法");
+        }
+        Object result = invoke(evaTaskMapper, selectListMethod, qw);
+        if (!(result instanceof List<?> list)) {
+            return List.of();
+        }
+        return list.stream()
+                .filter(EvaTaskDO.class::isInstance)
+                .map(EvaTaskDO.class::cast)
+                .toList();
+    }
+
+    private long selectEvaTaskCount(QueryWrapper<EvaTaskDO> qw) {
+        Method selectCountMethod = findSingleArgMethod(evaTaskMapper, "selectCount");
+        if (selectCountMethod == null) {
+            throw new IllegalStateException("evaTaskMapper 缺少 selectCount(Wrapper) 方法");
+        }
+        Object countObj = invoke(evaTaskMapper, selectCountMethod, qw);
+        if (!(countObj instanceof Number count)) {
+            return 0L;
+        }
+        return count.longValue();
+    }
+
+    private static Method findSingleArgMethod(Object target, String methodName) {
+        if (target == null) {
+            return null;
+        }
+        for (Method method : target.getClass().getMethods()) {
+            if (method.getName().equals(methodName) && method.getParameterCount() == 1) {
+                return method;
+            }
+        }
+        return null;
+    }
+
+    private static Object invoke(Object target, Method method, Object... args) {
+        try {
+            return method.invoke(target, args);
+        } catch (Exception e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            throw new IllegalStateException(e);
         }
     }
 

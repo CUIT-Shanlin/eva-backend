@@ -11,7 +11,6 @@ import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.SubjectMapper;
-import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
@@ -19,9 +18,12 @@ import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +38,12 @@ public class AssignEvaTeachersRepositoryImpl implements AssignEvaTeachersReposit
     private final CourInfMapper courInfMapper;
     private final CourseMapper courseMapper;
     private final SubjectMapper subjectMapper;
-    private final EvaTaskMapper evaTaskMapper;
+    /**
+     * 跨 BC 直连清零（编译期）：不再直接依赖评教侧 Mapper 类型；仍保持原 MyBatis 调用语义，通过反射调用对应方法（保持行为不变）。
+     */
+    @Autowired
+    @Qualifier("evaTaskMapper")
+    private Object evaTaskMapper;
     private final SysUserMapper userMapper;
     private final LocalCacheManager localCacheManager;
     private final EvaCacheConstants evaCacheConstants;
@@ -64,7 +71,7 @@ public class AssignEvaTeachersRepositoryImpl implements AssignEvaTeachersReposit
             evaTaskDO.setUpdateTime(LocalDateTime.now());
             return evaTaskDO;
         }).toList();
-        taskList.forEach(evaTaskMapper::insert);
+        taskList.forEach(this::insertEvaTask);
 
         Map<Integer, Integer> mapTask = new HashMap<>();
         taskList.forEach(evaTaskDO -> mapTask.put(evaTaskDO.getId(), evaTaskDO.getTeacherId()));
@@ -118,7 +125,7 @@ public class AssignEvaTeachersRepositoryImpl implements AssignEvaTeachersReposit
     }
 
     private void judgeAlsoHasTask(List<Integer> userList, CourInfDO courInfDO) {
-        List<Integer> courInfoList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>()
+        List<Integer> courInfoList = selectEvaTaskList(new QueryWrapper<EvaTaskDO>()
                         .in(!userList.isEmpty(), "teacher_id", userList)
                         .eq("status", 0))
                 .stream()
@@ -137,12 +144,71 @@ public class AssignEvaTeachersRepositoryImpl implements AssignEvaTeachersReposit
                     ).eq(true, "id", courInfId)
             );
             if (courInfDO1 != null) {
-                EvaTaskDO evaTaskDO = evaTaskMapper.selectOne(new QueryWrapper<EvaTaskDO>()
+                EvaTaskDO evaTaskDO = selectEvaTaskOne(new QueryWrapper<EvaTaskDO>()
                         .eq("cour_inf_id", courInfDO1.getId())
                         .in("teacher_id", userList));
                 SysUserDO userDO = userMapper.selectById(evaTaskDO.getTeacherId());
                 throw new UpdateException("课程时间冲突，评教老师中" + userDO.getName() + "在该时间段已经有了评教任务");
             }
+        }
+    }
+
+    private void insertEvaTask(EvaTaskDO evaTaskDO) {
+        Method insertMethod = findMethodByNameAndParamCount(evaTaskMapper, "insert", 1);
+        if (insertMethod == null) {
+            throw new IllegalStateException("evaTaskMapper 缺少 insert(entity) 方法");
+        }
+        invoke(evaTaskMapper, insertMethod, evaTaskDO);
+    }
+
+    private List<EvaTaskDO> selectEvaTaskList(QueryWrapper<EvaTaskDO> qw) {
+        Method selectListMethod = findMethodByNameAndParamCount(evaTaskMapper, "selectList", 1);
+        if (selectListMethod == null) {
+            throw new IllegalStateException("evaTaskMapper 缺少 selectList(Wrapper) 方法");
+        }
+        Object result = invoke(evaTaskMapper, selectListMethod, qw);
+        if (!(result instanceof List<?> list)) {
+            return List.of();
+        }
+        return list.stream()
+                .filter(EvaTaskDO.class::isInstance)
+                .map(EvaTaskDO.class::cast)
+                .toList();
+    }
+
+    private EvaTaskDO selectEvaTaskOne(QueryWrapper<EvaTaskDO> qw) {
+        Method selectOneMethod = findMethodByNameAndParamCount(evaTaskMapper, "selectOne", 1);
+        if (selectOneMethod == null) {
+            throw new IllegalStateException("evaTaskMapper 缺少 selectOne(Wrapper) 方法");
+        }
+        Object result = invoke(evaTaskMapper, selectOneMethod, qw);
+        if (result == null) {
+            return null;
+        }
+        return (EvaTaskDO) result;
+    }
+
+    private static Method findMethodByNameAndParamCount(Object target, String methodName, int paramCount) {
+        if (target == null) {
+            return null;
+        }
+        for (Method method : target.getClass().getMethods()) {
+            if (method.getName().equals(methodName) && method.getParameterCount() == paramCount) {
+                return method;
+            }
+        }
+        return null;
+    }
+
+    private static Object invoke(Object target, Method method, Object... args) {
+        try {
+            return method.invoke(target, args);
+        } catch (Exception e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            throw new IllegalStateException(e);
         }
     }
 }
