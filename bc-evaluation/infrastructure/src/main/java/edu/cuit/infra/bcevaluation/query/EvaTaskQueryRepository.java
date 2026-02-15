@@ -22,21 +22,25 @@ import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.course.SubjectDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
-import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.SemesterMapper;
 import edu.cuit.infra.dal.database.mapper.course.SubjectMapper;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
-import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
 import edu.cuit.infra.util.QueryUtils;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -58,7 +62,9 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
     private final UserConverter userConverter;
     private final UserEntityObjectByIdDirectQueryPort userEntityObjectByIdDirectQueryPort;
     private final CourseConvertor courseConvertor;
-    private final SysUserMapper sysUserMapper;
+    @Autowired
+    @Qualifier("sysUserMapper")
+    private Object sysUserMapper;
     private final SemesterMapper semesterMapper;
     private final SubjectMapper subjectMapper;
     private final CourInfObjectDirectQueryPort courInfObjectDirectQueryPort;
@@ -121,12 +127,14 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
         evaTaskWrapper.orderByDesc("create_time");
         pageTask=evaTaskMapper.selectPage(pageTask,evaTaskWrapper);
 
-        List<SysUserDO> sysUserDOS=sysUserMapper.selectList(null);
+        List<?> sysUserDOS = selectSysUserList(null);
         if(CollectionUtil.isEmpty(sysUserDOS)){
             List list=new ArrayList();
             return paginationConverter.toPaginationEntity(pageTask,list);
         }
-        List<Object> userEntities=sysUserDOS.stream().map(sysUserDO->toUserEntity(sysUserDO.getId())).toList();
+        List<Object> userEntities = sysUserDOS.stream()
+                .map(sysUserDO -> toUserEntity(selectSysUserId(sysUserDO)))
+                .toList();
 
         List<EvaTaskEntity> evaTaskEntities=getEvaTaskEntities(pageTask.getRecords(),userEntities,courseEntities);
 
@@ -140,9 +148,11 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
         QueryWrapper<CourseDO> query=new QueryWrapper<CourseDO>();
         if(keyword!=null&&StringUtils.isNotBlank(keyword)) {
             //根据关键字来查询老师
-            QueryWrapper<SysUserDO> teacherWrapper = new QueryWrapper<>();
+            QueryWrapper teacherWrapper = new QueryWrapper();
             teacherWrapper.like("name", keyword);
-            List<Integer> teacherIds = sysUserMapper.selectList(teacherWrapper).stream().map(SysUserDO::getId).toList();
+            List<Integer> teacherIds = selectSysUserList(teacherWrapper).stream()
+                    .map(this::selectSysUserId)
+                    .toList();
             //关键字查询课程名称subject->课程->课程详情
             QueryWrapper<SubjectDO> subjectWrapper = new QueryWrapper<>();
             subjectWrapper.like("name", keyword);
@@ -205,11 +215,13 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
             return list;
         }
         List<SingleCourseEntity> courseEntities=getListCurInfoEntities(courInfDOS);
-        SysUserDO teacher=sysUserMapper.selectById(userId);
-        List<SysUserDO> teachers=new ArrayList<>();
+        Object teacher = selectSysUserById(userId);
+        List<Object> teachers=new ArrayList<>();
         teachers.add(teacher);
 
-        List<Object> userEntities=teachers.stream().map(sysUserDO->toUserEntity(sysUserDO.getId())).toList();
+        List<Object> userEntities = teachers.stream()
+                .map(sysUserDO -> toUserEntity(selectSysUserId(sysUserDO)))
+                .toList();
 
         return getEvaTaskEntities(evaTaskDOS,userEntities,courseEntities);
     }
@@ -270,7 +282,7 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
 
     @Override
     public Optional<String> getNameByTaskId(Integer taskId) {
-        return Optional.of(sysUserMapper.selectById(evaTaskMapper.selectById(taskId).getTeacherId()).getName());
+        return Optional.of(selectSysUserNameById(evaTaskMapper.selectById(taskId).getTeacherId()));
     }
 
     //简便方法
@@ -313,5 +325,82 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
     private List<SingleCourseEntity> getListCurInfoEntities(List<CourInfDO> courInfDOS){
         return courInfDOS.stream().map(courInfDO ->courseConvertor.toSingleCourseEntity(
                 ()->toCourseEntity(courInfDO.getCourseId(),courseMapper.selectById(courInfDO.getCourseId()).getSemesterId()),courInfDO)).toList();
+    }
+
+    private List<?> selectSysUserList(Object wrapper) {
+        try {
+            Method selectList = Arrays.stream(sysUserMapper.getClass().getMethods())
+                    .filter(m -> m.getName().equals("selectList") && m.getParameterCount() == 1)
+                    .findFirst()
+                    .orElseThrow(() -> new NoSuchMethodException("selectList"));
+            Object result = selectList.invoke(sysUserMapper, wrapper);
+            return (List<?>) result;
+        } catch (InvocationTargetException e) {
+            Throwable targetException = e.getTargetException();
+            if (targetException instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            if (targetException instanceof Error error) {
+                throw error;
+            }
+            throw new RuntimeException(targetException);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Object selectSysUserById(Serializable userId) {
+        try {
+            Method selectById = sysUserMapper.getClass().getMethod("selectById", Serializable.class);
+            return selectById.invoke(sysUserMapper, userId);
+        } catch (InvocationTargetException e) {
+            Throwable targetException = e.getTargetException();
+            if (targetException instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            if (targetException instanceof Error error) {
+                throw error;
+            }
+            throw new RuntimeException(targetException);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Integer selectSysUserId(Object sysUser) {
+        try {
+            Method getId = sysUser.getClass().getMethod("getId");
+            return (Integer) getId.invoke(sysUser);
+        } catch (InvocationTargetException e) {
+            Throwable targetException = e.getTargetException();
+            if (targetException instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            if (targetException instanceof Error error) {
+                throw error;
+            }
+            throw new RuntimeException(targetException);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String selectSysUserNameById(Serializable userId) {
+        Object sysUser = selectSysUserById(userId);
+        try {
+            Method getName = sysUser.getClass().getMethod("getName");
+            return (String) getName.invoke(sysUser);
+        } catch (InvocationTargetException e) {
+            Throwable targetException = e.getTargetException();
+            if (targetException instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            if (targetException instanceof Error error) {
+                throw error;
+            }
+            throw new RuntimeException(targetException);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
