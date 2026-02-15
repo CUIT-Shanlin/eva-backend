@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-15（前置解耦，单类：`CourseBizConvertor` 去 `FormTemplateMapper` 编译期依赖，保持行为不变）**
+- ✅ 背景（保持行为不变）：`FormTemplateMapper` 仍被 `eva-infra-shared` 的 `CourseBizConvertor` 编译期引用；若直接将 `FormTemplateMapper` 从 `eva-infra-dal` 归位到 `bc-evaluation/infrastructure`，会导致 `eva-infra-shared` 编译失败（且若改 pom 会引入循环依赖，禁止）。
+- ✅ 执行（单类，保持行为不变）：将 `CourseBizConvertor` 的 `FormTemplateMapper` 注入改为按 `beanName` 注入 `Object` + 反射调用 `selectById(Serializable)`，以解除编译期依赖但保持 MyBatis 调用语义不变（`selectById` 调用次数/顺序保持不变）。
+- 🧪 最小回归通过（Java17 + mvnd）：命令以 0.11 为准（`mvnd -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest ...`）。
+- 📌 代码落地：`cd014391`。
+
 **2026-02-15（DAL 拆散试点，逐类归位：`CourOneEvaTemplateMapper` → `bc-evaluation-infra`，保持行为不变）**
 - ✅ 类搬运：将 `CourOneEvaTemplateMapper` 从 `eva-infra-dal` 搬运归位到 `bc-evaluation/infrastructure`（保持 `package edu.cuit.infra.dal.database.mapper.eva` 不变，仅改变 Maven 模块归属；避免 classpath 重复）。
 - ✅ Serena（证据化）：引用面命中 `bc-evaluation/infrastructure`（评教写侧/读侧仓储）与 `start` 测试（Mock）；组合根仍按既有方式装配，不改任何业务语义/副作用顺序。
