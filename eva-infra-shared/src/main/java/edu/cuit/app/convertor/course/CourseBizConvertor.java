@@ -16,21 +16,24 @@ import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.infra.convertor.EntityFactory;
 import edu.cuit.infra.dal.database.dataobject.eva.FormTemplateDO;
-import edu.cuit.infra.dal.database.mapper.eva.FormTemplateMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.List;
+import java.io.Serializable;
+import java.lang.reflect.Method;
 
 /**
  * 课程业务对象转换器
  */
-@Mapper(componentModel = "spring",uses = {EntityFactory.class,FormTemplateMapper.class, CourseQueryGateway.class},unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring",uses = {EntityFactory.class, CourseQueryGateway.class},unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public abstract class CourseBizConvertor {
     @Autowired
-    protected FormTemplateMapper formTemplateMapper;
+    @Qualifier("formTemplateMapper")
+    protected Object formTemplateMapper;
     @Autowired
     protected CourseQueryGateway courseQueryGateway;
 
@@ -72,7 +75,7 @@ public abstract class CourseBizConvertor {
             @Mapping(target = "createTime",source = "courseEntity.createTime"),
             @Mapping(target = "updateTime",source = "courseEntity.updateTime"),
             @Mapping(target = "name",expression="java(courseEntity.getSubjectEntity().getName())"),
-            @Mapping(target = "templateMsg",expression="java(toEvaTemplateCO(formTemplateMapper.selectById(courseEntity.getTemplateId())))"),
+            @Mapping(target = "templateMsg",expression="java(toEvaTemplateCO(selectFormTemplateById(courseEntity.getTemplateId())))"),
             @Mapping(target = "teacherMsg",expression="java(toTeacherInfoCO(courseEntity.getTeacher()))"),
             @Mapping(target = "nature",expression="java(courseEntity.getSubjectEntity().getNature())"),
             @Mapping(target = "subjectId",expression="java(courseEntity.getSubjectEntity().getId())")
@@ -132,5 +135,15 @@ public abstract class CourseBizConvertor {
             @Mapping(target = "endTime",expression = "java(singleCourseEntity.getEndTime())")
     })
     public abstract CourseTime toCourseTime(SingleCourseEntity singleCourseEntity);
+
+    protected FormTemplateDO selectFormTemplateById(Serializable templateId) {
+        try {
+            Method selectById = formTemplateMapper.getClass().getMethod("selectById", Serializable.class);
+            Object result = selectById.invoke(formTemplateMapper, templateId);
+            return (FormTemplateDO) result;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 }
