@@ -19,7 +19,6 @@ import edu.cuit.infra.convertor.EntityFactory;
 import edu.cuit.infra.dal.database.dataobject.course.*;
 import edu.cuit.infra.dal.database.dataobject.eva.CourOneEvaTemplateDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
-import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
