@@ -16,6 +16,3 @@ public interface SubjectMapper extends MPJBaseMapper<SubjectDO> {
 
 }
 
-
-
-
