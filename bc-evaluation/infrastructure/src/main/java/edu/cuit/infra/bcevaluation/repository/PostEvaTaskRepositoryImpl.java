@@ -10,18 +10,21 @@ import edu.cuit.bc.evaluation.domain.PostEvaTaskUpdateException;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.course.SemesterDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
-import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.SemesterMapper;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
-import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
 import edu.cuit.infra.gateway.impl.eva.util.CalculateClassTime;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -37,7 +40,9 @@ public class PostEvaTaskRepositoryImpl implements PostEvaTaskRepository {
     private final CourInfTimeSlotQueryPort courInfTimeSlotQueryPort;
     private final CourseMapper courseMapper;
     private final SemesterMapper semesterMapper;
-    private final SysUserMapper sysUserMapper;
+    @Autowired
+    @Qualifier("sysUserMapper")
+    private Object sysUserMapper;
     private final EvaCacheConstants evaCacheConstants;
     private final LocalCacheManager localCacheManager;
 
@@ -106,8 +111,8 @@ public class PostEvaTaskRepositoryImpl implements PostEvaTaskRepository {
             }
         }
         // 判定是否超过最大评教次数
-        SysUserDO teacher = sysUserMapper.selectById(courseDO.getTeacherId());
-        List<CourseDO> evaCourseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", teacher.getId()));
+        Object teacher = selectSysUserById(courseDO.getTeacherId());
+        List<CourseDO> evaCourseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", selectSysUserId(teacher)));
         List<Integer> evaCourseIds = evaCourseDOS.stream().map(CourseDO::getId).toList();
         if (CollectionUtil.isNotEmpty(evaCourseIds)) {
             List<CourInfTimeSlotQueryPort.CourInfTimeSlot> evaCourInfoDOs = courInfTimeSlotQueryPort.findByCourseIds(evaCourseIds);
@@ -151,7 +156,7 @@ public class PostEvaTaskRepositoryImpl implements PostEvaTaskRepository {
         evaTaskMapper.insert(evaTaskDO);
         // 加缓存
         localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(courseDO.getSemesterId()));
-        localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_TEACH, sysUserMapper.selectById(evaTaskDO.getTeacherId()).getName());
+        localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_TEACH, selectSysUserNameById(evaTaskDO.getTeacherId()));
         Integer taskId = evaTaskMapper.selectOne(new QueryWrapper<EvaTaskDO>()
                         .eq("teacher_id", command.evaluatorId())
                         .eq("cour_inf_id", command.courInfId())
@@ -162,5 +167,60 @@ public class PostEvaTaskRepositoryImpl implements PostEvaTaskRepository {
             throw new PostEvaTaskQueryException("没有找到你的id");
         }
         return taskId;
+    }
+
+    private Object selectSysUserById(Serializable userId) {
+        try {
+            Method selectById = sysUserMapper.getClass().getMethod("selectById", Serializable.class);
+            return selectById.invoke(sysUserMapper, userId);
+        } catch (InvocationTargetException e) {
+            Throwable targetException = e.getTargetException();
+            if (targetException instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            if (targetException instanceof Error error) {
+                throw error;
+            }
+            throw new RuntimeException(targetException);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Integer selectSysUserId(Object sysUser) {
+        try {
+            Method getId = sysUser.getClass().getMethod("getId");
+            return (Integer) getId.invoke(sysUser);
+        } catch (InvocationTargetException e) {
+            Throwable targetException = e.getTargetException();
+            if (targetException instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            if (targetException instanceof Error error) {
+                throw error;
+            }
+            throw new RuntimeException(targetException);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String selectSysUserNameById(Serializable userId) {
+        Object sysUser = selectSysUserById(userId);
+        try {
+            Method getName = sysUser.getClass().getMethod("getName");
+            return (String) getName.invoke(sysUser);
+        } catch (InvocationTargetException e) {
+            Throwable targetException = e.getTargetException();
+            if (targetException instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            if (targetException instanceof Error error) {
+                throw error;
+            }
+            throw new RuntimeException(targetException);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
