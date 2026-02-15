@@ -28,25 +28,29 @@ import edu.cuit.infra.convertor.PaginationConverter;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO;
-import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
-import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
 import edu.cuit.infra.enums.cache.UserCacheConstants;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -65,7 +69,9 @@ public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
     private final EvaTaskMapper evaTaskMapper;
     private final CourInfIdsByCourseIdsQueryPort courInfIdsByCourseIdsQueryPort;
     private final FormRecordMapper formRecordMapper;
-    private final SysUserMapper sysUserMapper;
+    @Autowired
+    @Qualifier("sysUserMapper")
+    private Object sysUserMapper;
     private final PaginationConverter paginationConverter;
     private final EvaCacheConstants evaCacheConstants;
     private final LocalCacheManager localCacheManager;
@@ -350,8 +356,8 @@ public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
         //SimpleEvaPercentCO evaQualifiedInfo  SimpleEvaPercentCO qualifiedInfo
         List<Integer> getCached=localCacheManager.getCache(null,userCacheConstants.ALL_USER_ID);
         if(CollectionUtil.isEmpty(getCached)) {
-            List<SysUserDO> teacher = sysUserMapper.selectList(null);
-            List<Integer> teacherIdS = teacher.stream().map(SysUserDO::getId).toList();
+            List<?> teacher = selectSysUserList(null);
+            List<Integer> teacherIdS = teacher.stream().map(this::selectSysUserId).toList();
             localCacheManager.putCache(null,userCacheConstants.ALL_USER_ID,teacherIdS);
             getCached=localCacheManager.getCache(null,userCacheConstants.ALL_USER_ID);
         }
@@ -408,8 +414,8 @@ public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
     public Optional<UnqualifiedUserResultCO> getEvaTargetAmountUnqualifiedUser(Integer semId, Integer num, Integer target){
         List<Integer> getCached=localCacheManager.getCache(null,userCacheConstants.ALL_USER_ID);
         if(CollectionUtil.isEmpty(getCached)) {
-            List<SysUserDO> teacher = sysUserMapper.selectList(null);
-            List<Integer> teacherIdS = teacher.stream().map(SysUserDO::getId).toList();
+            List<?> teacher = selectSysUserList(null);
+            List<Integer> teacherIdS = teacher.stream().map(this::selectSysUserId).toList();
             localCacheManager.putCache(null,userCacheConstants.ALL_USER_ID,teacherIdS);
             getCached=localCacheManager.getCache(null,userCacheConstants.ALL_USER_ID);
         }
@@ -423,9 +429,9 @@ public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
             Integer n=getEvaNumByTeacherId(getCached.get(i),semId);
             if(n<target){
                 UnqualifiedUserInfoCO unqualifiedUserInfoCO=new UnqualifiedUserInfoCO();
-                unqualifiedUserInfoCO.setDepartment(sysUserMapper.selectById(getCached.get(i)).getDepartment());
+                unqualifiedUserInfoCO.setDepartment(selectSysUserDepartmentById(getCached.get(i)));
                 unqualifiedUserInfoCO.setId(getCached.get(i));
-                unqualifiedUserInfoCO.setName(sysUserMapper.selectById(getCached.get(i)).getName());
+                unqualifiedUserInfoCO.setName(selectSysUserNameById(getCached.get(i)));
                 unqualifiedUserInfoCO.setNum(n);
                 dataArr.add(unqualifiedUserInfoCO);
             }
@@ -458,8 +464,8 @@ public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
         //根据系查老师
         List<Integer> getCached=localCacheManager.getCache(null,userCacheConstants.ALL_USER_ID);
         if(CollectionUtil.isEmpty(getCached)) {
-            List<SysUserDO> teacher = sysUserMapper.selectList(null);
-            List<Integer> teacherIdS = teacher.stream().map(SysUserDO::getId).toList();
+            List<?> teacher = selectSysUserList(null);
+            List<Integer> teacherIdS = teacher.stream().map(this::selectSysUserId).toList();
             localCacheManager.putCache(null,userCacheConstants.ALL_USER_ID,teacherIdS);
             getCached=localCacheManager.getCache(null,userCacheConstants.ALL_USER_ID);
         }
@@ -475,9 +481,9 @@ public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
             Integer n=getEvaEdNumByTeacherId(getCached.get(i),semId);
             if(n<target){
                 UnqualifiedUserInfoCO unqualifiedUserInfoCO=new UnqualifiedUserInfoCO();
-                unqualifiedUserInfoCO.setDepartment(sysUserMapper.selectById(getCached.get(i)).getDepartment());
+                unqualifiedUserInfoCO.setDepartment(selectSysUserDepartmentById(getCached.get(i)));
                 unqualifiedUserInfoCO.setId(getCached.get(i));
-                unqualifiedUserInfoCO.setName(sysUserMapper.selectById(getCached.get(i)).getName());
+                unqualifiedUserInfoCO.setName(selectSysUserNameById(getCached.get(i)));
                 unqualifiedUserInfoCO.setNum(n);
                 dataArr.add(unqualifiedUserInfoCO);
             }
@@ -509,7 +515,7 @@ public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
     @Override
     public PaginationResultEntity<UnqualifiedUserInfoCO> pageEvaUnqualifiedUserInfo(Integer semId,PagingQuery<UnqualifiedUserConditionalQuery> query, Integer target){
         List<Integer> userIds=new ArrayList<>();
-        QueryWrapper<SysUserDO> queryWrapper = new QueryWrapper<>();
+        QueryWrapper queryWrapper = new QueryWrapper();
         if(query.getQueryObj().getDepartment()!=null&& StringUtils.isNotBlank(query.getQueryObj().getDepartment())){
             queryWrapper.eq("department",query.getQueryObj().getDepartment());
         }
@@ -517,8 +523,8 @@ public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
             queryWrapper.like("name",query.getQueryObj().getKeyword());
         }
 
-        List<SysUserDO> sysUserDOS=sysUserMapper.selectList(queryWrapper);
-        userIds=sysUserDOS.stream().map(SysUserDO::getId).toList();
+        List<?> sysUserDOS = selectSysUserList(queryWrapper);
+        userIds = sysUserDOS.stream().map(this::selectSysUserId).toList();
 
         if(CollectionUtil.isEmpty(userIds)){
             List list=new ArrayList();
@@ -535,8 +541,8 @@ public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
                 UnqualifiedUserInfoCO unqualifiedUserInfoCO=new UnqualifiedUserInfoCO();
                 unqualifiedUserInfoCO.setId(userIds.get(i));
                 unqualifiedUserInfoCO.setNum(k);
-                unqualifiedUserInfoCO.setDepartment(sysUserMapper.selectById(userIds.get(i)).getDepartment());
-                unqualifiedUserInfoCO.setName(sysUserMapper.selectById(userIds.get(i)).getName());
+                unqualifiedUserInfoCO.setDepartment(selectSysUserDepartmentById(userIds.get(i)));
+                unqualifiedUserInfoCO.setName(selectSysUserNameById(userIds.get(i)));
 
                 records.add(unqualifiedUserInfoCO);
             }
@@ -557,7 +563,7 @@ public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
     public PaginationResultEntity<UnqualifiedUserInfoCO> pageBeEvaUnqualifiedUserInfo(Integer semId,PagingQuery<UnqualifiedUserConditionalQuery> query,Integer target){
 
         List<Integer> userIds=new ArrayList<>();
-        QueryWrapper<SysUserDO> queryWrapper = new QueryWrapper<>();
+        QueryWrapper queryWrapper = new QueryWrapper();
         if(query.getQueryObj().getDepartment()!=null&& StringUtils.isNotBlank(query.getQueryObj().getDepartment())){
             queryWrapper.eq("department",query.getQueryObj().getDepartment());
         }
@@ -565,8 +571,8 @@ public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
             queryWrapper.like("name",query.getQueryObj().getKeyword());
         }
 
-        List<SysUserDO> sysUserDOS=sysUserMapper.selectList(queryWrapper);
-        userIds=sysUserDOS.stream().map(SysUserDO::getId).toList();
+        List<?> sysUserDOS = selectSysUserList(queryWrapper);
+        userIds = sysUserDOS.stream().map(this::selectSysUserId).toList();
         if(CollectionUtil.isEmpty(userIds)){
             List list=new ArrayList();
             Page<UnqualifiedUserInfoCO> pageUnqualifiedUserInfoCO=new Page<>(query.getPage(), query.getSize(),0);
@@ -582,8 +588,8 @@ public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
                 UnqualifiedUserInfoCO unqualifiedUserInfoCO=new UnqualifiedUserInfoCO();
                 unqualifiedUserInfoCO.setId(userIds.get(i));
                 unqualifiedUserInfoCO.setNum(k);
-                unqualifiedUserInfoCO.setDepartment(sysUserMapper.selectById(userIds.get(i)).getDepartment());
-                unqualifiedUserInfoCO.setName(sysUserMapper.selectById(userIds.get(i)).getName());
+                unqualifiedUserInfoCO.setDepartment(selectSysUserDepartmentById(userIds.get(i)));
+                unqualifiedUserInfoCO.setName(selectSysUserNameById(userIds.get(i)));
 
                 records.add(unqualifiedUserInfoCO);
             }
@@ -781,11 +787,11 @@ public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
             return 0;
         }
 
-        List<EvaTaskDO> getCached=localCacheManager.getCache(evaCacheConstants.TASK_LIST_BY_TEACH,sysUserMapper.selectById(teacherId).getName());
+        List<EvaTaskDO> getCached=localCacheManager.getCache(evaCacheConstants.TASK_LIST_BY_TEACH,selectSysUserNameById(teacherId));
         if(CollectionUtil.isEmpty(getCached)) {
             List<EvaTaskDO> evaTaskDOS = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id", teacherId).in("id", evaIds));
-            localCacheManager.putCache(evaCacheConstants.TASK_LIST_BY_TEACH,sysUserMapper.selectById(teacherId).getName(),evaTaskDOS);
-            getCached=localCacheManager.getCache(evaCacheConstants.TASK_LIST_BY_TEACH,sysUserMapper.selectById(teacherId).getName());
+            localCacheManager.putCache(evaCacheConstants.TASK_LIST_BY_TEACH,selectSysUserNameById(teacherId),evaTaskDOS);
+            getCached=localCacheManager.getCache(evaCacheConstants.TASK_LIST_BY_TEACH,selectSysUserNameById(teacherId));
         }
         if(CollectionUtil.isEmpty(getCached)){
             return 0;
@@ -841,11 +847,11 @@ public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
     }
 
     private Integer getEvaNumByTeacherIdAndLocalTime(Integer teacherId,Integer num1,Integer num2){
-        List<EvaTaskDO> getCached=localCacheManager.getCache(evaCacheConstants.TASK_LIST_BY_TEACH,sysUserMapper.selectById(teacherId).getName());
+        List<EvaTaskDO> getCached=localCacheManager.getCache(evaCacheConstants.TASK_LIST_BY_TEACH,selectSysUserNameById(teacherId));
         if(CollectionUtil.isEmpty(getCached)) {
             List<EvaTaskDO> evaTaskDOS = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id", teacherId));
-            localCacheManager.putCache(evaCacheConstants.TASK_LIST_BY_TEACH,sysUserMapper.selectById(teacherId).getName(),evaTaskDOS);
-            getCached=localCacheManager.getCache(evaCacheConstants.TASK_LIST_BY_TEACH,sysUserMapper.selectById(teacherId).getName());
+            localCacheManager.putCache(evaCacheConstants.TASK_LIST_BY_TEACH,selectSysUserNameById(teacherId),evaTaskDOS);
+            getCached=localCacheManager.getCache(evaCacheConstants.TASK_LIST_BY_TEACH,selectSysUserNameById(teacherId));
         }
         List<Integer> taskIds=getCached.stream().map(EvaTaskDO::getId).toList();
         if(CollectionUtil.isEmpty(taskIds)){
@@ -907,6 +913,102 @@ public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
                 n = formRecordDOS.size();
             }
             return n;
+        }
+    }
+
+    private List<?> selectSysUserList(Object wrapper) {
+        try {
+            Method selectList = Arrays.stream(sysUserMapper.getClass().getMethods())
+                    .filter(m -> m.getName().equals("selectList") && m.getParameterCount() == 1)
+                    .findFirst()
+                    .orElseThrow(() -> new NoSuchMethodException("selectList"));
+            Object result = selectList.invoke(sysUserMapper, wrapper);
+            return (List<?>) result;
+        } catch (InvocationTargetException e) {
+            Throwable targetException = e.getTargetException();
+            if (targetException instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            if (targetException instanceof Error error) {
+                throw error;
+            }
+            throw new RuntimeException(targetException);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Object selectSysUserById(Serializable userId) {
+        try {
+            Method selectById = sysUserMapper.getClass().getMethod("selectById", Serializable.class);
+            return selectById.invoke(sysUserMapper, userId);
+        } catch (InvocationTargetException e) {
+            Throwable targetException = e.getTargetException();
+            if (targetException instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            if (targetException instanceof Error error) {
+                throw error;
+            }
+            throw new RuntimeException(targetException);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Integer selectSysUserId(Object sysUser) {
+        try {
+            Method getId = sysUser.getClass().getMethod("getId");
+            return (Integer) getId.invoke(sysUser);
+        } catch (InvocationTargetException e) {
+            Throwable targetException = e.getTargetException();
+            if (targetException instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            if (targetException instanceof Error error) {
+                throw error;
+            }
+            throw new RuntimeException(targetException);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String selectSysUserNameById(Serializable userId) {
+        Object sysUser = selectSysUserById(userId);
+        try {
+            Method getName = sysUser.getClass().getMethod("getName");
+            return (String) getName.invoke(sysUser);
+        } catch (InvocationTargetException e) {
+            Throwable targetException = e.getTargetException();
+            if (targetException instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            if (targetException instanceof Error error) {
+                throw error;
+            }
+            throw new RuntimeException(targetException);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String selectSysUserDepartmentById(Serializable userId) {
+        Object sysUser = selectSysUserById(userId);
+        try {
+            Method getDepartment = sysUser.getClass().getMethod("getDepartment");
+            return (String) getDepartment.invoke(sysUser);
+        } catch (InvocationTargetException e) {
+            Throwable targetException = e.getTargetException();
+            if (targetException instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            if (targetException instanceof Error error) {
+                throw error;
+            }
+            throw new RuntimeException(targetException);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
         }
     }
 }
