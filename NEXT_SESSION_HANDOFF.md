@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-15（SysUserMapper 归位前置，单类：`CourseConvertor` 去 `SysUserMapper` import，保持行为不变）**
+- ✅ 背景（保持行为不变）：`SysUserMapper` 当前仍在 `eva-infra-dal`，但其归位目标是 `bc-iam/infrastructure`。在归位前必须清理所有非 IAM 模块对其编译期依赖，否则会导致编译失败。
+- ✅ 执行（单类，保持行为不变）：`CourseConvertor` 中仅存在 `SysUserMapper` 的无用 import（未参与 `@Mapper(uses=...)`，亦无任何符号引用）。本刀仅移除该 import，避免后续搬运 `SysUserMapper` 时 `eva-infra-shared` 编译失败。
+- 🧪 最小回归通过（Java17 + mvnd）：命令以 0.11 为准（`mvnd -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest ...`）。
+- 📌 代码落地：`1e0af235`。
+
 **2026-02-15（DAL 拆散试点，逐类归位：`FormTemplateMapper` → `bc-evaluation-infra`，保持行为不变）**
 - ✅ 类搬运：将 `FormTemplateMapper` 从 `eva-infra-dal` 搬运归位到 `bc-evaluation/infrastructure`（保持 `package edu.cuit.infra.dal.database.mapper.eva` 不变，仅改变 Maven 模块归属；避免 classpath 重复）。
 - ✅ Serena（证据化）：引用面命中 `bc-evaluation/infrastructure`（模板增删改/查询、提交评教等）；
