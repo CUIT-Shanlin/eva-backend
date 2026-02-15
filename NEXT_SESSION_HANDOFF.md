@@ -21,7 +21,13 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
-**2026-02-15（本会话：进度汇报 + 排期固化 + 三文档同步；本会话不再继续改代码，确保信息不丢失）**
+**2026-02-15（编译闭合前置，单 pom：评教 infra 前置依赖 `bc-course-infra`，保持行为不变）**
+- ✅ Serena（证据化）：确认 `bc-evaluation/infrastructure` 存在对课程域 `CourseMapper/SemesterMapper/CourInfMapper/SubjectMapper` 的编译期引用面；为满足“每次只改 1 个类/1 个 pom”的闭环约束，需先做依赖前置再逐类搬运。
+- ✅ 依赖前置（单 pom）：在 `bc-evaluation/infrastructure/pom.xml` 显式增加对 `bc-course-infra` 的 Maven 编译期依赖（不改任何业务语义；缓存/日志/异常文案/副作用顺序完全不变）。
+- 🧪 最小回归通过（Java17 + mvnd）：命令以 0.11 为准（`mvnd -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest ...`）。
+- 📌 代码落地：`eb0bbbec`。
+
+**2026-02-15（阶段性：进度汇报 + 排期固化 + 三文档同步；以下基线为当时记录，便于回溯）**
 - ✅ 基线确认（以命令输出为准）：当前分支 `ddd`；`git rev-parse --short HEAD`=`1070453a`；`git merge-base --is-ancestor 2e4c4923 HEAD` 退出码为 `0`。
 - ✅ 工作区状态：无已暂存/未暂存改动；仅存在未跟踪目录/文件：`.mvnd/`、`.ssh_known_hosts`（不要提交）。
 - 📦 未落地变更仍在 stash（后续必须按“单文件/单资源”逐刀 restore 闭环，严禁 `reset/checkout` 粗暴清理）：
