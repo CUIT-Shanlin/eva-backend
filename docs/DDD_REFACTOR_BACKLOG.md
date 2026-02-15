@@ -862,7 +862,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ⚠️ 注意：剩余未闭环变更当前以 stash 形式封存，后续逐刀 restore 时务必“单资源 add + delete 同步 stage → 最小回归 → 提交/推送”，避免口径漂移（详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
   - 🎯 下一步建议（保持行为不变；逐类闭环）：承接已归位 XML 后，继续拆散 `eva-infra-dal` 的剩余 Java（保持 `package` 不变，避免 classpath 重复）：
     - ✅ 状态更新（保持行为不变）：`CourseMapper/SemesterMapper/CourInfMapper/SubjectMapper`、`CourOneEvaTemplateMapper/FormTemplateMapper` 已按“单类”归位到对应 BC 的 `infrastructure`（详见 4.2 与 `NEXT_SESSION_HANDOFF.md` 0.9）。
-    - P0（SysUserMapper 归位前置，保持行为不变）：先清零非 IAM 模块对 `SysUserMapper` 的编译期依赖（每刀 1 类；`@Qualifier("sysUserMapper") Object` + 反射 `selectById(Serializable)`/`getName()`）。已完成：`EvaUpdateGatewayImpl`（`364c63a0`）、`DeleteEvaRecordRepositoryImpl`（`c0f94380`）、`PostEvaTaskRepositoryImpl`（`89fbc439`）、`SubmitEvaluationRepositoryImpl`（`055db608`）。下一刀建议顺序：`EvaTaskQueryRepository` → `EvaStatisticsQueryRepository` → `EvaRecordQueryRepository`。
+    - P0（SysUserMapper 归位前置，保持行为不变）：先清零非 IAM 模块对 `SysUserMapper` 的编译期依赖（每刀 1 类；`@Qualifier("sysUserMapper") Object` + 反射 `selectById(Serializable)`/`getName()`）。已完成：`EvaUpdateGatewayImpl`（`364c63a0`）、`DeleteEvaRecordRepositoryImpl`（`c0f94380`）、`PostEvaTaskRepositoryImpl`（`89fbc439`）、`SubmitEvaluationRepositoryImpl`（`055db608`）、`EvaTaskQueryRepository`（`7caaec02`）。下一刀建议顺序：`EvaStatisticsQueryRepository` → `EvaRecordQueryRepository`。
     - P1（单类搬运，保持行为不变）：完成清零后，将 `SysUserMapper.java` 从 `eva-infra-dal` 归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.dal.database.mapper.user` 不变），再逐类评估归位 `SysUserDO/SysRoleDO/SysMenuDO`。
     - P2（逐类归位，保持行为不变）：再按 Serena 证据化“仅单 BC 引用才允许归位”的规则，逐个评估并归位剩余 `DO`（如 `CourseDO/SemesterDO/CourInfDO/SubjectDO`、`CourOneEvaTemplateDO/FormTemplateDO/FormRecordDO/EvaTaskDO`）与工具类（如 `QueryUtils`）。
 
