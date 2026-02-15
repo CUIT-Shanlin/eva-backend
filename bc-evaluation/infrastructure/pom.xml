@@ -48,18 +48,25 @@
             <version>${revision}</version>
         </dependency>
 
-        <!-- 跨 BC 查询端口：课程域（用于 cour_inf.id -> course_id；保持行为不变） -->
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>bc-course</artifactId>
-            <version>${revision}</version>
-        </dependency>
-
-	        <!-- 导出链路依赖用户 API（保持包名不变） -->
+	        <!-- 跨 BC 查询端口：课程域（用于 cour_inf.id -> course_id；保持行为不变） -->
 	        <dependency>
 	            <groupId>edu.cuit</groupId>
-	            <artifactId>bc-iam-contract</artifactId>
+	            <artifactId>bc-course</artifactId>
 	            <version>${revision}</version>
+	        </dependency>
+
+	        <!-- 课程 DAL（CourseMapper/SemesterMapper/CourInfMapper/SubjectMapper）逐类归位到 bc-course-infra 的编译闭合前置 -->
+	        <dependency>
+	            <groupId>edu.cuit</groupId>
+	            <artifactId>bc-course-infra</artifactId>
+	            <version>${revision}</version>
+	        </dependency>
+
+		        <!-- 导出链路依赖用户 API（保持包名不变） -->
+		        <dependency>
+		            <groupId>edu.cuit</groupId>
+		            <artifactId>bc-iam-contract</artifactId>
+		            <version>${revision}</version>
 	        </dependency>
 
 	        <!-- 评教事务事件监听器依赖消息域契约（保持包名不变；不引入实现侧依赖） -->
