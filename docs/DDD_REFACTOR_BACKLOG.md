@@ -109,7 +109,9 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
-**已完成（更新至 2026-02-14）**
+**已完成（更新至 2026-02-15）**
+- ✅ 会话补充（2026-02-15，保持行为不变）：本会话仅做“进度汇报 + 排期固化 + 三文档同步”，不继续推进代码/资源搬运；当前 `eva-infra-dal/src/main/resources` 目录已不存在（所有 XML 已按单资源归位到各 BC），后续证据命令需使用“目录不存在=0”的口径（详见 `NEXT_SESSION_HANDOFF.md` 0.9/0.10/0.11）。
+- ✅ S0.2 延伸（课程/评教：DAL XML 按 BC 归位收尾，保持行为不变，单资源闭环）：已完成 `CourseMapper.xml`（`cccf39ec`）、`SemesterMapper.xml`（`29d9b208`）归位到 `bc-course/infrastructure`；已完成 `CourOneEvaTemplateMapper.xml`（`7aba53e1`）、`EvaTemplateMapper.xml`（`fa3d9181`，注意 namespace 实为 `FormTemplateMapper`）、`FormRecordMapper.xml`（`e9e32fdf`）归位到 `bc-evaluation/infrastructure`，并同步删除 `eva-infra-dal` 旧位置同名文件以避免 classpath 重复导致 MyBatis 启动失败（最小回归通过；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ 主线口径更新（更新至 2026-02-12，保持行为不变）：已在三文档明确切换为 **方案 B（严格）** —— 彻底退场 `eva-*` 技术切片；验收以 `DDD_REFACTOR_PLAN.md` 10.5.B 的 DoD 为准。
 - ✅ 方案 B（严格，保持行为不变，单 pom）：已在 `shared-kernel/pom.xml` 增加 `zym-spring-boot-starter-jdbc` 与 `jackson-databind`，作为 `CourseFormat` 下沉前置（承接 `QueryWrapper/ObjectMapper` 编译依赖；最小回归通过；落地：`322bb315`）。
 - ✅ Serena 证据化（保持行为不变）：`CourseFormat` 引用面仍跨 `bc-course/**` 与 `bc-evaluation/**`，且 `selectCourOneEvaTemplateDO(...)` 仍被 `ICourseDetailServiceImpl` 调用；本次未做类搬运，仅做依赖前置。
@@ -849,6 +851,10 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已闭环（保持行为不变；单资源）：`EvaTemplateMapper.xml` 已归位到 `bc-evaluation/infrastructure`，并同步删除 `eva-infra-dal/src/main/resources/mapper/**` 旧位置同名文件以避免 classpath 重复导致 MyBatis 启动失败（落地：`fa3d9181`）。
   - ✅ 已闭环（保持行为不变；单资源）：`FormRecordMapper.xml` 已归位到 `bc-evaluation/infrastructure`，并同步删除 `eva-infra-dal/src/main/resources/mapper/**` 旧位置同名文件以避免 classpath 重复导致 MyBatis 启动失败（落地：`e9e32fdf`）。
   - ⚠️ 注意：剩余未闭环变更当前以 stash 形式封存，后续逐刀 restore 时务必“单资源 add + delete 同步 stage → 最小回归 → 提交/推送”，避免口径漂移（详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
+  - 🎯 下一步建议（保持行为不变；逐类闭环）：承接已归位 XML，把 `eva-infra-dal` 的 `Mapper/DO` 按 BC 逐类归位（保持 `package` 不变，避免 classpath 重复）：
+    - 课程域（→ `bc-course/infrastructure`）：`CourseMapper/SemesterMapper/CourInfMapper/SubjectMapper` + 对应 `*DO`
+    - 评教域（→ `bc-evaluation/infrastructure`）：`CourOneEvaTemplateMapper/FormTemplateMapper` + 对应 `*DO`（注意：`EvaTemplateMapper.xml` 的 `namespace` 实为 `FormTemplateMapper`）
+    - IAM（→ `bc-iam/infrastructure`）：`SysUserMapper` + 对应 `SysUserDO/SysRoleDO/SysMenuDO`
 
 - **S0.2 延伸（IAM → 其它 BC：依赖收敛，去跨 BC 直连 IAM role 表，保持行为不变）**：
   - ✅ 已完成：`bc-audit` 的 `LogGatewayImpl`、`bc-course` 的 `CourseQueryRepository.toUserEntity`、`bc-evaluation` 的 `EvaTaskQueryRepository.toUserEntity` 已改走 `bc-iam-contract` 端口 `UserEntityObjectByIdDirectQueryPort`（保持异常文案/副作用顺序不变；详见 4.2 与 `NEXT_SESSION_HANDOFF.md` 0.9；评教任务读侧最新落地：`6c5d6bce`）。
