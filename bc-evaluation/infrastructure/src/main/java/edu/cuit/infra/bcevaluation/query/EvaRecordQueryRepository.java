@@ -35,13 +35,18 @@ import edu.cuit.infra.dal.database.mapper.course.SemesterMapper;
 import edu.cuit.infra.dal.database.mapper.course.SubjectMapper;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
-import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -65,7 +70,9 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
     private final UserConverter userConverter;
     private final UserEntityObjectByIdDirectQueryPort userEntityObjectByIdDirectQueryPort;
     private final CourseConvertor courseConvertor;
-    private final SysUserMapper sysUserMapper;
+    @Autowired
+    @Qualifier("sysUserMapper")
+    private Object sysUserMapper;
     private final SemesterMapper semesterMapper;
     private final SubjectMapper subjectMapper;
     private final CourInfObjectDirectQueryPort courInfObjectDirectQueryPort;
@@ -141,7 +148,7 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
         }
 
         if(query.getQueryObj().getDepartmentName()!=null&&StringUtils.isNotBlank(query.getQueryObj().getDepartmentName())){
-            List<Integer> sysUserIds=sysUserMapper.selectList(new QueryWrapper<SysUserDO>().eq(query.getQueryObj().getKeyword()!=null,"department",query.getQueryObj().getDepartmentName()))
+            List<Integer> sysUserIds=selectSysUserList(new QueryWrapper<SysUserDO>().eq(query.getQueryObj().getKeyword()!=null,"department",query.getQueryObj().getDepartmentName()))
                     .stream().map(SysUserDO::getId).toList();
             if(CollectionUtil.isEmpty(sysUserIds)){
                 List list=new ArrayList();
@@ -194,7 +201,7 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
             List list=new ArrayList();
             return paginationConverter.toPaginationEntity(pageLog,list);
         }
-        List<SysUserDO> sysUserDOS=sysUserMapper.selectList(new QueryWrapper<SysUserDO>().in("id",userIds));
+        List<SysUserDO> sysUserDOS=selectSysUserList(new QueryWrapper<SysUserDO>().in("id",userIds));
         if(CollectionUtil.isEmpty(sysUserDOS)){
             List list=new ArrayList();
             return paginationConverter.toPaginationEntity(pageLog,list);
@@ -234,7 +241,7 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
             //根据关键字来查询相关的课程或者老师
             QueryWrapper<SysUserDO> teacherWrapper = new QueryWrapper<>();
             teacherWrapper.like("name", keyword);
-            List<Integer> teacherIds = sysUserMapper.selectList(teacherWrapper).stream().map(SysUserDO::getId).toList();
+            List<Integer> teacherIds = selectSysUserList(teacherWrapper).stream().map(SysUserDO::getId).toList();
             //关键字查询课程名称subject->课程->课程详情
             QueryWrapper<SubjectDO> subjectWrapper = new QueryWrapper<>();
             subjectWrapper.like("name", keyword);
@@ -303,7 +310,7 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
         List<SingleCourseEntity> courseEntities=courInfDOS.stream().map(courInfDO -> courseConvertor.toSingleCourseEntity(
                 ()->toCourseEntity(courInfDO.getCourseId(),courseMapper.selectById(courInfDO.getCourseId()).getSemesterId()),courInfDO)).toList();
 
-        SysUserDO teacher=sysUserMapper.selectById(evaUserId);
+        SysUserDO teacher=selectSysUserById(evaUserId);
         List<SysUserDO> teachers=new ArrayList<>();
         teachers.add(teacher);
 
@@ -368,7 +375,7 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
             List list=new ArrayList();
             return list;
         }else {
-            sysUserDOS=sysUserMapper.selectList(new QueryWrapper<SysUserDO>().in("id",userIds));
+            sysUserDOS=selectSysUserList(new QueryWrapper<SysUserDO>().in("id",userIds));
         }
         List<Object> userEntities=sysUserDOS.stream().map(sysUserDO->toUserEntity(sysUserDO.getId())).toList();
 
@@ -569,6 +576,46 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
     private List<SingleCourseEntity> getListCurInfoEntities(List<CourInfDO> courInfDOS){
         return courInfDOS.stream().map(courInfDO ->courseConvertor.toSingleCourseEntity(
                 ()->toCourseEntity(courInfDO.getCourseId(),courseMapper.selectById(courInfDO.getCourseId()).getSemesterId()),courInfDO)).toList();
+    }
+
+    private List<SysUserDO> selectSysUserList(Object wrapper) {
+        try {
+            Method selectList = Arrays.stream(sysUserMapper.getClass().getMethods())
+                    .filter(m -> m.getName().equals("selectList") && m.getParameterCount() == 1)
+                    .findFirst()
+                    .orElseThrow(() -> new NoSuchMethodException("selectList"));
+            Object result = selectList.invoke(sysUserMapper, wrapper);
+            return (List<SysUserDO>) result;
+        } catch (InvocationTargetException e) {
+            Throwable targetException = e.getTargetException();
+            if (targetException instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            if (targetException instanceof Error error) {
+                throw error;
+            }
+            throw new RuntimeException(targetException);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private SysUserDO selectSysUserById(Serializable userId) {
+        try {
+            Method selectById = sysUserMapper.getClass().getMethod("selectById", Serializable.class);
+            return (SysUserDO) selectById.invoke(sysUserMapper, userId);
+        } catch (InvocationTargetException e) {
+            Throwable targetException = e.getTargetException();
+            if (targetException instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            if (targetException instanceof Error error) {
+                throw error;
+            }
+            throw new RuntimeException(targetException);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     //根据传来的String数据form_props_values中的数据解析出来得到平均分
