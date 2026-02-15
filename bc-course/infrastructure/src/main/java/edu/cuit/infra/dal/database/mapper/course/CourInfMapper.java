@@ -15,6 +15,3 @@ public interface CourInfMapper extends MPJBaseMapper<CourInfDO> {
 
 }
 
-
-
-
