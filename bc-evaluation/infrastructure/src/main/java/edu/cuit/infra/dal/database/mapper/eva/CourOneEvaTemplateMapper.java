@@ -16,6 +16,3 @@ public interface CourOneEvaTemplateMapper extends MPJBaseMapper<CourOneEvaTempla
 
 }
 
-
-
-
