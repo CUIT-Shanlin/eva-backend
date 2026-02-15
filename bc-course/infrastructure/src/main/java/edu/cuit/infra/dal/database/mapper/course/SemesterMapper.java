@@ -16,6 +16,3 @@ public interface SemesterMapper extends MPJBaseMapper<SemesterDO> {
 
 }
 
-
-
-
