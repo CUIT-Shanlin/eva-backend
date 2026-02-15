@@ -15,14 +15,18 @@ import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.eva.CourOneEvaTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
-import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 
 /**
@@ -37,7 +41,9 @@ public class DeleteEvaRecordRepositoryImpl implements DeleteEvaRecordRepository 
     private final CourseMapper courseMapper;
     private final CourInfTimeSlotQueryPort courInfTimeSlotQueryPort;
     private final CourInfIdsByCourseIdsQueryPort courInfIdsByCourseIdsQueryPort;
-    private final SysUserMapper sysUserMapper;
+    @Autowired
+    @Qualifier("sysUserMapper")
+    private Object sysUserMapper;
     private final EvaCacheConstants evaCacheConstants;
     private final LocalCacheManager localCacheManager;
 
@@ -65,7 +71,7 @@ public class DeleteEvaRecordRepositoryImpl implements DeleteEvaRecordRepository 
                 if (courseDO == null) {
                     throw new DeleteEvaRecordQueryException("没有找到相关课程");
                 }
-                LogUtils.logContent(sysUserMapper.selectById(evaTaskMapper.selectById(formRecordDO.getTaskId()).getTeacherId()).getName()
+                LogUtils.logContent(selectSysUserNameById(evaTaskMapper.selectById(formRecordDO.getTaskId()).getTeacherId())
                         + " 用户评教任务ID为" + formRecordDO.getTaskId() + "的评教记录");
                 formRecordMapper.delete(formRecordWrapper);
 
@@ -96,6 +102,26 @@ public class DeleteEvaRecordRepositoryImpl implements DeleteEvaRecordRepository 
                 localCacheManager.invalidateCache(evaCacheConstants.ONE_LOG, String.valueOf(id));
                 localCacheManager.invalidateCache(null, evaCacheConstants.LOG_LIST);
             }
+        }
+    }
+
+    private String selectSysUserNameById(Serializable userId) {
+        try {
+            Method selectById = sysUserMapper.getClass().getMethod("selectById", Serializable.class);
+            Object sysUser = selectById.invoke(sysUserMapper, userId);
+            Method getName = sysUser.getClass().getMethod("getName");
+            return (String) getName.invoke(sysUser);
+        } catch (InvocationTargetException e) {
+            Throwable targetException = e.getTargetException();
+            if (targetException instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            if (targetException instanceof Error error) {
+                throw error;
+            }
+            throw new RuntimeException(targetException);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
         }
     }
 }
