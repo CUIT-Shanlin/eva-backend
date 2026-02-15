@@ -15,6 +15,3 @@ import org.apache.ibatis.annotations.Mapper;
 public interface FormTemplateMapper extends MPJBaseMapper<FormTemplateDO> {
 }
 
-
-
-
