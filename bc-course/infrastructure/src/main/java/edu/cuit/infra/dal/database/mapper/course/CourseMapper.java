@@ -15,6 +15,3 @@ public interface CourseMapper extends MPJBaseMapper<CourseDO> {
 
 }
 
-
-
-
