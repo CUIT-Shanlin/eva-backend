@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-15（SysUserMapper 归位前置，单类：`EvaUpdateGatewayImpl` 去 `SysUserMapper` 编译期依赖，保持行为不变）**
+- ✅ 背景（保持行为不变）：`SysUserMapper` 当前仍在 `eva-infra-dal`，但其归位目标是 `bc-iam/infrastructure`。归位前必须逐个清理非 IAM 模块对其编译期依赖，否则会导致编译失败。
+- ✅ 执行（单类，保持行为不变）：`EvaUpdateGatewayImpl` 将 `SysUserMapper` 注入改为按 `beanName` 注入 `Object`（`@Qualifier("sysUserMapper")`）并通过反射调用 `selectById(Serializable)` + `getName()`；`localCacheManager.invalidateCache(...)` 的 key 计算与调用顺序保持不变。
+- 🧪 最小回归通过（Java17 + mvnd）：命令以 0.11 为准（`mvnd -pl start -am test -Dtest=edu.cuit.app.eva.EvaRecordServiceImplTest,edu.cuit.app.eva.EvaStatisticsServiceImplTest ...`）。
+- 📌 代码落地：`364c63a0`。
+
 **2026-02-15（SysUserMapper 归位前置，单类：`CourseConvertor` 去 `SysUserMapper` import，保持行为不变）**
 - ✅ 背景（保持行为不变）：`SysUserMapper` 当前仍在 `eva-infra-dal`，但其归位目标是 `bc-iam/infrastructure`。在归位前必须清理所有非 IAM 模块对其编译期依赖，否则会导致编译失败。
 - ✅ 执行（单类，保持行为不变）：`CourseConvertor` 中仅存在 `SysUserMapper` 的无用 import（未参与 `@Mapper(uses=...)`，亦无任何符号引用）。本刀仅移除该 import，避免后续搬运 `SysUserMapper` 时 `eva-infra-shared` 编译失败。
