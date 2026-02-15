@@ -13,19 +13,22 @@ import edu.cuit.infra.dal.database.dataobject.eva.CourOneEvaTemplateDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO;
 import edu.cuit.infra.dal.database.dataobject.eva.FormTemplateDO;
-import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.eva.CourOneEvaTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormTemplateMapper;
-import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -43,7 +46,9 @@ public class SubmitEvaluationRepositoryImpl implements SubmitEvaluationRepositor
     private final CourseMapper courseMapper;
     private final FormTemplateMapper formTemplateMapper;
     private final CourOneEvaTemplateMapper courOneEvaTemplateMapper;
-    private final SysUserMapper sysUserMapper;
+    @Autowired
+    @Qualifier("sysUserMapper")
+    private Object sysUserMapper;
     private final EvaCacheConstants evaCacheConstants;
     private final LocalCacheManager localCacheManager;
 
@@ -54,7 +59,7 @@ public class SubmitEvaluationRepositoryImpl implements SubmitEvaluationRepositor
             return null;
         }
 
-        SysUserDO evaluator = sysUserMapper.selectById(task.getTeacherId());
+        Object evaluator = selectSysUserById(task.getTeacherId());
         Integer courseId = task.getCourInfId() == null
                 ? null
                 : courseIdByCourInfIdQueryPort.findCourseIdByCourInfId(task.getCourInfId()).orElse(null);
@@ -64,7 +69,7 @@ public class SubmitEvaluationRepositoryImpl implements SubmitEvaluationRepositor
         return new SubmitEvaluationContext(
                 taskId,
                 task.getTeacherId(),
-                evaluator == null ? null : evaluator.getName(),
+                evaluator == null ? null : selectSysUserName(evaluator),
                 task.getCourInfId(),
                 courseId,
                 course == null ? null : course.getSemesterId(),
@@ -119,8 +124,8 @@ public class SubmitEvaluationRepositoryImpl implements SubmitEvaluationRepositor
         localCacheManager.invalidateCache(null, evaCacheConstants.LOG_LIST);
         String evaluatorName = context.evaluatorName();
         if (evaluatorName == null && task.getTeacherId() != null) {
-            SysUserDO user = sysUserMapper.selectById(task.getTeacherId());
-            evaluatorName = user == null ? null : user.getName();
+            Object user = selectSysUserById(task.getTeacherId());
+            evaluatorName = user == null ? null : selectSysUserName(user);
         }
         if (evaluatorName != null) {
             localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_TEACH, evaluatorName);
@@ -148,6 +153,42 @@ public class SubmitEvaluationRepositoryImpl implements SubmitEvaluationRepositor
             newSnapshot.setFormTemplate(JSONUtil.toJsonStr(templateJson));
 
             courOneEvaTemplateMapper.insert(newSnapshot);
+        }
+    }
+
+    private Object selectSysUserById(Serializable userId) {
+        try {
+            Method selectById = sysUserMapper.getClass().getMethod("selectById", Serializable.class);
+            return selectById.invoke(sysUserMapper, userId);
+        } catch (InvocationTargetException e) {
+            Throwable targetException = e.getTargetException();
+            if (targetException instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            if (targetException instanceof Error error) {
+                throw error;
+            }
+            throw new RuntimeException(targetException);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String selectSysUserName(Object sysUser) {
+        try {
+            Method getName = sysUser.getClass().getMethod("getName");
+            return (String) getName.invoke(sysUser);
+        } catch (InvocationTargetException e) {
+            Throwable targetException = e.getTargetException();
+            if (targetException instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            if (targetException instanceof Error error) {
+                throw error;
+            }
+            throw new RuntimeException(targetException);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
         }
     }
 }
