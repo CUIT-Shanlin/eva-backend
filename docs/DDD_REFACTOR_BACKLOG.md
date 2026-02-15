@@ -111,6 +111,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 **已完成（更新至 2026-02-15）**
 - ✅ 会话补充（2026-02-15，保持行为不变）：为承接“已归位 XML → 逐类归位 `eva-infra-dal` Mapper 接口”的下一阶段，先做 1 刀编译闭合前置：在 `bc-evaluation/infrastructure/pom.xml` 显式增加对 `bc-course-infra` 的 Maven 编译期依赖（单 pom；最小回归通过；落地：`eb0bbbec`）；同时完成进度汇报 + 排期固化 + 三文档同步。当前 `eva-infra-dal/src/main/resources` 目录已不存在（所有 XML 已按单资源归位到各 BC），后续证据命令需使用“目录不存在=0”的口径（详见 `NEXT_SESSION_HANDOFF.md` 0.9/0.10/0.11）。
+- ✅ S0.2 延伸（DAL 拆散试点：课程域 `course`，保持行为不变，逐类归位）：`CourseMapper` 已从 `eva-infra-dal` 搬运归位到 `bc-course/infrastructure`（保持 `package edu.cuit.infra.dal.database.mapper.course` 不变，仅改变 Maven 模块归属；最小回归通过；落地：`049be80f`）。口径更新：`eva-infra-dal` Java 余量为 `22`（`fd -t f -e java . eva-infra-dal/src/main/java | wc -l`）。
 - ✅ S0.2 延伸（课程/评教：DAL XML 按 BC 归位收尾，保持行为不变，单资源闭环）：已完成 `CourseMapper.xml`（`cccf39ec`）、`SemesterMapper.xml`（`29d9b208`）归位到 `bc-course/infrastructure`；已完成 `CourOneEvaTemplateMapper.xml`（`7aba53e1`）、`EvaTemplateMapper.xml`（`fa3d9181`，注意 namespace 实为 `FormTemplateMapper`）、`FormRecordMapper.xml`（`e9e32fdf`）归位到 `bc-evaluation/infrastructure`，并同步删除 `eva-infra-dal` 旧位置同名文件以避免 classpath 重复导致 MyBatis 启动失败（最小回归通过；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ 主线口径更新（更新至 2026-02-12，保持行为不变）：已在三文档明确切换为 **方案 B（严格）** —— 彻底退场 `eva-*` 技术切片；验收以 `DDD_REFACTOR_PLAN.md` 10.5.B 的 DoD 为准。
 - ✅ 方案 B（严格，保持行为不变，单 pom）：已在 `shared-kernel/pom.xml` 增加 `zym-spring-boot-starter-jdbc` 与 `jackson-databind`，作为 `CourseFormat` 下沉前置（承接 `QueryWrapper/ObjectMapper` 编译依赖；最小回归通过；落地：`322bb315`）。
