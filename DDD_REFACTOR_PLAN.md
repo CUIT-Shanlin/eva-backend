@@ -595,6 +595,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 补充进展（2026-02-12，保持行为不变，支撑类归位）：将 `QueryUtils` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.util` 不变；类内容不变；最小回归通过；落地：`e653338f`）。
 - 补充进展（2026-02-12，保持行为不变，支撑类归位）：将 `PaginationConverter` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.convertor` 不变；类内容不变；最小回归通过；落地：`d2ca2d80`）。
 - 补充进展（2026-02-12，保持行为不变，支撑类归位）：将 `PaginationBizConvertor` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.app.convertor` 不变；类内容不变；Serena：引用面命中 `bc-audit/bc-course/bc-iam/start`；最小回归通过；落地：`2b950a06`）。
+- ✅ 补充进展（2026-02-16，保持行为不变，shared-kernel 下沉，单类）：将 `PaginationBizConvertor` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package` 与类内容不变，仅改变 Maven 模块归属；最小回归通过；落地：`67a61098`）。
 - 补充进展（2026-02-06，保持行为不变，依赖收敛，单 pom）：收敛 `bc-audit/infrastructure/pom.xml`：移除对 `eva-infra-dal` 的冗余 Maven 直依赖（前置：`eva-infra-shared/pom.xml` 已显式依赖 `eva-infra-dal`；最小回归通过；落地：`91fd39a9`）。
 - 补充进展（2026-02-06，保持行为不变，依赖收敛，单 pom）：收敛 `bc-evaluation/infrastructure/pom.xml`：移除对 `eva-infra-dal` 的冗余 Maven 直依赖（前置：`eva-infra-shared/pom.xml` 已显式依赖 `eva-infra-dal`；最小回归通过；落地：`a0b5a359`）。
 - 补充进展（2026-02-06，保持行为不变，依赖收敛，单 pom）：收敛 `bc-iam/infrastructure/pom.xml`：移除对 `eva-infra-dal` 的冗余 Maven 直依赖（前置：`eva-infra-shared/pom.xml` 已显式依赖 `eva-infra-dal`；最小回归通过；落地：`d7caa268`）。
