@@ -14,7 +14,6 @@ import edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO;
 import edu.cuit.infra.dal.database.dataobject.eva.FormTemplateDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.course.*;
-import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.infra.enums.cache.CourseCacheConstants;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
@@ -43,7 +42,7 @@ public class CourseImportExce {
     private final Object evaTaskMapper;
     private final Object recordMapper;
     private final Object courOneEvaTemplateMapper;
-    private final SysUserMapper userMapper;
+    private final Object userMapper;
     private final Object formTemplateMapper;
     private final LocalCacheManager cacheManager;
     private final CourseCacheConstants courseCacheConstants;
@@ -59,7 +58,7 @@ public class CourseImportExce {
             @Qualifier("evaTaskMapper") Object evaTaskMapper,
             @Qualifier("formRecordMapper") Object recordMapper,
             @Qualifier("courOneEvaTemplateMapper") Object courOneEvaTemplateMapper,
-            SysUserMapper userMapper,
+            @Qualifier("sysUserMapper") Object userMapper,
             @Qualifier("formTemplateMapper") Object formTemplateMapper,
             LocalCacheManager cacheManager,
             CourseCacheConstants courseCacheConstants,
@@ -156,7 +155,12 @@ public class CourseImportExce {
 /*                if(courseExcelBO.getProfTitle()==null){
                     courseExcelBO.setProfTitle("讲师");
                 }*/
-                SysUserDO userDO = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("name", courseExcelBO.getTeacherName()));/*.eq("prof_title", courseExcelBO.getProfTitle()))*/;
+                SysUserDO userDO = invoke(
+                        userMapper,
+                        "selectOne",
+                        new Class<?>[]{Wrapper.class},
+                        new Object[]{new QueryWrapper<SysUserDO>().eq("name", courseExcelBO.getTeacherName())}
+                );/*.eq("prof_title", courseExcelBO.getProfTitle()))*/;
                 if(userDO==null){//如果老师不存在就把，课程就放弃
 //                    subjectMapper.deleteById(id);
                     continue;
