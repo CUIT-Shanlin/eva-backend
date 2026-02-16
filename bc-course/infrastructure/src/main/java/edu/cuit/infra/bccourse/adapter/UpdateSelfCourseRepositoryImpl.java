@@ -21,7 +21,6 @@ import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseTypeCourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseTypeMapper;
 import edu.cuit.infra.dal.database.mapper.course.SubjectMapper;
-import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.infra.enums.cache.ClassroomCacheConstants;
 import edu.cuit.infra.enums.cache.CourseCacheConstants;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
@@ -49,7 +48,9 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class UpdateSelfCourseRepositoryImpl implements UpdateSelfCourseRepository {
-    private final SysUserMapper userMapper;
+    @Autowired
+    @Qualifier("sysUserMapper")
+    private Object userMapper;
     private final CourseMapper courseMapper;
     private final SubjectMapper subjectMapper;
     private final CourseTypeCourseMapper courseTypeCourseMapper;
@@ -68,7 +69,7 @@ public class UpdateSelfCourseRepositoryImpl implements UpdateSelfCourseRepositor
     @Transactional
     public Map<String, Map<Integer, Integer>> update(String userName, SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeInfoCO> timeList) {
         String msg = null;
-        SysUserDO userDO = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("username", userName));
+        SysUserDO userDO = (SysUserDO) invokeSelectOne(userMapper, new QueryWrapper<SysUserDO>().eq("username", userName));
         if (userDO == null) {
             throw new QueryException("用户不存在");
         }
@@ -117,7 +118,7 @@ public class UpdateSelfCourseRepositoryImpl implements UpdateSelfCourseRepositor
                 .map(EvaTaskDO::getCourInfId)
                 .toList();
         List<CourInfDO> courInfoList = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseDO.getId()));
-        SysUserDO userDO = userMapper.selectById(courseDO.getTeacherId());
+        SysUserDO userDO = (SysUserDO) invokeSelectById(userMapper, courseDO.getTeacherId());
         List<CourInfDO> courseChangeList = new ArrayList<>();
         for (SelfTeachCourseTimeInfoCO selfTeachCourseTimeCO : timeList) {
             for (Integer week : selfTeachCourseTimeCO.getWeeks()) {
@@ -216,6 +217,30 @@ public class UpdateSelfCourseRepositoryImpl implements UpdateSelfCourseRepositor
         try {
             Method method = resolveSingleArgMethod(mapper, "selectList", queryWrapper);
             return method.invoke(mapper, queryWrapper);
+        } catch (InvocationTargetException e) {
+            sneakyThrow(e.getTargetException());
+            return null;
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private static Object invokeSelectOne(Object mapper, Object queryWrapper) {
+        try {
+            Method method = resolveSingleArgMethod(mapper, "selectOne", queryWrapper);
+            return method.invoke(mapper, queryWrapper);
+        } catch (InvocationTargetException e) {
+            sneakyThrow(e.getTargetException());
+            return null;
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private static Object invokeSelectById(Object mapper, Object id) {
+        try {
+            Method method = resolveSingleArgMethod(mapper, "selectById", id);
+            return method.invoke(mapper, id);
         } catch (InvocationTargetException e) {
             sneakyThrow(e.getTargetException());
             return null;
@@ -327,7 +352,7 @@ public class UpdateSelfCourseRepositoryImpl implements UpdateSelfCourseRepositor
 
             course.setSubjectId(subject.getId());
             courseMapper.update(course, new QueryWrapper<CourseDO>().eq("id", selfTeachCourseCO.getId()));
-            SysUserDO userDO = userMapper.selectById(courseDO.getTeacherId());
+            SysUserDO userDO = (SysUserDO) invokeSelectById(userMapper, courseDO.getTeacherId());
             localCacheManager.invalidateCache(courseCacheConstants.SUBJECT_LIST, courseCacheConstants.COURSE_LIST_BY_SEM + courseDO.getSemesterId());
             return msg + userDO.getName() + "老师的" + name + "课程的名称被改成了" + subjectDO.getName() + "，类型是" + natureExp + "。";
         }
