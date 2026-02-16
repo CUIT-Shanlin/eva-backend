@@ -14,7 +14,6 @@ import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseTypeCourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.SubjectMapper;
-import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.infra.enums.cache.ClassroomCacheConstants;
 import edu.cuit.infra.enums.cache.CourseCacheConstants;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
@@ -50,7 +49,12 @@ public class DeleteSelfCourseRepositoryImpl implements DeleteSelfCourseRepositor
     @Autowired
     @Qualifier("formRecordMapper")
     private Object formRecordMapper;
-    private final SysUserMapper userMapper;
+    /**
+     * SysUserMapper 归位前置（编译期清零）：不再直接依赖 IAM Mapper 类型；仍保持原 MyBatis 调用语义，通过反射调用对应方法（保持行为不变）。
+     */
+    @Autowired
+    @Qualifier("sysUserMapper")
+    private Object userMapper;
     private final LocalCacheManager localCacheManager;
     private final CourseCacheConstants courseCacheConstants;
     private final EvaCacheConstants evaCacheConstants;
@@ -63,7 +67,7 @@ public class DeleteSelfCourseRepositoryImpl implements DeleteSelfCourseRepositor
             throw new QueryException("请先登录");
         }
         // 先根据 userName 来找到用户id
-        SysUserDO userDO = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("username", userName));
+        SysUserDO userDO = selectSysUserByUserName(userName);
         if (userDO == null) {
             throw new QueryException("你已经被删除了");
         }
@@ -118,6 +122,26 @@ public class DeleteSelfCourseRepositoryImpl implements DeleteSelfCourseRepositor
         localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(courseDO.getSemesterId()));
         localCacheManager.invalidateCache(null, classroomCacheConstants.ALL_CLASSROOM);
         return map;
+    }
+
+    private SysUserDO selectSysUserByUserName(String userName) {
+        Object result = invokeSelectOne(userMapper, new QueryWrapper<SysUserDO>().eq("username", userName));
+        if (result == null) {
+            return null;
+        }
+        return (SysUserDO) result;
+    }
+
+    private static Object invokeSelectOne(Object mapper, Object queryWrapper) {
+        try {
+            Method method = resolveSingleArgMethod(mapper, "selectOne", queryWrapper);
+            return method.invoke(mapper, queryWrapper);
+        } catch (InvocationTargetException e) {
+            sneakyThrow(e.getTargetException());
+            return null;
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private static Object invokeSelectList(Object mapper, Object queryWrapper) {
