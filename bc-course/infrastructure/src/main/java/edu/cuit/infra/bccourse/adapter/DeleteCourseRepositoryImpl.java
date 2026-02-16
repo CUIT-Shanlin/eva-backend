@@ -12,7 +12,6 @@ import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.SubjectMapper;
-import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.infra.enums.cache.ClassroomCacheConstants;
 import edu.cuit.infra.enums.cache.CourseCacheConstants;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
@@ -27,6 +26,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,7 +49,12 @@ public class DeleteCourseRepositoryImpl implements DeleteCourseRepository {
     @Autowired
     @Qualifier("evaTaskMapper")
     private Object evaTaskMapper;
-    private final SysUserMapper userMapper;
+    /**
+     * SysUserMapper 归位前置（编译期清零）：不再直接依赖 IAM Mapper 类型；仍保持原 MyBatis 调用语义，通过反射调用对应方法（保持行为不变）。
+     */
+    @Autowired
+    @Qualifier("sysUserMapper")
+    private Object userMapper;
     private final LocalCacheManager localCacheManager;
     private final CourseCacheConstants courseCacheConstants;
     @Autowired
@@ -70,7 +76,7 @@ public class DeleteCourseRepositoryImpl implements DeleteCourseRepository {
         if (courseDO == null) {
             throw new QueryException("课程已经被删除，或者不存在");
         }
-        SysUserDO userDO = userMapper.selectById(courseDO.getTeacherId());
+        SysUserDO userDO = selectSysUserById(courseDO.getTeacherId());
         SubjectDO subjectDO = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("id", courseDO.getSubjectId()));
         String natureName = CourseFormat.getNatureName(subjectDO.getNature());
         String name = subjectDO.getName();
@@ -121,6 +127,24 @@ public class DeleteCourseRepositoryImpl implements DeleteCourseRepository {
         localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(semId));
         localCacheManager.invalidateCache(null, classroomCacheConstants.ALL_CLASSROOM);
         return map;
+    }
+
+    private SysUserDO selectSysUserById(Serializable userId) {
+        try {
+            Method selectById = userMapper.getClass().getMethod("selectById", Serializable.class);
+            return (SysUserDO) selectById.invoke(userMapper, userId);
+        } catch (InvocationTargetException e) {
+            Throwable targetException = e.getTargetException();
+            if (targetException instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            if (targetException instanceof Error error) {
+                throw error;
+            }
+            throw new RuntimeException(targetException);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private List<EvaTaskDO> selectEvaTaskList(QueryWrapper<EvaTaskDO> qw) {
