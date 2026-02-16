@@ -12,16 +12,20 @@ import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseTypeCourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.SubjectMapper;
-import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.infra.enums.cache.ClassroomCacheConstants;
 import edu.cuit.infra.enums.cache.CourseCacheConstants;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,7 +43,12 @@ public class UpdateCourseInfoRepositoryImpl implements UpdateCourseInfoRepositor
     private final CourseMapper courseMapper;
     private final SubjectMapper subjectMapper;
     private final CourseTypeCourseMapper courseTypeCourseMapper;
-    private final SysUserMapper userMapper;
+    /**
+     * SysUserMapper 归位前置（编译期清零）：不再直接依赖 IAM Mapper 类型；仍保持原 MyBatis 调用语义，通过反射调用对应方法（保持行为不变）。
+     */
+    @Autowired
+    @Qualifier("sysUserMapper")
+    private Object userMapper;
     private final LocalCacheManager localCacheManager;
     private final CourseCacheConstants courseCacheConstants;
     private final EvaCacheConstants evaCacheConstants;
@@ -57,7 +66,7 @@ public class UpdateCourseInfoRepositoryImpl implements UpdateCourseInfoRepositor
         if (courseDO == null) {
             throw new QueryException("没有该课程");
         }
-        SysUserDO userDO = userMapper.selectById(courseDO.getTeacherId());
+        SysUserDO userDO = selectSysUserById(courseDO.getTeacherId());
 
         if (Boolean.TRUE.equals(updateCourseCmd.getIsUpdate())) {
             Integer subjectId = courseDO.getSubjectId();
@@ -128,5 +137,23 @@ public class UpdateCourseInfoRepositoryImpl implements UpdateCourseInfoRepositor
         localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(semId));
         localCacheManager.invalidateCache(null, classroomCacheConstants.ALL_CLASSROOM);
         return map;
+    }
+
+    private SysUserDO selectSysUserById(Serializable userId) {
+        try {
+            Method selectById = userMapper.getClass().getMethod("selectById", Serializable.class);
+            return (SysUserDO) selectById.invoke(userMapper, userId);
+        } catch (InvocationTargetException e) {
+            Throwable targetException = e.getTargetException();
+            if (targetException instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            if (targetException instanceof Error error) {
+                throw error;
+            }
+            throw new RuntimeException(targetException);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
