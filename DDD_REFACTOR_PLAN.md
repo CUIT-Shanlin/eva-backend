@@ -593,6 +593,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 会话收口快照（2026-02-13，保持行为不变）：当前仍保留 `eva-infra-dal/eva-infra-shared/eva-base` 三个 reactor 模块；余量为 `eva-infra-dal`=`23` Java + `0` XML、`eva-infra-shared`=`9` Java、`eva-base-common`=`2` Java。
 - ✅ 会话收口结论（2026-02-13，保持行为不变）：要达成“BC 相互独立、仅通过 contract/port 调用”，当前关键阻塞是跨 BC DAL 直连与共享依赖边界：`bc-evaluation/**` 对课程 mapper import 尚有 0 处（已按端口替换完成）；`bc-template/**` 对评教 mapper import 尚有 0 处（已清零编译期 import）；`bc-course/**` 对评教 mapper import 尚有 0 处（已清零编译期 import）；多 BC 仍显式依赖 `eva-infra-shared`。
 - 补充进展（2026-02-12，保持行为不变，支撑类归位）：将 `QueryUtils` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.util` 不变；类内容不变；最小回归通过；落地：`e653338f`）。
+- ✅ 补充进展（2026-02-16，保持行为不变，shared-kernel 下沉，单类）：将 `QueryUtils` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package` 与类内容不变，仅改变 Maven 模块归属；最小回归通过；落地：`f1638d20`）。
 - 补充进展（2026-02-12，保持行为不变，支撑类归位）：将 `PaginationConverter` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.convertor` 不变；类内容不变；最小回归通过；落地：`d2ca2d80`）。
 - ✅ 补充进展（2026-02-16，保持行为不变，shared-kernel 下沉，单类）：将 `PaginationConverter` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package` 与类内容不变，仅改变 Maven 模块归属；最小回归通过；落地：`0427f1d4`）。
 - 补充进展（2026-02-12，保持行为不变，支撑类归位）：将 `PaginationBizConvertor` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.app.convertor` 不变；类内容不变；Serena：引用面命中 `bc-audit/bc-course/bc-iam/start`；最小回归通过；落地：`2b950a06`）。
@@ -1114,7 +1115,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 - ✅ 已完成：`SysLogModuleMapper`、`SysLogMapper` 已归位到 `bc-audit/infrastructure`（详见 10.2 / `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ 已完成：`SysLogDO/SysLogModuleDO` 与 `SysLogMapper.xml/SysLogModuleMapper.xml` 已全部归位到 `bc-audit/infrastructure`（保持 `package/namespace/resultMap type/SQL` 与资源路径 `mapper/**` 不变）。
-- ✅ 依赖收敛证伪（保持行为不变；单 pom）：Serena 证据化确认 `bc-audit/infrastructure` 仍直接使用 `eva-infra-shared` 内类型（`QueryUtils/UserConverter/EntityFactory`）；其中 `PaginationConverter` 已下沉到 `shared-kernel`（`0427f1d4`），因此不再作为“必须保留 eva-infra-shared 依赖”的证据项。结论仍是：当前暂不可移除 `bc-audit/infrastructure` 对 `eva-infra-shared` 的依赖（详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
+- ✅ 依赖收敛证伪（保持行为不变；单 pom）：Serena 证据化确认 `bc-audit/infrastructure` 仍直接使用 `eva-infra-shared` 内类型（`UserConverter/EntityFactory`）；其中 `PaginationConverter` 已下沉到 `shared-kernel`（`0427f1d4`）、`QueryUtils` 已下沉到 `shared-kernel`（`f1638d20`），因此均不再作为“必须保留 eva-infra-shared 依赖”的证据项。结论仍是：当前暂不可移除 `bc-audit/infrastructure` 对 `eva-infra-shared` 的依赖（详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - 约束（保持行为不变）：Java `package`、MyBatis XML `namespace`、`resultMap type` 指向的 FQCN、资源路径 `mapper/**` 均保持不变。
 
 #### bc-messaging（消息）S0.2 延伸：websocket 支撑类逐类归位（保持行为不变）

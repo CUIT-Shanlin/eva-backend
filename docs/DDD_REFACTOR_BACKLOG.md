@@ -166,7 +166,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（shared 瘦身：EntityFactory 下沉到 DAL，单类，保持行为不变）：将 `EntityFactory` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.convertor` 与类内容不变；不引入新缓存/切面副作用；最小回归通过；落地：`eba15e92`）。
 - ✅ S0.2 延伸（支撑类归位：分页业务转换器，保持行为不变）：将 `PaginationBizConvertor` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.app.convertor` 不变；类内容不变；Serena：引用面命中 `bc-audit/bc-course/bc-iam/start`；最小回归通过；落地：`2b950a06`）。后续已继续下沉到 `shared-kernel`（保持行为不变；落地：`67a61098`）。
 - ✅ S0.2 延伸（编译闭合前置：通用查询工具，单 pom，保持行为不变）：在 `eva-infra-dal/pom.xml` 显式增加对 `shared-kernel` 的 Maven 编译期依赖，用于承接后续将 `QueryUtils` 从 `eva-infra-shared` 归位到 `eva-infra-dal`（最小回归通过；落地：`996b6990`）。
-- ✅ S0.2 延伸（支撑类归位：通用查询工具，保持行为不变）：将 `QueryUtils` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.util` 不变；类内容不变；最小回归通过；落地：`e653338f`）。
+- ✅ S0.2 延伸（支撑类归位：通用查询工具，保持行为不变）：将 `QueryUtils` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.util` 不变；类内容不变；最小回归通过；落地：`e653338f`）。后续已继续下沉到 `shared-kernel`（保持行为不变；落地：`f1638d20`）。
 - ✅ S0.2 延伸（支撑类归位：分页转换器，保持行为不变）：将 `PaginationConverter` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.convertor` 不变；类内容不变；最小回归通过；落地：`d2ca2d80`）。后续已继续下沉到 `shared-kernel`（保持行为不变；落地：`0427f1d4`）。
 - ✅ S0.2 延伸（评教：支撑类归位，保持行为不变）：将 `EvaConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-evaluation/infrastructure`（保持 `package edu.cuit.infra.convertor.eva` 不变；类内容不变；Serena：引用面仅命中 `bc-evaluation/infrastructure`；最小回归通过；落地：`4df4e9b8`）。
 - ✅ S0.2 延伸（IAM：支撑类归位，保持行为不变）：将 `RoleConverter` 从 `eva-infra-shared` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.convertor.user` 不变；类内容不变；Serena：引用面仅命中 `bc-iam/infrastructure`；最小回归通过；落地：`340c5ba8`）。
@@ -856,7 +856,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成：`SysLogDO`、`SysLogModuleDO` → `bc-audit/infrastructure`（保持 `package` 不变；保持行为不变；详见 4.2）。
   - ✅ 已完成：`SysLogMapper.xml` → `bc-audit/infrastructure`（保持 MyBatis XML `namespace`/`resultMap type`、资源路径 `mapper/**` 不变；保持行为不变；详见 4.2）。
   - ✅ 已完成：`SysLogModuleMapper.xml` → `bc-audit/infrastructure`（保持 MyBatis XML `namespace`/`resultMap type`、资源路径 `mapper/**` 不变；保持行为不变；详见 4.2）。
-- ✅ 依赖收敛证伪（保持行为不变；单 pom）：Serena 证据化确认 `bc-audit/infrastructure` 仍直接使用 `eva-infra-shared` 内类型（`QueryUtils/UserConverter/EntityFactory`）；其中 `PaginationConverter` 已下沉到 `shared-kernel`（`0427f1d4`），因此不再作为“必须保留 eva-infra-shared 依赖”的证据项。结论仍是：当前暂不可移除 `bc-audit/infrastructure` 对 `eva-infra-shared` 的依赖（详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
+- ✅ 依赖收敛证伪（保持行为不变；单 pom）：Serena 证据化确认 `bc-audit/infrastructure` 仍直接使用 `eva-infra-shared` 内类型（`UserConverter/EntityFactory`）；其中 `PaginationConverter` 已下沉到 `shared-kernel`（`0427f1d4`）、`QueryUtils` 已下沉到 `shared-kernel`（`f1638d20`），因此均不再作为“必须保留 eva-infra-shared 依赖”的证据项。结论仍是：当前暂不可移除 `bc-audit/infrastructure` 对 `eva-infra-shared` 的依赖（详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 
 - **S0.2 延伸（消息：DAL 按 BC 拆散试点，`msg_tip`，保持行为不变）**：
   - ✅ 已完成：`MsgTipMapper`、`MsgTipDO` → `bc-messaging`（保持 `package` 不变，仅改变 Maven 模块归属；详见 4.2 与 `NEXT_SESSION_HANDOFF.md` 0.9）。
@@ -1272,7 +1272,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - 📌 `eva-*` 整合路线（更新至 2026-02-11；保持行为不变；每刀只改 1 个文件闭环）：
    1) P0（优先，DAL 拆散试点扩展）：继续按“仅单 BC 引用才允许归位”推进 `eva-infra-dal` → `bc-*/infrastructure`。✅ 已补齐 IAM `sys_role` 候选的 XML：`eva-infra-dal/src/main/resources/mapper/user/SysRoleMapper.xml` → `bc-iam/infrastructure/src/main/resources/mapper/user/SysRoleMapper.xml`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；落地：`aa1d7c6b`）。✅ 课程域补充：`CourInfMapper.xml`（落地：`4eb6681c`）与 `SubjectMapper.xml`（落地：`92374d53`）均已完成单资源归位（`eva-infra-dal` → `bc-course/infrastructure`）。补充：课程域 `CourseMapper.xml/SemesterMapper.xml` 也已归位，导致 `eva-infra-dal/src/main/resources` 当前 XML 余量为 `0`；因此下一刀建议从“搬 XML”转为“清跨 BC mapper import”（详见 `NEXT_SESSION_HANDOFF.md` 0.11）。
        - ✅ 补充进展（2026-02-11，保持行为不变，shared 瘦身）：已完成 websocket 支撑类归位：`bc-evaluation-infra` 补齐对 `bc-messaging` 的依赖（落地：`4dd1b34f`），并将 `WebsocketManager` 从 `eva-infra-shared` 归位到 `bc-messaging`（落地：`bf78d276`），用于继续缩小 `eva-infra-shared` 表面积并为后续依赖收敛创造前置条件。
-       - ✅ 补充进展（2026-02-12，保持行为不变，shared 瘦身）：`QueryUtils` 从 `eva-infra-shared` 下沉到 `eva-infra-dal`；`PaginationConverter` 先下沉到 `eva-infra-dal`（`d2ca2d80`）后又继续下沉到 `shared-kernel`（`0427f1d4`）；`PaginationBizConvertor` 先下沉到 `eva-infra-dal`（`2b950a06`）后又继续下沉到 `shared-kernel`（`67a61098`）（均保持 `package` 与类内容不变，仅改变 Maven 模块归属；最小回归通过；详见 4.2 与 `NEXT_SESSION_HANDOFF.md` 0.9）。
+       - ✅ 补充进展（2026-02-12，保持行为不变，shared 瘦身）：`QueryUtils` 先下沉到 `eva-infra-dal`（`e653338f`）后又继续下沉到 `shared-kernel`（`f1638d20`）；`PaginationConverter` 先下沉到 `eva-infra-dal`（`d2ca2d80`）后又继续下沉到 `shared-kernel`（`0427f1d4`）；`PaginationBizConvertor` 先下沉到 `eva-infra-dal`（`2b950a06`）后又继续下沉到 `shared-kernel`（`67a61098`）（均保持 `package` 与类内容不变，仅改变 Maven 模块归属；最小回归通过；详见 4.2 与 `NEXT_SESSION_HANDOFF.md` 0.9）。
        - ✅ 补充进展（2026-02-12，保持行为不变，编译闭合前置，单 pom）：为后续下沉 `EntityFactory` 做准备，已在 `eva-infra-dal/pom.xml` 显式补齐 `hutool-all`、`cola-component-exception`、`mapstruct` 依赖（不改变业务语义/副作用顺序；最小回归通过；详见 4.2 与 `NEXT_SESSION_HANDOFF.md` 0.9）。
        - ✅ 补充进展（2026-02-12，保持行为不变；单类闭环）：已将 `EntityFactory` 从 `eva-infra-shared` 下沉到 `eva-infra-dal`（保持 `package` 与类内容不变；最小回归通过；落地：`eba15e92`）。
     2) P1（关键阻塞，shared 拆分）：`eva-infra-shared` 中存在跨 BC Convertor（例如 Serena 证据化：`CourseConvertor` 引用面跨 `bc-course/**` 与 `bc-evaluation/**`），因此像 `CourseTypeDO` 这类 DO 会因共享 Convertor 被动跨 BC 引用；在不改行为前提下，优先选择“继续保留共享但逐步瘦身/后置改名”或“收敛依赖方到 Port/Contract（高成本，高风险）”两条路径之一推进。
