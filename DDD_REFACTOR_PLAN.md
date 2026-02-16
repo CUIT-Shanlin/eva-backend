@@ -548,6 +548,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-16，保持行为不变，shared-kernel 下沉，单类）：已将 `SysRoleDO` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.dal.database.dataobject.user` 与类内容不变，仅改变 Maven 模块归属；最小回归通过；落地：`c5ba98b1`）。
 - ✅ 补充进展（2026-02-16，保持行为不变，shared-kernel 下沉，单类）：已将 `SysUserDO` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.dal.database.dataobject.user` 与类内容不变，仅改变 Maven 模块归属；最小回归通过；落地：`31e157cd`）。
 - ✅ 补充进展（2026-02-16，保持行为不变，shared-kernel 下沉，单类）：已将 `CourInfDO` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.dal.database.dataobject.course` 与类内容不变，仅改变 Maven 模块归属；最小回归通过；落地：`542e0231`）。
+- ✅ 补充进展（2026-02-16，保持行为不变，shared-kernel 下沉，单类）：已将 `CourseDO` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.dal.database.dataobject.course` 与类内容不变，仅改变 Maven 模块归属；最小回归通过；落地：`d822340e`）。
   - 下一刀建议（每刀 1 类，保持行为不变）：继续按“引用面仅命中单一 BC 才允许归位”的规则，逐类评估并归位 `eva-infra-dal` 的剩余 Java（优先引用面最窄的 Mapper/DO），每刀仍需 Serena 证据化后闭环；若引用面跨 BC，则继续留在 `eva-infra-dal` 作为过渡共享。
 - ✅ 补充进展（2026-02-12，保持行为不变，方案 1：跨 BC 直连清零，单类）：收敛评教侧对课程域 `CourInfMapper.selectById` 的跨 BC 直连：`EvaTemplateQueryRepository.getTaskTemplate(...)` 改为调用课程域查询端口 `CourseIdByCourInfIdQueryPort.findCourseIdByCourInfId(...)`（异常文案与分支顺序不变；最小回归通过；落地：`67755034`）。
 - ✅ 补充进展（2026-02-12，保持行为不变；跨 BC 直连清零前置，单类）：在 `bc-course/application` 新增最小查询端口 `CourseIdByCourInfIdQueryPort`（用于后续收敛其它 BC 对 `CourInfMapper` 的直连为通过端口查询 `cour_inf.id -> course_id`；最小回归通过；落地：`777ec8a9`）。
