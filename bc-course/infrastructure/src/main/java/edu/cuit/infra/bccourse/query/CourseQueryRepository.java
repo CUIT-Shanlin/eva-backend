@@ -46,7 +46,6 @@ import edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO;
 import edu.cuit.infra.dal.database.dataobject.eva.FormTemplateDO;
 import edu.cuit.infra.dal.database.dataobject.user.*;
 import edu.cuit.infra.dal.database.mapper.course.*;
-import edu.cuit.infra.dal.database.mapper.user.*;
 import edu.cuit.infra.enums.cache.CourseCacheConstants;
 import edu.cuit.infra.gateway.impl.course.operate.CourseFormat;
 import edu.cuit.infra.gateway.impl.course.operate.CourseImportExce;
@@ -59,6 +58,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -83,7 +83,7 @@ public class CourseQueryRepository implements CourseQueryRepo {
     private final CourseTypeMapper courseTypeMapper;
     private final SemesterMapper semesterMapper;
     private final SubjectMapper subjectMapper;
-    private final SysUserMapper userMapper;
+    private final Object userMapper;
     private final UserEntityObjectByIdDirectQueryPort userEntityObjectByIdDirectQueryPort;
     private final Object courOneEvaTemplateMapper;
     private final Object evaTaskMapper;
@@ -105,7 +105,7 @@ public class CourseQueryRepository implements CourseQueryRepo {
             CourseTypeMapper courseTypeMapper,
             SemesterMapper semesterMapper,
             SubjectMapper subjectMapper,
-            SysUserMapper userMapper,
+            @Qualifier("sysUserMapper") Object userMapper,
             UserEntityObjectByIdDirectQueryPort userEntityObjectByIdDirectQueryPort,
             @Qualifier("courOneEvaTemplateMapper") Object courOneEvaTemplateMapper,
             @Qualifier("evaTaskMapper") Object evaTaskMapper,
@@ -158,7 +158,12 @@ public class CourseQueryRepository implements CourseQueryRepo {
         // 根据courseQuery中的departmentName以及courseQuery中的页数和一页显示数到userMapper中找对应数量的对应用户id，
         List<Integer> userIds=new ArrayList<>();
         if(courseQuery.getQueryObj().getDepartmentName()!=null&&!courseQuery.getQueryObj().getDepartmentName().isEmpty()){
-            List<SysUserDO> users = userMapper.selectList(new QueryWrapper<SysUserDO>().like("department", courseQuery.getQueryObj().getDepartmentName()));
+            List<SysUserDO> users = invoke(
+                    userMapper,
+                    "selectList",
+                    new Class<?>[]{Wrapper.class},
+                    new Object[]{new QueryWrapper<SysUserDO>().like("department", courseQuery.getQueryObj().getDepartmentName())}
+            );
             if (users.isEmpty())return paginationConverter.toPaginationEntity(pageCourse, new ArrayList<>());
 
             userIds=users.stream().map(SysUserDO::getId).toList();
@@ -230,7 +235,12 @@ public class CourseQueryRepository implements CourseQueryRepo {
         SubjectDO subjectDO = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("id", courseDO.getSubjectId()));
         if(subjectDO==null)throw new QueryException("该课程对应的科目不存在");
         //根据courseDO中的teacherId来查询课程对应的教师信息
-        SysUserDO sysUserDO = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("id", courseDO.getTeacherId()));
+        SysUserDO sysUserDO = invoke(
+                userMapper,
+                "selectOne",
+                new Class<?>[]{Wrapper.class},
+                new Object[]{new QueryWrapper<SysUserDO>().eq("id", courseDO.getTeacherId())}
+        );
         if(sysUserDO==null)throw new QueryException("该课程对应的教师不存在");
         //先根据课程ID来查询课程detail信息
         List<String> classRoomList = new ArrayList<>();
@@ -382,7 +392,13 @@ public class CourseQueryRepository implements CourseQueryRepo {
             singleCourseCO.setLocation(courInfDO.getLocation());
             CourseTime courseTime = new CourseTime().setWeek(courseQuery.getWeek()).setDay(courseQuery.getDay()).setStartTime(courInfDO.getStartTime()).setEndTime(courInfDO.getEndTime());
             singleCourseCO.setTime(courseTime);
-            singleCourseCO.setTeacherName(userMapper.selectById(courseDO.getTeacherId()).getName());
+            SysUserDO teacherDO = invoke(
+                    userMapper,
+                    "selectById",
+                    new Class<?>[]{Serializable.class},
+                    new Object[]{courseDO.getTeacherId()}
+            );
+            singleCourseCO.setTeacherName(teacherDO.getName());
             singleCourseCO.setName(subjectMapper.selectById(courseDO.getSubjectId()).getName());
             //根据课程id到评教任务表中统计数量
             singleCourseCO.setEvaNum(Math.toIntExact(invoke(
@@ -552,7 +568,12 @@ public class CourseQueryRepository implements CourseQueryRepo {
     @Override
     public List<SelfTeachCourseCO> getSelfCourseInfo(String userName, Integer semId) {
         //根据用户名来查出教师id
-        SysUserDO user = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("username", userName));
+        SysUserDO user = invoke(
+                userMapper,
+                "selectOne",
+                new Class<?>[]{Wrapper.class},
+                new Object[]{new QueryWrapper<SysUserDO>().eq("username", userName)}
+        );
         if(user==null)throw new QueryException("用户不存在");
         Integer teacherId = user.getId();
         //根据学期来找到这学期所有课程
@@ -648,7 +669,13 @@ public class CourseQueryRepository implements CourseQueryRepo {
         );
         if (taskDOList.isEmpty())return new ArrayList<>();
         List<Integer> userList = taskDOList.stream().map(EvaTaskDO::getTeacherId).toList();
-        return userMapper.selectList(new QueryWrapper<SysUserDO>().in(!userList.isEmpty(),"id", userList)).stream().map(courseConvertor::toEvaTeacherInfoCO).toList();
+        List<SysUserDO> users = invoke(
+                userMapper,
+                "selectList",
+                new Class<?>[]{Wrapper.class},
+                new Object[]{new QueryWrapper<SysUserDO>().in(!userList.isEmpty(),"id", userList)}
+        );
+        return users.stream().map(courseConvertor::toEvaTeacherInfoCO).toList();
     }
 
     @Override
@@ -938,7 +965,12 @@ public class CourseQueryRepository implements CourseQueryRepo {
 //                CourseEntity entity = courseConvertor.toCourseEntity(courseDO, () -> null, () -> null, () -> null);
                 entity.setId(courseDO.getId());
                 entity.setSubject(() -> subject);
-                SysUserDO sysUserDO = userMapper.selectById(courseDO.getTeacherId());
+                SysUserDO sysUserDO = invoke(
+                        userMapper,
+                        "selectById",
+                        new Class<?>[]{Serializable.class},
+                        new Object[]{courseDO.getTeacherId()}
+                );
 
                 Object user = userConverter.springUserEntityWithNameObject(sysUserDO.getName());
                 entity.setTeacher((Supplier) (() -> user));
