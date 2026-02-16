@@ -12,7 +12,6 @@ import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.SubjectMapper;
-import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.infra.enums.cache.ClassroomCacheConstants;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
 import edu.cuit.infra.gateway.impl.course.operate.CourseFormat;
@@ -42,7 +41,9 @@ public class UpdateSingleCourseRepositoryImpl implements UpdateSingleCourseRepos
     private final CourInfMapper courInfMapper;
     private final CourseMapper courseMapper;
     private final SubjectMapper subjectMapper;
-    private final SysUserMapper userMapper;
+    @Autowired
+    @Qualifier("sysUserMapper")
+    private Object userMapper;
     /**
      * 跨 BC 直连清零（编译期）：不再直接依赖评教侧 Mapper 类型；仍保持原 MyBatis 调用语义，通过反射调用对应方法（保持行为不变）。
      */
@@ -68,7 +69,7 @@ public class UpdateSingleCourseRepositoryImpl implements UpdateSingleCourseRepos
 
         // 先根据课次所属课程找到教师信息（原逻辑如此，保持不变）
         CourseDO courseOfCourInf = courseMapper.selectById(courINfo.getCourseId());
-        SysUserDO userDO = userMapper.selectById(courseOfCourInf.getTeacherId());
+        SysUserDO userDO = (SysUserDO) selectById(userMapper, courseOfCourInf.getTeacherId());
         if (userDO == null) {
             throw new QueryException("老师不存在");
         }
@@ -169,6 +170,14 @@ public class UpdateSingleCourseRepositoryImpl implements UpdateSingleCourseRepos
             throw new IllegalStateException("evaTaskMapper 缺少 update(entity, Wrapper) 方法");
         }
         invoke(evaTaskMapper, updateMethod, entity, qw);
+    }
+
+    private static Object selectById(Object mapper, Object id) {
+        Method selectByIdMethod = findMethodByNameAndParamCount(mapper, "selectById", 1);
+        if (selectByIdMethod == null) {
+            throw new IllegalStateException("sysUserMapper 缺少 selectById(id) 方法");
+        }
+        return invoke(mapper, selectByIdMethod, id);
     }
 
     private static Method findMethodByNameAndParamCount(Object target, String methodName, int paramCount) {
