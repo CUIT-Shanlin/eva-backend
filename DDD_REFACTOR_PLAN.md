@@ -544,6 +544,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-16，保持行为不变，SysUserMapper 归位前置，单类）：为后续归位 IAM 侧 `SysUserMapper` 做准备，已将 `bc-course/infrastructure` 的 `CourseRecommendExce` 去 `SysUserMapper` 编译期依赖（改为按 `beanName` 注入 `Object` + 反射调用 `selectOne(Wrapper)` / `selectById(Serializable)` / `selectList(Wrapper)`；异常文案、缓存/日志与副作用顺序完全不变；最小回归通过；落地：`cccf259b`）。
 - ✅ 补充进展（2026-02-16，保持行为不变，SysUserMapper 归位前置，单类）：为后续归位 IAM 侧 `SysUserMapper` 做准备，已将 `bc-course/infrastructure` 的 `CourseQueryRepository` 去 `SysUserMapper` 编译期依赖（改为 `@Qualifier("sysUserMapper") Object` + 反射调用 `selectOne(Wrapper)` / `selectList(Wrapper)` / `selectById(Serializable)`；异常文案与副作用顺序完全不变；最小回归通过；落地：`ec1da722`）。
 - ✅ 补充进展（2026-02-16，保持行为不变，dal 拆散试点，单类）：已将 `SysUserMapper.java` 从 `eva-infra-dal` 搬运归位到 `bc-iam/infrastructure`（保持 `package` 与接口签名不变，并同步删除旧位置同名类，避免 classpath 重复；最小回归通过；落地：`ff591e46`）。
+- ✅ 补充进展（2026-02-16，保持行为不变，shared-kernel 下沉，单类）：已将 `SysMenuDO` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.dal.database.dataobject.user` 与类内容不变，仅改变 Maven 模块归属；最小回归通过；落地：`a9141bfe`）。
   - 下一刀建议（每刀 1 类，保持行为不变）：继续按“引用面仅命中单一 BC 才允许归位”的规则，逐类评估并归位 `eva-infra-dal` 的剩余 Java（优先引用面最窄的 Mapper/DO），每刀仍需 Serena 证据化后闭环；若引用面跨 BC，则继续留在 `eva-infra-dal` 作为过渡共享。
 - ✅ 补充进展（2026-02-12，保持行为不变，方案 1：跨 BC 直连清零，单类）：收敛评教侧对课程域 `CourInfMapper.selectById` 的跨 BC 直连：`EvaTemplateQueryRepository.getTaskTemplate(...)` 改为调用课程域查询端口 `CourseIdByCourInfIdQueryPort.findCourseIdByCourInfId(...)`（异常文案与分支顺序不变；最小回归通过；落地：`67755034`）。
 - ✅ 补充进展（2026-02-12，保持行为不变；跨 BC 直连清零前置，单类）：在 `bc-course/application` 新增最小查询端口 `CourseIdByCourInfIdQueryPort`（用于后续收敛其它 BC 对 `CourInfMapper` 的直连为通过端口查询 `cour_inf.id -> course_id`；最小回归通过；落地：`777ec8a9`）。
@@ -1525,7 +1526,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 中期里程碑（已完成）：`bc-iam-infra` 子模块骨架已接入组合根并完成 `bciam/adapter/*` 迁移，且阶段 2（IAM DAL 抽离 + shared 拆分 + 去依赖）已闭环（保持行为不变；阶段 1 落地：`42a6f66f/070068ec/03ceb685/02b3e8aa/6b9d2ce7/5aecc747/1c3d4b8c`；阶段 2 去依赖落地：`2ad911ea`）。
   - 阶段 2.1（已完成）：已用 Serena 盘点 `bc-iam-infra` 适配器对 IAM DAL 的直接依赖清单（后续迁移以此清单为准，避免漏搬/多搬）：
     - Mapper：`SysUserMapper`、`SysUserRoleMapper`、`SysRoleMapper`、`SysRoleMenuMapper`、`SysMenuMapper`
-    - DO：`SysUserDO`、`SysUserRoleDO`、`SysRoleDO`、`SysRoleMenuDO`、`SysMenuDO`
+    - DO：`SysUserDO`、`SysUserRoleDO`、`SysRoleDO`、`SysRoleMenuDO`、`SysMenuDO`（已下沉到 `shared-kernel`，落地：`a9141bfe`）
     - XML：`eva-infra-dal/src/main/resources/mapper/user/SysUserMapper.xml`、`bc-iam/infrastructure/src/main/resources/mapper/user/SysUserRoleMapper.xml`、`bc-iam/infrastructure/src/main/resources/mapper/user/SysRoleMapper.xml`、`bc-iam/infrastructure/src/main/resources/mapper/user/SysRoleMenuMapper.xml`、`bc-iam/infrastructure/src/main/resources/mapper/user/SysMenuMapper.xml`
   - 阶段 2.2（已完成）：已在 `bc-iam-infra` 创建 DAL 包路径与资源目录骨架（不迁代码，仅提供后续迁移落点；保持行为不变）：
     - Java：`bc-iam-infra/src/main/java/edu/cuit/infra/dal/database/dataobject/user/package-info.java`、`bc-iam-infra/src/main/java/edu/cuit/infra/dal/database/mapper/user/package-info.java`
@@ -1539,7 +1540,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
     - Java：`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/dataobject/user/SysRoleDO.java`、`bc-iam/infrastructure/src/main/java/edu/cuit/infra/dal/database/dataobject/user/SysRoleMenuDO.java`；`bc-iam/infrastructure/src/main/java/edu/cuit/infra/dal/database/mapper/user/SysRoleMapper.java`、`bc-iam/infrastructure/src/main/java/edu/cuit/infra/dal/database/mapper/user/SysRoleMenuMapper.java`
     - XML：`bc-iam/infrastructure/src/main/resources/mapper/user/SysRoleMapper.xml`、`bc-iam/infrastructure/src/main/resources/mapper/user/SysRoleMenuMapper.xml`
   - 阶段 2.5（已完成）：继续迁移 `SysMenu*`（DO/Mapper/XML）到共享模块 `eva-infra-dal`（保持包名/namespace/SQL 不变；保持行为不变）。
-    - Java：`eva-infra-dal/src/main/java/edu/cuit/infra/dal/database/dataobject/user/SysMenuDO.java`；`bc-iam/infrastructure/src/main/java/edu/cuit/infra/dal/database/mapper/user/SysMenuMapper.java`
+    - Java：`shared-kernel/src/main/java/edu/cuit/infra/dal/database/dataobject/user/SysMenuDO.java`；`bc-iam/infrastructure/src/main/java/edu/cuit/infra/dal/database/mapper/user/SysMenuMapper.java`
     - XML：`bc-iam/infrastructure/src/main/resources/mapper/user/SysMenuMapper.xml`
   - 阶段 2.6（已完成）：盘点 `bc-iam-infra` 仍依赖 `eva-infra` 的类型清单（为后续移除依赖做最小闭包拆分输入；保持行为不变）：
     - 转换器：`edu.cuit.infra.convertor.PaginationConverter`（已迁至 `eva-infra-shared`：`54d5fecd`）、`edu.cuit.infra.convertor.user.{MenuConvertor,RoleConverter,UserConverter}`（已迁至 `eva-infra-shared`：`6c798f1b`）、`edu.cuit.infra.convertor.user.LdapUserConvertor`（已迁至 `eva-infra-shared`：`0dc0ddc8`）
