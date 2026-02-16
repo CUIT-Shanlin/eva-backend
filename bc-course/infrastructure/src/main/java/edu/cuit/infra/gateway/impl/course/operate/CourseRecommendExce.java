@@ -11,7 +11,6 @@ import edu.cuit.infra.dal.database.dataobject.course.*;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.course.*;
-import edu.cuit.infra.dal.database.mapper.user.SysUserMapper;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +41,9 @@ public class CourseRecommendExce {
     @Autowired
     @Qualifier("evaTaskMapper")
     private Object evaTaskMapper;
-    private final SysUserMapper userMapper;
+    @Autowired
+    @Qualifier("sysUserMapper")
+    private Object userMapper;
     private final SemesterMapper semesterMapper;
     private final EvaConfigGateway evaConfigGateway;
 
@@ -50,7 +51,7 @@ public class CourseRecommendExce {
     public List<RecommendCourseCO> RecommendCourse(Integer semId, String userName,CourseTime courseTime){
 //        userName="ganjianhong";
         //查询user
-        SysUserDO user = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("username", userName));
+        SysUserDO user = selectSysUserOne(new QueryWrapper<SysUserDO>().eq("username", userName));
         if(user==null)throw new QueryException("用户不存在");
         //查询user授课程集合
         List<CourseDO> courseDOS1 = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", user.getId()).eq("semester_id", semId));
@@ -238,7 +239,7 @@ public class CourseRecommendExce {
         return returnList;
     }
     private List<RecommendCourseCO> createRecommentList(List<CourseDO> list,Integer priority,List<CourseDO> slefCourseDo,CourseTime courseTime,List<CourInfDO> courInfDOS){
-        SysUserDO userDO = userMapper.selectById(list.get(0).getTeacherId());
+        SysUserDO userDO = selectSysUserById(list.get(0).getTeacherId());
 //        int evaTeacherNum=0;
         List<RecommendCourseCO> recommendCourseCOS=new ArrayList<>();
         for (CourseDO courseDO : list) {
@@ -327,7 +328,7 @@ public class CourseRecommendExce {
 //        userName="ganjianhong";
         SemesterDO semesterDO = semesterMapper.selectById(semId);
         //老师教学课程
-        SysUserDO user = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("username", userName));
+        SysUserDO user = selectSysUserOne(new QueryWrapper<SysUserDO>().eq("username", userName));
         if(user==null)throw new QueryException("用户不存在");
         List<CourseDO> userCourse = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", user.getId()).eq("semester_id", semId));
         List<CourseDO> courseList=judeTimetoGetCourse(semesterDO, courseQuery);
@@ -363,7 +364,7 @@ public class CourseRecommendExce {
     }
 
     private List<RecommendCourseCO> createRecommentListEndandStart(List<CourseDO> list,Integer priority,List<CourseDO> slefCourseDo,CourseTime startTime,CourseTime endTime){
-        SysUserDO userDO = userMapper.selectById(list.get(0).getTeacherId());
+        SysUserDO userDO = selectSysUserById(list.get(0).getTeacherId());
 //        int evaTeacherNum=0;
         List<RecommendCourseCO> recommendCourseCOS=new ArrayList<>();
         for (CourseDO courseDO : list) {
@@ -454,7 +455,7 @@ public class CourseRecommendExce {
     }
 
     private List<RecommendCourseCO> createRecommentListEnd(List<CourseDO> list,Integer priority,List<CourseDO> slefCourseDo,CourseTime courseTime){
-        SysUserDO userDO = userMapper.selectById(list.get(0).getTeacherId());
+        SysUserDO userDO = selectSysUserById(list.get(0).getTeacherId());
 //        int evaTeacherNum=0;
         List<RecommendCourseCO> recommendCourseCOS=new ArrayList<>();
         for (CourseDO courseDO : list) {
@@ -601,7 +602,7 @@ public class CourseRecommendExce {
             return list;
         }
         if(courseQuery.getTeacherId()==null||courseQuery.getTeacherId()<0&&courseQuery.getDepartmentName()!=null&&!courseQuery.getDepartmentName().isEmpty()){
-            List<SysUserDO> user = userMapper.selectList(new QueryWrapper<SysUserDO>().eq("department", courseQuery.getDepartmentName()));
+            List<SysUserDO> user = selectSysUserList(new QueryWrapper<SysUserDO>().eq("department", courseQuery.getDepartmentName()));
             List<Integer> userIds = user.stream().map(SysUserDO::getId).toList();
             if(userIds.isEmpty())throw new QueryException("该院系没有老师");
             List<CourseDO> courseDOS =new ArrayList<>();
@@ -707,6 +708,46 @@ public class CourseRecommendExce {
             return 0L;
         }
         return count.longValue();
+    }
+
+    private SysUserDO selectSysUserOne(QueryWrapper<SysUserDO> qw) {
+        Method selectOneMethod = findSingleArgMethod(userMapper, "selectOne");
+        if (selectOneMethod == null) {
+            throw new IllegalStateException("sysUserMapper 缺少 selectOne(Wrapper) 方法");
+        }
+        Object result = invoke(userMapper, selectOneMethod, qw);
+        if (!(result instanceof SysUserDO sysUserDO)) {
+            return null;
+        }
+        return sysUserDO;
+    }
+
+    private SysUserDO selectSysUserById(Object id) {
+        Method selectByIdMethod = findSingleArgMethod(userMapper, "selectById");
+        if (selectByIdMethod == null) {
+            throw new IllegalStateException("sysUserMapper 缺少 selectById(id) 方法");
+        }
+        Object result = invoke(userMapper, selectByIdMethod, id);
+        if (!(result instanceof SysUserDO sysUserDO)) {
+            return null;
+        }
+        return sysUserDO;
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<SysUserDO> selectSysUserList(QueryWrapper<SysUserDO> qw) {
+        Method selectListMethod = findSingleArgMethod(userMapper, "selectList");
+        if (selectListMethod == null) {
+            throw new IllegalStateException("sysUserMapper 缺少 selectList(Wrapper) 方法");
+        }
+        Object result = invoke(userMapper, selectListMethod, qw);
+        if (!(result instanceof List<?> list)) {
+            return List.of();
+        }
+        return list.stream()
+                .filter(SysUserDO.class::isInstance)
+                .map(SysUserDO.class::cast)
+                .toList();
     }
 
     private static Method findSingleArgMethod(Object target, String methodName) {
