@@ -521,6 +521,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-17，保持行为不变，reactor 退场，单 pom）：从 root `pom.xml` 的 `<modules>` 中移除 `<module>eva-infra-dal</module>`（最小回归通过；落地：`dfe4e5f3`）。
 - ✅ 补充进展（2026-02-17，保持行为不变，目录退场前置，单文件）：删除 `eva-infra-dal/pom.xml`（最小回归通过；落地：`1c037aeb`）。
 - ✅ 补充进展（2026-02-17，保持行为不变，引用面收敛，单类）：清理 `bc-course/infrastructure` 的 `CourseQueryRepository` 无用 import `MenuConvertor`（最小回归通过；落地：`4b9f5855`）。
+- ✅ 补充进展（2026-02-17，保持行为不变，支撑类归位，单类）：将 `MenuConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-iam/infrastructure`（保持 `package` 不变；最小回归通过；落地：`06690eee`）。
 - ✅ 补充进展（2026-02-12，保持行为不变；单资源闭环）：已将 `SysUserMapper.xml` 从 `eva-infra-dal` 搬运归位到 `bc-iam/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`3dad6ef7`）。
 - ✅ 补充进展（2026-02-12，保持行为不变，跨 BC 直连清零前置，单 pom）：在 `bc-evaluation/infrastructure/pom.xml` 显式增加对 `bc-course` 的 Maven 编译期依赖，用于让评教侧编译期引用课程域查询端口 `CourseIdByCourInfIdQueryPort`（运行期仍由组合根装配 `bc-course-infra` 的实现；最小回归通过；落地：`f2188237`）。
 - ✅ 补充进展（2026-02-15，保持行为不变，编译闭合前置，单 pom）：为后续将课程域 `CourseMapper/SemesterMapper/CourInfMapper/SubjectMapper` 从 `eva-infra-dal` 逐类归位到 `bc-course-infra` 做准备，在 `bc-evaluation/infrastructure/pom.xml` 显式增加对 `bc-course-infra` 的 Maven 编译期依赖（最小回归通过；落地：`eb0bbbec`）。

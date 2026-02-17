@@ -116,6 +116,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（reactor 退场，单 pom，保持行为不变）：root `pom.xml` 已移除 `<module>eva-infra-dal</module>`（最小回归通过；落地：`dfe4e5f3`）。
 - ✅ S0.2 延伸（目录退场前置，单文件，保持行为不变）：已删除 `eva-infra-dal/pom.xml`（最小回归通过；落地：`1c037aeb`）。
 - ✅ S0.2 延伸（引用面收敛，单类，保持行为不变）：移除 `bc-course/infrastructure` 的 `CourseQueryRepository` 无用 import `MenuConvertor`（最小回归通过；落地：`4b9f5855`）。
+- ✅ S0.2 延伸（支撑类归位，单类，保持行为不变）：将 `MenuConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-iam/infrastructure`（保持 `package` 不变；最小回归通过；落地：`06690eee`）。
 - ✅ S0.2 延伸（DAL 拆散试点：课程 DO 下沉，保持行为不变，单类闭环）：已将 `CourseTypeDO` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.dal.database.dataobject.course` 与类内容不变，仅改变 Maven 模块归属；Serena 证据化：引用面命中 `bc-course/infrastructure` 与 `eva-infra-shared`；最小回归通过；口径更新：`eva-infra-dal` Java 余量由 `2` 变更为 `1`；落地：`6c66a6dc`）。
 - ✅ S0.2 延伸（DAL 拆散试点：评教 DO 下沉，保持行为不变，单类闭环）：已将 `EvaTaskDO` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.dal.database.dataobject.eva` 与类内容不变，仅改变 Maven 模块归属；Serena 证据化：引用面命中 `bc-evaluation/infrastructure`、`bc-course/infrastructure` 与 `bc-template/infrastructure`；最小回归通过；口径更新：`eva-infra-dal` Java 余量由 `3` 变更为 `2`；落地：`49fa7eef`）。
 - ✅ S0.2 延伸（DAL 拆散试点：评教 DO 下沉，保持行为不变，单类闭环）：已将 `FormRecordDO` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.dal.database.dataobject.eva` 与类内容不变，仅改变 Maven 模块归属；Serena 证据化：引用面命中 `bc-evaluation/infrastructure`、`bc-course/infrastructure` 与 `bc-template/infrastructure`；最小回归通过；口径更新：`eva-infra-dal` Java 余量由 `4` 变更为 `3`；落地：`83b44804`）。

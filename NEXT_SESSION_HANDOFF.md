@@ -21,6 +21,13 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-17（支撑类归位，单类：`MenuConvertor` 归位到 `bc-iam/infrastructure`，保持行为不变）**
+- ✅ 背景（保持行为不变）：在前置清理 `bc-course/infrastructure` 中对 `MenuConvertor` 的无用 import 后，Serena 证据化确认 `MenuConvertor` 引用面仅命中 IAM 基础设施（`bc-iam/infrastructure`），满足“单 BC 归位”条件。
+- ✅ 执行（单类，保持行为不变）：将 `MenuConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.convertor.user` 与类内容不变，仅改变 Maven 模块归属）。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；本次 `mvnd` 仍在启动阶段报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
+- 📊 口径更新（保持行为不变）：`eva-infra-shared` Java 余量由 `9` 变更为 `8`（口径：`fd -t f -e java . eva-infra-shared/src/main/java | wc -l`）。
+- 📌 代码落地：`06690eee`。
+
 **2026-02-17（引用面收敛，单类：移除 `CourseQueryRepository` 无用 `MenuConvertor` import，保持行为不变）**
 - ✅ 背景（保持行为不变）：Serena 证伪 `bc-course/infrastructure` 的 `CourseQueryRepository` 中 `MenuConvertor` 仅出现在 import，未被任何字段/方法引用；该无用 import 会在引用面统计时造成“跨 BC 引用面扩大”的误判。
 - ✅ 执行（单类，保持行为不变）：移除 `CourseQueryRepository` 对 `MenuConvertor` 的无用 import，不改变任何逻辑与副作用顺序。
@@ -1531,9 +1538,9 @@
 
 - 📊 **整体未完成清单（更新至 2026-02-17；保持行为不变）**：
   - ✅ `eva-infra-dal`：已从 root reactor 退场，且已删除 `eva-infra-dal/pom.xml`（保持行为不变；后续仅剩目录清理，若为空目录可单独一刀 `rmdir eva-infra-dal`）。
-  - `eva-infra-shared`：当前仍有 `9` 个 Java，且多 BC 仍直依赖该模块（可复现口径：`fd -t f -e java . eva-infra-shared/src/main/java | wc -l` + `rg -n "<artifactId>eva-infra-shared</artifactId>" --glob "**/pom.xml" bc-* | head`）。
+  - `eva-infra-shared`：当前仍有 `8` 个 Java，且多 BC 仍直依赖该模块（可复现口径：`fd -t f -e java . eva-infra-shared/src/main/java | wc -l` + `rg -n "<artifactId>eva-infra-shared</artifactId>" --glob "**/pom.xml" bc-* | head`）。
   - `eva-base-common`：当前仍有 `2` 个 Java（`GenericPattern/LogModule`），且 `bc-iam/contract` 与 `bc-iam/infrastructure` 仍显式依赖（可复现口径：`fd -t f -e java . eva-base/eva-base-common/src/main/java | wc -l` + `rg -n "<artifactId>eva-base-common</artifactId>" --glob "**/pom.xml" .`）。
-  - `eva-infra-shared` 残留结构（Serena + `rg` 证据化，保持行为不变）：`CourseBizConvertor/CourseConvertor/MenuConvertor/UserConverter` 在 `eva-infra-shared/src/main/java` 内均仅自引用（无内部依赖）；LDAP 子簇 `LdapGroupDO/LdapGroupRepo/LdapConstants/EvaLdapProperties/EvaLdapUtils` 仍互相依赖（`EvaLdapUtils` ↔ `LdapConstants` + `LdapGroupRepo/DO`），暂不适合无前置直接单类搬运。
+  - `eva-infra-shared` 残留结构（Serena + `rg` 证据化，保持行为不变）：`CourseBizConvertor/CourseConvertor/UserConverter` 在 `eva-infra-shared/src/main/java` 内均仅自引用（无内部依赖）；LDAP 子簇 `LdapGroupDO/LdapGroupRepo/LdapConstants/EvaLdapProperties/EvaLdapUtils` 仍互相依赖（`EvaLdapUtils` ↔ `LdapConstants` + `LdapGroupRepo/DO`），暂不适合无前置直接单类搬运。
   - 关键阻塞例（`course_type`，保持行为不变，历史说明）：此前 `CourseConvertor` 作为共享 Convertor 会扩大 `CourseTypeDO` 的引用面，因此不建议将 `CourseTypeDO` 直接归位到单一 BC `infrastructure` 以避免依赖/装配边界漂移；本会话已将 `CourseTypeDO` 下沉到 `shared-kernel`（见 0.9），该阻塞已解除。
 
 - 📦 **stash 快照（更新至 2026-02-16；保持行为不变）**：
