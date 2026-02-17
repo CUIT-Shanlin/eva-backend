@@ -110,6 +110,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-02-17）**
+- ✅ S0.2 延伸（DAL 拆散试点：评教 DO 下沉，保持行为不变，单类闭环）：已将 `FormRecordDO` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.dal.database.dataobject.eva` 与类内容不变，仅改变 Maven 模块归属；Serena 证据化：引用面命中 `bc-evaluation/infrastructure`、`bc-course/infrastructure` 与 `bc-template/infrastructure`；最小回归通过；口径更新：`eva-infra-dal` Java 余量由 `4` 变更为 `3`；落地：`83b44804`）。
 - ✅ S0.2 延伸（DAL 拆散试点：评教 DO 下沉，保持行为不变，单类闭环）：已将 `FormTemplateDO` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.dal.database.dataobject.eva` 与类内容不变，仅改变 Maven 模块归属；Serena 证据化：引用面命中 `bc-evaluation/infrastructure`、`bc-course/infrastructure` 与 `eva-infra-shared`；最小回归通过；口径更新：`eva-infra-dal` Java 余量由 `5` 变更为 `4`；落地：`6b66340b`）。
 - ✅ S0.2 延伸（DAL 拆散试点：评教 DO 下沉，保持行为不变，单类闭环）：已将 `CourOneEvaTemplateDO` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.dal.database.dataobject.eva` 与类内容不变，仅改变 Maven 模块归属；Serena 证据化：引用面命中 `bc-evaluation/infrastructure`、`bc-course/infrastructure`、`bc-template/infrastructure` 与 `eva-infra-shared`；最小回归通过；口径更新：`eva-infra-dal` Java 余量由 `6` 变更为 `5`；落地：`e48c63b4`）。
 - ✅ S0.2 延伸（DAL 拆散试点：课程 DO 下沉，保持行为不变，单类闭环）：已将 `SubjectDO` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.dal.database.dataobject.course` 与类内容不变，仅改变 Maven 模块归属；Serena 证据化：引用面命中 `bc-course/infrastructure` 与 `bc-evaluation/infrastructure`；最小回归通过；口径更新：`eva-infra-dal` Java 余量由 `7` 变更为 `6`；落地：`1a6ff62c`）。
@@ -882,7 +883,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
     - ✅ 状态更新（保持行为不变）：`CourseMapper/SemesterMapper/CourInfMapper/SubjectMapper`、`CourOneEvaTemplateMapper/FormTemplateMapper` 已按“单类”归位到对应 BC 的 `infrastructure`（详见 4.2 与 `NEXT_SESSION_HANDOFF.md` 0.9）。
     - P0（SysUserMapper 归位前置，保持行为不变）：先清零非 IAM 模块对 `SysUserMapper` 的编译期依赖（每刀 1 类；`@Qualifier("sysUserMapper") Object` + 反射 `selectById(Serializable)`/`getName()`）。已完成：`EvaUpdateGatewayImpl`（`364c63a0`）、`DeleteEvaRecordRepositoryImpl`（`c0f94380`）、`PostEvaTaskRepositoryImpl`（`89fbc439`）、`SubmitEvaluationRepositoryImpl`（`055db608`）、`EvaTaskQueryRepository`（`7caaec02`）、`EvaStatisticsQueryRepository`（`28338204`）、`EvaRecordQueryRepository`（`0e190e6c`）、`AssignEvaTeachersRepositoryImpl`（`712c4eb7`）、`DeleteCourseRepositoryImpl`（`9dd8a7d1`）、`DeleteCoursesRepositoryImpl`（`b193156d`）、`DeleteSelfCourseRepositoryImpl`（`71060e69`）、`UpdateCourseInfoRepositoryImpl`（`d5415b0a`）、`UpdateSelfCourseRepositoryImpl`（`17c4bd19`）、`UpdateSingleCourseRepositoryImpl`（`15135886`）、`CourseImportExce`（`e3cf8426`）、`CourseRecommendExce`（`cccf259b`）、`CourseQueryRepository`（`ec1da722`）。
     - P1（单类搬运，保持行为不变）：✅ 已完成：将 `SysUserMapper.java` 从 `eva-infra-dal` 归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.dal.database.mapper.user` 不变，并同步删除旧位置同名类，避免 classpath 重复；落地：`ff591e46`）。补充：`SysUserDO/SysRoleDO/SysMenuDO/CourInfDO/CourseDO/SemesterDO` 已下沉到 `shared-kernel`（落地：`31e157cd`/`c5ba98b1`/`a9141bfe`/`542e0231`/`d822340e`/`e0680e8a`）。
-    - P2（逐类归位，保持行为不变）：再按 Serena 证据化“仅单 BC 引用才允许归位”的规则，逐个评估并归位剩余 `DO`（如 `CourseTypeDO`、`FormRecordDO/EvaTaskDO`）。
+    - P2（逐类归位，保持行为不变）：再按 Serena 证据化“仅单 BC 引用才允许归位”的规则，逐个评估并归位剩余 `DO`（如 `CourseTypeDO`、`EvaTaskDO`）。
 
 - **S0.2 延伸（IAM → 其它 BC：依赖收敛，去跨 BC 直连 IAM role 表，保持行为不变）**：
   - ✅ 已完成：`bc-audit` 的 `LogGatewayImpl`、`bc-course` 的 `CourseQueryRepository.toUserEntity`、`bc-evaluation` 的 `EvaTaskQueryRepository.toUserEntity` 已改走 `bc-iam-contract` 端口 `UserEntityObjectByIdDirectQueryPort`（保持异常文案/副作用顺序不变；详见 4.2 与 `NEXT_SESSION_HANDOFF.md` 0.9；评教任务读侧最新落地：`6c5d6bce`）。
@@ -1257,9 +1258,9 @@ scope: 全仓库（离线扫描 + 规则归纳）
 ## 6. “下一批行动”建议（不含实现，只给路线）
 
 （更新至 2026-02-17；保持行为不变）S0.2 延伸主线快照（用于新会话续接）：
-- `eva-infra-dal` 余量：`4` 个 Java + `0` 个 XML（口径：`fd -t f -e java . eva-infra-dal/src/main/java | wc -l`；目录不存在按 0：`if [ -d eva-infra-dal/src/main/resources ]; then ...; else echo 0; fi`）。
-  - 剩余清单（保持行为不变；仅结构性归位，`package` 不变）：`edu.cuit.infra.convertor.EntityFactory`、`CourseTypeDO`、`EvaTaskDO`、`FormRecordDO`。
-- 下一刀建议（每次只改 1 个类；保持行为不变）：优先 `FormRecordDO` 做 Serena 证据化；若引用面跨 BC，则下沉到 `shared-kernel`；若可证伪为单 BC 引用，则归位到对应 BC 的 `infrastructure`。
+- `eva-infra-dal` 余量：`3` 个 Java + `0` 个 XML（口径：`fd -t f -e java . eva-infra-dal/src/main/java | wc -l`；目录不存在按 0：`if [ -d eva-infra-dal/src/main/resources ]; then ...; else echo 0; fi`）。
+  - 剩余清单（保持行为不变；仅结构性归位，`package` 不变）：`edu.cuit.infra.convertor.EntityFactory`、`CourseTypeDO`、`EvaTaskDO`。
+- 下一刀建议（每次只改 1 个类；保持行为不变）：优先 `EvaTaskDO` 做 Serena 证据化；若引用面跨 BC，则下沉到 `shared-kernel`；若可证伪为单 BC 引用，则归位到对应 BC 的 `infrastructure`。
 
 阶段性策略微调（2025-12-29）：
 - ✅ 复核口径（2026-01-26，不改业务语义）：`spring-boot-starter-websocket` 仅由组合根 `start` 显式承接；并已将 `EvaConfigBizConvertor`、`EvaRecordBizConvertor`、`EvaTemplateBizConvertor` 从 `eva-app` 归位到 `eva-infra-shared`（保持行为不变）；`EvaTaskBizConvertor` 后续已从 `eva-infra-shared` 进一步归位到 `bc-evaluation/infrastructure`（保持行为不变；落地：`f3a2cf7f`）。并将 `EvaConfigService` 从 `eva-app` 归位到 `bc-evaluation-infra`（保持行为不变），并将 `UserCourseDetailQueryExec`、`FileImportExec`、`package-info.java` 从 `eva-app` 归位到 `bc-course-infra`（保持行为不变）。当前 `eva-app` 已退场（组合根去依赖：`0a9ff564`；reactor 移除：`b5f15a4b`；删除 `eva-app/pom.xml`：`4bfa9d40`）；`eva-adapter` 残留 Controller 口径以 `NEXT_SESSION_HANDOFF.md` 0.10.2 为准（当前 0 个，已清零）；组合根 `start` 已移除对 `eva-adapter` 的 Maven 依赖（落地：`92a70a9e`；保持行为不变）。补充：✅ 已完成消息入口归位前置（保持行为不变）：为后续将 `MessageController` 从 `eva-adapter` 归位到 `bc-messaging` 做编译闭合前置，在 `bc-messaging/pom.xml` 补齐 `spring-boot-starter-web`、`zym-spring-boot-starter-common`、`zym-spring-boot-starter-security`、`shared-kernel`（落地：`aa7d57bb`）。补充：✅ 已完成审计日志入口归位（保持行为不变）：`LogController` 已从 `eva-adapter` 归位到 `bc-audit/infrastructure`（编译闭合前置：`2464d2b9`；入口归位：`b592cc0f`）。
