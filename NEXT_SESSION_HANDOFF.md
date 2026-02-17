@@ -21,6 +21,13 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-17（依赖收敛，单 pom：`bc-audit-infra` 去 `eva-infra-shared` 依赖，保持行为不变）**
+- ✅ 背景（保持行为不变）：审计侧 `bc-audit/infrastructure` 已完成 `SysLog*Mapper/DO` 与 `LogConverter` 归位；其对 `QueryUtils/PaginationConverter/EntityFactory` 等通用支撑类的引用当前均由 `shared-kernel` 承接，因此 `eva-infra-shared` 依赖可收敛。
+- ✅ Serena（证据化，保持行为不变）：在 `bc-audit/**` 范围内未发现对 `edu.cuit.infra.convertor.user.*` / `edu.cuit.infra.dal.ldap.*` 等 `eva-infra-shared` 残留支撑类的引用；现有 `import edu.cuit.infra.convertor.EntityFactory`、`import edu.cuit.infra.util.QueryUtils`、`import edu.cuit.infra.convertor.PaginationConverter` 均已由 `shared-kernel` 提供。
+- ✅ 执行（单 pom，保持行为不变）：将 `bc-audit/infrastructure/pom.xml` 中 `eva-infra-shared` 依赖移除，并改为显式依赖 `shared-kernel` 以维持编译闭合。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；本次仍按约束使用 `mvn` 完成最小回归（测试用例集保持不变）。
+- 📌 代码落地：`10b0af75`。
+
 **2026-02-17（依赖收敛，单 pom：`bc-template-infra` 去 `eva-infra-shared` 依赖，保持行为不变）**
 - ✅ 背景（保持行为不变）：`bc-template/infrastructure` 未引用 `eva-infra-shared` 内的 Convertor/LDAP 支撑类；此前依赖仅用于“经由传递依赖拿到 shared-kernel 的 DO 类型”。
 - ✅ Serena（证据化，保持行为不变）：在 `bc-template/**` 范围内未发现对 `edu.cuit.infra.convertor.*` / `edu.cuit.infra.dal.ldap.*` / `edu.cuit.infra.util.EvaLdapUtils` 等的引用；现有 `import edu.cuit.infra.dal.database.dataobject.eva.*` 实际来源为 `shared-kernel`。

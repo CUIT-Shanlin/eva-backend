@@ -110,6 +110,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-02-17）**
+- ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-audit/infrastructure/pom.xml`：移除对 `eva-infra-shared` 的依赖，并改为显式依赖 `shared-kernel` 以维持编译闭合（Serena 证伪 `bc-audit/**` 无 `eva-infra-shared` 残留支撑类引用；最小回归通过；落地：`10b0af75`）。
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-template/infrastructure/pom.xml`：移除对 `eva-infra-shared` 的依赖，并改为显式依赖 `shared-kernel` 以维持编译闭合（Serena 证伪 `bc-template/**` 无 `eva-infra-shared` 代码引用；最小回归通过；落地：`b93f8719`）。
 - ✅ S0.2 延伸（编译闭合前置，单 pom，保持行为不变）：为后续将 `EntityFactory` 下沉到 `shared-kernel` 做准备，在 `shared-kernel/pom.xml` 补齐 `mapstruct(optional)`（仅用于源码编译闭合；最小回归通过；落地：`a0030694`）。
 - ✅ S0.2 延伸（shared-kernel 下沉，单类，保持行为不变）：已将 `EntityFactory` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.convertor` 与类内容不变，仅改变 Maven 模块归属；口径更新：`eva-infra-dal` Java 余量由 `1` 变更为 `0`；最小回归通过；落地：`86754419`）。
