@@ -73,6 +73,13 @@
 		            <artifactId>spring-ldap-core</artifactId>
 		            <optional>true</optional>
 		        </dependency>
+
+		        <!-- 方案 B（严格）：为后续下沉 LdapGroupRepo 提供 LdapRepository 编译期依赖（保持行为不变；不强制向下游传递） -->
+		        <dependency>
+		            <groupId>org.springframework.data</groupId>
+		            <artifactId>spring-data-ldap</artifactId>
+		            <optional>true</optional>
+		        </dependency>
 		
 		        <!-- 方案 B（严格）：为下沉 EntityFactory 提供 MapStruct 注解依赖（保持行为不变；不强制向下游传递） -->
 		        <dependency>
