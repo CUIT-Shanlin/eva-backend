@@ -1279,6 +1279,10 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ 补充进展（保持行为不变）：`eva-infra-shared/pom.xml` 已移除对 `eva-infra-dal` 的 Maven 编译期直依赖（最小回归通过；详见 4.2）。
 - ✅ 补充进展（保持行为不变）：root `pom.xml` 已移除 `<module>eva-infra-dal</module>`，且已删除 `eva-infra-dal/pom.xml`（详见 4.2）。
 - 🎯 下一刀建议（目录退场，保持行为不变；每次只改 1 个文件闭环）：若 `eva-infra-dal/` 已为空目录，优先单独一刀删除该目录（避免 `fd -t d '^eva-' . -d 2` 口径漂移）；随后继续推进 `eva-infra-shared` 与 `eva-base` 的依赖收敛与归位。
+- 🎯 下一刀建议（shared 瘦身，LDAP 子簇续接，保持行为不变；每次只改 1 个文件闭环）：
+  - 刀 1（单 pom，依赖前置）：在 `shared-kernel/pom.xml` 增加 `spring-data-ldap(optional)`（或等价依赖），用于承接 `LdapGroupRepo` 的 `org.springframework.data.ldap.repository.LdapRepository` 编译期依赖（先 Serena 证据化再改 pom）。
+  - 刀 2（单类搬运）：将 `LdapGroupRepo` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package` 与接口签名不变；保持行为不变）。
+  - 刀 3（后置，多刀编排）：`LdapConstants` / `EvaLdapUtils` 静态初始化互引风险高（历史证据：`EvaLdapUtils` ↔ `LdapConstants`），不建议直接动，需分刀推进。
 
 阶段性策略微调（2025-12-29）：
 - ✅ 复核口径（2026-01-26，不改业务语义）：`spring-boot-starter-websocket` 仅由组合根 `start` 显式承接；并已将 `EvaConfigBizConvertor`、`EvaRecordBizConvertor`、`EvaTemplateBizConvertor` 从 `eva-app` 归位到 `eva-infra-shared`（保持行为不变）；`EvaTaskBizConvertor` 后续已从 `eva-infra-shared` 进一步归位到 `bc-evaluation/infrastructure`（保持行为不变；落地：`f3a2cf7f`）。并将 `EvaConfigService` 从 `eva-app` 归位到 `bc-evaluation-infra`（保持行为不变），并将 `UserCourseDetailQueryExec`、`FileImportExec`、`package-info.java` 从 `eva-app` 归位到 `bc-course-infra`（保持行为不变）。当前 `eva-app` 已退场（组合根去依赖：`0a9ff564`；reactor 移除：`b5f15a4b`；删除 `eva-app/pom.xml`：`4bfa9d40`）；`eva-adapter` 残留 Controller 口径以 `NEXT_SESSION_HANDOFF.md` 0.10.2 为准（当前 0 个，已清零）；组合根 `start` 已移除对 `eva-adapter` 的 Maven 依赖（落地：`92a70a9e`；保持行为不变）。补充：✅ 已完成消息入口归位前置（保持行为不变）：为后续将 `MessageController` 从 `eva-adapter` 归位到 `bc-messaging` 做编译闭合前置，在 `bc-messaging/pom.xml` 补齐 `spring-boot-starter-web`、`zym-spring-boot-starter-common`、`zym-spring-boot-starter-security`、`shared-kernel`（落地：`aa7d57bb`）。补充：✅ 已完成审计日志入口归位（保持行为不变）：`LogController` 已从 `eva-adapter` 归位到 `bc-audit/infrastructure`（编译闭合前置：`2464d2b9`；入口归位：`b592cc0f`）。
