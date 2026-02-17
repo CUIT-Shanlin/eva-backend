@@ -19,23 +19,22 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>bc-template-domain</artifactId>
-            <version>${revision}</version>
-        </dependency>
+	    <dependencies>
+	        <dependency>
+	            <groupId>edu.cuit</groupId>
+	            <artifactId>bc-template-domain</artifactId>
+	            <version>${revision}</version>
+	        </dependency>
 
-        <!-- 依赖收敛：bc-template-infra 不再直依赖 eva-infra-dal；由 eva-infra-shared 显式传递承接（保持行为不变） -->
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>eva-infra-shared</artifactId>
-            <version>${revision}</version>
-        </dependency>
+	        <dependency>
+	            <groupId>edu.cuit</groupId>
+	            <artifactId>shared-kernel</artifactId>
+	            <version>${revision}</version>
+	        </dependency>
 
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
+	        <dependency>
+	            <groupId>org.projectlombok</groupId>
+	            <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>
