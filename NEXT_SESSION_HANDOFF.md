@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-17（依赖收敛，单 pom：`eva-infra-shared/pom.xml` 去 `eva-infra-dal` 编译期依赖，保持行为不变）**
+- ✅ 背景（保持行为不变）：Serena 证据化确认 `eva-infra-shared/src/main/java` 仍存在 `import edu.cuit.infra.dal.*`（主要为 `dataobject.*` 包名稳定性与 LDAP 子簇），但相关类型已下沉至 `shared-kernel` 或归位到对应 BC；因此 `eva-infra-shared` 不再需要通过 Maven 直依赖 `eva-infra-dal` 来获得编译期类型。
+- ✅ 执行（单 pom，保持行为不变）：移除 `eva-infra-shared/pom.xml` 中对 `eva-infra-dal` 的 Maven 编译期直依赖，避免无效依赖掩盖后续“reactor 退场”判断。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；本次 `mvnd` 仍在启动阶段报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
+- 📌 代码落地：`5975ab10`。
+
 **2026-02-17（shared-kernel 下沉，单类：`EntityFactory` 归位到 `shared-kernel`，保持行为不变）**
 - ✅ 背景（保持行为不变）：Serena 证据化确认 `EntityFactory` 引用面跨 `bc-iam/**`、`bc-evaluation/**`、`bc-audit/**`、`bc-messaging/**` 且仍被 `eva-infra-shared` 多个 Convertor/BizConvertor 使用，不满足“单 BC/单模块归位”的条件。
 - ✅ 执行（单类，保持行为不变）：将 `EntityFactory` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.convertor` 与类内容不变，仅改变 Maven 模块归属）。
@@ -1507,7 +1513,8 @@
 
 - 📊 **整体未完成清单（更新至 2026-02-17；保持行为不变）**：
 - `eva-infra-dal`：当前仍有 `0` 个 Java + `0` 个 XML 处于共享模块内（可复现口径：`fd -t f -e java . eva-infra-dal/src/main/java | wc -l` + `if [ -d eva-infra-dal/src/main/resources ]; then fd -t f -e xml . eva-infra-dal/src/main/resources | wc -l; else echo 0; fi`；注意：`eva-infra-dal/src/main/resources` 当前已不存在，属于“已清空并删除目录”的正常状态）。
-    - 结论（保持行为不变）：`eva-infra-dal` 的 Java/XML 残留已清零。
+	    - 结论（保持行为不变）：`eva-infra-dal` 的 Java/XML 残留已清零。
+	    - 补充（保持行为不变）：`eva-infra-shared/pom.xml` 已移除对 `eva-infra-dal` 的 Maven 编译期直依赖；因此下一刀可优先评估将 `<module>eva-infra-dal</module>` 从 root reactor 移除（单 `pom.xml` 闭环）。
   - `eva-infra-shared`：当前仍有 `9` 个 Java，且多 BC 仍直依赖该模块（可复现口径：`fd -t f -e java . eva-infra-shared/src/main/java | wc -l` + `rg -n "<artifactId>eva-infra-shared</artifactId>" --glob "**/pom.xml" bc-* | head`）。
   - `eva-base-common`：当前仍有 `2` 个 Java（`GenericPattern/LogModule`），且 `bc-iam/contract` 与 `bc-iam/infrastructure` 仍显式依赖（可复现口径：`fd -t f -e java . eva-base/eva-base-common/src/main/java | wc -l` + `rg -n "<artifactId>eva-base-common</artifactId>" --glob "**/pom.xml" .`）。
   - `eva-infra-shared` 残留结构（Serena + `rg` 证据化，保持行为不变）：`CourseBizConvertor/CourseConvertor/MenuConvertor/UserConverter` 在 `eva-infra-shared/src/main/java` 内均仅自引用（无内部依赖）；LDAP 子簇 `LdapGroupDO/LdapGroupRepo/LdapConstants/EvaLdapProperties/EvaLdapUtils` 仍互相依赖（`EvaLdapUtils` ↔ `LdapConstants` + `LdapGroupRepo/DO`），暂不适合无前置直接单类搬运。

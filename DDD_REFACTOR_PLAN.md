@@ -517,6 +517,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-12，保持行为不变；单类闭环）：已将 `EntityFactory` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.convertor` 与类内容不变；不引入新缓存/切面副作用；最小回归通过；落地：`eba15e92`）。
 - ✅ 补充进展（2026-02-17，保持行为不变，编译闭合前置，单 pom）：为后续将 `EntityFactory` 从 `eva-infra-dal` 继续下沉到 `shared-kernel` 做准备，在 `shared-kernel/pom.xml` 补齐 `mapstruct(optional)` 依赖（仅用于源码编译闭合；最小回归通过；落地：`a0030694`）。
 - ✅ 补充进展（2026-02-17，保持行为不变；单类闭环）：已将 `EntityFactory` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.convertor` 与类内容不变，仅改变 Maven 模块归属；口径更新：`eva-infra-dal` Java 余量由 `1` 变更为 `0`；最小回归通过；落地：`86754419`）。
+- ✅ 补充进展（2026-02-17，保持行为不变，依赖收敛，单 pom）：收敛 `eva-infra-shared/pom.xml`：移除对 `eva-infra-dal` 的 Maven 编译期直依赖（最小回归通过；落地：`5975ab10`）。
 - ✅ 补充进展（2026-02-12，保持行为不变；单资源闭环）：已将 `SysUserMapper.xml` 从 `eva-infra-dal` 搬运归位到 `bc-iam/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`3dad6ef7`）。
 - ✅ 补充进展（2026-02-12，保持行为不变，跨 BC 直连清零前置，单 pom）：在 `bc-evaluation/infrastructure/pom.xml` 显式增加对 `bc-course` 的 Maven 编译期依赖，用于让评教侧编译期引用课程域查询端口 `CourseIdByCourInfIdQueryPort`（运行期仍由组合根装配 `bc-course-infra` 的实现；最小回归通过；落地：`f2188237`）。
 - ✅ 补充进展（2026-02-15，保持行为不变，编译闭合前置，单 pom）：为后续将课程域 `CourseMapper/SemesterMapper/CourInfMapper/SubjectMapper` 从 `eva-infra-dal` 逐类归位到 `bc-course-infra` 做准备，在 `bc-evaluation/infrastructure/pom.xml` 显式增加对 `bc-course-infra` 的 Maven 编译期依赖（最小回归通过；落地：`eb0bbbec`）。
@@ -1574,7 +1575,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
     - 依赖：`eva-infra-shared/pom.xml` 增加 `mapstruct-plus-spring-boot-starter`；并增加对 `eva-domain` 的依赖以保留 `hutool SpringUtil` 与 `cola SysException` 的依赖来源
   - 阶段 2.11（已完成）：迁移 `PaginationConverter` 到 `eva-infra-shared`（保持包名不变；保持行为不变；落地提交：`54d5fecd`）。
     - Java：`eva-infra-shared/src/main/java/edu/cuit/infra/convertor/PaginationConverter.java`
-    - 依赖：`eva-infra-shared/pom.xml` 增加对 `eva-infra-dal` 的依赖以保持编译闭包（行为不变）
+	    - 依赖：`eva-infra-shared/pom.xml` 增加对 `eva-infra-dal` 的依赖以保持编译闭包（历史记录；后续 2026-02-17 已移除该依赖，保持行为不变）
   - 阶段 2.12（已完成）：迁移 `convertor.user` 的非 LDAP 转换器到 `eva-infra-shared`（保持包名不变；保持行为不变；落地提交：`6c798f1b`）。
     - Java：`eva-infra-shared/src/main/java/edu/cuit/infra/convertor/user/{MenuConvertor,RoleConverter,UserConverter}.java`
   - 阶段 2.13（已完成）：迁移 LDAP DO/Repo 到 `eva-infra-shared`（保持包名不变；保持行为不变；落地提交：`aca70b8b`）。
