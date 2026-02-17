@@ -110,6 +110,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-02-17）**
+- ✅ S0.2 延伸（shared-kernel 下沉，单类，保持行为不变）：已将 LDAP 数据对象 `LdapGroupDO` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.dal.ldap.dataobject` 与类内容不变，仅改变 Maven 模块归属；最小回归通过；口径更新：`eva-infra-shared` Java 余量由 `7` 变更为 `6`；落地：`03ecd906`）。
 - ✅ S0.2 延伸（编译闭合前置，单 pom，保持行为不变）：为后续下沉 LDAP DO/Repo（含 Spring LDAP ODM 注解）做准备，在 `shared-kernel/pom.xml` 补齐 `org.springframework.ldap:spring-ldap-core(optional)`（Serena 证据化：`LdapGroupDO` 使用 `@Entry/@Attribute/@Id`；最小回归通过；落地：`473b48a7`）。
 - ✅ S0.2 延伸（shared-kernel 下沉，单类，保持行为不变）：已将 LDAP 配置类 `EvaLdapProperties` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.property` 与类内容不变，仅改变 Maven 模块归属；Serena 证据化：引用面仅命中 `EvaLdapUtils`；最小回归通过；口径更新：`eva-infra-shared` Java 余量由 `8` 变更为 `7`；落地：`666a1b6d`）。
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-messaging/pom.xml`：移除对 `eva-infra-shared` 的依赖（Serena 证伪 `bc-messaging/**` 无 `eva-infra-shared` 残留支撑类引用；最小回归通过；落地：`bdd9527d`）。
@@ -161,7 +162,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ Serena 证据化（保持行为不变）：`CourseFormat` 引用面仍跨 `bc-course/**` 与 `bc-evaluation/**`，且 `selectCourOneEvaTemplateDO(...)` 仍被 `ICourseDetailServiceImpl` 调用；本次未做类搬运，仅做依赖前置。
 - ✅ 方案 B（严格，保持行为不变，单类解耦前置）：`CourseFormat` 已将对 `CourOneEvaTemplateMapper/CourOneEvaTemplateDO` 的编译期强依赖收敛为反射调用（`@Qualifier("courOneEvaTemplateMapper") Object` + 反射 `selectOne/getFormTemplate`），异常文案“类型转换异常”、查询条件与副作用顺序不变（最小回归通过；落地：`8b4f69e2`）。
 - ✅ 方案 B（严格，保持行为不变，单类搬运）：`CourseFormat` 已从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.gateway.impl.course.operate` 与类内容不变；最小回归通过；落地：`dff4e751`）。
-- ✅ 证据化补充（2026-02-13，保持行为不变）：`eva-infra-shared` 当前仍有残留类；其中 `CourseBizConvertor/CourseConvertor/UserConverter` 在 shared 内仅自引用；LDAP 子簇（`LdapGroupDO/LdapGroupRepo/LdapConstants/EvaLdapUtils`）存在互相依赖（其中配置类 `EvaLdapProperties` 已下沉到 `shared-kernel`：`666a1b6d`），后续需按“先证据化再搬运”推进。
+- ✅ 证据化补充（2026-02-13，保持行为不变）：`eva-infra-shared` 当前仍有残留类；其中 `CourseBizConvertor/CourseConvertor/UserConverter` 在 shared 内仅自引用；LDAP 子簇（`LdapGroupRepo/LdapConstants/EvaLdapUtils`）存在互相依赖（其中配置类 `EvaLdapProperties` 已下沉到 `shared-kernel`：`666a1b6d`），后续需按“先证据化再搬运”推进。
 - ✅ 证据化补充（2026-02-13，保持行为不变）：`CourseConvertor` 迁移评估已完成：其 import 仍依赖 `eva-infra-dal`（`EntityFactory` + 多项 `DO/Mapper`），且当前存在 `eva-infra-dal -> shared-kernel` 既有依赖；若直接补 `shared-kernel -> eva-infra-dal` 将形成循环依赖，故本轮不执行单类搬运。
 - ✅ S0.2 延伸（DAL 拆散试点：课程域 `cour_inf`，保持行为不变，单资源闭环）：`CourInfMapper.xml` 已从 `eva-infra-dal` 搬运归位到 `bc-course/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`4eb6681c`）。
 - ✅ S0.2 延伸（DAL 拆散试点：课程域 `subject`，保持行为不变，单资源闭环）：`SubjectMapper.xml` 已从 `eva-infra-dal` 搬运归位到 `bc-course/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`92374d53`）。
