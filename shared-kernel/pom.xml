@@ -60,17 +60,25 @@
             <artifactId>hibernate-validator</artifactId>
         </dependency>
 
-        <!-- 方案 B（严格）：为后续下沉含 Spring 注解的共享常量类（如 *CacheConstants）做编译闭合前置（保持行为不变） -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <optional>true</optional>
-        </dependency>
+	        <!-- 方案 B（严格）：为后续下沉含 Spring 注解的共享常量类（如 *CacheConstants）做编译闭合前置（保持行为不变） -->
+	        <dependency>
+	            <groupId>org.springframework</groupId>
+	            <artifactId>spring-context</artifactId>
+	            <optional>true</optional>
+	        </dependency>
+	
+	        <!-- 方案 B（严格）：为下沉 EntityFactory 提供 MapStruct 注解依赖（保持行为不变；不强制向下游传递） -->
+	        <dependency>
+	            <groupId>org.mapstruct</groupId>
+	            <artifactId>mapstruct</artifactId>
+	            <version>${mapstruct.version}</version>
+	            <optional>true</optional>
+	        </dependency>
 
-        <!-- 方案 B（严格）：为后续下沉 CourseFormat 做编译闭合前置（保持行为不变） -->
-        <dependency>
-            <groupId>edu.cuit.zhuyimeng</groupId>
-            <artifactId>zym-spring-boot-starter-jdbc</artifactId>
+	        <!-- 方案 B（严格）：为后续下沉 CourseFormat 做编译闭合前置（保持行为不变） -->
+	        <dependency>
+	            <groupId>edu.cuit.zhuyimeng</groupId>
+	            <artifactId>zym-spring-boot-starter-jdbc</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
