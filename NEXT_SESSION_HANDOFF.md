@@ -1506,8 +1506,8 @@
 ### 0.10.1 最新状态 & 下一步建议（滚动更新至 2026-02-17；聚焦：S0.2 延伸（`eva-infra-dal` 按 BC 拆散 + `eva-infra-shared` 瘦身），保持行为不变）
 
 - 📊 **整体未完成清单（更新至 2026-02-17；保持行为不变）**：
-  - `eva-infra-dal`：当前仍有 `1` 个 Java + `0` 个 XML 处于共享模块内（可复现口径：`fd -t f -e java . eva-infra-dal/src/main/java | wc -l` + `if [ -d eva-infra-dal/src/main/resources ]; then fd -t f -e xml . eva-infra-dal/src/main/resources | wc -l; else echo 0; fi`；注意：`eva-infra-dal/src/main/resources` 当前已不存在，属于“已清空并删除目录”的正常状态）。
-    - 剩余清单（保持行为不变；仅结构性归位，`package` 不变）：`edu.cuit.infra.convertor.EntityFactory`。
+- `eva-infra-dal`：当前仍有 `0` 个 Java + `0` 个 XML 处于共享模块内（可复现口径：`fd -t f -e java . eva-infra-dal/src/main/java | wc -l` + `if [ -d eva-infra-dal/src/main/resources ]; then fd -t f -e xml . eva-infra-dal/src/main/resources | wc -l; else echo 0; fi`；注意：`eva-infra-dal/src/main/resources` 当前已不存在，属于“已清空并删除目录”的正常状态）。
+    - 结论（保持行为不变）：`eva-infra-dal` 的 Java/XML 残留已清零。
   - `eva-infra-shared`：当前仍有 `9` 个 Java，且多 BC 仍直依赖该模块（可复现口径：`fd -t f -e java . eva-infra-shared/src/main/java | wc -l` + `rg -n "<artifactId>eva-infra-shared</artifactId>" --glob "**/pom.xml" bc-* | head`）。
   - `eva-base-common`：当前仍有 `2` 个 Java（`GenericPattern/LogModule`），且 `bc-iam/contract` 与 `bc-iam/infrastructure` 仍显式依赖（可复现口径：`fd -t f -e java . eva-base/eva-base-common/src/main/java | wc -l` + `rg -n "<artifactId>eva-base-common</artifactId>" --glob "**/pom.xml" .`）。
   - `eva-infra-shared` 残留结构（Serena + `rg` 证据化，保持行为不变）：`CourseBizConvertor/CourseConvertor/MenuConvertor/UserConverter` 在 `eva-infra-shared/src/main/java` 内均仅自引用（无内部依赖）；LDAP 子簇 `LdapGroupDO/LdapGroupRepo/LdapConstants/EvaLdapProperties/EvaLdapUtils` 仍互相依赖（`EvaLdapUtils` ↔ `LdapConstants` + `LdapGroupRepo/DO`），暂不适合无前置直接单类搬运。
@@ -1521,7 +1521,7 @@
   - 背景：`SysUserMapper.xml` 与 `SysUserMapper.java` 均已归位到 `bc-iam/infrastructure`；并已删除 `eva-infra-dal` 旧位置同名类，避免 classpath 重复。
   - ✅ 已完成（保持行为不变）：`CourseConvertor` 去 `SysUserMapper` 无用 import（`1e0af235`）；`EvaUpdateGatewayImpl` 去 `SysUserMapper` 编译期依赖（`364c63a0`）；`DeleteEvaRecordRepositoryImpl` 去 `SysUserMapper` 编译期依赖（`c0f94380`）；`PostEvaTaskRepositoryImpl` 去 `SysUserMapper` 编译期依赖（`89fbc439`）；`SubmitEvaluationRepositoryImpl` 去 `SysUserMapper` 编译期依赖（`055db608`）；`EvaTaskQueryRepository` 去 `SysUserMapper` 编译期依赖（`7caaec02`）；`EvaStatisticsQueryRepository` 去 `SysUserMapper` 编译期依赖（`28338204`）；`EvaRecordQueryRepository` 去 `SysUserMapper` 编译期依赖（`0e190e6c`）；`AssignEvaTeachersRepositoryImpl` 去 `SysUserMapper` 编译期依赖（`712c4eb7`）；`DeleteCourseRepositoryImpl` 去 `SysUserMapper` 编译期依赖（`9dd8a7d1`）；`DeleteCoursesRepositoryImpl` 去 `SysUserMapper` 编译期依赖（`b193156d`）；`DeleteSelfCourseRepositoryImpl` 去 `SysUserMapper` 编译期依赖（`71060e69`）；`UpdateCourseInfoRepositoryImpl` 去 `SysUserMapper` 编译期依赖（`d5415b0a`）；`UpdateSelfCourseRepositoryImpl` 去 `SysUserMapper` 编译期依赖（`17c4bd19`）；`UpdateSingleCourseRepositoryImpl` 去 `SysUserMapper` 编译期依赖（`15135886`）；`CourseImportExce` 去 `SysUserMapper` 编译期依赖（`e3cf8426`）；`CourseRecommendExce` 去 `SysUserMapper` 编译期依赖（`cccf259b`）；`CourseQueryRepository` 去 `SysUserMapper` 编译期依赖（`ec1da722`）；`SysUserMapper.java` 归位到 `bc-iam/infrastructure`（`ff591e46`）。
   - ✅ 结论（保持行为不变）：非 IAM 模块对 `SysUserMapper` 的编译期依赖已清零，且 `SysUserMapper` 已完成归位。
-  - 下一刀建议（每刀 1 类，保持行为不变）：继续按“引用面仅命中单一 BC 才允许归位”的规则，逐类评估并归位 `eva-infra-dal` 的剩余 Java（当前仅剩 `EntityFactory`；仅当引用面可证伪为“单 BC/单模块”时再归位，否则继续留在 `eva-infra-dal` 作为共享），每刀仍需 Serena 证据化后闭环。
+- 下一刀建议（单 pom，保持行为不变）：评估是否可以让 `eva-infra-dal` 从 root reactor 退场（前置：Serena 证伪无模块仍显式依赖；每刀仍需严格闭环）。
 
 - 🧭 **策略选择（更新至 2026-02-12）：执行方案 B（严格）—— 彻底退场 `eva-*` 技术切片（保持行为不变）**：
   - 目标：最终仓库内仅保留 `bc-*` + `shared-kernel` + 组合根 `start`（以及必要的聚合父 pom）；跨 BC 只通过 `*-contract` + `shared-kernel` 对外接口调用；不再存在任何 `eva-*` 模块与 Maven 依赖。
@@ -1533,12 +1533,12 @@
 
 - 🎯 **下一步重构计划（建议，保持行为不变；每次只改 1 个类/1 个 XML/1 个 pom 闭环）**：
   0) ✅ IAM（阶段性关闭，保持行为不变）：Serena 证伪 `bc-*`（排除 `bc-iam/**`）范围内无 `SysUserRoleMapper`/`SysRoleMapper` 引用点；若后续新增/回归引用点，仍按“每次只改 1 个类”将直连装配/查询收敛为调用 `bc-iam-contract` 端口 `UserEntityObjectByIdDirectQueryPort`（异常文案/副作用顺序完全不变；不引入新缓存/切面副作用）。
-  1) ✅ 主线优先（shared 瘦身，单类闭环，保持行为不变）：已将 `EntityFactory` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package/类内容` 不变；最小回归通过；落地：`eba15e92`）。
-     - 文件：`eva-infra-shared/src/main/java/edu/cuit/infra/convertor/EntityFactory.java` → `eva-infra-dal/src/main/java/edu/cuit/infra/convertor/EntityFactory.java`
+  1) ✅ 主线优先（shared 瘦身，单类闭环，保持行为不变）：`EntityFactory` 已完成下沉链路：`eva-infra-shared` → `eva-infra-dal` → `shared-kernel`（保持 `package/类内容` 不变；最小回归通过；最新落地以 Git 为准）。
+     - 文件：`eva-infra-shared/src/main/java/edu/cuit/infra/convertor/EntityFactory.java` → `eva-infra-dal/src/main/java/edu/cuit/infra/convertor/EntityFactory.java` → `shared-kernel/src/main/java/edu/cuit/infra/convertor/EntityFactory.java`
   2) ✅ 主线优先（dal 拆散，IAM，单资源闭环，保持行为不变）：已将 `SysUserMapper.xml` 从 `eva-infra-dal` 搬运归位到 `bc-iam/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`3dad6ef7`）。
      - `eva-infra-dal/src/main/resources/mapper/user/SysUserMapper.xml` → `bc-iam/infrastructure/src/main/resources/mapper/user/SysUserMapper.xml`
   3) 🎯 主线优先（方案 1：跨 BC 直连清零，课程域，保持行为不变）：已完成 `CourseIdByCourInfIdQueryPort` + `CourseIdByCourInfIdQueryPortImpl`，并已完成评教侧编译闭合前置（`bc-evaluation/infrastructure/pom.xml` 补齐对 `bc-course` 的 Maven 编译期依赖；落地：`f2188237`），且已将 `EvaTemplateQueryRepository.getTaskTemplate(...)` 的 `CourInfMapper.selectById` 直连收敛为端口调用（落地：`67755034`；异常文案/分支顺序不变）。补充进展：评教侧记录读仓储 `EvaRecordQueryRepository` 已去 `CourInfMapper.selectList(...)` 直连（落地：`13889255`）。下一刀建议：评教侧 `CourInfMapper` 跨 BC 直连已阶段性清零后，继续清理其它 BC（优先 `bc-template/**`）对课程域 `CourInfMapper` 的跨 BC 直连，收敛为调用 `bc-course` 的 `CourInfObjectDirectQueryPort`/`CourInfTimeSlotQueryPort`（保持行为不变）。
-  4) 并行推进（dal 拆散）：继续推进 `eva-infra-dal` 按 BC 拆散（Mapper/DO/XML）。做法：先用 Serena 对候选文件做“引用面证伪”，只挑“引用面仅命中单一 BC（例如 `bc-iam/**` 或 `bc-course/**`）”的文件搬运归位；每刀严格闭环（Serena → mvnd → commit → 三文档 → commit → push）。
+  4) 并行推进（dal 收尾）：`eva-infra-dal` 的 Java/XML 残留已清零；下一步建议转向“依赖方收敛 + reactor 退场”（每次只改 1 个 `pom.xml`，仍需 Serena 证据化与最小回归闭环）。
   5) 风险簇（暂不建议直接动，避免破坏‘单类一刀’节奏）：LDAP 相关 `EvaLdapUtils`/`LdapConstants`/`EvaLdapProperties`/`LdapGroupRepo`/`LdapGroupDO` 当前存在跨模块互相依赖与静态初始化耦合（Serena 证据化：`LdapConstants` 依赖 `EvaLdapUtils`，而 `EvaLdapUtils` 又依赖 `LdapConstants` 与 `LdapGroupRepo/DO`），若要归位到 `bc-iam/infrastructure` 需要设计“多刀编排顺序/过渡壳”，否则会导致 `eva-infra-shared` 编译断裂。
 
 - 📅 **下一步排期建议（按“刀”计，保持行为不变；按产能 2–4 刀/天粗估）**：
