@@ -518,6 +518,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-17，保持行为不变，编译闭合前置，单 pom）：为后续将 `EntityFactory` 从 `eva-infra-dal` 继续下沉到 `shared-kernel` 做准备，在 `shared-kernel/pom.xml` 补齐 `mapstruct(optional)` 依赖（仅用于源码编译闭合；最小回归通过；落地：`a0030694`）。
 - ✅ 补充进展（2026-02-17，保持行为不变；单类闭环）：已将 `EntityFactory` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.convertor` 与类内容不变，仅改变 Maven 模块归属；口径更新：`eva-infra-dal` Java 余量由 `1` 变更为 `0`；最小回归通过；落地：`86754419`）。
 - ✅ 补充进展（2026-02-17，保持行为不变，编译闭合前置，单 pom）：为后续下沉 LDAP DO/Repo（含 Spring LDAP ODM 注解）做准备，在 `shared-kernel/pom.xml` 补齐 `spring-ldap-core(optional)` 依赖（最小回归通过；落地：`473b48a7`）。
+- ✅ 补充进展（2026-02-17，保持行为不变，编译闭合前置，单 pom）：为后续下沉 LDAP Repo `LdapGroupRepo`（依赖 `LdapRepository`）做准备，在 `shared-kernel/pom.xml` 补齐 `spring-data-ldap(optional)` 依赖（最小回归通过；落地：`9dad61a8`）。
 - ✅ 补充进展（2026-02-17，保持行为不变，shared-kernel 下沉，单类闭环）：已将 LDAP 配置类 `EvaLdapProperties` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.property` 与类内容不变，仅改变 Maven 模块归属；最小回归通过；口径更新：`eva-infra-shared` Java 余量由 `8` 变更为 `7`；落地：`666a1b6d`）。
 - ✅ 补充进展（2026-02-17，保持行为不变，shared-kernel 下沉，单类闭环）：已将 LDAP 数据对象 `LdapGroupDO` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.dal.ldap.dataobject` 与类内容不变，仅改变 Maven 模块归属；最小回归通过；口径更新：`eva-infra-shared` Java 余量由 `7` 变更为 `6`；落地：`03ecd906`）。
 - ✅ 补充进展（2026-02-17，保持行为不变，依赖收敛，单 pom）：收敛 `eva-infra-shared/pom.xml`：移除对 `eva-infra-dal` 的 Maven 编译期直依赖（最小回归通过；落地：`5975ab10`）。

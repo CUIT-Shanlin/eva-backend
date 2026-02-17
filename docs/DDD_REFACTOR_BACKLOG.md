@@ -112,6 +112,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 **已完成（更新至 2026-02-17）**
 - ✅ S0.2 延伸（shared-kernel 下沉，单类，保持行为不变）：已将 LDAP 数据对象 `LdapGroupDO` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.dal.ldap.dataobject` 与类内容不变，仅改变 Maven 模块归属；最小回归通过；口径更新：`eva-infra-shared` Java 余量由 `7` 变更为 `6`；落地：`03ecd906`）。
 - ✅ S0.2 延伸（编译闭合前置，单 pom，保持行为不变）：为后续下沉 LDAP DO/Repo（含 Spring LDAP ODM 注解）做准备，在 `shared-kernel/pom.xml` 补齐 `org.springframework.ldap:spring-ldap-core(optional)`（Serena 证据化：`LdapGroupDO` 使用 `@Entry/@Attribute/@Id`；最小回归通过；落地：`473b48a7`）。
+- ✅ S0.2 延伸（编译闭合前置，单 pom，保持行为不变）：为后续下沉 LDAP Repo `LdapGroupRepo`（依赖 `LdapRepository`）做准备，在 `shared-kernel/pom.xml` 补齐 `org.springframework.data:spring-data-ldap(optional)`（Serena 证据化：`LdapGroupRepo` 存在 `import org.springframework.data.ldap.repository.LdapRepository;`；最小回归通过；落地：`9dad61a8`）。
 - ✅ S0.2 延伸（shared-kernel 下沉，单类，保持行为不变）：已将 LDAP 配置类 `EvaLdapProperties` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.property` 与类内容不变，仅改变 Maven 模块归属；Serena 证据化：引用面仅命中 `EvaLdapUtils`；最小回归通过；口径更新：`eva-infra-shared` Java 余量由 `8` 变更为 `7`；落地：`666a1b6d`）。
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-messaging/pom.xml`：移除对 `eva-infra-shared` 的依赖（Serena 证伪 `bc-messaging/**` 无 `eva-infra-shared` 残留支撑类引用；最小回归通过；落地：`bdd9527d`）。
 - ✅ S0.2 延伸（编译闭合纠偏，单 pom，保持行为不变）：收敛 `bc-messaging/pom.xml` 后，为避免依赖传递导致的“隐式编译期依赖”，显式补齐 `spring-boot-starter-websocket` 与 `org.mapstruct:mapstruct(${mapstruct.version})`（最小回归通过；落地：`bf0c3455`）。
@@ -1280,7 +1281,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ 补充进展（保持行为不变）：root `pom.xml` 已移除 `<module>eva-infra-dal</module>`，且已删除 `eva-infra-dal/pom.xml`（详见 4.2）。
 - 🎯 下一刀建议（目录退场，保持行为不变；每次只改 1 个文件闭环）：若 `eva-infra-dal/` 已为空目录，优先单独一刀删除该目录（避免 `fd -t d '^eva-' . -d 2` 口径漂移）；随后继续推进 `eva-infra-shared` 与 `eva-base` 的依赖收敛与归位。
 - 🎯 下一刀建议（shared 瘦身，LDAP 子簇续接，保持行为不变；每次只改 1 个文件闭环）：
-  - 刀 1（单 pom，依赖前置）：在 `shared-kernel/pom.xml` 增加 `spring-data-ldap(optional)`（或等价依赖），用于承接 `LdapGroupRepo` 的 `org.springframework.data.ldap.repository.LdapRepository` 编译期依赖（先 Serena 证据化再改 pom）。
+  - 刀 1（单 pom，依赖前置）：✅ 已完成：`shared-kernel/pom.xml` 已增加 `spring-data-ldap(optional)`（或等价依赖），用于承接 `LdapGroupRepo` 的 `org.springframework.data.ldap.repository.LdapRepository` 编译期依赖（落地：`9dad61a8`；保持行为不变）。
   - 刀 2（单类搬运）：将 `LdapGroupRepo` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package` 与接口签名不变；保持行为不变）。
   - 刀 3（后置，多刀编排）：`LdapConstants` / `EvaLdapUtils` 静态初始化互引风险高（历史证据：`EvaLdapUtils` ↔ `LdapConstants`），不建议直接动，需分刀推进。
 
