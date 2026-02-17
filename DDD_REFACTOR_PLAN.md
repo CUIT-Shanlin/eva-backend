@@ -604,6 +604,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-13，保持行为不变；方案 B：单类搬运）：已将 `CourseFormat` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.gateway.impl.course.operate` 与类内容不变；最小回归通过；落地：`dff4e751`）。
 - ✅ 证据化补充（2026-02-13，保持行为不变）：`eva-infra-shared` 剩余类中，`CourseBizConvertor/CourseConvertor/UserConverter` 在 shared 内仅自引用；LDAP 子簇（`LdapGroupRepo/LdapConstants/EvaLdapUtils`）仍互相依赖（其中配置类 `EvaLdapProperties` 已下沉到 `shared-kernel`：`666a1b6d`）。
 - ✅ 证据化补充（2026-02-17，保持行为不变）：LDAP 子簇已完成 `LdapGroupRepo` 下沉到 `shared-kernel`（落地：`7ff087ad`）；`eva-infra-shared` 当前 LDAP 残留为 `LdapConstants/EvaLdapUtils`，仍存在静态初始化/互引风险，需分刀推进。
+- ✅ 证据化补充（2026-02-17，保持行为不变）：为满足“单类一刀”且避免 Maven 循环依赖，已先将 `LdapConstants` 解耦为不再编译期引用 `EvaLdapUtils`（仍会触发 `EvaLdapUtils` 类初始化以保持副作用顺序不变；落地：`45fa9651`）；下一刀建议再将 `LdapConstants` 下沉到 `shared-kernel`。
 - ✅ 补充进展（2026-02-13，保持行为不变；Serena 证据化 + 风险评估）：`CourseConvertor` 引用面虽跨 `bc-course/**` 与 `bc-evaluation/**`，但 import 仍依赖 `eva-infra-dal` 内 `EntityFactory/DO/Mapper`；`shared-kernel` 当前不具备完整编译闭合，且若直接补 `shared-kernel -> eva-infra-dal` 将与现有 `eva-infra-dal -> shared-kernel` 形成循环依赖，因此本刀判定风险超阈值。
 - ✅ 补充进展（2026-02-13，保持行为不变；降级执行，单资源闭环）：已将 `CourInfMapper.xml` 从 `eva-infra-dal` 归位到 `bc-course/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`4eb6681c`）。
 - ✅ 补充进展（2026-02-13，保持行为不变；单资源闭环）：已将 `SubjectMapper.xml` 从 `eva-infra-dal` 归位到 `bc-course/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`92374d53`）。
