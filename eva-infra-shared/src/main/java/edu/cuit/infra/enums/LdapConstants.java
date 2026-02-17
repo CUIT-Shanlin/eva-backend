@@ -1,6 +1,8 @@
 package edu.cuit.infra.enums;
 
-import edu.cuit.infra.util.EvaLdapUtils;
+import edu.cuit.infra.property.EvaLdapProperties;
+
+import java.lang.reflect.Field;
 
 /**
  * Ldap相关常量
@@ -14,7 +16,17 @@ public class LdapConstants {
     public static final String GROUP_BASE_DN;
 
     static {
-        USER_BASE_DN = EvaLdapUtils.evaLdapProperties.getUserBaseDn();
-        GROUP_BASE_DN = EvaLdapUtils.evaLdapProperties.getGroupBaseDn();
+        try {
+            Class<?> evaLdapUtilsClass = Class.forName("edu.cuit.infra.util.EvaLdapUtils");
+            Field evaLdapPropertiesField = evaLdapUtilsClass.getField("evaLdapProperties");
+            EvaLdapProperties evaLdapProperties = (EvaLdapProperties) evaLdapPropertiesField.get(null);
+
+            USER_BASE_DN = evaLdapProperties.getUserBaseDn();
+            GROUP_BASE_DN = evaLdapProperties.getGroupBaseDn();
+        } catch (RuntimeException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new ExceptionInInitializerError(ex);
+        }
     }
 }
