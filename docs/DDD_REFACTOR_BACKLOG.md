@@ -3,7 +3,7 @@ title: DDD 渐进式重构目标清单与行为框架
 repo: eva-backend
 branch: ddd
 generated_at: 2025-12-18
-updated_at: 2026-02-13
+updated_at: 2026-02-17
 scope: 全仓库（离线扫描 + 规则归纳）
 ---
 
@@ -1262,7 +1262,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 （更新至 2026-02-17；保持行为不变）S0.2 延伸主线快照（用于新会话续接）：
 - `eva-infra-dal` 余量：`1` 个 Java + `0` 个 XML（口径：`fd -t f -e java . eva-infra-dal/src/main/java | wc -l`；目录不存在按 0：`if [ -d eva-infra-dal/src/main/resources ]; then ...; else echo 0; fi`）。
   - 剩余清单（保持行为不变；仅结构性归位，`package` 不变）：`edu.cuit.infra.convertor.EntityFactory`。
-- 下一刀建议（每次只改 1 个类；保持行为不变）：优先 `EntityFactory` 做 Serena 证据化；仅当引用面可证伪为“单 BC/单模块”时再归位，否则继续留在 `eva-infra-dal` 作为共享（保持 `package` 不变）。
+- 🎯 下一刀建议（每次只改 1 个文件；保持行为不变）：Serena 已证据化 `EntityFactory` 引用面跨 `bc-iam/**`、`bc-evaluation/**`、`bc-audit/**`、`bc-messaging/**` 与 `eva-infra-shared`，不满足“单 BC/单模块归位”条件；建议将其下沉到 `shared-kernel` 作为共享（保持 `package` 不变；若 `shared-kernel/pom.xml` 缺依赖则先做“单 pom 前置”）。
 
 阶段性策略微调（2025-12-29）：
 - ✅ 复核口径（2026-01-26，不改业务语义）：`spring-boot-starter-websocket` 仅由组合根 `start` 显式承接；并已将 `EvaConfigBizConvertor`、`EvaRecordBizConvertor`、`EvaTemplateBizConvertor` 从 `eva-app` 归位到 `eva-infra-shared`（保持行为不变）；`EvaTaskBizConvertor` 后续已从 `eva-infra-shared` 进一步归位到 `bc-evaluation/infrastructure`（保持行为不变；落地：`f3a2cf7f`）。并将 `EvaConfigService` 从 `eva-app` 归位到 `bc-evaluation-infra`（保持行为不变），并将 `UserCourseDetailQueryExec`、`FileImportExec`、`package-info.java` 从 `eva-app` 归位到 `bc-course-infra`（保持行为不变）。当前 `eva-app` 已退场（组合根去依赖：`0a9ff564`；reactor 移除：`b5f15a4b`；删除 `eva-app/pom.xml`：`4bfa9d40`）；`eva-adapter` 残留 Controller 口径以 `NEXT_SESSION_HANDOFF.md` 0.10.2 为准（当前 0 个，已清零）；组合根 `start` 已移除对 `eva-adapter` 的 Maven 依赖（落地：`92a70a9e`；保持行为不变）。补充：✅ 已完成消息入口归位前置（保持行为不变）：为后续将 `MessageController` 从 `eva-adapter` 归位到 `bc-messaging` 做编译闭合前置，在 `bc-messaging/pom.xml` 补齐 `spring-boot-starter-web`、`zym-spring-boot-starter-common`、`zym-spring-boot-starter-security`、`shared-kernel`（落地：`aa7d57bb`）。补充：✅ 已完成审计日志入口归位（保持行为不变）：`LogController` 已从 `eva-adapter` 归位到 `bc-audit/infrastructure`（编译闭合前置：`2464d2b9`；入口归位：`b592cc0f`）。
