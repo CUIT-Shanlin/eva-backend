@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-17（目录退场前置，单文件：删除 `eva-infra-dal/pom.xml`，保持行为不变）**
+- ✅ 背景（保持行为不变）：`eva-infra-dal` 已从 root reactor 退场，且全仓库 `**/pom.xml` 已无对 `eva-infra-dal` 的 Maven 依赖；因此其模块 `pom.xml` 仅作为历史遗留入口，继续保留反而会干扰“目录退场/依赖清零”的证据口径。
+- ✅ 执行（单文件，保持行为不变）：删除 `eva-infra-dal/pom.xml`（不改任何业务语义与副作用顺序）。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；本次 `mvnd` 仍在启动阶段报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
+- 📌 代码落地：`1c037aeb`。
+
 **2026-02-17（reactor 退场，单 pom：root `pom.xml` 移除 `<module>eva-infra-dal</module>`，保持行为不变）**
 - ✅ 背景（保持行为不变）：Serena 证伪全仓库 `**/pom.xml` 已无对 `eva-infra-dal` 的 `<artifactId>eva-infra-dal</artifactId>` 依赖；且 `eva-infra-dal` Java/XML 残留已清零，因此可将其从 root reactor 退场，降低后续“目录退场/依赖清零”工作量与误判风险。
 - ✅ 执行（单 pom，保持行为不变）：从根 `pom.xml` 的 `<modules>` 中移除 `eva-infra-dal`，不改任何业务语义与副作用顺序。
@@ -1518,9 +1524,7 @@
 ### 0.10.1 最新状态 & 下一步建议（滚动更新至 2026-02-17；聚焦：S0.2 延伸（`eva-infra-dal` 按 BC 拆散 + `eva-infra-shared` 瘦身），保持行为不变）
 
 - 📊 **整体未完成清单（更新至 2026-02-17；保持行为不变）**：
-- `eva-infra-dal`：当前仍有 `0` 个 Java + `0` 个 XML 处于共享模块内（可复现口径：`fd -t f -e java . eva-infra-dal/src/main/java | wc -l` + `if [ -d eva-infra-dal/src/main/resources ]; then fd -t f -e xml . eva-infra-dal/src/main/resources | wc -l; else echo 0; fi`；注意：`eva-infra-dal/src/main/resources` 当前已不存在，属于“已清空并删除目录”的正常状态）。
-	    - 结论（保持行为不变）：`eva-infra-dal` 的 Java/XML 残留已清零。
-	    - 补充（保持行为不变）：`eva-infra-shared/pom.xml` 已移除对 `eva-infra-dal` 的 Maven 编译期直依赖，且已从 root reactor 移除 `<module>eva-infra-dal</module>`（单 `pom.xml` 闭环已完成）。
+  - ✅ `eva-infra-dal`：已从 root reactor 退场，且已删除 `eva-infra-dal/pom.xml`（保持行为不变；后续仅剩目录清理，若为空目录可单独一刀 `rmdir eva-infra-dal`）。
   - `eva-infra-shared`：当前仍有 `9` 个 Java，且多 BC 仍直依赖该模块（可复现口径：`fd -t f -e java . eva-infra-shared/src/main/java | wc -l` + `rg -n "<artifactId>eva-infra-shared</artifactId>" --glob "**/pom.xml" bc-* | head`）。
   - `eva-base-common`：当前仍有 `2` 个 Java（`GenericPattern/LogModule`），且 `bc-iam/contract` 与 `bc-iam/infrastructure` 仍显式依赖（可复现口径：`fd -t f -e java . eva-base/eva-base-common/src/main/java | wc -l` + `rg -n "<artifactId>eva-base-common</artifactId>" --glob "**/pom.xml" .`）。
   - `eva-infra-shared` 残留结构（Serena + `rg` 证据化，保持行为不变）：`CourseBizConvertor/CourseConvertor/MenuConvertor/UserConverter` 在 `eva-infra-shared/src/main/java` 内均仅自引用（无内部依赖）；LDAP 子簇 `LdapGroupDO/LdapGroupRepo/LdapConstants/EvaLdapProperties/EvaLdapUtils` 仍互相依赖（`EvaLdapUtils` ↔ `LdapConstants` + `LdapGroupRepo/DO`），暂不适合无前置直接单类搬运。
@@ -1534,7 +1538,7 @@
   - 背景：`SysUserMapper.xml` 与 `SysUserMapper.java` 均已归位到 `bc-iam/infrastructure`；并已删除 `eva-infra-dal` 旧位置同名类，避免 classpath 重复。
   - ✅ 已完成（保持行为不变）：`CourseConvertor` 去 `SysUserMapper` 无用 import（`1e0af235`）；`EvaUpdateGatewayImpl` 去 `SysUserMapper` 编译期依赖（`364c63a0`）；`DeleteEvaRecordRepositoryImpl` 去 `SysUserMapper` 编译期依赖（`c0f94380`）；`PostEvaTaskRepositoryImpl` 去 `SysUserMapper` 编译期依赖（`89fbc439`）；`SubmitEvaluationRepositoryImpl` 去 `SysUserMapper` 编译期依赖（`055db608`）；`EvaTaskQueryRepository` 去 `SysUserMapper` 编译期依赖（`7caaec02`）；`EvaStatisticsQueryRepository` 去 `SysUserMapper` 编译期依赖（`28338204`）；`EvaRecordQueryRepository` 去 `SysUserMapper` 编译期依赖（`0e190e6c`）；`AssignEvaTeachersRepositoryImpl` 去 `SysUserMapper` 编译期依赖（`712c4eb7`）；`DeleteCourseRepositoryImpl` 去 `SysUserMapper` 编译期依赖（`9dd8a7d1`）；`DeleteCoursesRepositoryImpl` 去 `SysUserMapper` 编译期依赖（`b193156d`）；`DeleteSelfCourseRepositoryImpl` 去 `SysUserMapper` 编译期依赖（`71060e69`）；`UpdateCourseInfoRepositoryImpl` 去 `SysUserMapper` 编译期依赖（`d5415b0a`）；`UpdateSelfCourseRepositoryImpl` 去 `SysUserMapper` 编译期依赖（`17c4bd19`）；`UpdateSingleCourseRepositoryImpl` 去 `SysUserMapper` 编译期依赖（`15135886`）；`CourseImportExce` 去 `SysUserMapper` 编译期依赖（`e3cf8426`）；`CourseRecommendExce` 去 `SysUserMapper` 编译期依赖（`cccf259b`）；`CourseQueryRepository` 去 `SysUserMapper` 编译期依赖（`ec1da722`）；`SysUserMapper.java` 归位到 `bc-iam/infrastructure`（`ff591e46`）。
   - ✅ 结论（保持行为不变）：非 IAM 模块对 `SysUserMapper` 的编译期依赖已清零，且 `SysUserMapper` 已完成归位。
-- 下一刀建议（单 pom，保持行为不变）：评估是否可以让 `eva-infra-dal` 从 root reactor 退场（前置：Serena 证伪无模块仍显式依赖；每刀仍需严格闭环）。
+- 下一刀建议（目录退场，保持行为不变）：若 `eva-infra-dal/` 已为空目录，优先单独一刀删除该目录（避免 `fd -t d '^eva-' . -d 2` 口径漂移）；随后继续推进 `eva-infra-shared` 瘦身与依赖方收敛（每刀只改 1 个文件闭环）。
 
 - 🧭 **策略选择（更新至 2026-02-12）：执行方案 B（严格）—— 彻底退场 `eva-*` 技术切片（保持行为不变）**：
   - 目标：最终仓库内仅保留 `bc-*` + `shared-kernel` + 组合根 `start`（以及必要的聚合父 pom）；跨 BC 只通过 `*-contract` + `shared-kernel` 对外接口调用；不再存在任何 `eva-*` 模块与 Maven 依赖。

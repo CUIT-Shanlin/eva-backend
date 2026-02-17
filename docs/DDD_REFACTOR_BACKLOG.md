@@ -114,6 +114,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（shared-kernel 下沉，单类，保持行为不变）：已将 `EntityFactory` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.convertor` 与类内容不变，仅改变 Maven 模块归属；口径更新：`eva-infra-dal` Java 余量由 `1` 变更为 `0`；最小回归通过；落地：`86754419`）。
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `eva-infra-shared/pom.xml`：移除对 `eva-infra-dal` 的 Maven 编译期直依赖（最小回归通过；落地：`5975ab10`）。
 - ✅ S0.2 延伸（reactor 退场，单 pom，保持行为不变）：root `pom.xml` 已移除 `<module>eva-infra-dal</module>`（最小回归通过；落地：`dfe4e5f3`）。
+- ✅ S0.2 延伸（目录退场前置，单文件，保持行为不变）：已删除 `eva-infra-dal/pom.xml`（最小回归通过；落地：`1c037aeb`）。
 - ✅ S0.2 延伸（DAL 拆散试点：课程 DO 下沉，保持行为不变，单类闭环）：已将 `CourseTypeDO` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.dal.database.dataobject.course` 与类内容不变，仅改变 Maven 模块归属；Serena 证据化：引用面命中 `bc-course/infrastructure` 与 `eva-infra-shared`；最小回归通过；口径更新：`eva-infra-dal` Java 余量由 `2` 变更为 `1`；落地：`6c66a6dc`）。
 - ✅ S0.2 延伸（DAL 拆散试点：评教 DO 下沉，保持行为不变，单类闭环）：已将 `EvaTaskDO` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.dal.database.dataobject.eva` 与类内容不变，仅改变 Maven 模块归属；Serena 证据化：引用面命中 `bc-evaluation/infrastructure`、`bc-course/infrastructure` 与 `bc-template/infrastructure`；最小回归通过；口径更新：`eva-infra-dal` Java 余量由 `3` 变更为 `2`；落地：`49fa7eef`）。
 - ✅ S0.2 延伸（DAL 拆散试点：评教 DO 下沉，保持行为不变，单类闭环）：已将 `FormRecordDO` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.dal.database.dataobject.eva` 与类内容不变，仅改变 Maven 模块归属；Serena 证据化：引用面命中 `bc-evaluation/infrastructure`、`bc-course/infrastructure` 与 `bc-template/infrastructure`；最小回归通过；口径更新：`eva-infra-dal` Java 余量由 `4` 变更为 `3`；落地：`83b44804`）。
@@ -1266,8 +1267,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
 （更新至 2026-02-17；保持行为不变）S0.2 延伸主线快照（用于新会话续接）：
 - `eva-infra-dal` 余量：`0` 个 Java + `0` 个 XML（口径：`fd -t f -e java . eva-infra-dal/src/main/java | wc -l`；目录不存在按 0：`if [ -d eva-infra-dal/src/main/resources ]; then ...; else echo 0; fi`）。
 - ✅ 补充进展（保持行为不变）：`eva-infra-shared/pom.xml` 已移除对 `eva-infra-dal` 的 Maven 编译期直依赖（最小回归通过；详见 4.2）。
-- ✅ 补充进展（保持行为不变）：root `pom.xml` 已移除 `<module>eva-infra-dal</module>`（详见 4.2）。
-- 🎯 下一刀建议（保持行为不变；每次只改 1 个文件闭环）：开始推进“目录退场”，例如删除 `eva-infra-dal/pom.xml`（单文件；前置：确认无外部构建脚本/CI 直接引用该路径），并逐步清理 `eva-infra-dal/` 空目录。
+- ✅ 补充进展（保持行为不变）：root `pom.xml` 已移除 `<module>eva-infra-dal</module>`，且已删除 `eva-infra-dal/pom.xml`（详见 4.2）。
+- 🎯 下一刀建议（目录退场，保持行为不变；每次只改 1 个文件闭环）：若 `eva-infra-dal/` 已为空目录，优先单独一刀删除该目录（避免 `fd -t d '^eva-' . -d 2` 口径漂移）；随后继续推进 `eva-infra-shared` 与 `eva-base` 的依赖收敛与归位。
 
 阶段性策略微调（2025-12-29）：
 - ✅ 复核口径（2026-01-26，不改业务语义）：`spring-boot-starter-websocket` 仅由组合根 `start` 显式承接；并已将 `EvaConfigBizConvertor`、`EvaRecordBizConvertor`、`EvaTemplateBizConvertor` 从 `eva-app` 归位到 `eva-infra-shared`（保持行为不变）；`EvaTaskBizConvertor` 后续已从 `eva-infra-shared` 进一步归位到 `bc-evaluation/infrastructure`（保持行为不变；落地：`f3a2cf7f`）。并将 `EvaConfigService` 从 `eva-app` 归位到 `bc-evaluation-infra`（保持行为不变），并将 `UserCourseDetailQueryExec`、`FileImportExec`、`package-info.java` 从 `eva-app` 归位到 `bc-course-infra`（保持行为不变）。当前 `eva-app` 已退场（组合根去依赖：`0a9ff564`；reactor 移除：`b5f15a4b`；删除 `eva-app/pom.xml`：`4bfa9d40`）；`eva-adapter` 残留 Controller 口径以 `NEXT_SESSION_HANDOFF.md` 0.10.2 为准（当前 0 个，已清零）；组合根 `start` 已移除对 `eva-adapter` 的 Maven 依赖（落地：`92a70a9e`；保持行为不变）。补充：✅ 已完成消息入口归位前置（保持行为不变）：为后续将 `MessageController` 从 `eva-adapter` 归位到 `bc-messaging` 做编译闭合前置，在 `bc-messaging/pom.xml` 补齐 `spring-boot-starter-web`、`zym-spring-boot-starter-common`、`zym-spring-boot-starter-security`、`shared-kernel`（落地：`aa7d57bb`）。补充：✅ 已完成审计日志入口归位（保持行为不变）：`LogController` 已从 `eva-adapter` 归位到 `bc-audit/infrastructure`（编译闭合前置：`2464d2b9`；入口归位：`b592cc0f`）。
