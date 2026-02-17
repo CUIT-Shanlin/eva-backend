@@ -21,6 +21,13 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-17（依赖收敛，单 pom：`bc-messaging` 去 `eva-infra-shared` 依赖，保持行为不变）**
+- ✅ 背景（保持行为不变）：`bc-messaging` 已完成 websocket 支撑类（`MessageChannel/UriUtils/WebsocketManager`）与消息 Convertor/Mapper/DO 的归位；其编译期不再需要 `eva-infra-shared` 提供任何类型。
+- ✅ Serena（证据化，保持行为不变）：在 `bc-messaging/**` 范围内未发现对 `edu.cuit.infra.convertor.user.*` / `edu.cuit.infra.convertor.course.*` / `edu.cuit.infra.dal.ldap.*` 等 `eva-infra-shared` 残留支撑类的引用。
+- ✅ 执行（单 pom，保持行为不变）：移除 `bc-messaging/pom.xml` 中 `eva-infra-shared` 依赖（保留 `shared-kernel` 显式依赖以维持编译闭合）。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；本次仍按约束使用 `mvn` 完成最小回归（测试用例集保持不变）。
+- 📌 代码落地：`bdd9527d`。
+
 **2026-02-17（依赖收敛，单 pom：`bc-audit-infra` 去 `eva-infra-shared` 依赖，保持行为不变）**
 - ✅ 背景（保持行为不变）：审计侧 `bc-audit/infrastructure` 已完成 `SysLog*Mapper/DO` 与 `LogConverter` 归位；其对 `QueryUtils/PaginationConverter/EntityFactory` 等通用支撑类的引用当前均由 `shared-kernel` 承接，因此 `eva-infra-shared` 依赖可收敛。
 - ✅ Serena（证据化，保持行为不变）：在 `bc-audit/**` 范围内未发现对 `edu.cuit.infra.convertor.user.*` / `edu.cuit.infra.dal.ldap.*` 等 `eva-infra-shared` 残留支撑类的引用；现有 `import edu.cuit.infra.convertor.EntityFactory`、`import edu.cuit.infra.util.QueryUtils`、`import edu.cuit.infra.convertor.PaginationConverter` 均已由 `shared-kernel` 提供。

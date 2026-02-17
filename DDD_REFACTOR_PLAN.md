@@ -520,6 +520,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-17，保持行为不变，依赖收敛，单 pom）：收敛 `eva-infra-shared/pom.xml`：移除对 `eva-infra-dal` 的 Maven 编译期直依赖（最小回归通过；落地：`5975ab10`）。
 - ✅ 补充进展（2026-02-17，保持行为不变，依赖收敛，单 pom）：收敛 `bc-template/infrastructure/pom.xml`：移除对 `eva-infra-shared` 的依赖，并改为显式依赖 `shared-kernel` 以维持编译闭合（Serena 证伪 `bc-template/**` 无 `eva-infra-shared` 代码引用；最小回归通过；落地：`b93f8719`）。
 - ✅ 补充进展（2026-02-17，保持行为不变，依赖收敛，单 pom）：收敛 `bc-audit/infrastructure/pom.xml`：移除对 `eva-infra-shared` 的依赖，并改为显式依赖 `shared-kernel` 以维持编译闭合（Serena 证伪 `bc-audit/**` 无 `eva-infra-shared` 残留支撑类引用；最小回归通过；落地：`10b0af75`）。
+- ✅ 补充进展（2026-02-17，保持行为不变，依赖收敛，单 pom）：收敛 `bc-messaging/pom.xml`：移除对 `eva-infra-shared` 的依赖（Serena 证伪 `bc-messaging/**` 无 `eva-infra-shared` 残留支撑类引用；最小回归通过；落地：`bdd9527d`）。
 - ✅ 补充进展（2026-02-17，保持行为不变，reactor 退场，单 pom）：从 root `pom.xml` 的 `<modules>` 中移除 `<module>eva-infra-dal</module>`（最小回归通过；落地：`dfe4e5f3`）。
 - ✅ 补充进展（2026-02-17，保持行为不变，目录退场前置，单文件）：删除 `eva-infra-dal/pom.xml`（最小回归通过；落地：`1c037aeb`）。
 - ✅ 补充进展（2026-02-17，保持行为不变，引用面收敛，单类）：清理 `bc-course/infrastructure` 的 `CourseQueryRepository` 无用 import `MenuConvertor`（最小回归通过；落地：`4b9f5855`）。
