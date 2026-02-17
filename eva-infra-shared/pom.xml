@@ -100,16 +100,10 @@
             <version>${revision}</version>
         </dependency>
 
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>eva-infra-dal</artifactId>
-            <version>${revision}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>edu.cuit.zhuyimeng</groupId>
-            <artifactId>zym-spring-boot-starter-jdbc</artifactId>
-        </dependency>
+	        <dependency>
+	            <groupId>edu.cuit.zhuyimeng</groupId>
+	            <artifactId>zym-spring-boot-starter-jdbc</artifactId>
+	        </dependency>
 
         <!-- 编译期需要缓存能力（LocalCacheManager 等），运行期仍由组合根装配 -->
         <dependency>
