@@ -517,6 +517,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-12，保持行为不变；单类闭环）：已将 `EntityFactory` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.convertor` 与类内容不变；不引入新缓存/切面副作用；最小回归通过；落地：`eba15e92`）。
 - ✅ 补充进展（2026-02-17，保持行为不变，编译闭合前置，单 pom）：为后续将 `EntityFactory` 从 `eva-infra-dal` 继续下沉到 `shared-kernel` 做准备，在 `shared-kernel/pom.xml` 补齐 `mapstruct(optional)` 依赖（仅用于源码编译闭合；最小回归通过；落地：`a0030694`）。
 - ✅ 补充进展（2026-02-17，保持行为不变；单类闭环）：已将 `EntityFactory` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.convertor` 与类内容不变，仅改变 Maven 模块归属；口径更新：`eva-infra-dal` Java 余量由 `1` 变更为 `0`；最小回归通过；落地：`86754419`）。
+- ✅ 补充进展（2026-02-17，保持行为不变，shared-kernel 下沉，单类闭环）：已将 LDAP 配置类 `EvaLdapProperties` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.property` 与类内容不变，仅改变 Maven 模块归属；最小回归通过；口径更新：`eva-infra-shared` Java 余量由 `8` 变更为 `7`；落地：`666a1b6d`）。
 - ✅ 补充进展（2026-02-17，保持行为不变，依赖收敛，单 pom）：收敛 `eva-infra-shared/pom.xml`：移除对 `eva-infra-dal` 的 Maven 编译期直依赖（最小回归通过；落地：`5975ab10`）。
 - ✅ 补充进展（2026-02-17，保持行为不变，依赖收敛，单 pom）：收敛 `bc-template/infrastructure/pom.xml`：移除对 `eva-infra-shared` 的依赖，并改为显式依赖 `shared-kernel` 以维持编译闭合（Serena 证伪 `bc-template/**` 无 `eva-infra-shared` 代码引用；最小回归通过；落地：`b93f8719`）。
 - ✅ 补充进展（2026-02-17，保持行为不变，依赖收敛，单 pom）：收敛 `bc-audit/infrastructure/pom.xml`：移除对 `eva-infra-shared` 的依赖，并改为显式依赖 `shared-kernel` 以维持编译闭合（Serena 证伪 `bc-audit/**` 无 `eva-infra-shared` 残留支撑类引用；最小回归通过；落地：`10b0af75`）。
@@ -597,7 +598,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-13，保持行为不变；方案 B：`CourseFormat` 下沉前置，单 pom）：`shared-kernel/pom.xml` 已补齐 `zym-spring-boot-starter-jdbc` 与 `jackson-databind`，用于承接 `CourseFormat` 的 `QueryWrapper/ObjectMapper` 编译期依赖（最小回归通过；落地：`322bb315`）。
 - ✅ 证据化结论（2026-02-13，保持行为不变）：Serena 显示 `CourseFormat.selectCourOneEvaTemplateDO(...)` 仍被 `ICourseDetailServiceImpl` 调用；且 `CourseFormat` 已完成“依赖解耦前置”（`@Qualifier("courOneEvaTemplateMapper") Object` + 反射 `selectOne/getFormTemplate`，移除对 `CourOneEvaTemplateMapper/DO` 的编译期强依赖；落地：`8b4f69e2`）。
 - ✅ 补充进展（2026-02-13，保持行为不变；方案 B：单类搬运）：已将 `CourseFormat` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.gateway.impl.course.operate` 与类内容不变；最小回归通过；落地：`dff4e751`）。
-- ✅ 证据化补充（2026-02-13，保持行为不变）：`eva-infra-shared` 剩余 `9` 类中，`CourseBizConvertor/CourseConvertor/MenuConvertor/UserConverter` 在 shared 内仅自引用；LDAP 子簇（`LdapGroupDO/LdapGroupRepo/LdapConstants/EvaLdapProperties/EvaLdapUtils`）仍互相依赖。
+- ✅ 证据化补充（2026-02-13，保持行为不变）：`eva-infra-shared` 剩余类中，`CourseBizConvertor/CourseConvertor/UserConverter` 在 shared 内仅自引用；LDAP 子簇（`LdapGroupDO/LdapGroupRepo/LdapConstants/EvaLdapUtils`）仍互相依赖（其中配置类 `EvaLdapProperties` 已下沉到 `shared-kernel`：`666a1b6d`）。
 - ✅ 补充进展（2026-02-13，保持行为不变；Serena 证据化 + 风险评估）：`CourseConvertor` 引用面虽跨 `bc-course/**` 与 `bc-evaluation/**`，但 import 仍依赖 `eva-infra-dal` 内 `EntityFactory/DO/Mapper`；`shared-kernel` 当前不具备完整编译闭合，且若直接补 `shared-kernel -> eva-infra-dal` 将与现有 `eva-infra-dal -> shared-kernel` 形成循环依赖，因此本刀判定风险超阈值。
 - ✅ 补充进展（2026-02-13，保持行为不变；降级执行，单资源闭环）：已将 `CourInfMapper.xml` 从 `eva-infra-dal` 归位到 `bc-course/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`4eb6681c`）。
 - ✅ 补充进展（2026-02-13，保持行为不变；单资源闭环）：已将 `SubjectMapper.xml` 从 `eva-infra-dal` 归位到 `bc-course/infrastructure`（保持 MyBatis `namespace/resultMap type`、SQL 与资源路径 `mapper/**` 不变；最小回归通过；落地：`92374d53`）。
@@ -1568,7 +1569,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - 阶段 2.6（已完成）：盘点 `bc-iam-infra` 仍依赖 `eva-infra` 的类型清单（为后续移除依赖做最小闭包拆分输入；保持行为不变）：
     - 转换器：`edu.cuit.infra.convertor.PaginationConverter`（已迁至 `eva-infra-shared`：`54d5fecd`）、`edu.cuit.infra.convertor.user.{MenuConvertor,RoleConverter,UserConverter}`（已迁至 `eva-infra-shared`：`6c798f1b`）、`edu.cuit.infra.convertor.user.LdapUserConvertor`（已迁至 `eva-infra-shared`：`0dc0ddc8`）
     - 缓存常量：`edu.cuit.infra.enums.cache.{UserCacheConstants,CourseCacheConstants}`
-    - LDAP：`edu.cuit.infra.dal.ldap.{dataobject,repo}.*`（已迁至 `eva-infra-shared`：`aca70b8b`）、`edu.cuit.infra.util.EvaLdapUtils` + `edu.cuit.infra.{enums.LdapConstants,property.EvaLdapProperties}`（已迁至 `eva-infra-shared`：`3165180c`）
+    - LDAP：`edu.cuit.infra.dal.ldap.{dataobject,repo}.*`（已迁至 `eva-infra-shared`：`aca70b8b`）、`edu.cuit.infra.util.EvaLdapUtils` + `edu.cuit.infra.enums.LdapConstants`（已迁至 `eva-infra-shared`：`3165180c`），其中 `edu.cuit.infra.property.EvaLdapProperties` 已继续下沉到 `shared-kernel`（保持包名不变：`666a1b6d`）
     - 工具：`edu.cuit.infra.util.QueryUtils`
   - 阶段 2.7（已完成）：新增 shared 子模块骨架 `eva-infra-shared`（不迁代码，仅作为后续从 `eva-infra` 抽离 Converter/LDAP/缓存常量/工具等的落点；保持行为不变）。
     - 新模块：`eva-infra-shared/pom.xml`
@@ -1591,7 +1592,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
     - Java：`eva-infra-shared/src/main/java/edu/cuit/infra/dal/ldap/dataobject/LdapGroupDO.java`、`eva-infra-shared/src/main/java/edu/cuit/infra/dal/ldap/repo/{LdapGroupRepo,LdapPersonRepo}.java`、`bc-iam/infrastructure/src/main/java/edu/cuit/infra/dal/ldap/dataobject/LdapPersonDO.java`
     - 依赖：`eva-infra-shared/pom.xml` 增加 `spring-boot-starter-data-ldap`
   - 阶段 2.14（已完成）：迁移 `EvaLdapUtils` 相关类型到 `eva-infra-shared`（保持包名不变；保持行为不变；落地提交：`3165180c`）。
-    - Java：`eva-infra-shared/src/main/java/edu/cuit/infra/util/EvaLdapUtils.java`、`eva-infra-shared/src/main/java/edu/cuit/infra/enums/LdapConstants.java`、`eva-infra-shared/src/main/java/edu/cuit/infra/property/EvaLdapProperties.java`
+    - Java：`eva-infra-shared/src/main/java/edu/cuit/infra/util/EvaLdapUtils.java`、`eva-infra-shared/src/main/java/edu/cuit/infra/enums/LdapConstants.java`、`shared-kernel/src/main/java/edu/cuit/infra/property/EvaLdapProperties.java`
   - 阶段 2.15（已完成）：迁移 `LdapUserConvertor` 到 `eva-infra-shared`（保持包名不变；保持行为不变；落地提交：`0dc0ddc8`）。
     - Java：`eva-infra-shared/src/main/java/edu/cuit/infra/convertor/user/LdapUserConvertor.java`
   - 阶段 2.16（已完成）：移除 `bc-iam-infra` 对 `eva-infra` 的 Maven 依赖（补齐 cache/logging 编译依赖；保持行为不变；落地提交：`2ad911ea`）。
