@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-17（编译闭合纠偏，单 pom：为 `bc-messaging` 显式补齐 websocket/mapstruct 依赖，保持行为不变）**
+- ✅ 背景（保持行为不变）：`bc-messaging/pom.xml` 移除 `eva-infra-shared` 后，存在“之前依赖传递带来的编译期依赖隐含”问题；在一次完整重编译（最小回归）中暴露出缺失 `org.mapstruct.*` 与 `org.springframework.web.socket.*` 的编译错误。
+- ✅ 执行（单 pom，保持行为不变）：在 `bc-messaging/pom.xml` 显式补齐 `spring-boot-starter-websocket` 与 `org.mapstruct:mapstruct(${mapstruct.version})`，用于恢复编译闭合；不引入任何业务逻辑改动。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；本次仍按约束使用 `mvn` 完成最小回归（测试用例集保持不变）。
+- 📌 代码落地：`bf0c3455`。
+
 **2026-02-17（依赖收敛，单 pom：`bc-messaging` 去 `eva-infra-shared` 依赖，保持行为不变）**
 - ✅ 背景（保持行为不变）：`bc-messaging` 已完成 websocket 支撑类（`MessageChannel/UriUtils/WebsocketManager`）与消息 Convertor/Mapper/DO 的归位；其编译期不再需要 `eva-infra-shared` 提供任何类型。
 - ✅ Serena（证据化，保持行为不变）：在 `bc-messaging/**` 范围内未发现对 `edu.cuit.infra.convertor.user.*` / `edu.cuit.infra.convertor.course.*` / `edu.cuit.infra.dal.ldap.*` 等 `eva-infra-shared` 残留支撑类的引用。
