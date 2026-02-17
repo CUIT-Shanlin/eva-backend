@@ -21,6 +21,11 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-17（编译闭合前置，单 pom：`shared-kernel/pom.xml` 补齐 `mapstruct(optional)`，保持行为不变）**
+- ✅ 背景（保持行为不变）：下一刀计划将 `edu.cuit.infra.convertor.EntityFactory` 下沉到 `shared-kernel`（引用面跨多个 BC），但其源码依赖 MapStruct 注解（`@TargetType/@Named`）。为避免“单类搬运”时出现编译断裂，先在 `shared-kernel/pom.xml` 补齐 `org.mapstruct:mapstruct(optional)` 依赖。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；`mvnd` 仍在启动阶段报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
+- 📌 代码落地：`a0030694`。
+
 **2026-02-17（shared-kernel 下沉，单类：`CourseTypeDO` 归位到 `shared-kernel`，保持行为不变）**
 - ✅ 背景（保持行为不变）：`CourseTypeDO` 被课程域 `bc-course/**` 多处基础设施实现使用，且 `eva-infra-shared` 的 `CourseConvertor` 也依赖该类型（用于类型转换/装配），不满足“单 BC 引用才允许归位到对应 infrastructure”的约束；为缩减 `eva-infra-dal` 表面积并避免后续搬运引发编译断裂，将其下沉到 `shared-kernel`。
 - ✅ Serena（证据化，保持行为不变）：引用面命中 `bc-course/infrastructure`（课程类型增删改查/课程查询/导入等链路）与 `eva-infra-shared`（`CourseConvertor`）等；未发现其它 BC（如 `bc-evaluation/**`）的直接引用点。
