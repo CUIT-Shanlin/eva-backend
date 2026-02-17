@@ -21,6 +21,13 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-17（编译闭合纠偏，单 pom：为 `bc-audit-infra` 显式补齐 mapstruct 依赖，保持行为不变）**
+- ✅ 背景（保持行为不变）：`bc-audit/infrastructure` 中 `LogBizConvertor/LogConverter` 使用 `org.mapstruct.*` 注解；此前在一次完整重编译的最小回归中暴露出缺失 MapStruct 编译期依赖的错误（属于“依赖传递掩盖”的隐患）。
+- ✅ Serena（证据化，保持行为不变）：在 `bc-audit/**` 范围内可复现 `import org.mapstruct.*` 的引用点（`LogBizConvertor` 与 `LogConverter`）。
+- ✅ 执行（单 pom，保持行为不变）：在 `bc-audit/infrastructure/pom.xml` 显式增加 `org.mapstruct:mapstruct(${mapstruct.version})`，用于恢复编译闭合；不引入任何业务逻辑改动。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；本次仍按约束使用 `mvn` 完成最小回归（测试用例集保持不变）。
+- 📌 代码落地：`5e6721c9`。
+
 **2026-02-17（编译闭合纠偏，单 pom：为 `bc-messaging` 显式补齐 websocket/mapstruct 依赖，保持行为不变）**
 - ✅ 背景（保持行为不变）：`bc-messaging/pom.xml` 移除 `eva-infra-shared` 后，存在“之前依赖传递带来的编译期依赖隐含”问题；在一次完整重编译（最小回归）中暴露出缺失 `org.mapstruct.*` 与 `org.springframework.web.socket.*` 的编译错误。
 - ✅ 执行（单 pom，保持行为不变）：在 `bc-messaging/pom.xml` 显式补齐 `spring-boot-starter-websocket` 与 `org.mapstruct:mapstruct(${mapstruct.version})`，用于恢复编译闭合；不引入任何业务逻辑改动。

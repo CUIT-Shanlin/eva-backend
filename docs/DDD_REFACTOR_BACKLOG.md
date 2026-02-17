@@ -112,6 +112,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 **已完成（更新至 2026-02-17）**
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-messaging/pom.xml`：移除对 `eva-infra-shared` 的依赖（Serena 证伪 `bc-messaging/**` 无 `eva-infra-shared` 残留支撑类引用；最小回归通过；落地：`bdd9527d`）。
 - ✅ S0.2 延伸（编译闭合纠偏，单 pom，保持行为不变）：收敛 `bc-messaging/pom.xml` 后，为避免依赖传递导致的“隐式编译期依赖”，显式补齐 `spring-boot-starter-websocket` 与 `org.mapstruct:mapstruct(${mapstruct.version})`（最小回归通过；落地：`bf0c3455`）。
+- ✅ S0.2 延伸（编译闭合纠偏，单 pom，保持行为不变）：收敛 `bc-audit/infrastructure/pom.xml` 后，为避免依赖传递导致的“隐式编译期依赖”，显式补齐 `org.mapstruct:mapstruct(${mapstruct.version})`（Serena 证据化：`bc-audit/**` 存在 `import org.mapstruct.*`；最小回归通过；落地：`5e6721c9`）。
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-audit/infrastructure/pom.xml`：移除对 `eva-infra-shared` 的依赖，并改为显式依赖 `shared-kernel` 以维持编译闭合（Serena 证伪 `bc-audit/**` 无 `eva-infra-shared` 残留支撑类引用；最小回归通过；落地：`10b0af75`）。
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-template/infrastructure/pom.xml`：移除对 `eva-infra-shared` 的依赖，并改为显式依赖 `shared-kernel` 以维持编译闭合（Serena 证伪 `bc-template/**` 无 `eva-infra-shared` 代码引用；最小回归通过；落地：`b93f8719`）。
 - ✅ S0.2 延伸（编译闭合前置，单 pom，保持行为不变）：为后续将 `EntityFactory` 下沉到 `shared-kernel` 做准备，在 `shared-kernel/pom.xml` 补齐 `mapstruct(optional)`（仅用于源码编译闭合；最小回归通过；落地：`a0030694`）。
