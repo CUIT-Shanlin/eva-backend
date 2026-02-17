@@ -548,6 +548,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-16，保持行为不变，shared-kernel 下沉，单类）：已将 `SysRoleDO` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.dal.database.dataobject.user` 与类内容不变，仅改变 Maven 模块归属；最小回归通过；落地：`c5ba98b1`）。
 - ✅ 补充进展（2026-02-16，保持行为不变，shared-kernel 下沉，单类）：已将 `SysUserDO` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.dal.database.dataobject.user` 与类内容不变，仅改变 Maven 模块归属；最小回归通过；落地：`31e157cd`）。
 - ✅ 补充进展（2026-02-17，保持行为不变，shared-kernel 下沉，单类）：已将 `SubjectDO` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.dal.database.dataobject.course` 与类内容不变，仅改变 Maven 模块归属；最小回归通过；落地：`1a6ff62c`）。
+- ✅ 补充进展（2026-02-17，保持行为不变，shared-kernel 下沉，单类）：已将 `CourOneEvaTemplateDO` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.dal.database.dataobject.eva` 与类内容不变，仅改变 Maven 模块归属；最小回归通过；落地：`e48c63b4`）。
 - ✅ 补充进展（2026-02-16，保持行为不变，shared-kernel 下沉，单类）：已将 `CourInfDO` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.dal.database.dataobject.course` 与类内容不变，仅改变 Maven 模块归属；最小回归通过；落地：`542e0231`）。
 - ✅ 补充进展（2026-02-16，保持行为不变，shared-kernel 下沉，单类）：已将 `CourseDO` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.dal.database.dataobject.course` 与类内容不变，仅改变 Maven 模块归属；最小回归通过；落地：`d822340e`）。
 - ✅ 补充进展（2026-02-16，保持行为不变，shared-kernel 下沉，单类）：已将 `SemesterDO` 从 `eva-infra-dal` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.dal.database.dataobject.course` 与类内容不变，仅改变 Maven 模块归属；最小回归通过；落地：`e0680e8a`）。
