@@ -21,6 +21,13 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-17（编译闭合前置，单 pom：`shared-kernel` 补齐 `spring-ldap-core(optional)`，保持行为不变）**
+- ✅ 背景（保持行为不变）：为后续将 LDAP DO/Repo（使用 Spring LDAP ODM 注解）从 `eva-infra-shared` 继续下沉到 `shared-kernel` 做准备，需要在 `shared-kernel` 显式具备 `org.springframework.ldap.odm.annotations.*` 等注解依赖。
+- ✅ Serena（证据化，保持行为不变）：`LdapGroupDO` 使用 `@Entry/@Attribute/@Id`（Spring LDAP ODM 注解），因此下沉前需补齐 `spring-ldap-core` 编译依赖来源。
+- ✅ 执行（单 pom，保持行为不变）：在 `shared-kernel/pom.xml` 增加 `org.springframework.ldap:spring-ldap-core`（`optional=true`）作为编译闭合前置，不改变任何业务逻辑。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；本次仍按约束使用 `mvn` 完成最小回归（测试用例集保持不变）。
+- 📌 代码落地：`473b48a7`。
+
 **2026-02-17（shared-kernel 下沉，单类：`EvaLdapProperties` 归位到 `shared-kernel`，保持行为不变）**
 - ✅ 背景（保持行为不变）：`EvaLdapProperties` 为独立配置类（`@ConfigurationProperties`），仅被 LDAP 工具类 `EvaLdapUtils` 引用，适合作为“单类下沉 shared-kernel”的低风险瘦身切入点。
 - ✅ Serena（证据化，保持行为不变）：引用面仅命中 `eva-infra-shared` 的 `EvaLdapUtils`（未命中其它 BC/模块），因此下沉不会扩大 BC 依赖边界。
