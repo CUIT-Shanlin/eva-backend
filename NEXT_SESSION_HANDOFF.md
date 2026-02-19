@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-19（`UserConverter` 收尾：第 1 刀（Port 定义），新增最小 Port `UserEntityFieldExtractPort`，保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`UserConverter` 引用面跨 `bc-course/infrastructure`（`CourseQueryRepository`）、`bc-evaluation/infrastructure`（`EvaTaskQueryRepository/EvaRecordQueryRepository`）与 `bc-iam/infrastructure`；外部 BC 实际使用的方法集合收敛为 `userIdOf(Object)` + `springUserEntityWithNameObject(Object)`。
+- ✅ 执行（单类，保持行为不变）：在 `bc-iam/application` 新增最小 Port：`edu.cuit.bc.iam.application.port.UserEntityFieldExtractPort`，仅包含 `userIdOf(Object)` 与 `springUserEntityWithNameObject(Object)` 两个桥接方法，为后续“Port Adapter 委托 `UserConverter` + 调用侧逐点替换”做前置。
+- 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级使用 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
+- 📌 代码落地：`e5b37188`。
+
 **2026-02-19（交接巡检 + 口径修正：`eva-infra-shared` 余量=1，剩余阻塞为 `UserConverter`；保持行为不变）**
 - ✅ 基线确认：分支 `ddd`；`git merge-base --is-ancestor 2e4c4923 HEAD` 退出码为 `0`；工作区仅存在未跟踪 `.mvnd/`、`.ssh_known_hosts`（不要提交）。
 - 📊 证据快照（可复现）：`eva-infra-dal` Java=0、XML=0；`eva-infra-shared` Java=1（仅 `UserConverter`）；`bc-template/bc-course` 对 `infra.dal.database.mapper.eva` 命中=0。
