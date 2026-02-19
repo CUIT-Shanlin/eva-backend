@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-19（`eva-base-common` 退场前置：单类搬运 `LogModule` 下沉到 `shared-kernel`，保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`LogModule` 引用面广泛，主要用于各 BC Controller 的 `@OperateLog(module = LogModule.*)`；搬运后保持 `package edu.cuit.common.enums` 不变，调用侧无需改 import。
+- ✅ 执行（单类搬运，保持行为不变）：将 `LogModule` 从 `eva-base/eva-base-common` 下沉到 `shared-kernel`（保持常量值与接口注释不变，仅改变 Maven 模块归属），为后续“逐 pom 去 `eva-base-common` 依赖”铺路。
+- 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级使用 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
+- 📌 代码落地：`77f44292`。
+
 **2026-02-19（`eva-base-common` 退场前置：单类搬运 `GenericPattern` 下沉到 `shared-kernel`，保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`GenericPattern` 的引用面命中 `bc-iam/contract` 的 `UpdateUserCmd`；且搬运后 `package edu.cuit.common.enums` 不变，调用侧无需改 import。
 - ✅ 执行（单类搬运，保持行为不变）：将 `GenericPattern` 从 `eva-base/eva-base-common` 搬运下沉到 `shared-kernel`（保持常量内容与类注释不变，仅改变 Maven 模块归属），为后续“逐 pom 去 `eva-base-common` 依赖”铺路。

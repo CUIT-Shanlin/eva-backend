@@ -538,6 +538,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-19，保持行为不变，编译闭合补强，单 pom）：为避免“增量构建未触发编译”掩盖依赖缺口，收敛 `bc-course/infrastructure/pom.xml`：显式补齐 `org.mapstruct:mapstruct` + `bc-evaluation-domain(provided)` + `bc-messaging-contract(provided)`（仅闭合编译边界；最小回归通过；落地：`6ee4e485`）。
 - ✅ 补充进展（2026-02-19，保持行为不变，编译闭合纠偏，单 pom）：为避免“增量构建未触发重编译”掩盖依赖缺口，收敛 `bc-iam/infrastructure/pom.xml`：显式补齐 `org.mapstruct:mapstruct`、`org.springframework.ldap:spring-ldap-core`、`org.springframework.data:spring-data-ldap`、`bc-course-domain(provided)`（仅闭合编译边界；最小回归通过；落地：`03dc4f4e`）。
 - ✅ 补充进展（2026-02-19，保持行为不变，`eva-base` 退场前置，单类搬运）：将 `GenericPattern` 从 `eva-base/eva-base-common` 下沉到 `shared-kernel`（保持 `package edu.cuit.common.enums` 与常量内容不变，仅改变 Maven 模块归属；最小回归通过；落地：`4be17a62`）。
+- ✅ 补充进展（2026-02-19，保持行为不变，`eva-base` 退场前置，单类搬运）：将 `LogModule` 从 `eva-base/eva-base-common` 下沉到 `shared-kernel`（保持 `package edu.cuit.common.enums` 与常量内容不变，仅改变 Maven 模块归属；最小回归通过；落地：`77f44292`）。
 - 补充进展（2026-02-12，保持行为不变，编译闭合前置，单 pom）：为后续将 `QueryUtils` 从 `eva-infra-shared` 归位到 `eva-infra-dal`，在 `eva-infra-dal/pom.xml` 显式增加对 `shared-kernel` 的 Maven 编译期依赖（最小回归通过；落地：`996b6990`）。
 - 补充进展（2026-02-12，保持行为不变，编译闭合前置，单 pom）：为后续将 `EntityFactory` 从 `eva-infra-shared` 归位到 `eva-infra-dal` 做准备，在 `eva-infra-dal/pom.xml` 显式补齐 `hutool-all`、`cola-component-exception`、`mapstruct` 依赖（不改变业务语义/副作用顺序；最小回归通过；落地：`6546c548`）。
 - ✅ 补充进展（2026-02-12，保持行为不变；单类闭环）：已将 `EntityFactory` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.convertor` 与类内容不变；不引入新缓存/切面副作用；最小回归通过；落地：`eba15e92`）。
