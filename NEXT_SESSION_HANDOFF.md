@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-19（编译闭合补强：单 pom，`bc-course/infrastructure` 显式补齐 MapStruct + 跨 BC contract 依赖，保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`bc-course/infrastructure/src/main/java` 存在 `import org.mapstruct.*`（`CourseConvertor/CourseBizConvertor/SemesterConverter` 等）；且在触发全量编译时暴露出对 `bc-evaluation-domain`（`EvaConfigGateway`）与 `bc-messaging-contract`（`edu.cuit.bc.messaging.application.event.*`、`edu.cuit.client.*` 消息载荷类型）的编译期缺口。
+- ✅ 执行（单 pom，保持行为不变）：在 `bc-course/infrastructure/pom.xml` 显式补齐 `org.mapstruct:mapstruct`、`edu.cuit:bc-evaluation-domain(provided)`、`edu.cuit:bc-messaging-contract(provided)` 以闭合编译边界（仅编译期需要；运行期仍由组合根装配）。
+- 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级使用 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
+- 📌 代码落地：`6ee4e485`。
+
 **2026-02-19（`eva-infra-shared` 退场收尾：第 5 刀（单文件），删除 `eva-infra-shared/pom.xml`，保持行为不变）**
 - ✅ 前置校验（保持行为不变）：全仓库 `**/pom.xml` 中 `<artifactId>eva-infra-shared</artifactId>` 仅命中 `eva-infra-shared/pom.xml` 自身（依赖方已清零）。
 - ✅ 执行（单文件，保持行为不变）：删除 `eva-infra-shared/pom.xml`（`eva-infra-shared` 已从 root reactor 退场，删除 pom 不影响聚合构建边界）。
