@@ -33,6 +33,13 @@
             <version>${revision}</version>
         </dependency>
 
+        <!-- 编译闭合：CourseConvertor/CourseBizConvertor 等使用 MapStruct 注解，显式补齐，保持行为不变 -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct.version}</version>
+        </dependency>
+
         <!-- 依赖收敛：仅按最小 Port 依赖 IAM contract，避免编译期绑定旧 UserQueryGateway。 -->
         <dependency>
             <groupId>edu.cuit</groupId>
@@ -45,6 +52,22 @@
             <groupId>edu.cuit</groupId>
             <artifactId>bc-iam</artifactId>
             <version>${revision}</version>
+        </dependency>
+
+        <!-- 编译闭合：CourseRecommendExce 依赖评教域网关接口（仅编译期需要；运行期仍由组合根装配） -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>bc-evaluation-domain</artifactId>
+            <version>${revision}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- 编译闭合：课程侧发消息/事件载荷依赖消息域 contract（仅编译期需要；运行期仍由组合根装配） -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>bc-messaging-contract</artifactId>
+            <version>${revision}</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- bc-course-infra：编译期需要缓存能力（LocalCacheManager 等），运行期仍由组合根装配 -->
