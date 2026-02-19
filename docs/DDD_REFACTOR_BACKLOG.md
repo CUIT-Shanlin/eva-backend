@@ -112,6 +112,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 **已完成（更新至 2026-02-19）**
 - ✅ S0.2 延伸（引用面收敛前置，单类，保持行为不变）：在 `bc-course/application` 新增最小 Port `CourseEntityConvertPort`（用于后续收敛 `bc-evaluation/infrastructure` 对 `CourseConvertor` 的直接依赖；保留 `teacher` 的 `Supplier<?>` 桥接口径；最小回归通过；落地：`0a95da8f`）。
 - ✅ S0.2 延伸（引用面收敛前置，单类，保持行为不变）：在 `bc-course/infrastructure` 新增 Port Adapter `CourseEntityConvertPortImpl`（内部直接委托 `CourseConvertor`，确保映射与调用时机不变；最小回归通过；落地：`eb597366`）。
+- ✅ S0.2 延伸（引用面收敛，单类，保持行为不变）：收敛评教读侧调用点：`EvaTaskQueryRepository` 改为依赖 `CourseEntityConvertPort`（不再直接注入 `CourseConvertor`；最小回归通过；落地：`c2c34a9a`）。
 - ✅ S0.2 延伸（引用面收敛前置，单类，保持行为不变）：在 `bc-course/application` 新增最小 Port `SingleCourseCoConvertPort`（用于后续收敛 `bc-evaluation/infrastructure` 对 `CourseBizConvertor` 的直接依赖；最小回归通过；落地：`32c458e7`）。
 - ✅ S0.2 延伸（引用面收敛前置，单类，保持行为不变）：在 `bc-course/infrastructure` 新增 Port Adapter `SingleCourseCoConvertPortImpl`（内部直接委托 `CourseBizConvertor.toSingleCourseCO(...)`，确保映射行为不变；最小回归通过；落地：`fd28bbb9`）。
 - ✅ S0.2 延伸（引用面收敛，单类，保持行为不变）：收敛评教侧调用点：`bc-evaluation/infrastructure` 的 `MsgServiceImpl` 改为依赖 `SingleCourseCoConvertPort`（不再直接调用 `CourseBizConvertor`；最小回归通过；落地：`65a2e261`）。

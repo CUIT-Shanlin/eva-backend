@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-19（bc-evaluation/infrastructure 单类：`EvaTaskQueryRepository` 改为依赖 `CourseEntityConvertPort`，保持行为不变）**
+- ✅ 目标（保持行为不变）：开始收敛评教读侧对 `CourseConvertor` 的跨 BC 直接依赖，优先从调用面更集中的 `EvaTaskQueryRepository` 入手。
+- ✅ 执行（单类，保持行为不变）：将 `EvaTaskQueryRepository` 的注入从 `CourseConvertor` 改为 `CourseEntityConvertPort`，并逐点将 `toSingleCourseEntity/toSemesterEntity/toSubjectEntity/toCourseEntityWithTeacherObject` 调用改为走该 Port（由 bc-course 端口适配器委托既有 `CourseConvertor` 承接，确保映射与调用时机不变）。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
+- 📌 代码落地：`c2c34a9a`。
+
 **2026-02-19（bc-course/infrastructure 单类：新增 `CourseEntityConvertPortImpl`，保持行为不变）**
 - ✅ 目标（保持行为不变）：完成 `CourseConvertor` 退场路线的第 2 刀，为后续替换评教侧 `EvaTaskQueryRepository/EvaRecordQueryRepository` 的调用侧注入做装配落点前置。
 - ✅ 执行（单类，保持行为不变）：在 `bc-course/infrastructure` 新增端口适配器 `edu.cuit.app.bccourse.adapter.CourseEntityConvertPortImpl`，内部 **直接委托** `CourseConvertor` 的 `toCourseEntityWithTeacherObject/toSemesterEntity/toSubjectEntity/toSingleCourseEntity`，确保映射与调用时机一致。
