@@ -112,6 +112,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 **已完成（更新至 2026-02-19）**
 - ✅ S0.2 延伸（引用面收敛前置，单类，保持行为不变）：在 `bc-course/application` 新增最小 Port `SingleCourseCoConvertPort`（用于后续收敛 `bc-evaluation/infrastructure` 对 `CourseBizConvertor` 的直接依赖；最小回归通过；落地：`32c458e7`）。
 - ✅ S0.2 延伸（引用面收敛前置，单类，保持行为不变）：在 `bc-course/infrastructure` 新增 Port Adapter `SingleCourseCoConvertPortImpl`（内部直接委托 `CourseBizConvertor.toSingleCourseCO(...)`，确保映射行为不变；最小回归通过；落地：`fd28bbb9`）。
+- ✅ S0.2 延伸（引用面收敛，单类，保持行为不变）：收敛评教侧调用点：`bc-evaluation/infrastructure` 的 `MsgServiceImpl` 改为依赖 `SingleCourseCoConvertPort`（不再直接调用 `CourseBizConvertor`；最小回归通过；落地：`65a2e261`）。
 - ✅ S0.2 延伸（LDAP 子簇解耦前置，单类，保持行为不变）：已将 `LdapConstants` 的静态初始化从“直连 `EvaLdapUtils.evaLdapProperties`”改为“`Class.forName + 反射读取 evaLdapProperties`”，在保持 `EvaLdapUtils` 类初始化副作用顺序不变的前提下，消除 `LdapConstants` 对 `EvaLdapUtils` 的编译期依赖，为下一刀“单类搬运 `LdapConstants` → shared-kernel”做准备（最小回归通过；落地：`45fa9651`）。
 - ✅ S0.2 延伸（shared-kernel 下沉，单类，保持行为不变）：已将 LDAP 常量类 `LdapConstants` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.enums` 与类内容不变，仅改变 Maven 模块归属；Serena 证据化：引用面命中 `bc-iam/infrastructure` 与 `EvaLdapUtils`；最小回归通过；口径更新：`eva-infra-shared` Java 余量由 `5` 变更为 `4`；落地：`3dc2e8ff`）。
 - ✅ S0.2 延伸（shared-kernel 下沉，单类，保持行为不变）：已将 LDAP 工具类 `EvaLdapUtils` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package edu.cuit.infra.util` 与类内容不变，仅改变 Maven 模块归属；Serena 证据化：引用面命中 `bc-iam/infrastructure` 多处适配器与 `LdapUserConvertor`；最小回归通过；口径更新：`eva-infra-shared` Java 余量由 `4` 变更为 `3`；落地：`05cc3039`）。
@@ -1298,6 +1299,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - 现状（证据化结论，保持行为不变）：`eva-infra-shared` 当前仅剩 `CourseBizConvertor/CourseConvertor/UserConverter`（MapStruct）；其引用面跨 `bc-course/bc-evaluation/bc-iam`，且编译期依赖 `bc-course-domain/bc-iam-domain` 的实体类型，因此**不能直接下沉** `shared-kernel`（会形成 Maven 环依赖）。
   - ✅ 进展（2026-02-19，保持行为不变）：已完成第 1 刀（单类）：在 `bc-course/application` 新增最小 Port `SingleCourseCoConvertPort`（用于后续收敛 `bc-evaluation/infrastructure` 的 `MsgServiceImpl` 对 `CourseBizConvertor` 的直接依赖；最小回归通过；落地：`32c458e7`）。
   - ✅ 进展（2026-02-19，保持行为不变）：已完成第 2 刀（单类）：在 `bc-course/infrastructure` 新增 Port Adapter `SingleCourseCoConvertPortImpl`（内部直接委托 `CourseBizConvertor.toSingleCourseCO(...)`，确保映射行为不变；最小回归通过；落地：`fd28bbb9`）。
+  - ✅ 进展（2026-02-19，保持行为不变）：已完成第 3 刀（单类）：`bc-evaluation/infrastructure` 的 `MsgServiceImpl` 改为依赖 `SingleCourseCoConvertPort` 并调用（不再直接调用 `CourseBizConvertor`；最小回归通过；落地：`65a2e261`）。
   - 推荐路线（保持行为不变）：先按“新增最小 Port → Port Adapter 内部委托旧 Convertor → 调用侧替换”的节奏，逐点消除跨 BC 对 Convertor 的直接依赖，使其逐步变为“单 BC 独占”；再执行“单类搬运归位”（例如先收敛 `bc-evaluation` 的 `MsgServiceImpl` 对 `CourseBizConvertor` 的依赖，再把 `CourseBizConvertor` 搬运归位到 `bc-course/infrastructure`；随后同法处理 `CourseConvertor/UserConverter`）。
 
 阶段性策略微调（2025-12-29）：
