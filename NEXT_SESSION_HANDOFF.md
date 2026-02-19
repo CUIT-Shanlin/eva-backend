@@ -28,6 +28,12 @@
 - 🧪 最小回归通过（Java17）：按 0.11 命令执行；本次 `mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
 - 📌 代码落地：`32c458e7`。
 
+**2026-02-19（bc-course/infrastructure 单类：新增 `SingleCourseCoConvertPortImpl`，保持行为不变）**
+- ✅ 目标（保持行为不变）：完成第 2 刀，为后续替换 `bc-evaluation/infrastructure` 调用侧做装配落点前置（调用链路将从“直接注入 Convertor”逐步收敛为“注入 Port 并由 bc-course 端口适配器承接”）。
+- ✅ 执行（单类，保持行为不变）：在 `bc-course/infrastructure` 新增端口适配器 `edu.cuit.app.bccourse.adapter.SingleCourseCoConvertPortImpl`，内部 **直接委托** `CourseBizConvertor.toSingleCourseCO(...)`，确保映射行为一致。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
+- 📌 代码落地：`fd28bbb9`。
+
 **2026-02-19（仅文档：证据口径复核 + Serena 证据化盘点 + 下一步计划明确；代码/行为不变）**
 - ✅ 起手复核（必须，口径固化）：`git branch --show-current`=`ddd`；`git merge-base --is-ancestor 2e4c4923 HEAD` 退出码=0；当前交接基线：`git rev-parse --short HEAD`=`27ceb374`；文档基线：`git log -n 1 -- NEXT_SESSION_HANDOFF.md` 指向同一提交（以 Git 为准，不在文内固化 commitId）。
 - 📊 证据口径快照（避免口径漂移）：`eva-infra-dal` Java=0、XML=0；`eva-infra-shared` Java=3；`bc-template/**` 与 `bc-course/**` 对 `infra.dal.database.mapper.eva.*` 的编译期直连行数=0；stash 仍为 3 条（后续仅允许按“指定文件路径”逐刀 restore，禁止整包 pop）。
