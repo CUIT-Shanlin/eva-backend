@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import edu.cuit.bc.course.application.port.CourInfObjectDirectQueryPort;
+import edu.cuit.bc.iam.application.port.UserEntityFieldExtractPort;
 import edu.cuit.bc.iam.application.port.UserEntityObjectByIdDirectQueryPort;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.EvaTaskConditionalQuery;
@@ -17,7 +18,6 @@ import edu.cuit.domain.entity.eva.EvaTaskEntity;
 import edu.cuit.bc.course.application.port.CourseEntityConvertPort;
 import edu.cuit.infra.convertor.PaginationConverter;
 import edu.cuit.infra.convertor.eva.EvaConvertor;
-import edu.cuit.infra.convertor.user.UserConverter;
 import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.course.SubjectDO;
@@ -59,7 +59,7 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
     private final EvaTaskMapper evaTaskMapper;
     private final EvaConvertor evaConvertor;
     private final PaginationConverter paginationConverter;
-    private final UserConverter userConverter;
+    private final UserEntityFieldExtractPort userEntityFieldExtractPort;
     private final UserEntityObjectByIdDirectQueryPort userEntityObjectByIdDirectQueryPort;
     private final CourseEntityConvertPort courseEntityConvertPort;
     @Autowired
@@ -312,7 +312,7 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
     //根据evaTaskDOs变成entity数据
     private List<EvaTaskEntity> getEvaTaskEntities(List<EvaTaskDO> evaTaskDOS,List<Object> userEntities,List<SingleCourseEntity> courseEntities){
         List<EvaTaskEntity> evaTaskEntityList=evaTaskDOS.stream().map(evaTaskDO ->evaConvertor.toEvaTaskEntityWithTeacherObject(evaTaskDO,
-                ()->userEntities.stream().filter(sysUserDO->userConverter.userIdOf(sysUserDO)
+                ()->userEntities.stream().filter(sysUserDO->userEntityFieldExtractPort.userIdOf(sysUserDO)
                         .equals(evaTaskDO.getTeacherId())).findFirst().get(),
                 ()->courseEntities.stream().filter(courInfDO->courInfDO.getId()
                         .equals(evaTaskDO.getCourInfId())).findFirst().get())).toList();
