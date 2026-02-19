@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-19（`eva-base-common` 退场前置：单类搬运 `GenericPattern` 下沉到 `shared-kernel`，保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`GenericPattern` 的引用面命中 `bc-iam/contract` 的 `UpdateUserCmd`；且搬运后 `package edu.cuit.common.enums` 不变，调用侧无需改 import。
+- ✅ 执行（单类搬运，保持行为不变）：将 `GenericPattern` 从 `eva-base/eva-base-common` 搬运下沉到 `shared-kernel`（保持常量内容与类注释不变，仅改变 Maven 模块归属），为后续“逐 pom 去 `eva-base-common` 依赖”铺路。
+- 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级使用 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
+- 📌 代码落地：`4be17a62`。
+
 **2026-02-19（编译闭合纠偏：单 pom，`bc-iam/infrastructure` 显式补齐 MapStruct + LDAP + 课程域 gateway 编译依赖，保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`bc-iam/infrastructure/src/main/java` 存在 `import org.mapstruct.*`；`LdapPersonDO` 使用 `org.springframework.ldap.odm.annotations.*`；且 `UserServiceImpl` 依赖 `edu.cuit.domain.gateway.course.CourseQueryGateway`（定义位于 `bc-course-domain`）。
 - ✅ 执行（单 pom，保持行为不变）：在 `bc-iam/infrastructure/pom.xml` 显式补齐 `org.mapstruct:mapstruct`、`org.springframework.ldap:spring-ldap-core`、`org.springframework.data:spring-data-ldap`、`edu.cuit:bc-course-domain(provided)`，避免“增量构建未触发重编译”掩盖依赖缺口（仅闭合编译边界；运行期仍由组合根装配）。
