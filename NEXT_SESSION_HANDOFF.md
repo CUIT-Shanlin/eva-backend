@@ -21,6 +21,14 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-19（bc-course/infrastructure 单类搬运：`CourseConvertor` 归位到 bc-course，保持行为不变）**
+- ✅ 目标（保持行为不变）：完成 `CourseConvertor` 退场路线的“引用面收敛 + 单类搬运归位”，为后续 `eva-infra-shared` 退场创造条件（避免跨 BC 共享 MapStruct Convertor）。
+- ✅ Serena（证据化，保持行为不变）：`CourseConvertor` 引用面已收敛为仅 `bc-course/infrastructure`（评教侧 `EvaTaskQueryRepository/EvaRecordQueryRepository` 已改为依赖 `CourseEntityConvertPort`，不再直接注入 `CourseConvertor`）。
+- ✅ 执行（单类搬运，保持行为不变）：将 `CourseConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-course/infrastructure`（保持 `package edu.cuit.infra.convertor.course` 与类内容不变，仅改变 Maven 模块归属）。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
+- 📊 口径更新（保持行为不变）：`eva-infra-shared` Java 余量由 `2` 变更为 `1`（仅剩 `UserConverter`）。
+- 📌 代码落地：`e91badc4`。
+
 **2026-02-19（bc-evaluation/infrastructure 单类：`EvaRecordQueryRepository` 改为依赖 `CourseEntityConvertPort`，保持行为不变）**
 - ✅ 目标（保持行为不变）：继续收敛评教读侧对 `CourseConvertor` 的跨 BC 直接依赖，覆盖 `EvaRecordQueryRepository` 这一调用点。
 - ✅ 执行（单类，保持行为不变）：将 `EvaRecordQueryRepository` 的注入从 `CourseConvertor` 改为 `CourseEntityConvertPort`，并逐点将 `toSingleCourseEntity/toSemesterEntity/toSubjectEntity/toCourseEntityWithTeacherObject` 调用改为走该 Port（由 bc-course 端口适配器委托既有 `CourseConvertor` 承接，确保映射与调用时机不变）。
