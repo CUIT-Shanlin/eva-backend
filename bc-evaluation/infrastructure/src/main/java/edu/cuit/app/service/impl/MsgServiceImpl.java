@@ -7,6 +7,7 @@ import com.alibaba.cola.exception.SysException;
 import edu.cuit.app.convertor.MsgBizConvertor;
 import edu.cuit.app.convertor.course.CourseBizConvertor;
 import edu.cuit.app.websocket.WebsocketManager;
+import edu.cuit.bc.course.application.port.SingleCourseCoConvertPort;
 import edu.cuit.bc.iam.application.port.UserAllUserIdQueryPort;
 import edu.cuit.bc.iam.application.port.UserBasicQueryPort;
 import edu.cuit.client.api.IMsgService;
@@ -21,8 +22,8 @@ import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.gateway.MsgGateway;
 import edu.cuit.bc.evaluation.application.port.EvaRecordCountQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaTaskInfoQueryPort;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +34,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class MsgServiceImpl implements IMsgService {
 
@@ -46,9 +46,61 @@ public class MsgServiceImpl implements IMsgService {
     private final WebsocketManager websocketManager;
 
     private final MsgBizConvertor msgBizConvertor;
-    private final CourseBizConvertor courseBizConvertor;
+    private final SingleCourseCoConvertPort singleCourseCoConvertPort;
 
     private final Executor executor;
+
+    @Autowired
+    public MsgServiceImpl(
+            MsgGateway msgGateway,
+            UserBasicQueryPort userBasicQueryPort,
+            UserAllUserIdQueryPort userAllUserIdQueryPort,
+            EvaTaskInfoQueryPort evaTaskQueryPort,
+            EvaRecordCountQueryPort evaRecordQueryPort,
+            WebsocketManager websocketManager,
+            MsgBizConvertor msgBizConvertor,
+            SingleCourseCoConvertPort singleCourseCoConvertPort,
+            Executor executor
+    ) {
+        this.msgGateway = msgGateway;
+        this.userBasicQueryPort = userBasicQueryPort;
+        this.userAllUserIdQueryPort = userAllUserIdQueryPort;
+        this.evaTaskQueryPort = evaTaskQueryPort;
+        this.evaRecordQueryPort = evaRecordQueryPort;
+        this.websocketManager = websocketManager;
+        this.msgBizConvertor = msgBizConvertor;
+        this.singleCourseCoConvertPort = singleCourseCoConvertPort;
+        this.executor = executor;
+    }
+
+    MsgServiceImpl(
+            MsgGateway msgGateway,
+            UserBasicQueryPort userBasicQueryPort,
+            UserAllUserIdQueryPort userAllUserIdQueryPort,
+            EvaTaskInfoQueryPort evaTaskQueryPort,
+            EvaRecordCountQueryPort evaRecordQueryPort,
+            WebsocketManager websocketManager,
+            MsgBizConvertor msgBizConvertor,
+            CourseBizConvertor courseBizConvertor,
+            Executor executor
+    ) {
+        this(
+                msgGateway,
+                userBasicQueryPort,
+                userAllUserIdQueryPort,
+                evaTaskQueryPort,
+                evaRecordQueryPort,
+                websocketManager,
+                msgBizConvertor,
+                new SingleCourseCoConvertPort() {
+                    @Override
+                    public SingleCourseCO toSingleCourseCO(SingleCourseEntity singleCourseEntity, Integer evaNum) {
+                        return courseBizConvertor.toSingleCourseCO(singleCourseEntity, evaNum);
+                    }
+                },
+                executor
+        );
+    }
 
     @Override
     @Transactional
@@ -90,7 +142,7 @@ public class MsgServiceImpl implements IMsgService {
             // 获取评教信息对应课程
             SingleCourseEntity courInf = taskEntity.getCourInf();
             // 转换为课程对象
-            SingleCourseCO singleCourseCO = courseBizConvertor.toSingleCourseCO(courInf,
+            SingleCourseCO singleCourseCO = singleCourseCoConvertPort.toSingleCourseCO(courInf,
                     evaRecordQueryPort.getEvaNumByCourInfo(courInf.getId()).orElse(0));
             return msgBizConvertor.toEvaResponseMsg(msgEntity,singleCourseCO);
         }).orElseThrow(() -> new BizException("获取评教信息失败"));
@@ -195,7 +247,7 @@ public class MsgServiceImpl implements IMsgService {
             // 获取评教信息对应课程
             SingleCourseEntity courInf = taskEntity.getCourInf();
             // 转换为课程对象
-            return courseBizConvertor.toSingleCourseCO(courInf,
+            return singleCourseCoConvertPort.toSingleCourseCO(courInf,
                     evaRecordQueryPort.getEvaNumByCourInfo(courInf.getId()).orElse(0));
         }).orElse(null);
     }
