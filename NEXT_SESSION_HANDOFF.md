@@ -21,6 +21,13 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-19（bc-course/application 单类：新增 `SingleCourseCoConvertPort`，保持行为不变）**
+- ✅ 目标（保持行为不变）：为后续把 `bc-evaluation/infrastructure` 对 `CourseBizConvertor` 的依赖收敛为“调用 `bc-course/application` Port 拿 `SingleCourseCO`”做前置（避免跨 BC 直接注入 Convertor）。
+- ✅ Serena（证据化，保持行为不变）：`CourseBizConvertor` 在 `bc-evaluation/**` 的引用面仅命中 `MsgServiceImpl`（另有 `start` 的 `MsgServiceImplTest` mock）；其余命中集中在 `bc-course/infrastructure`。
+- ✅ 执行（单类，保持行为不变）：新增 `bc-course/application` Port：`edu.cuit.bc.course.application.port.SingleCourseCoConvertPort`，方法签名：`SingleCourseCO toSingleCourseCO(SingleCourseEntity singleCourseEntity, Integer evaNum)`。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；本次 `mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
+- 📌 代码落地：`32c458e7`。
+
 **2026-02-19（仅文档：证据口径复核 + Serena 证据化盘点 + 下一步计划明确；代码/行为不变）**
 - ✅ 起手复核（必须，口径固化）：`git branch --show-current`=`ddd`；`git merge-base --is-ancestor 2e4c4923 HEAD` 退出码=0；当前交接基线：`git rev-parse --short HEAD`=`27ceb374`；文档基线：`git log -n 1 -- NEXT_SESSION_HANDOFF.md` 指向同一提交（以 Git 为准，不在文内固化 commitId）。
 - 📊 证据口径快照（避免口径漂移）：`eva-infra-dal` Java=0、XML=0；`eva-infra-shared` Java=3；`bc-template/**` 与 `bc-course/**` 对 `infra.dal.database.mapper.eva.*` 的编译期直连行数=0；stash 仍为 3 条（后续仅允许按“指定文件路径”逐刀 restore，禁止整包 pop）。
