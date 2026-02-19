@@ -21,6 +21,14 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-19（bc-course/infrastructure 单类搬运：`CourseBizConvertor` 归位到 bc-course，保持行为不变）**
+- ✅ 目标（保持行为不变）：完成 Convertor 退场路线的“搬运归位”节点，确保 `CourseBizConvertor` 的引用面已收敛为 `bc-course/**`（另有 `start` 测试 mock），不再跨 BC 复用。
+- ✅ Serena（证据化，保持行为不变）：`CourseBizConvertor` 引用面已不再命中 `bc-evaluation/**`（评教侧调用点已收敛为 `SingleCourseCoConvertPort`；测试构造器重载也已去类型依赖）。
+- ✅ 执行（单类搬运，保持行为不变）：将 `CourseBizConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-course/infrastructure`（保持 `package edu.cuit.app.convertor.course` 与类内容不变，仅改变 Maven 模块归属；避免同 FQCN 多份导致 classpath 冲突）。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
+- 📊 口径更新（保持行为不变）：`eva-infra-shared` Java 余量由 `3` 变更为 `2`（剩余：`CourseConvertor/UserConverter`）。
+- 📌 代码落地：`a082b812`。
+
 **2026-02-19（bc-evaluation/infrastructure 单类：清理 `MsgServiceImpl` 对 `CourseBizConvertor` 的编译期类型依赖，保持行为不变）**
 - ✅ 目标（保持行为不变）：为下一刀“搬运 `CourseBizConvertor` 归位到 `bc-course/infrastructure`”做前置，确保 `bc-evaluation/**` 不再编译期依赖该 Convertor 的类型。
 - ✅ 执行（单类，保持行为不变）：移除 `MsgServiceImpl` 对 `CourseBizConvertor` 的 import 与构造器参数类型依赖；测试构造器重载改为接收 `Object` 并通过反射调用 `toSingleCourseCO(SingleCourseEntity,Integer)` 来构造 `SingleCourseCoConvertPort`，避免对 Convertor 形成编译期耦合（异常文案/日志/副作用顺序不变）。
