@@ -69,6 +69,13 @@
 		            <version>${revision}</version>
 	        </dependency>
 
+	        <!-- 跨 BC 字段桥接端口：IAM（用于收敛对 UserConverter 的直接注入；保持行为不变） -->
+	        <dependency>
+	            <groupId>edu.cuit</groupId>
+	            <artifactId>bc-iam</artifactId>
+	            <version>${revision}</version>
+	        </dependency>
+
 	        <!-- 评教事务事件监听器依赖消息域契约（保持包名不变；不引入实现侧依赖） -->
 	        <dependency>
 	            <groupId>edu.cuit</groupId>
