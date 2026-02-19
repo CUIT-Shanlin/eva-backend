@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-19（`UserConverter` 收尾：第 4 刀（单类），`EvaRecordQueryRepository` 改注入 `UserEntityFieldExtractPort`，保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`EvaRecordQueryRepository` 内对 `UserConverter` 的唯一方法使用点为 `userIdOf(Object)`（用于在 `getEvaTaskEntities` 里按 teacherId 过滤匹配）。
+- ✅ 执行（单类，保持行为不变）：将 `bc-evaluation/infrastructure` 的 `EvaRecordQueryRepository` 依赖从 `UserConverter` 收敛为注入 `UserEntityFieldExtractPort`，并将 `userIdOf` 调用改为走该 Port（Port Adapter 内部仍委托 `UserConverter.userIdOf`，确保空值/异常/调用顺序不变）。
+- 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级使用 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
+- 📌 代码落地：`ba84a0ca`。
+
 **2026-02-19（`UserConverter` 收尾：第 3 刀（单类），`EvaTaskQueryRepository` 改注入 `UserEntityFieldExtractPort`，保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`EvaTaskQueryRepository` 内对 `UserConverter` 的唯一方法使用点为 `userIdOf(Object)`（用于在 `getEvaTaskEntities` 里按 teacherId 过滤匹配）。
 - ✅ 执行（单类，保持行为不变）：将 `bc-evaluation/infrastructure` 的 `EvaTaskQueryRepository` 依赖从 `UserConverter` 收敛为注入 `UserEntityFieldExtractPort`，并将 `userIdOf` 调用改为走该 Port（Port Adapter 内部仍委托 `UserConverter.userIdOf`，确保空值/异常/调用顺序不变）。
