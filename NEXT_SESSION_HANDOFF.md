@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-19（bc-course/application 单类：新增 `CourseEntityConvertPort`，保持行为不变）**
+- ✅ 目标（保持行为不变）：为后续收敛 `bc-evaluation/infrastructure` 对 `CourseConvertor` 的直接依赖做前置，将“课程 DO → 课程实体/单节课实体”的转换能力收敛为 `bc-course/application` 的最小 Port（不引入 `UserEntity` 编译期依赖，保留 `teacher` 的 `Supplier<?>` 桥接口径）。
+- ✅ 执行（单类，保持行为不变）：新增 `bc-course/application` Port：`edu.cuit.bc.course.application.port.CourseEntityConvertPort`，承接 `toCourseEntityWithTeacherObject/toSemesterEntity/toSubjectEntity/toSingleCourseEntity`（签名与既有 `CourseConvertor` 对齐，便于后续调用侧替换）。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
+- 📌 代码落地：`0a95da8f`。
+
 **2026-02-19（bc-course/infrastructure 单类搬运：`CourseBizConvertor` 归位到 bc-course，保持行为不变）**
 - ✅ 目标（保持行为不变）：完成 Convertor 退场路线的“搬运归位”节点，确保 `CourseBizConvertor` 的引用面已收敛为 `bc-course/**`（另有 `start` 测试 mock），不再跨 BC 复用。
 - ✅ Serena（证据化，保持行为不变）：`CourseBizConvertor` 引用面已不再命中 `bc-evaluation/**`（评教侧调用点已收敛为 `SingleCourseCoConvertPort`；测试构造器重载也已去类型依赖）。
