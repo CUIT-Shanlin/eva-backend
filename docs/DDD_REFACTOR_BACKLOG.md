@@ -121,6 +121,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（引用面收敛，单类，保持行为不变）：收敛评教读侧调用点：`EvaRecordQueryRepository` 改为依赖 `UserEntityFieldExtractPort`（不再直接注入 `UserConverter`；Port Adapter 内部仍委托 `UserConverter.userIdOf`；最小回归通过；落地：`ba84a0ca`）。
 - ✅ S0.2 延伸（编译闭合前置，单 pom，保持行为不变）：在 `bc-course/infrastructure/pom.xml` 增加 `bc-iam` Maven 依赖，用于承接后续 `bc-course/infrastructure` 调用侧对 `UserEntityFieldExtractPort` 的编译期引用（最小回归通过；落地：`3ca758c2`）。
 - ✅ S0.2 延伸（编译闭合补强，单 pom，保持行为不变）：为避免“增量构建未触发编译”掩盖依赖缺口，收敛 `bc-course/infrastructure/pom.xml`：显式补齐 `org.mapstruct:mapstruct` + `bc-evaluation-domain(provided)` + `bc-messaging-contract(provided)`（仅闭合编译边界；最小回归通过；落地：`6ee4e485`）。
+- ✅ S0.2 延伸（编译闭合纠偏，单 pom，保持行为不变）：为避免“增量构建未触发重编译”掩盖依赖缺口，收敛 `bc-iam/infrastructure/pom.xml`：显式补齐 `org.mapstruct:mapstruct`、`org.springframework.ldap:spring-ldap-core`、`org.springframework.data:spring-data-ldap`、`bc-course-domain(provided)`（仅闭合编译边界；最小回归通过；落地：`03dc4f4e`）。
 - ✅ S0.2 延伸（引用面收敛，单类，保持行为不变）：收敛课程读侧调用点：`CourseQueryRepository` 改为依赖 `UserEntityFieldExtractPort`（不再直接注入 `UserConverter`；Port Adapter 内部仍委托 `UserConverter.springUserEntityWithNameObject`；最小回归通过；落地：`9eabba63`）。
 - ✅ S0.2 延伸（引用面收敛前置，单类，保持行为不变）：在 `bc-course/application` 新增最小 Port `CourseEntityConvertPort`（用于后续收敛 `bc-evaluation/infrastructure` 对 `CourseConvertor` 的直接依赖；保留 `teacher` 的 `Supplier<?>` 桥接口径；最小回归通过；落地：`0a95da8f`）。
 - ✅ S0.2 延伸（引用面收敛前置，单类，保持行为不变）：在 `bc-course/infrastructure` 新增 Port Adapter `CourseEntityConvertPortImpl`（内部直接委托 `CourseConvertor`，确保映射与调用时机不变；最小回归通过；落地：`eb597366`）。

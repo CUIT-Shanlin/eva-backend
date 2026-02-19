@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-19（编译闭合纠偏：单 pom，`bc-iam/infrastructure` 显式补齐 MapStruct + LDAP + 课程域 gateway 编译依赖，保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`bc-iam/infrastructure/src/main/java` 存在 `import org.mapstruct.*`；`LdapPersonDO` 使用 `org.springframework.ldap.odm.annotations.*`；且 `UserServiceImpl` 依赖 `edu.cuit.domain.gateway.course.CourseQueryGateway`（定义位于 `bc-course-domain`）。
+- ✅ 执行（单 pom，保持行为不变）：在 `bc-iam/infrastructure/pom.xml` 显式补齐 `org.mapstruct:mapstruct`、`org.springframework.ldap:spring-ldap-core`、`org.springframework.data:spring-data-ldap`、`edu.cuit:bc-course-domain(provided)`，避免“增量构建未触发重编译”掩盖依赖缺口（仅闭合编译边界；运行期仍由组合根装配）。
+- 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级使用 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
+- 📌 代码落地：`03dc4f4e`。
+
 **2026-02-19（编译闭合补强：单 pom，`bc-course/infrastructure` 显式补齐 MapStruct + 跨 BC contract 依赖，保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`bc-course/infrastructure/src/main/java` 存在 `import org.mapstruct.*`（`CourseConvertor/CourseBizConvertor/SemesterConverter` 等）；且在触发全量编译时暴露出对 `bc-evaluation-domain`（`EvaConfigGateway`）与 `bc-messaging-contract`（`edu.cuit.bc.messaging.application.event.*`、`edu.cuit.client.*` 消息载荷类型）的编译期缺口。
 - ✅ 执行（单 pom，保持行为不变）：在 `bc-course/infrastructure/pom.xml` 显式补齐 `org.mapstruct:mapstruct`、`edu.cuit:bc-evaluation-domain(provided)`、`edu.cuit:bc-messaging-contract(provided)` 以闭合编译边界（仅编译期需要；运行期仍由组合根装配）。
