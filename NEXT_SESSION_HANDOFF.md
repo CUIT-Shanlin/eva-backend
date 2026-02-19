@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-19（`eva-infra-shared` 依赖收敛：第 1 刀（单 pom），`bc-course-infra` 移除 `eva-infra-shared` 依赖，保持行为不变）**
+- ✅ 背景（保持行为不变）：`UserConverter` 已归位到 `bc-iam/infrastructure`，且 `bc-course/**` 已不再引用 `eva-infra-shared` 中任何类型，因此可开始按 pom 逐点收敛 `eva-infra-shared` 依赖，避免“空模块依赖”掩盖后续 reactor 退场判断。
+- ✅ 执行（单 pom，保持行为不变）：从 `bc-course/infrastructure/pom.xml` 移除 `edu.cuit:eva-infra-shared:${revision}` 依赖（仅收敛 Maven 编译边界；不改业务语义/副作用顺序）。
+- 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级使用 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
+- 📌 代码落地：`a96900c5`。
+
 **2026-02-19（`eva-infra-shared` 收尾：单类搬运 `UserConverter` 归位到 `bc-iam/infrastructure`，保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`UserConverter` 跨 BC 引用面已收敛为仅命中 `bc-iam/infrastructure`（`bc-course/**`、`bc-evaluation/**` 已证伪无引用），满足“单 BC 归位”的前置条件。
 - ✅ 执行（单类搬运，保持行为不变）：将 `UserConverter` 从 `eva-infra-shared` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.convertor.user` 与类内容不变，仅改变 Maven 模块归属），避免同 FQCN 多份导致 classpath 冲突。

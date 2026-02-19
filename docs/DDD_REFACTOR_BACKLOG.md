@@ -907,7 +907,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成：`SysLogModuleMapper.xml` → `bc-audit/infrastructure`（保持 MyBatis XML `namespace`/`resultMap type`、资源路径 `mapper/**` 不变；保持行为不变；详见 4.2）。
 - **S0.2 延伸（shared 收尾：`UserConverter` 已归位，保持行为不变）**：
   - 现状口径：`fd -t f -e java . eva-infra-shared/src/main/java | wc -l` 预期=0。
-  - 依赖方口径：`rg -n "<artifactId>eva-infra-shared</artifactId>" --glob "**/pom.xml" bc-* | sort` 当前应仅命中 `bc-course/infrastructure`、`bc-evaluation/infrastructure`、`bc-iam/infrastructure`。
+  - 依赖方口径：`rg -n "<artifactId>eva-infra-shared</artifactId>" --glob "**/pom.xml" bc-* | sort` 当前应仅命中 `bc-evaluation/infrastructure`、`bc-iam/infrastructure`。
   - Serena 证据化（更新至 2026-02-19，保持行为不变）：`UserConverter` 跨 BC 引用面已清零并满足“单 BC 归位”前置条件；现已搬运归位到 `bc-iam/infrastructure`（落地：`8d5e580c`）。
   - 退场路线（保持行为不变）：下一刀开始逐 pom 去 `eva-infra-shared` 依赖；待 root reactor 与依赖清零后，再评估删除 `eva-infra-shared/pom.xml` 与目录（每次只改 1 个文件闭环）。
 

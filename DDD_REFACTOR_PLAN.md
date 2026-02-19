@@ -530,6 +530,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-19，保持行为不变，编译闭合前置，单 pom）：在 `bc-course/infrastructure/pom.xml` 增加 `bc-iam` Maven 依赖，用于承接后续 `bc-course/infrastructure` 调用侧对 `UserEntityFieldExtractPort` 的编译期引用（最小回归通过；落地：`3ca758c2`）。
 - ✅ 补充进展（2026-02-19，保持行为不变，引用面收敛，单类）：收敛课程读侧调用点：`CourseQueryRepository` 改为依赖 `UserEntityFieldExtractPort`（不再直接注入 `UserConverter`；Port Adapter 内部仍委托 `UserConverter.springUserEntityWithNameObject`；最小回归通过；落地：`9eabba63`）。
 - 补充进展（2026-02-06，保持行为不变，支撑类归位）：将 `CourInfTimeOverlapQuery` 从 `eva-infra-shared` 进一步归位到 `bc-course/infrastructure`（保持 `package` 不变；Serena：引用面仅命中 `bc-course/infrastructure` 的 3 个适配器；最小回归通过；落地：`ea6c99e9`）。
+- ✅ 补充进展（2026-02-19，保持行为不变，依赖收敛，单 pom）：收敛 `bc-course/infrastructure/pom.xml`：移除对 `eva-infra-shared` 的依赖（最小回归通过；落地：`a96900c5`）。
 - 补充进展（2026-02-12，保持行为不变，编译闭合前置，单 pom）：为后续将 `QueryUtils` 从 `eva-infra-shared` 归位到 `eva-infra-dal`，在 `eva-infra-dal/pom.xml` 显式增加对 `shared-kernel` 的 Maven 编译期依赖（最小回归通过；落地：`996b6990`）。
 - 补充进展（2026-02-12，保持行为不变，编译闭合前置，单 pom）：为后续将 `EntityFactory` 从 `eva-infra-shared` 归位到 `eva-infra-dal` 做准备，在 `eva-infra-dal/pom.xml` 显式补齐 `hutool-all`、`cola-component-exception`、`mapstruct` 依赖（不改变业务语义/副作用顺序；最小回归通过；落地：`6546c548`）。
 - ✅ 补充进展（2026-02-12，保持行为不变；单类闭环）：已将 `EntityFactory` 从 `eva-infra-shared` 搬运归位到 `eva-infra-dal`（保持 `package edu.cuit.infra.convertor` 与类内容不变；不引入新缓存/切面副作用；最小回归通过；落地：`eba15e92`）。
