@@ -14,8 +14,8 @@ import edu.cuit.domain.entity.course.SemesterEntity;
 import edu.cuit.domain.entity.course.SingleCourseEntity;
 import edu.cuit.domain.entity.course.SubjectEntity;
 import edu.cuit.domain.entity.eva.EvaTaskEntity;
+import edu.cuit.bc.course.application.port.CourseEntityConvertPort;
 import edu.cuit.infra.convertor.PaginationConverter;
-import edu.cuit.infra.convertor.course.CourseConvertor;
 import edu.cuit.infra.convertor.eva.EvaConvertor;
 import edu.cuit.infra.convertor.user.UserConverter;
 import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
@@ -61,7 +61,7 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
     private final PaginationConverter paginationConverter;
     private final UserConverter userConverter;
     private final UserEntityObjectByIdDirectQueryPort userEntityObjectByIdDirectQueryPort;
-    private final CourseConvertor courseConvertor;
+    private final CourseEntityConvertPort courseEntityConvertPort;
     @Autowired
     @Qualifier("sysUserMapper")
     private Object sysUserMapper;
@@ -249,7 +249,7 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
             }
             CourseDO courseDO = courseMapper.selectById(courInfDO.getCourseId());
             Supplier<CourseEntity> course = () -> toCourseEntity(courInfDO.getCourseId(), courseDO.getSemesterId());
-            Supplier<SingleCourseEntity> oneCourse = () -> courseConvertor.toSingleCourseEntity(course, courInfDO);
+            Supplier<SingleCourseEntity> oneCourse = () -> courseEntityConvertPort.toSingleCourseEntity(course, courInfDO);
 
             EvaTaskEntity evaTaskEntity = evaConvertor.toEvaTaskEntityWithTeacherObject(evaTaskDO, teacher, oneCourse);
             return Optional.of(evaTaskEntity);
@@ -264,7 +264,7 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
             }
             CourseDO courseDO = courseMapper.selectById(courInfDO.getCourseId());
             Supplier<CourseEntity> course = () -> toCourseEntity(courInfDO.getCourseId(), courseDO.getSemesterId());
-            Supplier<SingleCourseEntity> oneCourse = () -> courseConvertor.toSingleCourseEntity(course, courInfDO);
+            Supplier<SingleCourseEntity> oneCourse = () -> courseEntityConvertPort.toSingleCourseEntity(course, courInfDO);
 
             EvaTaskEntity evaTaskEntity = evaConvertor.toEvaTaskEntityWithTeacherObject(getCached, teacher, oneCourse);
             return Optional.of(evaTaskEntity);
@@ -296,17 +296,17 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
 
     private CourseEntity toCourseEntity(Integer courseId,Integer semId){
         //构造semester
-        Supplier<SemesterEntity> semesterEntity = ()->courseConvertor.toSemesterEntity(semesterMapper.selectById(semId));
+        Supplier<SemesterEntity> semesterEntity = () -> courseEntityConvertPort.toSemesterEntity(semesterMapper.selectById(semId));
         //构造courseDo
         CourseDO courseDO = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", courseId).eq("semester_id", semId));
         if(courseDO==null){
             throw new QueryException("并未找到相关课程");
         }
         //构造subject
-        Supplier<SubjectEntity> subjectEntity = ()->courseConvertor.toSubjectEntity(subjectMapper.selectById(courseDO.getSubjectId()));
+        Supplier<SubjectEntity> subjectEntity = () -> courseEntityConvertPort.toSubjectEntity(subjectMapper.selectById(courseDO.getSubjectId()));
         //构造userEntity
         Supplier<?> userEntity =()->toUserEntity(courseMapper.selectById(courseId).getTeacherId());
-        return courseConvertor.toCourseEntityWithTeacherObject(courseDO,subjectEntity,userEntity,semesterEntity);
+        return courseEntityConvertPort.toCourseEntityWithTeacherObject(courseDO, subjectEntity, userEntity, semesterEntity);
     }
 
     //根据evaTaskDOs变成entity数据
@@ -323,7 +323,7 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
     }
 
     private List<SingleCourseEntity> getListCurInfoEntities(List<CourInfDO> courInfDOS){
-        return courInfDOS.stream().map(courInfDO ->courseConvertor.toSingleCourseEntity(
+        return courInfDOS.stream().map(courInfDO -> courseEntityConvertPort.toSingleCourseEntity(
                 ()->toCourseEntity(courInfDO.getCourseId(),courseMapper.selectById(courInfDO.getCourseId()).getSemesterId()),courInfDO)).toList();
     }
 
