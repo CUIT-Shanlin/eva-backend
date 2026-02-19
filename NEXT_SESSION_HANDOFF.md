@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-19（`UserConverter` 收尾：第 3 刀前置（编译闭合，单 pom），`bc-evaluation-infra` 增加对 `bc-iam` 的依赖，保持行为不变）**
+- ✅ 背景（保持行为不变）：后续将 `bc-evaluation/infrastructure` 的 `EvaTaskQueryRepository/EvaRecordQueryRepository` 从直接注入 `UserConverter` 收敛为注入 `bc-iam/application` 的 Port `UserEntityFieldExtractPort`，因此需前置补齐 `bc-evaluation-infra` 对 `bc-iam` 的 Maven 编译期依赖以闭合编译边界。
+- ✅ 执行（单 pom，保持行为不变）：`bc-evaluation/infrastructure/pom.xml` 增加 `edu.cuit:bc-iam:${revision}` 依赖（仅编译边界前置；不改任何业务语义/副作用顺序）。
+- 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级使用 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
+- 📌 代码落地：`4b239adf`。
+
 **2026-02-19（`UserConverter` 收尾：第 2 刀（Port Adapter），新增 `UserEntityFieldExtractPortImpl`（委托 `UserConverter`），保持行为不变）**
 - ✅ 执行（单类，保持行为不变）：在 `bc-iam/infrastructure` 新增 Port Adapter：`edu.cuit.infra.bciam.adapter.UserEntityFieldExtractPortImpl`，实现 `UserEntityFieldExtractPort` 并内部直接委托 `UserConverter.userIdOf/springUserEntityWithNameObject`，保持异常/空值/调用顺序不变（本刀不改任何调用侧）。
 - 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级使用 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
