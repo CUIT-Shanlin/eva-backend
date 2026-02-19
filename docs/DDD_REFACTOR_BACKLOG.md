@@ -116,6 +116,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-evaluation/infrastructure/pom.xml`：移除对 `eva-infra-shared` 的 Maven 编译期依赖（仅收敛编译边界；最小回归通过；落地：`61d305e0`）。
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 `bc-iam/infrastructure/pom.xml`：移除对 `eva-infra-shared` 的 Maven 编译期依赖（仅收敛编译边界；最小回归通过；落地：`2c405c32`）。
 - ✅ S0.2 延伸（依赖收敛，单 pom，保持行为不变）：收敛 root `pom.xml`：从 reactor 移除 `<module>eva-infra-shared</module>`（仅改变聚合构建边界；最小回归通过；落地：`3676b534`）。
+- ✅ S0.2 延伸（依赖收敛，单文件，保持行为不变）：删除 `eva-infra-shared/pom.xml`（前置：全仓库已无任何 `eva-infra-shared` 依赖引用；最小回归通过；落地：`8aad22a2`）。
 - ✅ S0.2 延伸（引用面收敛，单类，保持行为不变）：收敛评教读侧调用点：`EvaTaskQueryRepository` 改为依赖 `UserEntityFieldExtractPort`（不再直接注入 `UserConverter`；Port Adapter 内部仍委托 `UserConverter.userIdOf`；最小回归通过；落地：`5128a78d`）。
 - ✅ S0.2 延伸（引用面收敛，单类，保持行为不变）：收敛评教读侧调用点：`EvaRecordQueryRepository` 改为依赖 `UserEntityFieldExtractPort`（不再直接注入 `UserConverter`；Port Adapter 内部仍委托 `UserConverter.userIdOf`；最小回归通过；落地：`ba84a0ca`）。
 - ✅ S0.2 延伸（编译闭合前置，单 pom，保持行为不变）：在 `bc-course/infrastructure/pom.xml` 增加 `bc-iam` Maven 依赖，用于承接后续 `bc-course/infrastructure` 调用侧对 `UserEntityFieldExtractPort` 的编译期引用（最小回归通过；落地：`3ca758c2`）。
@@ -912,7 +913,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - 现状口径：`fd -t f -e java . eva-infra-shared/src/main/java | wc -l` 预期=0。
   - 依赖方口径：`rg -n "<artifactId>eva-infra-shared</artifactId>" --glob "**/pom.xml" bc-* | sort` 当前预期无命中。
   - Serena 证据化（更新至 2026-02-19，保持行为不变）：`UserConverter` 跨 BC 引用面已清零并满足“单 BC 归位”前置条件；现已搬运归位到 `bc-iam/infrastructure`（落地：`8d5e580c`）。
-  - 退场路线（保持行为不变）：依赖方逐 pom 去依赖已闭环，且 root reactor 已移除 `<module>eva-infra-shared</module>`；下一刀删除 `eva-infra-shared/pom.xml`（每次只改 1 个文件闭环）。
+  - 退场路线（保持行为不变）：`eva-infra-shared` 退场收尾已闭环（逐 pom 去依赖 + reactor 退场 + 删除 pom）。目录清理可后置为单独一刀（若为空目录）。
 
 - **S0.2 延伸（消息：DAL 按 BC 拆散试点，`msg_tip`，保持行为不变）**：
   - ✅ 已完成：`MsgTipMapper`、`MsgTipDO` → `bc-messaging`（保持 `package` 不变，仅改变 Maven 模块归属；详见 4.2 与 `NEXT_SESSION_HANDOFF.md` 0.9）。
@@ -1318,12 +1319,12 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 - 🎯 下一刀建议（shared 瘦身收尾：`UserConverter` 已归位，进入“逐 pom 去依赖 → reactor 退场”阶段，保持行为不变；每次只改 1 个文件闭环）：
   - 现状（证据化结论，保持行为不变）：`UserConverter` 已搬运归位到 `bc-iam/infrastructure`（落地：`8d5e580c`），`eva-infra-shared` Java 余量应为 0。
-  - 下一步建议（保持行为不变）：✅ 已完成：收敛 `bc-course/infrastructure/pom.xml` 并移除对 `eva-infra-shared` 的依赖（落地：`a96900c5`）。✅ 已完成：收敛 `bc-evaluation/infrastructure/pom.xml` 并移除对 `eva-infra-shared` 的依赖（落地：`61d305e0`）。✅ 已完成：收敛 `bc-iam/infrastructure/pom.xml` 并移除对 `eva-infra-shared` 的依赖（落地：`2c405c32`）。✅ 已完成：从 root reactor 移除 `<module>eva-infra-shared</module>`（落地：`3676b534`）。待完成：删除 `eva-infra-shared/pom.xml`（每次只改 1 个文件闭环）。
+  - 下一步建议（保持行为不变）：✅ 已完成：收敛 `bc-course/infrastructure/pom.xml` 并移除对 `eva-infra-shared` 的依赖（落地：`a96900c5`）。✅ 已完成：收敛 `bc-evaluation/infrastructure/pom.xml` 并移除对 `eva-infra-shared` 的依赖（落地：`61d305e0`）。✅ 已完成：收敛 `bc-iam/infrastructure/pom.xml` 并移除对 `eva-infra-shared` 的依赖（落地：`2c405c32`）。✅ 已完成：从 root reactor 移除 `<module>eva-infra-shared</module>`（落地：`3676b534`）。✅ 已完成：删除 `eva-infra-shared/pom.xml`（落地：`8aad22a2`）。可选后续：若目录为空，单独一刀 `rmdir eva-infra-shared`。
   - ✅ 进展（2026-02-19，保持行为不变）：已完成第 1 刀（单类）：在 `bc-course/application` 新增最小 Port `SingleCourseCoConvertPort`（用于收敛评教侧对课程转换能力的依赖；最小回归通过；落地：`32c458e7`）。
   - ✅ 进展（2026-02-19，保持行为不变）：已完成第 2 刀（单类）：在 `bc-course/infrastructure` 新增 Port Adapter `SingleCourseCoConvertPortImpl`（内部直接委托 `CourseBizConvertor.toSingleCourseCO(...)`，确保映射行为不变；最小回归通过；落地：`fd28bbb9`）。
   - ✅ 进展（2026-02-19，保持行为不变）：已完成第 3 刀（单类）：`bc-evaluation/infrastructure` 的 `MsgServiceImpl` 改为依赖 `SingleCourseCoConvertPort` 并调用（最小回归通过；落地：`65a2e261`）。
   - ✅ 进展（2026-02-19，保持行为不变）：已完成第 4 刀（单类搬运）：将 `CourseBizConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-course/infrastructure`（保持 `package` 与类内容不变；最小回归通过；落地：`a082b812`）。
-  - ✅ 状态更新（保持行为不变）：上述 `UserConverter` 的“最小 Port + Adapter + 调用侧替换 + 单类搬运归位”路线已完成；且“逐 pom 去依赖 + reactor 退场”已完成；当前仅剩“删除 `eva-infra-shared/pom.xml`（单文件）”的收尾步骤（见本节前两条）。
+  - ✅ 状态更新（保持行为不变）：上述 `UserConverter` 的“最小 Port + Adapter + 调用侧替换 + 单类搬运归位”路线已完成；`eva-infra-shared` 退场收尾也已闭环（逐 pom 去依赖 + reactor 退场 + 删除 pom）。后续仅剩“目录清理（可选）”。
 
 阶段性策略微调（2025-12-29）：
 - ✅ 复核口径（2026-01-26，不改业务语义）：`spring-boot-starter-websocket` 仅由组合根 `start` 显式承接；并已将 `EvaConfigBizConvertor`、`EvaRecordBizConvertor`、`EvaTemplateBizConvertor` 从 `eva-app` 归位到 `eva-infra-shared`（保持行为不变）；`EvaTaskBizConvertor` 后续已从 `eva-infra-shared` 进一步归位到 `bc-evaluation/infrastructure`（保持行为不变；落地：`f3a2cf7f`）。并将 `EvaConfigService` 从 `eva-app` 归位到 `bc-evaluation-infra`（保持行为不变），并将 `UserCourseDetailQueryExec`、`FileImportExec`、`package-info.java` 从 `eva-app` 归位到 `bc-course-infra`（保持行为不变）。当前 `eva-app` 已退场（组合根去依赖：`0a9ff564`；reactor 移除：`b5f15a4b`；删除 `eva-app/pom.xml`：`4bfa9d40`）；`eva-adapter` 残留 Controller 口径以 `NEXT_SESSION_HANDOFF.md` 0.10.2 为准（当前 0 个，已清零）；组合根 `start` 已移除对 `eva-adapter` 的 Maven 依赖（落地：`92a70a9e`；保持行为不变）。补充：✅ 已完成消息入口归位前置（保持行为不变）：为后续将 `MessageController` 从 `eva-adapter` 归位到 `bc-messaging` 做编译闭合前置，在 `bc-messaging/pom.xml` 补齐 `spring-boot-starter-web`、`zym-spring-boot-starter-common`、`zym-spring-boot-starter-security`、`shared-kernel`（落地：`aa7d57bb`）。补充：✅ 已完成审计日志入口归位（保持行为不变）：`LogController` 已从 `eva-adapter` 归位到 `bc-audit/infrastructure`（编译闭合前置：`2464d2b9`；入口归位：`b592cc0f`）。
