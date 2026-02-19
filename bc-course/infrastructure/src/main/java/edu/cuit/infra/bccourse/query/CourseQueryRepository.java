@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.benmanes.caffeine.cache.Cache;
+import edu.cuit.bc.iam.application.port.UserEntityFieldExtractPort;
 import edu.cuit.bc.iam.application.port.UserEntityObjectByIdDirectQueryPort;
 import edu.cuit.client.bo.EvaProp;
 
@@ -37,7 +38,6 @@ import edu.cuit.domain.entity.course.*;
 
 import edu.cuit.infra.convertor.PaginationConverter;
 import edu.cuit.infra.convertor.course.CourseConvertor;
-import edu.cuit.infra.convertor.user.UserConverter;
 import edu.cuit.infra.dal.database.dataobject.course.*;
 import edu.cuit.infra.dal.database.dataobject.eva.CourOneEvaTemplateDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
@@ -75,7 +75,7 @@ import java.util.stream.Stream;
 @Component
 public class CourseQueryRepository implements CourseQueryRepo {
     private final CourseConvertor courseConvertor;
-    private final UserConverter userConverter;
+    private final UserEntityFieldExtractPort userEntityFieldExtractPort;
     private final CourInfMapper courInfMapper;
     private final CourseMapper courseMapper;
     private final CourseTypeCourseMapper courseTypeCourseMapper;
@@ -97,7 +97,7 @@ public class CourseQueryRepository implements CourseQueryRepo {
 
     public CourseQueryRepository(
             CourseConvertor courseConvertor,
-            UserConverter userConverter,
+            UserEntityFieldExtractPort userEntityFieldExtractPort,
             CourInfMapper courInfMapper,
             CourseMapper courseMapper,
             CourseTypeCourseMapper courseTypeCourseMapper,
@@ -118,7 +118,7 @@ public class CourseQueryRepository implements CourseQueryRepo {
             CourseImportExce courseImportExce
     ) {
         this.courseConvertor = courseConvertor;
-        this.userConverter = userConverter;
+        this.userEntityFieldExtractPort = userEntityFieldExtractPort;
         this.courInfMapper = courInfMapper;
         this.courseMapper = courseMapper;
         this.courseTypeCourseMapper = courseTypeCourseMapper;
@@ -971,7 +971,7 @@ public class CourseQueryRepository implements CourseQueryRepo {
                         new Object[]{courseDO.getTeacherId()}
                 );
 
-                Object user = userConverter.springUserEntityWithNameObject(sysUserDO.getName());
+                Object user = userEntityFieldExtractPort.springUserEntityWithNameObject(sysUserDO.getName());
                 entity.setTeacher((Supplier) (() -> user));
                 list.add(entity);
 
