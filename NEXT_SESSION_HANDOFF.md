@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-19（`UserConverter` 收尾：第 5 刀（单类），`CourseQueryRepository` 改注入 `UserEntityFieldExtractPort`，保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`CourseQueryRepository` 内对 `UserConverter` 的唯一方法使用点为 `springUserEntityWithNameObject(Object)`（用于构造 teacher 的 `Supplier<?>` 桥对象）。
+- ✅ 执行（单类，保持行为不变）：将 `bc-course/infrastructure` 的 `CourseQueryRepository` 依赖从 `UserConverter` 收敛为注入 `UserEntityFieldExtractPort`，并将 `springUserEntityWithNameObject` 调用改为走该 Port（Port Adapter 内部仍委托 `UserConverter.springUserEntityWithNameObject`，确保空值/异常/调用顺序不变）。
+- 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级使用 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
+- 📌 代码落地：`9eabba63`。
+
 **2026-02-19（`UserConverter` 收尾：第 5 刀前置（编译闭合，单 pom），`bc-course-infra` 增加对 `bc-iam` 的依赖，保持行为不变）**
 - ✅ 背景（保持行为不变）：后续将 `bc-course/infrastructure` 的 `CourseQueryRepository` 从直接注入 `UserConverter` 收敛为注入 `bc-iam/application` 的 Port `UserEntityFieldExtractPort`（用于桥接 `springUserEntityWithNameObject`），因此需前置补齐 `bc-course-infra` 对 `bc-iam` 的 Maven 编译期依赖以闭合编译边界。
 - ✅ 执行（单 pom，保持行为不变）：`bc-course/infrastructure/pom.xml` 增加 `edu.cuit:bc-iam:${revision}` 依赖（仅编译边界前置；不改任何业务语义/副作用顺序）。
