@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import edu.cuit.bc.course.application.port.CourInfObjectDirectQueryPort;
+import edu.cuit.bc.course.application.port.CourseEntityConvertPort;
 import edu.cuit.bc.iam.application.port.UserEntityObjectByIdDirectQueryPort;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.EvaLogConditionalQuery;
@@ -21,7 +22,6 @@ import edu.cuit.domain.entity.course.SubjectEntity;
 import edu.cuit.domain.entity.eva.EvaRecordEntity;
 import edu.cuit.domain.entity.eva.EvaTaskEntity;
 import edu.cuit.infra.convertor.PaginationConverter;
-import edu.cuit.infra.convertor.course.CourseConvertor;
 import edu.cuit.infra.convertor.eva.EvaConvertor;
 import edu.cuit.infra.convertor.user.UserConverter;
 import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
@@ -69,7 +69,7 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
     private final PaginationConverter paginationConverter;
     private final UserConverter userConverter;
     private final UserEntityObjectByIdDirectQueryPort userEntityObjectByIdDirectQueryPort;
-    private final CourseConvertor courseConvertor;
+    private final CourseEntityConvertPort courseEntityConvertPort;
     @Autowired
     @Qualifier("sysUserMapper")
     private Object sysUserMapper;
@@ -307,7 +307,7 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
             List list=new ArrayList();
             return list;
         }
-        List<SingleCourseEntity> courseEntities=courInfDOS.stream().map(courInfDO -> courseConvertor.toSingleCourseEntity(
+        List<SingleCourseEntity> courseEntities=courInfDOS.stream().map(courInfDO -> courseEntityConvertPort.toSingleCourseEntity(
                 ()->toCourseEntity(courInfDO.getCourseId(),courseMapper.selectById(courInfDO.getCourseId()).getSemesterId()),courInfDO)).toList();
 
         SysUserDO teacher=selectSysUserById(evaUserId);
@@ -379,7 +379,7 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
         }
         List<Object> userEntities=sysUserDOS.stream().map(sysUserDO->toUserEntity(sysUserDO.getId())).toList();
 
-        List<SingleCourseEntity> singleCourseEntities=courInfDOs.stream().map(courInfDO -> courseConvertor.toSingleCourseEntity(
+        List<SingleCourseEntity> singleCourseEntities=courInfDOs.stream().map(courInfDO -> courseEntityConvertPort.toSingleCourseEntity(
                 ()->toCourseEntity(courInfDO.getCourseId(),courseMapper.selectById(courInfDO.getCourseId()).getSemesterId()),courInfDO)).toList();
         List<EvaTaskEntity> evaTaskEntities=getEvaTaskEntities(evaTaskDOS,userEntities,singleCourseEntities);
 
@@ -537,17 +537,17 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
 
     private CourseEntity toCourseEntity(Integer courseId,Integer semId){
         //构造semester
-        Supplier<SemesterEntity> semesterEntity = ()->courseConvertor.toSemesterEntity(semesterMapper.selectById(semId));
+        Supplier<SemesterEntity> semesterEntity = () -> courseEntityConvertPort.toSemesterEntity(semesterMapper.selectById(semId));
         //构造courseDo
         CourseDO courseDO = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", courseId).eq("semester_id", semId));
         if(courseDO==null){
             throw new QueryException("并未找到相关课程");
         }
         //构造subject
-        Supplier<SubjectEntity> subjectEntity = ()->courseConvertor.toSubjectEntity(subjectMapper.selectById(courseDO.getSubjectId()));
+        Supplier<SubjectEntity> subjectEntity = () -> courseEntityConvertPort.toSubjectEntity(subjectMapper.selectById(courseDO.getSubjectId()));
         //构造userEntity
         Supplier<?> userEntity =()->toUserEntity(courseMapper.selectById(courseId).getTeacherId());
-        return courseConvertor.toCourseEntityWithTeacherObject(courseDO,subjectEntity,userEntity,semesterEntity);
+        return courseEntityConvertPort.toCourseEntityWithTeacherObject(courseDO,subjectEntity,userEntity,semesterEntity);
     }
 
     //根据evaTaskDOs变成entity数据
@@ -574,7 +574,7 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
     }
 
     private List<SingleCourseEntity> getListCurInfoEntities(List<CourInfDO> courInfDOS){
-        return courInfDOS.stream().map(courInfDO ->courseConvertor.toSingleCourseEntity(
+        return courInfDOS.stream().map(courInfDO ->courseEntityConvertPort.toSingleCourseEntity(
                 ()->toCourseEntity(courInfDO.getCourseId(),courseMapper.selectById(courInfDO.getCourseId()).getSemesterId()),courInfDO)).toList();
     }
 
