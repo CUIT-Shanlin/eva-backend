@@ -523,6 +523,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-19，保持行为不变，Convertor 归位，单类搬运）：将 `CourseConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-course/infrastructure`（保持 `package` 与类内容不变；口径更新：`eva-infra-shared` Java 余量由 `2` 变更为 `1`；最小回归通过；落地：`e91badc4`）。
 - ✅ 补充进展（2026-02-19，保持行为不变，Convertor 收尾前置，单类）：在 `bc-iam/application` 新增最小 Port：`UserEntityFieldExtractPort`（仅暴露外部 BC 实际使用的 `userIdOf(Object)` + `springUserEntityWithNameObject(Object)`，用于后续收敛 `bc-course/bc-evaluation` 对 `UserConverter` 的直接依赖；最小回归通过；落地：`e5b37188`）。
 - ✅ 补充进展（2026-02-19，保持行为不变，Convertor 收尾前置，单类）：在 `bc-iam/infrastructure` 新增 Port Adapter：`UserEntityFieldExtractPortImpl`（内部直接委托 `UserConverter.userIdOf/springUserEntityWithNameObject`，保持异常/空值/调用顺序不变；本刀不改调用侧；最小回归通过；落地：`7e682804`）。
+- ✅ 补充进展（2026-02-19，保持行为不变，Convertor 归位，单类搬运）：将 `UserConverter` 从 `eva-infra-shared` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.convertor.user` 与类内容不变；口径更新：`eva-infra-shared` Java 余量由 `1` 变更为 `0`；最小回归通过；落地：`8d5e580c`）。
 - ✅ 补充进展（2026-02-19，保持行为不变，编译闭合前置，单 pom）：在 `bc-evaluation/infrastructure/pom.xml` 增加 `bc-iam` Maven 依赖，用于承接后续 `bc-evaluation/infrastructure` 调用侧对 `UserEntityFieldExtractPort` 的编译期引用（最小回归通过；落地：`4b239adf`）。
 - ✅ 补充进展（2026-02-19，保持行为不变，引用面收敛，单类）：收敛评教读侧调用点：`EvaTaskQueryRepository` 改为依赖 `UserEntityFieldExtractPort`（不再直接注入 `UserConverter`；Port Adapter 内部仍委托 `UserConverter.userIdOf`；最小回归通过；落地：`5128a78d`）。
 - ✅ 补充进展（2026-02-19，保持行为不变，引用面收敛，单类）：收敛评教读侧调用点：`EvaRecordQueryRepository` 改为依赖 `UserEntityFieldExtractPort`（不再直接注入 `UserConverter`；Port Adapter 内部仍委托 `UserConverter.userIdOf`；最小回归通过；落地：`ba84a0ca`）。

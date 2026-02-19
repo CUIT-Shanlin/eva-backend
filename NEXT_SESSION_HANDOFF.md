@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-19（`eva-infra-shared` 收尾：单类搬运 `UserConverter` 归位到 `bc-iam/infrastructure`，保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`UserConverter` 跨 BC 引用面已收敛为仅命中 `bc-iam/infrastructure`（`bc-course/**`、`bc-evaluation/**` 已证伪无引用），满足“单 BC 归位”的前置条件。
+- ✅ 执行（单类搬运，保持行为不变）：将 `UserConverter` 从 `eva-infra-shared` 搬运归位到 `bc-iam/infrastructure`（保持 `package edu.cuit.infra.convertor.user` 与类内容不变，仅改变 Maven 模块归属），避免同 FQCN 多份导致 classpath 冲突。
+- 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级使用 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。另：本刀因 `eva-infra-shared` 源码清零，需先 `mvn -pl :eva-infra-shared clean` 清理旧的 MapStruct `generated-sources`（仅构建产物，不入库）。
+- 📌 代码落地：`8d5e580c`。
+
 **2026-02-19（`UserConverter` 收尾：第 5 刀（单类），`CourseQueryRepository` 改注入 `UserEntityFieldExtractPort`，保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`CourseQueryRepository` 内对 `UserConverter` 的唯一方法使用点为 `springUserEntityWithNameObject(Object)`（用于构造 teacher 的 `Supplier<?>` 桥对象）。
 - ✅ 执行（单类，保持行为不变）：将 `bc-course/infrastructure` 的 `CourseQueryRepository` 依赖从 `UserConverter` 收敛为注入 `UserEntityFieldExtractPort`，并将 `springUserEntityWithNameObject` 调用改为走该 Port（Port Adapter 内部仍委托 `UserConverter.springUserEntityWithNameObject`，确保空值/异常/调用顺序不变）。

@@ -905,14 +905,11 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成：`SysLogDO`、`SysLogModuleDO` → `bc-audit/infrastructure`（保持 `package` 不变；保持行为不变；详见 4.2）。
   - ✅ 已完成：`SysLogMapper.xml` → `bc-audit/infrastructure`（保持 MyBatis XML `namespace`/`resultMap type`、资源路径 `mapper/**` 不变；保持行为不变；详见 4.2）。
   - ✅ 已完成：`SysLogModuleMapper.xml` → `bc-audit/infrastructure`（保持 MyBatis XML `namespace`/`resultMap type`、资源路径 `mapper/**` 不变；保持行为不变；详见 4.2）。
-- **S0.2 延伸（shared 收尾：仅剩 `UserConverter`，保持行为不变）**：
-  - 现状口径：`fd -t f -e java . eva-infra-shared/src/main/java | wc -l` 预期=1（仅 `UserConverter`）。
+- **S0.2 延伸（shared 收尾：`UserConverter` 已归位，保持行为不变）**：
+  - 现状口径：`fd -t f -e java . eva-infra-shared/src/main/java | wc -l` 预期=0。
   - 依赖方口径：`rg -n "<artifactId>eva-infra-shared</artifactId>" --glob "**/pom.xml" bc-* | sort` 当前应仅命中 `bc-course/infrastructure`、`bc-evaluation/infrastructure`、`bc-iam/infrastructure`。
-  - Serena 证据化：`UserConverter` 引用面跨上述 3 个模块（典型调用点：`CourseQueryRepository`、`EvaTaskQueryRepository`、`EvaRecordQueryRepository`、`UserServiceImpl` 等）。
-  - ✅ 进展（2026-02-19，保持行为不变）：已完成第 1 刀（单类）：在 `bc-iam/application` 新增最小 Port `UserEntityFieldExtractPort`（仅暴露外部 BC 实际使用的 `userIdOf(Object)` + `springUserEntityWithNameObject(Object)`；最小回归通过；落地：`e5b37188`）。
-  - ✅ 进展（2026-02-19，保持行为不变）：已完成第 2 刀（单类）：在 `bc-iam/infrastructure` 新增 Port Adapter `UserEntityFieldExtractPortImpl`（内部直接委托 `UserConverter.userIdOf/springUserEntityWithNameObject`，保持异常/空值/调用顺序不变；本刀不改调用侧；最小回归通过；落地：`7e682804`）。
-  - ✅ 进展（2026-02-19，保持行为不变）：已完成第 3 刀前置（单 pom）：`bc-evaluation/infrastructure/pom.xml` 增加 `bc-iam` Maven 依赖，用于承接后续 `EvaTaskQueryRepository/EvaRecordQueryRepository` 注入 Port（最小回归通过；落地：`4b239adf`）。
-  - 退场路线（保持行为不变）：下一刀开始逐点替换 `bc-evaluation/bc-course` 调用侧注入为该 Port；待 Serena 证伪跨 BC 引用面清零后，单类搬运 `UserConverter` 归位到 `bc-iam/infrastructure`（保持 `package` 不变），最后逐 pom 去依赖并评估 `eva-infra-shared` reactor 退场（每次只改 1 个文件闭环）。
+  - Serena 证据化（更新至 2026-02-19，保持行为不变）：`UserConverter` 跨 BC 引用面已清零并满足“单 BC 归位”前置条件；现已搬运归位到 `bc-iam/infrastructure`（落地：`8d5e580c`）。
+  - 退场路线（保持行为不变）：下一刀开始逐 pom 去 `eva-infra-shared` 依赖；待 root reactor 与依赖清零后，再评估删除 `eva-infra-shared/pom.xml` 与目录（每次只改 1 个文件闭环）。
 
 - **S0.2 延伸（消息：DAL 按 BC 拆散试点，`msg_tip`，保持行为不变）**：
   - ✅ 已完成：`MsgTipMapper`、`MsgTipDO` → `bc-messaging`（保持 `package` 不变，仅改变 Maven 模块归属；详见 4.2 与 `NEXT_SESSION_HANDOFF.md` 0.9）。
@@ -1316,11 +1313,9 @@ scope: 全仓库（离线扫描 + 规则归纳）
     - 刀 3-2（单类，搬运，保持行为不变）：✅ 已完成：将 `LdapConstants` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package` 与类内容不变；落地：`3dc2e8ff`）。
     - 刀 3-3（单类，后置，保持行为不变）：✅ 已完成：将 `EvaLdapUtils` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package` 与类内容不变；落地：`05cc3039`）。
 
-- 🎯 下一刀建议（shared 瘦身收尾：Convertor 收尾（当前唯一阻塞：`UserConverter`），保持行为不变；每次只改 1 个文件闭环）：
-  - 现状（证据化结论，保持行为不变）：`eva-infra-shared` 当前仅残留 `UserConverter`（MapStruct）；其引用面跨 `bc-course/bc-evaluation/bc-iam`，且编译期依赖 `bc-iam-domain` 的实体类型，因此**不建议直接下沉** `shared-kernel`（仍存在 Maven 环依赖风险）。补充：`CourseBizConvertor/CourseConvertor` 已归位到 `bc-course/infrastructure`（保持行为不变；详见 4.2 / `NEXT_SESSION_HANDOFF.md` 0.9）。
-  - ✅ 进展（2026-02-19，保持行为不变）：已完成第 1 刀（单类）：在 `bc-iam/application` 新增最小 Port `UserEntityFieldExtractPort`（仅包含外部 BC 实际使用的 `userIdOf(Object)` + `springUserEntityWithNameObject(Object)`；最小回归通过；落地：`e5b37188`）。
-  - ✅ 进展（2026-02-19，保持行为不变）：已完成第 2 刀（单类）：在 `bc-iam/infrastructure` 新增 Port Adapter `UserEntityFieldExtractPortImpl`（内部直接委托 `UserConverter.userIdOf/springUserEntityWithNameObject`，保持异常/空值/调用顺序不变；本刀不改调用侧；最小回归通过；落地：`7e682804`）。
-  - ✅ 进展（2026-02-19，保持行为不变）：已完成第 3 刀前置（单 pom）：`bc-evaluation/infrastructure/pom.xml` 增加 `bc-iam` Maven 依赖，用于承接后续 `bc-evaluation/infrastructure` 调用侧注入 Port（最小回归通过；落地：`4b239adf`）。
+- 🎯 下一刀建议（shared 瘦身收尾：`UserConverter` 已归位，进入“逐 pom 去依赖 → reactor 退场”阶段，保持行为不变；每次只改 1 个文件闭环）：
+  - 现状（证据化结论，保持行为不变）：`UserConverter` 已搬运归位到 `bc-iam/infrastructure`（落地：`8d5e580c`），`eva-infra-shared` Java 余量应为 0。
+  - 下一步建议（保持行为不变）：按顺序逐个收敛 `bc-course/infrastructure`、`bc-evaluation/infrastructure`、`bc-iam/infrastructure` 的 `pom.xml`，移除对 `eva-infra-shared` 的依赖；再从 root reactor 移除 `<module>eva-infra-shared</module>` 并删除 `eva-infra-shared/pom.xml`（每次只改 1 个文件闭环）。
   - ✅ 进展（2026-02-19，保持行为不变）：已完成第 1 刀（单类）：在 `bc-course/application` 新增最小 Port `SingleCourseCoConvertPort`（用于收敛评教侧对课程转换能力的依赖；最小回归通过；落地：`32c458e7`）。
   - ✅ 进展（2026-02-19，保持行为不变）：已完成第 2 刀（单类）：在 `bc-course/infrastructure` 新增 Port Adapter `SingleCourseCoConvertPortImpl`（内部直接委托 `CourseBizConvertor.toSingleCourseCO(...)`，确保映射行为不变；最小回归通过；落地：`fd28bbb9`）。
   - ✅ 进展（2026-02-19，保持行为不变）：已完成第 3 刀（单类）：`bc-evaluation/infrastructure` 的 `MsgServiceImpl` 改为依赖 `SingleCourseCoConvertPort` 并调用（最小回归通过；落地：`65a2e261`）。
