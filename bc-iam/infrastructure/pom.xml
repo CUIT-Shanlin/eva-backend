@@ -57,17 +57,25 @@
 
         <!-- 旧入口壳（UserServiceImpl）依赖评教统计端口（EvaRecordCountQueryPort）：已下沉至 bc-evaluation-contract（保持行为不变） -->
         <!-- Controller（UserQueryController）依赖评教统计 service 契约接口（IEvaStatisticsService），保持行为不变 -->
-        <dependency>
-            <groupId>edu.cuit</groupId>
-            <artifactId>bc-evaluation-contract</artifactId>
-            <version>${revision}</version>
-        </dependency>
-
-	        <!-- bc-iam-infra 运行期仍由组合根（start + eva-infra 等）装配；此处仅保留编译期所需依赖，避免反向耦合 -->
 	        <dependency>
-	            <groupId>edu.cuit.zhuyimeng</groupId>
-	            <artifactId>zym-spring-boot-starter-cache</artifactId>
+	            <groupId>edu.cuit</groupId>
+	            <artifactId>bc-evaluation-contract</artifactId>
+	            <version>${revision}</version>
 	        </dependency>
+
+	        <!-- 编译闭合纠偏：旧入口壳（UserServiceImpl）编译期依赖课程域网关接口（CourseQueryGateway），运行期仍由组合根装配（保持行为不变） -->
+	        <dependency>
+	            <groupId>edu.cuit</groupId>
+	            <artifactId>bc-course-domain</artifactId>
+	            <version>${revision}</version>
+	            <scope>provided</scope>
+	        </dependency>
+
+		        <!-- bc-iam-infra 运行期仍由组合根（start + eva-infra 等）装配；此处仅保留编译期所需依赖，避免反向耦合 -->
+		        <dependency>
+		            <groupId>edu.cuit.zhuyimeng</groupId>
+		            <artifactId>zym-spring-boot-starter-cache</artifactId>
+		        </dependency>
 
         <dependency>
             <groupId>edu.cuit.zhuyimeng</groupId>
@@ -75,16 +83,31 @@
         </dependency>
 
         <!-- 旧入口壳（UserAuthServiceImpl）依赖 Sa-Token 登录态读取，保持行为不变 -->
-        <dependency>
-            <groupId>edu.cuit.zhuyimeng</groupId>
-            <artifactId>zym-spring-boot-starter-security</artifactId>
-        </dependency>
+	        <dependency>
+	            <groupId>edu.cuit.zhuyimeng</groupId>
+	            <artifactId>zym-spring-boot-starter-security</artifactId>
+	        </dependency>
 
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
+	        <!-- 编译闭合纠偏：bc-iam-infra 代码使用 MapStruct 注解与 Spring LDAP（ODM/Repository）相关类型，需显式声明（保持行为不变） -->
+	        <dependency>
+	            <groupId>org.mapstruct</groupId>
+	            <artifactId>mapstruct</artifactId>
+	            <version>${mapstruct.version}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>org.springframework.ldap</groupId>
+	            <artifactId>spring-ldap-core</artifactId>
+	        </dependency>
+	        <dependency>
+	            <groupId>org.springframework.data</groupId>
+	            <artifactId>spring-data-ldap</artifactId>
+	        </dependency>
+
+	        <dependency>
+	            <groupId>org.projectlombok</groupId>
+	            <artifactId>lombok</artifactId>
+	            <scope>provided</scope>
+	        </dependency>
+	    </dependencies>
 
 </project>
