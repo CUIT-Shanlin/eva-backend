@@ -527,6 +527,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-19，保持行为不变，编译闭合前置，单 pom）：在 `bc-evaluation/infrastructure/pom.xml` 增加 `bc-iam` Maven 依赖，用于承接后续 `bc-evaluation/infrastructure` 调用侧对 `UserEntityFieldExtractPort` 的编译期引用（最小回归通过；落地：`4b239adf`）。
 - ✅ 补充进展（2026-02-19，保持行为不变，依赖收敛，单 pom）：收敛 `bc-evaluation/infrastructure/pom.xml`：移除对 `eva-infra-shared` 的 Maven 编译期依赖（仅收敛编译边界；最小回归通过；落地：`61d305e0`）。
 - ✅ 补充进展（2026-02-19，保持行为不变，依赖收敛，单 pom）：收敛 `bc-iam/infrastructure/pom.xml`：移除对 `eva-infra-shared` 的 Maven 编译期依赖（仅收敛编译边界；最小回归通过；落地：`2c405c32`）。
+- ✅ 补充进展（2026-02-19，保持行为不变，依赖收敛，单 pom）：收敛 root `pom.xml`：从 reactor 移除 `<module>eva-infra-shared</module>`（仅改变聚合构建边界；最小回归通过；落地：`3676b534`）。
 - ✅ 补充进展（2026-02-19，保持行为不变，引用面收敛，单类）：收敛评教读侧调用点：`EvaTaskQueryRepository` 改为依赖 `UserEntityFieldExtractPort`（不再直接注入 `UserConverter`；Port Adapter 内部仍委托 `UserConverter.userIdOf`；最小回归通过；落地：`5128a78d`）。
 - ✅ 补充进展（2026-02-19，保持行为不变，引用面收敛，单类）：收敛评教读侧调用点：`EvaRecordQueryRepository` 改为依赖 `UserEntityFieldExtractPort`（不再直接注入 `UserConverter`；Port Adapter 内部仍委托 `UserConverter.userIdOf`；最小回归通过；落地：`ba84a0ca`）。
 - ✅ 补充进展（2026-02-19，保持行为不变，编译闭合前置，单 pom）：在 `bc-course/infrastructure/pom.xml` 增加 `bc-iam` Maven 依赖，用于承接后续 `bc-course/infrastructure` 调用侧对 `UserEntityFieldExtractPort` 的编译期引用（最小回归通过；落地：`3ca758c2`）。
@@ -1071,7 +1072,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
     - `eva-base*`：作为共享底座仍存在（当前代码量已很小，`eva-base-common` 当前仅 2 个 Java），但仍有 BC 直依赖（如 `bc-iam/contract` 依赖 `eva-base-common`）；后置再评估“下沉到 shared-kernel/改名”为宜，避免同一阶段引入大范围 `pom.xml` 变更。
     - `eva-infra-dal/eva-infra-shared/eva-base`：仍是“全量整合”的核心阻塞（多个 `bc-*` 模块仍编译期依赖 `eva-infra-shared`；且 `eva-infra-shared` 依赖 `eva-infra-dal`；证据口径见上方 3)）。因此“把所有 `eva-*` 模块全部整合进各业务 BC 并从 reactor 移除”仍不具备一次性落地条件，需要按“小步迁移类型/适配器 → 再收敛单个 pom → 再评估移除模块”的节奏推进。
 	      - 可复现现状口径（更新至 2026-02-15，保持行为不变）：
-	        - root reactor 仍包含：`eva-infra-shared`、`eva-base`（口径：`rg -n '<module>eva-' pom.xml`；`eva-infra-dal` 已从 reactor 退场，保持行为不变）。
+		        - root reactor 仍包含：`eva-base`（口径：`rg -n '<module>eva-' pom.xml`；`eva-infra-dal`/`eva-infra-shared` 已从 reactor 退场，保持行为不变）。
 	        - 已闭环快照复核（保持行为不变）：`msg_tip`/`sys_role_menu`/`course_type_course` 相关 `Mapper/DO/XML` 均已在目标 BC 内各命中 1，且 `eva-infra-dal` 下 0 命中（口径：`fd -t f ... | wc -l`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
 	        - `eva-domain`：已从 root reactor 退场且编译期依赖方已清零（口径：`rg -n '<artifactId>eva-domain</artifactId>' --glob '**/pom.xml' .` 预期无命中）。
 	        - ✅ 依赖收敛（单 pom，保持行为不变）：已在 Serena 证伪 `eva-domain/src/main/java` 无课程域引用面后，移除 `eva-domain/pom.xml` 对 `bc-course-domain` 的编译期依赖（落地：`ec4107e4`；详见 `NEXT_SESSION_HANDOFF.md` 0.9）。
