@@ -5,7 +5,6 @@ import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.cola.exception.BizException;
 import com.alibaba.cola.exception.SysException;
 import edu.cuit.app.convertor.MsgBizConvertor;
-import edu.cuit.app.convertor.course.CourseBizConvertor;
 import edu.cuit.app.websocket.WebsocketManager;
 import edu.cuit.bc.course.application.port.SingleCourseCoConvertPort;
 import edu.cuit.bc.iam.application.port.UserAllUserIdQueryPort;
@@ -81,7 +80,7 @@ public class MsgServiceImpl implements IMsgService {
             EvaRecordCountQueryPort evaRecordQueryPort,
             WebsocketManager websocketManager,
             MsgBizConvertor msgBizConvertor,
-            CourseBizConvertor courseBizConvertor,
+            Object courseBizConvertor,
             Executor executor
     ) {
         this(
@@ -95,7 +94,13 @@ public class MsgServiceImpl implements IMsgService {
                 new SingleCourseCoConvertPort() {
                     @Override
                     public SingleCourseCO toSingleCourseCO(SingleCourseEntity singleCourseEntity, Integer evaNum) {
-                        return courseBizConvertor.toSingleCourseCO(singleCourseEntity, evaNum);
+                        try {
+                            return (SingleCourseCO) courseBizConvertor.getClass()
+                                    .getMethod("toSingleCourseCO", SingleCourseEntity.class, Integer.class)
+                                    .invoke(courseBizConvertor, singleCourseEntity, evaNum);
+                        } catch (Exception e) {
+                            throw new IllegalStateException(e);
+                        }
                     }
                 },
                 executor
