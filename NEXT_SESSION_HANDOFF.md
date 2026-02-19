@@ -21,6 +21,11 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-19（`UserConverter` 收尾：第 2 刀（Port Adapter），新增 `UserEntityFieldExtractPortImpl`（委托 `UserConverter`），保持行为不变）**
+- ✅ 执行（单类，保持行为不变）：在 `bc-iam/infrastructure` 新增 Port Adapter：`edu.cuit.infra.bciam.adapter.UserEntityFieldExtractPortImpl`，实现 `UserEntityFieldExtractPort` 并内部直接委托 `UserConverter.userIdOf/springUserEntityWithNameObject`，保持异常/空值/调用顺序不变（本刀不改任何调用侧）。
+- 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级使用 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
+- 📌 代码落地：`7e682804`。
+
 **2026-02-19（`UserConverter` 收尾：第 1 刀（Port 定义），新增最小 Port `UserEntityFieldExtractPort`，保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`UserConverter` 引用面跨 `bc-course/infrastructure`（`CourseQueryRepository`）、`bc-evaluation/infrastructure`（`EvaTaskQueryRepository/EvaRecordQueryRepository`）与 `bc-iam/infrastructure`；外部 BC 实际使用的方法集合收敛为 `userIdOf(Object)` + `springUserEntityWithNameObject(Object)`。
 - ✅ 执行（单类，保持行为不变）：在 `bc-iam/application` 新增最小 Port：`edu.cuit.bc.iam.application.port.UserEntityFieldExtractPort`，仅包含 `userIdOf(Object)` 与 `springUserEntityWithNameObject(Object)` 两个桥接方法，为后续“Port Adapter 委托 `UserConverter` + 调用侧逐点替换”做前置。
