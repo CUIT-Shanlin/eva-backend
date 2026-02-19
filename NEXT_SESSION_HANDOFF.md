@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-19（bc-evaluation/infrastructure 单类：清理 `MsgServiceImpl` 对 `CourseBizConvertor` 的编译期类型依赖，保持行为不变）**
+- ✅ 目标（保持行为不变）：为下一刀“搬运 `CourseBizConvertor` 归位到 `bc-course/infrastructure`”做前置，确保 `bc-evaluation/**` 不再编译期依赖该 Convertor 的类型。
+- ✅ 执行（单类，保持行为不变）：移除 `MsgServiceImpl` 对 `CourseBizConvertor` 的 import 与构造器参数类型依赖；测试构造器重载改为接收 `Object` 并通过反射调用 `toSingleCourseCO(SingleCourseEntity,Integer)` 来构造 `SingleCourseCoConvertPort`，避免对 Convertor 形成编译期耦合（异常文案/日志/副作用顺序不变）。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
+- 📌 代码落地：`9f7d27b0`。
+
 **2026-02-19（bc-evaluation/infrastructure 单类：`MsgServiceImpl` 改为依赖 `SingleCourseCoConvertPort`，保持行为不变）**
 - ✅ 目标（保持行为不变）：完成 Convertor 退场路线的第 3 刀，将评教侧 `MsgServiceImpl` 对课程转换的依赖从“直接注入 `CourseBizConvertor`”收敛为“注入 `SingleCourseCoConvertPort` 并调用”（转换仍由 bc-course 端口适配器委托既有 Convertor 承接）。
 - ✅ 执行（单类，保持行为不变）：`MsgServiceImpl.toEvaResponseMsg/getSingleCourseByTaskId` 的 `SingleCourseEntity -> SingleCourseCO` 转换改为调用 `singleCourseCoConvertPort.toSingleCourseCO(...)`；同时用显式构造器替代 Lombok 生成构造器，并用 `@Autowired` 标记 Spring 注入入口，避免多构造器导致装配歧义（异常文案/日志文案/副作用顺序不变）。
