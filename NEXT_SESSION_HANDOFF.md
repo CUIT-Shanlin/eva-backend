@@ -45,6 +45,12 @@
 - 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
 - 📌 代码落地：`2772e6be`。
 
+**2026-02-20（评教读侧：`EvaTemplateQueryRepository` 去课程 `CourseMapper.selectById` 编译期直连，改走 `CourseTeacherAndSemesterQueryPort` + `CourseTemplateIdQueryPort`；保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`EvaTemplateQueryRepository.getTaskTemplate(...)` 原通过 `CourseMapper.selectById(courseId)` 获取 `templateId` 再查询评教模板，属于跨 BC DAL 编译期直连入口。
+- ✅ 执行（单类，保持行为不变）：移除对 `CourseMapper/CourseDO` 的直接注入与引用，改为调用 `CourseTeacherAndSemesterQueryPort.findByCourseId(courseId)` 做课程存在性校验，并调用 `CourseTemplateIdQueryPort.findTemplateId(null, courseId)` 获取 `templateId`（保持空值语义、异常文案与副作用顺序不变）。
+- 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
+- 📌 代码落地：`437a449e`。
+
 **2026-02-20（评教写侧：`DeleteEvaRecordRepositoryImpl` 去课程 `CourseMapper.selectById` 编译期直连，改走 `CourseTeacherAndSemesterQueryPort`；保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`DeleteEvaRecordRepositoryImpl.delete(...)` 原通过 `CourseMapper.selectById(courseId)` 校验课程存在并获取 `courseId` 参与后续“是否还有评教记录/是否删除模板快照”判断，属于跨 BC DAL 编译期直连入口。
 - ✅ 执行（单类，保持行为不变）：移除对 `CourseMapper/CourseDO` 的直接注入与引用，改为调用 `bc-course/application` 查询端口 `CourseTeacherAndSemesterQueryPort.findByCourseId(courseId)` 仅做“课程存在性校验”；后续逻辑统一使用原 `courseId`（不改变异常文案、日志、缓存失效与副作用顺序）。
