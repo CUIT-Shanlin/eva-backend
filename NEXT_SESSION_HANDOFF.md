@@ -27,6 +27,12 @@
 
 > 状态更新（2026-02-20，保持行为不变）：上述目录内写侧 `CourseMapper` 编译期直连已清零（剩余收敛点可转向读侧 QueryRepo 或推进跨 BC 依赖边界收敛）。
 
+**2026-02-20（课程域：新增按学期ID查询课程ID列表端口 `CourseIdsBySemesterIdQueryPort`，为评教读侧去 `CourseMapper.selectList(eq semester_id)` 直连做前置；保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：评教读侧 `EvaTemplateQueryRepository.getEvaTaskIdS(semId)` 当前通过 `CourseMapper.selectList(new QueryWrapper<CourseDO>().eq(\"semester_id\", semId))` 获取课程ID列表，再映射为评教任务列表；该调用点属于跨 BC DAL 编译期直连入口。
+- ✅ 执行（单类，保持行为不变）：在 `bc-course/application` 新增最小查询端口 `CourseIdsBySemesterIdQueryPort.findCourseIdsBySemesterId(Integer)`，仅定义接口，不引入实现与调用点，避免行为漂移；后续按“补适配器（单类）→ 改调用侧（单类）”继续推进。
+- 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
+- 📌 代码落地：`183aae12`。
+
 **2026-02-20（评教写侧：`DeleteEvaRecordRepositoryImpl` 去课程 `CourseMapper.selectById` 编译期直连，改走 `CourseTeacherAndSemesterQueryPort`；保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`DeleteEvaRecordRepositoryImpl.delete(...)` 原通过 `CourseMapper.selectById(courseId)` 校验课程存在并获取 `courseId` 参与后续“是否还有评教记录/是否删除模板快照”判断，属于跨 BC DAL 编译期直连入口。
 - ✅ 执行（单类，保持行为不变）：移除对 `CourseMapper/CourseDO` 的直接注入与引用，改为调用 `bc-course/application` 查询端口 `CourseTeacherAndSemesterQueryPort.findByCourseId(courseId)` 仅做“课程存在性校验”；后续逻辑统一使用原 `courseId`（不改变异常文案、日志、缓存失效与副作用顺序）。

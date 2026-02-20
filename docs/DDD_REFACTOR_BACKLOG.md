@@ -941,6 +941,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - 🎯 下一刀建议（保持行为不变；每次只改 1 个类闭环）：评教写侧 `bc-evaluation/infrastructure/repository` 下对课程域 `CourseMapper` 的编译期直连已清零；下一步建议转向评教读侧 QueryRepo 的直连点或进入“跨 BC 依赖边界收敛（contract 化）”阶段。
   - ✅ 进展（2026-02-20，保持行为不变，单类）：在 `bc-course/application` 新增最小查询端口 `CourseIdByTemplateIdQueryPort`（后续用于将评教写侧 `DeleteEvaTemplateRepositoryImpl` 内对课程域 `CourseMapper.selectOne(eq templateId)` 的跨 BC 直连按“补适配器（单类）→ 改调用侧（单类）”逐步收敛为调用端口；落地：`5cf5e405`）。
   - ✅ 进展（2026-02-20，保持行为不变，单类）：在 `bc-course/infrastructure` 新增端口适配器 `CourseIdByTemplateIdQueryPortImpl`（内部仅委托 `CourseMapper.selectOne(eq templateId)` 并返回 `courseId`，保持空值语义不变；落地：`15d17b6f`）。
+  - ✅ 进展（2026-02-20，保持行为不变，单类）：在 `bc-course/application` 新增最小查询端口 `CourseIdsBySemesterIdQueryPort`（后续用于将评教读侧 `EvaTemplateQueryRepository.getEvaTaskIdS(semId)` 内对课程域 `CourseMapper.selectList(eq semester_id)` 的跨 BC 直连按“补适配器（单类）→ 改调用侧（单类）”逐步收敛为调用端口；落地：`183aae12`）。
 
 - **S0.2 延伸（审计：DAL 按 BC 拆散试点，`sys_log`，保持行为不变）**：
   - ✅ 已完成：`SysLogModuleMapper`、`SysLogMapper` → `bc-audit/infrastructure`；`LogConverter` → `bc-audit/infrastructure`（保持 `package` 不变；保持行为不变；详见 4.2）。
