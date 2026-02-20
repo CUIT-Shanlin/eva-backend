@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-20（评教写侧：`PostEvaTaskRepositoryImpl` 去课程 `SemesterMapper.selectById` 直连，改走 `SemesterStartDateQueryPort`；保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`PostEvaTaskRepositoryImpl` 内通过 `SemesterMapper.selectById(courseDO.getSemesterId()).getStartDate()` 获取学期开始日期，用于计算课程日期。
+- ✅ 执行（单类，保持行为不变）：将上述调用点收敛为调用 `bc-course/application` 查询端口 `SemesterStartDateQueryPort.findStartDateBySemesterId(...)`；端口适配器侧仍原样委托 `SemesterMapper.selectById` 并映射 `SemesterDO::getStartDate`，确保空值/NPE 触发语义与计算逻辑不变。
+- 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
+- 📌 代码落地：`69dbc07b`。
+
 **2026-02-20（课程域：新增 `SemesterStartDateQueryPort` 的端口适配器；保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`SemesterMapper` 位于 `bc-course/infrastructure`，其 DO `SemesterDO.startDate`（`LocalDate`）位于 `shared-kernel`，适合按既有 adapter 范式直接委托。
 - ✅ 执行（单类，保持行为不变）：新增 `SemesterStartDateQueryPortImpl`，内部仅委托 `SemesterMapper.selectById(semesterId)` 并映射 `SemesterDO::getStartDate` 返回 `Optional<LocalDate>`（不引入新副作用、不改变结果顺序）。
