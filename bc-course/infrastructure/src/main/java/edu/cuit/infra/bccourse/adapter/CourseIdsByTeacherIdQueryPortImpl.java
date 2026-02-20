@@ -1,0 +1,28 @@
+package edu.cuit.infra.bccourse.adapter;
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import edu.cuit.bc.course.application.port.CourseIdsByTeacherIdQueryPort;
+import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
+import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+
+/**
+ * bc-course：按 teacherId 查询其课程ID集合的查询端口适配器。
+ *
+ * <p>约束：保持行为不变；内部仅委托 {@link CourseMapper#selectList}。</p>
+ */
+@Component
+@RequiredArgsConstructor
+public class CourseIdsByTeacherIdQueryPortImpl implements CourseIdsByTeacherIdQueryPort {
+    private final CourseMapper courseMapper;
+
+    @Override
+    public List<Integer> findCourseIdsByTeacherId(Integer teacherId) {
+        List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", teacherId));
+        return courseDOS.stream().map(CourseDO::getId).toList();
+    }
+}
+
