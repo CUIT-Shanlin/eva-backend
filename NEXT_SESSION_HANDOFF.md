@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-20（课程域：新增学期开始日期查询端口 `SemesterStartDateQueryPort`，为评教写侧去 `SemesterMapper.selectById` 直连做前置；保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`PostEvaTaskRepositoryImpl` 当前仍通过 `SemesterMapper.selectById(courseDO.getSemesterId()).getStartDate()` 获取学期开始日期以计算课程日期；`bc-course/application` 未提供等价查询端口。
+- ✅ 执行（单类，保持行为不变）：在 `bc-course/application` 新增最小查询端口 `SemesterStartDateQueryPort.findStartDateBySemesterId(Integer)`（仅定义接口，不引入实现与调用点，避免行为漂移；后续按“补适配器（单类）→ 改调用侧（单类）”继续推进）。
+- 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
+- 📌 代码落地：`b82e9190`。
+
 **2026-02-20（评教写侧：`PostEvaTaskRepositoryImpl` 去课程 `CourseMapper.selectList` 直连，改走 `CourseIdsByTeacherIdQueryPort`；保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`PostEvaTaskRepositoryImpl` 内“按 teacherId 查询课程 id 列表”的两个调用点原本均为 `CourseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", ...))` + `CourseDO::getId` 映射（用于冲突校验与被评教次数上限判定）。
 - ✅ 执行（单类，保持行为不变）：将上述两个调用点收敛为调用 `bc-course/application` 查询端口 `CourseIdsByTeacherIdQueryPort.findCourseIdsByTeacherId(...)`；端口适配器侧仍原样委托 `CourseMapper.selectList`，确保查询条件/结果顺序/空值表现不变。

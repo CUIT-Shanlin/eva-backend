@@ -514,6 +514,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-20，保持行为不变，写侧前置，单类）：在 `bc-course/application` 新增最小查询端口 `CourseIdsByTeacherIdQueryPort`（后续用于将评教写侧 `PostEvaTaskRepositoryImpl` 内对课程域 `CourseMapper.selectList(eq teacher_id)` 的跨 BC 直连按“补适配器（单类）→ 改调用侧（单类）”逐步收敛为调用端口；最小回归通过；落地：`cdc79886`）。
 - ✅ 补充进展（2026-02-20，保持行为不变，写侧前置，单类）：在 `bc-course/infrastructure` 新增端口适配器 `CourseIdsByTeacherIdQueryPortImpl`（内部直接委托 `CourseMapper.selectList(eq teacher_id)` 并映射 `CourseDO::getId`，保持结果顺序/空值语义不变；最小回归通过；落地：`80747dea`）。
 - ✅ 补充进展（2026-02-20，保持行为不变，写侧收敛，单类）：收敛评教写侧调用点：`bc-evaluation/infrastructure` 的 `PostEvaTaskRepositoryImpl` 已将“按 teacherId 查询课程 id 列表”的课程域 DAL 直连收敛为调用 `CourseIdsByTeacherIdQueryPort.findCourseIdsByTeacherId(...)`（端口适配器仍原样委托 `CourseMapper`，确保查询条件/结果顺序/异常文案/副作用顺序不变；最小回归通过；落地：`a7dd8c26`）。
+- ✅ 补充进展（2026-02-20，保持行为不变，写侧前置，单类）：在 `bc-course/application` 新增最小查询端口 `SemesterStartDateQueryPort`（后续用于将评教写侧 `PostEvaTaskRepositoryImpl` 内对课程域 `SemesterMapper.selectById` 的跨 BC 直连按“补适配器（单类）→ 改调用侧（单类）”逐步收敛为调用端口；最小回归通过；落地：`b82e9190`）。
 - ✅ 补充进展（2026-02-20，保持行为不变，依赖收敛，单 pom）：收敛 `bc-iam/contract/pom.xml`：移除对 `eva-base-common` 的 Maven 编译期依赖（Serena 证伪 `bc-iam/contract` 范围内仅 `pom.xml` 命中 `eva-base-common`；最小回归通过；落地：`fc801525`）。
 - ✅ 补充进展（2026-02-20，保持行为不变，依赖收敛，单 pom）：收敛 `bc-iam/infrastructure/pom.xml`：移除对 `eva-base-common` 的 Maven 编译期依赖（Serena 证伪 `bc-iam/infrastructure` 范围内仅 `pom.xml` 命中 `eva-base-common`；最小回归通过；落地：`13398a74`）。
 - ✅ 补充进展（2026-02-20，保持行为不变，reactor 退场，单 pom）：收敛 `eva-base/pom.xml`：从 `<modules>` 中移除 `<module>eva-base-common</module>`（前置：依赖方已清零；最小回归通过；落地：`dc8d949d`）。
