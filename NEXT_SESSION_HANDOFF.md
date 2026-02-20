@@ -31,6 +31,12 @@
 - 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
 - 📌 代码落地：`b99b4073`。
 
+**2026-02-20（课程域：新增按模板ID查询课程ID端口 `CourseIdByTemplateIdQueryPort`，为评教写侧去 `CourseMapper.selectOne(eq templateId)` 直连做前置；保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：评教写侧 `DeleteEvaTemplateRepositoryImpl` 目前通过 `CourseMapper.selectOne(new QueryWrapper<CourseDO>().eq(\"templateId\", templateId))` 判断模板是否已被课程分配；`bc-course/application` 侧缺少等价查询端口。
+- ✅ 执行（单类，保持行为不变）：在 `bc-course/application` 新增最小查询端口 `CourseIdByTemplateIdQueryPort.findCourseIdByTemplateId(Integer)`，仅定义接口，不引入实现与调用点，避免行为漂移；后续按“补适配器（单类）→ 改调用侧（单类）”继续推进。
+- 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
+- 📌 代码落地：`5cf5e405`。
+
 **2026-02-20（评教写侧：`SubmitEvaluationRepositoryImpl` 去课程 `CourseMapper.selectById` 编译期直连，改走 `CourseTeacherAndSemesterQueryPort` + `CourseTemplateIdQueryPort`；保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`SubmitEvaluationRepositoryImpl.loadContext/saveEvaluation` 依赖课程域 `CourseMapper.selectById(courseId)` 读取 `semesterId/templateId`，属于跨 BC DAL 编译期直连入口。
 - ✅ 执行（单类，保持行为不变）：移除对 `CourseMapper/CourseDO` 的直接注入与引用，改为调用 `bc-course/application` 查询端口：
