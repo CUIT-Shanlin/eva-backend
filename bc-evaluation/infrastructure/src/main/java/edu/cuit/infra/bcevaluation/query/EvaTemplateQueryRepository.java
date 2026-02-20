@@ -8,17 +8,17 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import edu.cuit.bc.course.application.port.CourInfIdsByCourseIdsQueryPort;
 import edu.cuit.bc.course.application.port.CourseIdByCourInfIdQueryPort;
 import edu.cuit.bc.course.application.port.CourseIdsBySemesterIdQueryPort;
+import edu.cuit.bc.course.application.port.CourseTeacherAndSemesterQueryPort;
+import edu.cuit.bc.course.application.port.CourseTemplateIdQueryPort;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
 import edu.cuit.domain.entity.eva.EvaTemplateEntity;
 import edu.cuit.infra.convertor.PaginationConverter;
 import edu.cuit.infra.convertor.eva.EvaConvertor;
-import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.eva.CourOneEvaTemplateDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.dataobject.eva.FormTemplateDO;
-import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.eva.CourOneEvaTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormTemplateMapper;
@@ -44,13 +44,14 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class EvaTemplateQueryRepository implements EvaTemplateQueryRepo {
-    private final CourseMapper courseMapper;
     private final EvaTaskMapper evaTaskMapper;
     private final EvaConvertor evaConvertor;
     private final PaginationConverter paginationConverter;
     private final CourInfIdsByCourseIdsQueryPort courInfIdsByCourseIdsQueryPort;
     private final CourseIdByCourInfIdQueryPort courseIdByCourInfIdQueryPort;
     private final CourseIdsBySemesterIdQueryPort courseIdsBySemesterIdQueryPort;
+    private final CourseTeacherAndSemesterQueryPort courseTeacherAndSemesterQueryPort;
+    private final CourseTemplateIdQueryPort courseTemplateIdQueryPort;
     private final FormTemplateMapper formTemplateMapper;
     private final CourOneEvaTemplateMapper courOneEvaTemplateMapper;
     private final EvaCacheConstants evaCacheConstants;
@@ -112,8 +113,12 @@ public class EvaTemplateQueryRepository implements EvaTemplateQueryRepo {
         //1.直接去快照那边拿到
         CourOneEvaTemplateDO courOneEvaTemplateDO=courOneEvaTemplateMapper.selectOne(new QueryWrapper<CourOneEvaTemplateDO>().eq("course_id",courseId));
         //2.去课程那边拿到
-        CourseDO courseDO=courseMapper.selectById(courseId);
-        FormTemplateDO formTemplateDO=formTemplateMapper.selectOne(new QueryWrapper<FormTemplateDO>().eq("id",courseDO.getTemplateId()));
+        if (courseTeacherAndSemesterQueryPort.findByCourseId(courseId).orElse(null) == null) {
+            Object legacyCourseDO = null;
+            legacyCourseDO.toString();
+        }
+        Integer templateId = courseTemplateIdQueryPort.findTemplateId(null, courseId).orElse(null);
+        FormTemplateDO formTemplateDO=formTemplateMapper.selectOne(new QueryWrapper<FormTemplateDO>().eq("id",templateId));
 
         if(courOneEvaTemplateDO==null&&formTemplateDO==null){
             throw new QueryException("快照模板和评教模板都没有相关数据");
