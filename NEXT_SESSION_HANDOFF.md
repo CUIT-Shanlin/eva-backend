@@ -27,6 +27,12 @@
 
 > 状态更新（2026-02-20，保持行为不变）：评教写侧 `repository` 目录内对课程域 `CourseMapper` 的编译期直连已清零；评教读侧 QueryRepo 仍有少量 `CourseMapper/SemesterMapper` 直连点（见上）。
 
+**2026-02-20（评教侧：`EvaUpdateGatewayImpl` 去课程域 `CourseMapper` 编译期直连，改走 `CourseAndSemesterObjectDirectQueryPort`；保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`EvaUpdateGatewayImpl.cancelEvaTaskById` 内对 `CourseMapper.selectById(courseId).getSemesterId()` 的直连已清零，改为调用 `CourseAndSemesterObjectDirectQueryPort.findCourseById(courseId).getSemesterId()`；缓存失效 key、异常与副作用顺序保持不变。
+- ✅ 执行（单类，保持行为不变）：仅替换“读取课程学期ID用于缓存 key”的实现方式（端口适配器侧仍原样委托课程域 Mapper，确保空值/NPE 语义不漂移）。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；`mvnd` 启动阶段报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
+- 📌 代码落地：`63e3d2dc`。
+
 **2026-02-20（评教读侧：`EvaStatisticsQueryRepository` 去课程域 `CourseMapper` 编译期直连，改走 `CourseAndSemesterObjectDirectQueryPort`；保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`EvaStatisticsQueryRepository` 内对 `CourseMapper` 的 import/注入/调用点已清零，改为注入并调用 `CourseAndSemesterObjectDirectQueryPort.findCourseList(...)`；统计口径、异常文案与副作用顺序保持不变。
 - ✅ 执行（单类，保持行为不变）：将 `getEvaTaskIdS/getEvaEdNumByTeacherId/getEvaEdNumByTeacherIdAndLocalTime` 内涉及课程查询的调用收敛为调用端口（端口适配器侧仍原样委托课程域 Mapper，确保结果顺序与空值语义不漂移）。
