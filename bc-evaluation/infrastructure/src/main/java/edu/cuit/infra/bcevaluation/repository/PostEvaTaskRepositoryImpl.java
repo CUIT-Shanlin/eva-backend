@@ -3,15 +3,14 @@ package edu.cuit.infra.bcevaluation.repository;
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.cuit.bc.course.application.port.CourseIdsByTeacherIdQueryPort;
+import edu.cuit.bc.course.application.port.CourseTeacherAndSemesterQueryPort;
 import edu.cuit.bc.course.application.port.CourInfTimeSlotQueryPort;
 import edu.cuit.bc.course.application.port.SemesterStartDateQueryPort;
 import edu.cuit.bc.evaluation.application.model.PostEvaTaskCommand;
 import edu.cuit.bc.evaluation.application.port.PostEvaTaskRepository;
 import edu.cuit.bc.evaluation.domain.PostEvaTaskQueryException;
 import edu.cuit.bc.evaluation.domain.PostEvaTaskUpdateException;
-import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
-import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
 import edu.cuit.infra.gateway.impl.eva.util.CalculateClassTime;
@@ -39,7 +38,7 @@ public class PostEvaTaskRepositoryImpl implements PostEvaTaskRepository {
     private final EvaTaskMapper evaTaskMapper;
     private final CourInfTimeSlotQueryPort courInfTimeSlotQueryPort;
     private final CourseIdsByTeacherIdQueryPort courseIdsByTeacherIdQueryPort;
-    private final CourseMapper courseMapper;
+    private final CourseTeacherAndSemesterQueryPort courseTeacherAndSemesterQueryPort;
     private final SemesterStartDateQueryPort semesterStartDateQueryPort;
     @Autowired
     @Qualifier("sysUserMapper")
@@ -55,9 +54,10 @@ public class PostEvaTaskRepositoryImpl implements PostEvaTaskRepository {
         if (courInfDO == null) {
             throw new PostEvaTaskUpdateException("并没有找到相关课程");
         }
-        CourseDO courseDO = courseMapper.selectById(courInfDO.courseId());
+        CourseTeacherAndSemesterQueryPort.CourseTeacherAndSemester course =
+                courseTeacherAndSemesterQueryPort.findByCourseId(courInfDO.courseId()).orElse(null);
         // 选中的课程是否已经上完
-        LocalDate semesterStartDate = semesterStartDateQueryPort.findStartDateBySemesterId(courseDO.getSemesterId()).orElse(null);
+        LocalDate semesterStartDate = semesterStartDateQueryPort.findStartDateBySemesterId(course.semesterId()).orElse(null);
         LocalDate localDate = semesterStartDate.plusDays((courInfDO.week() - 1) * 7L + courInfDO.day() - 1);
 
         Integer f = 2;// 判断是不是课程快已经结束 1冲0无
@@ -111,7 +111,7 @@ public class PostEvaTaskRepositoryImpl implements PostEvaTaskRepository {
             }
         }
         // 判定是否超过最大评教次数
-        Object teacher = selectSysUserById(courseDO.getTeacherId());
+        Object teacher = selectSysUserById(course.teacherId());
         List<Integer> evaCourseIds = courseIdsByTeacherIdQueryPort.findCourseIdsByTeacherId(selectSysUserId(teacher));
         if (CollectionUtil.isNotEmpty(evaCourseIds)) {
             List<CourInfTimeSlotQueryPort.CourInfTimeSlot> evaCourInfoDOs = courInfTimeSlotQueryPort.findByCourseIds(evaCourseIds);
@@ -154,7 +154,7 @@ public class PostEvaTaskRepositoryImpl implements PostEvaTaskRepository {
         evaTaskDO.setTeacherId(command.evaluatorId());
         evaTaskMapper.insert(evaTaskDO);
         // 加缓存
-        localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(courseDO.getSemesterId()));
+        localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(course.semesterId()));
         localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_TEACH, selectSysUserNameById(evaTaskDO.getTeacherId()));
         Integer taskId = evaTaskMapper.selectOne(new QueryWrapper<EvaTaskDO>()
                         .eq("teacher_id", command.evaluatorId())
