@@ -10,7 +10,6 @@
     </parent>
     <packaging>pom</packaging>
     <modules>
-        <module>eva-base-common</module>
         <module>eva-base-config</module>
     </modules>
 
