@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-20（DoD 目录退场收口：单文件删除 `eva-infra` 残留 `package-info.java`（gateway-impl），保持行为不变）**
+- ✅ 前置证据（保持行为不变）：`eva-infra` 已从 root reactor 退场且 `pom.xml` 已删除；当前 `git ls-files eva-infra` 仅剩该残留文件；其内容仅为注释 + `package` 声明（无任何包级注解）。
+- ✅ 执行（单文件，保持行为不变）：删除 `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/package-info.java`，继续缩小 `eva-infra/` tracked 文件表面积，为后续目录退场收口铺路。
+- 🧪 最小回归通过（Java17）：按约束使用 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
+- 📌 代码落地：`0b4bc7f8`。
+
 **2026-02-20（DoD 目录退场收口：单文件删除 `eva-infra` 残留 `package-info.java`（dal），保持行为不变）**
 - ✅ 前置证据（保持行为不变）：`eva-infra` 已从 root reactor 退场且 `pom.xml` 已删除，目录中仅剩历史残留的 `package-info.java`（无业务语义）。
 - ✅ 执行（单文件，保持行为不变）：删除 `eva-infra/src/main/java/edu/cuit/infra/dal/package-info.java`，缩小 `eva-infra/` tracked 文件表面积。
