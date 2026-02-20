@@ -1,12 +1,11 @@
 package edu.cuit.infra.bcevaluation.repository;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import edu.cuit.bc.course.application.port.CourseIdByTemplateIdQueryPort;
 import edu.cuit.bc.evaluation.application.port.DeleteEvaTemplateRepository;
 import edu.cuit.bc.evaluation.domain.DeleteEvaTemplateQueryException;
 import edu.cuit.bc.evaluation.domain.DeleteEvaTemplateUpdateException;
-import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.eva.FormTemplateDO;
-import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormTemplateMapper;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
@@ -24,7 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DeleteEvaTemplateRepositoryImpl implements DeleteEvaTemplateRepository {
     private final FormTemplateMapper formTemplateMapper;
-    private final CourseMapper courseMapper;
+    private final CourseIdByTemplateIdQueryPort courseIdByTemplateIdQueryPort;
     private final EvaCacheConstants evaCacheConstants;
     private final LocalCacheManager localCacheManager;
 
@@ -38,11 +37,9 @@ public class DeleteEvaTemplateRepositoryImpl implements DeleteEvaTemplateReposit
                 throw new DeleteEvaTemplateUpdateException("默认数据不允许删除");
             }
             //没有分配在课程中
-            QueryWrapper<CourseDO> courWrapper = new QueryWrapper<>();
-            courWrapper.eq("templateId", id);
-            CourseDO courseDO = courseMapper.selectOne(courWrapper);
+            Integer courseId = courseIdByTemplateIdQueryPort.findCourseIdByTemplateId(id).orElse(null);
             //获取对应课程id
-            if (courseDO == null) {
+            if (courseId == null) {
                 QueryWrapper<FormTemplateDO> formTemplateWrapper = new QueryWrapper<>();
                 formTemplateWrapper.eq("id", id);
                 if (formTemplateMapper.selectOne(formTemplateWrapper) == null) {
@@ -61,4 +58,3 @@ public class DeleteEvaTemplateRepositoryImpl implements DeleteEvaTemplateReposit
         }
     }
 }
-
