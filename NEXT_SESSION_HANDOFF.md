@@ -27,6 +27,12 @@
 
 > 状态更新（2026-02-20，保持行为不变）：评教写侧 `repository` 目录内对课程域 `CourseMapper` 的编译期直连已清零；评教读侧 QueryRepo 仍有少量 `CourseMapper/SemesterMapper` 直连点（见上）。
 
+**2026-02-20（评教读侧：`EvaTaskQueryRepository` 去课程域 `CourseMapper/SemesterMapper` 编译期直连，改走 `CourseAndSemesterObjectDirectQueryPort`；保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`EvaTaskQueryRepository` 内对 `CourseMapper/SemesterMapper` 的 import/注入/调用点已清零，改为注入并调用 `CourseAndSemesterObjectDirectQueryPort.findCourseList/findCourseById/findOneCourse/findSemesterById`；查询条件、异常文案与副作用顺序保持不变。
+- ✅ 执行（单类，保持行为不变）：将 `pageEvaUnfinishedTask/evaSelfTaskInfo/oneEvaTaskInfo/toCourseEntity/getListCurInfoEntities` 中涉及课程/学期查询的调用统一收敛为调用端口（端口适配器侧仍原样委托课程域 Mapper，确保空值/NPE 触发语义不漂移）。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；`mvnd` 启动阶段报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
+- 📌 代码落地：`ccc64867`。
+
 **2026-02-20（课程域：新增课程/学期基础对象直查端口适配器 `CourseAndSemesterObjectDirectQueryPortImpl`，为评教读侧 QueryRepo 去 `CourseMapper/SemesterMapper` 编译期直连做前置；保持行为不变）**
 - ✅ 执行（单类，保持行为不变）：在 `bc-course/infrastructure` 新增 `CourseAndSemesterObjectDirectQueryPortImpl`，内部仅原样委托 `CourseMapper.selectList/selectById/selectOne` 与 `SemesterMapper.selectById`（不引入新的缓存/日志副作用）。
 - 🧪 最小回归通过（Java17）：按 0.11 命令执行；`mvnd` 启动阶段报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
