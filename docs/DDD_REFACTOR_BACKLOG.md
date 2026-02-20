@@ -1324,11 +1324,11 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 ## 6. “下一批行动”建议（不含实现，只给路线）
 
-（更新至 2026-02-19；保持行为不变）S0.2 延伸主线快照（用于新会话续接）：
-- `eva-infra-dal` 余量：`0` 个 Java + `0` 个 XML（口径：`fd -t f -e java . eva-infra-dal/src/main/java | wc -l`；目录不存在按 0：`if [ -d eva-infra-dal/src/main/resources ]; then ...; else echo 0; fi`）。
-- ✅ 补充进展（保持行为不变）：`eva-infra-shared/pom.xml` 已移除对 `eva-infra-dal` 的 Maven 编译期直依赖（最小回归通过；详见 4.2）。
-- ✅ 补充进展（保持行为不变）：root `pom.xml` 已移除 `<module>eva-infra-dal</module>`，且已删除 `eva-infra-dal/pom.xml`（详见 4.2）。
-- 🎯 下一刀建议（目录退场，保持行为不变；每次只改 1 个文件闭环）：若 `eva-infra-dal/` 已为空目录，优先单独一刀删除该目录（避免 `fd -t d '^eva-' . -d 2` 口径漂移）；随后继续推进 `eva-infra-shared` 与 `eva-base` 的依赖收敛与归位。
+（更新至 2026-02-20；保持行为不变）S0.2 延伸主线快照（用于新会话续接）：
+- ✅ 目录退场收口：`fd -t d '^eva-' . -d 2` 无命中（`eva-infra/`、`eva-infra-dal/` 已完成目录清理；目录清理动作以空提交记录，详见 4.2 与 `NEXT_SESSION_HANDOFF.md` 0.9）。
+- ✅ reactor 清零：`rg -n '<module>eva-' pom.xml` 无命中。
+- ⚠️ 口径澄清：父 POM `artifactId` 为 `eva-backend`，因此请用 `rg -n -P '<artifactId>eva-(?!backend)' --glob '**/pom.xml' .` 校验“除父坐标外无任何 `eva-*` 坐标/依赖残留”，避免 `rg -n '<artifactId>eva-' ...` 误判。
+- 🎯 下一刀建议（保持行为不变；每次只改 1 个类/1 个资源 XML/1 个 `pom.xml` 闭环）：从 4.3 的“未收敛清单”中选 1 个写侧优先目标推进；每刀仍遵守 Serena 证据化 → 最小回归 → 代码提交 → 三文档同步 → 文档提交 → push。
 - 🎯 下一刀建议（shared 瘦身，LDAP 子簇续接，保持行为不变；每次只改 1 个文件闭环）：
   - 刀 1（单 pom，依赖前置）：✅ 已完成：`shared-kernel/pom.xml` 已增加 `spring-data-ldap(optional)`（或等价依赖），用于承接 `LdapGroupRepo` 的 `org.springframework.data.ldap.repository.LdapRepository` 编译期依赖（落地：`9dad61a8`；保持行为不变）。
   - 刀 2（单类搬运）：✅ 已完成：将 `LdapGroupRepo` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package` 与接口签名不变；保持行为不变；落地：`7ff087ad`）。
