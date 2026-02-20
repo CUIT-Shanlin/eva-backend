@@ -110,6 +110,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-02-20）**
+- ✅ S0.2 延伸（课程/评教：跨 BC Mapper 直连收敛，读侧收敛，单类，保持行为不变）：收敛评教读侧调用点：`bc-evaluation/infrastructure` 的 `EvaTemplateQueryRepository` 已将 `CourseMapper.selectList(eq semester_id)` 的编译期直连收敛为调用 `CourseIdsBySemesterIdQueryPort.findCourseIdsBySemesterId(...)` 获取 `courseIdS`（确保异常文案、缓存 key 与副作用顺序不变；最小回归通过；落地：`2772e6be`）。
 - ✅ S0.2 延伸（课程/评教：跨 BC Mapper 直连收敛，写侧收敛，单类，保持行为不变）：收敛评教写侧调用点：`bc-evaluation/infrastructure` 的 `DeleteEvaTemplateRepositoryImpl` 已清零对课程域 `CourseMapper.selectOne(eq templateId)` 的编译期直连，改为调用 `CourseIdByTemplateIdQueryPort.findCourseIdByTemplateId(...)` 判断模板是否被课程分配（确保异常文案、缓存失效与副作用顺序不变；最小回归通过；落地：`85a191f2`）。
 - ✅ S0.2 延伸（课程/评教：跨 BC Mapper 直连收敛，写侧收敛，单类，保持行为不变）：收敛评教写侧调用点：`bc-evaluation/infrastructure` 的 `DeleteEvaRecordRepositoryImpl` 已清零对课程域 `CourseMapper.selectById` 的编译期直连，改为调用 `CourseTeacherAndSemesterQueryPort.findByCourseId(...)` 做课程存在性校验（确保异常文案、日志与副作用顺序不变；最小回归通过；落地：`b99b4073`）。
 - ✅ S0.2 延伸（课程/评教：跨 BC Mapper 直连收敛，写侧收敛，单类，保持行为不变）：收敛评教写侧调用点：`bc-evaluation/infrastructure` 的 `SubmitEvaluationRepositoryImpl` 已清零对课程域 `CourseMapper.selectById` 的编译期直连，改为调用 `CourseTeacherAndSemesterQueryPort` + `CourseTemplateIdQueryPort` 查询 `semesterId/templateId`（确保异常文案、缓存失效与副作用顺序不变；最小回归通过；落地：`7abb02df`）。
