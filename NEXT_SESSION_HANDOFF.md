@@ -27,6 +27,12 @@
 
 > 状态更新（2026-02-20，保持行为不变）：评教写侧 `repository` 目录内对课程域 `CourseMapper` 的编译期直连已清零；评教读侧 QueryRepo 仍有少量 `CourseMapper/SemesterMapper` 直连点（见上）。
 
+**2026-02-20（课程域：新增课程/学期基础对象直查端口 `CourseAndSemesterObjectDirectQueryPort`，为评教读侧 QueryRepo 去 `CourseMapper/SemesterMapper` 编译期直连做前置；保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：当前全仓库暂无对该端口的引用；本刀仅补齐端口接口，避免行为漂移。
+- ✅ 执行（单类，保持行为不变）：在 `bc-course/application` 新增 `CourseAndSemesterObjectDirectQueryPort`（提供 `CourseDO/SemesterDO` 的直查入口；后续端口适配器侧将原样委托 `CourseMapper/SemesterMapper` 以保持行为不变）。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；`mvnd` 启动阶段报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
+- 📌 代码落地：`c389a801`。
+
 **2026-02-20（课程域：新增按 teacherId + semesterId 查询课程ID列表端口 `CourseIdsByTeacherIdAndSemesterIdQueryPort`，为评教读侧 QueryRepo 去 `CourseMapper.selectList(eq teacher_id, semester_id)` 直连做前置；保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：当前全仓库暂无对该端口的引用；本刀仅补齐端口接口作为后续“补适配器/改调用侧”前置，避免行为漂移。
 - ✅ 执行（单类，保持行为不变）：在 `bc-course/application` 新增 `CourseIdsByTeacherIdAndSemesterIdQueryPort.findCourseIdsByTeacherIdAndSemesterId(Integer,Integer)`，不引入实现与调用点。
