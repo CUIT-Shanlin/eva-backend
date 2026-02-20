@@ -21,6 +21,11 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-20（`eva-base-common` 退场收尾：单 pom 移除 `bc-iam/contract` 对 `eva-base-common` 的依赖，保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`bc-iam/contract` 范围内仅 `pom.xml` 命中 `eva-base-common`；代码侧命中 `GenericPattern`，已由 `shared-kernel` 承接且 `package` 不变。
+- 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级使用 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
+- 📌 代码落地：`fc801525`。
+
 **2026-02-19（`eva-base-common` 退场前置：单类搬运 `LogModule` 下沉到 `shared-kernel`，保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`LogModule` 引用面广泛，主要用于各 BC Controller 的 `@OperateLog(module = LogModule.*)`；搬运后保持 `package edu.cuit.common.enums` 不变，调用侧无需改 import。
 - ✅ 执行（单类搬运，保持行为不变）：将 `LogModule` 从 `eva-base/eva-base-common` 下沉到 `shared-kernel`（保持常量值与接口注释不变，仅改变 Maven 模块归属），为后续“逐 pom 去 `eva-base-common` 依赖”铺路。
@@ -1828,7 +1833,7 @@
   - 关键阻塞例（`course_type`，保持行为不变，历史说明）：此前 `CourseConvertor` 作为共享 Convertor 会扩大 `CourseTypeDO` 的引用面，因此不建议将 `CourseTypeDO` 直接归位到单一 BC `infrastructure` 以避免依赖/装配边界漂移；本会话已将 `CourseTypeDO` 下沉到 `shared-kernel`（见 0.9），该阻塞已解除。
 
 - 🎯 **`eva-base-common` 退场下一步（建议顺序；保持行为不变；每步只改 1 个 `pom.xml` 闭环）**：
-  - 1) `bc-iam/contract/pom.xml`：移除 `eva-base-common` 依赖（Serena 证伪无其它“仅存在于 eva-base-common”的类型引用）。
+  - ✅ 1) `bc-iam/contract/pom.xml`：移除 `eva-base-common` 依赖（Serena 证伪无其它“仅存在于 eva-base-common”的类型引用；最小回归通过；落地：`fc801525`）。
   - 2) `bc-iam/infrastructure/pom.xml`：移除 `eva-base-common` 依赖（Serena 证伪无其它类型引用）。
   - 3) `eva-base/pom.xml`：移除 `<module>eva-base-common</module>`（前置：依赖方已清零）。
   - 4) 删除 `eva-base/eva-base-common/pom.xml`（前置：全仓库 `**/pom.xml` 不再出现 `<artifactId>eva-base-common</artifactId>`）。

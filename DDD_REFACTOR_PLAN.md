@@ -511,6 +511,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 > 新会话续接方式：优先复制 `NEXT_SESSION_HANDOFF.md` 的 0.11「推荐版（主线优先）」并按 0.10 的“下一步拆分与里程碑/提交点”顺序执行，避免遗漏约束与回归命令。
 > 工作区保护（保持行为不变）：若出现“已暂存新增 + 未暂存改动”的混合状态，禁止 `reset/checkout`；优先用 `git commit -- <path>` 做范围隔离，逐步恢复到“单文件一刀闭环”。
 
+- ✅ 补充进展（2026-02-20，保持行为不变，依赖收敛，单 pom）：收敛 `bc-iam/contract/pom.xml`：移除对 `eva-base-common` 的 Maven 编译期依赖（Serena 证伪 `bc-iam/contract` 范围内仅 `pom.xml` 命中 `eva-base-common`；最小回归通过；落地：`fc801525`）。
 - ✅ 补充进展（2026-02-19，保持行为不变，引用面收敛前置，单类）：在 `bc-course/application` 新增最小 Port：`SingleCourseCoConvertPort`（承接 `SingleCourseEntity -> SingleCourseCO` 的转换能力，用于后续收敛 `bc-evaluation/infrastructure` 对 `CourseBizConvertor` 的直接依赖；最小回归通过；落地：`32c458e7`）。
 - ✅ 补充进展（2026-02-19，保持行为不变，引用面收敛前置，单类）：在 `bc-course/infrastructure` 新增 Port Adapter：`SingleCourseCoConvertPortImpl`（内部直接委托 `CourseBizConvertor.toSingleCourseCO(...)`，确保映射行为不变；最小回归通过；落地：`fd28bbb9`）。
 - ✅ 补充进展（2026-02-19，保持行为不变，引用面收敛前置，单类）：收敛评教侧调用点：`bc-evaluation/infrastructure` 的 `MsgServiceImpl` 改为依赖 `SingleCourseCoConvertPort`（不再直接调用 `CourseBizConvertor` 完成 `SingleCourseEntity -> SingleCourseCO` 转换；异常/日志/副作用顺序不变；最小回归通过；落地：`65a2e261`）。
