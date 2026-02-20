@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import edu.cuit.bc.course.application.port.CourseAndSemesterObjectDirectQueryPort;
 import edu.cuit.bc.course.application.port.CourseIdsByTeacherIdAndSemesterIdQueryPort;
+import edu.cuit.bc.course.application.port.CourseIdsByTeacherIdQueryPort;
 import edu.cuit.bc.course.application.port.CourInfObjectDirectQueryPort;
 import edu.cuit.bc.course.application.port.CourseEntityConvertPort;
 import edu.cuit.bc.course.application.port.SubjectObjectDirectQueryPort;
@@ -65,6 +66,7 @@ import java.util.stream.Collectors;
 public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
     private final CourseAndSemesterObjectDirectQueryPort courseAndSemesterObjectDirectQueryPort;
     private final CourseIdsByTeacherIdAndSemesterIdQueryPort courseIdsByTeacherIdAndSemesterIdQueryPort;
+    private final CourseIdsByTeacherIdQueryPort courseIdsByTeacherIdQueryPort;
     private final EvaTaskMapper evaTaskMapper;
     private final EvaConvertor evaConvertor;
     private final PaginationConverter paginationConverter;
@@ -335,10 +337,7 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
             if(semId!=null){
                 couIds = courseIdsByTeacherIdAndSemesterIdQueryPort.findCourseIdsByTeacherIdAndSemesterId(userId, semId);
             }else{
-                QueryWrapper<CourseDO> courseDOQueryWrapper=new QueryWrapper<CourseDO>();
-                courseDOQueryWrapper.eq("teacher_id",userId);
-                List<CourseDO> courseDO=courseAndSemesterObjectDirectQueryPort.findCourseList(courseDOQueryWrapper);
-                couIds=courseDO.stream().map(CourseDO::getId).toList();
+                couIds = courseIdsByTeacherIdQueryPort.findCourseIdsByTeacherId(userId);
             }
             if(CollectionUtil.isEmpty(couIds)){
                 List list=new ArrayList();
