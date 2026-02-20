@@ -25,6 +25,8 @@
 
 > 下一步建议（写侧优先，单类闭环，保持行为不变）：继续清理 `bc-evaluation/infrastructure/src/main/java/edu/cuit/infra/bcevaluation/repository` 中剩余对课程域 `CourseMapper` 的直连点（优先 `DeleteEvaTemplateRepositoryImpl`）。若端口能力不足则按“补端口（单类）→ 补适配器（单类）→ 改调用侧（单类）”推进。每刀仍遵守：Serena 证据化 → 最小回归 → 代码提交 → 三文档同步 → 文档提交 → push。
 
+> 状态更新（2026-02-20，保持行为不变）：上述目录内写侧 `CourseMapper` 编译期直连已清零（剩余收敛点可转向读侧 QueryRepo 或推进跨 BC 依赖边界收敛）。
+
 **2026-02-20（评教写侧：`DeleteEvaRecordRepositoryImpl` 去课程 `CourseMapper.selectById` 编译期直连，改走 `CourseTeacherAndSemesterQueryPort`；保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`DeleteEvaRecordRepositoryImpl.delete(...)` 原通过 `CourseMapper.selectById(courseId)` 校验课程存在并获取 `courseId` 参与后续“是否还有评教记录/是否删除模板快照”判断，属于跨 BC DAL 编译期直连入口。
 - ✅ 执行（单类，保持行为不变）：移除对 `CourseMapper/CourseDO` 的直接注入与引用，改为调用 `bc-course/application` 查询端口 `CourseTeacherAndSemesterQueryPort.findByCourseId(courseId)` 仅做“课程存在性校验”；后续逻辑统一使用原 `courseId`（不改变异常文案、日志、缓存失效与副作用顺序）。
@@ -42,6 +44,12 @@
 - ✅ 执行（单类，保持行为不变）：新增 `CourseIdByTemplateIdQueryPortImpl`，内部仅委托 `CourseMapper.selectOne(new QueryWrapper<CourseDO>().eq(\"templateId\", templateId))` 并返回 `courseId`（不引入新副作用、不改变空值语义）。
 - 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
 - 📌 代码落地：`15d17b6f`。
+
+**2026-02-20（评教写侧：`DeleteEvaTemplateRepositoryImpl` 去课程 `CourseMapper.selectOne(eq templateId)` 编译期直连，改走 `CourseIdByTemplateIdQueryPort`；保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`DeleteEvaTemplateRepositoryImpl.delete(...)` 原通过 `CourseMapper.selectOne(new QueryWrapper<CourseDO>().eq(\"templateId\", templateId))` 判断模板是否已被课程分配，属于跨 BC DAL 编译期直连入口。
+- ✅ 执行（单类，保持行为不变）：移除对 `CourseMapper/CourseDO` 的直接注入与引用，改为调用 `bc-course/application` 查询端口 `CourseIdByTemplateIdQueryPort.findCourseIdByTemplateId(templateId)` 判断是否存在任一课程命中（异常文案、删除逻辑与缓存失效顺序不变）。
+- 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
+- 📌 代码落地：`85a191f2`。
 
 **2026-02-20（评教写侧：`SubmitEvaluationRepositoryImpl` 去课程 `CourseMapper.selectById` 编译期直连，改走 `CourseTeacherAndSemesterQueryPort` + `CourseTemplateIdQueryPort`；保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`SubmitEvaluationRepositoryImpl.loadContext/saveEvaluation` 依赖课程域 `CourseMapper.selectById(courseId)` 读取 `semesterId/templateId`，属于跨 BC DAL 编译期直连入口。
