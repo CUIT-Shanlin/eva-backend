@@ -3,17 +3,17 @@ package edu.cuit.infra.bcevaluation.repository;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.cuit.bc.course.application.port.CourseIdByCourInfIdQueryPort;
+import edu.cuit.bc.course.application.port.CourseTeacherAndSemesterQueryPort;
+import edu.cuit.bc.course.application.port.CourseTemplateIdQueryPort;
 import edu.cuit.bc.evaluation.application.model.FormPropValue;
 import edu.cuit.bc.evaluation.application.model.SubmitEvaluationContext;
 import edu.cuit.bc.evaluation.application.port.SubmitEvaluationRepository;
 import edu.cuit.bc.evaluation.domain.SubmitEvaluationException;
 import edu.cuit.bc.evaluation.domain.TaskStatus;
-import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.eva.CourOneEvaTemplateDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO;
 import edu.cuit.infra.dal.database.dataobject.eva.FormTemplateDO;
-import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.eva.CourOneEvaTemplateMapper;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
@@ -43,7 +43,8 @@ public class SubmitEvaluationRepositoryImpl implements SubmitEvaluationRepositor
     private final EvaTaskMapper evaTaskMapper;
     private final FormRecordMapper formRecordMapper;
     private final CourseIdByCourInfIdQueryPort courseIdByCourInfIdQueryPort;
-    private final CourseMapper courseMapper;
+    private final CourseTeacherAndSemesterQueryPort courseTeacherAndSemesterQueryPort;
+    private final CourseTemplateIdQueryPort courseTemplateIdQueryPort;
     private final FormTemplateMapper formTemplateMapper;
     private final CourOneEvaTemplateMapper courOneEvaTemplateMapper;
     @Autowired
@@ -63,8 +64,14 @@ public class SubmitEvaluationRepositoryImpl implements SubmitEvaluationRepositor
         Integer courseId = task.getCourInfId() == null
                 ? null
                 : courseIdByCourInfIdQueryPort.findCourseIdByCourInfId(task.getCourInfId()).orElse(null);
-        CourseDO course = courseId == null ? null : courseMapper.selectById(courseId);
-        FormTemplateDO template = course == null ? null : formTemplateMapper.selectById(course.getTemplateId());
+        CourseTeacherAndSemesterQueryPort.CourseTeacherAndSemester courseTeacherAndSemester = courseId == null
+                ? null
+                : courseTeacherAndSemesterQueryPort.findByCourseId(courseId).orElse(null);
+        Integer semesterId = courseTeacherAndSemester == null ? null : courseTeacherAndSemester.semesterId();
+        Integer templateId = courseTeacherAndSemester == null
+                ? null
+                : courseTemplateIdQueryPort.findTemplateId(semesterId, courseId).orElse(null);
+        FormTemplateDO template = templateId == null ? null : formTemplateMapper.selectById(templateId);
 
         return new SubmitEvaluationContext(
                 taskId,
@@ -72,8 +79,8 @@ public class SubmitEvaluationRepositoryImpl implements SubmitEvaluationRepositor
                 evaluator == null ? null : selectSysUserName(evaluator),
                 task.getCourInfId(),
                 courseId,
-                course == null ? null : course.getSemesterId(),
-                course == null ? null : course.getTemplateId(),
+                semesterId,
+                templateId,
                 template == null ? null : template.getName(),
                 template == null ? null : template.getDescription(),
                 template == null ? null : template.getProps(),
@@ -104,10 +111,13 @@ public class SubmitEvaluationRepositoryImpl implements SubmitEvaluationRepositor
         if (courseId == null) {
             throw new SubmitEvaluationException("该任务对应的课程信息不存在，不能提交");
         }
-        CourseDO course = courseMapper.selectById(courseId);
-        if (course == null) {
+        CourseTeacherAndSemesterQueryPort.CourseTeacherAndSemester courseTeacherAndSemester = courseTeacherAndSemesterQueryPort
+                .findByCourseId(courseId)
+                .orElse(null);
+        if (courseTeacherAndSemester == null) {
             throw new SubmitEvaluationException("该任务对应的课程信息不存在，不能提交");
         }
+        Integer semesterId = courseTeacherAndSemester.semesterId();
 
         FormRecordDO record = new FormRecordDO();
         record.setTaskId(context.taskId());
@@ -134,17 +144,18 @@ public class SubmitEvaluationRepositoryImpl implements SubmitEvaluationRepositor
         // 首次评教：创建课程模板快照（用于锁定模板）
         CourOneEvaTemplateDO snapshot = courOneEvaTemplateMapper.selectOne(
                 new QueryWrapper<CourOneEvaTemplateDO>()
-                        .eq("course_id", course.getId())
-                        .eq("semester_id", course.getSemesterId())
+                        .eq("course_id", courseId)
+                        .eq("semester_id", semesterId)
         );
         if (snapshot == null) {
-            FormTemplateDO template = formTemplateMapper.selectById(course.getTemplateId());
+            Integer templateId = courseTemplateIdQueryPort.findTemplateId(semesterId, courseId).orElse(null);
+            FormTemplateDO template = formTemplateMapper.selectById(templateId);
             if (template == null) {
                 throw new SubmitEvaluationException("评教模板不存在，不能提交");
             }
             CourOneEvaTemplateDO newSnapshot = new CourOneEvaTemplateDO();
-            newSnapshot.setCourseId(course.getId());
-            newSnapshot.setSemesterId(course.getSemesterId());
+            newSnapshot.setCourseId(courseId);
+            newSnapshot.setSemesterId(semesterId);
 
             Map<String, Object> templateJson = new LinkedHashMap<>();
             templateJson.put("name", template.getName());
