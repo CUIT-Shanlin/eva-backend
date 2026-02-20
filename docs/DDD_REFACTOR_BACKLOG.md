@@ -924,6 +924,9 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 已完成解耦前置：`CourseFormat` 已移除对 `CourOneEvaTemplateMapper/DO` 的编译期强依赖，改为反射调用（落地：`8b4f69e2`；保持异常文案/查询条件/副作用顺序不变）。
   - ✅ 已完成主刀：`CourseFormat` 已单类搬运到 `shared-kernel`（落地：`dff4e751`；保持 `package`、异常文案、查询条件与副作用顺序不变）。
 
+- **S0.2 延伸（课程/评教：跨 BC Mapper 直连收敛前置，保持行为不变）**：
+  - ✅ 进展（2026-02-20，保持行为不变，单类）：在 `bc-course/application` 新增最小查询端口 `CourseIdsByTeacherIdQueryPort`（后续用于将评教写侧 `PostEvaTaskRepositoryImpl` 内对课程域 `CourseMapper.selectList(eq teacher_id)` 的跨 BC 直连按“补适配器（单类）→ 改调用侧（单类）”逐步收敛为调用端口；落地：`cdc79886`）。
+
 - **S0.2 延伸（审计：DAL 按 BC 拆散试点，`sys_log`，保持行为不变）**：
   - ✅ 已完成：`SysLogModuleMapper`、`SysLogMapper` → `bc-audit/infrastructure`；`LogConverter` → `bc-audit/infrastructure`（保持 `package` 不变；保持行为不变；详见 4.2）。
   - ✅ 已完成：`SysLogDO`、`SysLogModuleDO` → `bc-audit/infrastructure`（保持 `package` 不变；保持行为不变；详见 4.2）。

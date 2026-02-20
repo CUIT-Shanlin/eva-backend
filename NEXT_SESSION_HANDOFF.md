@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-20（课程域：新增查询端口 `CourseIdsByTeacherIdQueryPort`，为评教写侧去 `CourseMapper` 直连做前置；保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`bc-evaluation/infrastructure` 的写侧端口适配器（例如 `PostEvaTaskRepositoryImpl`）仍存在对课程域 DAL `CourseMapper.selectList(eq teacher_id)` 的编译期直连，用于读取“教师所授课程 id 列表”；当前 `bc-course/application` 未提供等价查询端口。
+- ✅ 执行（单类，保持行为不变）：在 `bc-course/application` 新增最小查询端口 `CourseIdsByTeacherIdQueryPort`（仅定义接口，不引入实现与调用点，避免行为漂移；后续按“补适配器（单类）→ 改调用侧（单类）”继续推进）。
+- 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
+- 📌 代码落地：`cdc79886`。
+
 **2026-02-20（DoD 目录退场收口：单目录清理 `eva-infra-dal/`，保持行为不变）**
 - ✅ 前置证据（保持行为不变）：`git ls-files eva-infra-dal` 已为 0；Serena 列目录确认仅剩 `.flattened-pom.xml`、`target/`、`src/` 等构建残留（无任何 `*.java` / `*.xml`），不影响编译与运行期行为。
 - ✅ 执行（单目录，保持行为不变）：删除 `eva-infra-dal/` 目录本身，推进 `fd -t d '^eva-' . -d 2` 的“目录退场”口径收口。
