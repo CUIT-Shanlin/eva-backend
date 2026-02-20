@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import edu.cuit.bc.course.application.port.CourInfIdsByCourseIdsQueryPort;
 import edu.cuit.bc.course.application.port.CourseIdByCourInfIdQueryPort;
+import edu.cuit.bc.course.application.port.CourseIdsBySemesterIdQueryPort;
 import edu.cuit.client.dto.query.PagingQuery;
 import edu.cuit.client.dto.query.condition.GenericConditionalQuery;
 import edu.cuit.domain.entity.PaginationResultEntity;
@@ -49,6 +50,7 @@ public class EvaTemplateQueryRepository implements EvaTemplateQueryRepo {
     private final PaginationConverter paginationConverter;
     private final CourInfIdsByCourseIdsQueryPort courInfIdsByCourseIdsQueryPort;
     private final CourseIdByCourInfIdQueryPort courseIdByCourInfIdQueryPort;
+    private final CourseIdsBySemesterIdQueryPort courseIdsBySemesterIdQueryPort;
     private final FormTemplateMapper formTemplateMapper;
     private final CourOneEvaTemplateMapper courOneEvaTemplateMapper;
     private final EvaCacheConstants evaCacheConstants;
@@ -147,13 +149,7 @@ public class EvaTemplateQueryRepository implements EvaTemplateQueryRepo {
                 List<Integer> evaTaskIdS = evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
                 return evaTaskIdS;
             } else {
-                List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId));
-
-                if (CollectionUtil.isEmpty(courseDOS)) {
-                    return List.of();
-                }
-                List<Integer> courseIdS = courseDOS.stream().map(CourseDO::getId).toList();
-
+                List<Integer> courseIdS = courseIdsBySemesterIdQueryPort.findCourseIdsBySemesterId(semId);
                 if (CollectionUtil.isEmpty(courseIdS)) {
                     return List.of();
                 }
