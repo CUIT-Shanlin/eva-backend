@@ -9,6 +9,7 @@ import com.alibaba.cola.exception.SysException;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import edu.cuit.bc.course.application.port.CourseAndSemesterObjectDirectQueryPort;
 import edu.cuit.bc.course.application.port.CourInfIdsByCourseIdsQueryPort;
 import edu.cuit.client.dto.clientobject.DateEvaNumCO;
 import edu.cuit.client.dto.clientobject.MoreDateEvaNumCO;
@@ -28,7 +29,6 @@ import edu.cuit.infra.convertor.PaginationConverter;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO;
-import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
@@ -65,7 +65,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
-    private final CourseMapper courseMapper;
+    private final CourseAndSemesterObjectDirectQueryPort courseAndSemesterObjectDirectQueryPort;
     private final EvaTaskMapper evaTaskMapper;
     private final CourInfIdsByCourseIdsQueryPort courInfIdsByCourseIdsQueryPort;
     private final FormRecordMapper formRecordMapper;
@@ -665,7 +665,7 @@ public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
                 List<Integer> evaTaskIdS = evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
                 return evaTaskIdS;
             } else {
-                List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId));
+                List<CourseDO> courseDOS = courseAndSemesterObjectDirectQueryPort.findCourseList(new QueryWrapper<CourseDO>().eq("semester_id", semId));
 
                 if (CollectionUtil.isEmpty(courseDOS)) {
                     return List.of();
@@ -812,9 +812,9 @@ public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
     private Integer getEvaEdNumByTeacherId(Integer teacherId,Integer semId){
         List<CourseDO> courseDOS;
         if(semId!=null) {
-            courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", teacherId).eq("semester_id",semId));
+            courseDOS = courseAndSemesterObjectDirectQueryPort.findCourseList(new QueryWrapper<CourseDO>().eq("teacher_id", teacherId).eq("semester_id",semId));
         }else {
-            courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", teacherId));
+            courseDOS = courseAndSemesterObjectDirectQueryPort.findCourseList(new QueryWrapper<CourseDO>().eq("teacher_id", teacherId));
         }
         if(CollectionUtil.isEmpty(courseDOS)){
             return 0;
@@ -882,7 +882,7 @@ public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
             throw new SysException("你的输入数字num有问题");
         }
 
-        List<CourseDO> courseDOS=courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id",teacherId));
+        List<CourseDO> courseDOS=courseAndSemesterObjectDirectQueryPort.findCourseList(new QueryWrapper<CourseDO>().eq("teacher_id",teacherId));
         List<Integer> courIdS=courseDOS.stream().map(CourseDO::getId).toList();
 
         if(CollectionUtil.isEmpty(courIdS)){
