@@ -525,6 +525,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-20，保持行为不变，目录退场前置，单文件）：删除 `eva-infra/src/main/java/edu/cuit/infra/dal/package-info.java`（`eva-infra` 目录退场收口；最小回归通过；落地：`4d41b7c7`）。
 - ✅ 补充进展（2026-02-20，保持行为不变，目录退场前置，单文件）：删除 `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/package-info.java`（`eva-infra` 目录退场收口；最小回归通过；落地：`0b4bc7f8`）。
 - ✅ 补充进展（2026-02-20，保持行为不变，目录退场，单目录）：清理 `eva-infra/` 目录本身（前置：`git ls-files eva-infra` 为 0；目录内仅剩被忽略的构建产物与 IDE 元数据；最小回归通过；落地：`50622ef2`；注：Git 不跟踪空目录/忽略产物，因此使用空提交记录该动作）。
+- ✅ 补充进展（2026-02-20，保持行为不变，目录退场，单目录）：清理 `eva-infra-dal/` 目录本身（前置：`git ls-files eva-infra-dal` 为 0；Serena 列目录确认无任何 `*.java`；按约束先尝试 `mvnd`（初始化异常失败）后降级 `mvn` 最小回归通过；落地：`1a5a9fb2`；注：Git 不跟踪空目录/忽略产物，因此使用空提交记录该动作）。
 - ✅ 补充进展（2026-02-19，保持行为不变，引用面收敛前置，单类）：在 `bc-course/application` 新增最小 Port：`SingleCourseCoConvertPort`（承接 `SingleCourseEntity -> SingleCourseCO` 的转换能力，用于后续收敛 `bc-evaluation/infrastructure` 对 `CourseBizConvertor` 的直接依赖；最小回归通过；落地：`32c458e7`）。
 - ✅ 补充进展（2026-02-19，保持行为不变，引用面收敛前置，单类）：在 `bc-course/infrastructure` 新增 Port Adapter：`SingleCourseCoConvertPortImpl`（内部直接委托 `CourseBizConvertor.toSingleCourseCO(...)`，确保映射行为不变；最小回归通过；落地：`fd28bbb9`）。
 - ✅ 补充进展（2026-02-19，保持行为不变，引用面收敛前置，单类）：收敛评教侧调用点：`bc-evaluation/infrastructure` 的 `MsgServiceImpl` 改为依赖 `SingleCourseCoConvertPort`（不再直接调用 `CourseBizConvertor` 完成 `SingleCourseEntity -> SingleCourseCO` 转换；异常/日志/副作用顺序不变；最小回归通过；落地：`65a2e261`）。

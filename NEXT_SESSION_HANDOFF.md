@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-20（DoD 目录退场收口：单目录清理 `eva-infra-dal/`，保持行为不变）**
+- ✅ 前置证据（保持行为不变）：`git ls-files eva-infra-dal` 已为 0；Serena 列目录确认仅剩 `.flattened-pom.xml`、`target/`、`src/` 等构建残留（无任何 `*.java` / `*.xml`），不影响编译与运行期行为。
+- ✅ 执行（单目录，保持行为不变）：删除 `eva-infra-dal/` 目录本身，推进 `fd -t d '^eva-' . -d 2` 的“目录退场”口径收口。
+- 🧪 最小回归通过（Java17）：按约束先尝试 `mvnd`（启动阶段 `ExceptionInInitializerError`），已降级使用 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
+- 📌 代码落地：`1a5a9fb2`（空提交，仅用于记录“目录清理”动作，Git 不跟踪空目录/忽略产物）。
+
 **2026-02-20（DoD 目录退场收口：单目录清理 `eva-infra/`，保持行为不变）**
 - ✅ 前置证据（保持行为不变）：`git ls-files eva-infra` 已为 0；目录内仅剩 `.classpath/.project/.settings/target/.flattened-pom.xml` 等被忽略的构建产物与 IDE 元数据，不影响编译与运行期行为。
 - ✅ 执行（单目录，保持行为不变）：删除 `eva-infra/` 目录本身，推进 `fd -t d '^eva-' . -d 2` 的“目录退场”口径收口。

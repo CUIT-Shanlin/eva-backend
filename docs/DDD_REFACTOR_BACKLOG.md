@@ -122,6 +122,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S1 收尾（目录退场：`eva-infra` 残留清理，保持行为不变）：删除 `eva-infra/src/main/java/edu/cuit/infra/dal/package-info.java`（逐文件清理 `eva-infra/` tracked 残留，为后续目录退场铺路；最小回归通过；落地：`4d41b7c7`）。
 - ✅ S1 收尾（目录退场：`eva-infra` 残留清理，保持行为不变）：删除 `eva-infra/src/main/java/edu/cuit/infra/gateway/impl/package-info.java`（逐文件清理 `eva-infra/` tracked 残留，为后续目录退场铺路；最小回归通过；落地：`0b4bc7f8`）。
 - ✅ S1 收尾（目录退场：`eva-infra` 目录清理，保持行为不变）：清理 `eva-infra/` 目录本身（前置：已无任何 tracked 文件；目录内仅剩被忽略的构建产物与 IDE 元数据；最小回归通过；落地：`50622ef2`；注：Git 不跟踪空目录/忽略产物，使用空提交记录该动作）。
+- ✅ S1 收尾（目录退场：`eva-infra-dal` 目录清理，保持行为不变）：清理 `eva-infra-dal/` 目录本身（前置：已无任何 tracked 文件；Serena 列目录确认无任何 `*.java`；按约束先尝试 `mvnd`（初始化异常失败）后降级 `mvn` 最小回归通过；落地：`1a5a9fb2`；注：Git 不跟踪空目录/忽略产物，使用空提交记录该动作）。
 - ✅ S0.2 延伸（Convertor 收尾前置，单类，保持行为不变）：在 `bc-iam/application` 新增最小 Port `UserEntityFieldExtractPort`（仅包含外部 BC 实际使用的 `userIdOf(Object)` + `springUserEntityWithNameObject(Object)`，用于后续收敛 `bc-course/bc-evaluation` 对 `UserConverter` 的直接注入；最小回归通过；落地：`e5b37188`）。
 - ✅ S0.2 延伸（Convertor 收尾前置，单类，保持行为不变）：在 `bc-iam/infrastructure` 新增 Port Adapter `UserEntityFieldExtractPortImpl`（内部直接委托 `UserConverter.userIdOf/springUserEntityWithNameObject`，保持异常/空值/调用顺序不变；本刀不改调用侧；最小回归通过；落地：`7e682804`）。
 - ✅ S0.2 延伸（编译闭合前置，单 pom，保持行为不变）：在 `bc-evaluation/infrastructure/pom.xml` 增加 `bc-iam` Maven 依赖，用于承接后续 `bc-evaluation/infrastructure` 调用侧对 `UserEntityFieldExtractPort` 的编译期引用（最小回归通过；落地：`4b239adf`）。
