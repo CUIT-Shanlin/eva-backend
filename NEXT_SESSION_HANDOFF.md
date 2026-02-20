@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-20（`eva-base` 目录收口：单文件删除 `eva-base/pom.xml`，保持行为不变）**
+- ✅ 前置证据（保持行为不变）：`eva-base/` 下仅剩 `pom.xml` 一个文件（其余 `eva-base-common/eva-base-config` 的 `pom.xml` 已删除）；且全仓库 `**/pom.xml` 中 `<artifactId>eva-base</artifactId>` 仅命中该文件本体。
+- ✅ 执行（单文件，保持行为不变）：删除 `eva-base/pom.xml`，为后续按“单目录一刀”清理 `eva-base/` 空目录残留铺路。
+- 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级使用 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
+- 📌 代码落地：`45770eec`。
+
 **2026-02-20（`eva-base` 目录收口：单文件删除 `eva-base/eva-base-config/pom.xml`，保持行为不变）**
 - ✅ 前置证据（保持行为不变）：全仓库 `**/pom.xml` 内 `<artifactId>eva-base-config</artifactId>` 仅命中其本体；且 root reactor 已移除 `<module>eva-base</module>`，该模块不再参与构建。
 - ✅ 执行（单文件，保持行为不变）：删除 `eva-base/eva-base-config/pom.xml`，为后续按“单目录一刀”清理 `eva-base/` 空目录残留、满足 `fd -t d '^eva-' . -d 2` 口径铺路。
