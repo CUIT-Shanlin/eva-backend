@@ -2,6 +2,7 @@ package edu.cuit.infra.bcevaluation.repository;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import edu.cuit.bc.course.application.port.CourseIdsByTeacherIdQueryPort;
 import edu.cuit.bc.course.application.port.CourInfTimeSlotQueryPort;
 import edu.cuit.bc.evaluation.application.model.PostEvaTaskCommand;
 import edu.cuit.bc.evaluation.application.port.PostEvaTaskRepository;
@@ -38,6 +39,7 @@ import java.util.List;
 public class PostEvaTaskRepositoryImpl implements PostEvaTaskRepository {
     private final EvaTaskMapper evaTaskMapper;
     private final CourInfTimeSlotQueryPort courInfTimeSlotQueryPort;
+    private final CourseIdsByTeacherIdQueryPort courseIdsByTeacherIdQueryPort;
     private final CourseMapper courseMapper;
     private final SemesterMapper semesterMapper;
     @Autowired
@@ -95,8 +97,7 @@ public class PostEvaTaskRepositoryImpl implements PostEvaTaskRepository {
             throw new PostEvaTaskUpdateException("课程已经开始了哦");
         }
         // 看看是否和老师自己的课有冲突
-        List<CourseDO> courseDOList = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", command.evaluatorId()));
-        List<Integer> courseIds = courseDOList.stream().map(CourseDO::getId).toList();
+        List<Integer> courseIds = courseIdsByTeacherIdQueryPort.findCourseIdsByTeacherId(command.evaluatorId());
         if (CollectionUtil.isNotEmpty(courseIds)) {
             List<CourInfTimeSlotQueryPort.CourInfTimeSlot> courInfDOList = courInfTimeSlotQueryPort.findByCourseIds(courseIds);
             for (int i = 0; i < courInfDOList.size(); i++) {
@@ -112,8 +113,7 @@ public class PostEvaTaskRepositoryImpl implements PostEvaTaskRepository {
         }
         // 判定是否超过最大评教次数
         Object teacher = selectSysUserById(courseDO.getTeacherId());
-        List<CourseDO> evaCourseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", selectSysUserId(teacher)));
-        List<Integer> evaCourseIds = evaCourseDOS.stream().map(CourseDO::getId).toList();
+        List<Integer> evaCourseIds = courseIdsByTeacherIdQueryPort.findCourseIdsByTeacherId(selectSysUserId(teacher));
         if (CollectionUtil.isNotEmpty(evaCourseIds)) {
             List<CourInfTimeSlotQueryPort.CourInfTimeSlot> evaCourInfoDOs = courInfTimeSlotQueryPort.findByCourseIds(evaCourseIds);
             if (CollectionUtil.isNotEmpty(evaCourInfoDOs)) {
