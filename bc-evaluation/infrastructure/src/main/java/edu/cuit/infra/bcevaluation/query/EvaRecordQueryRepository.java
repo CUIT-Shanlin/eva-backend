@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import edu.cuit.bc.course.application.port.CourseAndSemesterObjectDirectQueryPort;
+import edu.cuit.bc.course.application.port.CourseIdsByTeacherIdAndSemesterIdQueryPort;
 import edu.cuit.bc.course.application.port.CourInfObjectDirectQueryPort;
 import edu.cuit.bc.course.application.port.CourseEntityConvertPort;
 import edu.cuit.bc.course.application.port.SubjectObjectDirectQueryPort;
@@ -63,6 +64,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
     private final CourseAndSemesterObjectDirectQueryPort courseAndSemesterObjectDirectQueryPort;
+    private final CourseIdsByTeacherIdAndSemesterIdQueryPort courseIdsByTeacherIdAndSemesterIdQueryPort;
     private final EvaTaskMapper evaTaskMapper;
     private final EvaConvertor evaConvertor;
     private final PaginationConverter paginationConverter;
@@ -329,14 +331,15 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
                     .map(CourInfDO.class::cast)
                     .collect(Collectors.toList());
         }else{
-            QueryWrapper<CourseDO> courseDOQueryWrapper=new QueryWrapper<CourseDO>();
+            List<Integer> couIds;
             if(semId!=null){
-                courseDOQueryWrapper.eq("semester_id",semId).eq("teacher_id",userId);
+                couIds = courseIdsByTeacherIdAndSemesterIdQueryPort.findCourseIdsByTeacherIdAndSemesterId(userId, semId);
             }else{
+                QueryWrapper<CourseDO> courseDOQueryWrapper=new QueryWrapper<CourseDO>();
                 courseDOQueryWrapper.eq("teacher_id",userId);
+                List<CourseDO> courseDO=courseAndSemesterObjectDirectQueryPort.findCourseList(courseDOQueryWrapper);
+                couIds=courseDO.stream().map(CourseDO::getId).toList();
             }
-            List<CourseDO> courseDO=courseAndSemesterObjectDirectQueryPort.findCourseList(courseDOQueryWrapper);
-            List<Integer> couIds=courseDO.stream().map(CourseDO::getId).toList();
             if(CollectionUtil.isEmpty(couIds)){
                 List list=new ArrayList();
                 return list;
