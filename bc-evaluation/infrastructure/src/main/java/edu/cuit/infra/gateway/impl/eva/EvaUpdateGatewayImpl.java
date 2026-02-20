@@ -1,10 +1,10 @@
 package edu.cuit.infra.gateway.impl.eva;
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import edu.cuit.bc.course.application.port.CourseAndSemesterObjectDirectQueryPort;
 import edu.cuit.bc.course.application.port.CourseIdByCourInfIdQueryPort;
 import edu.cuit.domain.gateway.eva.EvaUpdateGateway;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
-import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
 public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
     private final EvaTaskMapper evaTaskMapper;
     private final CourseIdByCourInfIdQueryPort courseIdByCourInfIdQueryPort;
-    private final CourseMapper courseMapper;
+    private final CourseAndSemesterObjectDirectQueryPort courseAndSemesterObjectDirectQueryPort;
     @Autowired
     @Qualifier("sysUserMapper")
     private Object sysUserMapper;
@@ -44,7 +44,7 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         Integer courseId = courseIdByCourInfIdQueryPort.findCourseIdByCourInfId(evaTaskDO.getCourInfId()).orElse(null);
         localCacheManager.invalidateCache(
                 evaCacheConstants.TASK_LIST_BY_SEM,
-                String.valueOf(courseMapper.selectById(courseId).getSemesterId())
+                String.valueOf(courseAndSemesterObjectDirectQueryPort.findCourseById(courseId).getSemesterId())
         );
         localCacheManager.invalidateCache(
                 evaCacheConstants.TASK_LIST_BY_TEACH,
