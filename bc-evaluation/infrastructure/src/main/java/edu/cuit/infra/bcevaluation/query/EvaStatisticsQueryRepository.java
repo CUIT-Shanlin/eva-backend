@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import edu.cuit.bc.course.application.port.CourseAndSemesterObjectDirectQueryPort;
+import edu.cuit.bc.course.application.port.CourseIdsByTeacherIdAndSemesterIdQueryPort;
 import edu.cuit.bc.course.application.port.CourInfIdsByCourseIdsQueryPort;
 import edu.cuit.client.dto.clientobject.DateEvaNumCO;
 import edu.cuit.client.dto.clientobject.MoreDateEvaNumCO;
@@ -66,6 +67,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
     private final CourseAndSemesterObjectDirectQueryPort courseAndSemesterObjectDirectQueryPort;
+    private final CourseIdsByTeacherIdAndSemesterIdQueryPort courseIdsByTeacherIdAndSemesterIdQueryPort;
     private final EvaTaskMapper evaTaskMapper;
     private final CourInfIdsByCourseIdsQueryPort courInfIdsByCourseIdsQueryPort;
     private final FormRecordMapper formRecordMapper;
@@ -810,16 +812,16 @@ public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
     }
 
     private Integer getEvaEdNumByTeacherId(Integer teacherId,Integer semId){
-        List<CourseDO> courseDOS;
+        List<Integer> courIdS;
         if(semId!=null) {
-            courseDOS = courseAndSemesterObjectDirectQueryPort.findCourseList(new QueryWrapper<CourseDO>().eq("teacher_id", teacherId).eq("semester_id",semId));
+            courIdS = courseIdsByTeacherIdAndSemesterIdQueryPort.findCourseIdsByTeacherIdAndSemesterId(teacherId, semId);
         }else {
-            courseDOS = courseAndSemesterObjectDirectQueryPort.findCourseList(new QueryWrapper<CourseDO>().eq("teacher_id", teacherId));
+            List<CourseDO> courseDOS = courseAndSemesterObjectDirectQueryPort.findCourseList(new QueryWrapper<CourseDO>().eq("teacher_id", teacherId));
+            if(CollectionUtil.isEmpty(courseDOS)){
+                return 0;
+            }
+            courIdS=courseDOS.stream().map(CourseDO::getId).toList();
         }
-        if(CollectionUtil.isEmpty(courseDOS)){
-            return 0;
-        }
-        List<Integer> courIdS=courseDOS.stream().map(CourseDO::getId).toList();
         if(CollectionUtil.isEmpty(courIdS)){
             return 0;
         }
