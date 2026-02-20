@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import edu.cuit.bc.course.application.port.CourseAndSemesterObjectDirectQueryPort;
 import edu.cuit.bc.course.application.port.CourseIdsByTeacherIdAndSemesterIdQueryPort;
+import edu.cuit.bc.course.application.port.CourseIdsByTeacherIdQueryPort;
 import edu.cuit.bc.course.application.port.CourInfIdsByCourseIdsQueryPort;
 import edu.cuit.client.dto.clientobject.DateEvaNumCO;
 import edu.cuit.client.dto.clientobject.MoreDateEvaNumCO;
@@ -68,6 +69,7 @@ import java.util.Optional;
 public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
     private final CourseAndSemesterObjectDirectQueryPort courseAndSemesterObjectDirectQueryPort;
     private final CourseIdsByTeacherIdAndSemesterIdQueryPort courseIdsByTeacherIdAndSemesterIdQueryPort;
+    private final CourseIdsByTeacherIdQueryPort courseIdsByTeacherIdQueryPort;
     private final EvaTaskMapper evaTaskMapper;
     private final CourInfIdsByCourseIdsQueryPort courInfIdsByCourseIdsQueryPort;
     private final FormRecordMapper formRecordMapper;
@@ -816,11 +818,7 @@ public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
         if(semId!=null) {
             courIdS = courseIdsByTeacherIdAndSemesterIdQueryPort.findCourseIdsByTeacherIdAndSemesterId(teacherId, semId);
         }else {
-            List<CourseDO> courseDOS = courseAndSemesterObjectDirectQueryPort.findCourseList(new QueryWrapper<CourseDO>().eq("teacher_id", teacherId));
-            if(CollectionUtil.isEmpty(courseDOS)){
-                return 0;
-            }
-            courIdS=courseDOS.stream().map(CourseDO::getId).toList();
+            courIdS = courseIdsByTeacherIdQueryPort.findCourseIdsByTeacherId(teacherId);
         }
         if(CollectionUtil.isEmpty(courIdS)){
             return 0;
