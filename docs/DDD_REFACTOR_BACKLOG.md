@@ -516,6 +516,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（依赖方 `pom.xml` 依赖收敛，保持行为不变）：移除 `start/pom.xml` 对 `eva-app` 的依赖，并显式引入 `eva-infra(runtime)` 以保持运行期 classpath 不变（最小回归通过；落地：`0a9ff564`）。
 - ✅ S1 前置（模块退场准备：reactor 移除 eva-app，保持行为不变）：在 Serena + `rg` 证据化确认全仓库已无对 `eva-app` 的 Maven 依赖后，从根 `pom.xml` 的 reactor 中移除 `eva-app` 模块（最小回归通过；落地：`b5f15a4b`）。
 - ✅ S1 前置（模块退场收尾：删除 eva-app/pom.xml，保持行为不变）：在确认 `eva-app/` 目录仅剩 `pom.xml` 且已不在 reactor 后，删除 `eva-app/pom.xml`（最小回归通过；落地：`4bfa9d40`）。
+- ✅ S1 收尾（目录退场：清理 eva-app 目录，保持行为不变）：在确认 `eva-app` 无任何 tracked 文件且目录内仅剩被忽略的构建产物/IDE 元数据后，清理 `eva-app/` 目录本身（最小回归通过；落地：`3990a3b7`；注：Git 不跟踪空目录/忽略产物，因此使用空提交记录该动作）。
 - ✅ S1 前置（编译闭合：eva-adapter 依赖补齐，保持行为不变）：触碰任意 Controller 会触发 `eva-adapter` 全量重新编译，暴露其 `pom.xml` 缺少编译期依赖的问题；因此收敛 `eva-adapter/pom.xml` 并补齐所需的最小编译依赖闭合（最小回归通过；落地：`56273162`）。
 - ✅ S0.2 延伸（依赖方 `pom.xml` 依赖收敛，保持行为不变）：在 Serena + `rg` 证伪 `eva-adapter` 不再引用 `edu.cuit.app.*` 实现类型后，移除 `eva-adapter/pom.xml` 对 `eva-app` 的 Maven 依赖以减少编译期耦合（最小回归通过；落地：`f5980fcc`）。
 - ✅ S0.2 延伸（依赖方 `pom.xml` 依赖收敛，保持行为不变）：将 `start/pom.xml` 中 `bc-course-infra` 的依赖范围从 `test` 调整为 `runtime`，把课程域基础设施的运行时依赖显式上推到组合根（最小回归通过；落地：`2a442587`）。

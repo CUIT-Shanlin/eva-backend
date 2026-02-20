@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-20（DoD 目录退场收口：单目录清理 `eva-app/`，保持行为不变）**
+- ✅ 前置证据（保持行为不变）：`eva-app` 无任何 tracked 文件（`git ls-files eva-app` 为 0）；目录内仅为被 `.gitignore` 忽略的构建产物与 IDE 元数据（如 `target/`、`.flattened-pom.xml`、`.settings/` 等）。
+- ✅ 执行（单目录，保持行为不变）：删除 `eva-app/` 目录本身，推进 `fd -t d '^eva-' . -d 2` 的“目录退场”口径收口。
+- 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级使用 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
+- 📌 代码落地：`3990a3b7`（空提交，仅用于记录“目录清理”动作，Git 不跟踪空目录/忽略产物）。
+
 **2026-02-20（DoD 目录退场收口：单目录清理 `eva-base/`，保持行为不变）**
 - ✅ 前置证据（保持行为不变）：`eva-base` 已从 root reactor 退场，且其下全部 `pom.xml` 已删除；目录中剩余内容仅为被 `.gitignore` 忽略的构建产物（如 `target/`、`.flattened-pom.xml`、IDE 元数据等），不影响运行时与编译行为。
 - ✅ 执行（单目录，保持行为不变）：删除 `eva-base/` 目录本身，推进 `fd -t d '^eva-' . -d 2` 的“目录退场”口径收口。
