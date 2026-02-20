@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import edu.cuit.bc.course.application.port.CourseAndSemesterObjectDirectQueryPort;
 import edu.cuit.bc.course.application.port.CourInfObjectDirectQueryPort;
 import edu.cuit.bc.iam.application.port.UserEntityFieldExtractPort;
 import edu.cuit.bc.iam.application.port.UserEntityObjectByIdDirectQueryPort;
@@ -22,8 +23,6 @@ import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.course.SubjectDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
-import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
-import edu.cuit.infra.dal.database.mapper.course.SemesterMapper;
 import edu.cuit.infra.dal.database.mapper.course.SubjectMapper;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
@@ -55,7 +54,7 @@ import java.util.function.Supplier;
 @Component
 @RequiredArgsConstructor
 public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
-    private final CourseMapper courseMapper;
+    private final CourseAndSemesterObjectDirectQueryPort courseAndSemesterObjectDirectQueryPort;
     private final EvaTaskMapper evaTaskMapper;
     private final EvaConvertor evaConvertor;
     private final PaginationConverter paginationConverter;
@@ -65,7 +64,6 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
     @Autowired
     @Qualifier("sysUserMapper")
     private Object sysUserMapper;
-    private final SemesterMapper semesterMapper;
     private final SubjectMapper subjectMapper;
     private final CourInfObjectDirectQueryPort courInfObjectDirectQueryPort;
     private final EvaCacheConstants evaCacheConstants;
@@ -94,7 +92,7 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
             courseWrapper.eq("semester_id",semId);
         }
 
-        List<CourseDO> courseDOList=courseMapper.selectList(courseWrapper);
+        List<CourseDO> courseDOList=courseAndSemesterObjectDirectQueryPort.findCourseList(courseWrapper);
         courseIds=courseDOList.stream().map(CourseDO::getId).toList();
         if(CollectionUtil.isEmpty(courseIds)){
             List list=new ArrayList();
@@ -179,7 +177,7 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
         if (id != null) {
             query.eq("semester_id", id);
         }
-        courseDOS=courseMapper.selectList(query);
+        courseDOS=courseAndSemesterObjectDirectQueryPort.findCourseList(query);
 
         //eva任务->课程详情表->课程表->学期id
         List<Integer> courseIds=courseDOS.stream().map(CourseDO::getId).toList();
@@ -247,7 +245,7 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
             if (courInfDO == null) {
                 throw new QueryException("并没有找到相关课程信息");
             }
-            CourseDO courseDO = courseMapper.selectById(courInfDO.getCourseId());
+            CourseDO courseDO = courseAndSemesterObjectDirectQueryPort.findCourseById(courInfDO.getCourseId());
             Supplier<CourseEntity> course = () -> toCourseEntity(courInfDO.getCourseId(), courseDO.getSemesterId());
             Supplier<SingleCourseEntity> oneCourse = () -> courseEntityConvertPort.toSingleCourseEntity(course, courInfDO);
 
@@ -262,7 +260,7 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
             if (courInfDO == null) {
                 throw new QueryException("并没有找到相关课程信息");
             }
-            CourseDO courseDO = courseMapper.selectById(courInfDO.getCourseId());
+            CourseDO courseDO = courseAndSemesterObjectDirectQueryPort.findCourseById(courInfDO.getCourseId());
             Supplier<CourseEntity> course = () -> toCourseEntity(courInfDO.getCourseId(), courseDO.getSemesterId());
             Supplier<SingleCourseEntity> oneCourse = () -> courseEntityConvertPort.toSingleCourseEntity(course, courInfDO);
 
@@ -296,16 +294,16 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
 
     private CourseEntity toCourseEntity(Integer courseId,Integer semId){
         //构造semester
-        Supplier<SemesterEntity> semesterEntity = () -> courseEntityConvertPort.toSemesterEntity(semesterMapper.selectById(semId));
+        Supplier<SemesterEntity> semesterEntity = () -> courseEntityConvertPort.toSemesterEntity(courseAndSemesterObjectDirectQueryPort.findSemesterById(semId));
         //构造courseDo
-        CourseDO courseDO = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", courseId).eq("semester_id", semId));
+        CourseDO courseDO = courseAndSemesterObjectDirectQueryPort.findOneCourse(new QueryWrapper<CourseDO>().eq("id", courseId).eq("semester_id", semId));
         if(courseDO==null){
             throw new QueryException("并未找到相关课程");
         }
         //构造subject
         Supplier<SubjectEntity> subjectEntity = () -> courseEntityConvertPort.toSubjectEntity(subjectMapper.selectById(courseDO.getSubjectId()));
         //构造userEntity
-        Supplier<?> userEntity =()->toUserEntity(courseMapper.selectById(courseId).getTeacherId());
+        Supplier<?> userEntity =()->toUserEntity(courseAndSemesterObjectDirectQueryPort.findCourseById(courseId).getTeacherId());
         return courseEntityConvertPort.toCourseEntityWithTeacherObject(courseDO, subjectEntity, userEntity, semesterEntity);
     }
 
@@ -324,7 +322,7 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
 
     private List<SingleCourseEntity> getListCurInfoEntities(List<CourInfDO> courInfDOS){
         return courInfDOS.stream().map(courInfDO -> courseEntityConvertPort.toSingleCourseEntity(
-                ()->toCourseEntity(courInfDO.getCourseId(),courseMapper.selectById(courInfDO.getCourseId()).getSemesterId()),courInfDO)).toList();
+                ()->toCourseEntity(courInfDO.getCourseId(),courseAndSemesterObjectDirectQueryPort.findCourseById(courInfDO.getCourseId()).getSemesterId()),courInfDO)).toList();
     }
 
     private List<?> selectSysUserList(Object wrapper) {
