@@ -111,6 +111,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 **已完成（更新至 2026-02-20）**
 - ✅ S0.2 延伸（课程/评教：跨 BC Mapper 直连收敛，读侧前置，单类，保持行为不变）：为后续收敛评教读侧 QueryRepo 对 `CourseMapper.selectList(eq teacher_id, semester_id)` 的编译期直连，已在 `bc-course/application` 新增最小查询端口 `CourseIdsByTeacherIdAndSemesterIdQueryPort`（仅接口，无实现/无调用点，避免行为漂移；最小回归通过；落地：`bf647e27`）。
+- ✅ S0.2 延伸（课程/评教：跨 BC Mapper 直连收敛，读侧前置，单类，保持行为不变）：已在 `bc-course/infrastructure` 新增端口适配器 `CourseIdsByTeacherIdAndSemesterIdQueryPortImpl`（内部仅委托 `CourseMapper.selectList(eq teacher_id, semester_id)` 并映射 `CourseDO::getId` 返回课程ID列表，保持结果顺序/空值语义不变；最小回归通过；落地：`7c8fc78f`）。
 - ✅ S0.2 延伸（课程/评教：跨 BC Mapper 直连收敛，读侧前置，单类，保持行为不变）：为后续收敛评教读侧 QueryRepo 对 `CourseMapper/SemesterMapper` 的编译期直连，已在 `bc-course/application` 新增课程/学期基础对象直查端口 `CourseAndSemesterObjectDirectQueryPort`（仅接口，无实现/无调用点，避免行为漂移；最小回归通过；落地：`c389a801`）。
 - ✅ S0.2 延伸（课程/评教：跨 BC Mapper 直连收敛，读侧前置，单类，保持行为不变）：为后续收敛评教读侧 QueryRepo 对 `SubjectMapper` 的编译期直连，已在 `bc-course/application` 新增科目基础对象直查端口 `SubjectObjectDirectQueryPort`（仅接口，无实现/无调用点，避免行为漂移；最小回归通过；落地：`a68c1b74`）。
 - ✅ S0.2 延伸（课程/评教：跨 BC Mapper 直连收敛，读侧前置，单类，保持行为不变）：已在 `bc-course/infrastructure` 新增端口适配器 `SubjectObjectDirectQueryPortImpl`（内部仅原样委托 `SubjectMapper.selectList/selectById`，保持查询条件、结果顺序与空值语义不变；最小回归通过；落地：`1f645712`）。

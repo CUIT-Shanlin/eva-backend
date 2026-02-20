@@ -51,6 +51,12 @@
 - 🧪 最小回归通过（Java17）：`mvnd` 启动阶段报 `java.lang.ExceptionInInitializerError`；已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
 - 📌 代码落地：`cfae3eba`。
 
+**2026-02-20（课程域：补齐 `CourseIdsByTeacherIdAndSemesterIdQueryPort` 的端口适配器；保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`CourseIdsByTeacherIdAndSemesterIdQueryPort` 已存在但此前无适配器实现；该端口用于后续收敛“按 teacherId + semesterId 查询课程ID列表”的跨 BC DAL 直连场景（保持查询条件、结果顺序与空值语义不变）。
+- ✅ 执行（单类，保持行为不变）：在 `bc-course/infrastructure` 新增 `CourseIdsByTeacherIdAndSemesterIdQueryPortImpl`，内部仅委托 `CourseMapper.selectList(eq teacher_id, semester_id)` 并映射 `CourseDO::getId` 返回课程ID列表（不引入新副作用）。
+- 🧪 最小回归通过（Java17）：`mvnd` 启动阶段报 `java.lang.ExceptionInInitializerError`；已按约束降级 `mvn` 完成最小回归（测试用例集保持不变）。
+- 📌 代码落地：`7c8fc78f`。
+
 **2026-02-20（评教侧：`EvaUpdateGatewayImpl` 去课程域 `CourseMapper` 编译期直连，改走 `CourseAndSemesterObjectDirectQueryPort`；保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`EvaUpdateGatewayImpl.cancelEvaTaskById` 内对 `CourseMapper.selectById(courseId).getSemesterId()` 的直连已清零，改为调用 `CourseAndSemesterObjectDirectQueryPort.findCourseById(courseId).getSemesterId()`；缓存失效 key、异常与副作用顺序保持不变。
 - ✅ 执行（单类，保持行为不变）：仅替换“读取课程学期ID用于缓存 key”的实现方式（端口适配器侧仍原样委托课程域 Mapper，确保空值/NPE 语义不漂移）。

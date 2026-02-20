@@ -1137,6 +1137,8 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
         - ✅ 编译闭合前置（2026-02-03，保持行为不变）：已在 `bc-iam-infra` 新增 `UserEntityByUsernameQueryPortImpl`，内部委托旧 `UserQueryGateway.findByUsername` 以保持缓存/切面触发点不变（用于闭合后续 `ValidateUserLoginUseCase` 依赖收敛后的 Spring 装配）；最小回归通过；落地：`5c18aa08`。
         - ✅ 已完成（2026-02-03，保持行为不变）：已将 `bc-iam/application` 的 `ValidateUserLoginUseCase` 依赖从 `UserQueryGateway` 收敛为 `bc-iam-contract` 最小端口 `UserEntityByUsernameQueryPort`（内部仍由端口适配器委托旧 `UserQueryGateway.findByUsername` 以保持缓存/切面触发点不变；异常文案与分支顺序不变）；为确保可回滚，保留一个 `@Deprecated` 旧构造仅用于过渡；最小回归通过；落地：`66329367`。
         - ✅ 已完成（2026-02-03，保持行为不变）：在 Serena 证实 `ValidateUserLoginUseCase` 的调用点已全部改走 Port 构造后，移除其 `@Deprecated` 旧构造与对 `UserQueryGateway` 的编译期依赖，使 `bc-iam/application` 的登录校验用例完全不再编译期绑定旧 gateway；最小回归通过；落地：`1b90f641`。
+
+        - ✅ 补充进展（2026-02-20，保持行为不变，读侧前置，单类）：已在 `bc-course/infrastructure` 补齐端口适配器 `CourseIdsByTeacherIdAndSemesterIdQueryPortImpl`（内部仅委托 `CourseMapper.selectList(eq teacher_id, semester_id)` 并映射 `CourseDO::getId` 返回课程ID列表，保持结果顺序/空值语义不变；最小回归通过；落地：`7c8fc78f`）。
         - ✅ 已完成（2026-02-03，保持行为不变）：已将登录入口 `bc-iam-infra` 的 `UserAuthServiceImpl` 从编译期依赖 `UserQueryGateway` 收敛为依赖 `bc-iam-contract` 最小端口 `UserEntityByUsernameQueryPort`（调用顺序不变：仍先 `ValidateUserLoginUseCase.execute` 再 `StpUtil.login`；内部仍委托旧 `UserQueryGateway.findByUsername` 以保持缓存/切面触发点不变；异常文案不变）；最小回归通过；落地：`48d0eb7e`。
         - ✅ 已完成（2026-02-03，保持行为不变）：清理 `DepartmentGatewayImpl` 中未使用的 `UserQueryGateway` import，使该类不再编译期依赖旧 gateway（仅删 import；最小回归通过）；落地：`f29572d2`。
         - ✅ 编译闭合前置（2026-02-02，保持行为不变）：为后续收敛 `bc-messaging` 的 `MessageQueryPortImpl` 对 `UserQueryGateway` 的编译期依赖，在 `bc-messaging/pom.xml` 显式增加对 `bc-iam-contract` 的 Maven 编译期依赖（仅显式化依赖边界；最小回归通过；落地：`16a90a5e`）。
