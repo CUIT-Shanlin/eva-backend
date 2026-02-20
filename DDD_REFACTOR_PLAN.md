@@ -515,6 +515,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-20，保持行为不变，依赖收敛，单 pom）：收敛 `bc-iam/infrastructure/pom.xml`：移除对 `eva-base-common` 的 Maven 编译期依赖（Serena 证伪 `bc-iam/infrastructure` 范围内仅 `pom.xml` 命中 `eva-base-common`；最小回归通过；落地：`13398a74`）。
 - ✅ 补充进展（2026-02-20，保持行为不变，reactor 退场，单 pom）：收敛 `eva-base/pom.xml`：从 `<modules>` 中移除 `<module>eva-base-common</module>`（前置：依赖方已清零；最小回归通过；落地：`dc8d949d`）。
 - ✅ 补充进展（2026-02-20，保持行为不变，目录退场前置，单文件）：删除 `eva-base/eva-base-common/pom.xml`（前置：全仓库 `**/pom.xml` 不再出现 `<artifactId>eva-base-common</artifactId>`；最小回归通过；落地：`5ece67c3`）。
+- ✅ 补充进展（2026-02-20，保持行为不变，reactor 退场，单 pom）：收敛 root `pom.xml`：移除 `<module>eva-base</module>`（前置：`eva-base-common` 依赖点清零 + `eva-base-common` module/pom 已退场；最小回归通过；落地：`786fc543`）。
 - ✅ 补充进展（2026-02-19，保持行为不变，引用面收敛前置，单类）：在 `bc-course/application` 新增最小 Port：`SingleCourseCoConvertPort`（承接 `SingleCourseEntity -> SingleCourseCO` 的转换能力，用于后续收敛 `bc-evaluation/infrastructure` 对 `CourseBizConvertor` 的直接依赖；最小回归通过；落地：`32c458e7`）。
 - ✅ 补充进展（2026-02-19，保持行为不变，引用面收敛前置，单类）：在 `bc-course/infrastructure` 新增 Port Adapter：`SingleCourseCoConvertPortImpl`（内部直接委托 `CourseBizConvertor.toSingleCourseCO(...)`，确保映射行为不变；最小回归通过；落地：`fd28bbb9`）。
 - ✅ 补充进展（2026-02-19，保持行为不变，引用面收敛前置，单类）：收敛评教侧调用点：`bc-evaluation/infrastructure` 的 `MsgServiceImpl` 改为依赖 `SingleCourseCoConvertPort`（不再直接调用 `CourseBizConvertor` 完成 `SingleCourseEntity -> SingleCourseCO` 转换；异常/日志/副作用顺序不变；最小回归通过；落地：`65a2e261`）。
