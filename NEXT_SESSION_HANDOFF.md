@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-20（`eva-base-common` 退场收尾：单文件删除 `eva-base/eva-base-common/pom.xml`，保持行为不变）**
+- ✅ 前置证据（保持行为不变）：`eva-base` reactor 已移除 `eva-base-common` module；且全仓库不再存在任何依赖方对 `eva-base-common` 的显式依赖点。
+- ✅ 执行（单文件，保持行为不变）：删除 `eva-base/eva-base-common/pom.xml`（确保 `**/pom.xml` 不再出现 `<artifactId>eva-base-common</artifactId>`，为后续 root reactor 移除 `eva-base` 铺路）。
+- 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级使用 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
+- 📌 代码落地：`5ece67c3`。
+
 **2026-02-20（`eva-base-common` 退场收尾：单 pom 将 `eva-base` reactor 移除 `eva-base-common` module，保持行为不变）**
 - ✅ 前置证据（保持行为不变）：全仓库 `**/pom.xml` 已无任何“依赖方”对 `eva-base-common` 的显式依赖点（口径：`rg -n "<artifactId>eva-base-common</artifactId>" --glob "**/pom.xml" . | sort` 仅命中 `eva-base/eva-base-common/pom.xml` 本体）。
 - ✅ 执行（单 pom，保持行为不变）：收敛 `eva-base/pom.xml`：从 `<modules>` 中移除 `<module>eva-base-common</module>`，为后续删除 `eva-base/eva-base-common/pom.xml` 铺路。
@@ -1847,7 +1853,7 @@
   - ✅ 1) `bc-iam/contract/pom.xml`：移除 `eva-base-common` 依赖（Serena 证伪无其它“仅存在于 eva-base-common”的类型引用；最小回归通过；落地：`fc801525`）。
   - ✅ 2) `bc-iam/infrastructure/pom.xml`：移除 `eva-base-common` 依赖（Serena 证伪无其它类型引用；最小回归通过；落地：`13398a74`）。
   - ✅ 3) `eva-base/pom.xml`：移除 `<module>eva-base-common</module>`（前置：依赖方已清零；最小回归通过；落地：`dc8d949d`）。
-  - 4) 删除 `eva-base/eva-base-common/pom.xml`（前置：全仓库 `**/pom.xml` 不再出现 `<artifactId>eva-base-common</artifactId>`）。
+  - ✅ 4) 删除 `eva-base/eva-base-common/pom.xml`（前置：全仓库 `**/pom.xml` 不再出现 `<artifactId>eva-base-common</artifactId>`；最小回归通过；落地：`5ece67c3`）。
   - 5) root `pom.xml`：移除 `<module>eva-base</module>`（前置：`eva-base` 子模块已全部退场）。
 
 - 📦 **stash 快照（更新至 2026-02-16；保持行为不变）**：
