@@ -409,6 +409,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（依赖收敛：start 去 JUnit4，保持行为不变）：在 Serena + `rg` 证伪 `start/src/test/java` 无 `org.junit.Test/org.junit.runner.*` 等 JUnit4 引用后，收敛 `start/pom.xml`：移除 `junit:junit`（JUnit4）依赖（最小回归通过）；落地：`e97a5205`。
 - ✅ S1.1（eva-adapter 退场：root reactor 退场，保持行为不变）：在 Serena 证据化确认（当时）全仓库仅 `eva-adapter/pom.xml` 声明 `<artifactId>eva-adapter</artifactId>` 后，从根 `pom.xml` 的 reactor 中移除 `eva-adapter` 模块（最小回归通过）；落地：`86842a1f`。
 - ✅ S1.1（eva-adapter 退场：删除模块 pom，保持行为不变）：在 `eva-adapter` 已从 root reactor 退场的前提下，删除 `eva-adapter/pom.xml`，使全仓库 `**/pom.xml` 不再出现 `<artifactId>eva-adapter</artifactId>`（最小回归通过）；落地：`ed244cad`。
+- ✅ S1 收尾（目录退场：清理 eva-adapter 目录，保持行为不变）：在确认 `eva-adapter` 无任何 tracked 文件且目录内仅剩被忽略的构建产物/IDE 元数据后，清理 `eva-adapter/` 目录本身（最小回归通过；落地：`ec620b56`；注：Git 不跟踪空目录/忽略产物，因此使用空提交记录该动作）。
 - ✅ S0.2 延伸（依赖收敛：eva-domain 去 bc-evaluation-contract 编译期依赖，保持行为不变）：在 Serena 证据化确认 `eva-domain/src/main/java` 无评教 contract 类型引用后，收敛 `eva-domain/pom.xml`：移除对 `bc-evaluation-contract` 的 Maven 编译期依赖（最小回归通过）；落地：`ccbb1cf9`。
 - ✅ S0.2 延伸（依赖收敛：eva-domain 去 spring-statemachine-core 编译期依赖，保持行为不变）：在 Serena + `rg` 证伪 `eva-domain/src/main/java` 无 `statemachine` 相关引用后，收敛 `eva-domain/pom.xml`：移除 `spring-statemachine-core` 的 Maven 编译期依赖（最小回归通过）；落地：`12c8d4bb`。
 - ✅ S0.2 延伸（依赖收敛纠偏：bc-audit(application) 恢复 eva-domain 编译期依赖，保持行为不变）：此前仅按 `edu.cuit.domain.*` 引用面误判可去 `eva-domain`（`bf90c040`）；后续确认 `bc-audit/application` 仍引用 `edu.cuit.client.bo.SysLogBO`（定义于 `eva-domain`，包名保持不变），因此恢复 `bc-audit/application/pom.xml` 对 `eva-domain` 的 Maven 编译期依赖以闭合编译（最小回归通过）；纠偏落地：`b47d71ab`。
