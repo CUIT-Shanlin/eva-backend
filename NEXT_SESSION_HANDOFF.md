@@ -21,6 +21,12 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-20（课程域：新增 `CourseTeacherAndSemesterQueryPort` 的端口适配器；保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`CourseMapper` 位于 `bc-course/infrastructure`，其 DO `CourseDO.teacherId/semesterId` 位于 `shared-kernel`，适合按既有 adapter 范式直接委托。
+- ✅ 执行（单类，保持行为不变）：新增 `CourseTeacherAndSemesterQueryPortImpl`，内部仅委托 `CourseMapper.selectById(courseId)` 并映射 `CourseDO::getTeacherId/getSemesterId` 返回 `Optional<CourseTeacherAndSemester>`（不引入新副作用、不改变空值语义）。
+- 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
+- 📌 代码落地：`1d18b31c`。
+
 **2026-02-20（课程域：新增课程教师与学期查询端口 `CourseTeacherAndSemesterQueryPort`，为评教写侧去 `CourseMapper.selectById` 直连做前置；保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`PostEvaTaskRepositoryImpl` 当前仍通过 `courseMapper.selectById(courInfDO.courseId())` 获取课程信息（含 `teacherId/semesterId`），用于后续校验与缓存失效 key 计算；`bc-course/application` 未提供等价查询端口。
 - ✅ 执行（单类，保持行为不变）：在 `bc-course/application` 新增最小查询端口 `CourseTeacherAndSemesterQueryPort.findByCourseId(Integer)`，返回 `Optional<CourseTeacherAndSemester(teacherId, semesterId)>`（仅定义接口，不引入实现与调用点，避免行为漂移；后续按“补适配器（单类）→ 改调用侧（单类）”继续推进）。

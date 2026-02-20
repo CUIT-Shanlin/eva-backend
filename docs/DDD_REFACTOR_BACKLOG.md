@@ -932,6 +932,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 进展（2026-02-20，保持行为不变，单类）：在 `bc-course/infrastructure` 新增端口适配器 `SemesterStartDateQueryPortImpl`（内部仅委托 `SemesterMapper.selectById` 并映射 `SemesterDO::getStartDate`，保持空值语义不变；落地：`013429b6`）。
   - ✅ 进展（2026-02-20，保持行为不变，单类）：收敛评教写侧调用点：`bc-evaluation/infrastructure` 的 `PostEvaTaskRepositoryImpl` 已将“查询学期开始日期”的课程域 `SemesterMapper.selectById(...).getStartDate()` 直连收敛为调用 `SemesterStartDateQueryPort.findStartDateBySemesterId(...)`（端口适配器仍委托 `SemesterMapper`，确保计算逻辑/异常文案/副作用顺序不变；落地：`69dbc07b`）。
   - ✅ 进展（2026-02-20，保持行为不变，单类）：在 `bc-course/application` 新增最小查询端口 `CourseTeacherAndSemesterQueryPort`（后续用于将评教写侧 `PostEvaTaskRepositoryImpl` 内对课程域 `CourseMapper.selectById` 的跨 BC 直连按“补适配器（单类）→ 改调用侧（单类）”逐步收敛为调用端口；落地：`4833b878`）。
+  - ✅ 进展（2026-02-20，保持行为不变，单类）：在 `bc-course/infrastructure` 新增端口适配器 `CourseTeacherAndSemesterQueryPortImpl`（内部仅委托 `CourseMapper.selectById` 并映射 `CourseDO.teacherId/semesterId`，保持空值语义不变；落地：`1d18b31c`）。
 
 - **S0.2 延伸（审计：DAL 按 BC 拆散试点，`sys_log`，保持行为不变）**：
   - ✅ 已完成：`SysLogModuleMapper`、`SysLogMapper` → `bc-audit/infrastructure`；`LogConverter` → `bc-audit/infrastructure`（保持 `package` 不变；保持行为不变；详见 4.2）。
