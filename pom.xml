@@ -11,7 +11,6 @@
   <modules>
 	    <module>start</module>
 	    <module>shared-kernel</module>
-			    <module>eva-base</module>
 		    <module>bc-evaluation</module>
 		    <module>bc-template</module>
 		    <module>bc-course</module>
