@@ -4,15 +4,14 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.cuit.bc.course.application.port.CourseIdsByTeacherIdQueryPort;
 import edu.cuit.bc.course.application.port.CourInfTimeSlotQueryPort;
+import edu.cuit.bc.course.application.port.SemesterStartDateQueryPort;
 import edu.cuit.bc.evaluation.application.model.PostEvaTaskCommand;
 import edu.cuit.bc.evaluation.application.port.PostEvaTaskRepository;
 import edu.cuit.bc.evaluation.domain.PostEvaTaskQueryException;
 import edu.cuit.bc.evaluation.domain.PostEvaTaskUpdateException;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
-import edu.cuit.infra.dal.database.dataobject.course.SemesterDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
-import edu.cuit.infra.dal.database.mapper.course.SemesterMapper;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
 import edu.cuit.infra.gateway.impl.eva.util.CalculateClassTime;
@@ -41,7 +40,7 @@ public class PostEvaTaskRepositoryImpl implements PostEvaTaskRepository {
     private final CourInfTimeSlotQueryPort courInfTimeSlotQueryPort;
     private final CourseIdsByTeacherIdQueryPort courseIdsByTeacherIdQueryPort;
     private final CourseMapper courseMapper;
-    private final SemesterMapper semesterMapper;
+    private final SemesterStartDateQueryPort semesterStartDateQueryPort;
     @Autowired
     @Qualifier("sysUserMapper")
     private Object sysUserMapper;
@@ -58,8 +57,8 @@ public class PostEvaTaskRepositoryImpl implements PostEvaTaskRepository {
         }
         CourseDO courseDO = courseMapper.selectById(courInfDO.courseId());
         // 选中的课程是否已经上完
-        SemesterDO semesterDO = semesterMapper.selectById(courseDO.getSemesterId());
-        LocalDate localDate = semesterDO.getStartDate().plusDays((courInfDO.week() - 1) * 7L + courInfDO.day() - 1);
+        LocalDate semesterStartDate = semesterStartDateQueryPort.findStartDateBySemesterId(courseDO.getSemesterId()).orElse(null);
+        LocalDate localDate = semesterStartDate.plusDays((courInfDO.week() - 1) * 7L + courInfDO.day() - 1);
 
         Integer f = 2;// 判断是不是课程快已经结束 1冲0无
         if (localDate.getYear() >= LocalDate.now().getYear()) {
