@@ -12,6 +12,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import edu.cuit.bc.course.application.port.CourseAndSemesterObjectDirectQueryPort;
 import edu.cuit.bc.course.application.port.CourInfObjectDirectQueryPort;
 import edu.cuit.bc.course.application.port.CourseEntityConvertPort;
+import edu.cuit.bc.course.application.port.SubjectObjectDirectQueryPort;
 import edu.cuit.bc.iam.application.port.UserEntityFieldExtractPort;
 import edu.cuit.bc.iam.application.port.UserEntityObjectByIdDirectQueryPort;
 import edu.cuit.client.dto.query.PagingQuery;
@@ -31,7 +32,6 @@ import edu.cuit.infra.dal.database.dataobject.course.SubjectDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
-import edu.cuit.infra.dal.database.mapper.course.SubjectMapper;
 import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.dal.database.mapper.eva.FormRecordMapper;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
@@ -72,7 +72,7 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
     @Autowired
     @Qualifier("sysUserMapper")
     private Object sysUserMapper;
-    private final SubjectMapper subjectMapper;
+    private final SubjectObjectDirectQueryPort subjectObjectDirectQueryPort;
     private final CourInfObjectDirectQueryPort courInfObjectDirectQueryPort;
     private final FormRecordMapper formRecordMapper;
 
@@ -82,14 +82,14 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
         Page<FormRecordDO> pageLog=new Page<>(query.getPage(),query.getSize());
 
         QueryWrapper<CourseDO> courseWrapper=new QueryWrapper<CourseDO>();
-        if(CollectionUtil.isNotEmpty(subjectMapper.selectList(new QueryWrapper<SubjectDO>().like(query.getQueryObj().getKeyword()!=null,"name",query.getQueryObj().getKeyword())))){
-            List<SubjectDO> subjectDOS=subjectMapper.selectList(new QueryWrapper<SubjectDO>().like("name",query.getQueryObj().getKeyword()));
+        if(CollectionUtil.isNotEmpty(subjectObjectDirectQueryPort.findSubjectList(new QueryWrapper<SubjectDO>().like(query.getQueryObj().getKeyword()!=null,"name",query.getQueryObj().getKeyword())))){
+            List<SubjectDO> subjectDOS=subjectObjectDirectQueryPort.findSubjectList(new QueryWrapper<SubjectDO>().like("name",query.getQueryObj().getKeyword()));
             List<Integer> subjectIds=subjectDOS.stream().map(SubjectDO::getId).toList();
             if(CollectionUtil.isNotEmpty(subjectIds)){
                 courseWrapper.in("subject_id",subjectIds);
             }
         }
-        if(CollectionUtil.isEmpty(subjectMapper.selectList(new QueryWrapper<SubjectDO>().like("name",query.getQueryObj().getKeyword())))
+        if(CollectionUtil.isEmpty(subjectObjectDirectQueryPort.findSubjectList(new QueryWrapper<SubjectDO>().like("name",query.getQueryObj().getKeyword())))
                 &&query.getQueryObj().getKeyword()!=null){
             List list=new ArrayList();
             return paginationConverter.toPaginationEntity(pageLog,list);
@@ -243,7 +243,7 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
             //关键字查询课程名称subject->课程->课程详情
             QueryWrapper<SubjectDO> subjectWrapper = new QueryWrapper<>();
             subjectWrapper.like("name", keyword);
-            List<Integer> subjectIds = subjectMapper.selectList(subjectWrapper).stream().map(SubjectDO::getId).toList();
+            List<Integer> subjectIds = subjectObjectDirectQueryPort.findSubjectList(subjectWrapper).stream().map(SubjectDO::getId).toList();
 
             if (CollectionUtil.isNotEmpty(teacherIds) || CollectionUtil.isNotEmpty(subjectIds)) {
                 if(CollectionUtil.isNotEmpty(teacherIds) && CollectionUtil.isNotEmpty(subjectIds)) {
@@ -542,7 +542,7 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
             throw new QueryException("并未找到相关课程");
         }
         //构造subject
-        Supplier<SubjectEntity> subjectEntity = () -> courseEntityConvertPort.toSubjectEntity(subjectMapper.selectById(courseDO.getSubjectId()));
+        Supplier<SubjectEntity> subjectEntity = () -> courseEntityConvertPort.toSubjectEntity(subjectObjectDirectQueryPort.findSubjectById(courseDO.getSubjectId()));
         //构造userEntity
         Supplier<?> userEntity =()->toUserEntity(courseAndSemesterObjectDirectQueryPort.findCourseById(courseId).getTeacherId());
         return courseEntityConvertPort.toCourseEntityWithTeacherObject(courseDO,subjectEntity,userEntity,semesterEntity);
