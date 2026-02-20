@@ -21,6 +21,11 @@
 
 ## 0.9 本次会话增量总结（滚动，按时间倒序，更新至 `HEAD`）
 
+**2026-02-20（`eva-base-common` 退场收尾：单 pom 移除 `bc-iam/infrastructure` 对 `eva-base-common` 的依赖，保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`bc-iam/infrastructure` 范围内仅 `pom.xml` 命中 `eva-base-common`；代码侧对 `LogModule` 的引用由 `shared-kernel` 承接且 `package` 不变。
+- 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级使用 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
+- 📌 代码落地：`13398a74`。
+
 **2026-02-20（`eva-base-common` 退场收尾：单 pom 移除 `bc-iam/contract` 对 `eva-base-common` 的依赖，保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`bc-iam/contract` 范围内仅 `pom.xml` 命中 `eva-base-common`；代码侧命中 `GenericPattern`，已由 `shared-kernel` 承接且 `package` 不变。
 - 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级使用 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
@@ -1834,7 +1839,7 @@
 
 - 🎯 **`eva-base-common` 退场下一步（建议顺序；保持行为不变；每步只改 1 个 `pom.xml` 闭环）**：
   - ✅ 1) `bc-iam/contract/pom.xml`：移除 `eva-base-common` 依赖（Serena 证伪无其它“仅存在于 eva-base-common”的类型引用；最小回归通过；落地：`fc801525`）。
-  - 2) `bc-iam/infrastructure/pom.xml`：移除 `eva-base-common` 依赖（Serena 证伪无其它类型引用）。
+  - ✅ 2) `bc-iam/infrastructure/pom.xml`：移除 `eva-base-common` 依赖（Serena 证伪无其它类型引用；最小回归通过；落地：`13398a74`）。
   - 3) `eva-base/pom.xml`：移除 `<module>eva-base-common</module>`（前置：依赖方已清零）。
   - 4) 删除 `eva-base/eva-base-common/pom.xml`（前置：全仓库 `**/pom.xml` 不再出现 `<artifactId>eva-base-common</artifactId>`）。
   - 5) root `pom.xml`：移除 `<module>eva-base</module>`（前置：`eva-base` 子模块已全部退场）。
