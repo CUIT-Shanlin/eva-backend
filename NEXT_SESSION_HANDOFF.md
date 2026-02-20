@@ -23,7 +23,16 @@
 
 > 本会话主线（2026-02-20，保持行为不变）：围绕评教写侧 `PostEvaTaskRepositoryImpl` 的“跨 BC 直连课程域 DAL（`CourseMapper/SemesterMapper`）”做收敛，按 **Port（bc-course/application）→ Adapter（bc-course/infrastructure）→ 调用侧替换（bc-evaluation/infrastructure）** 三段式逐刀闭环推进。当前 `PostEvaTaskRepositoryImpl` 已清零对课程域 `CourseMapper.selectList/selectById` 与 `SemesterMapper.selectById` 的编译期直连，均改走 `bc-course` 查询端口（行为不变，最小回归通过）。
 
-> 下一步建议（写侧优先，单类闭环，保持行为不变）：继续清理 `bc-evaluation/infrastructure/src/main/java/edu/cuit/infra/bcevaluation/repository` 中剩余对课程域 `CourseMapper` 的直连点（优先 `SubmitEvaluationRepositoryImpl`，其次 `DeleteEvaRecordRepositoryImpl` / `DeleteEvaTemplateRepositoryImpl`）。每刀仍遵守：Serena 证据化 → 最小回归 → 代码提交 → 三文档同步 → 文档提交 → push。
+> 下一步建议（写侧优先，单类闭环，保持行为不变）：继续清理 `bc-evaluation/infrastructure/src/main/java/edu/cuit/infra/bcevaluation/repository` 中剩余对课程域 `CourseMapper` 的直连点（优先 `DeleteEvaRecordRepositoryImpl`，其次 `DeleteEvaTemplateRepositoryImpl`）。每刀仍遵守：Serena 证据化 → 最小回归 → 代码提交 → 三文档同步 → 文档提交 → push。
+
+**2026-02-20（评教写侧：`SubmitEvaluationRepositoryImpl` 去课程 `CourseMapper.selectById` 编译期直连，改走 `CourseTeacherAndSemesterQueryPort` + `CourseTemplateIdQueryPort`；保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`SubmitEvaluationRepositoryImpl.loadContext/saveEvaluation` 依赖课程域 `CourseMapper.selectById(courseId)` 读取 `semesterId/templateId`，属于跨 BC DAL 编译期直连入口。
+- ✅ 执行（单类，保持行为不变）：移除对 `CourseMapper/CourseDO` 的直接注入与引用，改为调用 `bc-course/application` 查询端口：
+  - `CourseTeacherAndSemesterQueryPort.findByCourseId(courseId)` 获取 `semesterId`；
+  - `CourseTemplateIdQueryPort.findTemplateId(semesterId, courseId)` 获取 `templateId`（用于模板查询与“首次评教模板快照”锁定）。
+  保持异常文案、缓存失效与副作用顺序完全不变。
+- 🧪 最小回归通过（Java17）：`mvnd` 启动阶段仍报 `java.lang.ExceptionInInitializerError`；已按约束降级 `mvn` 完成最小回归（`EvaRecordServiceImplTest/EvaStatisticsServiceImplTest` 通过）。
+- 📌 代码落地：`7abb02df`。
 
 **2026-02-20（评教写侧：`PostEvaTaskRepositoryImpl` 去课程 `CourseMapper.selectById` 直连，改走 `CourseTeacherAndSemesterQueryPort`；保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`PostEvaTaskRepositoryImpl` 内通过 `courseMapper.selectById(courInfDO.courseId())` 获取课程的 `teacherId/semesterId`，用于后续校验（`semesterStartDate` 计算）与缓存失效 key 计算；且该调用点是跨 BC 直连入口。

@@ -110,6 +110,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-02-20）**
+- ✅ S0.2 延伸（课程/评教：跨 BC Mapper 直连收敛，写侧收敛，单类，保持行为不变）：收敛评教写侧调用点：`bc-evaluation/infrastructure` 的 `SubmitEvaluationRepositoryImpl` 已清零对课程域 `CourseMapper.selectById` 的编译期直连，改为调用 `CourseTeacherAndSemesterQueryPort` + `CourseTemplateIdQueryPort` 查询 `semesterId/templateId`（确保异常文案、缓存失效与副作用顺序不变；最小回归通过；落地：`7abb02df`）。
 - ✅ S0.2 延伸（`eva-base` 退场收尾，依赖收敛，单 pom，保持行为不变）：收敛 `bc-iam/contract/pom.xml`：移除对 `eva-base-common` 的 Maven 编译期依赖（Serena 证伪后移除；最小回归通过；落地：`fc801525`）。
 - ✅ S0.2 延伸（`eva-base` 退场收尾，依赖收敛，单 pom，保持行为不变）：收敛 `bc-iam/infrastructure/pom.xml`：移除对 `eva-base-common` 的 Maven 编译期依赖（Serena 证伪后移除；最小回归通过；落地：`13398a74`）。
 - ✅ S0.2 延伸（`eva-base` 退场收尾，reactor 退场，单 pom，保持行为不变）：收敛 `eva-base/pom.xml`：从 `<modules>` 中移除 `<module>eva-base-common</module>`（前置：依赖方已清零；最小回归通过；落地：`dc8d949d`）。
@@ -934,7 +935,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
   - ✅ 进展（2026-02-20，保持行为不变，单类）：在 `bc-course/application` 新增最小查询端口 `CourseTeacherAndSemesterQueryPort`（后续用于将评教写侧 `PostEvaTaskRepositoryImpl` 内对课程域 `CourseMapper.selectById` 的跨 BC 直连按“补适配器（单类）→ 改调用侧（单类）”逐步收敛为调用端口；落地：`4833b878`）。
   - ✅ 进展（2026-02-20，保持行为不变，单类）：在 `bc-course/infrastructure` 新增端口适配器 `CourseTeacherAndSemesterQueryPortImpl`（内部仅委托 `CourseMapper.selectById` 并映射 `CourseDO.teacherId/semesterId`，保持空值语义不变；落地：`1d18b31c`）。
   - ✅ 进展（2026-02-20，保持行为不变，单类）：收敛评教写侧调用点：`bc-evaluation/infrastructure` 的 `PostEvaTaskRepositoryImpl` 已将 `CourseMapper.selectById(courInfDO.courseId())` 直连收敛为调用 `CourseTeacherAndSemesterQueryPort.findByCourseId(...)`（端口适配器仍委托 `CourseMapper`，确保空值/NPE 语义与后续计算逻辑不变；落地：`88afcf64`）。
-  - 🎯 下一刀建议（写侧优先，保持行为不变；每次只改 1 个类闭环）：继续清理 `bc-evaluation/infrastructure` 写侧端口适配器对课程域 `CourseMapper` 的编译期直连点（建议从 `SubmitEvaluationRepositoryImpl` 开始；若端口能力不足则按“补端口 → 补适配器 → 改调用侧”三段式推进）。
+  - ✅ 进展（2026-02-20，保持行为不变，单类）：收敛评教写侧调用点：`bc-evaluation/infrastructure` 的 `SubmitEvaluationRepositoryImpl` 已清零对课程域 `CourseMapper.selectById` 的编译期直连，改为调用 `CourseTeacherAndSemesterQueryPort` + `CourseTemplateIdQueryPort` 查询 `semesterId/templateId`（确保异常文案、缓存失效与副作用顺序不变；落地：`7abb02df`）。
+  - 🎯 下一刀建议（写侧优先，保持行为不变；每次只改 1 个类闭环）：继续清理 `bc-evaluation/infrastructure` 写侧端口适配器对课程域 `CourseMapper` 的编译期直连点（建议从 `DeleteEvaRecordRepositoryImpl` 开始，其次 `DeleteEvaTemplateRepositoryImpl`；若端口能力不足则按“补端口 → 补适配器 → 改调用侧”三段式推进）。
 
 - **S0.2 延伸（审计：DAL 按 BC 拆散试点，`sys_log`，保持行为不变）**：
   - ✅ 已完成：`SysLogModuleMapper`、`SysLogMapper` → `bc-audit/infrastructure`；`LogConverter` → `bc-audit/infrastructure`（保持 `package` 不变；保持行为不变；详见 4.2）。
