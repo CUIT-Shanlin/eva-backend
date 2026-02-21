@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import edu.cuit.bc.course.application.port.CourseAndSemesterObjectDirectQueryPort;
+import edu.cuit.bc.course.application.port.CourseIdsByCourseWrapperDirectQueryPort;
 import edu.cuit.bc.course.application.port.CourseIdsByTeacherIdAndSemesterIdQueryPort;
 import edu.cuit.bc.course.application.port.CourseIdsByTeacherIdQueryPort;
 import edu.cuit.bc.course.application.port.CourInfObjectDirectQueryPort;
@@ -65,6 +66,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
     private final CourseAndSemesterObjectDirectQueryPort courseAndSemesterObjectDirectQueryPort;
+    private final CourseIdsByCourseWrapperDirectQueryPort courseIdsByCourseWrapperDirectQueryPort;
     private final CourseIdsByTeacherIdAndSemesterIdQueryPort courseIdsByTeacherIdAndSemesterIdQueryPort;
     private final CourseIdsByTeacherIdQueryPort courseIdsByTeacherIdQueryPort;
     private final EvaTaskMapper evaTaskMapper;
@@ -167,9 +169,7 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
         if(CollectionUtil.isNotEmpty(query.getQueryObj().getTeacherIds())){
             courseWrapper.in(query.getQueryObj().getKeyword()!=null,"teacher_id",query.getQueryObj().getTeacherIds());
         }
-        List<CourseDO> courseDOList=courseAndSemesterObjectDirectQueryPort.findCourseList(courseWrapper);
-
-        List<Integer> courseIds=courseDOList.stream().map(CourseDO::getId).toList();
+        List<Integer> courseIds = courseIdsByCourseWrapperDirectQueryPort.findCourseIds(courseWrapper);
         if(CollectionUtil.isEmpty(courseIds)){
             List list=new ArrayList();
             return paginationConverter.toPaginationEntity(pageLog,list);
@@ -236,7 +236,6 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
     //zjok
     @Override
     public List<EvaRecordEntity> getEvaLogInfo(Integer evaUserId,Integer id,String keyword){
-        List<CourseDO> courseDOS;
         QueryWrapper<CourseDO> query=new QueryWrapper<CourseDO>();
 
         if(keyword!=null&&StringUtils.isNotBlank(keyword)) {
@@ -271,10 +270,9 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
         if(id!=null){
             query.eq("semester_id",id);
         }
-        courseDOS=courseAndSemesterObjectDirectQueryPort.findCourseList(query);
 
         //eva任务->课程详情表->课程表->学期id
-        List<Integer> courseIds=courseDOS.stream().map(CourseDO::getId).toList();
+        List<Integer> courseIds = courseIdsByCourseWrapperDirectQueryPort.findCourseIds(query);
         if(CollectionUtil.isEmpty(courseIds)){
             List list=new ArrayList();
             return list;
