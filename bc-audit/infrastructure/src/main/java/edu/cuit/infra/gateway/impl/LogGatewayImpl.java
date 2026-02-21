@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.stream.Stream;
 
 @RequiredArgsConstructor
 @Component
@@ -62,10 +61,7 @@ public class LogGatewayImpl implements LogGateway {
         wrapper.orderByDesc("create_time");
         Page<SysLogDO> logPage = logMapper.selectPage(page, wrapper);
         List<SysLogDO> records = logPage.getRecords();
-        List<SysLogEntity> logEntities = new ArrayList<>();
-        for (SysLogDO record : records) {
-            logEntities.add(toSysLogEntity(record));
-        }
+        List<SysLogEntity> logEntities = toSysLogEntityList(records);
         return pageConverter.toPaginationEntity(logPage, logEntities);
     }
 
@@ -90,9 +86,7 @@ public class LogGatewayImpl implements LogGateway {
 
     @Override
     public void insertLog(SysLogBO logBO) {
-        CompletableFuture.runAsync(() -> {
-            insertLogUseCase.insertLog(logBO);
-        }, executor);
+        CompletableFuture.runAsync(() -> insertLogUseCase.insertLog(logBO), executor);
     }
 
     @Override
@@ -109,5 +103,13 @@ public class LogGatewayImpl implements LogGateway {
         Object userEntity = userEntityObjectByIdDirectQueryPort.findById(logDO.getUserId());
         return logConverter.toLogEntityWithUserObject(logDO, moduleEntity, userEntity);
 
+    }
+
+    private List<SysLogEntity> toSysLogEntityList(List<SysLogDO> records) {
+        List<SysLogEntity> logEntities = new ArrayList<>();
+        for (SysLogDO record : records) {
+            logEntities.add(toSysLogEntity(record));
+        }
+        return logEntities;
     }
 }
