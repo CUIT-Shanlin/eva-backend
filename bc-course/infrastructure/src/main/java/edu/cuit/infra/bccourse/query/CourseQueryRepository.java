@@ -13,6 +13,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.benmanes.caffeine.cache.Cache;
+import edu.cuit.bc.course.application.port.CourseIdsBySemesterIdQueryPort;
+import edu.cuit.bc.course.application.port.CourseIdsByTeacherIdAndSemesterIdQueryPort;
 import edu.cuit.bc.iam.application.port.UserEntityFieldExtractPort;
 import edu.cuit.bc.iam.application.port.UserEntityObjectByIdDirectQueryPort;
 import edu.cuit.client.bo.EvaProp;
@@ -78,6 +80,8 @@ public class CourseQueryRepository implements CourseQueryRepo {
     private final UserEntityFieldExtractPort userEntityFieldExtractPort;
     private final CourInfMapper courInfMapper;
     private final CourseMapper courseMapper;
+    private final CourseIdsBySemesterIdQueryPort courseIdsBySemesterIdQueryPort;
+    private final CourseIdsByTeacherIdAndSemesterIdQueryPort courseIdsByTeacherIdAndSemesterIdQueryPort;
     private final CourseTypeCourseMapper courseTypeCourseMapper;
     private final CourseTypeMapper courseTypeMapper;
     private final SemesterMapper semesterMapper;
@@ -100,6 +104,8 @@ public class CourseQueryRepository implements CourseQueryRepo {
             UserEntityFieldExtractPort userEntityFieldExtractPort,
             CourInfMapper courInfMapper,
             CourseMapper courseMapper,
+            CourseIdsBySemesterIdQueryPort courseIdsBySemesterIdQueryPort,
+            CourseIdsByTeacherIdAndSemesterIdQueryPort courseIdsByTeacherIdAndSemesterIdQueryPort,
             CourseTypeCourseMapper courseTypeCourseMapper,
             CourseTypeMapper courseTypeMapper,
             SemesterMapper semesterMapper,
@@ -121,6 +127,8 @@ public class CourseQueryRepository implements CourseQueryRepo {
         this.userEntityFieldExtractPort = userEntityFieldExtractPort;
         this.courInfMapper = courInfMapper;
         this.courseMapper = courseMapper;
+        this.courseIdsBySemesterIdQueryPort = courseIdsBySemesterIdQueryPort;
+        this.courseIdsByTeacherIdAndSemesterIdQueryPort = courseIdsByTeacherIdAndSemesterIdQueryPort;
         this.courseTypeCourseMapper = courseTypeCourseMapper;
         this.courseTypeMapper = courseTypeMapper;
         this.semesterMapper = semesterMapper;
@@ -338,7 +346,7 @@ public class CourseQueryRepository implements CourseQueryRepo {
     @Override
     public List<List<Integer>> getWeekCourses(Integer semId, Integer week) {
         //根据学期semId来找到这学期所有的课程ids
-        List<Integer> courseIds = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId)).stream().map(CourseDO::getId).toList();
+        List<Integer> courseIds = courseIdsBySemesterIdQueryPort.findCourseIdsBySemesterId(semId);
         if (courseIds.isEmpty())throw new QueryException("暂时还没有该学期的课程信息");
         //根据学期semId和周数week来查询课程表（CourInfDO）再根据day来分组
         List<CourInfDO> list = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in("course_id", courseIds).eq("week", week));
@@ -367,7 +375,7 @@ public class CourseQueryRepository implements CourseQueryRepo {
 
     @Override
     public List<SingleCourseCO> getPeriodInfo(Integer semId, CourseQuery courseQuery) {
-        List<Integer> list1 = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId)).stream().map(CourseDO::getId).toList();
+        List<Integer> list1 = courseIdsBySemesterIdQueryPort.findCourseIdsBySemesterId(semId);
         QueryWrapper<CourInfDO> wrapper = new QueryWrapper<>();
         wrapper.eq("week",courseQuery.getWeek())
                 .eq("day",courseQuery.getDay())
@@ -679,9 +687,10 @@ public class CourseQueryRepository implements CourseQueryRepo {
 
     @Override
     public List<Integer> getUserCourses(Integer semId, Integer userId) {
-        List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", userId).eq("semester_id", semId));
-
-        return courseDOS.stream().map(CourseDO::getId).toList();
+        return courseIdsByTeacherIdAndSemesterIdQueryPort
+                .findCourseIdsByTeacherIdAndSemesterId(userId, semId)
+                .stream()
+                .toList();
     }
 
     @Override
