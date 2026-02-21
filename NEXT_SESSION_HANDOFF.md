@@ -23,9 +23,15 @@
 
 > 本会话主线（2026-02-20，保持行为不变）：已完成评教写侧 `PostEvaTaskRepositoryImpl` 去课程域 `CourseMapper/SemesterMapper` 编译期直连；并进一步完成评教读侧 `EvaTaskQueryRepository/EvaRecordQueryRepository/EvaStatisticsQueryRepository` 以及评教侧 `EvaUpdateGatewayImpl` 去课程域 `CourseMapper/SemesterMapper` 编译期直连，统一改走 `bc-course` 查询端口（行为不变，最小回归通过）。
 
-> 下一步建议（读侧优先，单类闭环，保持行为不变）：评教读侧对课程域 `SubjectMapper` 的编译期直连已全部清零（`EvaTaskQueryRepository/EvaRecordQueryRepository` 均已改走 `SubjectObjectDirectQueryPort`），且已将“按 teacherId(+semesterId) 获取课程ID列表”的实现进一步收敛为调用最小端口 `CourseIdsByTeacherIdQueryPort/CourseIdsByTeacherIdAndSemesterIdQueryPort`（保持查询条件、结果顺序与空值语义不变）。下一步建议继续盘点评教读侧中“仅为拿课程ID列表而先查 CourseDO 再映射”的残留点（优先 `EvaStatisticsQueryRepository` 内 `eq(semester_id)` / `eq(teacher_id)` 的映射场景），逐刀改走 `CourseIdsBySemesterIdQueryPort` / `CourseIdsByTeacherIdQueryPort`（每刀只改 1 个类闭环）。
+> 下一步建议（读侧优先，单类闭环，保持行为不变）：评教读侧对课程域 `SubjectMapper` 的编译期直连已全部清零（`EvaTaskQueryRepository/EvaRecordQueryRepository` 均已改走 `SubjectObjectDirectQueryPort`），且已将“按 teacherId(+semesterId) 获取课程ID列表”的实现进一步收敛为调用最小端口 `CourseIdsByTeacherIdQueryPort/CourseIdsByTeacherIdAndSemesterIdQueryPort`（保持查询条件、结果顺序与空值语义不变）。评教读侧中“按 semesterId 拿课程ID列表”的场景也已开始收敛为调用 `CourseIdsBySemesterIdQueryPort`（保持行为不变）。下一步建议继续盘点评教读侧中“仅为拿课程ID列表而先查 CourseDO 再映射”的残留点（优先 `EvaStatisticsQueryRepository` 内 `eq(teacher_id)` 的映射场景），逐刀改走 `CourseIdsByTeacherIdQueryPort`（每刀只改 1 个类闭环）。
 
 > 状态更新（2026-02-20，保持行为不变）：评教写侧 `repository` 与评教读侧 `query` 已清零对课程域 `CourseMapper/SemesterMapper/SubjectMapper` 的编译期直连；评教侧 `EvaUpdateGatewayImpl` 已清零对 `CourseMapper.selectById(...).getSemesterId()` 的编译期直连；评教读侧已在部分场景将课程ID列表查询进一步收敛为调用 `CourseIdsByTeacherIdQueryPort/CourseIdsByTeacherIdAndSemesterIdQueryPort`（保持行为不变）。后续若发现其它“跨 BC Mapper 直连”或“仅为拿ID列表而先查对象再映射”的点，仍按“补端口 → 补适配器 → 改调用侧”逐刀推进。
+
+**2026-02-21（评教读侧：`EvaStatisticsQueryRepository` 按 semId 取课程ID列表改走 `CourseIdsBySemesterIdQueryPort`；保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`EvaStatisticsQueryRepository.getEvaTaskIdS(Integer)` 的 `semId!=null` 分支原实现为 `CourseAndSemesterObjectDirectQueryPort.findCourseList(eq semester_id)` 后映射 `CourseDO::getId`；可在不改变查询条件/结果顺序/空值语义的前提下，收敛为调用最小端口返回课程ID列表。
+- ✅ 执行（单类，保持行为不变）：将 `getEvaTaskIdS` 在 `semId!=null` 分支改为调用 `CourseIdsBySemesterIdQueryPort.findCourseIdsBySemesterId(semId)`；其余逻辑与返回条件不变。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；`mvnd` 启动阶段报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
+- 📌 代码落地：`265c1301`。
 
 **2026-02-20（课程域：新增科目基础对象直查端口 `SubjectObjectDirectQueryPort`，为评教读侧去 `SubjectMapper` 编译期直连做前置；保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：评教读侧 `bc-evaluation/infrastructure` 当前仍存在对课程域 `SubjectMapper` 的编译期直连点（候选：`EvaTaskQueryRepository`、`EvaRecordQueryRepository`），需按“端口化”逐刀收敛以避免跨 BC DAL 依赖扩散。
