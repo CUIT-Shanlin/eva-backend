@@ -1,6 +1,8 @@
 package edu.cuit.infra.gateway.impl.course.operate;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import edu.cuit.bc.course.application.port.CourseIdsByCourseWrapperDirectQueryPort;
+import edu.cuit.bc.course.application.port.CourseIdsByTeacherIdAndSemesterIdQueryPort;
 import edu.cuit.client.dto.clientobject.course.RecommendCourseCO;
 import edu.cuit.client.dto.data.course.CourseTime;
 import edu.cuit.client.dto.data.course.CourseType;
@@ -32,6 +34,8 @@ public class CourseRecommendExce {
     private final CourseConvertor courseConvertor;
     private final CourInfMapper courInfMapper;
     private final CourseMapper courseMapper;
+    private final CourseIdsByCourseWrapperDirectQueryPort courseIdsByCourseWrapperDirectQueryPort;
+    private final CourseIdsByTeacherIdAndSemesterIdQueryPort courseIdsByTeacherIdAndSemesterIdQueryPort;
     private final CourseTypeCourseMapper courseTypeCourseMapper;
     private final CourseTypeMapper courseTypeMapper;
     private final SubjectMapper subjectMapper;
@@ -519,29 +523,33 @@ public class CourseRecommendExce {
         List<CourInfDO> courInfDOS = courInfMapper.selectList(courseInfQueryWrapper);
         //得到courinfDOs中的courseId并去重
         List<Integer> courseDo1 = courInfDOS.stream().map(CourInfDO::getCourseId).distinct().toList();
-        List<CourseDO> courseDOS;
-        if(courseDo1.isEmpty())courseDOS=new ArrayList<>();
-         else courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semesterDO.getId()).in("id", courseDo1));
-        courseDo1=courseDOS.stream().map(CourseDO::getId).toList();
+        if(courseDo1.isEmpty()){
+            courseDo1 = new ArrayList<>();
+        }else{
+            courseDo1 = courseIdsByCourseWrapperDirectQueryPort.findCourseIds(
+                    new QueryWrapper<CourseDO>().eq("semester_id", semesterDO.getId()).in("id", courseDo1)
+            );
+        }
         //
         List<List<Integer>> list=new ArrayList<>();
 //        list.add(courseDo1);
         //如果课程名称不为null
 
         if(courseQuery.getKeyword()!=null&&!courseQuery.getKeyword().isEmpty()){
-            List<CourseDO> listCourseDo=new ArrayList<>();
             List<SubjectDO> subjectDO = subjectMapper.selectList(new QueryWrapper<SubjectDO>().like("name", courseQuery.getKeyword()));
             if(subjectDO.isEmpty())throw new QueryException("没有对应科目的课程");
-            listCourseDo=courseMapper.selectList(new QueryWrapper<CourseDO>().in("subject_id", subjectDO.stream().map(SubjectDO::getId).toList()).eq("semester_id",semesterDO.getId()));
-            List<Integer> courseDo3 = listCourseDo.stream().map(CourseDO::getId).toList();
+            List<Integer> courseDo3 = courseIdsByCourseWrapperDirectQueryPort.findCourseIds(
+                    new QueryWrapper<CourseDO>()
+                            .in("subject_id", subjectDO.stream().map(SubjectDO::getId).toList())
+                            .eq("semester_id",semesterDO.getId())
+            );
              list.add(courseDo3);
         }
 
         //老师和院系
-       List<CourseDO> teacherCourseDolist=judeTeacherandDepartment( semesterDO.getId(),  courseQuery);
-        if(teacherCourseDolist!=null){
-            List<Integer> courseDo2 = teacherCourseDolist.stream().map(CourseDO::getId).toList();
-             list.add(courseDo2);
+       List<Integer> teacherCourseIdList=judeTeacherandDepartment( semesterDO.getId(),  courseQuery);
+        if(teacherCourseIdList!=null){
+             list.add(teacherCourseIdList);
         }
         //课程类型
         if(courseQuery.getTypeId()!=null&&courseQuery.getTypeId()>=0){
@@ -550,7 +558,9 @@ public class CourseRecommendExce {
             if(courseTypeDO==null)throw new QueryException("该课程类型不存在");
             List<CourseTypeCourseDO> courseTypeCourseDOS = courseTypeCourseMapper.selectList(new QueryWrapper<CourseTypeCourseDO>().eq("type_id", courseTypeDO.getId()));
             List<Integer> list1 = courseTypeCourseDOS.stream().map(CourseTypeCourseDO::getCourseId).distinct().toList();
-            typeCourseList = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semesterDO.getId()).in("id", list1)).stream().map(CourseDO::getId).toList();
+            typeCourseList = courseIdsByCourseWrapperDirectQueryPort.findCourseIds(
+                    new QueryWrapper<CourseDO>().eq("semester_id", semesterDO.getId()).in("id", list1)
+            );
              list.add(typeCourseList);
         }
 
@@ -593,23 +603,22 @@ public class CourseRecommendExce {
         return result;
     }
 
-    private List<CourseDO> judeTeacherandDepartment(Integer semId, MobileCourseQuery courseQuery) {
-        List<CourseDO> list=new ArrayList<>();
+    private List<Integer> judeTeacherandDepartment(Integer semId, MobileCourseQuery courseQuery) {
         if(courseQuery.getTeacherId()!=null&&courseQuery.getTeacherId()>=0){
-            List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", courseQuery.getTeacherId()).eq("semester_id", semId));
-            if (courseDOS.isEmpty())throw new QueryException("该教师没有该学期的课程或者在该时间段类没有对应课程");
-            list.addAll(courseDOS);
-            return list;
+            List<Integer> courseIds = courseIdsByTeacherIdAndSemesterIdQueryPort
+                    .findCourseIdsByTeacherIdAndSemesterId(courseQuery.getTeacherId(), semId);
+            if (courseIds.isEmpty())throw new QueryException("该教师没有该学期的课程或者在该时间段类没有对应课程");
+            return courseIds;
         }
         if(courseQuery.getTeacherId()==null||courseQuery.getTeacherId()<0&&courseQuery.getDepartmentName()!=null&&!courseQuery.getDepartmentName().isEmpty()){
             List<SysUserDO> user = selectSysUserList(new QueryWrapper<SysUserDO>().eq("department", courseQuery.getDepartmentName()));
             List<Integer> userIds = user.stream().map(SysUserDO::getId).toList();
             if(userIds.isEmpty())throw new QueryException("该院系没有老师");
-            List<CourseDO> courseDOS =new ArrayList<>();
-            courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().in(true, "teacher_id", userIds).eq("semester_id", semId));
-            if (courseDOS.isEmpty())throw new QueryException("该院系教师还没有分配对应时间段课程");
-            list.addAll(courseDOS);
-            return list;
+            List<Integer> courseIds = courseIdsByCourseWrapperDirectQueryPort.findCourseIds(
+                    new QueryWrapper<CourseDO>().in(true, "teacher_id", userIds).eq("semester_id", semId)
+            );
+            if (courseIds.isEmpty())throw new QueryException("该院系教师还没有分配对应时间段课程");
+            return courseIds;
         }
         return null;
 
