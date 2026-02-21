@@ -16,6 +16,7 @@ import edu.cuit.domain.entity.log.SysLogEntity;
 import edu.cuit.domain.entity.log.SysLogModuleEntity;
 import edu.cuit.domain.gateway.LogGateway;
 import edu.cuit.zhuyimeng.framework.logging.aspect.LogManager;
+import edu.cuit.zhuyimeng.framework.logging.aspect.OperateLogBO;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,18 +43,25 @@ public class LogServiceImpl implements ILogService {
     public void registerListener() {
         // 注册日志监听器
         LogManager.getInstance().register(operateLogBO -> {
-            SysLogBO logBO = logBizConvertor.toOperateLogBO(
-                    operateLogBO,
-                    logGateway.getModuleByName(operateLogBO.getModule())
-                            .map(SysLogModuleEntity::getId)
-                            .orElseThrow(() -> {
-                                SysException e = new SysException("日志记录失败：日志模块 " + operateLogBO.getModule() + " 不存在");
-                                log.error("发生系统异常", e);
-                                return e;
-                            }));
+            SysLogBO logBO = buildSysLogBO(operateLogBO);
             CompletableFuture.runAsync(() -> insertLogUseCase.insertLog(logBO), executor);
             logGateway.clearOldLog();
         });
+    }
+
+    private SysLogBO buildSysLogBO(OperateLogBO operateLogBO) {
+        Integer moduleId = resolveModuleIdOrThrow(operateLogBO);
+        return logBizConvertor.toOperateLogBO(operateLogBO, moduleId);
+    }
+
+    private Integer resolveModuleIdOrThrow(OperateLogBO operateLogBO) {
+        return logGateway.getModuleByName(operateLogBO.getModule())
+                .map(SysLogModuleEntity::getId)
+                .orElseThrow(() -> {
+                    SysException e = new SysException("日志记录失败：日志模块 " + operateLogBO.getModule() + " 不存在");
+                    log.error("发生系统异常", e);
+                    return e;
+                });
     }
 
     @Override
