@@ -37,6 +37,12 @@
 - 🧪 最小回归通过（Java17）：按 0.11 命令执行；`mvnd` 启动阶段报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
 - 📌 代码落地：`cc79d929`。
 
+**2026-02-21（评教读侧：`EvaTaskQueryRepository` 收敛课程ID列表查询改走 `CourseIdsByCourseWrapperDirectQueryPort`；保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`EvaTaskQueryRepository` 内存在“按 Wrapper 查 CourseDO 列表后映射 `CourseDO::getId`”的残留点（涉及 `pageEvaUnfinishedTask` 与 `evaSelfTaskInfo`），且其查询条件由调用方构造 Wrapper（含 `in/eq/or` 组合），适合先改为调用“按 Wrapper 直查课程ID列表”的端口以保持 SQL 条件与结果顺序不变。
+- ✅ 执行（单类，保持行为不变）：将 `pageEvaUnfinishedTask`、`evaSelfTaskInfo` 中课程ID列表获取逻辑改为调用 `CourseIdsByCourseWrapperDirectQueryPort.findCourseIds(wrapper)`，保持 Wrapper 构造、分支返回与后续查询顺序不变。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；`mvnd` 启动阶段报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
+- 📌 代码落地：`7c5a70eb`。
+
 **2026-02-21（评教读侧：`EvaStatisticsQueryRepository` 其余 teacherId 课程ID映射残留点改走 `CourseIdsByTeacherIdQueryPort`；保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`EvaStatisticsQueryRepository.getEvaEdNumByTeacherIdAndLocalTime(Integer,Integer,Integer)` 原实现为 `CourseAndSemesterObjectDirectQueryPort.findCourseList(eq teacher_id)` 后映射 `CourseDO::getId`；可在不改变查询条件/结果顺序/空值语义的前提下，收敛为调用最小端口返回课程ID列表。
 - ✅ 执行（单类，保持行为不变）：将 `getEvaEdNumByTeacherIdAndLocalTime` 内“按 teacherId 查 CourseDO 列表再映射 id”的实现收敛为调用 `CourseIdsByTeacherIdQueryPort.findCourseIdsByTeacherId(teacherId)`；其余逻辑与返回条件不变。
