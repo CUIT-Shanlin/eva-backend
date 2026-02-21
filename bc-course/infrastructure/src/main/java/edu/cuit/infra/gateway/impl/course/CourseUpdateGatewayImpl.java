@@ -22,13 +22,10 @@ import edu.cuit.bc.course.application.usecase.UpdateCourseTypeEntryUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateCoursesTypeEntryUseCase;
 import edu.cuit.bc.course.application.usecase.UpdateSingleCourseGatewayEntryUseCase;
 import edu.cuit.bc.course.domain.UpdateSingleCourseException;
-	import edu.cuit.bc.course.application.usecase.AddCourseTypeEntryUseCase;
-	import edu.cuit.bc.course.application.model.AddNotExistCoursesDetailsCommand;
-	import edu.cuit.bc.course.application.usecase.AddNotExistCoursesDetailsGatewayEntryUseCase;
-	import edu.cuit.bc.course.application.usecase.AddExistCoursesDetailsGatewayEntryUseCase;
-	import edu.cuit.bc.course.application.model.UpdateSelfCourseCommand;
-	import edu.cuit.bc.course.application.usecase.UpdateSelfCourseGatewayEntryUseCase;
-import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
+import edu.cuit.bc.course.application.usecase.AddCourseTypeEntryUseCase;
+import edu.cuit.bc.course.application.usecase.AddExistCoursesDetailsGatewayEntryUseCase;
+import edu.cuit.bc.course.application.usecase.AddNotExistCoursesDetailsGatewayEntryUseCase;
+import edu.cuit.bc.course.application.usecase.UpdateSelfCourseGatewayEntryUseCase;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -46,11 +43,11 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     private final UpdateCourseGatewayEntryUseCase updateCourseGatewayEntryUseCase;
     private final UpdateCourseTypeEntryUseCase updateCourseTypeEntryUseCase;
     private final UpdateCoursesTypeEntryUseCase updateCoursesTypeEntryUseCase;
-	    private final UpdateSelfCourseGatewayEntryUseCase updateSelfCourseGatewayEntryUseCase;
-	    private final AddCourseTypeEntryUseCase addCourseTypeEntryUseCase;
-	    private final AddNotExistCoursesDetailsGatewayEntryUseCase addNotExistCoursesDetailsGatewayEntryUseCase;
-	    private final AddExistCoursesDetailsGatewayEntryUseCase addExistCoursesDetailsGatewayEntryUseCase;
-	    private final IsCourseImportedUseCase isCourseImportedUseCase;
+    private final UpdateSelfCourseGatewayEntryUseCase updateSelfCourseGatewayEntryUseCase;
+    private final AddCourseTypeEntryUseCase addCourseTypeEntryUseCase;
+    private final AddNotExistCoursesDetailsGatewayEntryUseCase addNotExistCoursesDetailsGatewayEntryUseCase;
+    private final AddExistCoursesDetailsGatewayEntryUseCase addExistCoursesDetailsGatewayEntryUseCase;
+    private final IsCourseImportedUseCase isCourseImportedUseCase;
 
 
     /**
@@ -119,7 +116,7 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     @Override
     @Transactional
     public Void addCourse(Integer semId) {
-        //TODO（接口已删除）
+        // 历史路径：保留空实现（行为不变）
         return null;
     }
 
@@ -152,13 +149,13 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         return updateSelfCourseGatewayEntryUseCase.updateSelfCourse(userName, selfTeachCourseCO, timeList);
     }
 
-	    @Override
-	    @Transactional
-	    public Void addExistCoursesDetails(Integer courseId, SelfTeachCourseTimeCO timeCO) {
-	        // 历史路径：收敛到 bc-course 用例，基础设施层避免继续堆“新增课次”业务流程（行为不变）
-	        addExistCoursesDetailsGatewayEntryUseCase.addExistCoursesDetails(courseId, timeCO);
-	        return null;
-	    }
+    @Override
+    @Transactional
+    public Void addExistCoursesDetails(Integer courseId, SelfTeachCourseTimeCO timeCO) {
+        // 历史路径：收敛到 bc-course 用例，基础设施层避免继续堆“新增课次”业务流程（行为不变）
+        addExistCoursesDetailsGatewayEntryUseCase.addExistCoursesDetails(courseId, timeCO);
+        return null;
+    }
 
     @Override
     @Transactional
