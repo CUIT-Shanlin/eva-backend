@@ -84,8 +84,6 @@ public class CourseImportExce {
         Map<Integer,Integer> evaTaskIds=new HashMap<>();
         //先找出所有的课程
         List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semId));
-        //过滤出courseIdList中对应subject的nature等于type的课程ID集合
-        //List<Integer> filterCourseIdList = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("subject_id", courseIdList).eq("type", type)).stream().map(CourseDO::getId).toList();
         List<Integer> courseIds=new ArrayList<>();
         for (CourseDO courseDO : courseDOS) {
             if(subjectMapper.selectById(courseDO.getSubjectId()).getNature().equals(type)){
@@ -109,7 +107,6 @@ public class CourseImportExce {
                     new Class<?>[]{Wrapper.class},
                     new Object[]{new QueryWrapper<EvaTaskDO>().in(!courInfoIds.isEmpty(),"cour_inf_id", courInfoIds)}
             );
-//            evaTaskIds=taskDOList.stream().map(EvaTaskDO::getId).toList();
             taskDOList.forEach(taskDO -> evaTaskIds.put(taskDO.getId(),taskDO.getTeacherId()));
             if(!taskDOList.isEmpty()) {
                 List<Integer> taskIds = taskDOList.stream().map(EvaTaskDO::getId).toList();
