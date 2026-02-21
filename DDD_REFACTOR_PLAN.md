@@ -513,6 +513,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 - ✅ 补充进展（2026-02-21，保持行为不变，读侧收敛，单类）：课程域读侧 `CourseRecommendExce` 已将“仅为拿课程ID列表而先查 CourseDO 再映射”的残留点，收敛为调用最小端口 `CourseIdsByCourseWrapperDirectQueryPort/CourseIdsByTeacherIdAndSemesterIdQueryPort`（保持查询条件、结果顺序与空值语义不变；最小回归通过；落地：`53601b8c`）。
 - ✅ 补充进展（2026-02-21，保持行为不变，读侧收敛，单类）：课程域读侧仓储 `CourseQueryRepository` 已将“按 semesterId 获取课程ID列表/按 teacherId+semesterId 获取课程ID列表”的实现，从 `CourseMapper.selectList(...).map(CourseDO::getId)` 收敛为调用最小端口 `CourseIdsBySemesterIdQueryPort/CourseIdsByTeacherIdAndSemesterIdQueryPort`（保持查询条件、结果顺序与空值语义不变；最小回归通过；落地：`02b94cde`）。
+- 🎯 下一刀建议（更新至 2026-02-21；保持行为不变；单类）：清理 `bc-course/infrastructure` 的 `CourseImportExce` 中历史注释残留的旧实现（避免 `rg`/Serena 盘点时被“注释命中”干扰，减少口径漂移）。
 - ✅ 补充进展（2026-02-20，保持行为不变，写侧前置，单类）：在 `bc-course/application` 新增最小查询端口 `CourseIdsByTeacherIdQueryPort`（后续用于将评教写侧 `PostEvaTaskRepositoryImpl` 内对课程域 `CourseMapper.selectList(eq teacher_id)` 的跨 BC 直连按“补适配器（单类）→ 改调用侧（单类）”逐步收敛为调用端口；最小回归通过；落地：`cdc79886`）。
 - ✅ 补充进展（2026-02-20，保持行为不变，写侧前置，单类）：在 `bc-course/infrastructure` 新增端口适配器 `CourseIdsByTeacherIdQueryPortImpl`（内部直接委托 `CourseMapper.selectList(eq teacher_id)` 并映射 `CourseDO::getId`，保持结果顺序/空值语义不变；最小回归通过；落地：`80747dea`）。
 - ✅ 补充进展（2026-02-20，保持行为不变，写侧收敛，单类）：收敛评教写侧调用点：`bc-evaluation/infrastructure` 的 `PostEvaTaskRepositoryImpl` 已将“按 teacherId 查询课程 id 列表”的课程域 DAL 直连收敛为调用 `CourseIdsByTeacherIdQueryPort.findCourseIdsByTeacherId(...)`（端口适配器仍原样委托 `CourseMapper`，确保查询条件/结果顺序/异常文案/副作用顺序不变；最小回归通过；落地：`a7dd8c26`）。
