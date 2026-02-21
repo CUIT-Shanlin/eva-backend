@@ -47,6 +47,12 @@
 - 🧪 最小回归通过（Java17）：按 0.11 命令执行；`mvnd` 启动阶段报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
 - 📌 代码落地：`0c41b4de`。
 
+**2026-02-21（审计日志：`LogServiceImpl` 提炼日志模块ID解析；保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`LogServiceImpl.registerListener` 内的日志落库链路为“构造 SysLogBO → 异步 insertLog → clearOldLog”，且异常文案/日志文案固定。
+- ✅ 执行（单类，保持行为不变）：抽取 `buildSysLogBO(...)` / `resolveModuleIdOrThrow(...)`，保持 `SysException` 文案 `日志记录失败：日志模块 {module} 不存在` 与 `log.error(\"发生系统异常\", e)` 的触发时机不变；异步与清理调用顺序不变。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；`mvnd` 启动阶段报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
+- 📌 代码落地：`a4c14240`。
+
 **2026-02-21（课程域写侧：`CourseImportExce` 清理历史注释残留旧实现；保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`CourseImportExce.deleteCourse` 内存在历史注释残留的旧实现（包含 `CourseDO::getId`），会干扰后续 `rg`/Serena 盘点口径。
 - ✅ 执行（单类，保持行为不变）：移除上述历史注释旧实现（仅删除注释代码，不改变任何业务语义/异常文案/副作用顺序）。
@@ -2211,6 +2217,7 @@
   - `bc-course/infrastructure`：`CourseUpdateGatewayImpl` 已完成缩进/无用 import 清理，并将 `addCourse` 的注释更正为“保留空实现（行为不变）”（不改变业务语义/异常文案/副作用顺序；详见 0.9；落地：`0c41b4de`）。
   - `bc-evaluation/infrastructure`：`EvaConfigGatewayImpl` 已完成配置读取去重复（抽取 `applyIntIfPresent(...)`；字段赋值顺序、异常/日志文案与副作用顺序不变；详见 0.9；落地：`d275fee7`）。
   - `bc-audit/infrastructure`：`LogGatewayImpl` 已提炼日志映射列表构建（抽取 `toSysLogEntityList(...)`；SQL 条件/排序、异常文案与副作用顺序不变；详见 0.9；落地：`63565d73`）。
+  - `bc-audit/infrastructure`：`LogServiceImpl` 已提炼日志模块ID解析（抽取 `buildSysLogBO/resolveModuleIdOrThrow`；异常文案、日志文案与副作用顺序不变；详见 0.9；落地：`a4c14240`）。
   - 口径提醒：全仓 `CourseDO::getId` 的代码命中点应仅剩 `CourseRecommendExce` 的“复用 CourseDO 列表的本地映射”（不属于“仅为拿ID而先查对象”的残留）与 `CourseIdsBy*QueryPortImpl` 等端口适配器内部映射（允许保留）；可复现命令：`rg -n "CourseDO::getId" --glob "**/*.java" .`。
 
 - 🎯 **下一刀建议（保持行为不变；单类闭环；写侧优先）**：
