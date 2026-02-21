@@ -15,9 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ResourceUtils;
 
 import java.io.*;
+import java.util.function.Consumer;
 
 @Component
 @RequiredArgsConstructor
@@ -99,26 +99,21 @@ public class EvaConfigGatewayImpl implements EvaConfigGateway {
         try {
             JsonNode jsonNode = objectMapper.readTree(inputStream);
             configCache = SpringUtil.getBean(EvaConfigEntity.class);
-            JsonNode minEvaNum = jsonNode.get("minEvaNum");
-            if (minEvaNum != null && minEvaNum.isNumber()) {
-                configCache.setMinEvaNum(minEvaNum.intValue());
-            }
-            JsonNode minBeEvaNum = jsonNode.get("minBeEvaNum");
-            if (minBeEvaNum != null && minBeEvaNum.isNumber()) {
-                configCache.setMinBeEvaNum(minBeEvaNum.intValue());
-            }
-            JsonNode maxBeEvaNum = jsonNode.get("maxBeEvaNum");
-            if (maxBeEvaNum != null && maxBeEvaNum.isNumber()) {
-                configCache.setMaxBeEvaNum(maxBeEvaNum.intValue());
-            }
-            JsonNode highScoreThreshold = jsonNode.get("highScoreThreshold");
-            if (highScoreThreshold != null && highScoreThreshold.isNumber()) {
-                configCache.setHighScoreThreshold(highScoreThreshold.intValue());
-            }
+            applyIntIfPresent(jsonNode, "minEvaNum", configCache::setMinEvaNum);
+            applyIntIfPresent(jsonNode, "minBeEvaNum", configCache::setMinBeEvaNum);
+            applyIntIfPresent(jsonNode, "maxBeEvaNum", configCache::setMaxBeEvaNum);
+            applyIntIfPresent(jsonNode, "highScoreThreshold", configCache::setHighScoreThreshold);
         } catch (IOException e) {
             SysException e1 = new SysException("评教配置文件读取失败");
             log.error("评教配置文件读取失败",e);
             throw e1;
+        }
+    }
+
+    private void applyIntIfPresent(JsonNode jsonNode, String fieldName, Consumer<Integer> setter) {
+        JsonNode fieldValue = jsonNode.get(fieldName);
+        if (fieldValue != null && fieldValue.isNumber()) {
+            setter.accept(fieldValue.intValue());
         }
     }
 }
