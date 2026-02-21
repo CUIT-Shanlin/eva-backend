@@ -41,6 +41,12 @@
 - 🧪 最小回归通过（Java17）：按 0.11 命令执行；`mvnd` 启动阶段报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
 - 📌 代码落地：`63565d73`。
 
+**2026-02-21（课程写侧：`CourseUpdateGatewayImpl` 清理缩进/无用 import；保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`CourseUpdateGatewayImpl.addCourse` 仍被 `AddCoursePortImpl` 调用；本刀仅清理代码口径，不改变任何业务语义与副作用顺序。
+- ✅ 执行（单类，保持行为不变）：统一 import/字段/方法的历史缩进，移除无用 import，并将 `addCourse` 的注释从 “TODO” 更正为 “保留空实现（行为不变）”，避免误判与口径漂移。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；`mvnd` 启动阶段报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
+- 📌 代码落地：`0c41b4de`。
+
 **2026-02-21（课程域写侧：`CourseImportExce` 清理历史注释残留旧实现；保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`CourseImportExce.deleteCourse` 内存在历史注释残留的旧实现（包含 `CourseDO::getId`），会干扰后续 `rg`/Serena 盘点口径。
 - ✅ 执行（单类，保持行为不变）：移除上述历史注释旧实现（仅删除注释代码，不改变任何业务语义/异常文案/副作用顺序）。
@@ -2202,6 +2208,7 @@
 - ✅ **本会话新增闭环（更新至 2026-02-21；保持行为不变）**：
   - `bc-course/infrastructure`：`CourseQueryRepository`、`CourseRecommendExce` 已完成课程ID列表查询端口化收敛（详见 0.9；均按“单类闭环”落地并已推送远端）。
   - `bc-course/infrastructure`：`CourseImportExce` 已完成“口径清理”：移除历史注释残留旧实现（避免 `rg`/Serena 盘点时被注释命中干扰；不改业务语义/异常文案/副作用顺序；详见 0.9；落地：`1be6955b`）。
+  - `bc-course/infrastructure`：`CourseUpdateGatewayImpl` 已完成缩进/无用 import 清理，并将 `addCourse` 的注释更正为“保留空实现（行为不变）”（不改变业务语义/异常文案/副作用顺序；详见 0.9；落地：`0c41b4de`）。
   - `bc-evaluation/infrastructure`：`EvaConfigGatewayImpl` 已完成配置读取去重复（抽取 `applyIntIfPresent(...)`；字段赋值顺序、异常/日志文案与副作用顺序不变；详见 0.9；落地：`d275fee7`）。
   - `bc-audit/infrastructure`：`LogGatewayImpl` 已提炼日志映射列表构建（抽取 `toSysLogEntityList(...)`；SQL 条件/排序、异常文案与副作用顺序不变；详见 0.9；落地：`63565d73`）。
   - 口径提醒：全仓 `CourseDO::getId` 的代码命中点应仅剩 `CourseRecommendExce` 的“复用 CourseDO 列表的本地映射”（不属于“仅为拿ID而先查对象”的残留）与 `CourseIdsBy*QueryPortImpl` 等端口适配器内部映射（允许保留）；可复现命令：`rg -n "CourseDO::getId" --glob "**/*.java" .`。

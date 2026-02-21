@@ -110,6 +110,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-02-21）**
+- ✅ 课程写侧（保持行为不变，单类闭环）：`bc-course/infrastructure` 的 `CourseUpdateGatewayImpl` 统一 import/字段/方法缩进并移除无用 import，同时将 `addCourse` 的注释更正为“保留空实现（行为不变）”（不改变业务语义/异常文案/副作用顺序；最小回归通过；落地：`0c41b4de`）。
 - ✅ 审计日志（保持行为不变，单类闭环）：`bc-audit/infrastructure` 的 `LogGatewayImpl` 提炼 `toSysLogEntityList(...)`，保持 `page` 内日志映射顺序不变并简化 `insertLog` 异步 lambda（SQL 条件/排序、异常文案与副作用顺序不变；最小回归通过；落地：`63565d73`）。
 - ✅ 评教配置（保持行为不变，单类闭环）：`bc-evaluation/infrastructure` 的 `EvaConfigGatewayImpl` 抽取 `applyIntIfPresent(...)` 统一 `readConfig` 中 JSON 数值字段读取/赋值逻辑（字段赋值顺序、异常/日志文案与副作用顺序不变；最小回归通过；落地：`d275fee7`）。
 - ✅ 口径清理（保持行为不变，单类闭环）：清理 `bc-course/infrastructure` 的 `CourseImportExce` 内历史注释残留旧实现（避免 `rg`/Serena 盘点时被“注释命中”干扰；不改变任何业务语义/异常文案/副作用顺序；最小回归通过；落地：`1be6955b`）。
