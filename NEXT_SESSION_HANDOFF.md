@@ -27,6 +27,11 @@
 
 > 状态更新（2026-02-20，保持行为不变）：评教写侧 `repository` 与评教读侧 `query` 已清零对课程域 `CourseMapper/SemesterMapper/SubjectMapper` 的编译期直连；评教侧 `EvaUpdateGatewayImpl` 已清零对 `CourseMapper.selectById(...).getSemesterId()` 的编译期直连；评教读侧已在部分场景将课程ID列表查询进一步收敛为调用 `CourseIdsByTeacherIdQueryPort/CourseIdsByTeacherIdAndSemesterIdQueryPort`（保持行为不变）。后续若发现其它“跨 BC Mapper 直连”或“仅为拿ID列表而先查对象再映射”的点，仍按“补端口 → 补适配器 → 改调用侧”逐刀推进。
 
+**2026-02-21（课程域：新增按 Wrapper 直查课程ID列表端口 `CourseIdsByCourseWrapperDirectQueryPort`；保持行为不变）**
+- ✅ 执行（单类，保持行为不变）：在 `bc-course/application` 新增查询端口 `CourseIdsByCourseWrapperDirectQueryPort`，用于在调用方已构造 MyBatis-Plus 条件（Wrapper）的场景下，直接获取课程ID列表，以便收敛跨 BC 读侧的 `CourseDO::getId` 映射残留点（不引入新副作用）。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；`mvnd` 启动阶段报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
+- 📌 代码落地：`de139ba9`。
+
 **2026-02-21（评教读侧：`EvaStatisticsQueryRepository` 其余 teacherId 课程ID映射残留点改走 `CourseIdsByTeacherIdQueryPort`；保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`EvaStatisticsQueryRepository.getEvaEdNumByTeacherIdAndLocalTime(Integer,Integer,Integer)` 原实现为 `CourseAndSemesterObjectDirectQueryPort.findCourseList(eq teacher_id)` 后映射 `CourseDO::getId`；可在不改变查询条件/结果顺序/空值语义的前提下，收敛为调用最小端口返回课程ID列表。
 - ✅ 执行（单类，保持行为不变）：将 `getEvaEdNumByTeacherIdAndLocalTime` 内“按 teacherId 查 CourseDO 列表再映射 id”的实现收敛为调用 `CourseIdsByTeacherIdQueryPort.findCourseIdsByTeacherId(teacherId)`；其余逻辑与返回条件不变。
