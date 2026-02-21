@@ -27,6 +27,12 @@
 
 > 状态更新（2026-02-20，保持行为不变）：评教写侧 `repository` 与评教读侧 `query` 已清零对课程域 `CourseMapper/SemesterMapper/SubjectMapper` 的编译期直连；评教侧 `EvaUpdateGatewayImpl` 已清零对 `CourseMapper.selectById(...).getSemesterId()` 的编译期直连；评教读侧已在部分场景将课程ID列表查询进一步收敛为调用 `CourseIdsByTeacherIdQueryPort/CourseIdsByTeacherIdAndSemesterIdQueryPort`（保持行为不变）。后续若发现其它“跨 BC Mapper 直连”或“仅为拿ID列表而先查对象再映射”的点，仍按“补端口 → 补适配器 → 改调用侧”逐刀推进。
 
+**2026-02-21（课程域读侧：`CourseRecommendExce` 收敛课程ID列表查询改走最小端口；保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`CourseRecommendExce` 内存在“仅为拿课程ID列表而先查 CourseDO 再映射 `CourseDO::getId`”的残留点（主要集中在 `judeTimetoGetCourse/judeTeacherandDepartment`）。
+- ✅ 执行（单类，保持行为不变）：将上述场景的课程ID列表获取逻辑收敛为调用 `CourseIdsByCourseWrapperDirectQueryPort.findCourseIds(...)` / `CourseIdsByTeacherIdAndSemesterIdQueryPort.findCourseIdsByTeacherIdAndSemesterId(...)`（Wrapper 构造、异常文案与后续交集逻辑保持不变）。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；`mvnd` 启动阶段报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
+- 📌 代码落地：`53601b8c`。
+
 **2026-02-21（课程域读侧：`CourseQueryRepository` 收敛课程ID列表查询改走最小端口；保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`CourseQueryRepository` 内存在“按 semId / teacherId+semId 查询 CourseDO 列表后映射 `CourseDO::getId`”的残留点（涉及 `getWeekCourses/getPeriodInfo/getUserCourses`），适合改为调用最小端口以保持查询条件与结果顺序不变。
 - ✅ 执行（单类，保持行为不变）：将上述课程ID列表获取逻辑分别改为调用 `CourseIdsBySemesterIdQueryPort.findCourseIdsBySemesterId(...)` 与 `CourseIdsByTeacherIdAndSemesterIdQueryPort.findCourseIdsByTeacherIdAndSemesterId(...)`；其余查询与异常文案保持不变。

@@ -511,6 +511,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 > 新会话续接方式：优先复制 `NEXT_SESSION_HANDOFF.md` 的 0.11「推荐版（主线优先）」并按 0.10 的“下一步拆分与里程碑/提交点”顺序执行，避免遗漏约束与回归命令。
 > 工作区保护（保持行为不变）：若出现“已暂存新增 + 未暂存改动”的混合状态，禁止 `reset/checkout`；优先用 `git commit -- <path>` 做范围隔离，逐步恢复到“单文件一刀闭环”。
 
+- ✅ 补充进展（2026-02-21，保持行为不变，读侧收敛，单类）：课程域读侧 `CourseRecommendExce` 已将“仅为拿课程ID列表而先查 CourseDO 再映射”的残留点，收敛为调用最小端口 `CourseIdsByCourseWrapperDirectQueryPort/CourseIdsByTeacherIdAndSemesterIdQueryPort`（保持查询条件、结果顺序与空值语义不变；最小回归通过；落地：`53601b8c`）。
 - ✅ 补充进展（2026-02-21，保持行为不变，读侧收敛，单类）：课程域读侧仓储 `CourseQueryRepository` 已将“按 semesterId 获取课程ID列表/按 teacherId+semesterId 获取课程ID列表”的实现，从 `CourseMapper.selectList(...).map(CourseDO::getId)` 收敛为调用最小端口 `CourseIdsBySemesterIdQueryPort/CourseIdsByTeacherIdAndSemesterIdQueryPort`（保持查询条件、结果顺序与空值语义不变；最小回归通过；落地：`02b94cde`）。
 - ✅ 补充进展（2026-02-20，保持行为不变，写侧前置，单类）：在 `bc-course/application` 新增最小查询端口 `CourseIdsByTeacherIdQueryPort`（后续用于将评教写侧 `PostEvaTaskRepositoryImpl` 内对课程域 `CourseMapper.selectList(eq teacher_id)` 的跨 BC 直连按“补适配器（单类）→ 改调用侧（单类）”逐步收敛为调用端口；最小回归通过；落地：`cdc79886`）。
 - ✅ 补充进展（2026-02-20，保持行为不变，写侧前置，单类）：在 `bc-course/infrastructure` 新增端口适配器 `CourseIdsByTeacherIdQueryPortImpl`（内部直接委托 `CourseMapper.selectList(eq teacher_id)` 并映射 `CourseDO::getId`，保持结果顺序/空值语义不变；最小回归通过；落地：`80747dea`）。
