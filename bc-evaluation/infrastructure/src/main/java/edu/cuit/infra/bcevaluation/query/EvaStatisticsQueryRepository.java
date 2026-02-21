@@ -878,8 +878,7 @@ public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
             throw new SysException("你的输入数字num有问题");
         }
 
-        List<CourseDO> courseDOS=courseAndSemesterObjectDirectQueryPort.findCourseList(new QueryWrapper<CourseDO>().eq("teacher_id",teacherId));
-        List<Integer> courIdS=courseDOS.stream().map(CourseDO::getId).toList();
+        List<Integer> courIdS = courseIdsByTeacherIdQueryPort.findCourseIdsByTeacherId(teacherId);
 
         if(CollectionUtil.isEmpty(courIdS)){
             return 0;
