@@ -32,6 +32,11 @@
 - 🧪 最小回归通过（Java17）：按 0.11 命令执行；`mvnd` 启动阶段报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
 - 📌 代码落地：`de139ba9`。
 
+**2026-02-21（课程域：新增 `CourseIdsByCourseWrapperDirectQueryPort` 的端口适配器；保持行为不变）**
+- ✅ 执行（单类，保持行为不变）：在 `bc-course/infrastructure` 新增端口适配器 `CourseIdsByCourseWrapperDirectQueryPortImpl`，内部仅委托 `CourseMapper.selectList(...)` 并映射 `CourseDO::getId` 返回课程ID列表（保持查询条件、结果顺序与空值语义不变；不引入新副作用）。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；`mvnd` 启动阶段报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
+- 📌 代码落地：`cc79d929`。
+
 **2026-02-21（评教读侧：`EvaStatisticsQueryRepository` 其余 teacherId 课程ID映射残留点改走 `CourseIdsByTeacherIdQueryPort`；保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`EvaStatisticsQueryRepository.getEvaEdNumByTeacherIdAndLocalTime(Integer,Integer,Integer)` 原实现为 `CourseAndSemesterObjectDirectQueryPort.findCourseList(eq teacher_id)` 后映射 `CourseDO::getId`；可在不改变查询条件/结果顺序/空值语义的前提下，收敛为调用最小端口返回课程ID列表。
 - ✅ 执行（单类，保持行为不变）：将 `getEvaEdNumByTeacherIdAndLocalTime` 内“按 teacherId 查 CourseDO 列表再映射 id”的实现收敛为调用 `CourseIdsByTeacherIdQueryPort.findCourseIdsByTeacherId(teacherId)`；其余逻辑与返回条件不变。
