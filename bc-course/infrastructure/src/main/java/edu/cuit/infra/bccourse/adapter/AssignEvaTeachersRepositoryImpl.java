@@ -2,6 +2,7 @@ package edu.cuit.infra.bccourse.adapter;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.cuit.bc.course.application.port.AssignEvaTeachersRepository;
+import edu.cuit.bc.course.application.port.CourseIdsByCourseWrapperDirectQueryPort;
 import edu.cuit.infra.bccourse.support.CourInfTimeOverlapQuery;
 import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
@@ -39,6 +40,7 @@ public class AssignEvaTeachersRepositoryImpl implements AssignEvaTeachersReposit
     private final CourInfMapper courInfMapper;
     private final CourseMapper courseMapper;
     private final SubjectMapper subjectMapper;
+    private final CourseIdsByCourseWrapperDirectQueryPort courseIdsByCourseWrapperDirectQueryPort;
     /**
      * 跨 BC 直连清零（编译期）：不再直接依赖评教侧 Mapper 类型；仍保持原 MyBatis 调用语义，通过反射调用对应方法（保持行为不变）。
      */
@@ -122,12 +124,9 @@ public class AssignEvaTeachersRepositoryImpl implements AssignEvaTeachersReposit
     }
 
     private void judgeAlsoHasCourse(Integer semId, List<Integer> evaTeacherIdList, CourInfDO courInfDO) {
-        List<Integer> list = courseMapper.selectList(new QueryWrapper<CourseDO>()
-                        .eq("semester_id", semId)
-                        .in(!evaTeacherIdList.isEmpty(), "teacher_id", evaTeacherIdList))
-                .stream()
-                .map(CourseDO::getId)
-                .toList();
+        List<Integer> list = courseIdsByCourseWrapperDirectQueryPort.findCourseIds(new QueryWrapper<CourseDO>()
+                .eq("semester_id", semId)
+                .in(!evaTeacherIdList.isEmpty(), "teacher_id", evaTeacherIdList));
         if (list.isEmpty()) {
             return;
         }
