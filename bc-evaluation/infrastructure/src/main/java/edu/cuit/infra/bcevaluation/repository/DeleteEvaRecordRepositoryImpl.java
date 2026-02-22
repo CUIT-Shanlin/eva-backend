@@ -73,35 +73,42 @@ public class DeleteEvaRecordRepositoryImpl implements DeleteEvaRecordRepository 
                 LogUtils.logContent(selectSysUserNameById(evaTaskMapper.selectById(formRecordDO.getTaskId()).getTeacherId())
                         + " 用户评教任务ID为" + formRecordDO.getTaskId() + "的评教记录");
                 formRecordMapper.delete(formRecordWrapper);
-
-                //看看相关课程有没有泡脚记录
-                Integer f = 0;//0是没有，1是有
-                List<Integer> courInfIds = courInfIdsByCourseIdsQueryPort.findCourInfIdsByCourseIds(List.of(courseId));
-                if (CollectionUtil.isEmpty(courInfIds)) {
-                    throw new DeleteEvaRecordUpdateException("该课程下未找到任何课程详情信息");
-                }
-                List<EvaTaskDO> evaTaskDOS = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id", courInfIds));
-                List<Integer> evaTaskIds = evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
-                if (CollectionUtil.isEmpty(evaTaskIds)) {
-                    f = 0;
-                } else {
-                    List<FormRecordDO> formRecordDOS = formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id", evaTaskIds));
-                    if (CollectionUtil.isEmpty(formRecordDOS)) {
-                        f = 0;
-                    } else {
-                        f = 1;
-                    }
-                }
-                if (f == 0) {
-                    if (CollectionUtil.isNotEmpty(courOneEvaTemplateMapper.selectList(new QueryWrapper<CourOneEvaTemplateDO>().eq("course_id", courseId)))) {
-                        courOneEvaTemplateMapper.delete(new QueryWrapper<CourOneEvaTemplateDO>().eq("course_id", courseId));
-                    }
-                }
-                //删除缓存
-                localCacheManager.invalidateCache(evaCacheConstants.ONE_LOG, String.valueOf(id));
-                localCacheManager.invalidateCache(null, evaCacheConstants.LOG_LIST);
+                deleteCourseTemplateIfNoEvaRecordExists(courseId);
+                invalidateEvaRecordCaches(id);
             }
         }
+    }
+
+    private void deleteCourseTemplateIfNoEvaRecordExists(Integer courseId) {
+        //看看相关课程有没有泡脚记录
+        Integer f = 0;//0是没有，1是有
+        List<Integer> courInfIds = courInfIdsByCourseIdsQueryPort.findCourInfIdsByCourseIds(List.of(courseId));
+        if (CollectionUtil.isEmpty(courInfIds)) {
+            throw new DeleteEvaRecordUpdateException("该课程下未找到任何课程详情信息");
+        }
+        List<EvaTaskDO> evaTaskDOS = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in("cour_inf_id", courInfIds));
+        List<Integer> evaTaskIds = evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
+        if (CollectionUtil.isEmpty(evaTaskIds)) {
+            f = 0;
+        } else {
+            List<FormRecordDO> formRecordDOS = formRecordMapper.selectList(new QueryWrapper<FormRecordDO>().in("task_id", evaTaskIds));
+            if (CollectionUtil.isEmpty(formRecordDOS)) {
+                f = 0;
+            } else {
+                f = 1;
+            }
+        }
+        if (f == 0) {
+            if (CollectionUtil.isNotEmpty(courOneEvaTemplateMapper.selectList(new QueryWrapper<CourOneEvaTemplateDO>().eq("course_id", courseId)))) {
+                courOneEvaTemplateMapper.delete(new QueryWrapper<CourOneEvaTemplateDO>().eq("course_id", courseId));
+            }
+        }
+    }
+
+    private void invalidateEvaRecordCaches(Integer id) {
+        //删除缓存
+        localCacheManager.invalidateCache(evaCacheConstants.ONE_LOG, String.valueOf(id));
+        localCacheManager.invalidateCache(null, evaCacheConstants.LOG_LIST);
     }
 
     private String selectSysUserNameById(Serializable userId) {
