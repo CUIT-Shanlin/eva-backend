@@ -69,10 +69,10 @@ scope: 全仓库（离线扫描 + 规则归纳）
    - gateway 仅负责：构造 command → 调用 usecase → 返回历史签名（必要时 `return null`）。
    - 若历史对外签名为 `Void`，保持 `return null`。
 5. **离线验证（Java 17 + 本地 Maven repo）**
-   - `export JAVA_HOME=\"$HOME/.sdkman/candidates/java/17.0.17-zulu\" && export PATH=\"$JAVA_HOME/bin:$PATH\"`
+   - 本仓库已改为使用 mise 管理 JDK（已提供 `mise.toml`，固定 `java@temurin-17`）：优先在仓库根目录执行 `mise use java@temurin-17` 并确认 `java -version` 为 17；若当前 shell 的 `java` 仍非 17，则用 `mise exec java@temurin-17 -- <cmd>` 兜底。
    - （本机 `mvnd` 权限兜底）如遇默认写入 `~/.m2/mvnd/...` 报 `AccessDenied`，可设置：`export MVND_DAEMON_STORAGE=\"$PWD/.mvnd/daemon\" && export MVND_REGISTRY=\"$PWD/.mvnd/registry\"`（`.mvnd/` 保持未跟踪，不要提交）
-   - `mvnd -o -pl <bc-module> -am test -q -Dmaven.repo.local=.m2/repository`
-   - `mvnd -o -pl eva-infra -am -DskipTests test -q -Dmaven.repo.local=.m2/repository`
+   - `mise exec java@temurin-17 -- mvnd -o -pl <bc-module> -am test -q -Dmaven.repo.local=.m2/repository`
+   - `mise exec java@temurin-17 -- mvnd -o -pl eva-infra -am -DskipTests test -q -Dmaven.repo.local=.m2/repository`
 6. **沉淀文档（交接与回溯）**
    - 在 `NEXT_SESSION_HANDOFF.md` 追加闭环/commit；
    - （2026-01-13 补充）已在 `NEXT_SESSION_HANDOFF.md` 更新 0.9/0.10/0.11：记录 `UserAuthServiceImpl` 归位到 `bc-iam-infra` 的闭环与 Serena `TimeoutError` 的降级口径，并将新会话 `F 推荐版` 提示词主线更新为 IAM 旧入口归位（`UserServiceImpl` → `BcIamConfiguration`），避免续接丢信息。
