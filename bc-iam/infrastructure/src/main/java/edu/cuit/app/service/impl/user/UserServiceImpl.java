@@ -107,13 +107,12 @@ public class UserServiceImpl implements IUserService {
     @Transactional
     @CheckSemId
     public List<UserSingleCourseScoreCO> getOneUserScore(Integer userId, Integer semId) {
-        List<SelfTeachCourseCO> courseInfoList = courseQueryGateway.getSelfCourseInfo(userBasicQueryPort.findUsernameById(userId)
-                .orElseThrow(() -> new SysException("找不到用户名")), semId);
+        List<SelfTeachCourseCO> courseInfoList = getSelfTeachCourseInfoByUserId(userId, semId);
 
         List<UserSingleCourseScoreCO> resultList = new ArrayList<>();
 
         for (SelfTeachCourseCO course : courseInfoList) {
-            List<CourseScoreCO> evaScore = courseQueryGateway.findEvaScore(course.getId());
+            List<CourseScoreCO> evaScore = findEvaScoreByCourseId(course.getId());
             if (evaScore.isEmpty()) {
                 UserSingleCourseScoreCO courseScoreCO = new UserSingleCourseScoreCO();
                 courseScoreCO.setScore(0.0)
@@ -138,6 +137,15 @@ public class UserServiceImpl implements IUserService {
             resultList.add(courseScoreCO);
         }
         return resultList;
+    }
+
+    private List<SelfTeachCourseCO> getSelfTeachCourseInfoByUserId(Integer userId, Integer semId) {
+        String username = userBasicQueryPort.findUsernameById(userId).orElseThrow(() -> new SysException("找不到用户名"));
+        return courseQueryGateway.getSelfCourseInfo(username, semId);
+    }
+
+    private List<CourseScoreCO> findEvaScoreByCourseId(Integer courseId) {
+        return courseQueryGateway.findEvaScore(courseId);
     }
 
     @Override
