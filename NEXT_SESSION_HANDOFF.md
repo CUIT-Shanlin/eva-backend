@@ -53,6 +53,12 @@
 - 🧪 最小回归通过（Java17）：按 0.11 命令执行；`mvnd` 启动阶段报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
 - 📌 代码落地：`a4c14240`。
 
+**2026-02-22（评教工程：`bc-evaluation-infra` 去 `bc-course-infra` 编译期依赖收敛；保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：在 `bc-evaluation/infrastructure/src/main/java` 内未发现 `CourseMapper/SemesterMapper/CourInfMapper/SubjectMapper` 引用，也未发现 `edu.cuit.infra.dal.database.mapper.course.*` 的 import；因此 `bc-evaluation-infra` 无需编译期依赖课程域实现侧 `bc-course-infra`。
+- ✅ 执行（单 `pom.xml`，保持行为不变）：移除 `bc-evaluation/infrastructure/pom.xml` 对 `bc-course-infra` 的 Maven 编译期依赖，仅保留对课程域端口（`bc-course`）与协议对象（`shared-kernel`）的依赖，避免跨 BC 实现侧耦合。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；`mvnd` 启动阶段报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
+- 📌 代码落地：`375c671f`。
+
 **2026-02-22（评教写侧：`EvaUpdateGatewayImpl` 提炼缓存失效调用；保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`cancelEvaTaskById` 被 `EvaTaskServiceImpl.cancelEvaTask/cancelMyEvaTask` 调用；方法体内包含 DB 更新与多个缓存失效点，需严格保持副作用顺序不变。
 - ✅ 执行（单类，保持行为不变）：在 `cancelEvaTaskById` 内抽取 `invalidateTaskListBySemester/invalidateTaskListByTeacher`，保持 `evaTaskMapper.update(...)` → 按课程学期失效 → 按教师失效 的顺序不变；缓存 key 与参数构造口径不变；不改异常文案/日志文案。
