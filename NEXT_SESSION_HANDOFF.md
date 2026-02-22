@@ -53,6 +53,12 @@
 - 🧪 最小回归通过（Java17）：按 0.11 命令执行；`mvnd` 启动阶段报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
 - 📌 代码落地：`a4c14240`。
 
+**2026-02-22（IAM：`UserServiceImpl` 提炼课程查询调用点；保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`UserServiceImpl.getOneUserScore` 仅在方法内调用课程域 `CourseQueryGateway.getSelfCourseInfo/findEvaScore`；本刀仅做类内重构，不改异常文案与调用顺序。
+- ✅ 执行（单类，保持行为不变）：将课程域查询调用提炼为私有方法 `getSelfTeachCourseInfoByUserId/findEvaScoreByCourseId`，保持“先取课程列表 → 逐课程查评分 → 再查评教次数”的顺序不变。
+- 🧪 最小回归通过（Java17 + mvnd）：按 0.11 命令执行；本次 `mvnd` 可直接通过（测试用例集保持不变）。
+- 📌 代码落地：`254e0bca`。
+
 **2026-02-22（评教工程：`bc-evaluation-infra` 去 `bc-course-infra` 编译期依赖收敛；保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：在 `bc-evaluation/infrastructure/src/main/java` 内未发现 `CourseMapper/SemesterMapper/CourInfMapper/SubjectMapper` 引用，也未发现 `edu.cuit.infra.dal.database.mapper.course.*` 的 import；因此 `bc-evaluation-infra` 无需编译期依赖课程域实现侧 `bc-course-infra`。
 - ✅ 执行（单 `pom.xml`，保持行为不变）：移除 `bc-evaluation/infrastructure/pom.xml` 对 `bc-course-infra` 的 Maven 编译期依赖，仅保留对课程域端口（`bc-course`）与协议对象（`shared-kernel`）的依赖，避免跨 BC 实现侧耦合。

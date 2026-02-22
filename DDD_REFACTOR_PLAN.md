@@ -520,6 +520,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-21，保持行为不变，口径清理，单类）：`bc-course/infrastructure` 的 `CourseUpdateGatewayImpl` 统一 import/字段/方法缩进并移除无用 import，同时将 `addCourse` 的注释更正为“保留空实现（行为不变）”（不改变业务语义/异常文案/副作用顺序；最小回归通过；落地：`0c41b4de`）。
 - ✅ 补充进展（2026-02-21，保持行为不变，日志链路去重复，单类）：`bc-audit/infrastructure` 的 `LogServiceImpl` 抽取 `buildSysLogBO(...)` / `resolveModuleIdOrThrow(...)`，用于稳定日志模块ID解析逻辑（异常文案、日志文案与副作用顺序不变；最小回归通过；落地：`a4c14240`）。
 - ✅ 补充进展（2026-02-22，保持行为不变，依赖边界收敛，单 `pom.xml`）：移除 `bc-evaluation/infrastructure/pom.xml` 对 `bc-course-infra` 的 Maven 编译期依赖，避免评教域编译期绑定课程域实现侧（Serena 证据化：评教域基础设施内无课程 DAL Mapper 引用；最小回归通过；落地：`375c671f`）。
+- ✅ 补充进展（2026-02-22，保持行为不变，依赖边界收敛前置，单类）：`bc-iam/infrastructure` 的 `UserServiceImpl.getOneUserScore` 将课程域查询调用点提炼为私有方法 `getSelfTeachCourseInfoByUserId/findEvaScoreByCourseId`，保持异常文案与调用顺序不变（最小回归通过；落地：`254e0bca`）。
 - ✅ 补充进展（2026-02-22，保持行为不变，写侧去重复，单类）：`bc-evaluation/infrastructure` 的 `DeleteEvaRecordRepositoryImpl` 将删除记录后的“模板清理判断 + 缓存失效”后置流程提炼为私有方法（不改任何查询条件/异常文案/日志文案与副作用顺序；最小回归通过；落地：`4ef05cb2`）。
 - ✅ 补充进展（2026-02-22，保持行为不变，写侧去重复，单类）：`bc-evaluation/infrastructure` 的 `EvaDeleteGatewayImpl` 将 `deleteEvaRecord/deleteEvaTemplate` 内重复的异常映射逻辑提炼为私有方法（`@Transactional` 仍在公开方法；异常文案与副作用顺序不变；最小回归通过；落地：`6126ddcb`）。
 - ✅ 补充进展（2026-02-22，保持行为不变，写侧去重复，单类）：`bc-evaluation/infrastructure` 的 `DeleteEvaTemplateRepositoryImpl` 将模板删除后的缓存失效调用提炼为私有方法 `invalidateTemplateCaches(...)`（异常文案、日志文案与副作用顺序不变；最小回归通过；落地：`479c5500`）。
