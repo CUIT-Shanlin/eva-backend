@@ -111,6 +111,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 **已完成（更新至 2026-02-22）**
 - ✅ 依赖收敛（保持行为不变，单 `pom.xml` 闭环）：移除 `bc-evaluation/infrastructure/pom.xml` 对 `bc-course-infra` 的 Maven 编译期依赖（Serena 证据化：`bc-evaluation/infrastructure` 内无 `CourseMapper/SemesterMapper/CourInfMapper/SubjectMapper` 引用，也无 `edu.cuit.infra.dal.database.mapper.course.*` import；最小回归通过；落地：`375c671f`）。
+- ✅ 评教写侧（保持行为不变，单类闭环）：`bc-evaluation/infrastructure` 的 `DeleteEvaRecordRepositoryImpl` 提炼删除记录后的“模板清理判断 + 缓存失效”后置流程为私有方法，保持查询条件/异常文案/日志文案与副作用顺序不变（最小回归通过；落地：`4ef05cb2`）。
 - ✅ 评教写侧（保持行为不变，单类闭环）：`bc-evaluation/infrastructure` 的 `EvaUpdateGatewayImpl` 在 `cancelEvaTaskById` 内抽取 `invalidateTaskListBySemester/invalidateTaskListByTeacher`，用于减少重复并稳定缓存失效调用点（缓存 key、异常文案与副作用顺序不变；最小回归通过；落地：`c7f38a55`）。
 - ✅ 审计日志（保持行为不变，单类闭环）：`bc-audit/infrastructure` 的 `LogServiceImpl` 抽取 `buildSysLogBO(...)` / `resolveModuleIdOrThrow(...)`，用于稳定日志模块ID解析逻辑（异常文案、日志文案与副作用顺序不变；最小回归通过；落地：`a4c14240`）。
 - ✅ 课程写侧（保持行为不变，单类闭环）：`bc-course/infrastructure` 的 `CourseUpdateGatewayImpl` 统一 import/字段/方法缩进并移除无用 import，同时将 `addCourse` 的注释更正为“保留空实现（行为不变）”（不改变业务语义/异常文案/副作用顺序；最小回归通过；落地：`0c41b4de`）。

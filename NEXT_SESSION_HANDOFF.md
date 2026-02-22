@@ -59,6 +59,12 @@
 - 🧪 最小回归通过（Java17）：按 0.11 命令执行；`mvnd` 启动阶段报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
 - 📌 代码落地：`375c671f`。
 
+**2026-02-22（评教写侧：`DeleteEvaRecordRepositoryImpl` 提炼删除后置流程；保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`DeleteEvaRecordRepositoryImpl.delete` 被 `DeleteEvaRecordUseCase` 与 `EvaDeleteGatewayImpl.deleteEvaRecord` 调用；本刀仅做类内重构，不改任何 DB 查询条件/异常文案/日志文案与副作用顺序。
+- ✅ 执行（单类，保持行为不变）：将“删记录后：判断课程下是否仍有评教记录 → 可能删除课程模板分配 → 失效缓存”的后置流程提炼为 `deleteCourseTemplateIfNoEvaRecordExists(...)` 与 `invalidateEvaRecordCaches(...)`，保持执行顺序与异常文案不变。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；使用 `mise exec java@temurin-17 -- mvn ...` 完成最小回归（测试用例集保持不变）。
+- 📌 代码落地：`4ef05cb2`。
+
 **2026-02-22（评教写侧：`EvaUpdateGatewayImpl` 提炼缓存失效调用；保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`cancelEvaTaskById` 被 `EvaTaskServiceImpl.cancelEvaTask/cancelMyEvaTask` 调用；方法体内包含 DB 更新与多个缓存失效点，需严格保持副作用顺序不变。
 - ✅ 执行（单类，保持行为不变）：在 `cancelEvaTaskById` 内抽取 `invalidateTaskListBySemester/invalidateTaskListByTeacher`，保持 `evaTaskMapper.update(...)` → 按课程学期失效 → 按教师失效 的顺序不变；缓存 key 与参数构造口径不变；不改异常文案/日志文案。
