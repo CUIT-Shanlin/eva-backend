@@ -188,6 +188,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ S0.2 延伸（引用面收敛前置，单类，保持行为不变）：在 `bc-course/application` 新增最小 Port `CourseEntityConvertPort`（用于后续收敛 `bc-evaluation/infrastructure` 对 `CourseConvertor` 的直接依赖；保留 `teacher` 的 `Supplier<?>` 桥接口径；最小回归通过；落地：`0a95da8f`）。
 - ✅ S0.2 延伸（引用面收敛前置，单类，保持行为不变）：在 `bc-course/infrastructure` 新增 Port Adapter `CourseEntityConvertPortImpl`（内部直接委托 `CourseConvertor`，确保映射与调用时机不变；最小回归通过；落地：`eb597366`）。
 - ✅ S0.2 延伸（引用面收敛，单类，保持行为不变）：收敛评教读侧调用点：`EvaTaskQueryRepository` 改为依赖 `CourseEntityConvertPort`（不再直接注入 `CourseConvertor`；最小回归通过；落地：`c2c34a9a`）。
+- ✅ 评教读侧（保持行为不变，单类闭环）：`bc-evaluation/infrastructure` 的 `EvaTaskQueryRepository` 抽取 `rethrowInvocationTargetException(...)` 复用 sysUserMapper 反射调用异常解包逻辑，保持对 `RuntimeException/Error` 的原样抛出语义不变（最小回归通过；落地：`84f5d6b0`）。
 - ✅ S0.2 延伸（引用面收敛，单类，保持行为不变）：收敛评教读侧调用点：`EvaRecordQueryRepository` 改为依赖 `CourseEntityConvertPort`（不再直接注入 `CourseConvertor`；最小回归通过；落地：`307946d4`）。
 - ✅ S0.2 延伸（Convertor 归位，单类搬运，保持行为不变）：将 `CourseConvertor` 从 `eva-infra-shared` 搬运归位到 `bc-course/infrastructure`（保持 `package edu.cuit.infra.convertor.course` 与类内容不变；最小回归通过；落地：`e91badc4`）。
 - ✅ S0.2 延伸（引用面收敛前置，单类，保持行为不变）：在 `bc-course/application` 新增最小 Port `SingleCourseCoConvertPort`（用于后续收敛 `bc-evaluation/infrastructure` 对 `CourseBizConvertor` 的直接依赖；最小回归通过；落地：`32c458e7`）。
