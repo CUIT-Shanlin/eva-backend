@@ -69,7 +69,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
    - gateway 仅负责：构造 command → 调用 usecase → 返回历史签名（必要时 `return null`）。
    - 若历史对外签名为 `Void`，保持 `return null`。
 5. **离线验证（Java 17 + 本地 Maven repo）**
-   - 本仓库已改为使用 mise 管理 JDK（已提供 `mise.toml`，固定 `java@temurin-17`）：优先在仓库根目录执行 `mise use java@temurin-17` 并确认 `java -version` 为 17；若当前 shell 的 `java` 仍非 17，则用 `mise exec java@temurin-17 -- <cmd>` 兜底。
+   - 本仓库已改为使用 mise 管理 JDK（已提供 `mise.toml`，固定 `java@temurin-17`）：为避免 shell/非交互环境 `java` 指向漂移，建议所有构建/测试命令统一用 `mise exec java@temurin-17 -- <cmd>`（不再要求额外跑 `java --version` 复核）；如需让交互 shell 的 `java` 直接生效再执行 `mise use java@temurin-17`（可选）。
    - （本机 `mvnd` 权限兜底）如遇默认写入 `~/.m2/mvnd/...` 报 `AccessDenied`，可设置：`export MVND_DAEMON_STORAGE=\"$PWD/.mvnd/daemon\" && export MVND_REGISTRY=\"$PWD/.mvnd/registry\"`（`.mvnd/` 保持未跟踪，不要提交）
    - `mise exec java@temurin-17 -- mvnd -o -pl <bc-module> -am test -q -Dmaven.repo.local=.m2/repository`
    - `mise exec java@temurin-17 -- mvnd -o -pl eva-infra -am -DskipTests test -q -Dmaven.repo.local=.m2/repository`

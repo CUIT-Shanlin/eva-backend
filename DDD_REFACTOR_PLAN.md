@@ -501,7 +501,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - 微服务演进策略：**先拆服务，暂时共享库**（过渡期）。
 - 时间语义：`cour_inf.day` 中 `day=1` 表示 **周一**（周一是一周开始）。
 - 新对话启动方式：优先复制 `NEXT_SESSION_HANDOFF.md` 的 **0.11 推荐版（主线优先）**（不固化 commitId），并按其中顺序阅读与执行。
-- JDK 管理：本仓库已改为使用 mise 管理 JDK（已提供 `mise.toml`，固定 `java@temurin-17`）；新 shell 建议先在仓库根目录执行 `mise use java@temurin-17` 并确认 `java -version` 为 17；若当前 shell 的 `java` 仍非 17，则使用 `mise exec java@temurin-17 -- <cmd>` 兜底执行（例如 `mise exec java@temurin-17 -- mvn ...`）。
+- JDK 管理：本仓库已改为使用 mise 管理 JDK（已提供 `mise.toml`，固定 `java@temurin-17`）；为避免 shell/非交互环境的 `java` 指向漂移，建议所有构建/测试命令统一用 `mise exec java@temurin-17 -- <cmd>`（例如 `mise exec java@temurin-17 -- mvn ...` / `mise exec java@temurin-17 -- mvnd ...`）；如需让交互 shell 的 `java` 直接生效再执行 `mise use java@temurin-17`（可选）。
 
 ### 10.2 下一步优先顺序（保持“写侧优先 + 行为不变”）
 
