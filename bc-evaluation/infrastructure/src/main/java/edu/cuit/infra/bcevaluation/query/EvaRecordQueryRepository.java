@@ -576,6 +576,17 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
                 ()->toCourseEntity(courInfDO.getCourseId(),courseAndSemesterObjectDirectQueryPort.findCourseById(courInfDO.getCourseId()).getSemesterId()),courInfDO)).toList();
     }
 
+    private static <T> T rethrowInvocationTargetException(InvocationTargetException e) {
+        Throwable targetException = e.getTargetException();
+        if (targetException instanceof RuntimeException runtimeException) {
+            throw runtimeException;
+        }
+        if (targetException instanceof Error error) {
+            throw error;
+        }
+        throw new RuntimeException(targetException);
+    }
+
     private List<SysUserDO> selectSysUserList(Object wrapper) {
         try {
             Method selectList = Arrays.stream(sysUserMapper.getClass().getMethods())
@@ -585,14 +596,7 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
             Object result = selectList.invoke(sysUserMapper, wrapper);
             return (List<SysUserDO>) result;
         } catch (InvocationTargetException e) {
-            Throwable targetException = e.getTargetException();
-            if (targetException instanceof RuntimeException runtimeException) {
-                throw runtimeException;
-            }
-            if (targetException instanceof Error error) {
-                throw error;
-            }
-            throw new RuntimeException(targetException);
+            return rethrowInvocationTargetException(e);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
@@ -603,14 +607,7 @@ public class EvaRecordQueryRepository implements EvaRecordQueryRepo {
             Method selectById = sysUserMapper.getClass().getMethod("selectById", Serializable.class);
             return (SysUserDO) selectById.invoke(sysUserMapper, userId);
         } catch (InvocationTargetException e) {
-            Throwable targetException = e.getTargetException();
-            if (targetException instanceof RuntimeException runtimeException) {
-                throw runtimeException;
-            }
-            if (targetException instanceof Error error) {
-                throw error;
-            }
-            throw new RuntimeException(targetException);
+            return rethrowInvocationTargetException(e);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
