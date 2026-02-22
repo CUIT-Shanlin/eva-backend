@@ -115,6 +115,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ 评教写侧（保持行为不变，单类闭环）：`bc-evaluation/infrastructure` 的 `EvaDeleteGatewayImpl` 提炼 `deleteEvaRecord/deleteEvaTemplate` 内重复的异常映射逻辑为私有方法，保持 `@Transactional` 位置、异常文案与副作用顺序不变（最小回归通过；落地：`6126ddcb`）。
 - ✅ 评教写侧（保持行为不变，单类闭环）：`bc-evaluation/infrastructure` 的 `DeleteEvaTemplateRepositoryImpl` 提炼模板删除后的缓存失效调用为私有方法 `invalidateTemplateCaches(...)`，保持异常文案/日志文案与副作用顺序不变（最小回归通过；落地：`479c5500`）。
 - ✅ 评教写侧（保持行为不变，单类闭环）：`bc-evaluation/infrastructure` 的 `EvaDeleteGatewayImpl.deleteAllTaskByTea` 提炼“按 teacherId 查询/删除评教任务”的 Mapper 调用为私有方法，保持查询条件、删除顺序与返回值语义不变（最小回归通过；落地：`cfb51628`）。
+- ✅ 评教写侧（保持行为不变，单类闭环）：`bc-evaluation/infrastructure` 的 `UpdateEvaTemplateRepositoryImpl` 提炼模板修改后的缓存失效调用为私有方法 `invalidateTemplateCaches(...)`，保持调用顺序与参数构造口径不变（最小回归通过；落地：`c5f859ff`）。
 - ✅ 评教写侧（保持行为不变，单类闭环）：`bc-evaluation/infrastructure` 的 `EvaUpdateGatewayImpl` 在 `cancelEvaTaskById` 内抽取 `invalidateTaskListBySemester/invalidateTaskListByTeacher`，用于减少重复并稳定缓存失效调用点（缓存 key、异常文案与副作用顺序不变；最小回归通过；落地：`c7f38a55`）。
 - ✅ 审计日志（保持行为不变，单类闭环）：`bc-audit/infrastructure` 的 `LogServiceImpl` 抽取 `buildSysLogBO(...)` / `resolveModuleIdOrThrow(...)`，用于稳定日志模块ID解析逻辑（异常文案、日志文案与副作用顺序不变；最小回归通过；落地：`a4c14240`）。
 - ✅ 课程写侧（保持行为不变，单类闭环）：`bc-course/infrastructure` 的 `CourseUpdateGatewayImpl` 统一 import/字段/方法缩进并移除无用 import，同时将 `addCourse` 的注释更正为“保留空实现（行为不变）”（不改变业务语义/异常文案/副作用顺序；最小回归通过；落地：`0c41b4de`）。
