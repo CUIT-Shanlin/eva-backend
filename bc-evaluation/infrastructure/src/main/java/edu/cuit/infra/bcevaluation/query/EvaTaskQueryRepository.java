@@ -324,6 +324,17 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
                 ()->toCourseEntity(courInfDO.getCourseId(),courseAndSemesterObjectDirectQueryPort.findCourseById(courInfDO.getCourseId()).getSemesterId()),courInfDO)).toList();
     }
 
+    private static <T> T rethrowInvocationTargetException(InvocationTargetException e) {
+        Throwable targetException = e.getTargetException();
+        if (targetException instanceof RuntimeException runtimeException) {
+            throw runtimeException;
+        }
+        if (targetException instanceof Error error) {
+            throw error;
+        }
+        throw new RuntimeException(targetException);
+    }
+
     private List<?> selectSysUserList(Object wrapper) {
         try {
             Method selectList = Arrays.stream(sysUserMapper.getClass().getMethods())
@@ -333,14 +344,7 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
             Object result = selectList.invoke(sysUserMapper, wrapper);
             return (List<?>) result;
         } catch (InvocationTargetException e) {
-            Throwable targetException = e.getTargetException();
-            if (targetException instanceof RuntimeException runtimeException) {
-                throw runtimeException;
-            }
-            if (targetException instanceof Error error) {
-                throw error;
-            }
-            throw new RuntimeException(targetException);
+            return rethrowInvocationTargetException(e);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
@@ -351,14 +355,7 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
             Method selectById = sysUserMapper.getClass().getMethod("selectById", Serializable.class);
             return selectById.invoke(sysUserMapper, userId);
         } catch (InvocationTargetException e) {
-            Throwable targetException = e.getTargetException();
-            if (targetException instanceof RuntimeException runtimeException) {
-                throw runtimeException;
-            }
-            if (targetException instanceof Error error) {
-                throw error;
-            }
-            throw new RuntimeException(targetException);
+            return rethrowInvocationTargetException(e);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
@@ -369,14 +366,7 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
             Method getId = sysUser.getClass().getMethod("getId");
             return (Integer) getId.invoke(sysUser);
         } catch (InvocationTargetException e) {
-            Throwable targetException = e.getTargetException();
-            if (targetException instanceof RuntimeException runtimeException) {
-                throw runtimeException;
-            }
-            if (targetException instanceof Error error) {
-                throw error;
-            }
-            throw new RuntimeException(targetException);
+            return rethrowInvocationTargetException(e);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
@@ -388,14 +378,7 @@ public class EvaTaskQueryRepository implements EvaTaskQueryRepo {
             Method getName = sysUser.getClass().getMethod("getName");
             return (String) getName.invoke(sysUser);
         } catch (InvocationTargetException e) {
-            Throwable targetException = e.getTargetException();
-            if (targetException instanceof RuntimeException runtimeException) {
-                throw runtimeException;
-            }
-            if (targetException instanceof Error error) {
-                throw error;
-            }
-            throw new RuntimeException(targetException);
+            return rethrowInvocationTargetException(e);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
