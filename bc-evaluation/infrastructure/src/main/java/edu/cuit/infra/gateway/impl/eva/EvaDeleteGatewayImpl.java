@@ -25,9 +25,15 @@ public class EvaDeleteGatewayImpl implements EvaDeleteGateway {
     private final EvaTaskMapper evaTaskMapper;
     private final DeleteEvaRecordRepository deleteEvaRecordRepository;
     private final DeleteEvaTemplateRepository deleteEvaTemplateRepository;
+
     @Override
     @Transactional
     public Void deleteEvaRecord(List<Integer> ids) {
+        deleteEvaRecordOrThrow(ids);
+        return null;
+    }
+
+    private void deleteEvaRecordOrThrow(List<Integer> ids) {
         try {
             deleteEvaRecordRepository.delete(ids);
         } catch (DeleteEvaRecordQueryException e) {
@@ -35,12 +41,16 @@ public class EvaDeleteGatewayImpl implements EvaDeleteGateway {
         } catch (DeleteEvaRecordUpdateException e) {
             throw new UpdateException(e.getMessage());
         }
-        return null;
     }
-    //ok
+
     @Override
     @Transactional
     public Void deleteEvaTemplate(List<Integer> ids) {
+        deleteEvaTemplateOrThrow(ids);
+        return null;
+    }
+
+    private void deleteEvaTemplateOrThrow(List<Integer> ids) {
         try {
             deleteEvaTemplateRepository.delete(ids);
         } catch (DeleteEvaTemplateQueryException e) {
@@ -48,17 +58,16 @@ public class EvaDeleteGatewayImpl implements EvaDeleteGateway {
         } catch (DeleteEvaTemplateUpdateException e) {
             throw new UpdateException(e.getMessage());
         }
-        return null;
     }
 
     @Override
     public List<Integer> deleteAllTaskByTea(Integer teacherId) {
-        List<EvaTaskDO> evaTaskDOS=evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id",teacherId));
-        List<Integer> evaTaskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
-        if(CollectionUtil.isEmpty(evaTaskDOS)){
+        List<EvaTaskDO> evaTaskDOS = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id", teacherId));
+        List<Integer> evaTaskIds = evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
+        if (CollectionUtil.isEmpty(evaTaskDOS)) {
             return List.of();
         }
-        evaTaskMapper.delete(new QueryWrapper<EvaTaskDO>().eq("teacher_id",teacherId));
+        evaTaskMapper.delete(new QueryWrapper<EvaTaskDO>().eq("teacher_id", teacherId));
         return evaTaskIds;
     }
 }
