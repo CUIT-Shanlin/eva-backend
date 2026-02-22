@@ -172,19 +172,23 @@ public class PostEvaTaskRepositoryImpl implements PostEvaTaskRepository {
         localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_TEACH, selectSysUserNameById(evaTaskDO.getTeacherId()));
     }
 
+    private static <T> T rethrowInvocationTargetException(InvocationTargetException e) {
+        Throwable targetException = e.getTargetException();
+        if (targetException instanceof RuntimeException runtimeException) {
+            throw runtimeException;
+        }
+        if (targetException instanceof Error error) {
+            throw error;
+        }
+        throw new RuntimeException(targetException);
+    }
+
     private Object selectSysUserById(Serializable userId) {
         try {
             Method selectById = sysUserMapper.getClass().getMethod("selectById", Serializable.class);
             return selectById.invoke(sysUserMapper, userId);
         } catch (InvocationTargetException e) {
-            Throwable targetException = e.getTargetException();
-            if (targetException instanceof RuntimeException runtimeException) {
-                throw runtimeException;
-            }
-            if (targetException instanceof Error error) {
-                throw error;
-            }
-            throw new RuntimeException(targetException);
+            return rethrowInvocationTargetException(e);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
@@ -195,14 +199,7 @@ public class PostEvaTaskRepositoryImpl implements PostEvaTaskRepository {
             Method getId = sysUser.getClass().getMethod("getId");
             return (Integer) getId.invoke(sysUser);
         } catch (InvocationTargetException e) {
-            Throwable targetException = e.getTargetException();
-            if (targetException instanceof RuntimeException runtimeException) {
-                throw runtimeException;
-            }
-            if (targetException instanceof Error error) {
-                throw error;
-            }
-            throw new RuntimeException(targetException);
+            return rethrowInvocationTargetException(e);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
@@ -214,14 +211,7 @@ public class PostEvaTaskRepositoryImpl implements PostEvaTaskRepository {
             Method getName = sysUser.getClass().getMethod("getName");
             return (String) getName.invoke(sysUser);
         } catch (InvocationTargetException e) {
-            Throwable targetException = e.getTargetException();
-            if (targetException instanceof RuntimeException runtimeException) {
-                throw runtimeException;
-            }
-            if (targetException instanceof Error error) {
-                throw error;
-            }
-            throw new RuntimeException(targetException);
+            return rethrowInvocationTargetException(e);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
