@@ -920,17 +920,21 @@ public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
             Object result = selectList.invoke(sysUserMapper, wrapper);
             return (List<?>) result;
         } catch (InvocationTargetException e) {
-            Throwable targetException = e.getTargetException();
-            if (targetException instanceof RuntimeException runtimeException) {
-                throw runtimeException;
-            }
-            if (targetException instanceof Error error) {
-                throw error;
-            }
-            throw new RuntimeException(targetException);
+            return rethrowInvocationTargetException(e);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static <T> T rethrowInvocationTargetException(InvocationTargetException e) {
+        Throwable targetException = e.getTargetException();
+        if (targetException instanceof RuntimeException runtimeException) {
+            throw runtimeException;
+        }
+        if (targetException instanceof Error error) {
+            throw error;
+        }
+        throw new RuntimeException(targetException);
     }
 
     private Object selectSysUserById(Serializable userId) {
@@ -938,14 +942,7 @@ public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
             Method selectById = sysUserMapper.getClass().getMethod("selectById", Serializable.class);
             return selectById.invoke(sysUserMapper, userId);
         } catch (InvocationTargetException e) {
-            Throwable targetException = e.getTargetException();
-            if (targetException instanceof RuntimeException runtimeException) {
-                throw runtimeException;
-            }
-            if (targetException instanceof Error error) {
-                throw error;
-            }
-            throw new RuntimeException(targetException);
+            return rethrowInvocationTargetException(e);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
@@ -956,14 +953,7 @@ public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
             Method getId = sysUser.getClass().getMethod("getId");
             return (Integer) getId.invoke(sysUser);
         } catch (InvocationTargetException e) {
-            Throwable targetException = e.getTargetException();
-            if (targetException instanceof RuntimeException runtimeException) {
-                throw runtimeException;
-            }
-            if (targetException instanceof Error error) {
-                throw error;
-            }
-            throw new RuntimeException(targetException);
+            return rethrowInvocationTargetException(e);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
@@ -975,14 +965,7 @@ public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
             Method getName = sysUser.getClass().getMethod("getName");
             return (String) getName.invoke(sysUser);
         } catch (InvocationTargetException e) {
-            Throwable targetException = e.getTargetException();
-            if (targetException instanceof RuntimeException runtimeException) {
-                throw runtimeException;
-            }
-            if (targetException instanceof Error error) {
-                throw error;
-            }
-            throw new RuntimeException(targetException);
+            return rethrowInvocationTargetException(e);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
@@ -994,14 +977,7 @@ public class EvaStatisticsQueryRepository implements EvaStatisticsQueryRepo {
             Method getDepartment = sysUser.getClass().getMethod("getDepartment");
             return (String) getDepartment.invoke(sysUser);
         } catch (InvocationTargetException e) {
-            Throwable targetException = e.getTargetException();
-            if (targetException instanceof RuntimeException runtimeException) {
-                throw runtimeException;
-            }
-            if (targetException instanceof Error error) {
-                throw error;
-            }
-            throw new RuntimeException(targetException);
+            return rethrowInvocationTargetException(e);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
