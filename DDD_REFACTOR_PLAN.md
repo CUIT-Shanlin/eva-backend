@@ -525,6 +525,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-22，保持行为不变，读侧去重复，单类）：`bc-evaluation/infrastructure` 的 `EvaStatisticsQueryRepository` 抽取 `rethrowInvocationTargetException(...)` 复用 sysUserMapper 反射调用异常解包逻辑，保持对 `RuntimeException/Error` 的原样抛出语义不变（最小回归通过；落地：`bf79e34e`）。
 - ✅ 补充进展（2026-02-22，保持行为不变，写侧去重复，单类）：`bc-evaluation/infrastructure` 的 `PostEvaTaskRepositoryImpl` 抽取 `rethrowInvocationTargetException(...)` 复用反射调用异常解包逻辑，保持对 `RuntimeException/Error` 的原样抛出语义不变（最小回归通过；落地：`0fcca08c`）。
 - ✅ 补充进展（2026-02-22，保持行为不变，写侧去重复，单类）：`bc-evaluation/infrastructure` 的 `SubmitEvaluationRepositoryImpl` 抽取 `rethrowInvocationTargetException(...)` 复用反射调用异常解包逻辑，保持对 `RuntimeException/Error` 的原样抛出语义不变（最小回归通过；落地：`135ebc71`）。
+- 🎯 下一刀建议（写侧优先，保持行为不变，单类闭环）：评教写侧 `DeleteEvaRecordRepositoryImpl` 仍存在 `InvocationTargetException` 目标异常解包逻辑的内联重复写法，建议按同口径抽取 `rethrowInvocationTargetException(...)` 并复用，保持异常语义与副作用顺序不变。
 - ✅ 补充进展（2026-02-22，保持行为不变，依赖边界收敛前置，单类）：`bc-iam/infrastructure` 的 `UserServiceImpl.getOneUserScore` 将课程域查询调用点提炼为私有方法 `getSelfTeachCourseInfoByUserId/findEvaScoreByCourseId`，保持异常文案与调用顺序不变（最小回归通过；落地：`254e0bca`）。
 - ✅ 补充进展（2026-02-22，保持行为不变，写侧去重复，单类）：`bc-evaluation/infrastructure` 的 `DeleteEvaRecordRepositoryImpl` 将删除记录后的“模板清理判断 + 缓存失效”后置流程提炼为私有方法（不改任何查询条件/异常文案/日志文案与副作用顺序；最小回归通过；落地：`4ef05cb2`）。
 - ✅ 补充进展（2026-02-22，保持行为不变，写侧去重复，单类）：`bc-evaluation/infrastructure` 的 `EvaDeleteGatewayImpl` 将 `deleteEvaRecord/deleteEvaTemplate` 内重复的异常映射逻辑提炼为私有方法（`@Transactional` 仍在公开方法；异常文案与副作用顺序不变；最小回归通过；落地：`6126ddcb`）。
