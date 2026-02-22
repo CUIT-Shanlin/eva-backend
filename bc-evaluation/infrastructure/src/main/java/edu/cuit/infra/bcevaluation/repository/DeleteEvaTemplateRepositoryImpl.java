@@ -49,12 +49,17 @@ public class DeleteEvaTemplateRepositoryImpl implements DeleteEvaTemplateReposit
                     LogUtils.logContent(formTemplateMapper.selectById(id).getName() + " 评教模板");
                     formTemplateMapper.delete(formTemplateWrapper);
                     //删除缓存
-                    localCacheManager.invalidateCache(evaCacheConstants.ONE_TEMPLATE, String.valueOf(id));
-                    localCacheManager.invalidateCache(null, evaCacheConstants.TEMPLATE_LIST);
+                    invalidateTemplateCaches(id);
                 }
             } else {
                 throw new DeleteEvaTemplateUpdateException("该模板已经被课程分配，无法再进行删除");
             }
         }
+    }
+
+    private void invalidateTemplateCaches(Integer id) {
+        //删除缓存
+        localCacheManager.invalidateCache(evaCacheConstants.ONE_TEMPLATE, String.valueOf(id));
+        localCacheManager.invalidateCache(null, evaCacheConstants.TEMPLATE_LIST);
     }
 }
