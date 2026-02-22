@@ -504,7 +504,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 
 ### 10.2 下一步优先顺序（保持“写侧优先 + 行为不变”）
 
-> 路线选择（更新至 2026-02-20）：采用 **方案 B（严格）** —— 以“DoD 可验证”的方式彻底退场 `eva-*` 技术切片（详见 10.5.B）。跨 BC 只允许通过 `*-contract` + `shared-kernel` 对外接口调用；当前已完成 `eva-*` reactor 清零 + 目录退场收口（`eva-base/eva-infra/eva-infra-dal/...` 均已退场闭环，详见本节补充进展）。后续主线建议从“技术切片退场”切换回“写侧优先的业务重构主线”（从 Backlog 4.3/第 6 节选 1 个可单刀闭环的目标继续推进）。
+> 路线选择（更新至 2026-02-22）：采用 **方案 B（严格）** —— 以“DoD 可验证”的方式彻底退场 `eva-*` 技术切片（详见 10.5.B）。跨 BC 只允许通过 `*-contract` + `shared-kernel` 对外接口调用；当前已完成 `eva-*` reactor 清零 + 目录退场收口（`eva-base/eva-infra/eva-infra-dal/...` 均已退场闭环，详见本节补充进展）。后续主线建议从“技术切片退场”切换回“写侧优先的业务重构主线”（从 Backlog 4.3/第 6 节选 1 个可单刀闭环的目标继续推进）。
 
 > 滚动口径（更新至 2026-02-04）：✅ `eva-app` 已完成退场闭环（源码清零 + 组合根 `start` 去依赖 + root reactor 移除 + 删除 `eva-app/pom.xml`）；✅ `eva-adapter` 残留 `*Controller` 已清零，且组合根 `start` 已移除对 `eva-adapter` 的 Maven 依赖（保持行为不变）；✅ `eva-adapter` 已从 root reactor 退场（root `pom.xml` 移除 `<module>eva-adapter</module>`；最小回归通过；落地：`86842a1f`）；✅ 已删除 `eva-adapter/pom.xml`（全仓库 `**/pom.xml` 不再出现 `<artifactId>eva-adapter</artifactId>`；最小回归通过；落地：`ed244cad`）；🎯 下一步主线：并行推进“依赖方 `pom.xml` 编译期依赖收敛”，并评估是否需要删除 `eva-adapter/` 空目录（需独立提交；保持行为不变）。
 > 补充（更新至 2026-02-04，保持行为不变）：主线已转向 **bc-course S0.2 延伸：逐类把课程域类型从 `eva-domain` 归位到 `bc-course-domain`（保持 `package` 不变）**，以缩小 `eva-domain` 表面积并为后续“依赖方去 `eva-domain`”创造前置条件（下一刀建议见 10.3 的 bc-course 小节）。IAM 的 “S0.2 延伸（依赖方收敛）” 已阶段性闭环，作为并行任务保留历史记录与回溯口径。

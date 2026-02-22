@@ -1377,12 +1377,14 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 ## 6. “下一批行动”建议（不含实现，只给路线）
 
-（更新至 2026-02-21；保持行为不变）S0.2 延伸主线快照（用于新会话续接）：
+（更新至 2026-02-22；保持行为不变）S0.2 延伸主线快照（用于新会话续接）：
 - ✅ 目录退场收口：`fd -t d '^eva-' . -d 2` 无命中（`eva-infra/`、`eva-infra-dal/` 已完成目录清理；目录清理动作以空提交记录，详见 4.2 与 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ reactor 清零：`rg -n '<module>eva-' pom.xml` 无命中。
 - ⚠️ 口径澄清：父 POM `artifactId` 为 `eva-backend`，因此请用 `rg -n -P '<artifactId>eva-(?!backend)' --glob '**/pom.xml' .` 校验“除父坐标外无任何 `eva-*` 坐标/依赖残留”，避免 `rg -n '<artifactId>eva-' ...` 误判。
 - 🎯 下一刀建议（保持行为不变；每次只改 1 个类/1 个资源 XML/1 个 `pom.xml` 闭环）：从 4.3 的“未收敛清单”中选 1 个写侧优先目标推进；每刀仍遵守 Serena 证据化 → 最小回归 → 代码提交 → 三文档同步 → 文档提交 → push。
 - 🎯 读侧优先建议（保持行为不变；单类闭环）：评教写侧对课程域 `CourseMapper` 直连已清零；评教读侧已完成 `EvaTaskQueryRepository`、`EvaRecordQueryRepository`、`EvaStatisticsQueryRepository` 去课程域 `CourseMapper/SemesterMapper/SubjectMapper` 编译期直连（分别通过 `CourseAndSemesterObjectDirectQueryPort` / `SubjectObjectDirectQueryPort` 收敛）；评教侧 `EvaUpdateGatewayImpl` 也已完成去 `CourseMapper.selectById(...).getSemesterId()` 直连，且 `bc-evaluation/infrastructure/src/main/java/edu/cuit/infra/gateway/impl/eva/` 目录内未再发现 `CourseMapper/SemesterMapper` 直连点。同时，评教读侧已将“按 teacherId(+semesterId) 获取课程ID列表”的实现进一步收敛为调用最小端口 `CourseIdsByTeacherIdQueryPort/CourseIdsByTeacherIdAndSemesterIdQueryPort`（保持查询条件/结果顺序/空值语义不变），且“按 semesterId / teacherId 拿课程ID列表”的场景也已开始收敛为调用最小端口 `CourseIdsBySemesterIdQueryPort` / `CourseIdsByTeacherIdQueryPort`（保持行为不变）。补充：课程域读侧 `CourseQueryRepository`（落地：`02b94cde`）与 `CourseRecommendExce`（落地：`53601b8c`）已完成课程ID列表查询收敛为最小端口。下一刀建议继续盘点并收敛其它同类“仅为拿课程ID列表而先查对象再映射”的残留点，逐刀改走最小端口（每刀只改 1 个类闭环）。可选的“口径清理”下一刀：✅ 已完成：清理 `CourseImportExce` 内历史注释残留的旧实现（落地：`1be6955b`），避免盘点时被注释命中干扰。
+- ✅ 写侧补充进展（2026-02-22，保持行为不变，单类）：`EvaUpdateGatewayImpl.cancelEvaTaskById(...)` 已抽取缓存失效调用点（`invalidateTaskListBySemester/invalidateTaskListByTeacher`），缓存 key、异常文案与副作用顺序完全不变（落地：`c7f38a55`）。
+- 🎯 下一刀建议（写侧优先，保持行为不变；单 `pom.xml` 闭环）：选择一个“仅使用 `edu.cuit.client.*` 协议对象”的依赖方，Serena + `rg` 证伪其不需要 `bc-course` 内部实现类后，将其对 `bc-course` 的 Maven 编译期依赖收敛为显式依赖 `shared-kernel`（每步闭环：Serena → 最小回归 → 代码提交 → 三文档同步 → 文档提交 → push）。
 - 🎯 下一刀建议（shared 瘦身，LDAP 子簇续接，保持行为不变；每次只改 1 个文件闭环）：
   - 刀 1（单 pom，依赖前置）：✅ 已完成：`shared-kernel/pom.xml` 已增加 `spring-data-ldap(optional)`（或等价依赖），用于承接 `LdapGroupRepo` 的 `org.springframework.data.ldap.repository.LdapRepository` 编译期依赖（落地：`9dad61a8`；保持行为不变）。
   - 刀 2（单类搬运）：✅ 已完成：将 `LdapGroupRepo` 从 `eva-infra-shared` 下沉到 `shared-kernel`（保持 `package` 与接口签名不变；保持行为不变；落地：`7ff087ad`）。
