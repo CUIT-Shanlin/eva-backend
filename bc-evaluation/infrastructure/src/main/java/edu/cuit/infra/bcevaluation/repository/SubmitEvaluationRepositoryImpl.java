@@ -130,16 +130,7 @@ public class SubmitEvaluationRepositoryImpl implements SubmitEvaluationRepositor
         evaTaskMapper.updateById(task);
 
         // 缓存失效：尽量保持与历史逻辑一致
-        localCacheManager.invalidateCache(evaCacheConstants.ONE_TASK, String.valueOf(context.taskId()));
-        localCacheManager.invalidateCache(null, evaCacheConstants.LOG_LIST);
-        String evaluatorName = context.evaluatorName();
-        if (evaluatorName == null && task.getTeacherId() != null) {
-            Object user = selectSysUserById(task.getTeacherId());
-            evaluatorName = user == null ? null : selectSysUserName(user);
-        }
-        if (evaluatorName != null) {
-            localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_TEACH, evaluatorName);
-        }
+        invalidateCachesAfterSaveEvaluation(context, task);
 
         // 首次评教：创建课程模板快照（用于锁定模板）
         CourOneEvaTemplateDO snapshot = courOneEvaTemplateMapper.selectOne(
@@ -164,6 +155,19 @@ public class SubmitEvaluationRepositoryImpl implements SubmitEvaluationRepositor
             newSnapshot.setFormTemplate(JSONUtil.toJsonStr(templateJson));
 
             courOneEvaTemplateMapper.insert(newSnapshot);
+        }
+    }
+
+    private void invalidateCachesAfterSaveEvaluation(SubmitEvaluationContext context, EvaTaskDO task) {
+        localCacheManager.invalidateCache(evaCacheConstants.ONE_TASK, String.valueOf(context.taskId()));
+        localCacheManager.invalidateCache(null, evaCacheConstants.LOG_LIST);
+        String evaluatorName = context.evaluatorName();
+        if (evaluatorName == null && task.getTeacherId() != null) {
+            Object user = selectSysUserById(task.getTeacherId());
+            evaluatorName = user == null ? null : selectSysUserName(user);
+        }
+        if (evaluatorName != null) {
+            localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_TEACH, evaluatorName);
         }
     }
 
