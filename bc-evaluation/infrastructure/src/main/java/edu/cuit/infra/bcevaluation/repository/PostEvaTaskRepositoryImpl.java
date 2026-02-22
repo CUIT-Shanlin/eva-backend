@@ -154,8 +154,7 @@ public class PostEvaTaskRepositoryImpl implements PostEvaTaskRepository {
         evaTaskDO.setTeacherId(command.evaluatorId());
         evaTaskMapper.insert(evaTaskDO);
         // 加缓存
-        localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(course.semesterId()));
-        localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_TEACH, selectSysUserNameById(evaTaskDO.getTeacherId()));
+        invalidateTaskListCaches(course.semesterId(), evaTaskDO);
         Integer taskId = evaTaskMapper.selectOne(new QueryWrapper<EvaTaskDO>()
                         .eq("teacher_id", command.evaluatorId())
                         .eq("cour_inf_id", command.courInfId())
@@ -166,6 +165,11 @@ public class PostEvaTaskRepositoryImpl implements PostEvaTaskRepository {
             throw new PostEvaTaskQueryException("没有找到你的id");
         }
         return taskId;
+    }
+
+    private void invalidateTaskListCaches(Integer semesterId, EvaTaskDO evaTaskDO) {
+        localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(semesterId));
+        localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_TEACH, selectSysUserNameById(evaTaskDO.getTeacherId()));
     }
 
     private Object selectSysUserById(Serializable userId) {
