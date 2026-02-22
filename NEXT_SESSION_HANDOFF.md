@@ -53,6 +53,12 @@
 - 🧪 最小回归通过（Java17）：按 0.11 命令执行；`mvnd` 启动阶段报 `java.lang.ExceptionInInitializerError`，已按约束降级使用 `mvn` 完成最小回归（测试用例集保持不变）。
 - 📌 代码落地：`a4c14240`。
 
+**2026-02-22（评教读侧：`EvaStatisticsQueryRepository` 反射异常处理去重复；保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`selectSysUserList/selectSysUserById/selectSysUserId/selectSysUserNameById/selectSysUserDepartmentById` 的 `InvocationTargetException` 解包逻辑重复；可抽取公共方法而不改变异常语义与反射调用位置。
+- ✅ 执行（单类，保持行为不变）：抽取 `rethrowInvocationTargetException(...)` 并在上述五处复用；保持对 `RuntimeException/Error` 的原样抛出与其余异常包装口径不变。
+- 🧪 最小回归通过（Java17 + mvnd）：按 0.11 命令执行（测试用例集保持不变）。
+- 📌 代码落地：`bf79e34e`。
+
 **2026-02-22（评教读侧：`EvaRecordQueryRepository` 反射异常处理去重复；保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`selectSysUserList/selectSysUserById` 的 `InvocationTargetException` 解包逻辑重复；可抽取公共方法而不改变异常语义与反射调用位置。
 - ✅ 执行（单类，保持行为不变）：抽取 `rethrowInvocationTargetException(...)` 并在两处复用；保持对 `RuntimeException/Error` 的原样抛出与其余异常包装口径不变。
