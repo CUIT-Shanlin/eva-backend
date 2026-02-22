@@ -95,6 +95,12 @@
 - 🧪 最小回归通过（Java17）：按 0.11 命令执行；使用 `mise exec java@temurin-17 -- mvn ...` 完成最小回归（测试用例集保持不变）。
 - 📌 代码落地：`02fb49f1`。
 
+**2026-02-22（评教写侧：`PostEvaTaskRepositoryImpl` 提炼发起评教任务缓存失效逻辑；保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`PostEvaTaskRepositoryImpl.create` 为发起评教任务写侧端口适配器方法；本刀仅做类内重构，不改 DB 插入、异常文案与冲突校验逻辑。
+- ✅ 执行（单类，保持行为不变）：将发起评教任务后的缓存失效调用提炼为 `invalidateTaskListCaches(...)`，保持失效顺序不变：按 `semesterId` 失效 `TASK_LIST_BY_SEM` → 按 `teacherId` 失效 `TASK_LIST_BY_TEACH`（`selectSysUserNameById(...)` 仍在第二次失效时触发）。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；使用 `mise exec java@temurin-17 -- mvn ...` 完成最小回归（测试用例集保持不变）。
+- 📌 代码落地：`59c0a974`。
+
 **2026-02-22（评教写侧：`EvaUpdateGatewayImpl` 提炼缓存失效调用；保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`cancelEvaTaskById` 被 `EvaTaskServiceImpl.cancelEvaTask/cancelMyEvaTask` 调用；方法体内包含 DB 更新与多个缓存失效点，需严格保持副作用顺序不变。
 - ✅ 执行（单类，保持行为不变）：在 `cancelEvaTaskById` 内抽取 `invalidateTaskListBySemester/invalidateTaskListByTeacher`，保持 `evaTaskMapper.update(...)` → 按课程学期失效 → 按教师失效 的顺序不变；缓存 key 与参数构造口径不变；不改异常文案/日志文案。
