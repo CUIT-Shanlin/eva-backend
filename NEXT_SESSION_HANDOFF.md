@@ -77,6 +77,12 @@
 - 🧪 最小回归通过（Java17）：按 0.11 命令执行；使用 `mise exec java@temurin-17 -- mvn ...` 完成最小回归（测试用例集保持不变）。
 - 📌 代码落地：`479c5500`。
 
+**2026-02-22（评教写侧：`EvaDeleteGatewayImpl.deleteAllTaskByTea` 提炼查询/删除辅助方法；保持行为不变）**
+- ✅ Serena（证据化，保持行为不变）：`EvaDeleteGateway.deleteAllTaskByTea` 被 `EvaTaskServiceImpl.deleteAllTaskByTea` 调用；本刀仅在 `EvaDeleteGatewayImpl` 内抽取私有方法，不改变查询条件、删除顺序与返回值语义。
+- ✅ 执行（单类，保持行为不变）：将 `selectList(eq teacher_id)` 与 `delete(eq teacher_id)` 提炼为 `selectEvaTasksByTeacherId/deleteEvaTasksByTeacherId`，保持“先查→取ID列表→空则返回→再删→返回ID列表”的顺序不变。
+- 🧪 最小回归通过（Java17）：按 0.11 命令执行；使用 `mise exec java@temurin-17 -- mvn ...` 完成最小回归（测试用例集保持不变）。
+- 📌 代码落地：`cfb51628`。
+
 **2026-02-22（评教写侧：`EvaUpdateGatewayImpl` 提炼缓存失效调用；保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`cancelEvaTaskById` 被 `EvaTaskServiceImpl.cancelEvaTask/cancelMyEvaTask` 调用；方法体内包含 DB 更新与多个缓存失效点，需严格保持副作用顺序不变。
 - ✅ 执行（单类，保持行为不变）：在 `cancelEvaTaskById` 内抽取 `invalidateTaskListBySemester/invalidateTaskListByTeacher`，保持 `evaTaskMapper.update(...)` → 按课程学期失效 → 按教师失效 的顺序不变；缓存 key 与参数构造口径不变；不改异常文案/日志文案。
