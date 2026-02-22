@@ -9,7 +9,6 @@ import edu.cuit.infra.dal.database.mapper.eva.EvaTaskMapper;
 import edu.cuit.infra.enums.cache.EvaCacheConstants;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.cache.aspect.annotation.local.LocalCacheInvalidate;
-import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -34,23 +33,34 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
     @Override
     @Transactional
     @LocalCacheInvalidate(area="#{@evaCacheConstants.ONE_TASK}", key="#id")
-    public Void cancelEvaTaskById(Integer id){
+    public Void cancelEvaTaskById(Integer id) {
         //取消相应的评教任务
-        UpdateWrapper<EvaTaskDO> evaTaskWrapper=new UpdateWrapper<>();
-        evaTaskWrapper.eq("id",id);
-        EvaTaskDO evaTaskDO=evaTaskMapper.selectById(id);
+        UpdateWrapper<EvaTaskDO> evaTaskWrapper = new UpdateWrapper<>();
+        evaTaskWrapper.eq("id", id);
+        EvaTaskDO evaTaskDO = evaTaskMapper.selectById(id);
         evaTaskDO.setStatus(2);
-        evaTaskMapper.update(evaTaskDO,evaTaskWrapper);
-        Integer courseId = courseIdByCourInfIdQueryPort.findCourseIdByCourInfId(evaTaskDO.getCourInfId()).orElse(null);
+        evaTaskMapper.update(evaTaskDO, evaTaskWrapper);
+
+        Integer courseId = courseIdByCourInfIdQueryPort
+                .findCourseIdByCourInfId(evaTaskDO.getCourInfId())
+                .orElse(null);
+        invalidateTaskListBySemester(courseId);
+        invalidateTaskListByTeacher(evaTaskDO.getTeacherId());
+        return null;
+    }
+
+    private void invalidateTaskListBySemester(Integer courseId) {
         localCacheManager.invalidateCache(
                 evaCacheConstants.TASK_LIST_BY_SEM,
                 String.valueOf(courseAndSemesterObjectDirectQueryPort.findCourseById(courseId).getSemesterId())
         );
+    }
+
+    private void invalidateTaskListByTeacher(Integer teacherId) {
         localCacheManager.invalidateCache(
                 evaCacheConstants.TASK_LIST_BY_TEACH,
-                selectSysUserNameById(evaTaskDO.getTeacherId())
+                selectSysUserNameById(teacherId)
         );
-        return null;
     }
 
     private String selectSysUserNameById(Serializable userId) {
