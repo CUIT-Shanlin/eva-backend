@@ -55,13 +55,6 @@
 	            <version>${revision}</version>
 	        </dependency>
 
-	        <!-- 课程 DAL（CourseMapper/SemesterMapper/CourInfMapper/SubjectMapper）逐类归位到 bc-course-infra 的编译闭合前置 -->
-	        <dependency>
-	            <groupId>edu.cuit</groupId>
-	            <artifactId>bc-course-infra</artifactId>
-	            <version>${revision}</version>
-	        </dependency>
-
 		        <!-- 导出链路依赖用户 API（保持包名不变） -->
 		        <dependency>
 		            <groupId>edu.cuit</groupId>
