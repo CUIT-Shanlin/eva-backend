@@ -46,9 +46,13 @@ public class UpdateEvaTemplateRepositoryImpl implements UpdateEvaTemplateReposit
         formTemplateMapper.update(formTemplateDO, new QueryWrapper<FormTemplateDO>().eq("id", command.id()));
 
         // 失效缓存（保持行为不变）
-        localCacheManager.invalidateCache(evaCacheConstants.ONE_TEMPLATE, String.valueOf(command.id()));
-        localCacheManager.invalidateCache(null, evaCacheConstants.TEMPLATE_LIST);
+        invalidateTemplateCaches(command.id());
 
         LogUtils.logContent(formTemplateMapper.selectById(command.id()).getName() + " 评教模板");
+    }
+
+    private void invalidateTemplateCaches(Integer id) {
+        localCacheManager.invalidateCache(evaCacheConstants.ONE_TEMPLATE, String.valueOf(id));
+        localCacheManager.invalidateCache(null, evaCacheConstants.TEMPLATE_LIST);
     }
 }
