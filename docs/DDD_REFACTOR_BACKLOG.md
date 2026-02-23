@@ -1005,6 +1005,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ 补充进展（2026-02-23，保持行为不变）：评教 `bc-evaluation/infrastructure` 新增端口适配器 `EvaTaskCourInfIdsByTeacherIdAndStatusDirectQueryPortImpl`，内部仅委托 `EvaTaskMapper.selectList(eq teacher_id, status)` 并映射为 `courInfId` 列表（不引入缓存/切面副作用；查询条件、结果顺序与空值语义保持不变；最小回归通过；落地：`0f4fa7d3`）。
 - ✅ 补充进展（2026-02-23，保持行为不变）：课程写侧 `bc-course/infrastructure` 的 `UpdateSelfCourseRepositoryImpl` 已将“自助改课时用于判断评教时间冲突”的评教任务 `courInfId` 列表查询，从评教 `evaTaskMapper.selectList(eq teacher_id, status=0)` 的反射调用收敛为调用评教直查端口 `EvaTaskCourInfIdsByTeacherIdAndStatusDirectQueryPort`（不引入缓存/切面副作用；异常文案/副作用顺序不变；最小回归通过；落地：`794bc199`）。
 - 🎯 下一刀建议（保持行为不变，单类闭环）：继续在 `UpdateSelfCourseRepositoryImpl` 清理剩余评教 `evaTaskMapper` 反射调用点（按 `cour_inf_id` 的 `selectList/delete`），建议先在 `bc-evaluation/contract` 补齐“按 courInfId 删除任务”的写侧最小端口并在 `bc-evaluation/infrastructure` 落适配器实现（保持现有删除语义与副作用顺序不变），再回填课程侧调用点。
+- ✅ 补充进展（2026-02-23，保持行为不变）：评教 `bc-evaluation/contract` 新增写侧端口 `EvaTaskDeleteByCourInfIdPort`，用于跨 BC 在课程侧“自助改课删除某些课次（cour_inf）”链路中按 `courInfId` 删除评教任务（保持旧调用语义：仅删除 `eva_task`，不做级联删除；不引入缓存/切面副作用；入参为空 no-op；最小回归通过；落地：`6b304d4b`）。
+- 🎯 下一刀建议（保持行为不变，单类闭环）：在 `bc-evaluation/infrastructure` 落端口适配器实现 `EvaTaskDeleteByCourInfIdPort`（内部委托现有 `EvaTaskMapper.delete(eq cour_inf_id)`），用于后续将课程写侧 `UpdateSelfCourseRepositoryImpl` 中按 `cour_inf_id` 的评教任务删除从反射调用收敛为调用端口。
 
 - **方案 B（`CourseFormat` 下沉，保持行为不变）**：
   - ✅ 已完成前置：`shared-kernel/pom.xml` 已补齐 `zym-spring-boot-starter-jdbc` 与 `jackson-databind`（落地：`322bb315`）。
