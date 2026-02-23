@@ -1001,6 +1001,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ 补充进展（2026-02-23，保持行为不变）：评教 `bc-evaluation/infrastructure` 新增取消端口适配器 `EvaTaskCancelByTeacherIdAndCourInfIdPortImpl`，内部仅委托 `EvaTaskMapper.update(...)` 将 `eva_task.status` 更新为 `2`（不引入缓存/切面副作用；空入参 no-op；最小回归通过；落地：`656ca526`）。
 - ✅ 补充进展（2026-02-23，保持行为不变）：课程写侧 `bc-course/infrastructure` 的 `UpdateSingleCourseRepositoryImpl` 已将“取消评教任务”的评教 `evaTaskMapper` 反射调用收敛为调用评教端口（通过 `EvaTaskBriefByCourInfIdsDirectQueryPort` 获取任务最小视图并筛选 `status=0`，再调用 `EvaTaskCancelByTeacherIdAndCourInfIdPort` 执行取消；仍保持 `cour_inf_id = courINfo.getCourseId()` 的历史口径不变；最小回归通过；落地：`b9178e9a`）。
 - 🎯 下一刀建议（保持行为不变，单类闭环）：继续在课程写侧选择 1 个调用点，移除评教 `evaTaskMapper` 的运行期反射调用并改走评教端口（例如 `UpdateSelfCourseRepositoryImpl` / `DeleteSelfCourseRepositoryImpl` / `AssignEvaTeachersRepositoryImpl`；优先改写侧链路；保持异常文案/缓存失效/日志与副作用顺序不变）。
+- ✅ 补充进展（2026-02-23，保持行为不变）：评教 `bc-evaluation/contract` 新增最小直查端口 `EvaTaskCourInfIdsByTeacherIdAndStatusDirectQueryPort`，用于跨 BC 以 `teacherId + status` 获取评教任务关联的 `courInfId` 列表（不引入缓存/切面副作用；入参为空 no-op；最小回归通过；落地：`d9846645`）。
+- 🎯 下一刀建议（保持行为不变，单类闭环）：在 `bc-evaluation/infrastructure` 落端口适配器实现 `EvaTaskCourInfIdsByTeacherIdAndStatusDirectQueryPort`（内部委托现有 `EvaTaskMapper.selectList(eq teacher_id, status)` 并映射 `courInfId` 列表），用于后续将课程写侧 `UpdateSelfCourseRepositoryImpl` 等调用点从评教 Mapper 反射调用收敛为调用端口。
 
 - **方案 B（`CourseFormat` 下沉，保持行为不变）**：
   - ✅ 已完成前置：`shared-kernel/pom.xml` 已补齐 `zym-spring-boot-starter-jdbc` 与 `jackson-databind`（落地：`322bb315`）。
