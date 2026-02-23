@@ -528,6 +528,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-23，保持行为不变，写侧去重复，单类）：`bc-evaluation/infrastructure` 的 `DeleteEvaRecordRepositoryImpl` 抽取 `rethrowInvocationTargetException(...)` 复用 `selectSysUserNameById(...)` 中反射调用异常解包逻辑，保持对 `RuntimeException/Error` 的原样抛出语义不变（最小回归通过；落地：`a1773f2b`）。
 - ✅ 补充进展（2026-02-23，保持行为不变，跨 BC 直连清零前置，单类）：在 `bc-iam-contract` 新增用户姓名直查端口 `UserNameDirectQueryPort`（约束：不走缓存/切面副作用），用于后续将课程写侧等调用点从 `sysUserMapper.selectById(...).getName()` 的跨 BC 直连写法收敛为调用端口（最小回归通过；落地：`201d95de`）。
 - ✅ 补充进展（2026-02-23，保持行为不变，跨 BC 直连清零前置，单类）：在 `bc-iam-infra` 新增端口适配器 `UserNameDirectQueryPortImpl`，内部仅委托 `SysUserMapper.selectById(id).getName()`（不引入缓存/切面副作用；最小回归通过；落地：`58a4b628`）。
+- ✅ 补充进展（2026-02-23，保持行为不变，课程写侧收敛，单类）：课程写侧 `bc-course/infrastructure` 的 `UpdateCourseInfoRepositoryImpl` 已将“按 `teacherId` 取姓名”的跨 BC `sysUserMapper` 反射调用收敛为调用 IAM 端口 `UserNameDirectQueryPort.findNameById(...)`（不引入缓存/切面副作用；最小回归通过；落地：`d0dc8708`）。
 - 🎯 下一刀建议（写侧优先，保持行为不变；每次只改 1 个类/1 个资源 XML/1 个 `pom.xml` 闭环）：从 `docs/DDD_REFACTOR_BACKLOG.md` 的 4.3“未收敛清单”或第 6 节建议中选 1 个可单刀闭环目标继续推进。
 - ✅ 补充进展（2026-02-22，保持行为不变，依赖边界收敛前置，单类）：`bc-iam/infrastructure` 的 `UserServiceImpl.getOneUserScore` 将课程域查询调用点提炼为私有方法 `getSelfTeachCourseInfoByUserId/findEvaScoreByCourseId`，保持异常文案与调用顺序不变（最小回归通过；落地：`254e0bca`）。
 - ✅ 补充进展（2026-02-22，保持行为不变，写侧去重复，单类）：`bc-evaluation/infrastructure` 的 `DeleteEvaRecordRepositoryImpl` 将删除记录后的“模板清理判断 + 缓存失效”后置流程提炼为私有方法（不改任何查询条件/异常文案/日志文案与副作用顺序；最小回归通过；落地：`4ef05cb2`）。
