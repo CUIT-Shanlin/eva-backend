@@ -47,6 +47,13 @@
             <version>${revision}</version>
         </dependency>
 
+        <!-- 删除链路去评教直连前置：依赖评教 contract 的最小 CO/端口（保持行为不变） -->
+        <dependency>
+            <groupId>edu.cuit</groupId>
+            <artifactId>bc-evaluation-contract</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
         <!-- 跨 BC 字段桥接端口：IAM（用于收敛对 UserConverter 的直接注入；保持行为不变） -->
         <dependency>
             <groupId>edu.cuit</groupId>
