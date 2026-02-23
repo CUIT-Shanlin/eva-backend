@@ -3,13 +3,14 @@ package edu.cuit.infra.bccourse.adapter;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import edu.cuit.bc.course.application.port.DeleteSelfCourseRepository;
+import edu.cuit.bc.iam.application.contract.dto.clientobject.user.UserDetailCO;
+import edu.cuit.bc.iam.application.port.UserDetailByUsernameDirectQueryPort;
 import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseTypeCourseDO;
 import edu.cuit.infra.dal.database.dataobject.course.SubjectDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO;
-import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseTypeCourseMapper;
@@ -49,12 +50,7 @@ public class DeleteSelfCourseRepositoryImpl implements DeleteSelfCourseRepositor
     @Autowired
     @Qualifier("formRecordMapper")
     private Object formRecordMapper;
-    /**
-     * SysUserMapper 归位前置（编译期清零）：不再直接依赖 IAM Mapper 类型；仍保持原 MyBatis 调用语义，通过反射调用对应方法（保持行为不变）。
-     */
-    @Autowired
-    @Qualifier("sysUserMapper")
-    private Object userMapper;
+    private final UserDetailByUsernameDirectQueryPort userDetailByUsernameDirectQueryPort;
     private final LocalCacheManager localCacheManager;
     private final CourseCacheConstants courseCacheConstants;
     private final EvaCacheConstants evaCacheConstants;
@@ -67,11 +63,12 @@ public class DeleteSelfCourseRepositoryImpl implements DeleteSelfCourseRepositor
             throw new QueryException("请先登录");
         }
         // 先根据 userName 来找到用户id
-        SysUserDO userDO = selectSysUserByUserName(userName);
-        if (userDO == null) {
+        UserDetailCO userDetail = userDetailByUsernameDirectQueryPort.findByUsername(userName).orElse(null);
+        if (userDetail == null) {
             throw new QueryException("你已经被删除了");
         }
-        Integer userId = userDO.getId();
+        Integer userId = userDetail.getId().intValue();
+        String teacherName = userDetail.getName();
         // 根据 userId 和 courseId 来删除课程表
         CourseDO courseDO = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", courseId).eq("teacher_id", userId));
         if (courseDO == null) {
@@ -114,34 +111,14 @@ public class DeleteSelfCourseRepositoryImpl implements DeleteSelfCourseRepositor
             mapEva.put(i.getId(), i.getTeacherId());
         }
         Map<String, Map<Integer, Integer>> map = new HashMap<>();
-        map.put("你所要评教的" + userDO.getName() + "老师的" + name + "课程(" + natureName + ")被删除，已取消评教任务", mapEva);
-        map.put(userDO.getName() + "老师的" + name + "课程（" + natureName + "）已被删除", null);
+        map.put("你所要评教的" + teacherName + "老师的" + name + "课程(" + natureName + ")被删除，已取消评教任务", mapEva);
+        map.put(teacherName + "老师的" + name + "课程（" + natureName + "）已被删除", null);
 
         localCacheManager.invalidateCache(courseCacheConstants.COURSE_LIST_BY_SEM, String.valueOf(courseDO.getSemesterId()));
         localCacheManager.invalidateCache(null, evaCacheConstants.LOG_LIST);
         localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(courseDO.getSemesterId()));
         localCacheManager.invalidateCache(null, classroomCacheConstants.ALL_CLASSROOM);
         return map;
-    }
-
-    private SysUserDO selectSysUserByUserName(String userName) {
-        Object result = invokeSelectOne(userMapper, new QueryWrapper<SysUserDO>().eq("username", userName));
-        if (result == null) {
-            return null;
-        }
-        return (SysUserDO) result;
-    }
-
-    private static Object invokeSelectOne(Object mapper, Object queryWrapper) {
-        try {
-            Method method = resolveSingleArgMethod(mapper, "selectOne", queryWrapper);
-            return method.invoke(mapper, queryWrapper);
-        } catch (InvocationTargetException e) {
-            sneakyThrow(e.getTargetException());
-            return null;
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException(e);
-        }
     }
 
     private static Object invokeSelectList(Object mapper, Object queryWrapper) {
