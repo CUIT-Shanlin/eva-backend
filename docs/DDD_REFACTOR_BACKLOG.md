@@ -110,6 +110,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-02-23）**
+- ✅ IAM（保持行为不变，跨 BC 直连清零前置，单类）：在 `bc-iam-contract` 新增用户姓名直查端口 `UserNameDirectQueryPort`（约束：不走缓存/切面副作用），用于后续将课程写侧等调用点从 `sysUserMapper.selectById(...).getName()` 的跨 BC 直连写法收敛为调用端口（最小回归通过；落地：`201d95de`）。
 - ✅ 评教写侧（保持行为不变，单类闭环）：`bc-evaluation/infrastructure` 的 `DeleteEvaRecordRepositoryImpl` 抽取 `rethrowInvocationTargetException(...)` 复用 `selectSysUserNameById(...)` 中反射调用异常解包逻辑，保持对 `RuntimeException/Error` 的原样抛出语义不变（最小回归通过；落地：`a1773f2b`）。
 - ✅ 依赖收敛（保持行为不变，单 `pom.xml` 闭环）：移除 `bc-evaluation/infrastructure/pom.xml` 对 `bc-course-infra` 的 Maven 编译期依赖（Serena 证据化：`bc-evaluation/infrastructure` 内无 `CourseMapper/SemesterMapper/CourInfMapper/SubjectMapper` 引用，也无 `edu.cuit.infra.dal.database.mapper.course.*` import；最小回归通过；落地：`375c671f`）。
 - ✅ 评教写侧（保持行为不变，单类闭环）：`bc-evaluation/infrastructure` 的 `DeleteEvaRecordRepositoryImpl` 提炼删除记录后的“模板清理判断 + 缓存失效”后置流程为私有方法，保持查询条件/异常文案/日志文案与副作用顺序不变（最小回归通过；落地：`4ef05cb2`）。
