@@ -2,13 +2,13 @@ package edu.cuit.infra.bccourse.adapter;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.cuit.bc.course.application.port.DeleteCoursesRepository;
+import edu.cuit.bc.iam.application.port.UserNameDirectQueryPort;
 import edu.cuit.client.dto.data.course.CoursePeriod;
 import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.course.SubjectDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO;
-import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.SubjectMapper;
@@ -25,7 +25,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -42,18 +41,13 @@ public class DeleteCoursesRepositoryImpl implements DeleteCoursesRepository {
     private final CourInfMapper courInfMapper;
     private final CourseMapper courseMapper;
     private final SubjectMapper subjectMapper;
+    private final UserNameDirectQueryPort userNameDirectQueryPort;
     /**
      * 跨 BC 直连清零（编译期）：不再直接依赖评教侧 Mapper 类型；仍保持原 MyBatis 调用语义，通过反射调用对应方法（保持行为不变）。
      */
     @Autowired
     @Qualifier("evaTaskMapper")
     private Object evaTaskMapper;
-    /**
-     * SysUserMapper 归位前置（编译期清零）：不再直接依赖 IAM Mapper 类型；仍保持原 MyBatis 调用语义，通过反射调用对应方法（保持行为不变）。
-     */
-    @Autowired
-    @Qualifier("sysUserMapper")
-    private Object userMapper;
     @Autowired
     @Qualifier("formRecordMapper")
     private Object formRecordMapper;
@@ -73,8 +67,10 @@ public class DeleteCoursesRepositoryImpl implements DeleteCoursesRepository {
         if (courseDO == null) {
             throw new QueryException("课程不存在");
         }
-        SysUserDO userDO = selectSysUserById(courseDO.getTeacherId());
-        if (userDO == null) {
+        String teacherName;
+        try {
+            teacherName = userNameDirectQueryPort.findNameById(courseDO.getTeacherId());
+        } catch (NullPointerException e) {
             throw new QueryException("对应老师不存在");
         }
         SubjectDO subjectDO = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("id", courseDO.getSubjectId()));
@@ -107,32 +103,14 @@ public class DeleteCoursesRepositoryImpl implements DeleteCoursesRepository {
             mapEva.put(task.getId(), task.getTeacherId());
         }
         Map<String, Map<Integer, Integer>> map = new HashMap<>();
-        map.put(userDO.getName() + "老师的" + name + "课程(" + natureName + ")的一些课程已被删除", null);
-        map.put("你所评教的" + userDO.getName() + "老师的" + "上课时间在第" + coursePeriod.getStartWeek() + "周，星期" + coursePeriod.getDay()
+        map.put(teacherName + "老师的" + name + "课程(" + natureName + ")的一些课程已被删除", null);
+        map.put("你所评教的" + teacherName + "老师的" + "上课时间在第" + coursePeriod.getStartWeek() + "周，星期" + coursePeriod.getDay()
                 + "，第" + coursePeriod.getStartTime() + "-" + coursePeriod.getEndTime() + "节，" + name + "课程已经被删除，故已取消您对该课程的评教任务", mapEva);
-        LogUtils.logContent(userDO.getName() + "老师-" + name + "(课程ID:" + id + ")的一些课");
+        LogUtils.logContent(teacherName + "老师-" + name + "(课程ID:" + id + ")的一些课");
         localCacheManager.invalidateCache(null, evaCacheConstants.LOG_LIST);
         localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(semId));
         localCacheManager.invalidateCache(null, classroomCacheConstants.ALL_CLASSROOM);
         return map;
-    }
-
-    private SysUserDO selectSysUserById(Serializable userId) {
-        try {
-            Method selectById = userMapper.getClass().getMethod("selectById", Serializable.class);
-            return (SysUserDO) selectById.invoke(userMapper, userId);
-        } catch (InvocationTargetException e) {
-            Throwable targetException = e.getTargetException();
-            if (targetException instanceof RuntimeException runtimeException) {
-                throw runtimeException;
-            }
-            if (targetException instanceof Error error) {
-                throw error;
-            }
-            throw new RuntimeException(targetException);
-        } catch (ReflectiveOperationException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private void isEmptiy(QueryWrapper wrapper, CoursePeriod coursePeriod) {
