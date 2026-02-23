@@ -39,6 +39,7 @@
 > ✅ 本会话补充进展（2026-02-23，保持行为不变）：课程写侧 `UpdateSingleCourseRepositoryImpl` 已将“按 teacherId 取姓名”的跨 BC `sysUserMapper` 反射调用收敛为调用 IAM 端口 `UserNameDirectQueryPort.findNameById(...)`（缺失老师仍抛 `QueryException(\"老师不存在\")`；不引入缓存/切面副作用；最小回归通过；代码落地：`edf22c1f`）。
 > ✅ 本会话补充进展（2026-02-23，保持行为不变）：课程写侧 `DeleteCourseRepositoryImpl` 已将“按 teacherId 取姓名”的跨 BC `sysUserMapper` 反射调用收敛为调用 IAM 端口 `UserNameDirectQueryPort.findNameById(...)`（缺失老师仍保持在删除链路后触发 NPE 的时机不变；不引入缓存/切面副作用；最小回归通过；代码落地：`77fd744f`）。
 > ✅ 本会话补充进展（2026-02-23，保持行为不变）：课程写侧 `DeleteCoursesRepositoryImpl` 已将“按 teacherId 取姓名”的跨 BC `sysUserMapper` 反射调用收敛为调用 IAM 端口 `UserNameDirectQueryPort.findNameById(...)`（缺失老师仍抛 `QueryException(\"对应老师不存在\")`；不引入缓存/切面副作用；最小回归通过；代码落地：`ecacf6b2`）。
+> ✅ 本会话补充进展（2026-02-23，保持行为不变）：课程写侧 `AssignEvaTeachersRepositoryImpl` 已将“按 teacherId 取姓名”的跨 BC `sysUserMapper` 反射调用收敛为调用 IAM 端口 `UserNameDirectQueryPort.findNameById(...)`（缺失老师仍抛 `QueryException(\"所分配老师中有人未在数据库中\")`；不引入缓存/切面副作用；最小回归通过；代码落地：`e1d9c16b`）。
 
 > 状态更新（2026-02-20，保持行为不变）：评教写侧 `repository` 与评教读侧 `query` 已清零对课程域 `CourseMapper/SemesterMapper/SubjectMapper` 的编译期直连；评教侧 `EvaUpdateGatewayImpl` 已清零对 `CourseMapper.selectById(...).getSemesterId()` 的编译期直连；评教读侧已在部分场景将课程ID列表查询进一步收敛为调用 `CourseIdsByTeacherIdQueryPort/CourseIdsByTeacherIdAndSemesterIdQueryPort`（保持行为不变）。后续若发现其它“跨 BC Mapper 直连”或“仅为拿ID列表而先查对象再映射”的点，仍按“补端口 → 补适配器 → 改调用侧”逐刀推进。
 
