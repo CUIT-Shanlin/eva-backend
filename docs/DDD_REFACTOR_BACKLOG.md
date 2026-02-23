@@ -109,7 +109,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
-**已完成（更新至 2026-02-22）**
+**已完成（更新至 2026-02-23）**
+- ✅ 评教写侧（保持行为不变，单类闭环）：`bc-evaluation/infrastructure` 的 `DeleteEvaRecordRepositoryImpl` 抽取 `rethrowInvocationTargetException(...)` 复用 `selectSysUserNameById(...)` 中反射调用异常解包逻辑，保持对 `RuntimeException/Error` 的原样抛出语义不变（最小回归通过；落地：`a1773f2b`）。
 - ✅ 依赖收敛（保持行为不变，单 `pom.xml` 闭环）：移除 `bc-evaluation/infrastructure/pom.xml` 对 `bc-course-infra` 的 Maven 编译期依赖（Serena 证据化：`bc-evaluation/infrastructure` 内无 `CourseMapper/SemesterMapper/CourInfMapper/SubjectMapper` 引用，也无 `edu.cuit.infra.dal.database.mapper.course.*` import；最小回归通过；落地：`375c671f`）。
 - ✅ 评教写侧（保持行为不变，单类闭环）：`bc-evaluation/infrastructure` 的 `DeleteEvaRecordRepositoryImpl` 提炼删除记录后的“模板清理判断 + 缓存失效”后置流程为私有方法，保持查询条件/异常文案/日志文案与副作用顺序不变（最小回归通过；落地：`4ef05cb2`）。
 - ✅ 评教写侧（保持行为不变，单类闭环）：`bc-evaluation/infrastructure` 的 `EvaDeleteGatewayImpl` 提炼 `deleteEvaRecord/deleteEvaTemplate` 内重复的异常映射逻辑为私有方法，保持 `@Transactional` 位置、异常文案与副作用顺序不变（最小回归通过；落地：`6126ddcb`）。
@@ -1391,12 +1392,12 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 ## 6. “下一批行动”建议（不含实现，只给路线）
 
-（更新至 2026-02-22；保持行为不变）S0.2 延伸主线快照（用于新会话续接）：
+（更新至 2026-02-23；保持行为不变）S0.2 延伸主线快照（用于新会话续接）：
 - ✅ 目录退场收口：`fd -t d '^eva-' . -d 2` 无命中（`eva-infra/`、`eva-infra-dal/` 已完成目录清理；目录清理动作以空提交记录，详见 4.2 与 `NEXT_SESSION_HANDOFF.md` 0.9）。
 - ✅ reactor 清零：`rg -n '<module>eva-' pom.xml` 无命中。
 - ⚠️ 口径澄清：父 POM `artifactId` 为 `eva-backend`，因此请用 `rg -n -P '<artifactId>eva-(?!backend)' --glob '**/pom.xml' .` 校验“除父坐标外无任何 `eva-*` 坐标/依赖残留”，避免 `rg -n '<artifactId>eva-' ...` 误判。
 - 🎯 下一刀建议（保持行为不变；每次只改 1 个类/1 个资源 XML/1 个 `pom.xml` 闭环）：从 4.3 的“未收敛清单”中选 1 个写侧优先目标推进；每刀仍遵守 Serena 证据化 → 最小回归 → 代码提交 → 三文档同步 → 文档提交 → push。
-- 🎯 下一刀建议（写侧优先，保持行为不变，单类闭环，异常语义不变）：评教写侧 `bc-evaluation/infrastructure` 的 `DeleteEvaRecordRepositoryImpl` 仍存在 `InvocationTargetException` 目标异常解包逻辑的内联重复写法，建议按同口径抽取 `rethrowInvocationTargetException(...)` 并在调用点复用，保持对 `RuntimeException/Error` 的原样抛出与其余异常包装口径不变。
+- ✅ 已完成（2026-02-23，保持行为不变，单类闭环）：评教写侧 `bc-evaluation/infrastructure` 的 `DeleteEvaRecordRepositoryImpl` 已完成 `InvocationTargetException` 目标异常解包逻辑去重复（抽取 `rethrowInvocationTargetException(...)` 并在调用点复用；最小回归通过；落地：`a1773f2b`）。
 - 🎯 读侧优先建议（保持行为不变；单类闭环）：评教写侧对课程域 `CourseMapper` 直连已清零；评教读侧已完成 `EvaTaskQueryRepository`、`EvaRecordQueryRepository`、`EvaStatisticsQueryRepository` 去课程域 `CourseMapper/SemesterMapper/SubjectMapper` 编译期直连（分别通过 `CourseAndSemesterObjectDirectQueryPort` / `SubjectObjectDirectQueryPort` 收敛）；评教侧 `EvaUpdateGatewayImpl` 也已完成去 `CourseMapper.selectById(...).getSemesterId()` 直连，且 `bc-evaluation/infrastructure/src/main/java/edu/cuit/infra/gateway/impl/eva/` 目录内未再发现 `CourseMapper/SemesterMapper` 直连点。同时，评教读侧已将“按 teacherId(+semesterId) 获取课程ID列表”的实现进一步收敛为调用最小端口 `CourseIdsByTeacherIdQueryPort/CourseIdsByTeacherIdAndSemesterIdQueryPort`（保持查询条件/结果顺序/空值语义不变），且“按 semesterId / teacherId 拿课程ID列表”的场景也已开始收敛为调用最小端口 `CourseIdsBySemesterIdQueryPort` / `CourseIdsByTeacherIdQueryPort`（保持行为不变）。补充：课程域读侧 `CourseQueryRepository`（落地：`02b94cde`）与 `CourseRecommendExce`（落地：`53601b8c`）已完成课程ID列表查询收敛为最小端口。下一刀建议继续盘点并收敛其它同类“仅为拿课程ID列表而先查对象再映射”的残留点，逐刀改走最小端口（每刀只改 1 个类闭环）。可选的“口径清理”下一刀：✅ 已完成：清理 `CourseImportExce` 内历史注释残留的旧实现（落地：`1be6955b`），避免盘点时被注释命中干扰。
 - ✅ 写侧补充进展（2026-02-22，保持行为不变，单类）：`EvaUpdateGatewayImpl.cancelEvaTaskById(...)` 已抽取缓存失效调用点（`invalidateTaskListBySemester/invalidateTaskListByTeacher`），缓存 key、异常文案与副作用顺序完全不变（落地：`c7f38a55`）。
 - 🎯 下一刀建议（写侧优先，保持行为不变；单 `pom.xml` 闭环）：选择一个“仅使用 `edu.cuit.client.*` 协议对象”的依赖方，Serena + `rg` 证伪其不需要 `bc-course` 内部实现类后，将其对 `bc-course` 的 Maven 编译期依赖收敛为显式依赖 `shared-kernel`（每步闭环：Serena → 最小回归 → 代码提交 → 三文档同步 → 文档提交 → push）。
