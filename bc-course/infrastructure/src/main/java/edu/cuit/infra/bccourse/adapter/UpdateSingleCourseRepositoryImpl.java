@@ -3,12 +3,14 @@ package edu.cuit.infra.bccourse.adapter;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.cuit.bc.course.application.model.UpdateSingleCourseCommand;
 import edu.cuit.bc.course.application.port.UpdateSingleCourseRepository;
+import edu.cuit.bc.evaluation.application.port.EvaTaskBriefByCourInfIdsDirectQueryPort;
+import edu.cuit.bc.evaluation.application.port.EvaTaskCancelByTeacherIdAndCourInfIdPort;
 import edu.cuit.bc.iam.application.port.UserNameDirectQueryPort;
+import edu.cuit.client.dto.clientobject.eva.EvaTaskBriefCO;
 import edu.cuit.infra.bccourse.support.CourInfTimeOverlapQuery;
 import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.course.SubjectDO;
-import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.SubjectMapper;
@@ -20,12 +22,9 @@ import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -42,12 +41,8 @@ public class UpdateSingleCourseRepositoryImpl implements UpdateSingleCourseRepos
     private final CourseMapper courseMapper;
     private final SubjectMapper subjectMapper;
     private final UserNameDirectQueryPort userNameDirectQueryPort;
-    /**
-     * 跨 BC 直连清零（编译期）：不再直接依赖评教侧 Mapper 类型；仍保持原 MyBatis 调用语义，通过反射调用对应方法（保持行为不变）。
-     */
-    @Autowired
-    @Qualifier("evaTaskMapper")
-    private Object evaTaskMapper;
+    private final EvaTaskBriefByCourInfIdsDirectQueryPort evaTaskBriefByCourInfIdsDirectQueryPort;
+    private final EvaTaskCancelByTeacherIdAndCourInfIdPort evaTaskCancelByTeacherIdAndCourInfIdPort;
     private final LocalCacheManager localCacheManager;
     private final EvaCacheConstants evaCacheConstants;
     private final ClassroomCacheConstants classroomCacheConstants;
@@ -125,17 +120,18 @@ public class UpdateSingleCourseRepositoryImpl implements UpdateSingleCourseRepos
         courInfMapper.update(update, new QueryWrapper<CourInfDO>().eq("id", courInfId));
 
         // 找出所有要评教这节课的老师id（注意：原逻辑使用 cour_inf_id = courseId，这里保持不变）
-        List<EvaTaskDO> taskDOList = selectEvaTaskList(new QueryWrapper<EvaTaskDO>()
-                .eq("cour_inf_id", courINfo.getCourseId())
-                .eq("status", 0));
+        List<EvaTaskBriefCO> taskBriefList = evaTaskBriefByCourInfIdsDirectQueryPort
+                .findTaskBriefListByCourInfIds(List.of(courINfo.getCourseId()));
         Map<Integer, Integer> mapEva = new HashMap<>();
-        for (EvaTaskDO i : taskDOList) {
-            EvaTaskDO evaTaskDO = new EvaTaskDO();
-            evaTaskDO.setStatus(2);
-            updateEvaTask(evaTaskDO, new QueryWrapper<EvaTaskDO>()
-                    .eq("teacher_id", i.getTeacherId())
-                    .eq("cour_inf_id", courINfo.getCourseId()));
-            mapEva.put(i.getTeacherId(), i.getId());
+        for (EvaTaskBriefCO taskBrief : taskBriefList) {
+            if (!Objects.equals(taskBrief.getStatus(), 0)) {
+                continue;
+            }
+            evaTaskCancelByTeacherIdAndCourInfIdPort.cancelByTeacherIdAndCourInfId(
+                    taskBrief.getTeacherId(),
+                    courINfo.getCourseId()
+            );
+            mapEva.put(taskBrief.getTeacherId(), taskBrief.getId());
         }
 
         Map<String, Map<Integer, Integer>> map = new HashMap<>();
@@ -147,52 +143,5 @@ public class UpdateSingleCourseRepositoryImpl implements UpdateSingleCourseRepos
         localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(semId));
         localCacheManager.invalidateCache(null, classroomCacheConstants.ALL_CLASSROOM);
         return map;
-    }
-
-    private List<EvaTaskDO> selectEvaTaskList(QueryWrapper<EvaTaskDO> qw) {
-        Method selectListMethod = findMethodByNameAndParamCount(evaTaskMapper, "selectList", 1);
-        if (selectListMethod == null) {
-            throw new IllegalStateException("evaTaskMapper 缺少 selectList(Wrapper) 方法");
-        }
-        Object result = invoke(evaTaskMapper, selectListMethod, qw);
-        if (!(result instanceof List<?> list)) {
-            return List.of();
-        }
-        return list.stream()
-                .filter(EvaTaskDO.class::isInstance)
-                .map(EvaTaskDO.class::cast)
-                .toList();
-    }
-
-    private void updateEvaTask(EvaTaskDO entity, QueryWrapper<EvaTaskDO> qw) {
-        Method updateMethod = findMethodByNameAndParamCount(evaTaskMapper, "update", 2);
-        if (updateMethod == null) {
-            throw new IllegalStateException("evaTaskMapper 缺少 update(entity, Wrapper) 方法");
-        }
-        invoke(evaTaskMapper, updateMethod, entity, qw);
-    }
-
-    private static Method findMethodByNameAndParamCount(Object target, String methodName, int paramCount) {
-        if (target == null) {
-            return null;
-        }
-        for (Method method : target.getClass().getMethods()) {
-            if (method.getName().equals(methodName) && method.getParameterCount() == paramCount) {
-                return method;
-            }
-        }
-        return null;
-    }
-
-    private static Object invoke(Object target, Method method, Object... args) {
-        try {
-            return method.invoke(target, args);
-        } catch (Exception e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof RuntimeException runtimeException) {
-                throw runtimeException;
-            }
-            throw new IllegalStateException(e);
-        }
     }
 }
