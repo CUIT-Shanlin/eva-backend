@@ -3,12 +3,15 @@ package edu.cuit.infra.bccourse.adapter;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.cuit.bc.course.application.port.UpdateSelfCourseRepository;
+import edu.cuit.bc.evaluation.application.port.EvaTaskBriefByCourInfIdsDirectQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaTaskCourInfIdsByTeacherIdAndStatusDirectQueryPort;
+import edu.cuit.bc.evaluation.application.port.EvaTaskDeleteByCourInfIdPort;
 import edu.cuit.bc.iam.application.contract.dto.clientobject.user.UserDetailCO;
 import edu.cuit.bc.iam.application.port.UserDetailByUsernameDirectQueryPort;
 import edu.cuit.bc.iam.application.port.UserNameDirectQueryPort;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeInfoCO;
+import edu.cuit.client.dto.clientobject.eva.EvaTaskBriefCO;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.infra.bccourse.support.CourInfTimeOverlapQuery;
 import edu.cuit.infra.bccourse.support.ClassroomOccupancyChecker;
@@ -18,7 +21,6 @@ import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseTypeCourseDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseTypeDO;
 import edu.cuit.infra.dal.database.dataobject.course.SubjectDO;
-import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseTypeCourseMapper;
@@ -30,13 +32,9 @@ import edu.cuit.infra.enums.cache.EvaCacheConstants;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,10 +54,9 @@ public class UpdateSelfCourseRepositoryImpl implements UpdateSelfCourseRepositor
     private final CourseTypeCourseMapper courseTypeCourseMapper;
     private final CourseTypeMapper courseTypeMapper;
     private final CourInfMapper courInfMapper;
-    @Autowired
-    @Qualifier("evaTaskMapper")
-    private Object evaTaskMapper;
     private final EvaTaskCourInfIdsByTeacherIdAndStatusDirectQueryPort evaTaskCourInfIdsByTeacherIdAndStatusDirectQueryPort;
+    private final EvaTaskBriefByCourInfIdsDirectQueryPort evaTaskBriefByCourInfIdsDirectQueryPort;
+    private final EvaTaskDeleteByCourInfIdPort evaTaskDeleteByCourInfIdPort;
     private final UserDetailByUsernameDirectQueryPort userDetailByUsernameDirectQueryPort;
     private final UserNameDirectQueryPort userNameDirectQueryPort;
     private final LocalCacheManager localCacheManager;
@@ -142,11 +139,13 @@ public class UpdateSelfCourseRepositoryImpl implements UpdateSelfCourseRepositor
                         .eq("week", courInfDO.getWeek()).eq("day", courInfDO.getDay())
                         .eq("start_time", courInfDO.getStartTime()).eq("end_time", courInfDO.getEndTime())
                         .eq("location", courInfDO.getLocation()));
-                ((List<EvaTaskDO>) invokeSelectList(evaTaskMapper, new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId())))
-                        .forEach(evaTaskDO -> taskMap.put(evaTaskDO.getId(), evaTaskDO.getTeacherId()));
+                Integer courInfId = courInfDO.getId();
+                List<EvaTaskBriefCO> taskBriefList = evaTaskBriefByCourInfIdsDirectQueryPort
+                        .findTaskBriefListByCourInfIds(courInfId == null ? List.of() : List.of(courInfId));
+                taskBriefList.forEach(taskBrief -> taskMap.put(taskBrief.getId(), taskBrief.getTeacherId()));
                /* EvaTaskDO evaTaskDO=new EvaTaskDO();
                 evaTaskDO.setStatus(2);*/
-                invokeDelete(evaTaskMapper, new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId()));
+                evaTaskDeleteByCourInfIdPort.deleteByCourInfId(courInfId);
             }
             localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(courseDO.getSemesterId()));
             if (taskMap.isEmpty()) {
@@ -162,11 +161,13 @@ public class UpdateSelfCourseRepositoryImpl implements UpdateSelfCourseRepositor
                         .eq("week", courInfDO.getWeek()).eq("day", courInfDO.getDay())
                         .eq("start_time", courInfDO.getStartTime()).eq("end_time", courInfDO.getEndTime())
                         .eq("location", courInfDO.getLocation()));
-                ((List<EvaTaskDO>) invokeSelectList(evaTaskMapper, new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId())))
-                        .forEach(evaTaskDO -> taskMap.put(evaTaskDO.getId(), evaTaskDO.getTeacherId()));
+                Integer courInfId = courInfDO.getId();
+                List<EvaTaskBriefCO> taskBriefList = evaTaskBriefByCourInfIdsDirectQueryPort
+                        .findTaskBriefListByCourInfIds(courInfId == null ? List.of() : List.of(courInfId));
+                taskBriefList.forEach(taskBrief -> taskMap.put(taskBrief.getId(), taskBrief.getTeacherId()));
            /*     EvaTaskDO evaTaskDO=new EvaTaskDO();
                 evaTaskDO.setStatus(2);*/
-                invokeDelete(evaTaskMapper, new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courInfDO.getId()));
+                evaTaskDeleteByCourInfIdPort.deleteByCourInfId(courInfId);
             }
             localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(courseDO.getSemesterId()));
             for (CourInfDO courInfDO : difference) {
@@ -211,64 +212,6 @@ public class UpdateSelfCourseRepositoryImpl implements UpdateSelfCourseRepositor
             String teacherName = userNameDirectQueryPort.findNameById(courseDO.getTeacherId());
             return msg + teacherName + "老师的" + selfTeachCourseCO.getName() + "课程的上课时间（教室）被修改了," + "因而取消您对该课程的评教任务";
         }
-    }
-
-    private static Object invokeSelectList(Object mapper, Object queryWrapper) {
-        try {
-            Method method = resolveSingleArgMethod(mapper, "selectList", queryWrapper);
-            return method.invoke(mapper, queryWrapper);
-        } catch (InvocationTargetException e) {
-            sneakyThrow(e.getTargetException());
-            return null;
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    private static Object invokeSelectOne(Object mapper, Object queryWrapper) {
-        try {
-            Method method = resolveSingleArgMethod(mapper, "selectOne", queryWrapper);
-            return method.invoke(mapper, queryWrapper);
-        } catch (InvocationTargetException e) {
-            sneakyThrow(e.getTargetException());
-            return null;
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    private static Object invokeDelete(Object mapper, Object queryWrapper) {
-        try {
-            Method method = resolveSingleArgMethod(mapper, "delete", queryWrapper);
-            return method.invoke(mapper, queryWrapper);
-        } catch (InvocationTargetException e) {
-            sneakyThrow(e.getTargetException());
-            return null;
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    private static Method resolveSingleArgMethod(Object target, String methodName, Object arg) throws NoSuchMethodException {
-        Class<?> argClass = arg.getClass();
-        for (Method method : target.getClass().getMethods()) {
-            if (!method.getName().equals(methodName)) {
-                continue;
-            }
-            if (method.getParameterCount() != 1) {
-                continue;
-            }
-            Class<?> paramType = method.getParameterTypes()[0];
-            if (paramType.isAssignableFrom(argClass)) {
-                return method;
-            }
-        }
-        throw new NoSuchMethodException(target.getClass().getName() + "#" + methodName + "(" + argClass.getName() + ")");
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T extends Throwable> void sneakyThrow(Throwable throwable) throws T {
-        throw (T) throwable;
     }
 
     public List<CourInfDO> getDifference(List<CourInfDO> courseChangeList, List<CourInfDO> courInfoList) {
