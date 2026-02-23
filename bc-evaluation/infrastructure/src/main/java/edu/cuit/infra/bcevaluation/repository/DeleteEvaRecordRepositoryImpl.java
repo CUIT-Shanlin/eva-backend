@@ -111,6 +111,17 @@ public class DeleteEvaRecordRepositoryImpl implements DeleteEvaRecordRepository 
         localCacheManager.invalidateCache(null, evaCacheConstants.LOG_LIST);
     }
 
+    private static <T> T rethrowInvocationTargetException(InvocationTargetException e) {
+        Throwable targetException = e.getTargetException();
+        if (targetException instanceof RuntimeException runtimeException) {
+            throw runtimeException;
+        }
+        if (targetException instanceof Error error) {
+            throw error;
+        }
+        throw new RuntimeException(targetException);
+    }
+
     private String selectSysUserNameById(Serializable userId) {
         try {
             Method selectById = sysUserMapper.getClass().getMethod("selectById", Serializable.class);
@@ -118,14 +129,7 @@ public class DeleteEvaRecordRepositoryImpl implements DeleteEvaRecordRepository 
             Method getName = sysUser.getClass().getMethod("getName");
             return (String) getName.invoke(sysUser);
         } catch (InvocationTargetException e) {
-            Throwable targetException = e.getTargetException();
-            if (targetException instanceof RuntimeException runtimeException) {
-                throw runtimeException;
-            }
-            if (targetException instanceof Error error) {
-                throw error;
-            }
-            throw new RuntimeException(targetException);
+            return rethrowInvocationTargetException(e);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
