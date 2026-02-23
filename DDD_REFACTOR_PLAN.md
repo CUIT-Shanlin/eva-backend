@@ -529,6 +529,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
 - ✅ 补充进展（2026-02-23，保持行为不变，contract 前置，单类）：在 `bc-evaluation/contract` 新增“按 courInfIds 读取任务最小视图”的协议对象 `EvaTaskBriefCO`（仅含 `id/teacherId/courInfId/status`；不引入 Mapper/DO；最小回归通过；落地：`017b16e3`）。
 - ✅ 补充进展（2026-02-23，保持行为不变，contract 前置，单类）：在 `bc-evaluation/contract` 新增最小端口 `EvaTaskBriefByCourInfIdsDirectQueryPort`，用于跨 BC 按 courInfIds 查询 `EvaTaskBriefCO` 列表（不引入缓存/切面副作用；最小回归通过；落地：`9457edb1`）。
 - ✅ 补充进展（2026-02-23，保持行为不变，infra 落地，单类）：在 `bc-evaluation/infrastructure` 新增端口适配器 `EvaTaskBriefByCourInfIdsDirectQueryPortImpl`，内部仅委托 `EvaTaskMapper.selectList(in cour_inf_id)` 并映射为 `EvaTaskBriefCO`（不引入缓存/切面副作用；查询条件/结果顺序与旧调用口径一致；最小回归通过；落地：`a2b5abdf`）。
+- ✅ 补充进展（2026-02-23，保持行为不变，编译闭合前置，单 pom）：为承接“课程写侧删课链路改走评教 contract 端口”，在 `bc-course-infra` 增加对 `bc-evaluation-contract` 的 Maven 编译期依赖（最小回归通过；落地：`fad6220f`）。
 - ✅ 补充进展（2026-02-23，保持行为不变，跨 BC 直连清零前置，单类）：在 `bc-iam-contract` 新增用户姓名直查端口 `UserNameDirectQueryPort`（约束：不走缓存/切面副作用），用于后续将课程写侧等调用点从 `sysUserMapper.selectById(...).getName()` 的跨 BC 直连写法收敛为调用端口（最小回归通过；落地：`201d95de`）。
 - ✅ 补充进展（2026-02-23，保持行为不变，跨 BC 直连清零前置，单类）：在 `bc-iam-contract` 新增用户ID直查端口 `UserIdByUsernameDirectQueryPort`（约束：不走缓存/切面副作用），用于后续将课程写侧等调用点从 `sysUserMapper.selectOne(eq username)` 的跨 BC 直连写法收敛为调用端口（最小回归通过；落地：`2843e7d5`）。
 - ✅ 补充进展（2026-02-23，保持行为不变，跨 BC 直连清零前置，单类）：在 `bc-iam-contract` 新增用户详情直查端口 `UserDetailByUsernameDirectQueryPort`（约束：不走缓存/切面副作用），用于后续将课程写侧等调用点从 `sysUserMapper.selectOne(eq username)` 的跨 BC 直连写法收敛为调用端口（最小回归通过；落地：`c1cc2a56`）。

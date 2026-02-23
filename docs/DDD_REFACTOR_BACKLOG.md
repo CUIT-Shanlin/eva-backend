@@ -127,6 +127,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ 评教 contract（保持行为不变，删除链路前置，单类）：在 `bc-evaluation/contract` 新增“按 courInfIds 读取任务最小视图”的协议对象 `EvaTaskBriefCO`（仅含 `id/teacherId/courInfId/status`；不引入 Mapper/DO；最小回归通过；落地：`017b16e3`）。
 - ✅ 评教 contract（保持行为不变，删除链路前置，单类）：在 `bc-evaluation/contract` 新增最小端口 `EvaTaskBriefByCourInfIdsDirectQueryPort`，用于跨 BC 按 courInfIds 查询 `EvaTaskBriefCO` 列表（不引入缓存/切面副作用；最小回归通过；落地：`9457edb1`）。
 - ✅ 评教 infra（保持行为不变，删除链路前置，单类）：在 `bc-evaluation/infrastructure` 新增端口适配器 `EvaTaskBriefByCourInfIdsDirectQueryPortImpl`，内部仅委托 `EvaTaskMapper.selectList(in cour_inf_id)` 并映射为 `EvaTaskBriefCO`（不引入缓存/切面副作用；查询条件/结果顺序与旧调用口径一致；最小回归通过；落地：`a2b5abdf`）。
+- ✅ 课程依赖前置（保持行为不变，删除链路前置，单 pom）：为承接“课程写侧删课链路改走评教 contract 端口”的编译闭合前置，在 `bc-course-infra` 增加对 `bc-evaluation-contract` 的 Maven 编译期依赖（最小回归通过；落地：`fad6220f`）。
 - ✅ 依赖收敛（保持行为不变，单 `pom.xml` 闭环）：移除 `bc-evaluation/infrastructure/pom.xml` 对 `bc-course-infra` 的 Maven 编译期依赖（Serena 证据化：`bc-evaluation/infrastructure` 内无 `CourseMapper/SemesterMapper/CourInfMapper/SubjectMapper` 引用，也无 `edu.cuit.infra.dal.database.mapper.course.*` import；最小回归通过；落地：`375c671f`）。
 - ✅ 评教写侧（保持行为不变，单类闭环）：`bc-evaluation/infrastructure` 的 `DeleteEvaRecordRepositoryImpl` 提炼删除记录后的“模板清理判断 + 缓存失效”后置流程为私有方法，保持查询条件/异常文案/日志文案与副作用顺序不变（最小回归通过；落地：`4ef05cb2`）。
 - ✅ 评教写侧（保持行为不变，单类闭环）：`bc-evaluation/infrastructure` 的 `EvaDeleteGatewayImpl` 提炼 `deleteEvaRecord/deleteEvaTemplate` 内重复的异常映射逻辑为私有方法，保持 `@Transactional` 位置、异常文案与副作用顺序不变（最小回归通过；落地：`6126ddcb`）。
