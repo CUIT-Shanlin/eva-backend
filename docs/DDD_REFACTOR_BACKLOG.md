@@ -995,6 +995,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ 状态更新（2026-02-23，保持行为不变）：课程写侧 `bc-course/infrastructure/src/main/java/edu/cuit/infra/bccourse/adapter/` 内已不再出现 `@Qualifier("sysUserMapper")`，统一改走 `bc-iam-contract` 直查端口（提交链：`edf22c1f` → `fb4e1423` → `77fd744f` → `49fd5520` → `ecacf6b2` → `45924c9b` → `e1d9c16b` → `977aaf9f`）。
 - 🎯 下一阶段主线（写侧优先，保持行为不变；单类闭环）：开始推进“课程写侧去评教 infrastructure/Mapper/DO/XML 直连”（跨 BC 只允许依赖 contract/shared-kernel）。推荐先走删除链路：先补评教 `contract` 最小 CO（✅ 已完成：`EvaTaskBriefCO`）/最小端口（✅ 已完成：`EvaTaskBriefByCourInfIdsDirectQueryPort`），再补 `infrastructure` 端口适配器，最后改课程侧一个删除类调用点（详见 `NEXT_SESSION_HANDOFF.md` 0.11）。
 - ✅ 补充进展（2026-02-23，保持行为不变）：评教 `bc-evaluation/contract` 新增写侧端口 `EvaTaskCancelByTeacherIdAndCourInfIdPort`，用于课程侧“修改课次/时间导致取消评教任务”链路按 `teacherId + courInfId` 将评教任务置为取消状态（当前约定：将 `eva_task.status` 更新为 `2`；不引入缓存/切面副作用；最小回归通过；落地：`6632b3fe`）。
+- 🎯 下一刀建议（保持行为不变，单类闭环）：在 `bc-evaluation/infrastructure` 新增端口适配器实现 `EvaTaskCancelByTeacherIdAndCourInfIdPort`（内部委托现有 Mapper/SQL；不引入缓存/切面副作用；空入参 no-op）。随后回到课程写侧选择 1 个调用点移除对评教 Mapper 的运行期直连（推荐 `UpdateSingleCourseRepositoryImpl`；注意其现有逻辑使用 `cour_inf_id = courINfo.getCourseId()` 的历史口径，必须保持不变，仅替换调用方式）。
 
 - **方案 B（`CourseFormat` 下沉，保持行为不变）**：
   - ✅ 已完成前置：`shared-kernel/pom.xml` 已补齐 `zym-spring-boot-starter-jdbc` 与 `jackson-databind`（落地：`322bb315`）。
