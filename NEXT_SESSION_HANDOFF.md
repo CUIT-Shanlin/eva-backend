@@ -33,6 +33,7 @@
 > - ✅ 评教任务 courInfId 列表直查端口链路：新增 `EvaTaskCourInfIdsByTeacherIdAndStatusDirectQueryPort` + 端口适配器 `EvaTaskCourInfIdsByTeacherIdAndStatusDirectQueryPortImpl`（内部委托 `EvaTaskMapper.selectList(eq teacher_id, status)` 并映射 `courInfId` 列表；代码：`d9846645`/`0f4fa7d3`；文档：`29beac3a`/`c1065b0f`）。
 > - ✅ 课程自助改课“评教时间冲突检查”改走端口：`UpdateSelfCourseRepositoryImpl` 已将上述 `courInfId` 列表查询从评教 `evaTaskMapper` 反射调用收敛为调用 `EvaTaskCourInfIdsByTeacherIdAndStatusDirectQueryPort`（代码：`794bc199`；文档：`42252083`）。
 > - ✅ 评教按 courInfId 删除端口：新增写侧端口 `EvaTaskDeleteByCourInfIdPort`（保持旧调用语义：仅删除 `eva_task`，不做级联删除；代码：`6b304d4b`；文档：`c1b730e1`）。
+> - ✅ 评教按 courInfId 删除端口适配器：在 `bc-evaluation/infrastructure` 新增 `EvaTaskDeleteByCourInfIdPortImpl`（内部委托 `EvaTaskMapper.delete(eq cour_inf_id)`；空入参 no-op；不引入缓存/切面副作用；代码：`19814946`）。
 
 > ✅ 本会话补充进展（2026-02-22，保持行为不变）：评教读侧 `EvaStatisticsQueryRepository` 反射异常解包逻辑去重复（抽取 `rethrowInvocationTargetException(...)` 并在 5 处复用；最小回归通过；代码落地：`bf79e34e`；三文档同步：`aea498fb`）。
 > ✅ 本会话补充进展（2026-02-23，保持行为不变）：评教写侧 `DeleteEvaRecordRepositoryImpl` 反射异常解包去重复收尾（抽取 `rethrowInvocationTargetException(...)` 并复用；最小回归通过；代码落地：`a1773f2b`）。下一刀建议（写侧优先，保持行为不变）：从 Backlog 4.3/第 6 节中选 1 个可单刀闭环目标继续推进。
