@@ -129,6 +129,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ 评教 infra（保持行为不变，删除链路前置，单类）：在 `bc-evaluation/infrastructure` 新增端口适配器 `EvaTaskBriefByCourInfIdsDirectQueryPortImpl`，内部仅委托 `EvaTaskMapper.selectList(in cour_inf_id)` 并映射为 `EvaTaskBriefCO`（不引入缓存/切面副作用；查询条件/结果顺序与旧调用口径一致；最小回归通过；落地：`a2b5abdf`）。
 - ✅ 课程依赖前置（保持行为不变，删除链路前置，单 pom）：为承接“课程写侧删课链路改走评教 contract 端口”的编译闭合前置，在 `bc-course-infra` 增加对 `bc-evaluation-contract` 的 Maven 编译期依赖（最小回归通过；落地：`fad6220f`）。
 - ✅ 课程写侧（保持行为不变，删除链路收敛，单类）：`bc-course/infrastructure` 的 `DeleteCourseRepositoryImpl` 已将“按 courInfIds 查询评教任务列表”的实现改为调用评教端口 `EvaTaskBriefByCourInfIdsDirectQueryPort`，并清零对 `edu.cuit.infra.dal.database.dataobject.eva.*`（`EvaTaskDO/FormRecordDO`）的编译期依赖（异常文案/缓存/日志/副作用顺序不变；最小回归通过；落地：`08fe8079`）。
+- ✅ 评教 contract（保持行为不变，删除链路前置，单类）：在 `bc-evaluation/contract` 新增写侧最小端口 `EvaTaskCascadeDeleteByTaskIdsPort`，用于按 taskIds 级联删除 `eva_task` 与 `form_record`（不引入缓存/切面副作用；保持删除顺序“先任务后记录”；最小回归通过；落地：`975cd9fb`）。
 - ✅ 依赖收敛（保持行为不变，单 `pom.xml` 闭环）：移除 `bc-evaluation/infrastructure/pom.xml` 对 `bc-course-infra` 的 Maven 编译期依赖（Serena 证据化：`bc-evaluation/infrastructure` 内无 `CourseMapper/SemesterMapper/CourInfMapper/SubjectMapper` 引用，也无 `edu.cuit.infra.dal.database.mapper.course.*` import；最小回归通过；落地：`375c671f`）。
 - ✅ 评教写侧（保持行为不变，单类闭环）：`bc-evaluation/infrastructure` 的 `DeleteEvaRecordRepositoryImpl` 提炼删除记录后的“模板清理判断 + 缓存失效”后置流程为私有方法，保持查询条件/异常文案/日志文案与副作用顺序不变（最小回归通过；落地：`4ef05cb2`）。
 - ✅ 评教写侧（保持行为不变，单类闭环）：`bc-evaluation/infrastructure` 的 `EvaDeleteGatewayImpl` 提炼 `deleteEvaRecord/deleteEvaTemplate` 内重复的异常映射逻辑为私有方法，保持 `@Transactional` 位置、异常文案与副作用顺序不变（最小回归通过；落地：`6126ddcb`）。
