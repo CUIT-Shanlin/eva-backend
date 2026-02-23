@@ -28,6 +28,7 @@
 > ✅ 本会话补充进展（2026-02-22，保持行为不变）：评教读侧 `EvaStatisticsQueryRepository` 反射异常解包逻辑去重复（抽取 `rethrowInvocationTargetException(...)` 并在 5 处复用；最小回归通过；代码落地：`bf79e34e`；三文档同步：`aea498fb`）。
 > ✅ 本会话补充进展（2026-02-23，保持行为不变）：评教写侧 `DeleteEvaRecordRepositoryImpl` 反射异常解包去重复收尾（抽取 `rethrowInvocationTargetException(...)` 并复用；最小回归通过；代码落地：`a1773f2b`）。下一刀建议（写侧优先，保持行为不变）：从 Backlog 4.3/第 6 节中选 1 个可单刀闭环目标继续推进。
 > ✅ 本会话补充进展（2026-02-23，保持行为不变）：IAM 新增用户姓名直查端口 `UserNameDirectQueryPort`（约束：不走缓存/切面副作用），用于后续将课程写侧等调用点从 `sysUserMapper.selectById(...).getName()` 的跨 BC 直连写法收敛为调用端口（最小回归通过；代码落地：`201d95de`）。
+> ✅ 本会话补充进展（2026-02-23，保持行为不变）：IAM 已新增端口适配器 `UserNameDirectQueryPortImpl`，内部仅委托 `SysUserMapper.selectById(id).getName()`（不引入缓存/切面副作用；最小回归通过；代码落地：`58a4b628`）。
 
 > 状态更新（2026-02-20，保持行为不变）：评教写侧 `repository` 与评教读侧 `query` 已清零对课程域 `CourseMapper/SemesterMapper/SubjectMapper` 的编译期直连；评教侧 `EvaUpdateGatewayImpl` 已清零对 `CourseMapper.selectById(...).getSemesterId()` 的编译期直连；评教读侧已在部分场景将课程ID列表查询进一步收敛为调用 `CourseIdsByTeacherIdQueryPort/CourseIdsByTeacherIdAndSemesterIdQueryPort`（保持行为不变）。后续若发现其它“跨 BC Mapper 直连”或“仅为拿ID列表而先查对象再映射”的点，仍按“补端口 → 补适配器 → 改调用侧”逐刀推进。
 
