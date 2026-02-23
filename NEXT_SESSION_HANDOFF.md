@@ -35,6 +35,7 @@
 > ✅ 本会话补充进展（2026-02-23，保持行为不变）：IAM 已新增端口适配器 `UserNameDirectQueryPortImpl`，内部仅委托 `SysUserMapper.selectById(id).getName()`（不引入缓存/切面副作用；最小回归通过；代码落地：`58a4b628`）。
 > ✅ 本会话补充进展（2026-02-23，保持行为不变）：课程写侧 `UpdateCourseInfoRepositoryImpl` 已将“按 teacherId 取姓名”的跨 BC `sysUserMapper` 反射调用收敛为调用 IAM 端口 `UserNameDirectQueryPort.findNameById(...)`（不引入缓存/切面副作用；最小回归通过；代码落地：`d0dc8708`）。
 > ✅ 本会话补充进展（2026-02-23，保持行为不变）：课程写侧 `DeleteSelfCourseRepositoryImpl` 已将“按用户名查用户信息”的跨 BC `sysUserMapper.selectOne(eq username)` 反射调用收敛为调用 IAM 端口 `UserDetailByUsernameDirectQueryPort.findByUsername(...)`（不引入缓存/切面副作用；最小回归通过；代码落地：`ff3a31c4`）。
+> ✅ 本会话补充进展（2026-02-23，保持行为不变）：课程写侧 `UpdateSelfCourseRepositoryImpl` 已将“按用户名查用户信息/按 teacherId 查姓名”的跨 BC `sysUserMapper` 反射调用收敛为调用 IAM 直查端口 `UserDetailByUsernameDirectQueryPort/UserNameDirectQueryPort`（不引入缓存/切面副作用；最小回归通过；代码落地：`0439dea0`）。
 
 > 状态更新（2026-02-20，保持行为不变）：评教写侧 `repository` 与评教读侧 `query` 已清零对课程域 `CourseMapper/SemesterMapper/SubjectMapper` 的编译期直连；评教侧 `EvaUpdateGatewayImpl` 已清零对 `CourseMapper.selectById(...).getSemesterId()` 的编译期直连；评教读侧已在部分场景将课程ID列表查询进一步收敛为调用 `CourseIdsByTeacherIdQueryPort/CourseIdsByTeacherIdAndSemesterIdQueryPort`（保持行为不变）。后续若发现其它“跨 BC Mapper 直连”或“仅为拿ID列表而先查对象再映射”的点，仍按“补端口 → 补适配器 → 改调用侧”逐刀推进。
 
