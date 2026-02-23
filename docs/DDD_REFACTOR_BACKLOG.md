@@ -112,6 +112,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 **已完成（更新至 2026-02-23）**
 - ✅ IAM（保持行为不变，跨 BC 直连清零前置，单类）：在 `bc-iam-contract` 新增用户姓名直查端口 `UserNameDirectQueryPort`（约束：不走缓存/切面副作用），用于后续将课程写侧等调用点从 `sysUserMapper.selectById(...).getName()` 的跨 BC 直连写法收敛为调用端口（最小回归通过；落地：`201d95de`）。
 - ✅ IAM（保持行为不变，跨 BC 直连清零前置，单类）：在 `bc-iam-contract` 新增用户ID直查端口 `UserIdByUsernameDirectQueryPort`（约束：不走缓存/切面副作用），用于后续将课程写侧等调用点从 `sysUserMapper.selectOne(eq username)` 的跨 BC 直连写法收敛为调用端口（最小回归通过；落地：`2843e7d5`）。
+- ✅ IAM（保持行为不变，跨 BC 直连清零前置，单类）：在 `bc-iam-contract` 新增用户详情直查端口 `UserDetailByUsernameDirectQueryPort`（约束：不走缓存/切面副作用），用于后续将课程写侧等调用点从 `sysUserMapper.selectOne(eq username)` 的跨 BC 直连写法收敛为调用端口（最小回归通过；落地：`c1cc2a56`）。
 - ✅ IAM（保持行为不变，跨 BC 直连清零前置，单类）：在 `bc-iam-infra` 新增端口适配器 `UserIdByUsernameDirectQueryPortImpl`，内部仅委托 `SysUserMapper.selectOne(eq username).getId()`（不引入缓存/切面副作用；最小回归通过；落地：`1e8c8b99`）。
 - ✅ IAM（保持行为不变，跨 BC 直连清零前置，单类）：在 `bc-iam-infra` 新增端口适配器 `UserNameDirectQueryPortImpl`，内部仅委托 `SysUserMapper.selectById(id).getName()`（不引入缓存/切面副作用；最小回归通过；落地：`58a4b628`）。
 - ✅ 课程写侧（保持行为不变，单类闭环）：`bc-course/infrastructure` 的 `UpdateCourseInfoRepositoryImpl` 已将“按 teacherId 取姓名”的跨 BC `sysUserMapper` 反射调用收敛为调用 IAM 端口 `UserNameDirectQueryPort.findNameById(...)`（不引入缓存/切面副作用；最小回归通过；落地：`d0dc8708`）。
