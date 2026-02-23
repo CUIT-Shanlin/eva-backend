@@ -3,12 +3,12 @@ package edu.cuit.infra.bccourse.adapter;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.cuit.bc.course.application.model.UpdateSingleCourseCommand;
 import edu.cuit.bc.course.application.port.UpdateSingleCourseRepository;
+import edu.cuit.bc.iam.application.port.UserNameDirectQueryPort;
 import edu.cuit.infra.bccourse.support.CourInfTimeOverlapQuery;
 import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.course.SubjectDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
-import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.SubjectMapper;
@@ -41,9 +41,7 @@ public class UpdateSingleCourseRepositoryImpl implements UpdateSingleCourseRepos
     private final CourInfMapper courInfMapper;
     private final CourseMapper courseMapper;
     private final SubjectMapper subjectMapper;
-    @Autowired
-    @Qualifier("sysUserMapper")
-    private Object userMapper;
+    private final UserNameDirectQueryPort userNameDirectQueryPort;
     /**
      * 跨 BC 直连清零（编译期）：不再直接依赖评教侧 Mapper 类型；仍保持原 MyBatis 调用语义，通过反射调用对应方法（保持行为不变）。
      */
@@ -69,11 +67,13 @@ public class UpdateSingleCourseRepositoryImpl implements UpdateSingleCourseRepos
 
         // 先根据课次所属课程找到教师信息（原逻辑如此，保持不变）
         CourseDO courseOfCourInf = courseMapper.selectById(courINfo.getCourseId());
-        SysUserDO userDO = (SysUserDO) selectById(userMapper, courseOfCourInf.getTeacherId());
-        if (userDO == null) {
+        String teacherName;
+        try {
+            teacherName = userNameDirectQueryPort.findNameById(courseOfCourInf.getTeacherId());
+        } catch (NullPointerException e) {
             throw new QueryException("老师不存在");
         }
-        Integer teacherId = userDO.getId();
+        Integer teacherId = courseOfCourInf.getTeacherId();
 
         // 根据 teacherId 和 semId 找出他的所有授课
         List<CourseDO> courseDOList = courseMapper.selectList(new QueryWrapper<CourseDO>()
@@ -139,8 +139,8 @@ public class UpdateSingleCourseRepositoryImpl implements UpdateSingleCourseRepos
         }
 
         Map<String, Map<Integer, Integer>> map = new HashMap<>();
-        map.put(userDO.getName() + "老师的" + name + "课程(" + natureName + ")的上课时间被修改了", null);
-        map.put("因为" + userDO.getName() + "老师的" + name + "课程(" + natureName + ")的上课时间修改，故已取消您对该课程的评教任务", mapEva);
+        map.put(teacherName + "老师的" + name + "课程(" + natureName + ")的上课时间被修改了", null);
+        map.put("因为" + teacherName + "老师的" + name + "课程(" + natureName + ")的上课时间修改，故已取消您对该课程的评教任务", mapEva);
 
         LogUtils.logContent(name + "上课时间信息");
         localCacheManager.invalidateCache(null, evaCacheConstants.LOG_LIST);
@@ -170,14 +170,6 @@ public class UpdateSingleCourseRepositoryImpl implements UpdateSingleCourseRepos
             throw new IllegalStateException("evaTaskMapper 缺少 update(entity, Wrapper) 方法");
         }
         invoke(evaTaskMapper, updateMethod, entity, qw);
-    }
-
-    private static Object selectById(Object mapper, Object id) {
-        Method selectByIdMethod = findMethodByNameAndParamCount(mapper, "selectById", 1);
-        if (selectByIdMethod == null) {
-            throw new IllegalStateException("sysUserMapper 缺少 selectById(id) 方法");
-        }
-        return invoke(mapper, selectByIdMethod, id);
     }
 
     private static Method findMethodByNameAndParamCount(Object target, String methodName, int paramCount) {
