@@ -3,6 +3,7 @@ package edu.cuit.infra.bccourse.adapter;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import edu.cuit.bc.course.application.port.DeleteCourseRepository;
+import edu.cuit.bc.evaluation.application.port.EvaTaskCascadeDeleteByTaskIdsPort;
 import edu.cuit.bc.evaluation.application.port.EvaTaskBriefByCourInfIdsDirectQueryPort;
 import edu.cuit.bc.iam.application.port.UserNameDirectQueryPort;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskBriefCO;
@@ -21,12 +22,9 @@ import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,17 +41,9 @@ public class DeleteCourseRepositoryImpl implements DeleteCourseRepository {
     private final SubjectMapper subjectMapper;
     private final UserNameDirectQueryPort userNameDirectQueryPort;
     private final EvaTaskBriefByCourInfIdsDirectQueryPort evaTaskBriefByCourInfIdsDirectQueryPort;
-    /**
-     * 跨 BC 直连清零（编译期）：不再直接依赖评教侧 Mapper 类型；仍保持原 MyBatis 调用语义，通过反射调用对应方法（保持行为不变）。
-     */
-    @Autowired
-    @Qualifier("evaTaskMapper")
-    private Object evaTaskMapper;
+    private final EvaTaskCascadeDeleteByTaskIdsPort evaTaskCascadeDeleteByTaskIdsPort;
     private final LocalCacheManager localCacheManager;
     private final CourseCacheConstants courseCacheConstants;
-    @Autowired
-    @Qualifier("formRecordMapper")
-    private Object formRecordMapper;
     private final EvaCacheConstants evaCacheConstants;
     private final ClassroomCacheConstants classroomCacheConstants;
 
@@ -110,8 +100,7 @@ public class DeleteCourseRepositoryImpl implements DeleteCourseRepository {
         List<Integer> taskIds = taskBriefList.stream().map(EvaTaskBriefCO::getId).toList();
         List<EvaTaskBriefCO> list1 = taskBriefList.stream().filter(taskDO -> taskDO.getStatus() == 0).toList();
         if (!taskIds.isEmpty()) {
-            deleteEvaTasksByIds(taskIds);
-            deleteFormRecordsByTaskIds(taskIds);
+            evaTaskCascadeDeleteByTaskIdsPort.deleteCascadeByTaskIds(taskIds);
         }
 
         Map<String, Map<Integer, Integer>> map = new HashMap<>();
@@ -130,45 +119,5 @@ public class DeleteCourseRepositoryImpl implements DeleteCourseRepository {
         localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(semId));
         localCacheManager.invalidateCache(null, classroomCacheConstants.ALL_CLASSROOM);
         return map;
-    }
-
-    private void deleteEvaTasksByIds(List<Integer> taskIds) {
-        Method deleteMethod = findSingleArgMethod(evaTaskMapper, "delete");
-        if (deleteMethod == null) {
-            throw new IllegalStateException("evaTaskMapper 缺少 delete(Wrapper) 方法");
-        }
-        invoke(evaTaskMapper, deleteMethod, new QueryWrapper<>().in("id", taskIds));
-    }
-
-    private void deleteFormRecordsByTaskIds(List<Integer> taskIds) {
-        Method deleteMethod = findSingleArgMethod(formRecordMapper, "delete");
-        if (deleteMethod == null) {
-            throw new IllegalStateException("formRecordMapper 缺少 delete(Wrapper) 方法");
-        }
-        invoke(formRecordMapper, deleteMethod, new QueryWrapper<>().in("task_id", taskIds));
-    }
-
-    private static Method findSingleArgMethod(Object target, String methodName) {
-        if (target == null) {
-            return null;
-        }
-        for (Method method : target.getClass().getMethods()) {
-            if (method.getName().equals(methodName) && method.getParameterCount() == 1) {
-                return method;
-            }
-        }
-        return null;
-    }
-
-    private static Object invoke(Object target, Method method, Object... args) {
-        try {
-            return method.invoke(target, args);
-        } catch (Exception e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof RuntimeException runtimeException) {
-                throw runtimeException;
-            }
-            throw new IllegalStateException(e);
-        }
     }
 }
