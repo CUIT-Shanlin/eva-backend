@@ -3,6 +3,7 @@ package edu.cuit.infra.bccourse.adapter;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.cuit.bc.course.application.port.UpdateSelfCourseRepository;
+import edu.cuit.bc.evaluation.application.port.EvaTaskCourInfIdsByTeacherIdAndStatusDirectQueryPort;
 import edu.cuit.bc.iam.application.contract.dto.clientobject.user.UserDetailCO;
 import edu.cuit.bc.iam.application.port.UserDetailByUsernameDirectQueryPort;
 import edu.cuit.bc.iam.application.port.UserNameDirectQueryPort;
@@ -58,6 +59,7 @@ public class UpdateSelfCourseRepositoryImpl implements UpdateSelfCourseRepositor
     @Autowired
     @Qualifier("evaTaskMapper")
     private Object evaTaskMapper;
+    private final EvaTaskCourInfIdsByTeacherIdAndStatusDirectQueryPort evaTaskCourInfIdsByTeacherIdAndStatusDirectQueryPort;
     private final UserDetailByUsernameDirectQueryPort userDetailByUsernameDirectQueryPort;
     private final UserNameDirectQueryPort userNameDirectQueryPort;
     private final LocalCacheManager localCacheManager;
@@ -112,13 +114,8 @@ public class UpdateSelfCourseRepositoryImpl implements UpdateSelfCourseRepositor
             Map<Integer, Integer> taskMap
     ) {
         String msg = "";
-        List<EvaTaskDO> courInfoTaskList = (List<EvaTaskDO>) invokeSelectList(
-                evaTaskMapper,
-                new QueryWrapper<EvaTaskDO>().eq("teacher_id", courseDO.getTeacherId()).eq("status", 0)
-        );
-        List<Integer> courInfoIds = courInfoTaskList.stream()
-                .map(EvaTaskDO::getCourInfId)
-                .toList();
+        List<Integer> courInfoIds = evaTaskCourInfIdsByTeacherIdAndStatusDirectQueryPort
+                .findCourInfIdsByTeacherIdAndStatus(courseDO.getTeacherId(), 0);
         List<CourInfDO> courInfoList = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseDO.getId()));
         List<CourInfDO> courseChangeList = new ArrayList<>();
         for (SelfTeachCourseTimeInfoCO selfTeachCourseTimeCO : timeList) {
