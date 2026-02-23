@@ -968,6 +968,7 @@ IAM 可独立，但要考虑单点登录与权限同步成本。
   - ✅ 已完成（保持行为不变，评教旧入口壳归位：EvaTemplateServiceImpl）：将 `EvaTemplateServiceImpl` 从 `eva-app` 搬运归位到 `bc-evaluation-infra`（保持 `package edu.cuit.app.service.impl.eva` 不变；异常转换与返回 `null` 语义不变；类内容不变；最小回归通过；落地：`c63b9875`）。
   - ✅ 已完成（保持行为不变，评教旧入口壳归位：EvaRecordServiceImpl）：将 `EvaRecordServiceImpl` 从 `eva-app` 搬运归位到 `bc-evaluation-infra`（保持 `package edu.cuit.app.service.impl.eva` 不变；异常转换与返回 `null` 语义不变；`@Transactional` 与表单值映射顺序不变；最小回归通过；落地：`c19b32fc`）。
   - ✅ 已完成（保持行为不变，评教旧入口壳归位：EvaTaskServiceImpl）：将 `EvaTaskServiceImpl` 从 `eva-app` 搬运归位到 `bc-evaluation-infra`（保持 `package edu.cuit.app.service.impl.eva` 不变；`@Transactional`/异常文案/日志输出与副作用顺序不变；消息依赖类型收窄为 `IMsgService` 以避免引用实现类；最小回归通过；落地：`1aaff86f`）。
+  - ✅ 已完成（保持行为不变，评教 contract 扩充写侧端口：取消任务）：在 `bc-evaluation/contract` 新增写侧端口 `EvaTaskCancelByTeacherIdAndCourInfIdPort`，用于跨 BC 按 `teacherId + courInfId` 将评教任务置为取消状态（当前约定：将 `eva_task.status` 更新为 `2`；实现侧不引入缓存/切面副作用；最小回归通过；落地：`6632b3fe`）。
 
 - 补充进展（2026-01-05，S0.2 起步，保持行为不变）：已将学期 CO `SemesterCO` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`77126c4a`）。
 - 补充进展（2026-01-05，S0.2 持续推进，保持行为不变）：已将通用学期入参 `Term` 从 `bc-course/application` 迁移到 `shared-kernel`（保持 `package` 不变；最小回归通过；落地：`23bff82f`）。
