@@ -3,12 +3,12 @@ package edu.cuit.infra.bccourse.adapter;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.cuit.bc.course.application.port.AssignEvaTeachersRepository;
 import edu.cuit.bc.course.application.port.CourseIdsByCourseWrapperDirectQueryPort;
+import edu.cuit.bc.iam.application.port.UserNameDirectQueryPort;
 import edu.cuit.infra.bccourse.support.CourInfTimeOverlapQuery;
 import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.course.SubjectDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
-import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.SubjectMapper;
@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
@@ -41,18 +40,13 @@ public class AssignEvaTeachersRepositoryImpl implements AssignEvaTeachersReposit
     private final CourseMapper courseMapper;
     private final SubjectMapper subjectMapper;
     private final CourseIdsByCourseWrapperDirectQueryPort courseIdsByCourseWrapperDirectQueryPort;
+    private final UserNameDirectQueryPort userNameDirectQueryPort;
     /**
      * 跨 BC 直连清零（编译期）：不再直接依赖评教侧 Mapper 类型；仍保持原 MyBatis 调用语义，通过反射调用对应方法（保持行为不变）。
      */
     @Autowired
     @Qualifier("evaTaskMapper")
     private Object evaTaskMapper;
-    /**
-     * SysUserMapper 归位前置（编译期清零）：不再直接依赖 IAM Mapper 类型；仍保持原 MyBatis 调用语义，通过反射调用对应方法（保持行为不变）。
-     */
-    @Autowired
-    @Qualifier("sysUserMapper")
-    private Object userMapper;
     private final LocalCacheManager localCacheManager;
     private final EvaCacheConstants evaCacheConstants;
 
@@ -93,34 +87,18 @@ public class AssignEvaTeachersRepositoryImpl implements AssignEvaTeachersReposit
                 mapTask);
 
         for (Integer teacherId : evaTeacherIdList) {
-            SysUserDO userDO = selectSysUserById(teacherId);
-            if (userDO == null) {
+            String teacherName;
+            try {
+                teacherName = userNameDirectQueryPort.findNameById(teacherId);
+            } catch (NullPointerException e) {
                 throw new QueryException("所分配老师中有人未在数据库中");
             }
-            LogUtils.logContent(userDO.getName() + "老师去听的课：第" + courInfDO.getWeek() + "周，星期"
+            LogUtils.logContent(teacherName + "老师去听的课：第" + courInfDO.getWeek() + "周，星期"
                     + courInfDO.getDay() + "，第" + courInfDO.getStartTime() + "-" + courInfDO.getEndTime() + "节，" + name + "课程。位置：" + courInfDO.getLocation() + name + "课程");
         }
 
         localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(semesterId));
         return map;
-    }
-
-    private SysUserDO selectSysUserById(Serializable userId) {
-        try {
-            Method selectById = userMapper.getClass().getMethod("selectById", Serializable.class);
-            return (SysUserDO) selectById.invoke(userMapper, userId);
-        } catch (InvocationTargetException e) {
-            Throwable targetException = e.getTargetException();
-            if (targetException instanceof RuntimeException runtimeException) {
-                throw runtimeException;
-            }
-            if (targetException instanceof Error error) {
-                throw error;
-            }
-            throw new RuntimeException(targetException);
-        } catch (ReflectiveOperationException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private void judgeAlsoHasCourse(Integer semId, List<Integer> evaTeacherIdList, CourInfDO courInfDO) {
@@ -141,8 +119,8 @@ public class AssignEvaTeachersRepositoryImpl implements AssignEvaTeachersReposit
             );
             if (hasCourses) {
                 CourseDO courseDO = courseMapper.selectById(courseId);
-                SysUserDO userDO = selectSysUserById(courseDO.getTeacherId());
-                throw new UpdateException(userDO.getName() + "老师" + "该时间段已有课程");
+                String teacherName = userNameDirectQueryPort.findNameById(courseDO.getTeacherId());
+                throw new UpdateException(teacherName + "老师" + "该时间段已有课程");
             }
         }
     }
@@ -170,8 +148,8 @@ public class AssignEvaTeachersRepositoryImpl implements AssignEvaTeachersReposit
                 EvaTaskDO evaTaskDO = selectEvaTaskOne(new QueryWrapper<EvaTaskDO>()
                         .eq("cour_inf_id", courInfDO1.getId())
                         .in("teacher_id", userList));
-                SysUserDO userDO = selectSysUserById(evaTaskDO.getTeacherId());
-                throw new UpdateException("课程时间冲突，评教老师中" + userDO.getName() + "在该时间段已经有了评教任务");
+                String teacherName = userNameDirectQueryPort.findNameById(evaTaskDO.getTeacherId());
+                throw new UpdateException("课程时间冲突，评教老师中" + teacherName + "在该时间段已经有了评教任务");
             }
         }
     }
