@@ -3,6 +3,9 @@ package edu.cuit.infra.bccourse.adapter;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.cuit.bc.course.application.port.UpdateSelfCourseRepository;
+import edu.cuit.bc.iam.application.contract.dto.clientobject.user.UserDetailCO;
+import edu.cuit.bc.iam.application.port.UserDetailByUsernameDirectQueryPort;
+import edu.cuit.bc.iam.application.port.UserNameDirectQueryPort;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseTimeInfoCO;
 import edu.cuit.client.dto.data.course.CourseType;
@@ -15,7 +18,6 @@ import edu.cuit.infra.dal.database.dataobject.course.CourseTypeCourseDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseTypeDO;
 import edu.cuit.infra.dal.database.dataobject.course.SubjectDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
-import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseTypeCourseMapper;
@@ -48,9 +50,6 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class UpdateSelfCourseRepositoryImpl implements UpdateSelfCourseRepository {
-    @Autowired
-    @Qualifier("sysUserMapper")
-    private Object userMapper;
     private final CourseMapper courseMapper;
     private final SubjectMapper subjectMapper;
     private final CourseTypeCourseMapper courseTypeCourseMapper;
@@ -59,6 +58,8 @@ public class UpdateSelfCourseRepositoryImpl implements UpdateSelfCourseRepositor
     @Autowired
     @Qualifier("evaTaskMapper")
     private Object evaTaskMapper;
+    private final UserDetailByUsernameDirectQueryPort userDetailByUsernameDirectQueryPort;
+    private final UserNameDirectQueryPort userNameDirectQueryPort;
     private final LocalCacheManager localCacheManager;
     private final ClassroomCacheConstants classroomCacheConstants;
     private final CourseCacheConstants courseCacheConstants;
@@ -69,11 +70,12 @@ public class UpdateSelfCourseRepositoryImpl implements UpdateSelfCourseRepositor
     @Transactional
     public Map<String, Map<Integer, Integer>> update(String userName, SelfTeachCourseCO selfTeachCourseCO, List<SelfTeachCourseTimeInfoCO> timeList) {
         String msg = null;
-        SysUserDO userDO = (SysUserDO) invokeSelectOne(userMapper, new QueryWrapper<SysUserDO>().eq("username", userName));
-        if (userDO == null) {
+        UserDetailCO userDetail = userDetailByUsernameDirectQueryPort.findByUsername(userName).orElse(null);
+        if (userDetail == null) {
             throw new QueryException("用户不存在");
         }
-        Integer userId = userDO.getId();
+        Integer userId = userDetail.getId() == null ? null : userDetail.getId().intValue();
+        String teacherName = userDetail.getName();
         CourseDO courseDO = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", selfTeachCourseCO.getId()).eq("teacher_id", userId));
         if (courseDO == null) {
             // 课程不存在(抛出异常)
@@ -87,13 +89,13 @@ public class UpdateSelfCourseRepositoryImpl implements UpdateSelfCourseRepositor
         }
         msg = toJudge(courseDO, subjectDO, selfTeachCourseCO);
         // 课程类型
-        msg += JudgeCourseType(userDO.getName() + "老师的" + selfTeachCourseCO.getName(), courseDO, selfTeachCourseCO);
+        msg += JudgeCourseType(teacherName + "老师的" + selfTeachCourseCO.getName(), courseDO, selfTeachCourseCO);
         // 课程时间段
         Map<Integer, Integer> taskMap = new HashMap<>();
         String msgEva = "";
         msgEva = JudgeCourseTime(courseDO, timeList, courseDOS, selfTeachCourseCO, taskMap);
         if (!msgEva.isEmpty()) {
-            msg += userDO.getName() + "老师的" + selfTeachCourseCO.getName() + "课程的上课时间（教室）被修改了。";
+            msg += teacherName + "老师的" + selfTeachCourseCO.getName() + "课程的上课时间（教室）被修改了。";
         }
         Map<String, Map<Integer, Integer>> map = new HashMap<>();
         map.put(msg, null);
@@ -118,7 +120,6 @@ public class UpdateSelfCourseRepositoryImpl implements UpdateSelfCourseRepositor
                 .map(EvaTaskDO::getCourInfId)
                 .toList();
         List<CourInfDO> courInfoList = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseDO.getId()));
-        SysUserDO userDO = (SysUserDO) invokeSelectById(userMapper, courseDO.getTeacherId());
         List<CourInfDO> courseChangeList = new ArrayList<>();
         for (SelfTeachCourseTimeInfoCO selfTeachCourseTimeCO : timeList) {
             for (Integer week : selfTeachCourseTimeCO.getWeeks()) {
@@ -154,7 +155,8 @@ public class UpdateSelfCourseRepositoryImpl implements UpdateSelfCourseRepositor
             if (taskMap.isEmpty()) {
                 return "";
             } else {
-                return msg + userDO.getName() + "老师的" + selfTeachCourseCO.getName() + "课程的上课时间（教室）被修改了," + "因而取消您对该课程的评教任务";
+                String teacherName = userNameDirectQueryPort.findNameById(courseDO.getTeacherId());
+                return msg + teacherName + "老师的" + selfTeachCourseCO.getName() + "课程的上课时间（教室）被修改了," + "因而取消您对该课程的评教任务";
             }
         } else {
             for (CourInfDO courInfDO : difference2) {
@@ -209,7 +211,8 @@ public class UpdateSelfCourseRepositoryImpl implements UpdateSelfCourseRepositor
                 );
                 courInfMapper.insert(courInfDO);
             }
-            return msg + userDO.getName() + "老师的" + selfTeachCourseCO.getName() + "课程的上课时间（教室）被修改了," + "因而取消您对该课程的评教任务";
+            String teacherName = userNameDirectQueryPort.findNameById(courseDO.getTeacherId());
+            return msg + teacherName + "老师的" + selfTeachCourseCO.getName() + "课程的上课时间（教室）被修改了," + "因而取消您对该课程的评教任务";
         }
     }
 
@@ -229,18 +232,6 @@ public class UpdateSelfCourseRepositoryImpl implements UpdateSelfCourseRepositor
         try {
             Method method = resolveSingleArgMethod(mapper, "selectOne", queryWrapper);
             return method.invoke(mapper, queryWrapper);
-        } catch (InvocationTargetException e) {
-            sneakyThrow(e.getTargetException());
-            return null;
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    private static Object invokeSelectById(Object mapper, Object id) {
-        try {
-            Method method = resolveSingleArgMethod(mapper, "selectById", id);
-            return method.invoke(mapper, id);
         } catch (InvocationTargetException e) {
             sneakyThrow(e.getTargetException());
             return null;
@@ -352,9 +343,9 @@ public class UpdateSelfCourseRepositoryImpl implements UpdateSelfCourseRepositor
 
             course.setSubjectId(subject.getId());
             courseMapper.update(course, new QueryWrapper<CourseDO>().eq("id", selfTeachCourseCO.getId()));
-            SysUserDO userDO = (SysUserDO) invokeSelectById(userMapper, courseDO.getTeacherId());
+            String teacherName = userNameDirectQueryPort.findNameById(courseDO.getTeacherId());
             localCacheManager.invalidateCache(courseCacheConstants.SUBJECT_LIST, courseCacheConstants.COURSE_LIST_BY_SEM + courseDO.getSemesterId());
-            return msg + userDO.getName() + "老师的" + name + "课程的名称被改成了" + subjectDO.getName() + "，类型是" + natureExp + "。";
+            return msg + teacherName + "老师的" + name + "课程的名称被改成了" + subjectDO.getName() + "，类型是" + natureExp + "。";
         }
         return "";
     }
