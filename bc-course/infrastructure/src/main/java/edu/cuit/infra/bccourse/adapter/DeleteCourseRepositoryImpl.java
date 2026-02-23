@@ -3,12 +3,12 @@ package edu.cuit.infra.bccourse.adapter;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import edu.cuit.bc.course.application.port.DeleteCourseRepository;
+import edu.cuit.bc.evaluation.application.port.EvaTaskBriefByCourInfIdsDirectQueryPort;
 import edu.cuit.bc.iam.application.port.UserNameDirectQueryPort;
+import edu.cuit.client.dto.clientobject.eva.EvaTaskBriefCO;
 import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.course.SubjectDO;
-import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
-import edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO;
 import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.SubjectMapper;
@@ -26,8 +26,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,6 +42,7 @@ public class DeleteCourseRepositoryImpl implements DeleteCourseRepository {
     private final CourseMapper courseMapper;
     private final SubjectMapper subjectMapper;
     private final UserNameDirectQueryPort userNameDirectQueryPort;
+    private final EvaTaskBriefByCourInfIdsDirectQueryPort evaTaskBriefByCourInfIdsDirectQueryPort;
     /**
      * 跨 BC 直连清零（编译期）：不再直接依赖评教侧 Mapper 类型；仍保持原 MyBatis 调用语义，通过反射调用对应方法（保持行为不变）。
      */
@@ -101,17 +100,15 @@ public class DeleteCourseRepositoryImpl implements DeleteCourseRepository {
         courInfMapper.delete(courInfoWrapper);
 
         // 删除评教任务数据
-        List<EvaTaskDO> taskDOList;
+        List<EvaTaskBriefCO> taskBriefList;
         if (!list.isEmpty()) {
-            QueryWrapper<EvaTaskDO> evaTaskWrapper = new QueryWrapper<>();
-            evaTaskWrapper.in("cour_inf_id", list);
-            taskDOList = selectEvaTaskList(evaTaskWrapper);
+            taskBriefList = evaTaskBriefByCourInfIdsDirectQueryPort.findTaskBriefListByCourInfIds(list);
         } else {
-            taskDOList = new ArrayList<>();
+            taskBriefList = List.of();
         }
 
-        List<Integer> taskIds = taskDOList.stream().map(EvaTaskDO::getId).toList();
-        List<EvaTaskDO> list1 = taskDOList.stream().filter(taskDO -> taskDO.getStatus() == 0).toList();
+        List<Integer> taskIds = taskBriefList.stream().map(EvaTaskBriefCO::getId).toList();
+        List<EvaTaskBriefCO> list1 = taskBriefList.stream().filter(taskDO -> taskDO.getStatus() == 0).toList();
         if (!taskIds.isEmpty()) {
             deleteEvaTasksByIds(taskIds);
             deleteFormRecordsByTaskIds(taskIds);
@@ -119,7 +116,7 @@ public class DeleteCourseRepositoryImpl implements DeleteCourseRepository {
 
         Map<String, Map<Integer, Integer>> map = new HashMap<>();
         Map<Integer, Integer> evaTaskMap = new HashMap<>();
-        for (EvaTaskDO taskDO : list1) {
+        for (EvaTaskBriefCO taskDO : list1) {
             evaTaskMap.put(taskDO.getId(), taskDO.getTeacherId());
         }
 
@@ -135,27 +132,12 @@ public class DeleteCourseRepositoryImpl implements DeleteCourseRepository {
         return map;
     }
 
-    private List<EvaTaskDO> selectEvaTaskList(QueryWrapper<EvaTaskDO> qw) {
-        Method selectListMethod = findSingleArgMethod(evaTaskMapper, "selectList");
-        if (selectListMethod == null) {
-            throw new IllegalStateException("evaTaskMapper 缺少 selectList(Wrapper) 方法");
-        }
-        Object result = invoke(evaTaskMapper, selectListMethod, qw);
-        if (!(result instanceof List<?> list)) {
-            return List.of();
-        }
-        return list.stream()
-                .filter(EvaTaskDO.class::isInstance)
-                .map(EvaTaskDO.class::cast)
-                .toList();
-    }
-
     private void deleteEvaTasksByIds(List<Integer> taskIds) {
         Method deleteMethod = findSingleArgMethod(evaTaskMapper, "delete");
         if (deleteMethod == null) {
             throw new IllegalStateException("evaTaskMapper 缺少 delete(Wrapper) 方法");
         }
-        invoke(evaTaskMapper, deleteMethod, new QueryWrapper<EvaTaskDO>().in("id", taskIds));
+        invoke(evaTaskMapper, deleteMethod, new QueryWrapper<>().in("id", taskIds));
     }
 
     private void deleteFormRecordsByTaskIds(List<Integer> taskIds) {
@@ -163,7 +145,7 @@ public class DeleteCourseRepositoryImpl implements DeleteCourseRepository {
         if (deleteMethod == null) {
             throw new IllegalStateException("formRecordMapper 缺少 delete(Wrapper) 方法");
         }
-        invoke(formRecordMapper, deleteMethod, new QueryWrapper<FormRecordDO>().in("task_id", taskIds));
+        invoke(formRecordMapper, deleteMethod, new QueryWrapper<>().in("task_id", taskIds));
     }
 
     private static Method findSingleArgMethod(Object target, String methodName) {
