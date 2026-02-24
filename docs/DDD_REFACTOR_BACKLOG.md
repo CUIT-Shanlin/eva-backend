@@ -110,6 +110,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
 **已完成（更新至 2026-02-24）**
+- ✅ 评教读侧（保持行为不变，端口前置，单类）：在 `bc-evaluation/contract` 新增直查端口 `EvaTaskByTeacherIdsAndStatusDirectQueryPort`，用于后续将课程写侧（如 `AssignEvaTeachersRepositoryImpl`）中对评教 `evaTaskMapper` 的反射 `selectList/selectOne` 收敛为端口调用（约束：不引入缓存/切面副作用；入参为空 no-op；最小回归通过；落地：`25235d1d`）。
 - ✅ 评教写侧（保持行为不变，取消链路前置，单类）：在 `bc-evaluation/infrastructure` 新增取消端口适配器 `EvaTaskCancelByTeacherIdAndCourInfIdPortImpl`，内部仅委托 `EvaTaskMapper.update(...)` 将 `eva_task.status` 更新为 `2`（不引入缓存/切面副作用；空入参 no-op；最小回归通过；落地：`656ca526`）。
 - ✅ 课程写侧（保持行为不变，取消链路收敛，单类）：`bc-course/infrastructure` 的 `UpdateSingleCourseRepositoryImpl` 已将“取消评教任务”的评教 `evaTaskMapper` 反射调用收敛为调用评教端口（读端口取任务最小视图并筛选 `status=0`，写端口执行取消；仍保持 `cour_inf_id = courINfo.getCourseId()` 的历史口径不变；最小回归通过；落地：`b9178e9a`）。
 - ✅ 评教读侧（保持行为不变，端口前置，单类）：在 `bc-evaluation/contract` 新增最小直查端口 `EvaTaskCourInfIdsByTeacherIdAndStatusDirectQueryPort`（不引入缓存/切面副作用；入参为空 no-op；最小回归通过；落地：`d9846645`）。
