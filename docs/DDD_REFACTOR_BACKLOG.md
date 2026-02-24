@@ -1020,6 +1020,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ 补充进展（2026-02-24，保持行为不变）：评教 `bc-evaluation/contract` 新增写侧端口 `FormRecordDeleteByTaskIdsPort`（用于跨 BC 按 taskIds 删除 `form_record`；入参为空/空列表 no-op；落地：`6df5e2ab`），并在 `bc-evaluation/infrastructure` 新增端口适配器 `FormRecordDeleteByTaskIdsPortImpl`（内部委托 `FormRecordMapper.delete(in task_id)`；落地：`8faf4d0b`）。
 - ✅ 补充进展（2026-02-24，保持行为不变）：课程写侧 `bc-course/infrastructure` 的 `DeleteSelfCourseRepositoryImpl` 已将“按 courInfIds 查任务 + 按 taskIds 删除记录”的反射调用收敛为调用评教端口 `EvaTaskBriefByCourInfIdsDirectQueryPort` + `FormRecordDeleteByTaskIdsPort`（保持异常文案/缓存失效/副作用顺序完全不变；仍保留对 `evaTaskMapper.delete(...)` 的反射调用点待后续补批量删除端口；落地：`d31a2438`）。
 - ✅ 补充进展（2026-02-24，保持行为不变）：评教 `bc-evaluation/contract` 新增写侧端口 `EvaTaskDeleteByCourInfIdsPort`，用于跨 BC 在课程删课等链路中按 courInfIds 批量删除评教任务（不引入缓存/切面副作用；入参为空应为 no-op；最小回归通过；落地：`c2562508`）。
+- ✅ 补充进展（2026-02-24，保持行为不变）：评教 `bc-evaluation/infrastructure` 新增端口适配器 `EvaTaskDeleteByCourInfIdsPortImpl`，内部仅委托 `EvaTaskMapper.delete(in cour_inf_id)` 按 courInfIds 批量删除 `eva_task`（不引入缓存/切面副作用；入参为空应为 no-op；最小回归通过；落地：`73d98f77`）。
 
 - **方案 B（`CourseFormat` 下沉，保持行为不变）**：
   - ✅ 已完成前置：`shared-kernel/pom.xml` 已补齐 `zym-spring-boot-starter-jdbc` 与 `jackson-databind`（落地：`322bb315`）。
