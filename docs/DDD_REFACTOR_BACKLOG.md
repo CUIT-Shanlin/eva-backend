@@ -109,7 +109,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
-**已完成（更新至 2026-02-23）**
+**已完成（更新至 2026-02-24）**
 - ✅ 评教写侧（保持行为不变，取消链路前置，单类）：在 `bc-evaluation/infrastructure` 新增取消端口适配器 `EvaTaskCancelByTeacherIdAndCourInfIdPortImpl`，内部仅委托 `EvaTaskMapper.update(...)` 将 `eva_task.status` 更新为 `2`（不引入缓存/切面副作用；空入参 no-op；最小回归通过；落地：`656ca526`）。
 - ✅ 课程写侧（保持行为不变，取消链路收敛，单类）：`bc-course/infrastructure` 的 `UpdateSingleCourseRepositoryImpl` 已将“取消评教任务”的评教 `evaTaskMapper` 反射调用收敛为调用评教端口（读端口取任务最小视图并筛选 `status=0`，写端口执行取消；仍保持 `cour_inf_id = courINfo.getCourseId()` 的历史口径不变；最小回归通过；落地：`b9178e9a`）。
 - ✅ 评教读侧（保持行为不变，端口前置，单类）：在 `bc-evaluation/contract` 新增最小直查端口 `EvaTaskCourInfIdsByTeacherIdAndStatusDirectQueryPort`（不引入缓存/切面副作用；入参为空 no-op；最小回归通过；落地：`d9846645`）。
@@ -118,6 +118,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ 评教写侧（保持行为不变，取消链路前置，单类）：在 `bc-evaluation/contract` 新增写侧端口 `EvaTaskDeleteByCourInfIdPort`，用于跨 BC 在课程侧“自助改课删除某些课次（cour_inf）”链路中按 `courInfId` 删除评教任务（保持旧调用语义：仅删除 `eva_task`，不做级联删除；不引入缓存/切面副作用；入参为空 no-op；最小回归通过；落地：`6b304d4b`）。
 - ✅ 评教写侧（保持行为不变，删除链路前置，单类）：在 `bc-evaluation/infrastructure` 新增端口适配器 `EvaTaskDeleteByCourInfIdPortImpl`，内部仅委托 `EvaTaskMapper.delete(eq cour_inf_id)` 按 `courInfId` 删除 `eva_task`（不引入缓存/切面副作用；空入参 no-op；最小回归通过；落地：`19814946`）。
 - ✅ 课程写侧（保持行为不变，自助改课链路收敛，单类）：课程写侧 `bc-course/infrastructure` 的 `UpdateSelfCourseRepositoryImpl` 已将按 `cour_inf_id` 的评教任务查询/删除从评教 `evaTaskMapper` 反射调用收敛为调用评教端口（读端口 `EvaTaskBriefByCourInfIdsDirectQueryPort` + 写端口 `EvaTaskDeleteByCourInfIdPort`；保持异常文案/缓存失效/副作用顺序完全不变；最小回归通过；落地：`cd3a7bfe`）。
+- ✅ 评教写侧（保持行为不变，删除链路前置，单类）：在 `bc-evaluation/contract` 新增写侧端口 `FormRecordDeleteByTaskIdsPort`，用于跨 BC 在课程删课等链路中按 taskIds 删除评教记录（form_record）（不引入缓存/切面副作用；入参为空/空列表 no-op；最小回归通过；落地：`6df5e2ab`）。
 - ✅ IAM（保持行为不变，跨 BC 直连清零前置，单类）：在 `bc-iam-contract` 新增用户姓名直查端口 `UserNameDirectQueryPort`（约束：不走缓存/切面副作用），用于后续将课程写侧等调用点从 `sysUserMapper.selectById(...).getName()` 的跨 BC 直连写法收敛为调用端口（最小回归通过；落地：`201d95de`）。
 - ✅ IAM（保持行为不变，跨 BC 直连清零前置，单类）：在 `bc-iam-contract` 新增用户ID直查端口 `UserIdByUsernameDirectQueryPort`（约束：不走缓存/切面副作用），用于后续将课程写侧等调用点从 `sysUserMapper.selectOne(eq username)` 的跨 BC 直连写法收敛为调用端口（最小回归通过；落地：`2843e7d5`）。
 - ✅ IAM（保持行为不变，跨 BC 直连清零前置，单类）：在 `bc-iam-contract` 新增用户详情直查端口 `UserDetailByUsernameDirectQueryPort`（约束：不走缓存/切面副作用），用于后续将课程写侧等调用点从 `sysUserMapper.selectOne(eq username)` 的跨 BC 直连写法收敛为调用端口（最小回归通过；落地：`c1cc2a56`）。
