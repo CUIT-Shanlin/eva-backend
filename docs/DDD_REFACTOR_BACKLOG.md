@@ -112,6 +112,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 **已完成（更新至 2026-02-24）**
 - ✅ 评教写侧（保持行为不变，端口前置，单类）：在 `bc-evaluation/contract` 新增写侧端口 `EvaTaskInsertPort`，用于后续将课程写侧（如 `AssignEvaTeachersRepositoryImpl`）中对评教 `evaTaskMapper.insert` 的反射调用收敛为端口调用，并显式回传生成的 `taskId`（不引入缓存/切面副作用；入参为空 no-op；保持旧 insert + 主键回填语义不变；最小回归通过；落地：`3facb7f1`）。
 - ✅ 评教写侧（保持行为不变，端口适配器，单类）：在 `bc-evaluation/infrastructure` 新增端口适配器 `EvaTaskInsertPortImpl`，内部仅委托 `EvaTaskMapper.insert` 并回传生成的 `taskId`（不引入缓存/切面副作用；入参为空 no-op；保持旧 insert + 主键回填语义不变；最小回归通过；落地：`d7a31571`）。
+- ✅ 课程写侧（保持行为不变，分配评教老师收敛，单类）：`bc-course/infrastructure` 的 `AssignEvaTeachersRepositoryImpl` 已移除 `@Qualifier("evaTaskMapper") Object` 注入与反射 `selectList/selectOne/insert`，统一改走评教端口 `EvaTaskByTeacherIdsAndStatusDirectQueryPort` + `EvaTaskInsertPort`（异常文案/日志文案/缓存失效与副作用顺序完全不变；尤其保持 `LogUtils.logContent(...)` 与 `invalidateCache(...)` 的相对顺序；最小回归通过；落地：`6926ada2`）。
 - ✅ 评教读侧（保持行为不变，端口前置，单类）：在 `bc-evaluation/contract` 新增直查端口 `EvaTaskByTeacherIdsAndStatusDirectQueryPort`，用于后续将课程写侧（如 `AssignEvaTeachersRepositoryImpl`）中对评教 `evaTaskMapper` 的反射 `selectList/selectOne` 收敛为端口调用（约束：不引入缓存/切面副作用；入参为空 no-op；最小回归通过；落地：`25235d1d`）。
 - ✅ 评教读侧（保持行为不变，端口适配器，单类）：在 `bc-evaluation/infrastructure` 新增端口适配器 `EvaTaskByTeacherIdsAndStatusDirectQueryPortImpl`，内部仅委托 `EvaTaskMapper.selectList/selectOne` 并映射为 `courInfIds/teacherId`（不引入缓存/切面副作用；入参为空 no-op；最小回归通过；落地：`e7b2b99f`）。
 - ✅ 评教写侧（保持行为不变，取消链路前置，单类）：在 `bc-evaluation/infrastructure` 新增取消端口适配器 `EvaTaskCancelByTeacherIdAndCourInfIdPortImpl`，内部仅委托 `EvaTaskMapper.update(...)` 将 `eva_task.status` 更新为 `2`（不引入缓存/切面副作用；空入参 no-op；最小回归通过；落地：`656ca526`）。
@@ -1010,11 +1011,11 @@ scope: 全仓库（离线扫描 + 规则归纳）
 （滚动更新至 2026-02-24，保持行为不变）
 
 - ✅ 状态更新（2026-02-23，保持行为不变）：课程写侧 `bc-course/infrastructure/src/main/java/edu/cuit/infra/bccourse/adapter/` 内已不再出现 `@Qualifier("sysUserMapper")`，统一改走 `bc-iam-contract` 直查端口（提交链：`edf22c1f` → `fb4e1423` → `77fd744f` → `49fd5520` → `ecacf6b2` → `45924c9b` → `e1d9c16b` → `977aaf9f`）。
-- 🎯 下一阶段主线（写侧优先，保持行为不变；单类闭环）：持续推进“课程写侧去评教 infrastructure/Mapper/DO/XML 直连”（跨 BC 只允许依赖 contract/shared-kernel）。删除链路/取消链路/自助删课链路已阶段性闭环；下一步优先收敛 **分配评教老师** 链路（`AssignEvaTeachersRepositoryImpl`），再依次处理 `CourseQueryRepository/CourseImportExce/CourseRecommendExce/CourseTemplateLockQueryPortImpl`（详见 `NEXT_SESSION_HANDOFF.md` 0.11）。
+- 🎯 下一阶段主线（写侧优先，保持行为不变；单类闭环）：持续推进“课程写侧去评教 infrastructure/Mapper/DO/XML 直连”（跨 BC 只允许依赖 contract/shared-kernel）。删除链路/取消链路/自助删课链路已阶段性闭环；✅ **分配评教老师** 链路（`AssignEvaTeachersRepositoryImpl`）已完成收敛；下一步依次处理 `CourseQueryRepository/CourseImportExce/CourseRecommendExce/CourseTemplateLockQueryPortImpl`（详见 `NEXT_SESSION_HANDOFF.md` 0.11）。
 - ✅ 补充进展（2026-02-24，保持行为不变）：为收敛“分配评教老师”链路的评教任务读写直连，评教侧已补齐并落地端口链路（contract + infrastructure）：`EvaTaskByTeacherIdsAndStatusDirectQueryPort` + `EvaTaskByTeacherIdsAndStatusDirectQueryPortImpl`；`EvaTaskInsertPort` + `EvaTaskInsertPortImpl`（均不引入缓存/切面副作用；入参为空 no-op；保持旧 Mapper 调用语义不变；详见 `NEXT_SESSION_HANDOFF.md` 0.9/0.11）。
-- 🎯 下一刀建议（写侧优先，保持行为不变，单类闭环）：修改 `bc-course/infrastructure` 的 `AssignEvaTeachersRepositoryImpl`，移除 `@Qualifier("evaTaskMapper")` 的运行期依赖与反射 `selectList/selectOne/insert`，统一改走评教端口 `EvaTaskByTeacherIdsAndStatusDirectQueryPort` + `EvaTaskInsertPort`（异常文案/日志文案/缓存失效与副作用顺序完全不变）。
+- ✅ 补充进展（2026-02-24，保持行为不变，单类闭环）：课程写侧 `bc-course/infrastructure` 的 `AssignEvaTeachersRepositoryImpl` 已移除 `@Qualifier("evaTaskMapper")` 的运行期依赖与反射 `selectList/selectOne/insert`，统一改走评教端口 `EvaTaskByTeacherIdsAndStatusDirectQueryPort` + `EvaTaskInsertPort`（异常文案/日志文案/缓存失效与副作用顺序完全不变；最小回归通过；落地：`6926ada2`）。
+- 🎯 下一刀建议（写侧优先，保持行为不变，单类闭环）：修改 `bc-course/infrastructure` 的 `CourseQueryRepository`，移除 `@Qualifier("evaTaskMapper")` 的运行期依赖并改走评教端口（若端口能力不足，按“先补端口（单类）→ 再补适配器（单类）→ 再改调用侧（单类）”推进；保持行为不变）。
 - 📌 当前仍未收敛（口径：`rg -n "@Qualifier\\(\\\"evaTaskMapper\\\"\\)" bc-course bc-template --glob "**/*.java"`）：
-  - `bc-course/infrastructure/src/main/java/edu/cuit/infra/bccourse/adapter/AssignEvaTeachersRepositoryImpl.java`
   - `bc-course/infrastructure/src/main/java/edu/cuit/infra/bccourse/query/CourseQueryRepository.java`
   - `bc-course/infrastructure/src/main/java/edu/cuit/infra/gateway/impl/course/operate/CourseImportExce.java`
   - `bc-course/infrastructure/src/main/java/edu/cuit/infra/gateway/impl/course/operate/CourseRecommendExce.java`
