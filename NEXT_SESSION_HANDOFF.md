@@ -36,6 +36,7 @@
 > - ✅ 评教按 courInfId 删除端口适配器：在 `bc-evaluation/infrastructure` 新增 `EvaTaskDeleteByCourInfIdPortImpl`（内部委托 `EvaTaskMapper.delete(eq cour_inf_id)`；空入参 no-op；不引入缓存/切面副作用；代码：`19814946`）。
 > - ✅ 课程自助改课按 courInfId 删除评教任务改走端口：`UpdateSelfCourseRepositoryImpl` 已将按 `cour_inf_id` 的评教任务查询/删除从评教 `evaTaskMapper` 反射调用收敛为调用评教端口（读端口 `EvaTaskBriefByCourInfIdsDirectQueryPort` + 写端口 `EvaTaskDeleteByCourInfIdPort`；保持异常文案/缓存失效/副作用顺序完全不变；代码：`cd3a7bfe`）。
 > - ✅ 评教记录按 taskIds 删除端口：在 `bc-evaluation/contract` 新增写侧端口 `FormRecordDeleteByTaskIdsPort`，用于后续将课程写侧等调用点从 `formRecordMapper.delete(in task_id)` 的跨 BC 直连写法收敛为调用端口（约束：不引入缓存/切面副作用；入参为空/空列表 no-op；最小回归通过；代码：`6df5e2ab`）。
+> - ✅ 评教记录按 taskIds 删除端口适配器：在 `bc-evaluation/infrastructure` 新增 `FormRecordDeleteByTaskIdsPortImpl`（内部委托 `FormRecordMapper.delete(in task_id)`；空入参/空列表 no-op；不引入缓存/切面副作用；最小回归通过；代码：`8faf4d0b`）。
 
 > ✅ 本会话补充进展（2026-02-22，保持行为不变）：评教读侧 `EvaStatisticsQueryRepository` 反射异常解包逻辑去重复（抽取 `rethrowInvocationTargetException(...)` 并在 5 处复用；最小回归通过；代码落地：`bf79e34e`；三文档同步：`aea498fb`）。
 > ✅ 本会话补充进展（2026-02-23，保持行为不变）：评教写侧 `DeleteEvaRecordRepositoryImpl` 反射异常解包去重复收尾（抽取 `rethrowInvocationTargetException(...)` 并复用；最小回归通过；代码落地：`a1773f2b`）。下一刀建议（写侧优先，保持行为不变）：从 Backlog 4.3/第 6 节中选 1 个可单刀闭环目标继续推进。

@@ -119,6 +119,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 - ✅ 评教写侧（保持行为不变，删除链路前置，单类）：在 `bc-evaluation/infrastructure` 新增端口适配器 `EvaTaskDeleteByCourInfIdPortImpl`，内部仅委托 `EvaTaskMapper.delete(eq cour_inf_id)` 按 `courInfId` 删除 `eva_task`（不引入缓存/切面副作用；空入参 no-op；最小回归通过；落地：`19814946`）。
 - ✅ 课程写侧（保持行为不变，自助改课链路收敛，单类）：课程写侧 `bc-course/infrastructure` 的 `UpdateSelfCourseRepositoryImpl` 已将按 `cour_inf_id` 的评教任务查询/删除从评教 `evaTaskMapper` 反射调用收敛为调用评教端口（读端口 `EvaTaskBriefByCourInfIdsDirectQueryPort` + 写端口 `EvaTaskDeleteByCourInfIdPort`；保持异常文案/缓存失效/副作用顺序完全不变；最小回归通过；落地：`cd3a7bfe`）。
 - ✅ 评教写侧（保持行为不变，删除链路前置，单类）：在 `bc-evaluation/contract` 新增写侧端口 `FormRecordDeleteByTaskIdsPort`，用于跨 BC 在课程删课等链路中按 taskIds 删除评教记录（form_record）（不引入缓存/切面副作用；入参为空/空列表 no-op；最小回归通过；落地：`6df5e2ab`）。
+- ✅ 评教写侧（保持行为不变，删除链路前置，单类）：在 `bc-evaluation/infrastructure` 新增端口适配器 `FormRecordDeleteByTaskIdsPortImpl`，内部仅委托 `FormRecordMapper.delete(in task_id)` 按 taskIds 删除 `form_record`（不引入缓存/切面副作用；入参为空/空列表 no-op；最小回归通过；落地：`8faf4d0b`）。
 - ✅ IAM（保持行为不变，跨 BC 直连清零前置，单类）：在 `bc-iam-contract` 新增用户姓名直查端口 `UserNameDirectQueryPort`（约束：不走缓存/切面副作用），用于后续将课程写侧等调用点从 `sysUserMapper.selectById(...).getName()` 的跨 BC 直连写法收敛为调用端口（最小回归通过；落地：`201d95de`）。
 - ✅ IAM（保持行为不变，跨 BC 直连清零前置，单类）：在 `bc-iam-contract` 新增用户ID直查端口 `UserIdByUsernameDirectQueryPort`（约束：不走缓存/切面副作用），用于后续将课程写侧等调用点从 `sysUserMapper.selectOne(eq username)` 的跨 BC 直连写法收敛为调用端口（最小回归通过；落地：`2843e7d5`）。
 - ✅ IAM（保持行为不变，跨 BC 直连清零前置，单类）：在 `bc-iam-contract` 新增用户详情直查端口 `UserDetailByUsernameDirectQueryPort`（约束：不走缓存/切面副作用），用于后续将课程写侧等调用点从 `sysUserMapper.selectOne(eq username)` 的跨 BC 直连写法收敛为调用端口（最小回归通过；落地：`c1cc2a56`）。
