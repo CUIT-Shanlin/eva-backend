@@ -29,6 +29,7 @@
 >
 > 📌 本会话关键增量（2026-02-24，均已闭环且已推送；保持行为不变）：
 > - ✅ 评教任务按教师列表+状态直查端口：在 `bc-evaluation/contract` 新增 `EvaTaskByTeacherIdsAndStatusDirectQueryPort`，用于后续将课程写侧（如 `AssignEvaTeachersRepositoryImpl`）中对评教 `evaTaskMapper` 的反射 `selectList/selectOne` 收敛为端口调用（约束：不引入缓存/切面副作用；入参为空 no-op；保持旧查询语义/异常行为不变；代码：`25235d1d`；文档：本提交）。
+> - ✅ 评教任务按教师列表+状态直查端口适配器：在 `bc-evaluation/infrastructure` 新增 `EvaTaskByTeacherIdsAndStatusDirectQueryPortImpl`，内部仅委托 `EvaTaskMapper.selectList/selectOne` 并映射为 `courInfIds/teacherId`（不引入缓存/切面副作用；入参为空 no-op；保持旧查询语义/异常行为不变；代码：`e7b2b99f`；文档：本提交）。
 > - ✅ 评教取消写端口适配器：在 `bc-evaluation/infrastructure` 新增 `EvaTaskCancelByTeacherIdAndCourInfIdPortImpl`（内部委托 `EvaTaskMapper.update(...)`；空入参 no-op；不引入缓存/切面副作用；代码：`656ca526`；文档：`2c0bc151`）。
 > - ✅ 课程改课取消任务改走端口：`UpdateSingleCourseRepositoryImpl` 已将“取消评教任务”的评教 `evaTaskMapper` 反射调用收敛为调用评教端口（读端口取最小视图 + 写端口执行取消；保持 `cour_inf_id = courINfo.getCourseId()` 历史口径不变；代码：`b9178e9a`；文档：`eccd7248`）。
 > - ✅ 评教任务 courInfId 列表直查端口链路：新增 `EvaTaskCourInfIdsByTeacherIdAndStatusDirectQueryPort` + 端口适配器 `EvaTaskCourInfIdsByTeacherIdAndStatusDirectQueryPortImpl`（内部委托 `EvaTaskMapper.selectList(eq teacher_id, status)` 并映射 `courInfId` 列表；代码：`d9846645`/`0f4fa7d3`；文档：`29beac3a`/`c1065b0f`）。
