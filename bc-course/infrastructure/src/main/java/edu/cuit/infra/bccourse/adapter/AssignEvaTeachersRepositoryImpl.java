@@ -3,6 +3,8 @@ package edu.cuit.infra.bccourse.adapter;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.cuit.bc.course.application.port.AssignEvaTeachersRepository;
 import edu.cuit.bc.course.application.port.CourseIdsByCourseWrapperDirectQueryPort;
+import edu.cuit.bc.evaluation.application.port.EvaTaskByTeacherIdsAndStatusDirectQueryPort;
+import edu.cuit.bc.evaluation.application.port.EvaTaskInsertPort;
 import edu.cuit.bc.iam.application.port.UserNameDirectQueryPort;
 import edu.cuit.infra.bccourse.support.CourInfTimeOverlapQuery;
 import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
@@ -18,13 +20,9 @@ import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import edu.cuit.zhuyimeng.framework.common.exception.UpdateException;
 import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -41,12 +39,8 @@ public class AssignEvaTeachersRepositoryImpl implements AssignEvaTeachersReposit
     private final SubjectMapper subjectMapper;
     private final CourseIdsByCourseWrapperDirectQueryPort courseIdsByCourseWrapperDirectQueryPort;
     private final UserNameDirectQueryPort userNameDirectQueryPort;
-    /**
-     * 跨 BC 直连清零（编译期）：不再直接依赖评教侧 Mapper 类型；仍保持原 MyBatis 调用语义，通过反射调用对应方法（保持行为不变）。
-     */
-    @Autowired
-    @Qualifier("evaTaskMapper")
-    private Object evaTaskMapper;
+    private final EvaTaskByTeacherIdsAndStatusDirectQueryPort evaTaskByTeacherIdsAndStatusDirectQueryPort;
+    private final EvaTaskInsertPort evaTaskInsertPort;
     private final LocalCacheManager localCacheManager;
     private final EvaCacheConstants evaCacheConstants;
 
@@ -126,12 +120,8 @@ public class AssignEvaTeachersRepositoryImpl implements AssignEvaTeachersReposit
     }
 
     private void judgeAlsoHasTask(List<Integer> userList, CourInfDO courInfDO) {
-        List<Integer> courInfoList = selectEvaTaskList(new QueryWrapper<EvaTaskDO>()
-                        .in(!userList.isEmpty(), "teacher_id", userList)
-                        .eq("status", 0))
-                .stream()
-                .map(EvaTaskDO::getCourInfId)
-                .toList();
+        List<Integer> courInfoList = evaTaskByTeacherIdsAndStatusDirectQueryPort
+                .findCourInfIdsByTeacherIdsAndStatus(userList, 0);
         if (courInfoList.isEmpty()) {
             return;
         }
@@ -145,71 +135,22 @@ public class AssignEvaTeachersRepositoryImpl implements AssignEvaTeachersReposit
                     ).eq(true, "id", courInfId)
             );
             if (courInfDO1 != null) {
-                EvaTaskDO evaTaskDO = selectEvaTaskOne(new QueryWrapper<EvaTaskDO>()
-                        .eq("cour_inf_id", courInfDO1.getId())
-                        .in("teacher_id", userList));
-                String teacherName = userNameDirectQueryPort.findNameById(evaTaskDO.getTeacherId());
+                Integer teacherId = evaTaskByTeacherIdsAndStatusDirectQueryPort
+                        .findTeacherIdByCourInfIdAndTeacherIds(courInfDO1.getId(), userList);
+                String teacherName = userNameDirectQueryPort.findNameById(teacherId);
                 throw new UpdateException("课程时间冲突，评教老师中" + teacherName + "在该时间段已经有了评教任务");
             }
         }
     }
 
     private void insertEvaTask(EvaTaskDO evaTaskDO) {
-        Method insertMethod = findMethodByNameAndParamCount(evaTaskMapper, "insert", 1);
-        if (insertMethod == null) {
-            throw new IllegalStateException("evaTaskMapper 缺少 insert(entity) 方法");
-        }
-        invoke(evaTaskMapper, insertMethod, evaTaskDO);
-    }
-
-    private List<EvaTaskDO> selectEvaTaskList(QueryWrapper<EvaTaskDO> qw) {
-        Method selectListMethod = findMethodByNameAndParamCount(evaTaskMapper, "selectList", 1);
-        if (selectListMethod == null) {
-            throw new IllegalStateException("evaTaskMapper 缺少 selectList(Wrapper) 方法");
-        }
-        Object result = invoke(evaTaskMapper, selectListMethod, qw);
-        if (!(result instanceof List<?> list)) {
-            return List.of();
-        }
-        return list.stream()
-                .filter(EvaTaskDO.class::isInstance)
-                .map(EvaTaskDO.class::cast)
-                .toList();
-    }
-
-    private EvaTaskDO selectEvaTaskOne(QueryWrapper<EvaTaskDO> qw) {
-        Method selectOneMethod = findMethodByNameAndParamCount(evaTaskMapper, "selectOne", 1);
-        if (selectOneMethod == null) {
-            throw new IllegalStateException("evaTaskMapper 缺少 selectOne(Wrapper) 方法");
-        }
-        Object result = invoke(evaTaskMapper, selectOneMethod, qw);
-        if (result == null) {
-            return null;
-        }
-        return (EvaTaskDO) result;
-    }
-
-    private static Method findMethodByNameAndParamCount(Object target, String methodName, int paramCount) {
-        if (target == null) {
-            return null;
-        }
-        for (Method method : target.getClass().getMethods()) {
-            if (method.getName().equals(methodName) && method.getParameterCount() == paramCount) {
-                return method;
-            }
-        }
-        return null;
-    }
-
-    private static Object invoke(Object target, Method method, Object... args) {
-        try {
-            return method.invoke(target, args);
-        } catch (Exception e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof RuntimeException runtimeException) {
-                throw runtimeException;
-            }
-            throw new IllegalStateException(e);
-        }
+        Integer taskId = evaTaskInsertPort.insertAndReturnId(
+                evaTaskDO.getTeacherId(),
+                evaTaskDO.getCourInfId(),
+                evaTaskDO.getStatus(),
+                evaTaskDO.getCreateTime(),
+                evaTaskDO.getUpdateTime()
+        );
+        evaTaskDO.setId(taskId);
     }
 }
