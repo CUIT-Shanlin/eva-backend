@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import edu.cuit.bc.course.application.port.DeleteSelfCourseRepository;
 import edu.cuit.bc.evaluation.application.port.EvaTaskBriefByCourInfIdsDirectQueryPort;
+import edu.cuit.bc.evaluation.application.port.EvaTaskDeleteByCourInfIdsPort;
 import edu.cuit.bc.evaluation.application.port.FormRecordDeleteByTaskIdsPort;
 import edu.cuit.bc.iam.application.contract.dto.clientobject.user.UserDetailCO;
 import edu.cuit.bc.iam.application.port.UserDetailByUsernameDirectQueryPort;
@@ -24,13 +25,9 @@ import edu.cuit.infra.gateway.impl.course.operate.CourseFormat;
 import edu.cuit.zhuyimeng.framework.cache.LocalCacheManager;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,10 +42,8 @@ public class DeleteSelfCourseRepositoryImpl implements DeleteSelfCourseRepositor
     private final CourseMapper courseMapper;
     private final CourseTypeCourseMapper courseTypeCourseMapper;
     private final SubjectMapper subjectMapper;
-    @Autowired
-    @Qualifier("evaTaskMapper")
-    private Object evaTaskMapper;
     private final EvaTaskBriefByCourInfIdsDirectQueryPort evaTaskBriefByCourInfIdsDirectQueryPort;
+    private final EvaTaskDeleteByCourInfIdsPort evaTaskDeleteByCourInfIdsPort;
     private final FormRecordDeleteByTaskIdsPort formRecordDeleteByTaskIdsPort;
     private final UserDetailByUsernameDirectQueryPort userDetailByUsernameDirectQueryPort;
     private final LocalCacheManager localCacheManager;
@@ -95,10 +90,7 @@ public class DeleteSelfCourseRepositoryImpl implements DeleteSelfCourseRepositor
         }
         List<Integer> list1 = courInfoIds.stream().map(CourInfDO::getId).toList();
         if (!list1.isEmpty()) {
-            invokeDelete(
-                    evaTaskMapper,
-                    new UpdateWrapper<EvaTaskDO>().in("cour_inf_id", taskBriefList.stream().map(EvaTaskBriefCO::getId).toList())
-            );
+            evaTaskDeleteByCourInfIdsPort.deleteByCourInfIds(taskBriefList.stream().map(EvaTaskBriefCO::getId).toList());
         }
         Map<Integer, Integer> mapEva = new HashMap<>();
         taskBriefList.forEach(taskBrief -> mapEva.put(taskBrief.getId(), taskBrief.getTeacherId()));
@@ -111,39 +103,5 @@ public class DeleteSelfCourseRepositoryImpl implements DeleteSelfCourseRepositor
         localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(courseDO.getSemesterId()));
         localCacheManager.invalidateCache(null, classroomCacheConstants.ALL_CLASSROOM);
         return map;
-    }
-
-    private static Object invokeDelete(Object mapper, Object queryWrapper) {
-        try {
-            Method method = resolveSingleArgMethod(mapper, "delete", queryWrapper);
-            return method.invoke(mapper, queryWrapper);
-        } catch (InvocationTargetException e) {
-            sneakyThrow(e.getTargetException());
-            return null;
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    private static Method resolveSingleArgMethod(Object target, String methodName, Object arg) throws NoSuchMethodException {
-        Class<?> argClass = arg.getClass();
-        for (Method method : target.getClass().getMethods()) {
-            if (!method.getName().equals(methodName)) {
-                continue;
-            }
-            if (method.getParameterCount() != 1) {
-                continue;
-            }
-            Class<?> paramType = method.getParameterTypes()[0];
-            if (paramType.isAssignableFrom(argClass)) {
-                return method;
-            }
-        }
-        throw new NoSuchMethodException(target.getClass().getName() + "#" + methodName + "(" + argClass.getName() + ")");
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T extends Throwable> void sneakyThrow(Throwable throwable) throws T {
-        throw (T) throwable;
     }
 }
