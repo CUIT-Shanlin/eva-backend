@@ -3,14 +3,16 @@ package edu.cuit.infra.bccourse.adapter;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import edu.cuit.bc.course.application.port.DeleteSelfCourseRepository;
+import edu.cuit.bc.evaluation.application.port.EvaTaskBriefByCourInfIdsDirectQueryPort;
+import edu.cuit.bc.evaluation.application.port.FormRecordDeleteByTaskIdsPort;
 import edu.cuit.bc.iam.application.contract.dto.clientobject.user.UserDetailCO;
 import edu.cuit.bc.iam.application.port.UserDetailByUsernameDirectQueryPort;
+import edu.cuit.client.dto.clientobject.eva.EvaTaskBriefCO;
 import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseTypeCourseDO;
 import edu.cuit.infra.dal.database.dataobject.course.SubjectDO;
 import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
-import edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO;
 import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseTypeCourseMapper;
@@ -29,7 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,9 +48,8 @@ public class DeleteSelfCourseRepositoryImpl implements DeleteSelfCourseRepositor
     @Autowired
     @Qualifier("evaTaskMapper")
     private Object evaTaskMapper;
-    @Autowired
-    @Qualifier("formRecordMapper")
-    private Object formRecordMapper;
+    private final EvaTaskBriefByCourInfIdsDirectQueryPort evaTaskBriefByCourInfIdsDirectQueryPort;
+    private final FormRecordDeleteByTaskIdsPort formRecordDeleteByTaskIdsPort;
     private final UserDetailByUsernameDirectQueryPort userDetailByUsernameDirectQueryPort;
     private final LocalCacheManager localCacheManager;
     private final CourseCacheConstants courseCacheConstants;
@@ -89,27 +89,19 @@ public class DeleteSelfCourseRepositoryImpl implements DeleteSelfCourseRepositor
 
         // 删除评教相关数据
         List<Integer> list = courInfoIds.stream().map(CourInfDO::getId).toList();
-        List<EvaTaskDO> taskDOList = new ArrayList<>();
-        if (!list.isEmpty()) {
-            taskDOList = (List<EvaTaskDO>) invokeSelectList(
-                    evaTaskMapper,
-                    new QueryWrapper<EvaTaskDO>().in(true, "cour_inf_id", list)
-            );
-        }
-        if (!taskDOList.isEmpty()) {
-            invokeDelete(formRecordMapper, new QueryWrapper<FormRecordDO>().in(true, "task_id", list));
+        List<EvaTaskBriefCO> taskBriefList = evaTaskBriefByCourInfIdsDirectQueryPort.findTaskBriefListByCourInfIds(list);
+        if (!taskBriefList.isEmpty()) {
+            formRecordDeleteByTaskIdsPort.deleteByTaskIds(list);
         }
         List<Integer> list1 = courInfoIds.stream().map(CourInfDO::getId).toList();
         if (!list1.isEmpty()) {
             invokeDelete(
                     evaTaskMapper,
-                    new UpdateWrapper<EvaTaskDO>().in("cour_inf_id", taskDOList.stream().map(EvaTaskDO::getId).toList())
+                    new UpdateWrapper<EvaTaskDO>().in("cour_inf_id", taskBriefList.stream().map(EvaTaskBriefCO::getId).toList())
             );
         }
         Map<Integer, Integer> mapEva = new HashMap<>();
-        for (EvaTaskDO i : taskDOList) {
-            mapEva.put(i.getId(), i.getTeacherId());
-        }
+        taskBriefList.forEach(taskBrief -> mapEva.put(taskBrief.getId(), taskBrief.getTeacherId()));
         Map<String, Map<Integer, Integer>> map = new HashMap<>();
         map.put("你所要评教的" + teacherName + "老师的" + name + "课程(" + natureName + ")被删除，已取消评教任务", mapEva);
         map.put(teacherName + "老师的" + name + "课程（" + natureName + "）已被删除", null);
@@ -119,18 +111,6 @@ public class DeleteSelfCourseRepositoryImpl implements DeleteSelfCourseRepositor
         localCacheManager.invalidateCache(evaCacheConstants.TASK_LIST_BY_SEM, String.valueOf(courseDO.getSemesterId()));
         localCacheManager.invalidateCache(null, classroomCacheConstants.ALL_CLASSROOM);
         return map;
-    }
-
-    private static Object invokeSelectList(Object mapper, Object queryWrapper) {
-        try {
-            Method method = resolveSingleArgMethod(mapper, "selectList", queryWrapper);
-            return method.invoke(mapper, queryWrapper);
-        } catch (InvocationTargetException e) {
-            sneakyThrow(e.getTargetException());
-            return null;
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException(e);
-        }
     }
 
     private static Object invokeDelete(Object mapper, Object queryWrapper) {
