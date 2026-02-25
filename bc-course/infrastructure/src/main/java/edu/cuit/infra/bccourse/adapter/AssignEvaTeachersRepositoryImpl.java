@@ -10,7 +10,6 @@ import edu.cuit.infra.bccourse.support.CourInfTimeOverlapQuery;
 import edu.cuit.infra.dal.database.dataobject.course.CourInfDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.course.SubjectDO;
-import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.SubjectMapper;
@@ -57,20 +56,23 @@ public class AssignEvaTeachersRepositoryImpl implements AssignEvaTeachersReposit
         // 判断评教老师在该时间段是否已经有课了
         judgeAlsoHasCourse(semesterId, evaTeacherIdList, courInfDO);
 
-        // 遍历并创建评教任务对象，并插入评教任务表
-        List<EvaTaskDO> taskList = evaTeacherIdList.stream().map(id -> {
-            EvaTaskDO evaTaskDO = new EvaTaskDO();
-            evaTaskDO.setTeacherId(id);
-            evaTaskDO.setCourInfId(courInfId);
-            evaTaskDO.setStatus(0);
-            evaTaskDO.setCreateTime(LocalDateTime.now());
-            evaTaskDO.setUpdateTime(LocalDateTime.now());
-            return evaTaskDO;
-        }).toList();
-        taskList.forEach(this::insertEvaTask);
-
         Map<Integer, Integer> mapTask = new HashMap<>();
-        taskList.forEach(evaTaskDO -> mapTask.put(evaTaskDO.getId(), evaTaskDO.getTeacherId()));
+        // 遍历并插入评教任务表（跨 BC：不再依赖评教 DO；保持行为不变）
+        List<LocalDateTime[]> timePairs = evaTeacherIdList.stream()
+                .map(ignored -> new LocalDateTime[]{LocalDateTime.now(), LocalDateTime.now()})
+                .toList();
+        for (int i = 0; i < evaTeacherIdList.size(); i++) {
+            Integer teacherId = evaTeacherIdList.get(i);
+            LocalDateTime[] times = timePairs.get(i);
+            Integer taskId = evaTaskInsertPort.insertAndReturnId(
+                    teacherId,
+                    courInfId,
+                    0,
+                    times[0],
+                    times[1]
+            );
+            mapTask.put(taskId, teacherId);
+        }
 
         Integer subjectId = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("id", courInfDO.getCourseId())).getSubjectId();
         String name = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("id", subjectId)).getName();
@@ -141,16 +143,5 @@ public class AssignEvaTeachersRepositoryImpl implements AssignEvaTeachersReposit
                 throw new UpdateException("课程时间冲突，评教老师中" + teacherName + "在该时间段已经有了评教任务");
             }
         }
-    }
-
-    private void insertEvaTask(EvaTaskDO evaTaskDO) {
-        Integer taskId = evaTaskInsertPort.insertAndReturnId(
-                evaTaskDO.getTeacherId(),
-                evaTaskDO.getCourInfId(),
-                evaTaskDO.getStatus(),
-                evaTaskDO.getCreateTime(),
-                evaTaskDO.getUpdateTime()
-        );
-        evaTaskDO.setId(taskId);
     }
 }
