@@ -109,7 +109,8 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：此处用于同步“Backlog → 已完成/进行中”的状态变化；具体闭环细节与验收约束以 `NEXT_SESSION_HANDOFF.md` 为准。
 
-**已完成（更新至 2026-02-24）**
+**已完成（更新至 2026-02-25）**
+- ✅ 课程写侧（保持行为不变，单类闭环）：`bc-course/infrastructure` 的 `CourseImportExce` 已移除评教 `@Qualifier("evaTaskMapper")` 运行期依赖并改走评教端口 `EvaTaskBriefByCourInfIdsDirectQueryPort` + `EvaTaskDeleteByCourInfIdsPort`（并将表单记录删除改走 `FormRecordDeleteByTaskIdsPort`）；同时清零对评教 DO 的编译期依赖（保持异常文案/缓存/日志与副作用顺序完全不变；最小回归通过；落地：`60a0881a`）。
 - ✅ 评教写侧（保持行为不变，端口前置，单类）：在 `bc-evaluation/contract` 新增写侧端口 `EvaTaskInsertPort`，用于后续将课程写侧（如 `AssignEvaTeachersRepositoryImpl`）中对评教 `evaTaskMapper.insert` 的反射调用收敛为端口调用，并显式回传生成的 `taskId`（不引入缓存/切面副作用；入参为空 no-op；保持旧 insert + 主键回填语义不变；最小回归通过；落地：`3facb7f1`）。
 - ✅ 评教写侧（保持行为不变，端口适配器，单类）：在 `bc-evaluation/infrastructure` 新增端口适配器 `EvaTaskInsertPortImpl`，内部仅委托 `EvaTaskMapper.insert` 并回传生成的 `taskId`（不引入缓存/切面副作用；入参为空 no-op；保持旧 insert + 主键回填语义不变；最小回归通过；落地：`d7a31571`）。
 - ✅ 课程写侧（保持行为不变，分配评教老师收敛，单类）：`bc-course/infrastructure` 的 `AssignEvaTeachersRepositoryImpl` 已移除 `@Qualifier("evaTaskMapper") Object` 注入与反射 `selectList/selectOne/insert`，统一改走评教端口 `EvaTaskByTeacherIdsAndStatusDirectQueryPort` + `EvaTaskInsertPort`（异常文案/日志文案/缓存失效与副作用顺序完全不变；尤其保持 `LogUtils.logContent(...)` 与 `invalidateCache(...)` 的相对顺序；最小回归通过；落地：`6926ada2`）。
@@ -1009,16 +1010,16 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 > 说明：以下是仍在旧 gateway/技术切片中的能力，优先级按“写侧优先 + 影响范围”排序。
 
-（滚动更新至 2026-02-24，保持行为不变）
+（滚动更新至 2026-02-25，保持行为不变）
 
 - ✅ 状态更新（2026-02-23，保持行为不变）：课程写侧 `bc-course/infrastructure/src/main/java/edu/cuit/infra/bccourse/adapter/` 内已不再出现 `@Qualifier("sysUserMapper")`，统一改走 `bc-iam-contract` 直查端口（提交链：`edf22c1f` → `fb4e1423` → `77fd744f` → `49fd5520` → `ecacf6b2` → `45924c9b` → `e1d9c16b` → `977aaf9f`）。
-- 🎯 下一阶段主线（写侧优先，保持行为不变；单类闭环）：持续推进“课程写侧去评教 infrastructure/Mapper/DO/XML 直连”（跨 BC 只允许依赖 contract/shared-kernel）。删除链路/取消链路/自助删课链路已阶段性闭环；✅ **分配评教老师**（`AssignEvaTeachersRepositoryImpl`）与 ✅ **课程读侧仓储**（`CourseQueryRepository`）已完成收敛；下一步依次处理 `CourseImportExce/CourseRecommendExce/CourseTemplateLockQueryPortImpl`（详见 `NEXT_SESSION_HANDOFF.md` 0.11）。
+- 🎯 下一阶段主线（写侧优先，保持行为不变；单类闭环）：持续推进“课程写侧去评教 infrastructure/Mapper/DO/XML 直连”（跨 BC 只允许依赖 contract/shared-kernel）。删除链路/取消链路/自助删课链路已阶段性闭环；✅ **分配评教老师**（`AssignEvaTeachersRepositoryImpl`）与 ✅ **课程读侧仓储**（`CourseQueryRepository`）已完成收敛；下一步依次处理 `CourseRecommendExce/CourseTemplateLockQueryPortImpl`（详见 `NEXT_SESSION_HANDOFF.md` 0.11）。
 - ✅ 补充进展（2026-02-24，保持行为不变）：为收敛“分配评教老师”链路的评教任务读写直连，评教侧已补齐并落地端口链路（contract + infrastructure）：`EvaTaskByTeacherIdsAndStatusDirectQueryPort` + `EvaTaskByTeacherIdsAndStatusDirectQueryPortImpl`；`EvaTaskInsertPort` + `EvaTaskInsertPortImpl`（均不引入缓存/切面副作用；入参为空 no-op；保持旧 Mapper 调用语义不变；详见 `NEXT_SESSION_HANDOFF.md` 0.9/0.11）。
 - ✅ 补充进展（2026-02-24，保持行为不变，单类闭环）：课程写侧 `bc-course/infrastructure` 的 `AssignEvaTeachersRepositoryImpl` 已移除 `@Qualifier("evaTaskMapper")` 的运行期依赖与反射 `selectList/selectOne/insert`，统一改走评教端口 `EvaTaskByTeacherIdsAndStatusDirectQueryPort` + `EvaTaskInsertPort`（异常文案/日志文案/缓存失效与副作用顺序完全不变；最小回归通过；落地：`6926ada2`）。
 - ✅ 补充进展（2026-02-25，保持行为不变，单类闭环）：课程读侧仓储 `bc-course/infrastructure` 的 `CourseQueryRepository` 已移除 `@Qualifier("evaTaskMapper")` 的运行期依赖与反射 `selectList/selectCount` 调用，统一改走评教端口 `EvaTaskBriefByCourInfIdsDirectQueryPort`（保持行为不变；最小回归通过；落地：`65d1c784`）。
-- 🎯 下一刀建议（写侧优先，保持行为不变，单类闭环）：修改 `bc-course/infrastructure` 的 `CourseImportExce`，移除 `@Qualifier("evaTaskMapper")` 的运行期依赖并改走评教端口（若端口能力不足，按“先补端口（单类）→ 再补适配器（单类）→ 再改调用侧（单类）”推进；保持行为不变）。
+- ✅ 补充进展（2026-02-25，保持行为不变，单类闭环）：课程写侧 `bc-course/infrastructure` 的 `CourseImportExce` 已移除评教 `@Qualifier("evaTaskMapper")` 的运行期依赖并改走评教端口 `EvaTaskBriefByCourInfIdsDirectQueryPort` + `EvaTaskDeleteByCourInfIdsPort`（并将表单记录删除改走 `FormRecordDeleteByTaskIdsPort`）；同时清零对评教 DO 的编译期依赖（保持异常文案/缓存失效/日志与副作用顺序完全不变；最小回归通过；落地：`60a0881a`）。
+- 🎯 下一刀建议（写侧优先，保持行为不变，单类闭环）：修改 `bc-course/infrastructure` 的 `CourseRecommendExce`，移除 `@Qualifier("evaTaskMapper")` 的运行期依赖并改走评教端口（若端口能力不足，按“先补端口（单类）→ 再补适配器（单类）→ 再改调用侧（单类）”推进；保持行为不变）。
 - 📌 当前仍未收敛（口径：`rg -n "@Qualifier\\(\\\"evaTaskMapper\\\"\\)" bc-course bc-template --glob "**/*.java"`）：
-  - `bc-course/infrastructure/src/main/java/edu/cuit/infra/gateway/impl/course/operate/CourseImportExce.java`
   - `bc-course/infrastructure/src/main/java/edu/cuit/infra/gateway/impl/course/operate/CourseRecommendExce.java`
   - `bc-template/infrastructure/src/main/java/edu/cuit/infra/bctemplate/adapter/CourseTemplateLockQueryPortImpl.java`
 - ✅ 补充进展（2026-02-23，保持行为不变）：评教 `bc-evaluation/contract` 新增写侧端口 `EvaTaskCancelByTeacherIdAndCourInfIdPort`，用于课程侧“修改课次/时间导致取消评教任务”链路按 `teacherId + courInfId` 将评教任务置为取消状态（当前约定：将 `eva_task.status` 更新为 `2`；不引入缓存/切面副作用；最小回归通过；落地：`6632b3fe`）。后续已按下条完成刀 2（infra 适配器）。
