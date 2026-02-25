@@ -1,11 +1,10 @@
 package edu.cuit.infra.bctemplate.adapter;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import edu.cuit.bc.evaluation.application.port.CourseTemplateLockEvaEvidenceDirectQueryPort;
 import edu.cuit.bc.evaluation.application.port.EvaTaskBriefByCourInfIdsDirectQueryPort;
 import edu.cuit.bc.template.application.port.CourseTemplateLockQueryPort;
 import edu.cuit.client.dto.clientobject.eva.EvaTaskBriefCO;
-import edu.cuit.infra.dal.database.dataobject.eva.CourOneEvaTemplateDO;
-import edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -20,10 +19,9 @@ import java.util.Objects;
 @Component
 public class CourseTemplateLockQueryPortImpl implements CourseTemplateLockQueryPort {
     /**
-     * 跨 BC 直连清零（编译期）：不再在 bc-template 侧直接依赖评教侧 Mapper 类型；
-     * 仍保持原 MyBatis 调用语义，通过反射调用对应方法（保持行为不变）。
+     * 跨 BC 直连清零：模板侧不再直连评教 Mapper/DO，改为调用评教侧 contract 端口（保持行为不变）。
      */
-    private final Object courOneEvaTemplateMapper;
+    private final CourseTemplateLockEvaEvidenceDirectQueryPort courseTemplateLockEvaEvidenceDirectQueryPort;
     /**
      * 跨 BC 直连清零：不再在 bc-template 侧直连课程域 DAL（CourInfMapper/CourInfDO）。
      *
@@ -32,19 +30,16 @@ public class CourseTemplateLockQueryPortImpl implements CourseTemplateLockQueryP
      */
     private final Object courInfIdsByCourseIdsQueryPort;
     private final EvaTaskBriefByCourInfIdsDirectQueryPort evaTaskBriefByCourInfIdsDirectQueryPort;
-    private final Object formRecordMapper;
 
     @Autowired
     public CourseTemplateLockQueryPortImpl(
-            @Qualifier("courOneEvaTemplateMapper") Object courOneEvaTemplateMapper,
             @Qualifier("courInfIdsByCourseIdsQueryPortImpl") Object courInfIdsByCourseIdsQueryPort,
             EvaTaskBriefByCourInfIdsDirectQueryPort evaTaskBriefByCourInfIdsDirectQueryPort,
-            @Qualifier("formRecordMapper") Object formRecordMapper
+            CourseTemplateLockEvaEvidenceDirectQueryPort courseTemplateLockEvaEvidenceDirectQueryPort
     ) {
-        this.courOneEvaTemplateMapper = courOneEvaTemplateMapper;
         this.courInfIdsByCourseIdsQueryPort = courInfIdsByCourseIdsQueryPort;
         this.evaTaskBriefByCourInfIdsDirectQueryPort = evaTaskBriefByCourInfIdsDirectQueryPort;
-        this.formRecordMapper = formRecordMapper;
+        this.courseTemplateLockEvaEvidenceDirectQueryPort = courseTemplateLockEvaEvidenceDirectQueryPort;
     }
 
     public CourseTemplateLockQueryPortImpl(
@@ -53,7 +48,10 @@ public class CourseTemplateLockQueryPortImpl implements CourseTemplateLockQueryP
             Object evaTaskMapper,
             Object formRecordMapper
     ) {
-        this.courOneEvaTemplateMapper = courOneEvaTemplateMapper;
+        this.courseTemplateLockEvaEvidenceDirectQueryPort = buildEvidencePort(
+                courOneEvaTemplateMapper,
+                formRecordMapper
+        );
         this.courInfIdsByCourseIdsQueryPort = courInfIdsByCourseIdsQueryPort;
         this.evaTaskBriefByCourInfIdsDirectQueryPort = courInfIds -> {
             if (courInfIds == null || courInfIds.isEmpty()) {
@@ -89,7 +87,6 @@ public class CourseTemplateLockQueryPortImpl implements CourseTemplateLockQueryP
                     .filter(Objects::nonNull)
                     .toList();
         };
-        this.formRecordMapper = formRecordMapper;
     }
 
     @Override
@@ -104,19 +101,7 @@ public class CourseTemplateLockQueryPortImpl implements CourseTemplateLockQueryP
     }
 
     private boolean isLockedBySnapshot(Integer courseId, Integer semesterId) {
-        QueryWrapper<CourOneEvaTemplateDO> qw = new QueryWrapper<CourOneEvaTemplateDO>().eq("course_id", courseId);
-        if (semesterId != null) {
-            qw.eq("semester_id", semesterId);
-        }
-        Method selectCountMethod = findSingleArgMethod(courOneEvaTemplateMapper, "selectCount");
-        if (selectCountMethod == null) {
-            return false;
-        }
-        Object countObj = invoke(courOneEvaTemplateMapper, selectCountMethod, qw);
-        if (!(countObj instanceof Number count)) {
-            return false;
-        }
-        return count.longValue() > 0;
+        return courseTemplateLockEvaEvidenceDirectQueryPort.existsSnapshot(courseId, semesterId);
     }
 
     private boolean isLockedByRecord(Integer courseId) {
@@ -132,15 +117,55 @@ public class CourseTemplateLockQueryPortImpl implements CourseTemplateLockQueryP
         if (taskIds.isEmpty()) {
             return false;
         }
-        Method selectRecordCountMethod = findSingleArgMethod(formRecordMapper, "selectCount");
-        if (selectRecordCountMethod == null) {
-            return false;
-        }
-        Object countObj = invoke(formRecordMapper, selectRecordCountMethod, new QueryWrapper<FormRecordDO>().in("task_id", taskIds));
-        if (!(countObj instanceof Number count)) {
-            return false;
-        }
-        return count.longValue() > 0;
+        return courseTemplateLockEvaEvidenceDirectQueryPort.existsFormRecordByTaskIds(taskIds);
+    }
+
+    private static CourseTemplateLockEvaEvidenceDirectQueryPort buildEvidencePort(
+            Object courOneEvaTemplateMapper,
+            Object formRecordMapper
+    ) {
+        return new CourseTemplateLockEvaEvidenceDirectQueryPort() {
+            @Override
+            public boolean existsSnapshot(Integer courseId, Integer semesterId) {
+                if (courseId == null) {
+                    return false;
+                }
+                Method selectCountMethod = findSingleArgMethod(courOneEvaTemplateMapper, "selectCount");
+                if (selectCountMethod == null) {
+                    return false;
+                }
+                QueryWrapper<?> qw = new QueryWrapper<>()
+                        .eq("course_id", courseId);
+                if (semesterId != null) {
+                    qw.eq("semester_id", semesterId);
+                }
+                Object countObj = invoke(courOneEvaTemplateMapper, selectCountMethod, qw);
+                if (!(countObj instanceof Number count)) {
+                    return false;
+                }
+                return count.longValue() > 0;
+            }
+
+            @Override
+            public boolean existsFormRecordByTaskIds(List<Integer> taskIds) {
+                if (taskIds == null || taskIds.isEmpty()) {
+                    return false;
+                }
+                Method selectCountMethod = findSingleArgMethod(formRecordMapper, "selectCount");
+                if (selectCountMethod == null) {
+                    return false;
+                }
+                Object countObj = invoke(
+                        formRecordMapper,
+                        selectCountMethod,
+                        new QueryWrapper<>().in("task_id", taskIds)
+                );
+                if (!(countObj instanceof Number count)) {
+                    return false;
+                }
+                return count.longValue() > 0;
+            }
+        };
     }
 
     @SuppressWarnings("unchecked")
