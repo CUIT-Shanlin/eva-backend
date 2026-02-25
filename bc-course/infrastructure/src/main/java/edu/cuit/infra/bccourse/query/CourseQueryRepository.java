@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.benmanes.caffeine.cache.Cache;
 import edu.cuit.bc.course.application.port.CourseIdsBySemesterIdQueryPort;
 import edu.cuit.bc.course.application.port.CourseIdsByTeacherIdAndSemesterIdQueryPort;
+import edu.cuit.bc.evaluation.application.port.EvaTaskBriefByCourInfIdsDirectQueryPort;
 import edu.cuit.bc.iam.application.port.UserEntityFieldExtractPort;
 import edu.cuit.bc.iam.application.port.UserEntityObjectByIdDirectQueryPort;
 import edu.cuit.client.bo.EvaProp;
@@ -23,6 +24,7 @@ import edu.cuit.client.dto.clientobject.course.CourseDetailCO;
 import edu.cuit.client.dto.clientobject.course.RecommendCourseCO;
 import edu.cuit.client.dto.clientobject.course.SelfTeachCourseCO;
 import edu.cuit.client.dto.clientobject.course.SingleCourseCO;
+import edu.cuit.client.dto.clientobject.eva.EvaTaskBriefCO;
 import edu.cuit.client.dto.clientobject.eva.CourseScoreCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTeacherInfoCO;
 import edu.cuit.client.dto.clientobject.eva.EvaTemplateCO;
@@ -89,7 +91,7 @@ public class CourseQueryRepository implements CourseQueryRepo {
     private final Object userMapper;
     private final UserEntityObjectByIdDirectQueryPort userEntityObjectByIdDirectQueryPort;
     private final Object courOneEvaTemplateMapper;
-    private final Object evaTaskMapper;
+    private final EvaTaskBriefByCourInfIdsDirectQueryPort evaTaskBriefByCourInfIdsDirectQueryPort;
     private final Object formRecordMapper;
     private final CourseRecommendExce courseRecommendExce;
     private final PaginationConverter paginationConverter;
@@ -113,7 +115,7 @@ public class CourseQueryRepository implements CourseQueryRepo {
             @Qualifier("sysUserMapper") Object userMapper,
             UserEntityObjectByIdDirectQueryPort userEntityObjectByIdDirectQueryPort,
             @Qualifier("courOneEvaTemplateMapper") Object courOneEvaTemplateMapper,
-            @Qualifier("evaTaskMapper") Object evaTaskMapper,
+            EvaTaskBriefByCourInfIdsDirectQueryPort evaTaskBriefByCourInfIdsDirectQueryPort,
             @Qualifier("formRecordMapper") Object formRecordMapper,
             CourseRecommendExce courseRecommendExce,
             PaginationConverter paginationConverter,
@@ -136,7 +138,7 @@ public class CourseQueryRepository implements CourseQueryRepo {
         this.userMapper = userMapper;
         this.userEntityObjectByIdDirectQueryPort = userEntityObjectByIdDirectQueryPort;
         this.courOneEvaTemplateMapper = courOneEvaTemplateMapper;
-        this.evaTaskMapper = evaTaskMapper;
+        this.evaTaskBriefByCourInfIdsDirectQueryPort = evaTaskBriefByCourInfIdsDirectQueryPort;
         this.formRecordMapper = formRecordMapper;
         this.courseRecommendExce = courseRecommendExce;
         this.paginationConverter = paginationConverter;
@@ -275,16 +277,12 @@ public class CourseQueryRepository implements CourseQueryRepo {
         List<Integer> courInfos = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", id)).stream().map(CourInfDO::getId).toList();
         if(courInfos.isEmpty()) return courseImportExce.getCourseScore(courseDO.getTemplateId());
         //根据courInfos来找到评教任务id
-        QueryWrapper<EvaTaskDO> evaTaskWrapper = new QueryWrapper<>();
-        evaTaskWrapper.in(true,"cour_inf_id", courInfos);
-        evaTaskWrapper.eq("status",1);
-        List<EvaTaskDO> evaTaskDOList = invoke(
-                evaTaskMapper,
-                "selectList",
-                new Class<?>[]{Wrapper.class},
-                new Object[]{evaTaskWrapper}
-        );
-        List<Integer> evaTaskDOIds = evaTaskDOList.stream().map(EvaTaskDO::getId).toList();
+        List<EvaTaskBriefCO> taskBriefCOList = evaTaskBriefByCourInfIdsDirectQueryPort
+                .findTaskBriefListByCourInfIds(courInfos);
+        List<Integer> evaTaskDOIds = taskBriefCOList.stream()
+                .filter(task -> Objects.equals(task.getStatus(), 1))
+                .map(EvaTaskBriefCO::getId)
+                .toList();
         if(evaTaskDOIds.isEmpty())return courseImportExce.getCourseScore(courseDO.getTemplateId());
         //根据评教任务id来找到评教表单记录数据中的form_props_values
         List<FormRecordDO> formRecordDOList = invoke(
@@ -408,17 +406,12 @@ public class CourseQueryRepository implements CourseQueryRepo {
             singleCourseCO.setTeacherName(teacherDO.getName());
             singleCourseCO.setName(subjectMapper.selectById(courseDO.getSubjectId()).getName());
             //根据课程id到评教任务表中统计数量
-            singleCourseCO.setEvaNum(Math.toIntExact(invoke(
-                    evaTaskMapper,
-                    "selectCount",
-                    new Class<?>[]{Wrapper.class},
-                    new Object[]{new QueryWrapper<EvaTaskDO>()
-                            .eq("cour_inf_id", courInfDO.getId())
-                            .eq("status",0)
-                            .or()
-                            .eq("status",1)
-                            .eq("cour_inf_id",courInfDO.getId())}
-            )));
+            int evaNum = (int) evaTaskBriefByCourInfIdsDirectQueryPort
+                    .findTaskBriefListByCourInfIds(List.of(courInfDO.getId()))
+                    .stream()
+                    .filter(task -> Objects.equals(task.getStatus(), 0) || Objects.equals(task.getStatus(), 1))
+                    .count();
+            singleCourseCO.setEvaNum(evaNum);
             singleCourseCOList.add(singleCourseCO);
         }
         return singleCourseCOList;
@@ -601,12 +594,11 @@ public class CourseQueryRepository implements CourseQueryRepo {
             //统计评教数
             Long courInfId;
             if(courINfos.isEmpty())courInfId=0L;
-            else courInfId = invoke(
-                    evaTaskMapper,
-                    "selectCount",
-                    new Class<?>[]{Wrapper.class},
-                    new Object[]{new QueryWrapper<EvaTaskDO>().in("cour_inf_id",courINfos).and(wrapper->wrapper.eq("status",0).or().eq("status",1))}
-            );
+            else courInfId = evaTaskBriefByCourInfIdsDirectQueryPort
+                    .findTaskBriefListByCourInfIds(courINfos)
+                    .stream()
+                    .filter(task -> Objects.equals(task.getStatus(), 0) || Objects.equals(task.getStatus(), 1))
+                    .count();
             //添加到selfteachCourseCO中
             SelfTeachCourseCO selfTeachCourseCO = new SelfTeachCourseCO();
             selfTeachCourseCO.setId(courseDO.getId())
@@ -668,14 +660,10 @@ public class CourseQueryRepository implements CourseQueryRepo {
 
     @Override
     public List<EvaTeacherInfoCO> getEvaUsers(Integer courseId) {
-        List<EvaTaskDO> taskDOList = invoke(
-                evaTaskMapper,
-                "selectList",
-                new Class<?>[]{Wrapper.class},
-                new Object[]{new QueryWrapper<EvaTaskDO>().eq("cour_inf_id", courseId)}
-        );
-        if (taskDOList.isEmpty())return new ArrayList<>();
-        List<Integer> userList = taskDOList.stream().map(EvaTaskDO::getTeacherId).toList();
+        List<EvaTaskBriefCO> taskBriefCOList = evaTaskBriefByCourInfIdsDirectQueryPort
+                .findTaskBriefListByCourInfIds(List.of(courseId));
+        if (taskBriefCOList.isEmpty())return new ArrayList<>();
+        List<Integer> userList = taskBriefCOList.stream().map(EvaTaskBriefCO::getTeacherId).toList();
         List<SysUserDO> users = invoke(
                 userMapper,
                 "selectList",
@@ -940,12 +928,19 @@ public class CourseQueryRepository implements CourseQueryRepo {
     private Integer  getEvaNum(Integer teacherId,Integer semId){
         List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("teacher_id", teacherId).eq("semester_id", semId));
         List<Integer> courseId = courInfMapper.selectList(new QueryWrapper<CourInfDO>().in(!courseDOS.isEmpty(),"course_id", courseDOS)).stream().map(CourInfDO::getId).toList();
-        Long courInfId = invoke(
-                evaTaskMapper,
-                "selectCount",
-                new Class<?>[]{Wrapper.class},
-                new Object[]{new QueryWrapper<EvaTaskDO>().in(!courseId.isEmpty(),"cour_inf_id", courseId)}
-        );
+        List<Integer> courInfIdsToCount;
+        if (courseId.isEmpty()) {
+            courInfIdsToCount = courInfMapper.selectList(new QueryWrapper<>())
+                    .stream()
+                    .map(CourInfDO::getId)
+                    .toList();
+        } else {
+            courInfIdsToCount = courseId;
+        }
+
+        Long courInfId = (long) evaTaskBriefByCourInfIdsDirectQueryPort
+                .findTaskBriefListByCourInfIds(courInfIdsToCount)
+                .size();
 
         return courInfId.intValue();
     }
