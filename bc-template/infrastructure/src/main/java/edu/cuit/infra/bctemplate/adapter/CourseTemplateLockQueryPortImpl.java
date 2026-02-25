@@ -1,15 +1,18 @@
 package edu.cuit.infra.bctemplate.adapter;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import edu.cuit.bc.evaluation.application.port.EvaTaskBriefByCourInfIdsDirectQueryPort;
 import edu.cuit.bc.template.application.port.CourseTemplateLockQueryPort;
+import edu.cuit.client.dto.clientobject.eva.EvaTaskBriefCO;
 import edu.cuit.infra.dal.database.dataobject.eva.CourOneEvaTemplateDO;
-import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.dataobject.eva.FormRecordDO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * bc-template：课程模板锁定查询端口实现（基于现有表结构）。
@@ -28,18 +31,64 @@ public class CourseTemplateLockQueryPortImpl implements CourseTemplateLockQueryP
      * 并通过反射调用端口方法获取 cour_inf.id 集合。单测场景下也允许传入旧 CourInfMapper mock，行为保持不变。</p>
      */
     private final Object courInfIdsByCourseIdsQueryPort;
-    private final Object evaTaskMapper;
+    private final EvaTaskBriefByCourInfIdsDirectQueryPort evaTaskBriefByCourInfIdsDirectQueryPort;
     private final Object formRecordMapper;
 
+    @Autowired
     public CourseTemplateLockQueryPortImpl(
             @Qualifier("courOneEvaTemplateMapper") Object courOneEvaTemplateMapper,
             @Qualifier("courInfIdsByCourseIdsQueryPortImpl") Object courInfIdsByCourseIdsQueryPort,
-            @Qualifier("evaTaskMapper") Object evaTaskMapper,
+            EvaTaskBriefByCourInfIdsDirectQueryPort evaTaskBriefByCourInfIdsDirectQueryPort,
             @Qualifier("formRecordMapper") Object formRecordMapper
     ) {
         this.courOneEvaTemplateMapper = courOneEvaTemplateMapper;
         this.courInfIdsByCourseIdsQueryPort = courInfIdsByCourseIdsQueryPort;
-        this.evaTaskMapper = evaTaskMapper;
+        this.evaTaskBriefByCourInfIdsDirectQueryPort = evaTaskBriefByCourInfIdsDirectQueryPort;
+        this.formRecordMapper = formRecordMapper;
+    }
+
+    public CourseTemplateLockQueryPortImpl(
+            Object courOneEvaTemplateMapper,
+            Object courInfIdsByCourseIdsQueryPort,
+            Object evaTaskMapper,
+            Object formRecordMapper
+    ) {
+        this.courOneEvaTemplateMapper = courOneEvaTemplateMapper;
+        this.courInfIdsByCourseIdsQueryPort = courInfIdsByCourseIdsQueryPort;
+        this.evaTaskBriefByCourInfIdsDirectQueryPort = courInfIds -> {
+            if (courInfIds == null || courInfIds.isEmpty()) {
+                return List.of();
+            }
+            Method selectTaskListMethod = findSingleArgMethod(evaTaskMapper, "selectList");
+            if (selectTaskListMethod == null) {
+                return List.of();
+            }
+            Object taskListObj = invoke(
+                    evaTaskMapper,
+                    selectTaskListMethod,
+                    new QueryWrapper<>().in("cour_inf_id", courInfIds)
+            );
+            if (!(taskListObj instanceof List<?> taskList)) {
+                return List.of();
+            }
+            return taskList.stream()
+                    .map(taskObject -> {
+                        if (taskObject == null) {
+                            return null;
+                        }
+                        Method getIdMethod = findMethod(taskObject, "getId");
+                        if (getIdMethod == null) {
+                            return null;
+                        }
+                        Object idObj = invoke(taskObject, getIdMethod);
+                        if (!(idObj instanceof Number idNumber)) {
+                            return null;
+                        }
+                        return new EvaTaskBriefCO().setId(idNumber.intValue());
+                    })
+                    .filter(Objects::nonNull)
+                    .toList();
+        };
         this.formRecordMapper = formRecordMapper;
     }
 
@@ -75,18 +124,10 @@ public class CourseTemplateLockQueryPortImpl implements CourseTemplateLockQueryP
         if (courInfIds.isEmpty()) {
             return false;
         }
-        Method selectTaskListMethod = findSingleArgMethod(evaTaskMapper, "selectList");
-        if (selectTaskListMethod == null) {
-            return false;
-        }
-        Object taskListObj = invoke(evaTaskMapper, selectTaskListMethod, new QueryWrapper<EvaTaskDO>().in("cour_inf_id", courInfIds));
-        if (!(taskListObj instanceof List<?> taskList)) {
-            return false;
-        }
-        List<Integer> taskIds = taskList.stream()
-                .filter(EvaTaskDO.class::isInstance)
-                .map(EvaTaskDO.class::cast)
-                .map(EvaTaskDO::getId)
+        List<Integer> taskIds = evaTaskBriefByCourInfIdsDirectQueryPort.findTaskBriefListByCourInfIds(courInfIds)
+                .stream()
+                .map(EvaTaskBriefCO::getId)
+                .filter(Objects::nonNull)
                 .toList();
         if (taskIds.isEmpty()) {
             return false;
