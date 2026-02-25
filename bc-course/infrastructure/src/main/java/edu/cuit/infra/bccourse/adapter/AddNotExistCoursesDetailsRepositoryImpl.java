@@ -11,7 +11,6 @@ import edu.cuit.infra.dal.database.dataobject.course.CourseDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseTypeCourseDO;
 import edu.cuit.infra.dal.database.dataobject.course.CourseTypeDO;
 import edu.cuit.infra.dal.database.dataobject.course.SubjectDO;
-import edu.cuit.infra.dal.database.dataobject.eva.FormTemplateDO;
 import edu.cuit.infra.dal.database.mapper.course.CourInfMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseMapper;
 import edu.cuit.infra.dal.database.mapper.course.CourseTypeCourseMapper;
@@ -70,11 +69,11 @@ public class AddNotExistCoursesDetailsRepositoryImpl implements AddNotExistCours
         CourseDO courseDO = courseConvertor.toCourseDO(courseInfo, subjectId, teacherId, semId);
         Integer type = null;
         if (courseDO.getTemplateId() == null && (courseInfo.getSubjectMsg().getNature() == 1 || courseInfo.getSubjectMsg().getNature() == 0)) {
-            FormTemplateDO templateDO = (FormTemplateDO) invokeSelectOne(
+            Object templateDO = invokeSelectOne(
                     formTemplateMapper,
-                    new QueryWrapper<FormTemplateDO>().eq("is_default", courseInfo.getSubjectMsg().getNature())
+                    new QueryWrapper<>().eq("is_default", courseInfo.getSubjectMsg().getNature())
             );
-            Integer id = templateDO.getId();
+            Integer id = (Integer) invokeNoArgMethod(templateDO, "getId");
             courseDO.setTemplateId(id);
             type = courseTypeMapper.selectOne(new QueryWrapper<CourseTypeDO>().eq("is_default", courseInfo.getSubjectMsg().getNature())).getId();
         }
@@ -137,6 +136,31 @@ public class AddNotExistCoursesDetailsRepositoryImpl implements AddNotExistCours
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    private static Object invokeNoArgMethod(Object target, String methodName) {
+        try {
+            Method method = resolveNoArgMethod(target, methodName);
+            return method.invoke(target);
+        } catch (InvocationTargetException e) {
+            sneakyThrow(e.getTargetException());
+            return null;
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private static Method resolveNoArgMethod(Object target, String methodName) throws NoSuchMethodException {
+        for (Method method : target.getClass().getMethods()) {
+            if (!method.getName().equals(methodName)) {
+                continue;
+            }
+            if (method.getParameterCount() != 0) {
+                continue;
+            }
+            return method;
+        }
+        throw new NoSuchMethodException(target.getClass().getName() + "#" + methodName + "()");
     }
 
     private static Method resolveSingleArgMethod(Object target, String methodName, Object arg) throws NoSuchMethodException {
