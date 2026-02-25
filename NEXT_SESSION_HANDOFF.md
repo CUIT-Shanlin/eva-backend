@@ -93,6 +93,11 @@
 - 🧪 最小回归通过（Java17 + mvnd）：按 0.11 命令执行（测试用例集保持不变）。
 - 📌 代码落地：`2814143d`。
 
+**2026-02-25（评教读侧：补齐按状态列表直查 courInfIds 端口适配器；保持行为不变）**
+- ✅ 执行（单类，保持行为不变）：在 `bc-evaluation/infrastructure` 新增端口适配器 `EvaTaskCourInfIdsByStatusesDirectQueryPortImpl`，内部仅委托 `EvaTaskMapper.selectList(in status)` 并映射为 `courInfId` 列表（不引入缓存/切面副作用；查询条件/结果顺序/空值语义保持与旧 Mapper 调用一致）。
+- 🧪 最小回归通过（Java17 + mvnd）：按 0.11 命令执行（测试用例集保持不变）。
+- 📌 代码落地：`db28b332`。
+
 **2026-02-25（课程域写侧：`CourseImportExce` 去评教 `evaTaskMapper` 运行期依赖；保持行为不变）**
 - ✅ Serena（证据化，保持行为不变）：`CourseImportExce.deleteCourse` 内仍通过 `@Qualifier("evaTaskMapper") Object` + 反射 `selectList/deleteBatchIds` 直连评教侧实现；需收敛为调用评教 `contract` 端口以满足“跨 BC 只依赖 contract/shared-kernel”的边界约束。
 - ✅ 执行（单类，保持行为不变）：移除 `@Qualifier("evaTaskMapper") Object` 注入与反射调用；读侧改走评教直查端口 `EvaTaskBriefByCourInfIdsDirectQueryPort`，写侧改走 `EvaTaskDeleteByCourInfIdsPort`；并将“按 taskIds 删除表单记录”改走评教写端口 `FormRecordDeleteByTaskIdsPort`；同时清零本类对评教 DO（`EvaTaskDO/FormRecordDO/CourOneEvaTemplateDO/FormTemplateDO`）的编译期依赖（异常文案/缓存失效与副作用顺序完全不变）。

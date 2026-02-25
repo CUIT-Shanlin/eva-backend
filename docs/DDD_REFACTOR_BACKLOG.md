@@ -111,6 +111,7 @@ scope: 全仓库（离线扫描 + 规则归纳）
 
 **已完成（更新至 2026-02-25）**
 - ✅ 评教读侧（保持行为不变，端口前置，单类）：在 `bc-evaluation/contract` 新增直查端口 `EvaTaskCourInfIdsByStatusesDirectQueryPort`，用于跨 BC 按状态列表查询评教任务对应的 courInfId 列表（不引入缓存/切面副作用；入参为空 no-op；最小回归通过；落地：`2814143d`）。
+- ✅ 评教读侧（保持行为不变，端口适配器，单类）：在 `bc-evaluation/infrastructure` 新增端口适配器 `EvaTaskCourInfIdsByStatusesDirectQueryPortImpl`，内部仅委托 `EvaTaskMapper.selectList(in status)` 并映射为 `courInfId` 列表（不引入缓存/切面副作用；查询条件/结果顺序/空值语义保持与旧 Mapper 调用一致；最小回归通过；落地：`db28b332`）。
 - ✅ 课程写侧（保持行为不变，单类闭环）：`bc-course/infrastructure` 的 `CourseImportExce` 已移除评教 `@Qualifier("evaTaskMapper")` 运行期依赖并改走评教端口 `EvaTaskBriefByCourInfIdsDirectQueryPort` + `EvaTaskDeleteByCourInfIdsPort`（并将表单记录删除改走 `FormRecordDeleteByTaskIdsPort`）；同时清零对评教 DO 的编译期依赖（保持异常文案/缓存/日志与副作用顺序完全不变；最小回归通过；落地：`60a0881a`）。
 - ✅ 评教写侧（保持行为不变，端口前置，单类）：在 `bc-evaluation/contract` 新增写侧端口 `EvaTaskInsertPort`，用于后续将课程写侧（如 `AssignEvaTeachersRepositoryImpl`）中对评教 `evaTaskMapper.insert` 的反射调用收敛为端口调用，并显式回传生成的 `taskId`（不引入缓存/切面副作用；入参为空 no-op；保持旧 insert + 主键回填语义不变；最小回归通过；落地：`3facb7f1`）。
 - ✅ 评教写侧（保持行为不变，端口适配器，单类）：在 `bc-evaluation/infrastructure` 新增端口适配器 `EvaTaskInsertPortImpl`，内部仅委托 `EvaTaskMapper.insert` 并回传生成的 `taskId`（不引入缓存/切面副作用；入参为空 no-op；保持旧 insert + 主键回填语义不变；最小回归通过；落地：`d7a31571`）。
