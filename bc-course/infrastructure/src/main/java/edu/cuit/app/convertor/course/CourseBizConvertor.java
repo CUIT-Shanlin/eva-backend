@@ -15,7 +15,6 @@ import edu.cuit.domain.entity.course.SubjectEntity;
 import edu.cuit.domain.entity.user.biz.UserEntity;
 import edu.cuit.domain.gateway.course.CourseQueryGateway;
 import edu.cuit.infra.convertor.EntityFactory;
-import edu.cuit.infra.dal.database.dataobject.eva.FormTemplateDO;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.*;
@@ -93,13 +92,22 @@ public abstract class CourseBizConvertor {
     })
     public abstract CourseModelCO toCourseModelCO2(CourseEntity courseEntity, List<String> classroomList);
 
-    @Mappings({
-
-            @Mapping(target = "id",expression = "java(formTemplateDO.getId())"),
-            @Mapping(target = "isDefault",expression = "java(formTemplateDO.getIsDefault())"),
-
-    })
-    public abstract EvaTemplateCO toEvaTemplateCO(FormTemplateDO formTemplateDO);
+    protected EvaTemplateCO toEvaTemplateCO(Object formTemplateDO) {
+        if (formTemplateDO == null) {
+            return null;
+        }
+        try {
+            Method getId = formTemplateDO.getClass().getMethod("getId");
+            Method getIsDefault = formTemplateDO.getClass().getMethod("getIsDefault");
+            Object id = getId.invoke(formTemplateDO);
+            Object isDefault = getIsDefault.invoke(formTemplateDO);
+            return new EvaTemplateCO()
+                    .setId((Integer) id)
+                    .setIsDefault((Integer) isDefault);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
     @Mappings({
 
             @Mapping(target = "id",expression = "java(userEntity.getId())"),
@@ -136,11 +144,10 @@ public abstract class CourseBizConvertor {
     })
     public abstract CourseTime toCourseTime(SingleCourseEntity singleCourseEntity);
 
-    protected FormTemplateDO selectFormTemplateById(Serializable templateId) {
+    protected Object selectFormTemplateById(Serializable templateId) {
         try {
             Method selectById = formTemplateMapper.getClass().getMethod("selectById", Serializable.class);
-            Object result = selectById.invoke(formTemplateMapper, templateId);
-            return (FormTemplateDO) result;
+            return selectById.invoke(formTemplateMapper, templateId);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
