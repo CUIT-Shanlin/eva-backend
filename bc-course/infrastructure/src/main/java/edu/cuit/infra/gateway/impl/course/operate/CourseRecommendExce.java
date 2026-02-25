@@ -3,14 +3,17 @@ package edu.cuit.infra.gateway.impl.course.operate;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.cuit.bc.course.application.port.CourseIdsByCourseWrapperDirectQueryPort;
 import edu.cuit.bc.course.application.port.CourseIdsByTeacherIdAndSemesterIdQueryPort;
+import edu.cuit.bc.evaluation.application.port.EvaTaskBriefByCourInfIdsDirectQueryPort;
+import edu.cuit.bc.evaluation.application.port.EvaTaskCourInfIdsByTeacherIdAndStatusDirectQueryPort;
+import edu.cuit.bc.evaluation.application.port.EvaTaskCourInfIdsByStatusesDirectQueryPort;
 import edu.cuit.client.dto.clientobject.course.RecommendCourseCO;
+import edu.cuit.client.dto.clientobject.eva.EvaTaskBriefCO;
 import edu.cuit.client.dto.data.course.CourseTime;
 import edu.cuit.client.dto.data.course.CourseType;
 import edu.cuit.client.dto.query.condition.MobileCourseQuery;
 import edu.cuit.domain.gateway.eva.EvaConfigGateway;
 import edu.cuit.infra.convertor.course.CourseConvertor;
 import edu.cuit.infra.dal.database.dataobject.course.*;
-import edu.cuit.infra.dal.database.dataobject.eva.EvaTaskDO;
 import edu.cuit.infra.dal.database.dataobject.user.SysUserDO;
 import edu.cuit.infra.dal.database.mapper.course.*;
 import edu.cuit.zhuyimeng.framework.common.exception.QueryException;
@@ -39,12 +42,9 @@ public class CourseRecommendExce {
     private final CourseTypeCourseMapper courseTypeCourseMapper;
     private final CourseTypeMapper courseTypeMapper;
     private final SubjectMapper subjectMapper;
-    /**
-     * 跨 BC 直连清零（编译期）：不再直接依赖评教侧 Mapper 类型；仍保持原 MyBatis 调用语义，通过反射调用对应方法（保持行为不变）。
-     */
-    @Autowired
-    @Qualifier("evaTaskMapper")
-    private Object evaTaskMapper;
+    private final EvaTaskCourInfIdsByTeacherIdAndStatusDirectQueryPort evaTaskCourInfIdsByTeacherIdAndStatusDirectQueryPort;
+    private final EvaTaskCourInfIdsByStatusesDirectQueryPort evaTaskCourInfIdsByStatusesDirectQueryPort;
+    private final EvaTaskBriefByCourInfIdsDirectQueryPort evaTaskBriefByCourInfIdsDirectQueryPort;
     @Autowired
     @Qualifier("sysUserMapper")
     private Object userMapper;
@@ -68,11 +68,11 @@ public class CourseRecommendExce {
 
         List<Integer> courseIds = courseDOS1.stream().map(CourseDO::getId).toList();
         //找出老师所要评教的课程
-        List<EvaTaskDO> taskDOList = selectEvaTaskList(new QueryWrapper<EvaTaskDO>().eq("teacher_id", user.getId()).and(wrapper -> wrapper.eq("status",0)));
         List<CourInfDO> evaCourInfo=new ArrayList<>();
         Set<Integer> evaCourInfoSet;
-        if(!taskDOList.isEmpty()) {
-            List<Integer> evaCourInfoList = taskDOList.stream().map(EvaTaskDO::getCourInfId).toList();
+        List<Integer> evaCourInfoList = evaTaskCourInfIdsByTeacherIdAndStatusDirectQueryPort
+                .findCourInfIdsByTeacherIdAndStatus(user.getId(), 0);
+        if(!evaCourInfoList.isEmpty()) {
             evaCourInfo = courInfMapper.selectList( new QueryWrapper<CourInfDO>()
                     .in(!evaCourInfoList.isEmpty(),"id", evaCourInfoList));
             //得到待评教的courseId集合（set集合）
@@ -85,8 +85,8 @@ public class CourseRecommendExce {
         //包含了所有教学课程和评教课程
         evaCourInfoSet.addAll(courseIds);
         //找出评教次数大于等于8次的课程ID集合
-        List<EvaTaskDO> taskList = selectEvaTaskList(new QueryWrapper<EvaTaskDO>().eq("status", 1).or().eq("status", 0));
-        List<Integer> courInfoList = taskList.stream().map(EvaTaskDO::getCourInfId).toList();
+        List<Integer> courInfoList = evaTaskCourInfIdsByStatusesDirectQueryPort
+                .findCourInfIdsByStatuses(List.of(1, 0));
         List<Integer> tmpList = list1;
         if(!list1.isEmpty()){
             courInfoList= courInfoList.stream().filter(i -> !tmpList.contains(i)).toList();
@@ -281,18 +281,11 @@ public class CourseRecommendExce {
                 }
                 CourseTime courestime = courseConvertor.toCourseTime(courInfDO);
                 recommend.setTime(courestime);
-               /* Long num = evaTaskMapper.selectCount( new QueryWrapper<EvaTaskDO>()
-                        .eq("cour_inf_id", courInfDO.getId())
-                        .and(wrapper -> wrapper.eq("status", 1).or().eq("status", 0)));
-                EvaNum+=Math.toIntExact(num);*/
-//                evaTeacherNum+=Math.toIntExact(num);
                 recommendCourseCOS.add(recommend);
             }
             List<Integer> list1 = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseDO.getId())).stream().map(CourInfDO::getId).toList();
             if(!list1.isEmpty())
-             EvaNum =Math.toIntExact(selectEvaTaskCount(new QueryWrapper<EvaTaskDO>()
-	                    .in("cour_inf_id",list1)
-	                    .and(wrapper -> wrapper.eq("status", 1).or().eq("status", 0))));
+             EvaNum =Math.toIntExact(countEvaTaskByCourInfIdsAndStatuses(list1, List.of(1, 0)));
             int finalEvaNum = EvaNum;
             recommendCourseCOS.forEach(recommendCourseCO -> {
                 if(recommendCourseCO.getName().equals(subjectDO.getName())&&recommendCourseCO.getNature().equals(subjectDO.getNature())){
@@ -442,9 +435,7 @@ public class CourseRecommendExce {
             }
             List<Integer> list1 = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseDO.getId())).stream().map(CourInfDO::getId).toList();
             if(!list1.isEmpty())
-                EvaNum =Math.toIntExact(selectEvaTaskCount(new QueryWrapper<EvaTaskDO>()
-                        .in("cour_inf_id",list1)
-                        .and(wrapper -> wrapper.eq("status", 1).or().eq("status", 0))));
+                EvaNum =Math.toIntExact(countEvaTaskByCourInfIdsAndStatuses(list1, List.of(1, 0)));
             int finalEvaNum = EvaNum;
             recommendCourseCOS.forEach(recommendCourseCO -> {
                 if(recommendCourseCO.getName().equals(subjectDO.getName())&&recommendCourseCO.getNature().equals(subjectDO.getNature())){
@@ -499,9 +490,7 @@ public class CourseRecommendExce {
             }
             List<Integer> list1 = courInfMapper.selectList(new QueryWrapper<CourInfDO>().eq("course_id", courseDO.getId())).stream().map(CourInfDO::getId).toList();
             if(!list1.isEmpty())
-                EvaNum =Math.toIntExact(selectEvaTaskCount(new QueryWrapper<EvaTaskDO>()
-                        .in("cour_inf_id",list1)
-                        .and(wrapper -> wrapper.eq("status", 1).or().eq("status", 0))));
+                EvaNum =Math.toIntExact(countEvaTaskByCourInfIdsAndStatuses(list1, List.of(1, 0)));
             int finalEvaNum = EvaNum;
             recommendCourseCOS.forEach(recommendCourseCO -> {
                 if(recommendCourseCO.getName().equals(subjectDO.getName())&&recommendCourseCO.getNature().equals(subjectDO.getNature())){
@@ -691,32 +680,23 @@ public class CourseRecommendExce {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private List<EvaTaskDO> selectEvaTaskList(QueryWrapper<EvaTaskDO> qw) {
-        Method selectListMethod = findSingleArgMethod(evaTaskMapper, "selectList");
-        if (selectListMethod == null) {
-            throw new IllegalStateException("evaTaskMapper 缺少 selectList(Wrapper) 方法");
-        }
-        Object result = invoke(evaTaskMapper, selectListMethod, qw);
-        if (!(result instanceof List<?> list)) {
-            return List.of();
-        }
-        return list.stream()
-                .filter(EvaTaskDO.class::isInstance)
-                .map(EvaTaskDO.class::cast)
-                .toList();
-    }
-
-    private long selectEvaTaskCount(QueryWrapper<EvaTaskDO> qw) {
-        Method selectCountMethod = findSingleArgMethod(evaTaskMapper, "selectCount");
-        if (selectCountMethod == null) {
-            throw new IllegalStateException("evaTaskMapper 缺少 selectCount(Wrapper) 方法");
-        }
-        Object countObj = invoke(evaTaskMapper, selectCountMethod, qw);
-        if (!(countObj instanceof Number count)) {
+    private long countEvaTaskByCourInfIdsAndStatuses(List<Integer> courInfIds, List<Integer> statuses) {
+        if (courInfIds == null || courInfIds.isEmpty()) {
             return 0L;
         }
-        return count.longValue();
+        if (statuses == null || statuses.isEmpty()) {
+            return 0L;
+        }
+
+        List<EvaTaskBriefCO> taskBriefList = evaTaskBriefByCourInfIdsDirectQueryPort
+                .findTaskBriefListByCourInfIds(courInfIds);
+        if (taskBriefList == null || taskBriefList.isEmpty()) {
+            return 0L;
+        }
+
+        return taskBriefList.stream()
+                .filter(taskBrief -> statuses.contains(taskBrief.getStatus()))
+                .count();
     }
 
     private SysUserDO selectSysUserOne(QueryWrapper<SysUserDO> qw) {
