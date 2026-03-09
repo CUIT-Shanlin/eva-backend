@@ -51,8 +51,8 @@ jobs:
         with:
           context: .
           push: true
-          cache-from: type=registry,ref=${{ env.PROD_IMAGE }}:latest
-          cache-to: type=inline
+#          cache-from: type=registry,ref=${{ env.PROD_IMAGE }}:latest
+#          cache-to: type=inline
           build-args: |
             JVMOPTIONS=-Dspring.profiles.active=prod
           tags: |
