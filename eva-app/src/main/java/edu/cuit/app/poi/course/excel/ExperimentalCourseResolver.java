@@ -1,4 +1,4 @@
-package edu.cuit.app.poi.course;
+package edu.cuit.app.poi.course.excel;
 
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.StrUtil;
@@ -9,7 +9,11 @@ import edu.cuit.app.poi.util.ExcelUtils;
 import edu.cuit.client.bo.CourseExcelBO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.CellRangeAddress;
 
 import java.io.IOException;
@@ -22,20 +26,17 @@ import java.util.Map;
 /**
  * 实验课excel读取实现
  */
+@Deprecated
 @Slf4j
-public class ExperimentalCourseResolver extends CourseExcelResolverStrategy{
+public class ExperimentalCourseResolver extends CourseExcelResolverStrategy {
 
     private Sheet sheet;
 
-    // 每个课程时间段的开始行下标和结束行下标
-    private final List<Pair<Integer,Integer>> timeTable = new ArrayList<>();
-
-    // 每个星期天数的开始列下表
+    private final List<Pair<Integer, Integer>> timeTable = new ArrayList<>();
     private final List<Integer> dayTable = new ArrayList<>(List.of(1));
     private int dayEndCol;
 
-    // 第一节课的开始行下标
-    private final static Integer TIME_START_ROW = 3;
+    private static final Integer TIME_START_ROW = 3;
 
     protected ExperimentalCourseResolver(InputStream excelFileStream) {
         this.excelFileStream = excelFileStream;
@@ -50,14 +51,14 @@ public class ExperimentalCourseResolver extends CourseExcelResolverStrategy{
     }
 
     private List<CourseExcelBO> read() {
-        Map<CourseExcelBO,List<CourseExcelBO>> courses = new HashMap<>();
+        Map<CourseExcelBO, List<CourseExcelBO>> courses = new HashMap<>();
         for (int x = 0; x < timeTable.size(); x++) {
             Pair<Integer, Integer> timePeriod = timeTable.get(x);
             for (int i = timePeriod.getKey(); i <= timePeriod.getValue(); i++) {
                 int startTime = x >= 5 ? x * 2 : x * 2 + 1;
-                List<CourseExcelBO> lineResults = readLine(i,startTime);
+                List<CourseExcelBO> lineResults = readLine(i, startTime);
                 for (CourseExcelBO lineResult : lineResults) {
-                    courses.putIfAbsent(lineResult,new ArrayList<>());
+                    courses.putIfAbsent(lineResult, new ArrayList<>());
                     courses.get(lineResult).add(lineResult);
                 }
             }
@@ -67,22 +68,25 @@ public class ExperimentalCourseResolver extends CourseExcelResolverStrategy{
         for (List<CourseExcelBO> courseList : courses.values()) {
             results.addAll(ExcelCourseUtils.mergeMultipleCourses(courseList));
         }
-
         return results;
     }
 
-    private List<CourseExcelBO> readLine(int rowIndex,int startTime) {
+    private List<CourseExcelBO> readLine(int rowIndex, int startTime) {
         Row row = sheet.getRow(rowIndex);
         List<CourseExcelBO> results = new ArrayList<>();
         Row classRoomRow = sheet.getRow(1);
         for (int dayIndex = 0; dayIndex < dayTable.size(); dayIndex++) {
             int startCol = dayTable.get(dayIndex);
             List<CourseExcelBO> oneDayCourses = new ArrayList<>();
-            for (int i = startCol;i < (dayIndex == dayTable.size() - 1 ? dayEndCol : dayTable.get(dayIndex + 1)) ; i += 4) {
+            for (int i = startCol; i < (dayIndex == dayTable.size() - 1 ? dayEndCol : dayTable.get(dayIndex + 1)); i += 4) {
                 Cell weeksCell = row.getCell(i);
-                if (weeksCell.getCellType() == CellType.BLANK) continue;
+                if (weeksCell.getCellType() == CellType.BLANK) {
+                    continue;
+                }
                 String weeks = ExcelUtils.getCellStringValue(weeksCell);
-                if (StrUtil.isBlank(weeks)) continue;
+                if (StrUtil.isBlank(weeks)) {
+                    continue;
+                }
                 String teacherName = ExcelUtils.getCellStringValue(row.getCell(i + 1));
                 String courseClass = ExcelUtils.getCellStringValue(row.getCell(i + 2));
                 String courseName = ExcelUtils.getCellStringValue(row.getCell(i + 3));
@@ -122,38 +126,46 @@ public class ExperimentalCourseResolver extends CourseExcelResolverStrategy{
     private void readTimeTable() {
         int count;
         int tmpStartRow = TIME_START_ROW;
-        for (count = 0;count < 6;count++) {
+        for (count = 0; count < 6; count++) {
             CellRangeAddress cra = ExcelUtils.getMergerCellRegionRow(sheet, tmpStartRow, 0);
             int lastRow;
             if (cra == null) {
                 lastRow = tmpStartRow;
-            } else lastRow = cra.getLastRow();
-            timeTable.add(Pair.of(tmpStartRow,lastRow));
+            } else {
+                lastRow = cra.getLastRow();
+            }
+            timeTable.add(Pair.of(tmpStartRow, lastRow));
             CellRangeAddress blankCra = ExcelUtils.getMergerCellRegionRow(sheet, lastRow + 1, 0);
 
-            if (count == 5) break;
+            if (count == 5) {
+                break;
+            }
             if (blankCra == null) {
                 SysException e = new SysException("解析文件出错，请联系管理员");
-                log.error("发生系统异常",e);
+                log.error("发生系统异常", e);
                 throw e;
             }
             if (blankCra.getLastColumn() > 1) {
                 tmpStartRow = blankCra.getLastRow() + 1;
-            } else tmpStartRow = lastRow + 1;
+            } else {
+                tmpStartRow = lastRow + 1;
+            }
         }
     }
 
     private void readDayTable() {
         int count;
-        for (count = 0;count < 6;count++) {
+        for (count = 0; count < 6; count++) {
             CellRangeAddress cra = ExcelUtils.getMergerCellRegionRow(sheet, 0, dayTable.get(count));
-            if (cra == null) throw new BizException("实验课程表格格式有误");
+            if (cra == null) {
+                throw new BizException("实验课程表格格式有误");
+            }
             dayTable.add(cra.getLastColumn() + 1);
         }
         CellRangeAddress cra = ExcelUtils.getMergerCellRegionRow(sheet, 0, dayTable.get(6));
-        if (cra == null)
+        if (cra == null) {
             throw new BizException("实验课程表格格式有误");
+        }
         dayEndCol = cra.getLastRow();
     }
-
 }

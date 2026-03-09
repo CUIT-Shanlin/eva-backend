@@ -34,12 +34,12 @@ public interface IUserCourseService {
     List<RecommendCourseCO> getSelfCourse(Integer semId);
 
     /**
-     * 导入课表文件
-     *  @param fileStream 课表文件
+     * 导入课表 CSV 文件
+     *  @param fileStream 课表 CSV 文件
      *  @param type 用于确定是导入实验课表还是理论课表，0：理论课，1：实验课
      *  @param semester 学期模型
      * */
-    void importCourse(InputStream fileStream, Integer type,String semester);
+    void importCourse(InputStream fileStream, Integer type, String semester);
 
     /**
      * 获取自己所有教学的课程的详细信息
