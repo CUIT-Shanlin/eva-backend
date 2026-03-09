@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.cuit.app.aop.CheckSemId;
 
 import edu.cuit.app.convertor.course.CourseBizConvertor;
-import edu.cuit.app.poi.course.CourseExcelResolver;
+import edu.cuit.app.poi.course.csv.CourseCsvResolver;
 
 import edu.cuit.app.service.impl.MsgServiceImpl;
 import edu.cuit.app.service.operate.course.MsgResult;
@@ -84,9 +84,9 @@ public class IUserCourseServiceImpl implements IUserCourseService {
         }
         Map<String, List<CourseExcelBO>> courseExce;
         if(type==0){
-            courseExce = FileImportExec.importCourse(CourseExcelResolver.resolveData(CourseExcelResolver.Strategy.THEORY_COURSE, fileStream));
+            courseExce = FileImportExec.importCourse(CourseCsvResolver.resolveData(CourseCsvResolver.Strategy.THEORY_COURSE, fileStream));
         }else if(type==1){
-            courseExce = FileImportExec.importCourse(CourseExcelResolver.resolveData(CourseExcelResolver.Strategy.EXPERIMENTAL_COURSE, fileStream));
+            courseExce = FileImportExec.importCourse(CourseCsvResolver.resolveData(CourseCsvResolver.Strategy.EXPERIMENTAL_COURSE, fileStream));
         }else{
             throw new BizException("课表类型转换错误");
         }
