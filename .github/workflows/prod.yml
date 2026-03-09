@@ -7,14 +7,14 @@ on:
   workflow_dispatch:
 
 env:
-  EVA_VERSION: 2.11-SNAPSHOT
+  EVA_VERSION: 2.12-SNAPSHOT
   PROD_IMAGE: ghcr.io/cuit-shanlin/eva-server
   PACKAGE_ACTOR: LystranG
   PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
 
 jobs:
   build-and-publish:
-    runs-on: shanlin
+    runs-on: ubuntu-22.04
     permissions:
       contents: read
       packages: write

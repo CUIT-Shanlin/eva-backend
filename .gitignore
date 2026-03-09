@@ -46,9 +46,11 @@ build/
 
 data/avatar
 data/records
-data/
+data
 
 
 .serena
 .m2
 **/.m2
+.mvnd
+docs
