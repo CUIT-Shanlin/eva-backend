@@ -86,7 +86,9 @@ public class LogGatewayImpl implements LogGateway {
     public Optional<SysLogModuleEntity> getModuleByName(String name) {
         LambdaQueryWrapper<SysLogModuleDO> moduleQuery = Wrappers.lambdaQuery();
         moduleQuery.eq(SysLogModuleDO::getName, name);
-        SysLogModuleDO sysLogModuleDO = logModuleMapper.selectOne(moduleQuery);
+        // 模块名可能重复，selectOne 会抛多结果异常，取第一条即可
+        List<SysLogModuleDO> modules = logModuleMapper.selectList(moduleQuery);
+        SysLogModuleDO sysLogModuleDO = modules.isEmpty() ? null : modules.get(0);
         if (sysLogModuleDO == null) {
             SysException e = new SysException(name + " 日志模块不存在，请联系管理员");
             log.error("发生系统异常", e);

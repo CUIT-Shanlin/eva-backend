@@ -1,6 +1,7 @@
 package edu.cuit.adapter.controller.course.update;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.alibaba.cola.exception.BizException;
 import edu.cuit.app.service.impl.course.ICourseDetailServiceImpl;
 import edu.cuit.app.service.impl.course.ICourseServiceImpl;
 import edu.cuit.app.service.impl.course.ICourseTypeServiceImpl;
@@ -17,6 +18,7 @@ import edu.cuit.zhuyimeng.framework.logging.aspect.enums.OperateLogType;
 import edu.cuit.zhuyimeng.framework.logging.utils.LogUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,6 +29,7 @@ import java.util.List;
 /**
  * 课程信息修改相关接口
  */
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @Validated
@@ -151,13 +154,22 @@ public class UpdateCourseController {
      *  @param semester 学期模型
      * */
     @PutMapping("/course/import/{type}")
-    @OperateLog(module = LogModule.COURSE,type = OperateLogType.CREATE)
+    // 导入耗时较长且涉及大文件参数，操作日志属于旁路能力，不能因为日志失败让已经提交的导入返回 500
     @SaCheckPermission("course.table.import")
     public CommonResult<Void> imporCourse(
             @RequestParam(value = "file",required = true) MultipartFile file,
             @PathVariable Integer type,
             @RequestParam(value = "semester",required = true) String semester ) throws IOException {
-        userCourseService.importCourse(file.getInputStream(), type, semester);
+        try {
+            userCourseService.importCourse(file.getInputStream(), type, semester);
+        } catch (BizException e) {
+            // 业务异常保留原始提示（如 CSV 表头、行号错误）
+            throw e;
+        } catch (Exception e) {
+            log.error("导入课表失败, type={}, semester={}", type, semester, e);
+            throw new BizException("导入课表失败：" + e.getClass().getSimpleName()
+                    + (e.getMessage() == null ? "" : "：" + e.getMessage()));
+        }
         return CommonResult.success(null);
     }
 
