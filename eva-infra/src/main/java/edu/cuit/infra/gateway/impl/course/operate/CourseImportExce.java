@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
@@ -57,7 +58,12 @@ public class CourseImportExce {
         //List<Integer> filterCourseIdList = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("subject_id", courseIdList).eq("type", type)).stream().map(CourseDO::getId).toList();
         List<Integer> courseIds=new ArrayList<>();
         for (CourseDO courseDO : courseDOS) {
-            if(subjectMapper.selectById(courseDO.getSubjectId()).getNature().equals(type)){
+            if (courseDO.getSubjectId() == null) {
+                continue;
+            }
+            // 课程关联的科目可能已被逻辑删除，selectById 会返回 null，不能直接 .getNature()
+            SubjectDO subjectDO = subjectMapper.selectById(courseDO.getSubjectId());
+            if (subjectDO != null && Objects.equals(subjectDO.getNature(), type)) {
                 courseIds.add(courseDO.getId());
             }
         }
@@ -91,7 +97,12 @@ public class CourseImportExce {
     }
     public void addAll( Map<String, List<CourseExcelBO>> courseExce, Integer type,Integer semId){
         for (Map.Entry<String, List<CourseExcelBO>> stringListEntry : courseExce.entrySet()) {
-            SubjectDO subjectDO1 = subjectMapper.selectOne(new QueryWrapper<SubjectDO>().eq("name", stringListEntry.getKey()).eq("nature",type));
+            // 历史数据里可能有同名同性质的重复科目，selectOne 会抛多结果异常，这里取第一条
+            List<SubjectDO> subjectList = subjectMapper.selectList(new QueryWrapper<SubjectDO>()
+                    .eq("name", stringListEntry.getKey())
+                    .eq("nature", type)
+                    .orderByAsc("id"));
+            SubjectDO subjectDO1 = subjectList.isEmpty() ? null : subjectList.get(0);
             Integer id;
             if(subjectDO1==null){
                 SubjectDO subjectDO = addSubject(stringListEntry.getKey(), type);
@@ -104,7 +115,11 @@ public class CourseImportExce {
 /*                if(courseExcelBO.getProfTitle()==null){
                     courseExcelBO.setProfTitle("讲师");
                 }*/
-                SysUserDO userDO = userMapper.selectOne(new QueryWrapper<SysUserDO>().eq("name", courseExcelBO.getTeacherName()));/*.eq("prof_title", courseExcelBO.getProfTitle()))*/;
+                // 同名教师可能存在多个账号，selectOne 会抛多结果异常，这里取第一条
+                List<SysUserDO> userList = userMapper.selectList(new QueryWrapper<SysUserDO>()
+                        .eq("name", courseExcelBO.getTeacherName())
+                        .orderByAsc("id"));
+                SysUserDO userDO = userList.isEmpty() ? null : userList.get(0);
                 if(userDO==null){//如果老师不存在就把，课程就放弃
 //                    subjectMapper.deleteById(id);
                     continue;
@@ -115,7 +130,12 @@ public class CourseImportExce {
                 Integer evaTemplateId = getEvaTemplateId(type);
                 CourseDO courseDO = addCourse(id, userId, semId,evaTemplateId);
                 //根据subjectId和teacherId看数据库里是否有该课程
-                CourseDO courseDO1 = courseMapper.selectOne(new QueryWrapper<CourseDO>().eq("subject_id", courseDO.getSubjectId()).eq("teacher_id", courseDO.getTeacherId()).eq("semester_id", courseDO.getSemesterId()));
+                List<CourseDO> courseList = courseMapper.selectList(new QueryWrapper<CourseDO>()
+                        .eq("subject_id", courseDO.getSubjectId())
+                        .eq("teacher_id", courseDO.getTeacherId())
+                        .eq("semester_id", courseDO.getSemesterId())
+                        .orderByAsc("id"));
+                CourseDO courseDO1 = courseList.isEmpty() ? null : courseList.get(0);
                 if(courseDO1==null){
                     courseMapper.insert(courseDO);
                     //课程类型课程关联表
@@ -152,13 +172,19 @@ public class CourseImportExce {
       return courseDO;
     }
     private Integer getEvaTemplateId(Integer type){
-        FormTemplateDO isDefault = formTemplateMapper.selectOne(new QueryWrapper<FormTemplateDO>().eq("is_default", type));
-        if(isDefault==null)throw new UpdateException("还没有对应评教模版");
-        return isDefault .getId();//is_default
+        List<FormTemplateDO> templates = formTemplateMapper.selectList(new QueryWrapper<FormTemplateDO>()
+                .eq("is_default", type)
+                .orderByAsc("id"));
+        if(templates.isEmpty())throw new UpdateException("还没有对应评教模版");
+        return templates.get(0).getId();//is_default
     }
     private void toInsert(Integer courseId,Integer type){
         //根据type来找到课程类型
-        Integer id = courseTypeMapper.selectOne(new QueryWrapper<CourseTypeDO>().eq("is_default", type)).getId();
+        List<CourseTypeDO> courseTypes = courseTypeMapper.selectList(new QueryWrapper<CourseTypeDO>()
+                .eq("is_default", type)
+                .orderByAsc("id"));
+        if(courseTypes.isEmpty())throw new UpdateException("还没有对应默认课程类型");
+        Integer id = courseTypes.get(0).getId();
         //插入课程类型课程关联表
         CourseTypeCourseDO courseTypeCourseDO = new CourseTypeCourseDO();
         courseTypeCourseDO.setCourseId(courseId);

@@ -379,7 +379,15 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     @Override
     @Transactional
     public Map<String,Map<Integer,Integer>> importCourseFile(Map<String, List<CourseExcelBO>> courseExce, SemesterCO semester, Integer type) {
-        SemesterDO semesterDO = semesterMapper.selectOne(new QueryWrapper<SemesterDO>().eq("start_year", semester.getStartYear()).eq("period", semester.getPeriod()));
+        List<SemesterDO> semesters = semesterMapper.selectList(new QueryWrapper<SemesterDO>()
+                .eq("start_year", semester.getStartYear())
+                .eq("period", semester.getPeriod())
+                .orderByAsc("id"));
+        // 历史数据可能有同一 start_year + period 的重复学期，优先取 end_year 匹配的，否则取第一条
+        SemesterDO semesterDO = semesters.stream()
+                .filter(s -> Objects.equals(s.getEndYear(), semester.getEndYear()))
+                .findFirst()
+                .orElse(semesters.isEmpty() ? null : semesters.get(0));
         Map<String,Map<Integer,Integer>> map=new HashMap<>();
         String typeName=null;
         if(type==0)typeName="理论课";
@@ -399,15 +407,13 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
         }else{
             //直接插入学期
             SemesterDO semesterDO1 = courseConvertor.toSemesterDO(semester);
+            semesterDO1.setIsDeleted(0);
             semesterMapper.insert(semesterDO1);
             semesterDO=semesterDO1;
             map.put(semesterDO.getStartYear()+"-"+semesterDO.getEndYear()+"第"+(semesterDO.getPeriod()+1)+"学期"+typeName+"课程表被导入",null);
         }
         courseImportExce.addAll(courseExce, type,semesterDO.getId());
         localCacheManager.invalidateCache(null,classroomCacheConstants.ALL_CLASSROOM);
-
-        LogUtils.logContent(semesterDO.getStartYear()+"-"+semesterDO.getEndYear()+"第"+semesterDO.getPeriod()+1+"学期"+typeName+"课程表");
-
 
         return map;
     }
@@ -744,14 +750,19 @@ public class CourseUpdateGatewayImpl implements CourseUpdateGateway {
     public Boolean isImported(Integer type, Term term) {
    /*     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate date = LocalDate.parse(term.getStartDate(), formatter);*/
-        SemesterDO semesterDO = semesterMapper.selectOne(new QueryWrapper<SemesterDO>().eq("period", term.getPeriod()).eq("start_year", term.getStartYear()).eq("end_year", term.getEndYear()));
+        List<SemesterDO> semesters = semesterMapper.selectList(new QueryWrapper<SemesterDO>()
+                .eq("period", term.getPeriod())
+                .eq("start_year", term.getStartYear())
+                .eq("end_year", term.getEndYear())
+                .orderByAsc("id"));
+        SemesterDO semesterDO = semesters.isEmpty() ? null : semesters.get(0);
         if(semesterDO==null)return false;
         List<CourseDO> courseDOS = courseMapper.selectList(new QueryWrapper<CourseDO>().eq("semester_id", semesterDO.getId()));
         if(courseDOS.isEmpty())return false;
         List<Integer> list = courseDOS.stream().map(CourseDO::getSubjectId).toList();
         List<SubjectDO> subjectDOS = subjectMapper.selectList(new QueryWrapper<SubjectDO>().in(!list.isEmpty(),"id",list ));
         for (SubjectDO subjectDO : subjectDOS) {
-            if(subjectDO.getNature().equals(type)){
+            if(Objects.equals(subjectDO.getNature(), type)){
                 return true;
             }
         }

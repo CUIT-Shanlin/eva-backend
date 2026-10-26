@@ -36,15 +36,20 @@ public class LogServiceImpl implements ILogService {
     public void registerListener() {
         // 注册日志监听器
         LogManager.getInstance().register(operateLogBO -> {
-            logGateway.insertLog(logBizConvertor.toOperateLogBO(operateLogBO,
-                    logGateway.getModuleByName(operateLogBO.getModule())
-                            .map(SysLogModuleEntity::getId)
-                            .orElseThrow(() -> {
-                                SysException e = new SysException("日志记录失败：日志模块 " + operateLogBO.getModule() + " 不存在");
-                                log.error("发生系统异常",e);
-                                return e;
-                            })));
-            logGateway.clearOldLog();
+            try {
+                logGateway.insertLog(logBizConvertor.toOperateLogBO(operateLogBO,
+                        logGateway.getModuleByName(operateLogBO.getModule())
+                                .map(SysLogModuleEntity::getId)
+                                .orElseThrow(() -> {
+                                    SysException e = new SysException("日志记录失败：日志模块 " + operateLogBO.getModule() + " 不存在");
+                                    log.error("发生系统异常",e);
+                                    return e;
+                                })));
+                logGateway.clearOldLog();
+            } catch (Exception e) {
+                // 日志属于旁路能力，记录失败不能影响已经成功的业务操作（否则导入课表会先提交、再返回 500）
+                log.error("记录操作日志失败, module={}", operateLogBO.getModule(), e);
+            }
         });
     }
 
