@@ -222,7 +222,7 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
         String natureName = CourseFormat.getNatureName(subjectDO.getNature());
         String name = subjectDO.getName();
         courseMapper.delete(new UpdateWrapper<CourseDO>().eq("id", courseId).eq("teacher_id", userId));
-        if(courseMapper.selectCount(new QueryWrapper<CourseDO>().eq("subject_id",courseDO.getSubjectId()))==1){
+        if(courseMapper.selectCount(new QueryWrapper<CourseDO>().eq("subject_id",courseDO.getSubjectId()))==0){
             subjectMapper.delete(new QueryWrapper<SubjectDO>().eq("id",courseDO.getSubjectId()));
             localCacheManager.invalidateCache(null,courseCacheConstants.SUBJECT_LIST);
         }
@@ -236,11 +236,13 @@ public class CourseDeleteGatewayImpl implements CourseDeleteGateway {
             taskDOList = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().in(true, "cour_inf_id", list));
         }
         if (!taskDOList.isEmpty()) {
-            formRecordMapper.delete(new QueryWrapper<FormRecordDO>().in(true, "task_id", list));
+//            formRecordMapper.delete(new QueryWrapper<FormRecordDO>().in(true, "task_id", list));
+            formRecordMapper.delete(new QueryWrapper<FormRecordDO>().in(true, "task_id", taskDOList.stream().map(EvaTaskDO::getId).toList()));
         }
-        List<Integer> list1 = courInfoIds.stream().map(CourInfDO::getId).toList();
-        if (!list1.isEmpty()) {
-            evaTaskMapper.delete(new UpdateWrapper<EvaTaskDO>().in("cour_inf_id", taskDOList.stream().map(EvaTaskDO::getId).toList()));
+//        List<Integer> list1 = courInfoIds.stream().map(CourInfDO::getId).toList();
+        if (!list.isEmpty()) {
+//            evaTaskMapper.delete(new UpdateWrapper<EvaTaskDO>().in("cour_inf_id", taskDOList.stream().map(EvaTaskDO::getId).toList()));
+            evaTaskMapper.delete(new UpdateWrapper<EvaTaskDO>().in("cour_inf_id", list));
         }
         Map<Integer, Integer> mapEva = new HashMap<>();
         for (EvaTaskDO i : taskDOList) {

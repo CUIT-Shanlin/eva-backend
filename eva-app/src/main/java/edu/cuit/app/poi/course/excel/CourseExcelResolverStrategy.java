@@ -1,4 +1,4 @@
-package edu.cuit.app.poi.course;
+package edu.cuit.app.poi.course.excel;
 
 import edu.cuit.client.bo.CourseExcelBO;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -10,6 +10,7 @@ import java.util.List;
 /**
  * 课程表格解析
  */
+@Deprecated
 public abstract class CourseExcelResolverStrategy {
 
     protected InputStream excelFileStream;
@@ -19,5 +20,4 @@ public abstract class CourseExcelResolverStrategy {
      * @return 课程列表
      */
     public abstract List<CourseExcelBO> readData() throws IOException, InvalidFormatException;
-
 }

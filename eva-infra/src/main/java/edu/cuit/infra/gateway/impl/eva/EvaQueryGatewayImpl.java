@@ -1510,16 +1510,11 @@ public class EvaQueryGatewayImpl implements EvaQueryGateway {
             return 0;
         }
 
-        List<EvaTaskDO> getCached=localCacheManager.getCache(evaCacheConstants.TASK_LIST_BY_TEACH,sysUserMapper.selectById(teacherId).getName());
-        if(CollectionUtil.isEmpty(getCached)) {
-            List<EvaTaskDO> evaTaskDOS = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id", teacherId).in("id", evaIds));
-            localCacheManager.putCache(evaCacheConstants.TASK_LIST_BY_TEACH,sysUserMapper.selectById(teacherId).getName(),evaTaskDOS);
-            getCached=localCacheManager.getCache(evaCacheConstants.TASK_LIST_BY_TEACH,sysUserMapper.selectById(teacherId).getName());
-        }
-        if(CollectionUtil.isEmpty(getCached)){
+        List<EvaTaskDO> evaTaskDOS = evaTaskMapper.selectList(new QueryWrapper<EvaTaskDO>().eq("teacher_id", teacherId).in("id", evaIds));
+        if(CollectionUtil.isEmpty(evaTaskDOS)){
             return 0;
         }
-        List<Integer> taskIds=getCached.stream().map(EvaTaskDO::getId).toList();
+        List<Integer> taskIds=evaTaskDOS.stream().map(EvaTaskDO::getId).toList();
         if(CollectionUtil.isEmpty(taskIds)){
             return 0;
         }

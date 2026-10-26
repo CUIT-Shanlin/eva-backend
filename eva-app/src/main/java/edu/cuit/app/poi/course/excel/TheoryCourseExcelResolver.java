@@ -1,4 +1,4 @@
-package edu.cuit.app.poi.course;
+package edu.cuit.app.poi.course.excel;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.cola.exception.BizException;
@@ -6,16 +6,24 @@ import edu.cuit.app.poi.course.util.ExcelCourseUtils;
 import edu.cuit.app.poi.util.ExcelUtils;
 import edu.cuit.client.bo.CourseExcelBO;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.CellRangeAddress;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 理论课excel读取实现
  */
+@Deprecated
 public class TheoryCourseExcelResolver extends CourseExcelResolverStrategy {
 
     /**
@@ -25,8 +33,7 @@ public class TheoryCourseExcelResolver extends CourseExcelResolverStrategy {
     private final List<Integer> startRows = new ArrayList<>(List.of(5));
     private int endRow;
 
-    // 星期开始列
-    private final static Integer WEEK_START = 1;
+    private static final Integer WEEK_START = 1;
 
     private Sheet sheet;
 
@@ -41,41 +48,38 @@ public class TheoryCourseExcelResolver extends CourseExcelResolverStrategy {
         return read();
     }
 
-    // 读取节数单元格开始的行数
     private void readStartRow() {
         int count;
-        for (count = 0;count < 5;count++) {
+        for (count = 0; count < 5; count++) {
             CellRangeAddress cra = ExcelUtils.getMergerCellRegionRow(sheet, startRows.get(count), 0);
-            if (cra == null)
+            if (cra == null) {
                 throw new BizException("理论课程表格格式有误");
+            }
             startRows.add(cra.getLastRow() + 1);
         }
         CellRangeAddress cra = ExcelUtils.getMergerCellRegionRow(sheet, startRows.get(5), 0);
-        if (cra == null)
+        if (cra == null) {
             throw new BizException("理论课程表格格式有误");
+        }
         endRow = cra.getLastRow();
     }
 
     private List<CourseExcelBO> read() {
-
-        Map<CourseExcelBO,List<CourseExcelBO>> courses = new HashMap<>();
+        Map<CourseExcelBO, List<CourseExcelBO>> courses = new HashMap<>();
         int rowCount = startRows.get(0);
         for (int i = rowCount; i <= endRow; i++) {
             List<CourseExcelBO> courseExcelBOS = readLine(i, getTime(i));
 
             for (CourseExcelBO courseExcelBO : courseExcelBOS) {
-                courses.putIfAbsent(courseExcelBO,new ArrayList<>());
+                courses.putIfAbsent(courseExcelBO, new ArrayList<>());
                 courses.get(courseExcelBO).add(courseExcelBO);
             }
-
         }
 
         List<CourseExcelBO> result = new ArrayList<>();
-
         for (List<CourseExcelBO> sameCourse : courses.values()) {
             result.addAll(ExcelCourseUtils.mergeMultipleCourses(sameCourse));
         }
-
         return result;
     }
 
@@ -85,15 +89,20 @@ public class TheoryCourseExcelResolver extends CourseExcelResolverStrategy {
      * @param startTime 开始节数
      * @return 键为星期数(从1开始)
      */
-    private List<CourseExcelBO> readLine(int rowIndex,int startTime) {
+    @Deprecated
+    private List<CourseExcelBO> readLine(int rowIndex, int startTime) {
         Row row = sheet.getRow(rowIndex);
         List<CourseExcelBO> results = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             int startColumn = i * 9 + WEEK_START;
             Cell courseNameCell = row.getCell(startColumn);
-            if (courseNameCell == null || courseNameCell.getCellType() == CellType.BLANK) continue;
+            if (courseNameCell == null || courseNameCell.getCellType() == CellType.BLANK) {
+                continue;
+            }
             String courseName = ExcelUtils.getCellStringValue(courseNameCell);
-            if (StrUtil.isBlank(courseName)) continue;
+            if (StrUtil.isBlank(courseName)) {
+                continue;
+            }
             String teacherName = ExcelUtils.getCellStringValue(row.getCell(startColumn + 2));
             String profTitle = ExcelUtils.getCellStringValue(row.getCell(startColumn + 3));
             String weeksStr = ExcelUtils.getCellStringValue(row.getCell(startColumn + 5));
@@ -112,7 +121,9 @@ public class TheoryCourseExcelResolver extends CourseExcelResolverStrategy {
             courseExcelBO.setStartTime(startTime);
             if (startTime == 12 || startTime == 9) {
                 courseExcelBO.setEndTime(startTime);
-            } else courseExcelBO.setEndTime(startTime + 1);
+            } else {
+                courseExcelBO.setEndTime(startTime + 1);
+            }
             results.add(courseExcelBO);
         }
         return results;
@@ -126,11 +137,10 @@ public class TheoryCourseExcelResolver extends CourseExcelResolverStrategy {
      */
     private Integer getTime(int rowIndex) {
         for (int i = 0; i < startRows.size() - 1; i++) {
-            if (startRows.get(i) <= rowIndex && startRows.get(i+1) > rowIndex) {
+            if (startRows.get(i) <= rowIndex && startRows.get(i + 1) > rowIndex) {
                 return i >= 5 ? i * 2 : i * 2 + 1;
             }
         }
         return 12;
     }
-
 }

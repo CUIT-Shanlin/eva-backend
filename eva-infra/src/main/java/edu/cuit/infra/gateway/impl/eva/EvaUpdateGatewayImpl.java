@@ -131,6 +131,10 @@ public class EvaUpdateGatewayImpl implements EvaUpdateGateway {
         }
 
         //为防止用户不小心没填分数提交，则进行判断，传过来每一个指标分数不能为0，最低为1，也不能为空
+        //判断指标是否为空
+        if(cmd.getFormPropsValues().size()==0){
+            throw new UpdateException("如果您没有显示评教指标，又刚刚切换了学期后，立马点“进行评教”后退出又立马点了“我的消息”进入的此页面，请退出此页面，保证是当前学期后，再点击“进行评教”里面的未完成的评教任务即可恢复正常");
+        }
 
 
         formRecordDO.setFormPropsValues(JSONUtil.toJsonStr(cmd.getFormPropsValues()));
